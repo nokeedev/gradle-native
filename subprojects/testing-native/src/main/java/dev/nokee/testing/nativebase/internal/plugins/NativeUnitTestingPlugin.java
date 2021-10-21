@@ -47,13 +47,13 @@ import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import dev.nokee.testing.base.TestSuiteContainer;
+import dev.nokee.testing.base.internal.IsTestComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
 import lombok.val;
-import lombok.var;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -64,14 +64,13 @@ import org.gradle.api.model.ObjectFactory;
 
 import java.util.Optional;
 
-import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
-import static dev.nokee.model.internal.core.ModelNodes.*;
+import static dev.nokee.model.internal.core.ModelNodes.discover;
+import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -86,7 +85,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 		val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
 		val registry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(NativeTestSuite.class), (NodeRegistrationFactory) name -> nativeTestSuite(name, project));
+		registry.registerFactory(of(NativeTestSuite.class), (ModelRegistrationFactory) name -> nativeTestSuite(name, project));
 
 		project.afterEvaluate(proj -> {
 			// TODO: We delay as late as possible to "fake" a finalize action.
@@ -96,76 +95,100 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 	}
 
-	private static NodeRegistration nativeTestSuite(String name, Project project) {
+	private static ModelRegistration nativeTestSuite(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultNativeTestSuiteComponent.class, ProjectIdentifier.of(project));
-		return NodeRegistration.unmanaged(name, of(DefaultNativeTestSuiteComponent.class), () -> new DefaultNativeTestSuiteComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class)))
+		val entityPath = ModelPath.path(identifier.getName().get());
+		return ModelRegistration.builder()
+			.withComponent(entityPath)
+			.withComponent(createdUsing(of(DefaultNativeTestSuiteComponent.class), () -> new DefaultNativeTestSuiteComponent(identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class))))
+			.withComponent(IsTestComponent.tag())
 			.withComponent(IsComponent.tag())
-			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
-				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
-			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
-				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
-			.action(allDirectDescendants(mutate(of(ObjectiveCppSourceSet.class)))
-				.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)))
+			.withComponent(identifier)
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(ObjectiveCSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(ObjectiveCppSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCppGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
 			// TODO: Choose a better component sources
-			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+				private boolean alreadyExecuted = false;
+				@Override
+				public void execute(ModelNode entity, ModelPath path, ModelState state) {
+					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+						alreadyExecuted = true;
+						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCApplicationSources.class));
+						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCApplicationSources.class));
 
-				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
-				val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+						val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
 
-				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
+						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
-				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
+						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("implementation"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("compileOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("linkOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("runtimeOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
-					.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("implementation"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("compileOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("linkOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("runtimeOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
+							.build());
 
-				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeTestSuiteVariant.class));
-			})))
-			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
-				component.finalizeExtension(project);
-				component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
+						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeTestSuiteVariant.class));
+					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path)) {
+					val registry = project.getExtensions().getByType(ModelRegistry.class);
+					val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
+					component.finalizeExtension(project);
+					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
-				val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-				component.getBuildVariants().get().forEach(buildVariant -> {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeTestSuiteVariant.class).build();
+					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
+					component.getBuildVariants().get().forEach(buildVariant -> {
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeTestSuiteVariant.class).build();
 
-					val variant = ModelNodeUtils.register(entity, nativeTestSuiteVariant(variantIdentifier, component, project));
-					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(DefaultNativeTestSuiteVariant.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
-				});
-				entity.addComponent(new Variants(variants.build()));
-			})))
+						val variant = ModelNodeUtils.register(entity, nativeTestSuiteVariant(variantIdentifier, component, project));
+						variants.put(buildVariant, ModelNodes.of(variant));
+						onEachVariantDependencies(variant.as(DefaultNativeTestSuiteVariant.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
+					});
+					entity.addComponent(new Variants(variants.build()));
+				}
+			}))
+			.build()
 			;
 	}
 
