@@ -21,6 +21,8 @@ import dev.nokee.ide.xcode.internal.XcodeIdeRequest;
 import dev.nokee.ide.xcode.internal.rules.CreateNativeComponentXcodeIdeProject;
 import dev.nokee.ide.xcode.internal.tasks.SyncXcodeIdeProduct;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -29,6 +31,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import lombok.val;
@@ -124,7 +127,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentXcodeIdeProject(extension, project.getProviders(), project.getObjects(), project.getLayout(), project.getTasks(), ProjectIdentifier.of(project), project.getExtensions().getByType(ModelLookup.class));
-				modelConfigurer.configure(matching(ModelSpecs.of(ModelNodes.stateAtLeast(ModelState.Registered).and(withType(getComponentImplementationType()))), once(executeAsKnownProjection(getComponentImplementationType(), action))));
+				modelConfigurer.configure(matching(ModelSpecs.of(ModelNodes.stateAtLeast(ModelState.Registered).and(withType(getComponentImplementationType()))), once(ModelActionWithInputs.of(ModelComponentReference.of(IsComponent.class), (entity, tag) -> executeAsKnownProjection(getComponentImplementationType(), action).execute(entity)))));
 			}
 
 			private ModelType<BaseComponent<?>> getComponentImplementationType() {
