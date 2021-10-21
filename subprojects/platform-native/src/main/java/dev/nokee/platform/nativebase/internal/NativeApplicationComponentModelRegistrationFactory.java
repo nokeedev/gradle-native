@@ -43,6 +43,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -66,61 +67,87 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 		this.project = project;
 	}
 
-	public NodeRegistration create(String name) {
-		return NodeRegistration.unmanaged(name, of(componentType), () -> project.getObjects().newInstance(implementationComponentType))
+	public ModelRegistration create(ComponentIdentifier<?> identifier) {
+		val entityPath = ModelPath.path(identifier.getPath().toString().replace(':', '.').substring(1));
+		val name = entityPath.getName();
+		return ModelRegistration.builder()
+			.withComponent(entityPath)
+			.withComponent(createdUsing(of(componentType), () -> project.getObjects().newInstance(implementationComponentType)))
+			.withComponent(identifier)
+			.withComponent(IsComponent.tag())
 			// TODO: Should configure FileCollection on CApplication
 			//   and link FileCollection to source sets
-			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class)))
-				.apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
-			.withComponent(IsComponent.tag())
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(ComponentName.of(name))).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
 			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(name, project)))
-			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+				private boolean alreadyExecuted = false;
+				@Override
+				public void execute(ModelNode entity, ModelPath path, ModelState state) {
+					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+						alreadyExecuted = true;
+						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-				sourceRegistration.accept(entity, path);
+						sourceRegistration.accept(entity, path);
 
-				val identifier = ComponentIdentifier.of(ComponentName.of(name), DefaultNativeApplicationComponent.class, ProjectIdentifier.of(project));
-				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
-				val dependencies = project.getObjects().newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
-				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
+						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+						val dependencies = project.getObjects().newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
+						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("implementation"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("compileOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("linkOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
-					.build());
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("runtimeOnly"))
-					.withComponent(IsDependencyBucket.tag())
-					.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
-					.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
-					.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
-					.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("implementation"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("compileOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("linkOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
+							.build());
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("runtimeOnly"))
+							.withComponent(IsDependencyBucket.tag())
+							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
+							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
+							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
+							.build());
 
-				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeApplication.class));
+						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeApplication.class));
 
-				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
-			})))
-			.action(self(stateOf(ModelState.Realized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
-			})))
-			.action(self(stateOf(ModelState.Finalized)).apply(new CalculateNativeApplicationVariantAction(project)))
+						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
+					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+				private boolean alreadyExecuted = false;
+				@Override
+				public void execute(ModelNode entity, ModelPath path, ModelState state) {
+					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+						alreadyExecuted = true;
+						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
+					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path)) {
+					new CalculateNativeApplicationVariantAction(project).execute(entity, path);
+				}
+			}))
+			.build()
 			;
 	}
 

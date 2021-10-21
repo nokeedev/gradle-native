@@ -19,6 +19,7 @@ import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.ComponentContainer;
@@ -68,9 +69,8 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(SwiftApplication.class), name -> swiftApplication(name, project));
-		val componentProvider = components.register("main", SwiftApplication.class, configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(swiftApplication("main", project)).as(SwiftApplication.class);
+		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -81,7 +81,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getExtensions().add(SwiftApplication.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration swiftApplication(String name, Project project) {
+	public static ModelRegistration swiftApplication(String name, Project project) {
 		return new NativeApplicationComponentModelRegistrationFactory(SwiftApplication.class, DefaultSwiftApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -94,7 +94,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftApplicationSources.class));
-		}).create(name);
+		}).create(ComponentIdentifier.of(ComponentName.of(name), SwiftApplication.class, ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultSwiftApplication implements SwiftApplication

@@ -19,7 +19,6 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -27,7 +26,6 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
@@ -38,7 +36,6 @@ import java.io.File;
 import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.swift.internal.plugins.SwiftApplicationPlugin.swiftApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -50,7 +47,7 @@ public class SwiftApplicationTest implements SourceAwareComponentTester<SwiftApp
 	public SwiftApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val component = create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), swiftApplication(componentName, project)).as(SwiftApplication.class).get();
+		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftApplication(componentName, project)).as(SwiftApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize
 		return component;
 	}
