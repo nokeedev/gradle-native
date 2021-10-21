@@ -18,7 +18,6 @@ package dev.nokee.platform.ios;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -26,7 +25,6 @@ import lombok.val;
 
 import java.util.stream.Stream;
 
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin.objectiveCIosApplication;
 
 class ObjectiveCIosApplicationSourcesTest implements ComponentSourcesTester<ObjectiveCIosApplicationSources> {
@@ -34,7 +32,7 @@ class ObjectiveCIosApplicationSourcesTest implements ComponentSourcesTester<Obje
 	public ObjectiveCIosApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (ObjectiveCIosApplicationSources) create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), objectiveCIosApplication("main", project)).as(ObjectiveCIosApplication.class).get().getSources();
+		val sources = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication("main", project)).as(ObjectiveCIosApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}

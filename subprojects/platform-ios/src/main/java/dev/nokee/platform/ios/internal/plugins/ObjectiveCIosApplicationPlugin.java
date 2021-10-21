@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.c.CHeaderSet;
@@ -22,9 +23,11 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.IosApplication;
@@ -54,10 +57,7 @@ import org.gradle.util.GUtil;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
@@ -79,10 +79,8 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(ObjectiveCIosApplication.class), (NodeRegistrationFactory) name -> objectiveCIosApplication(name, project));
-		val componentProvider = components.register("main", ObjectiveCIosApplication.class, configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication("main", project)).as(ObjectiveCIosApplication.class);
+		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants())));
 		project.getExtensions().add(ObjectiveCIosApplication.class, EXTENSION_NAME, componentProvider.get());
 
 		// Other configurations
@@ -113,7 +111,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		};
 	}
 
-	public static NodeRegistration objectiveCIosApplication(String name, Project project) {
+	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
 		return new IosApplicationComponentModelRegistrationFactory(ObjectiveCIosApplication.class, DefaultObjectiveCIosApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -142,11 +140,13 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCIosApplicationSources.class));
-		})
-			.create(name)
-			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
-				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
-			;
+
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(ObjectiveCSourceSet.class)), (e, p, ignored, projection) -> {
+				if (path.isDescendant(p)) {
+					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
+				}
+			}));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ObjectiveCIosApplication.class, ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication

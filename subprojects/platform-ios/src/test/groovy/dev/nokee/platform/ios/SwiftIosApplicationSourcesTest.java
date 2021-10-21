@@ -17,7 +17,6 @@ package dev.nokee.platform.ios;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -25,7 +24,6 @@ import lombok.val;
 
 import java.util.stream.Stream;
 
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
 
 class SwiftIosApplicationSourcesTest implements ComponentSourcesTester<SwiftIosApplicationSources> {
@@ -33,7 +31,7 @@ class SwiftIosApplicationSourcesTest implements ComponentSourcesTester<SwiftIosA
 	public SwiftIosApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
-		val sources = (SwiftIosApplicationSources) create((DefaultModelRegistry) project.getExtensions().getByType(ModelRegistry.class), swiftIosApplication("main", project)).as(SwiftIosApplication.class).get().getSources();
+		val sources = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication("main", project)).as(SwiftIosApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
 	}
