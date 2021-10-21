@@ -475,11 +475,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 
-		// TODO: Use the ComponentContainer instead of ModelRegistry
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		val registry = ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class);
-		registry.registerFactory(of(JavaNativeInterfaceLibrary.class), (NodeRegistrationFactory) name -> javaNativeInterfaceLibrary(name, project));
-		val componentProvider = components.register("main", JavaNativeInterfaceLibrary.class, configureUsingProjection(JniLibraryComponentInternal.class, baseNameConvention(project.getName())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(javaNativeInterfaceLibrary("main", project)).as(JavaNativeInterfaceLibrary.class);
+		componentProvider.configure(configureUsingProjection(JniLibraryComponentInternal.class, baseNameConvention(project.getName())));
 		val library = componentProvider.get();
 
 		val dependencies = library.getDependencies();
@@ -513,91 +510,116 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		return library;
 	}
 
-	public static NodeRegistration javaNativeInterfaceLibrary(String name, Project project) {
+	public static ModelRegistration javaNativeInterfaceLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
 		assert identifier.isMainComponent();
-		return NodeRegistration.unmanaged(name, of(JavaNativeInterfaceLibrary.class), () -> project.getObjects().newInstance(DefaultJavaNativeInterfaceLibrary.class))
-			.action(allDirectDescendants(mutate(of(LanguageSourceSet.class))).apply(executeUsingProjection(of(LanguageSourceSet.class), withConventionOf(maven(ComponentName.of(name)))::accept)))
+		val entityPath = ModelPath.path(name);
+		return ModelRegistration.builder()
+			.withComponent(entityPath)
+			.withComponent(identifier)
+			.withComponent(createdUsing(of(JavaNativeInterfaceLibrary.class), () -> project.getObjects().newInstance(DefaultJavaNativeInterfaceLibrary.class)))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(createdUsing(of(JavaNativeInterfaceComponentVariants.class), () -> {
 				val component = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), JniLibraryComponentInternal.class);
 				return new JavaNativeInterfaceComponentVariants(project.getObjects(), component, project.getConfigurations(), project.getDependencies(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(VariantViewFactory.class), project.getExtensions().getByType(VariantRepository.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class));
 			}))
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskRegistry.class))))
-			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+				private boolean alreadyExecuted = false;
 
-				// TODO: Should be created using CHeaderSetSpec
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("jni"))
-					.withComponent(IsLanguageSourceSet.tag())
-					.withComponent(managed(of(CHeaderSet.class)))
-					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-					.build());
+				@Override
+				public void execute(ModelNode entity, ModelPath path, ModelState state) {
+					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+						alreadyExecuted = true;
+						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-				// TODO: Should be created using CHeaderSetSpec
-				// TODO: ONLY if applying include language plugin
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("headers"))
-					.withComponent(IsLanguageSourceSet.tag())
-					.withComponent(managed(of(CHeaderSet.class)))
-					.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-					.build());
+						// TODO: Should be created using CHeaderSetSpec
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("jni"))
+							.withComponent(IsLanguageSourceSet.tag())
+							.withComponent(managed(of(CHeaderSet.class)))
+							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+							.build());
 
-				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), JavaNativeInterfaceLibrarySources.class));
+						// TODO: Should be created using CHeaderSetSpec
+						// TODO: ONLY if applying include language plugin
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("headers"))
+							.withComponent(IsLanguageSourceSet.tag())
+							.withComponent(managed(of(CHeaderSet.class)))
+							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
+							.build());
 
-				val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
-				val dependencies = project.getObjects().newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("dependencies"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(ModelProjections.ofInstance(dependencies))
-					.build());
+						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), JavaNativeInterfaceLibrarySources.class));
 
-				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), JniLibrary.class));
+						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+						val dependencies = project.getObjects().newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("dependencies"))
+							.withComponent(IsModelProperty.tag())
+							.withComponent(ModelProjections.ofInstance(dependencies))
+							.build());
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("binaries"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(BinaryView.class), () -> {
-						return ModelNodeUtils.get(entity, JniLibraryComponentInternal.class).getBinaries();
-					}))
-					.build());
+						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), JniLibrary.class));
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(path.child("targetMachines"))
-					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(of(SetProperty.class), () -> {
-						return ModelNodeUtils.get(entity, JniLibraryComponentInternal.class).getTargetMachines();
-					}))
-					.build());
-			})))
-			.action(self(stateOf(ModelState.Finalized)).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
-				component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(component.getVariants()::get)));
-				component.finalizeValue();
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("binaries"))
+							.withComponent(IsModelProperty.tag())
+							.withComponent(createdUsing(of(BinaryView.class), () -> {
+								return ModelNodeUtils.get(entity, JniLibraryComponentInternal.class).getBinaries();
+							}))
+							.build());
 
-				val variants = ModelNodeUtils.get(entity, JavaNativeInterfaceComponentVariants.class);
-				variants.getVariantCollection().whenElementKnown(knownVariant -> {
-					val variant = registry.register(ModelRegistration.builder()
-						.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
-						.withComponent(IsVariant.tag())
-						.withComponent(knownVariant.getIdentifier())
-						.withComponent(createdUsing(of(JniLibraryInternal.class), () -> knownVariant.map(noOpTransformer()).get()))
-						.build());
-					knownVariant.configure(it -> {
-						ModelStates.realize(ModelNodes.of(variant));
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("targetMachines"))
+							.withComponent(IsModelProperty.tag())
+							.withComponent(createdUsing(of(SetProperty.class), () -> {
+								return ModelNodeUtils.get(entity, JniLibraryComponentInternal.class).getTargetMachines();
+							}))
+							.build());
+					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path)) {
+					val registry = project.getExtensions().getByType(ModelRegistry.class);
+					val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
+					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(component.getVariants()::get)));
+					component.finalizeValue();
+
+					val variants = ModelNodeUtils.get(entity, JavaNativeInterfaceComponentVariants.class);
+					variants.getVariantCollection().whenElementKnown(knownVariant -> {
+						val variant = registry.register(ModelRegistration.builder()
+							.withComponent(path.child(knownVariant.getIdentifier().getUnambiguousName()))
+							.withComponent(IsVariant.tag())
+							.withComponent(knownVariant.getIdentifier())
+							.withComponent(createdUsing(of(JniLibraryInternal.class), () -> knownVariant.map(noOpTransformer()).get()))
+							.build());
+						knownVariant.configure(it -> {
+							ModelStates.realize(ModelNodes.of(variant));
+						});
 					});
-				});
-			})))
+				}
+			}))
 
 			// TODO: This convention is only good is to support older Gradle style source set
 			//   We could deprecate this behaviour by creating additional source set named objc/objcpp and warn when there's sources in them... that would fail some tests because we don't expect a source set... we could also just remove it...
-			.action(allDirectDescendants(mutate(of(ObjectiveCSourceSet.class)))
-				.apply(executeUsingProjection(of(ObjectiveCSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name)))::accept)))
-			.action(allDirectDescendants(mutate(of(ObjectiveCppSourceSet.class)))
-				.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(ObjectiveCSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(ObjectiveCppSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDescendant(path)) {
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCppGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+				}
+			}))
+			.build()
 			;
 	}
 
