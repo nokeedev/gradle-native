@@ -118,6 +118,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 		, ModelBackedSourceAwareComponentMixIn<CLibrarySources>
 		, ModelBackedBinaryAwareComponentMixIn
+		, ModelBackedTaskAwareComponentMixIn
 	{
 		@Override
 		public CSourceSet getCSources() {

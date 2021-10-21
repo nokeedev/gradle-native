@@ -17,5 +17,5 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.platform.base.*;
 
-public interface NativeLibraryExtension extends Component, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<NativeLibrarySources>, HasBaseName {
+public interface NativeLibraryExtension extends Component, DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<NativeLibrarySources>, TaskAwareComponent, HasBaseName {
 }

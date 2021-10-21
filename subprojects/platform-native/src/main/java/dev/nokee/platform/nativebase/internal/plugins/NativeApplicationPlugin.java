@@ -152,6 +152,8 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
+				registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(path.child("tasks")));
+
 				val dependencies = variantDependencies.getDependencies();
 				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 
@@ -225,6 +227,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<NativeApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn
+		, ModelBackedTaskAwareComponentMixIn
 	{
 	}
 

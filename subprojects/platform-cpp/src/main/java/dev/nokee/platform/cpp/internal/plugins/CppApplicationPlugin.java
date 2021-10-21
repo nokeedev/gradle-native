@@ -111,6 +111,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<CppApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn
+		, ModelBackedTaskAwareComponentMixIn
 	{
 		@Override
 		public CppSourceSet getCppSources() {

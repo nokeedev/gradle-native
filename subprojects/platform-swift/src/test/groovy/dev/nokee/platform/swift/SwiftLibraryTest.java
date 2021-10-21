@@ -22,6 +22,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
@@ -29,6 +30,7 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -39,7 +41,15 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.swift.internal.plugins.SwiftLibraryPlugin.swiftLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SwiftLibraryTest implements SourceAwareComponentTester<SwiftLibrary>, HasBaseNameTester, ComponentTester<SwiftLibrary>, DependencyAwareComponentTester<NativeLibraryComponentDependencies>, VariantAwareComponentTester<VariantView<NativeLibrary>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasSwiftSourcesTester {
+public class SwiftLibraryTest implements ComponentTester<SwiftLibrary>
+	, SourceAwareComponentTester<SwiftLibrary>
+	, HasBaseNameTester
+	, DependencyAwareComponentTester<NativeLibraryComponentDependencies>
+	, VariantAwareComponentTester<VariantView<NativeLibrary>>
+	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
+	, HasSwiftSourcesTester
+{
 	private final SwiftLibrary subject = createSubject("peso");
 	@Getter @TempDir File testDirectory;
 

@@ -25,6 +25,7 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -32,6 +33,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -43,7 +45,16 @@ import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
-class ObjectiveCIosApplicationTest implements SourceAwareComponentTester<ObjectiveCIosApplication>, HasBaseNameTester, ComponentTester<ObjectiveCIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasObjectiveCSourcesTester, HasPrivateHeadersTester {
+class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosApplication>
+	, SourceAwareComponentTester<ObjectiveCIosApplication>
+	, HasBaseNameTester
+	, DependencyAwareComponentTester<NativeComponentDependencies>
+	, VariantAwareComponentTester<VariantView<NativeApplication>>
+	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
+	, HasObjectiveCSourcesTester
+	, HasPrivateHeadersTester
+{
 	private final ObjectiveCIosApplication subject = createSubject("bovi");
 	@Getter @TempDir File testDirectory;
 

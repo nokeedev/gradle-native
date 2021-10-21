@@ -22,6 +22,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
@@ -29,6 +30,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -39,7 +41,15 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class SwiftIosApplicationTest implements SourceAwareComponentTester<SwiftIosApplication>, HasBaseNameTester, ComponentTester<SwiftIosApplication>, DependencyAwareComponentTester<NativeComponentDependencies>, VariantAwareComponentTester<VariantView<NativeApplication>>, BinaryAwareComponentTester<BinaryView<Binary>>, HasSwiftSourcesTester {
+class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
+	, SourceAwareComponentTester<SwiftIosApplication>
+	, HasBaseNameTester
+	, DependencyAwareComponentTester<NativeComponentDependencies>
+	, VariantAwareComponentTester<VariantView<NativeApplication>>
+	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
+	, HasSwiftSourcesTester
+{
 	private final SwiftIosApplication subject = createSubject("foma");
 	@Getter @TempDir File testDirectory;
 

@@ -104,6 +104,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, ModelBackedSourceAwareComponentMixIn<SwiftIosApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn
+		, ModelBackedTaskAwareComponentMixIn
 	{
 		@Override
 		public SwiftSourceSet getSwiftSources() {

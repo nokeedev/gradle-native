@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.Variant;
 
 /**
@@ -24,5 +25,5 @@ import dev.nokee.platform.base.Variant;
  *
  * @since 0.4
  */
-public interface NativeApplication extends Variant, DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent {
+public interface NativeApplication extends Variant, DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, TaskAwareComponent {
 }

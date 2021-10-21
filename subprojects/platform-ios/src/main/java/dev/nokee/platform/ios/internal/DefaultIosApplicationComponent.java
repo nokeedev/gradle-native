@@ -80,7 +80,13 @@ import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
-public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, Component, ModelBackedSourceAwareComponentMixIn<ComponentSources>, ModelBackedVariantAwareComponentMixIn<DefaultIosApplicationVariant>, ModelBackedBinaryAwareComponentMixIn {
+public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements Component
+	, DependencyAwareComponent<NativeComponentDependencies>
+	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
+	, ModelBackedVariantAwareComponentMixIn<DefaultIosApplicationVariant>
+	, ModelBackedBinaryAwareComponentMixIn
+	, ModelBackedTaskAwareComponentMixIn
+{
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
 	private final DomainObjectEventPublisher eventPublisher;

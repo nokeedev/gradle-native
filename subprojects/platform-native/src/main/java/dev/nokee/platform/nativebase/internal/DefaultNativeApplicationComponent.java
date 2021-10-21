@@ -47,7 +47,13 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 
-public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements DependencyAwareComponent<NativeApplicationComponentDependencies>, BinaryAwareComponent, Component, ModelBackedSourceAwareComponentMixIn<ComponentSources>, ModelBackedVariantAwareComponentMixIn<DefaultNativeApplicationVariant>, ModelBackedBinaryAwareComponentMixIn {
+public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements Component
+	, DependencyAwareComponent<NativeApplicationComponentDependencies>
+	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
+	, ModelBackedVariantAwareComponentMixIn<DefaultNativeApplicationVariant>
+	, ModelBackedBinaryAwareComponentMixIn
+	, ModelBackedTaskAwareComponentMixIn
+{
 	private final TaskRegistry taskRegistry;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultNativeApplicationVariant> developmentVariant;

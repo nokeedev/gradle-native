@@ -56,7 +56,11 @@ import static dev.nokee.runtime.core.Coordinates.toCoordinateSet;
 import static dev.nokee.utils.TransformerUtils.collect;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 
-public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, BinaryAwareComponent, Component, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>, ModelBackedBinaryAwareComponentMixIn {
+public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements Component
+	, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>
+	, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
+	, ModelBackedBinaryAwareComponentMixIn
+{
 	@Getter private final GroupId groupId;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final BinaryView<Binary> binaries;
