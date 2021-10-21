@@ -68,7 +68,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 	}
 
 	public ModelRegistration create(ComponentIdentifier<?> identifier) {
-		val entityPath = ModelPath.path(identifier.getPath().toString().replace(':', '.').substring(1));
+		val entityPath = ModelPath.path(identifier.getName().get());
 		val name = entityPath.getName();
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
