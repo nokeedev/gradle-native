@@ -19,9 +19,9 @@ import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -65,9 +65,8 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(SwiftLibrary.class), name -> swiftLibrary(name, project));
-		val componentProvider = components.register("main", SwiftLibrary.class, configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(swiftLibrary("main", project)).as(SwiftLibrary.class);
+		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -79,7 +78,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(SwiftLibrary.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration swiftLibrary(String name, Project project) {
+	public static ModelRegistration swiftLibrary(String name, Project project) {
 		return new NativeLibraryComponentModelRegistrationFactory(SwiftLibrary.class, DefaultSwiftLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -92,7 +91,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftLibrarySources.class));
-		}).create(name);
+		}).create(ComponentIdentifier.of(ComponentName.of(name), SwiftLibrary.class, ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultSwiftLibrary implements SwiftLibrary

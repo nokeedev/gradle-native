@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.cpp.CppHeaderSet;
@@ -22,9 +23,11 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.HasPublicSourceSet;
@@ -47,10 +50,7 @@ import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
@@ -73,9 +73,8 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
-		val components = project.getExtensions().getByType(ComponentContainer.class);
-		ModelNodeUtils.get(ModelNodes.of(components), NodeRegistrationFactoryRegistry.class).registerFactory(of(ObjectiveCppLibrary.class), name -> objectiveCppLibrary(name, project));
-		val componentProvider = components.register("main", ObjectiveCppLibrary.class, configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCppLibrary("main", project)).as(ObjectiveCppLibrary.class);
+		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
 		val extension = componentProvider.get();
 
 		// Other configurations
@@ -87,7 +86,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getExtensions().add(ObjectiveCppLibrary.class, EXTENSION_NAME, extension);
 	}
 
-	public static NodeRegistration objectiveCppLibrary(String name, Project project) {
+	public static ModelRegistration objectiveCppLibrary(String name, Project project) {
 		return new NativeLibraryComponentModelRegistrationFactory(ObjectiveCppLibrary.class, DefaultObjectiveCppLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -116,8 +115,13 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCppLibrarySources.class));
-		}).create(name).action(allDirectDescendants(mutate(of(ObjectiveCppSourceSet.class)))
-			.apply(executeUsingProjection(of(ObjectiveCppSourceSet.class), withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name)))::accept)));
+
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(ObjectiveCppSourceSet.class)), (e, p, ignored, projection) -> {
+				if (path.isDescendant(p)) {
+					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
+				}
+			}));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ObjectiveCppLibrary.class, ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary
