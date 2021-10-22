@@ -61,30 +61,30 @@ public final class ComponentIdentifier implements DomainObjectIdentifierInternal
 		return name.equals(MAIN_COMPONENT_NAME);
 	}
 
-	public static Builder<Component> builder() {
-		return new Builder<>();
+	public static Builder builder() {
+		return new Builder();
 	}
 
     boolean hasCustomDisplayName() {
 		return !defaultDisplayNameFor(name).equals(displayName);
     }
 
-    public static final class Builder<T extends Component> {
+    public static final class Builder {
 		private ComponentName name;
 		private String displayName;
 		private ProjectIdentifier projectIdentifier;
 
-		public Builder<T> withName(ComponentName name) {
+		public Builder withName(ComponentName name) {
 			this.name = name;
 			return this;
 		}
 
-		public Builder<T> withDisplayName(String displayName) {
+		public Builder withDisplayName(String displayName) {
 			this.displayName = displayName;
 			return this;
 		}
 
-		public Builder<T> withProjectIdentifier(ProjectIdentifier projectIdentifier) {
+		public Builder withProjectIdentifier(ProjectIdentifier projectIdentifier) {
 			this.projectIdentifier = projectIdentifier;
 			return this;
 		}
