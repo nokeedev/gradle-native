@@ -28,7 +28,14 @@ import org.gradle.api.provider.SetProperty;
  *
  * @since 0.1
  */
-public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Component, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, VariantAwareComponent<JniLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, SourceAwareComponent<JavaNativeInterfaceLibrarySources>, HasBaseName {
+public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Component
+	, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>
+	, VariantAwareComponent<JniLibrary>
+	, SourceAwareComponent<JavaNativeInterfaceLibrarySources>
+	, BinaryAwareComponent
+	, TargetMachineAwareComponent
+	, HasBaseName
+{
 	/**
 	 * {@inheritDoc}
 	 */

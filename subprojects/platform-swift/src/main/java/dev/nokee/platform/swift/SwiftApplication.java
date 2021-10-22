@@ -29,5 +29,15 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  *
  * @since 0.5
  */
-public interface SwiftApplication extends SwiftApplicationExtension, Component, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SwiftApplicationSources>, TaskAwareComponent, HasSwiftSources, HasBaseName {
+public interface SwiftApplication extends SwiftApplicationExtension, Component
+	, DependencyAwareComponent<NativeApplicationComponentDependencies>
+	, VariantAwareComponent<NativeApplication>
+	, SourceAwareComponent<SwiftApplicationSources>
+	, BinaryAwareComponent
+	, TaskAwareComponent
+	, TargetMachineAwareComponent
+	, TargetBuildTypeAwareComponent
+	, HasSwiftSources
+	, HasBaseName
+{
 }
