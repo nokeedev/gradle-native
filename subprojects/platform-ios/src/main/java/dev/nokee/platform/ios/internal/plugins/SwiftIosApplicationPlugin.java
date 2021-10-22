@@ -96,7 +96,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftIosApplicationSources.class));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), SwiftIosApplication.class, ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication

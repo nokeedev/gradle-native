@@ -48,7 +48,7 @@ public interface VariantEntityFixture extends NokeeEntitiesFixture {
 	}
 
 	static VariantIdentifier<Variant> onlyVariantOfMainComponent(ProjectIdentifier projectOwner) {
-		VariantIdentifier.Builder<Variant> builder = VariantIdentifier.builder().withType(Variant.class).withComponentIdentifier(ComponentIdentifier.ofMain(Component.class, projectOwner));
+		VariantIdentifier.Builder<Variant> builder = VariantIdentifier.builder().withType(Variant.class).withComponentIdentifier(ComponentIdentifier.ofMain(projectOwner));
 		return builder.build();
 	}
 
@@ -57,7 +57,7 @@ public interface VariantEntityFixture extends NokeeEntitiesFixture {
 	}
 
 	static VariantIdentifier<Variant> aVariantOfMainComponent(ProjectIdentifier projectOwner, String... ambiguousDimensionName) {
-		VariantIdentifier.Builder<Variant> builder = VariantIdentifier.builder().withType(Variant.class).withComponentIdentifier(ComponentIdentifier.ofMain(Component.class, projectOwner));
+		VariantIdentifier.Builder<Variant> builder = VariantIdentifier.builder().withType(Variant.class).withComponentIdentifier(ComponentIdentifier.ofMain(projectOwner));
 		for (String it : ambiguousDimensionName) {
 			builder.withVariantDimension(it, Arrays.asList(it, "dummy"));
 		}

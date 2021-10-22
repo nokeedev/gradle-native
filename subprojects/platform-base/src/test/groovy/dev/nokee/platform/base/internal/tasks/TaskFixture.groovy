@@ -77,7 +77,7 @@ trait TaskFixture {
 	}
 
     DomainObjectIdentifier ownerIdentifier(String name) {
-		return ComponentIdentifier.of(ComponentName.of(name), Component, ProjectIdentifier.of('root'))
+		return ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of('root'))
 	}
 
 	Class<? extends Task> getMyEntityType() {

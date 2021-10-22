@@ -42,8 +42,8 @@ class CreateVariantAwareComponentObjectsLifecycleTaskRuleTest extends Specificat
 		def subject = new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry)
 
 		and:
-		def owner1 = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of('root'))
-		def owner2 = ComponentIdentifier.of(ComponentName.of('test'), Component, ProjectIdentifier.of('root'))
+		def owner1 = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
+		def owner2 = ComponentIdentifier.of(ComponentName.of('test'), ProjectIdentifier.of('root'))
 
 		and:
 		def component = Mock(VariantAwareComponentInternal) {
@@ -78,7 +78,7 @@ class CreateVariantAwareComponentObjectsLifecycleTaskRuleTest extends Specificat
 		def developmentVariantProvider = Mock(Provider)
 
 		and:
-		def owner = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of('root'))
+		def owner = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
 		def component = Stub(VariantAwareComponentInternal) {
 			getIdentifier() >> owner
 			getDevelopmentVariant() >> developmentVariantProvider

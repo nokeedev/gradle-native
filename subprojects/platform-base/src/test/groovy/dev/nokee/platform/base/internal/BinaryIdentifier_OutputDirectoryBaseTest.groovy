@@ -27,7 +27,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, componentIdentifier)
 
 		expect:
@@ -39,7 +39,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by non-main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, componentIdentifier)
 
 		expect:
@@ -51,7 +51,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by variant of single-variant main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withType(Variant).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
 
@@ -64,7 +64,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by variant of single-variant non-main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withType(Variant).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
 
@@ -78,7 +78,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by variant of multi-variant main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withType(Variant).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
 
@@ -91,7 +91,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 	def "can generate output directory base for artifact owned by variant of multi-variant non-main component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withType(Variant).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
 

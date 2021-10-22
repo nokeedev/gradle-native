@@ -187,7 +187,7 @@ class TaskRegistryTest extends Specification {
 
 		and:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def owner = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def owner = ComponentIdentifier.ofMain(projectIdentifier)
 
 		when:
 		register(subject, 'foo', TestableTask, owner)
@@ -210,7 +210,7 @@ class TaskRegistryTest extends Specification {
 
 		and:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def owner = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
+		def owner = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 
 		when:
 		register(subject, 'foo', TestableTask, owner)
@@ -233,7 +233,7 @@ class TaskRegistryTest extends Specification {
 
 		and:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def owner = VariantIdentifier.of('debug', TestableVariant, componentIdentifier)
 
 		when:
@@ -257,7 +257,7 @@ class TaskRegistryTest extends Specification {
 
 		and:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def owner = VariantIdentifier.of('debug', TestableVariant, componentIdentifier)
 
 		when:

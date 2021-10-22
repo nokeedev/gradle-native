@@ -31,12 +31,11 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		when:
-		def identifier = ofMain(TestableComponent, ownerIdentifier)
+		def identifier = ofMain(ownerIdentifier)
 
 		then:
 		identifier.mainComponent
 		identifier.name.get() == 'main'
-		identifier.type == TestableComponent
 		identifier.displayName == 'main component'
 		identifier.projectIdentifier == ownerIdentifier
 		identifier.parentIdentifier.present
@@ -49,12 +48,11 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		when:
-		def identifier = of(componentName, TestableComponent, ownerIdentifier)
+		def identifier = of(componentName, ownerIdentifier)
 
 		then:
 		!identifier.mainComponent
 		identifier.name == componentName
-		identifier.type == TestableComponent
 		identifier.displayName == "component '${componentName.get()}'"
 		identifier.projectIdentifier == ownerIdentifier
 		identifier.parentIdentifier.present
@@ -69,12 +67,11 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		when:
-		def identifier = of(ComponentName.of('main'), TestableComponent, ownerIdentifier)
+		def identifier = of(ComponentName.of('main'), ownerIdentifier)
 
 		then:
 		identifier.mainComponent
 		identifier.name.get() == 'main'
-		identifier.type == TestableComponent
 		identifier.displayName == "main component"
 		identifier.projectIdentifier == ownerIdentifier
 		identifier.parentIdentifier.present
@@ -86,8 +83,8 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		expect:
-		of(ComponentName.of('main'), TestableComponent, ownerIdentifier) == ofMain(TestableComponent, ownerIdentifier)
-		of(ComponentName.of('main'), TestableComponent, ownerIdentifier) != ofMain(AnotherTestableComponent, ownerIdentifier)
+		of(ComponentName.of('main'), ownerIdentifier) == ofMain(ownerIdentifier)
+		of(ComponentName.of('main'), ownerIdentifier) != ofMain(ownerIdentifier)
 	}
 
 	def "components with same name are equals"() {
@@ -95,10 +92,10 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		expect:
-		of(ComponentName.of('test'), TestableComponent, ownerIdentifier) == of(ComponentName.of('test'), TestableComponent, ownerIdentifier)
-		of(ComponentName.of('test'), TestableComponent, ownerIdentifier) != of(ComponentName.of('test'), AnotherTestableComponent, ownerIdentifier)
-		of(ComponentName.of('integTest'), TestableComponent, ownerIdentifier) == of(ComponentName.of('integTest'), TestableComponent, ownerIdentifier)
-		of(ComponentName.of('integTest'), TestableComponent, ownerIdentifier) != of(ComponentName.of('integTest'), AnotherTestableComponent, ownerIdentifier)
+		of(ComponentName.of('test'), ownerIdentifier) == of(ComponentName.of('test'), ownerIdentifier)
+		of(ComponentName.of('test'), ownerIdentifier) != of(ComponentName.of('test'), ownerIdentifier)
+		of(ComponentName.of('integTest'), ownerIdentifier) == of(ComponentName.of('integTest'), ownerIdentifier)
+		of(ComponentName.of('integTest'), ownerIdentifier) != of(ComponentName.of('integTest'), ownerIdentifier)
 	}
 
 	def "components with different name are not equals"() {
@@ -106,8 +103,8 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		expect:
-		of(ComponentName.of('main'), TestableComponent, ownerIdentifier) != of(ComponentName.of('test'), TestableComponent, ownerIdentifier)
-		of(ComponentName.of('test'), TestableComponent, ownerIdentifier) != of(ComponentName.of('integTest'), TestableComponent, ownerIdentifier)
+		of(ComponentName.of('main'), ownerIdentifier) != of(ComponentName.of('test'), ownerIdentifier)
+		of(ComponentName.of('test'), ownerIdentifier) != of(ComponentName.of('integTest'), ownerIdentifier)
 	}
 
 	def "components with owner are not equals"() {
@@ -116,9 +113,9 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier2 = ProjectIdentifier.of('bar')
 
 		expect:
-		of(ComponentName.of('main'), TestableComponent, ownerIdentifier1) != of(ComponentName.of('main'), TestableComponent, ownerIdentifier2)
-		of(ComponentName.of('test'), TestableComponent, ownerIdentifier1) != of(ComponentName.of('test'), TestableComponent, ownerIdentifier2)
-		ofMain(TestableComponent, ownerIdentifier1) != ofMain(TestableComponent, ownerIdentifier2)
+		of(ComponentName.of('main'), ownerIdentifier1) != of(ComponentName.of('main'), ownerIdentifier2)
+		of(ComponentName.of('test'), ownerIdentifier1) != of(ComponentName.of('test'), ownerIdentifier2)
+		ofMain(ownerIdentifier1) != ofMain(ownerIdentifier2)
 	}
 
 	def "can create identifier using the builder"() {
@@ -126,11 +123,10 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		when:
-		def identifier = builder().withName(ComponentName.of('main')).withType(TestableComponent).withProjectIdentifier(ownerIdentifier).build()
+		def identifier = builder().withName(ComponentName.of('main')).withProjectIdentifier(ownerIdentifier).build()
 
 		then:
 		identifier.name.get() == 'main'
-		identifier.type == TestableComponent
 		identifier.mainComponent
 		identifier.projectIdentifier == ownerIdentifier
 		identifier.parentIdentifier.present
@@ -143,11 +139,10 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		when:
-		def identifier = builder().withName(ComponentName.of('main')).withType(TestableComponent).withDisplayName('custom component').withProjectIdentifier(ownerIdentifier).build()
+		def identifier = builder().withName(ComponentName.of('main')).withDisplayName('custom component').withProjectIdentifier(ownerIdentifier).build()
 
 		then:
 		identifier.name.get() == 'main'
-		identifier.type == TestableComponent
 		identifier.mainComponent
 		identifier.displayName == 'custom component'
 		identifier.projectIdentifier == ownerIdentifier
@@ -160,9 +155,9 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		expect:
-		builder().withName(ComponentName.of('main')).withType(TestableComponent).withProjectIdentifier(ownerIdentifier).build().displayName == 'main component'
-		builder().withName(ComponentName.of('test')).withType(TestableComponent).withProjectIdentifier(ownerIdentifier).build().displayName == "component 'test'"
-		builder().withName(ComponentName.of('integTest')).withType(TestableComponent).withProjectIdentifier(ownerIdentifier).build().displayName == "component 'integTest'"
+		builder().withName(ComponentName.of('main')).withProjectIdentifier(ownerIdentifier).build().displayName == 'main component'
+		builder().withName(ComponentName.of('test')).withProjectIdentifier(ownerIdentifier).build().displayName == "component 'test'"
+		builder().withName(ComponentName.of('integTest')).withProjectIdentifier(ownerIdentifier).build().displayName == "component 'integTest'"
 	}
 
 	def "throws exceptions if name is null when using factory method"() {
@@ -170,7 +165,7 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		when:
-		of(null, TestableComponent, ownerIdentifier)
+		of(null, ownerIdentifier)
 
 		then:
 		thrown(NullPointerException)
@@ -181,12 +176,12 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		when:
-		of(ComponentName.of('test'), null, ownerIdentifier)
+		of(ComponentName.of('test'), ownerIdentifier)
 		then:
 		thrown(NullPointerException)
 
 		when:
-		ofMain(null, ownerIdentifier)
+		ofMain(ownerIdentifier)
 		then:
 		thrown(NullPointerException)
 	}
@@ -196,7 +191,7 @@ class ComponentIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.of('root')
 
 		when:
-		builder().withName(null).withType(TestableComponent).withProjectIdentifier(ownerIdentifier).build()
+		builder().withName(null).withProjectIdentifier(ownerIdentifier).build()
 
 		then:
 		thrown(NullPointerException)
@@ -204,34 +199,28 @@ class ComponentIdentifierTest extends Specification {
 
 	def "throws exceptions if project identifier is null when using factory method"() {
 		when:
-		ofMain(TestableComponent, null)
+		ofMain(null)
 		then:
 		thrown(NullPointerException)
 
 		when:
-		of(ComponentName.of('test'), TestableComponent, null)
+		of(ComponentName.of('test'), null)
 		then:
 		thrown(NullPointerException)
 	}
 
 	def "throws exceptions if project identifier is null when using builder"() {
 		when:
-		builder().withName(ComponentName.of('test')).withType(TestableComponent).build()
+		builder().withName(ComponentName.of('test')).build()
 
 		then:
 		thrown(NullPointerException)
 	}
 
-	def "is type aware"() {
-		expect:
-		ofMain(TestableComponent, ProjectIdentifier.of('foo')) instanceof TypeAwareDomainObjectIdentifier
-		of(ComponentName.of('test'), TestableComponent, ProjectIdentifier.of('foo')) instanceof TypeAwareDomainObjectIdentifier
-	}
-
 	def "is name aware"() {
 		expect:
-		ofMain(TestableComponent, ProjectIdentifier.of('foo')) instanceof NameAwareDomainObjectIdentifier
-		of(ComponentName.of('test'), TestableComponent, ProjectIdentifier.of('foo')) instanceof NameAwareDomainObjectIdentifier
+		ofMain(ProjectIdentifier.of('foo')) instanceof NameAwareDomainObjectIdentifier
+		of(ComponentName.of('test'), ProjectIdentifier.of('foo')) instanceof NameAwareDomainObjectIdentifier
 	}
 
 	def "has meaningful toString() implementation"() {
@@ -240,18 +229,15 @@ class ComponentIdentifierTest extends Specification {
 		def childProject = ProjectBuilder.builder().withName('bar').withParent(rootProject).build()
 
 		expect:
-		ofMain(TestableComponent, ProjectIdentifier.of('foo')).toString() == "component ':main' (${TestableComponent.simpleName})"
-		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of('bar')).toString() == "component ':integTest' (${TestableComponent.simpleName})"
+		ofMain(ProjectIdentifier.of('foo')).toString() == "component ':main'"
+		of(ComponentName.of('integTest'), ProjectIdentifier.of('bar')).toString() == "component ':integTest'"
 
 		and:
-		ofMain(TestableComponent, ProjectIdentifier.of(rootProject)).toString() == "component ':main' (${TestableComponent.simpleName})"
-		ofMain(TestableComponent, ProjectIdentifier.of(childProject)).toString() == "component ':bar:main' (${TestableComponent.simpleName})"
+		ofMain(ProjectIdentifier.of(rootProject)).toString() == "component ':main'"
+		ofMain(ProjectIdentifier.of(childProject)).toString() == "component ':bar:main'"
 
 		and:
-		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of(rootProject)).toString() == "component ':integTest' (${TestableComponent.simpleName})"
-		of(ComponentName.of('integTest'), TestableComponent, ProjectIdentifier.of(childProject)).toString() == "component ':bar:integTest' (${TestableComponent.simpleName})"
+		of(ComponentName.of('integTest'), ProjectIdentifier.of(rootProject)).toString() == "component ':integTest'"
+		of(ComponentName.of('integTest'), ProjectIdentifier.of(childProject)).toString() == "component ':bar:integTest'"
 	}
-
-	interface TestableComponent extends Component {}
-	interface AnotherTestableComponent extends Component {}
 }

@@ -482,7 +482,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val dependencies = library.getDependencies();
 		val configurationRegistry = new ConfigurationBucketRegistryImpl(project.getConfigurations());
 
-		val apiElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("apiElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(JniLibraryComponentInternal.class, ProjectIdentifier.of(project)));
+		val apiElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("apiElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
 		Configuration jvmApiElements = configurationRegistry.createIfAbsent("apiElements", ConfigurationBucketType.CONSUMABLE, configuration -> {
 			configuration.setDescription(apiElementsIdentifier.getDisplayName());
 			configuration.attributes(attributes -> {
@@ -492,7 +492,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		});
 		jvmApiElements.extendsFrom(dependencies.getApi().getAsConfiguration());
 
-		val runtimeElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(JniLibraryComponentInternal.class, ProjectIdentifier.of(project)));
+		val runtimeElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
 		Configuration jvmRuntimeElements = configurationRegistry.createIfAbsent("runtimeElements", ConfigurationBucketType.CONSUMABLE, configuration -> {
 			configuration.setDescription(runtimeElementsIdentifier.getDisplayName());
 			configuration.attributes(attributes -> {
@@ -511,7 +511,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration javaNativeInterfaceLibrary(String name, Project project) {
-		val identifier = ComponentIdentifier.of(ComponentName.of(name), JniLibraryComponentInternal.class, ProjectIdentifier.of(project));
+		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
 		assert identifier.isMainComponent();
 		val entityPath = ModelPath.path(name);
 		return ModelRegistration.builder()

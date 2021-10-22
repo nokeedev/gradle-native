@@ -23,11 +23,11 @@ import org.gradle.api.Project;
 
 public interface ComponentEntityFixture extends NokeeEntitiesFixture {
 	static ComponentIdentifier<Component> mainComponentIdentifier() {
-		return ComponentIdentifier.ofMain(Component.class, ProjectIdentifier.of("root"));
+		return ComponentIdentifier.ofMain(ProjectIdentifier.of("root"));
 	}
 
 	static ComponentIdentifier<Component> aComponentIdentifier(String name) {
-		return ComponentIdentifier.of(ComponentName.of(name), Component.class, ProjectIdentifier.of("root"));
+		return ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of("root"));
 	}
 
 	Project getProject();

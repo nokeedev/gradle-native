@@ -110,7 +110,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CLibrarySources.class));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), CLibrary.class, ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultCLibrary implements CLibrary

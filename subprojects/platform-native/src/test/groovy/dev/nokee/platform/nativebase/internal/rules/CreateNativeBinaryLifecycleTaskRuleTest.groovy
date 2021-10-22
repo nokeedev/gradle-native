@@ -53,7 +53,7 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 	}
 
 	VariantIdentifier<Variant> newIdentifier(DefaultBuildVariant buildVariant) {
-		return VariantIdentifier.of(buildVariant, Variant, ComponentIdentifier.ofMain(Component, ProjectIdentifier.of('root')))
+		return VariantIdentifier.of(buildVariant, Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of('root')))
 	}
 
 	def "do nothing when build variant does not contain binary linkage"() {
