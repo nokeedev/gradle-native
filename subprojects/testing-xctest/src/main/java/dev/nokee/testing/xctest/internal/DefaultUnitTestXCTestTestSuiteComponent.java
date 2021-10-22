@@ -24,7 +24,6 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -60,7 +59,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 	private final ProjectLayout layout;
 	private final DomainObjectEventPublisher eventPublisher;
 
-	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, objects, providers, tasks, layout, eventPublisher, taskRegistry, taskViewFactory);
 		this.providers = providers;
 		this.taskRegistry = taskRegistry;

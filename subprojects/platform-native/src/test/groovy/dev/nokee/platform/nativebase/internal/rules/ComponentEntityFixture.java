@@ -16,17 +16,16 @@
 package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import org.gradle.api.Project;
 
 public interface ComponentEntityFixture extends NokeeEntitiesFixture {
-	static ComponentIdentifier<Component> mainComponentIdentifier() {
+	static ComponentIdentifier mainComponentIdentifier() {
 		return ComponentIdentifier.ofMain(ProjectIdentifier.of("root"));
 	}
 
-	static ComponentIdentifier<Component> aComponentIdentifier(String name) {
+	static ComponentIdentifier aComponentIdentifier(String name) {
 		return ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of("root"));
 	}
 

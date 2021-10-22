@@ -37,7 +37,7 @@ public interface TaskEntityFixture extends NokeeEntitiesFixture {
 		return TaskIdentifier.of(TaskName.of(name), Task.class, owner);
 	}
 
-	static TaskIdentifier<Task> aTaskOfComponent(String name, ComponentIdentifier<?> owner) {
+	static TaskIdentifier<Task> aTaskOfComponent(String name, ComponentIdentifier owner) {
 		return TaskIdentifier.of(TaskName.of(name), Task.class, owner);
 	}
 }

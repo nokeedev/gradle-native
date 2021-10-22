@@ -70,11 +70,11 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 		return String.join("/", segments);
 	}
 
-	private Optional<ComponentIdentifier<?>> getComponentOwnerIdentifier() {
+	private Optional<ComponentIdentifier> getComponentOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
 			return Optional.of(((VariantIdentifier<?>) ownerIdentifier).getComponentIdentifier());
 		} else if (ownerIdentifier instanceof ComponentIdentifier) {
-			return Optional.of((ComponentIdentifier<?>) ownerIdentifier);
+			return Optional.of((ComponentIdentifier) ownerIdentifier);
 		}
 		return Optional.empty();
 	}

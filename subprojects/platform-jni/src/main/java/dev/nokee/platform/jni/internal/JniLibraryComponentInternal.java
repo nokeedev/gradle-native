@@ -66,7 +66,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier<?> identifier, GroupId groupId, ObjectFactory objects, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
+	public JniLibraryComponentInternal(ComponentIdentifier identifier, GroupId groupId, ObjectFactory objects, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
 		super(identifier, objects);
 		this.groupId = groupId;
 		this.targetMachines = ConfigureUtils.configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");

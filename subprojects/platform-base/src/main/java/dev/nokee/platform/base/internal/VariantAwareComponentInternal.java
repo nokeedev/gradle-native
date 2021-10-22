@@ -21,5 +21,5 @@ import org.gradle.api.provider.Provider;
 
 public interface VariantAwareComponentInternal<T extends Variant> extends VariantAwareComponent<T> {
 	Provider<T> getDevelopmentVariant();
-	ComponentIdentifier<?> getIdentifier();
+	ComponentIdentifier getIdentifier();
 }

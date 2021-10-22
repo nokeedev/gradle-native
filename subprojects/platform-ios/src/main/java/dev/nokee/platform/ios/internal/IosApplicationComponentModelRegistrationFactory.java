@@ -82,7 +82,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		this.project = project;
 	}
 
-	public ModelRegistration create(ComponentIdentifier<?> identifier) {
+	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		return ModelRegistration.builder()
 			.withComponent(entityPath)

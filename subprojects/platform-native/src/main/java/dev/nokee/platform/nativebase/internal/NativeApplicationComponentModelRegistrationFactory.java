@@ -18,11 +18,9 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
@@ -42,9 +40,7 @@ import org.gradle.api.artifacts.Configuration;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
-import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -67,7 +63,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 		this.project = project;
 	}
 
-	public ModelRegistration create(ComponentIdentifier<?> identifier) {
+	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		val name = entityPath.getName();
 		return ModelRegistration.builder()

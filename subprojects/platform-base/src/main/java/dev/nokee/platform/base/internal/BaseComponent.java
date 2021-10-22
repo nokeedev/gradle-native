@@ -31,7 +31,7 @@ import org.gradle.api.provider.SetProperty;
 
 public abstract class BaseComponent<T extends Variant> implements Component, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	@Getter private final ComponentIdentifier<?> identifier;
+	@Getter private final ComponentIdentifier identifier;
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
 	@Getter private final ListProperty<CoordinateSet<?>> dimensions;
@@ -39,7 +39,7 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 
 	@Getter private final Property<String> baseName;
 
-	protected BaseComponent(ComponentIdentifier<?> identifier, ObjectFactory objects) {
+	protected BaseComponent(ComponentIdentifier identifier, ObjectFactory objects) {
 		this.identifier = identifier;
 		this.dimensions = Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(CoordinateSet.class));
 		this.finalSpace = objects.property(CoordinateSpace.class);

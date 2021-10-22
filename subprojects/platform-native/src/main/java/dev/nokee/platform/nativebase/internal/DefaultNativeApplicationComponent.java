@@ -53,7 +53,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	private final Property<DefaultNativeApplicationVariant> developmentVariant;
 
 	@Inject
-	public DefaultNativeApplicationComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public DefaultNativeApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultNativeApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.taskRegistry = taskRegistry;
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);

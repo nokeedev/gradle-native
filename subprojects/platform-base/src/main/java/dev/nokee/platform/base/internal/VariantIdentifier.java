@@ -40,17 +40,17 @@ import static java.util.Objects.requireNonNull;
 public final class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier, TypeAwareDomainObjectIdentifier<T> {
 	@Getter private final String unambiguousName;
 	@Getter private final Class<T> type;
-	@Getter private final ComponentIdentifier<?> componentIdentifier;
+	@Getter private final ComponentIdentifier componentIdentifier;
 	@Getter @EqualsAndHashCode.Exclude private final Dimensions ambiguousDimensions;
 	private final Dimensions dimensions;
 	@EqualsAndHashCode.Exclude private final BuildVariant buildVariant;
 	@EqualsAndHashCode.Exclude private final String fullName;
 
-	public VariantIdentifier(Class<T> type, ComponentIdentifier<?> componentIdentifier, DefaultBuildVariant buildVariant) {
+	public VariantIdentifier(Class<T> type, ComponentIdentifier componentIdentifier, DefaultBuildVariant buildVariant) {
 		this(buildVariant.getName(), type, componentIdentifier, buildVariant.getAmbiguousDimensions(), buildVariant.getAllDimensions(), buildVariant, buildVariant.getAllDimensions().getAsLowerCamelCase().get());
 	}
 
-	public VariantIdentifier(String unambiguousName, Class<T> type, ComponentIdentifier<?> componentIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
+	public VariantIdentifier(String unambiguousName, Class<T> type, ComponentIdentifier componentIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
 		this.unambiguousName = requireNonNull(unambiguousName);
 		this.type = requireNonNull(type);
 		this.componentIdentifier = requireNonNull(componentIdentifier);
@@ -60,11 +60,11 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 		this.fullName = fullName;
 	}
 
-	public static <T extends Variant> VariantIdentifier<T> of(String unambiguousName, Class<T> type, ComponentIdentifier<?> identifier) {
+	public static <T extends Variant> VariantIdentifier<T> of(String unambiguousName, Class<T> type, ComponentIdentifier identifier) {
 		return new VariantIdentifier<>(unambiguousName, type, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
 	}
 
-	public static <T extends Variant> VariantIdentifier<T> of(BuildVariant buildVariant, Class<T> type, ComponentIdentifier<?> identifier) {
+	public static <T extends Variant> VariantIdentifier<T> of(BuildVariant buildVariant, Class<T> type, ComponentIdentifier identifier) {
 		String unambiguousName = createUnambiguousName(buildVariant);
 		Dimensions ambiguousDimensions = Dimensions.of(createAmbiguousDimensionNames(buildVariant));
 		return new VariantIdentifier<>(unambiguousName, type, identifier, ambiguousDimensions, Dimensions.empty(), buildVariant, unambiguousName);
@@ -91,7 +91,7 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 	}
 
 	@Override
-	public Optional<? extends ComponentIdentifier<?>> getParentIdentifier() {
+	public Optional<? extends ComponentIdentifier> getParentIdentifier() {
 		return Optional.of(componentIdentifier);
 	}
 
@@ -127,7 +127,7 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 	public static class Builder<T extends Variant> {
 		private Dimensions allDimensions = Dimensions.empty();
 		private Dimensions dimensions = Dimensions.empty();
-		private ComponentIdentifier<?> componentIdentifier = null;
+		private ComponentIdentifier componentIdentifier = null;
 		private BuildVariantInternal buildVariant = null;
 		private Class<? extends T> type;
 
@@ -158,7 +158,7 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 			return this;
 		}
 
-		public Builder<T> withComponentIdentifier(ComponentIdentifier<?> componentIdentifier) {
+		public Builder<T> withComponentIdentifier(ComponentIdentifier componentIdentifier) {
 			this.componentIdentifier = componentIdentifier;
 			return this;
 		}

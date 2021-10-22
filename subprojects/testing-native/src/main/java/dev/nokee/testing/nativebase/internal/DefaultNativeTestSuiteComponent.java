@@ -36,7 +36,6 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -109,7 +108,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final Property<DefaultNativeTestSuiteVariant> developmentVariant;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
 		super(identifier, DefaultNativeTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.objects = objects;
 		this.providers = providers;

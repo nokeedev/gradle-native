@@ -53,7 +53,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	private final Property<DefaultNativeLibraryVariant> developmentVariant;
 
 	@Inject
-	public DefaultNativeLibraryComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultNativeLibraryVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.developmentVariant = objects.property(DefaultNativeLibraryVariant.class);

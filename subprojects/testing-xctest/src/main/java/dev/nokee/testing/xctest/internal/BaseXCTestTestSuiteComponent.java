@@ -26,7 +26,6 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.BundleBinary;
@@ -73,7 +72,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	private final SetProperty<BuildVariantInternal> buildVariants;
 	private final Property<DefaultXCTestTestSuiteVariant> developmentVariant;
 
-	public BaseXCTestTestSuiteComponent(ComponentIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.providers = providers;
 		this.layout = layout;
