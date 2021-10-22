@@ -30,7 +30,7 @@ import dev.nokee.platform.nativebase.*;
  */
 public interface CppLibrary extends CppLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
-	, VariantAwareComponent<NativeLibrary>
+	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>
 	, SourceAwareComponent<CppLibrarySources>
 	, BinaryAwareComponent
 	, TaskAwareComponent

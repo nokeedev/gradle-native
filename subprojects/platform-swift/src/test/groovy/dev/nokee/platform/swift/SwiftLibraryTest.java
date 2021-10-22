@@ -53,6 +53,7 @@ public class SwiftLibraryTest implements ComponentTester<SwiftLibrary>
 	, BinaryAwareComponentTester<BinaryView<Binary>>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasSwiftSourcesTester
+	, HasDevelopmentVariantTester
 {
 	private final SwiftLibrary subject = createSubject("peso");
 	@Getter @TempDir File testDirectory;

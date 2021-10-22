@@ -53,17 +53,15 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	, ModelBackedVariantAwareComponentMixIn<DefaultNativeLibraryVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, HasDevelopmentVariant<DefaultNativeLibraryVariant>
+	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeLibraryVariant>
 {
 	private final TaskRegistry taskRegistry;
 	private final SetProperty<BuildVariantInternal> buildVariants;
-	private final Property<DefaultNativeLibraryVariant> developmentVariant;
 
 	@Inject
 	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultNativeLibraryVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
-		this.developmentVariant = objects.property(DefaultNativeLibraryVariant.class);
 		this.taskRegistry = taskRegistry;
 	}
 
@@ -89,7 +87,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Override
 	public Property<DefaultNativeLibraryVariant> getDevelopmentVariant() {
-		return developmentVariant;
+		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
 	}
 
 	@Override

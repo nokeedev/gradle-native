@@ -58,6 +58,7 @@ class CppLibraryTest implements ComponentTester<CppLibrary>
 	, HasCppSourcesTester
 	, HasPrivateHeadersTester
 	, HasPublicHeadersTester
+	, HasDevelopmentVariantTester
 {
 	private final CppLibrary subject = createSubject("gori");
 	@Getter @TempDir File testDirectory;

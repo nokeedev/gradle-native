@@ -86,7 +86,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	, ModelBackedVariantAwareComponentMixIn<DefaultIosApplicationVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, HasDevelopmentVariant<DefaultIosApplicationVariant>
+	, ModelBackedHasDevelopmentVariantMixIn<DefaultIosApplicationVariant>
 {
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
@@ -97,7 +97,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final ProjectLayout layout;
 	private final ConfigurationContainer configurations;
 	@Getter private final Property<String> moduleName;
-	private final Property<DefaultIosApplicationVariant> developmentVariant;
 	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	@Inject
@@ -111,7 +110,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.eventPublisher = eventPublisher;
 		this.groupId = objects.property(GroupId.class);
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
-		this.developmentVariant = objects.property(DefaultIosApplicationVariant.class);
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE)));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.named("Default"))));
@@ -142,7 +140,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	public Property<DefaultIosApplicationVariant> getDevelopmentVariant() {
-		return developmentVariant;
+		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
 	}
 
 	@Override

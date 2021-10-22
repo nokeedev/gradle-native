@@ -31,7 +31,10 @@ import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.ComponentSources;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -45,7 +48,6 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
@@ -97,7 +99,7 @@ import static java.util.stream.Collectors.toList;
 public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<DefaultNativeTestSuiteVariant>
-	, HasDevelopmentVariant<DefaultNativeTestSuiteVariant>
+	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeTestSuiteVariant>
 {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
@@ -106,7 +108,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final TaskContainer tasks;
 	private final ModelLookup modelLookup;
 	private final SetProperty<BuildVariantInternal> buildVariants;
-	private final Property<DefaultNativeTestSuiteVariant> developmentVariant;
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
@@ -116,7 +117,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
-		this.developmentVariant = objects.property(DefaultNativeTestSuiteVariant.class);
 
 		this.testedComponent = Cast.uncheckedCast(objects.property(BaseComponent.class));
 
@@ -162,7 +162,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Override
 	public Property<DefaultNativeTestSuiteVariant> getDevelopmentVariant() {
-		return developmentVariant;
+		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
 	}
 
 	@Override

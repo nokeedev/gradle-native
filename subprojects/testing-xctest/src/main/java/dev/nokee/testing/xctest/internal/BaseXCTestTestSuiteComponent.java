@@ -64,7 +64,7 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements TestSuiteComponent
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, BinaryAwareComponent
-	, HasDevelopmentVariant<DefaultXCTestTestSuiteVariant>
+	, ModelBackedHasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
 {
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
@@ -74,7 +74,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Getter private final Property<String> moduleName;
 	@Getter private final Property<String> productBundleIdentifier;
 	private final SetProperty<BuildVariantInternal> buildVariants;
-	private final Property<DefaultXCTestTestSuiteVariant> developmentVariant;
 
 	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
@@ -86,7 +85,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		this.moduleName = configureDisplayName(objects.property(String.class), "moduleName");
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
-		this.developmentVariant = objects.property(DefaultXCTestTestSuiteVariant.class).convention(providers.provider(new BuildableDevelopmentVariantConvention<>(() -> getVariants().get())));
 
 		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.BUNDLE)));
 		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
@@ -109,7 +107,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 
 	@Override
 	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
-		return developmentVariant;
+		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
 	}
 
 	@Override

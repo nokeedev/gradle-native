@@ -56,6 +56,7 @@ class CApplicationTest implements ComponentTester<CApplication>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasCSourcesTester
 	, HasPrivateHeadersTester
+	, HasDevelopmentVariantTester
 {
 	private final CApplication subject = createSubject("kdrj");
 	@Getter @TempDir File testDirectory;

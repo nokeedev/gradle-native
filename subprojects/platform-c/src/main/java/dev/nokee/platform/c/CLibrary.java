@@ -30,7 +30,7 @@ import dev.nokee.platform.nativebase.*;
  */
 public interface CLibrary extends CLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
-	, VariantAwareComponent<NativeLibrary>
+	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>
 	, SourceAwareComponent<CLibrarySources>
 	, BinaryAwareComponent
 	, TaskAwareComponent

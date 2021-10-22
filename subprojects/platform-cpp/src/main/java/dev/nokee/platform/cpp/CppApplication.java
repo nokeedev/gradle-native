@@ -32,7 +32,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  */
 public interface CppApplication extends CppApplicationExtension, Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
-	, VariantAwareComponent<NativeApplication>
+	, VariantAwareComponent<NativeApplication>, HasDevelopmentVariant<NativeApplication>
 	, SourceAwareComponent<CppApplicationSources>
 	, BinaryAwareComponent
 	, TaskAwareComponent

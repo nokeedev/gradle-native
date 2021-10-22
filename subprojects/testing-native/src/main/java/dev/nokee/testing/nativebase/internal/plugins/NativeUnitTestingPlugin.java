@@ -30,6 +30,7 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.*;
@@ -63,6 +64,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 
 import java.util.Optional;
 
@@ -171,6 +173,12 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 							.build());
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeTestSuiteVariant.class));
+
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("developmentVariant"))
+							.withComponent(IsModelProperty.tag())
+							.withComponent(createdUsing(of(new TypeOf<Property<NativeTestSuiteVariant>>() {}), () -> project.getObjects().property(NativeTestSuiteVariant.class)))
+							.build());
 					}
 				}
 			}))

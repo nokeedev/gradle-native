@@ -59,6 +59,7 @@ class ObjectiveCppLibraryTest implements ComponentTester<ObjectiveCppLibrary>
 	, HasObjectiveCppSourcesTester
 	, HasPrivateHeadersTester
 	, HasPublicHeadersTester
+	, HasDevelopmentVariantTester
 {
 	private final ObjectiveCppLibrary subject = createSubject("pago");
 	@Getter @TempDir File testDirectory;

@@ -31,7 +31,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  */
 public interface SwiftApplication extends SwiftApplicationExtension, Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
-	, VariantAwareComponent<NativeApplication>
+	, VariantAwareComponent<NativeApplication>, HasDevelopmentVariant<NativeApplication>
 	, SourceAwareComponent<SwiftApplicationSources>
 	, BinaryAwareComponent
 	, TaskAwareComponent

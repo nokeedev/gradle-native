@@ -129,6 +129,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCLibrarySources>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
+		, ModelBackedHasDevelopmentVariantMixIn<NativeLibrary>
 	{
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {

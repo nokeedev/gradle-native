@@ -57,6 +57,7 @@ class ObjectiveCApplicationTest implements ComponentTester<ObjectiveCApplication
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasObjectiveCSourcesTester
 	, HasPrivateHeadersTester
+	, HasDevelopmentVariantTester
 {
 	private final ObjectiveCApplication subject = createSubject("jiro");
 	@Getter @TempDir File testDirectory;

@@ -30,7 +30,7 @@ import dev.nokee.platform.nativebase.*;
  */
 public interface ObjectiveCppLibrary extends ObjectiveCppLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
-	, VariantAwareComponent<NativeLibrary>
+	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>
 	, SourceAwareComponent<ObjectiveCppLibrarySources>
 	, BinaryAwareComponent
 	, TaskAwareComponent

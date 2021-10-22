@@ -24,9 +24,11 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -41,6 +43,8 @@ import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.provider.Property;
+import org.gradle.model.Model;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -123,6 +127,12 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
 							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
 							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
+							.build());
+
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("developmentVariant"))
+							.withComponent(IsModelProperty.tag())
+							.withComponent(createdUsing(of(new TypeOf<Property<NativeApplication>>() {}), () -> project.getObjects().property(NativeApplication.class)))
 							.build());
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeApplication.class));
