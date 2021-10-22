@@ -21,6 +21,8 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.HasDevelopmentVariant;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -29,6 +31,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.utils.DeferUtils;
 import lombok.val;
 import org.gradle.api.Task;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -63,13 +66,13 @@ public final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInpu
 		// The "component" assemble task was most likely added by the 'lifecycle-base' plugin
 		//   then we configure the dependency.
 		//   Note that the dependency may already exists for single variant component but it's not a big deal.
-		val component = providers.provider(() -> ModelNodeUtils.get(entity, DefaultNativeApplicationComponent.class));
-		val developmentVariant = component.flatMap(DefaultNativeApplicationComponent::getDevelopmentVariant);
+		val component = providers.provider(() -> ModelNodeUtils.get(entity, HasDevelopmentVariant.class));
+		Provider<? extends Variant> developmentVariant = component.flatMap(HasDevelopmentVariant::getDevelopmentVariant);
 		val logger = new WarnUnbuildableLogger(identifier);
 		val taskIdentifier = TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier);
 		val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(taskIdentifier.getTaskName(), Task.class);
 		val task = modelRegistry.register(ModelRegistration.builder()
-				.withComponent(ModelPath.path(taskIdentifier.getPath().toString().replace(':', '.').substring(1)))
+				.withComponent(ModelPath.path(identifier.getName() + "." + taskIdentifier.getName()))
 				.withComponent(taskIdentifier)
 				.withComponent(IsTask.tag())
 				.withComponent(createdUsing(ModelType.of(Task.class), taskProvider::get))

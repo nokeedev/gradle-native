@@ -31,10 +31,7 @@ import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -97,7 +94,11 @@ import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINA
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
 
-public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite, ModelBackedSourceAwareComponentMixIn<ComponentSources>, ModelBackedVariantAwareComponentMixIn<DefaultNativeTestSuiteVariant> {
+public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite
+	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
+	, ModelBackedVariantAwareComponentMixIn<DefaultNativeTestSuiteVariant>
+	, HasDevelopmentVariant<DefaultNativeTestSuiteVariant>
+{
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 	@Getter Property<BaseComponent<?>> testedComponent;

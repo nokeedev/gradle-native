@@ -53,6 +53,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	, ModelBackedVariantAwareComponentMixIn<DefaultNativeApplicationVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
+	, HasDevelopmentVariant<DefaultNativeApplicationVariant>
 {
 	private final TaskRegistry taskRegistry;
 	private final SetProperty<BuildVariantInternal> buildVariants;
