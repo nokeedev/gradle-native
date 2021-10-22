@@ -146,7 +146,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
 				}
 			}));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C iOS application").withProjectIdentifier(ProjectIdentifier.of(project)).build());
 	}
 
 	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication
