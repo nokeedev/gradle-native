@@ -91,7 +91,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftLibrarySources.class));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Swift library").withProjectIdentifier(ProjectIdentifier.of(project)).build());
 	}
 
 	public static abstract class DefaultSwiftLibrary implements SwiftLibrary

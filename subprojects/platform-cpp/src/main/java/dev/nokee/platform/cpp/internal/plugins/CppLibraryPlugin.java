@@ -110,7 +110,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CppLibrarySources.class));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C++ library").withProjectIdentifier(ProjectIdentifier.of(project)).build());
 	}
 
 	public static abstract class DefaultCppLibrary implements CppLibrary

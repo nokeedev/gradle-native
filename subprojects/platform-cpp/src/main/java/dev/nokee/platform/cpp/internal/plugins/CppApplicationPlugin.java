@@ -103,7 +103,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CppApplicationSources.class));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C++ application").withProjectIdentifier(ProjectIdentifier.of(project)).build());
 	}
 
 	public static abstract class DefaultCppApplication implements CppApplication
