@@ -25,6 +25,7 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -52,6 +53,7 @@ import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
+import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.IsTestComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
@@ -125,7 +127,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration unitTestXCTestTestSuite(String name, Project project) {
-		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		val entityPath = ModelPath.path(name);
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
@@ -216,6 +218,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
 				}
 			}))
+			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -265,7 +268,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration uiTestXCTestTestSuite(String name, Project project) {
-		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		val entityPath = ModelPath.path(name);
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
@@ -355,6 +358,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
 				}
 			}))
+			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path)) {
 					val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);

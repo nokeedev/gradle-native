@@ -19,6 +19,7 @@ import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsTask;
@@ -78,5 +79,7 @@ public final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInpu
 		task.configure(configureDependsOn(developmentVariant.flatMap(TO_DEVELOPMENT_BINARY).map(Arrays::asList)
 			.orElse(DeferUtils.executes(onlyOnce(logger::warn)))));
 		task.configure(configureDescription("Assembles the outputs of the %s.", identifier));
+
+		taskProvider.configure(it -> ModelStates.realize(ModelNodes.of(task)));
 	}
 }

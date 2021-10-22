@@ -27,3 +27,9 @@ gradlePlugin {
 		}
 	}
 }
+
+test {
+	dependencies {
+		implementation testFixtures(project(':platformBase'))
+	}
+}
