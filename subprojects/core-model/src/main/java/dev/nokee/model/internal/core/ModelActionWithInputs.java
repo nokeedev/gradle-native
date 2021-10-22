@@ -87,6 +87,23 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1);
 	}
 
+	public static abstract class ModelAction2<I0, I1> extends ModelActionWithInputs {
+		private final ModelComponentReference<I0> i0 = ModelComponentReference.of((Class<I0>)new TypeToken<I0>(getClass()) {}.getRawType());
+		private final ModelComponentReference<I1> i1 = ModelComponentReference.of((Class<I1>)new TypeToken<I1>(getClass()) {}.getRawType());
+
+		@Override
+		public final void execute(ModelNode node, List<?> inputs) {
+			execute(node, (I0) inputs.get(0), (I1) inputs.get(1));
+		}
+
+		protected abstract void execute(ModelNode entity, I0 i0, I1 i1);
+
+		@Override
+		public final List<? extends ModelComponentReference<?>> getInputs() {
+			return ImmutableList.of(i0, i1);
+		}
+	}
+
 	public static <I0, I1, I2> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, A3<? super I0, ? super I1, ? super I2> action) {
 		return new ModelActionWithInputs() {
 			@Override

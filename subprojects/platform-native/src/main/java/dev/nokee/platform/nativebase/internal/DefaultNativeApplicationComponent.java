@@ -120,7 +120,6 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(NativeApplication.class)), (entity, variantIdentifier, variantProjection) -> {
 			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(NativeApplication.class), entity));
 		}));
-		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {
