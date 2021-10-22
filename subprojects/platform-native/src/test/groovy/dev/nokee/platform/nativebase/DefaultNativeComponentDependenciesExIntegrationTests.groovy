@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase
 
 import dev.nokee.fixtures.AbstractComponentDependenciesIntegrationTest
 import dev.nokee.fixtures.AbstractLocalDarwinFrameworkDependenciesIntegrationTest
+import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies
@@ -44,7 +45,7 @@ class DefaultNativeComponentDependenciesIntegrationTest extends AbstractComponen
 @Subject(DefaultNativeComponentDependencies)
 class DefaultNativeComponentDependenciesLocalDarwinFrameworkIntegrationTest extends AbstractLocalDarwinFrameworkDependenciesIntegrationTest {
 	@Override
-	protected newDependencies(DomainObjectIdentifierInternal identifier) {
+	protected newDependencies(DomainObjectIdentifier identifier) {
 		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)))
 		return project.objects.newInstance(DefaultNativeComponentDependencies, dependencyContainer)
 	}

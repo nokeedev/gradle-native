@@ -868,9 +868,9 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 		resolveAllVariants('plugin creates configurations on demand')
 
 		expect:
-		project.configurations.api.description == "API dependencies for main component."
-		project.configurations.jvmImplementation.description == "Jvm implementation dependencies for main component."
-		project.configurations.jvmRuntimeOnly.description == "Jvm runtime only dependencies for main component."
+		project.configurations.api.description == "API dependencies for component ':main'."
+		project.configurations.jvmImplementation.description == "Jvm implementation dependencies for component ':main'."
+		project.configurations.jvmRuntimeOnly.description == "Jvm runtime only dependencies for component ':main'."
 
 		and:
 		// Conditional comparision of the description is required when the Java or Groovy language plugins are used as Nokee won't overwrite the description already defined.
@@ -882,14 +882,14 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 		if (getClass().simpleName.contains('Java') || getClass().simpleName.contains('Groovy')) {
 			return 'API elements for main.'
 		}
-		return 'API elements for main component.'
+		return "API elements for component ':main'."
 	}
 
 	protected String getExpectedRuntimeElementsDescription() {
 		if (getClass().simpleName.contains('Java') || getClass().simpleName.contains('Groovy')) {
 			return 'Elements of runtime for main.'
 		}
-		return 'Runtime elements for main component.'
+		return "Runtime elements for component ':main'."
 	}
 
 	def "native configurations has description"() {
@@ -898,11 +898,11 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 		resolveAllVariants('plugin creates configurations on demand')
 
 		expect:
-		project.configurations.nativeImplementation.description == 'Native implementation dependencies for main component.'
-		project.configurations.nativeLinkOnly.description == 'Native link only dependencies for main component.'
-		project.configurations.nativeRuntimeOnly.description == 'Native runtime only dependencies for main component.'
-		project.configurations.nativeLinkLibraries.description == 'Native link libraries for main component.'
-		project.configurations.nativeRuntimeLibraries.description == 'Native runtime libraries for main component.'
+		project.configurations.nativeImplementation.description == "Native implementation dependencies for component ':main'."
+		project.configurations.nativeLinkOnly.description == "Native link only dependencies for component ':main'."
+		project.configurations.nativeRuntimeOnly.description == "Native runtime only dependencies for component ':main'."
+		project.configurations.nativeLinkLibraries.description == "Native link libraries for component ':main'."
+		project.configurations.nativeRuntimeLibraries.description == "Native runtime libraries for component ':main'."
 	}
 }
 

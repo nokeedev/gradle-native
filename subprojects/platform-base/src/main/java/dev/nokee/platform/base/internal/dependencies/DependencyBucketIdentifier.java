@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.DependencyBucket;
@@ -29,6 +30,7 @@ import org.gradle.util.GUtil;
 import org.gradle.util.Path;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -82,7 +84,15 @@ public class DependencyBucketIdentifier<T extends DependencyBucket> implements D
 		if (!ConsumableDependencyBucket.class.isAssignableFrom(type) && !ResolvableDependencyBucket.class.isAssignableFrom(type)) {
 			builder.append(" dependencies");
 		}
-		builder.append(" for ").append(((DomainObjectIdentifierInternal) ownerIdentifier).getDisplayName()).append(".");
+		builder.append(" for ");
+		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
+			builder.append(((DomainObjectIdentifierInternal) ownerIdentifier).getDisplayName());
+		} else if (ownerIdentifier instanceof ComponentIdentifier) {
+			builder.append(ownerIdentifier);
+		} else {
+			builder.append("<unknown>");
+		}
+		builder.append(".");
 		return builder.toString();
 	}
 
@@ -111,7 +121,19 @@ public class DependencyBucketIdentifier<T extends DependencyBucket> implements D
 		return StringUtils.uncapitalize(segments.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
 
-	public static <T extends DependencyBucket> DependencyBucketIdentifier<T> of(DependencyBucketName name, Class<T> type, DomainObjectIdentifierInternal ownerIdentifier) {
+	public static <T extends DependencyBucket> DependencyBucketIdentifier<T> of(DependencyBucketName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		return new DependencyBucketIdentifier<>(name, type, ownerIdentifier);
+	}
+
+	@Override
+	public Iterator<Object> iterator() {
+		val builder = ImmutableList.builder();
+		getComponentOwnerIdentifier().ifPresent(identifier -> {
+			builder.add(identifier.getProjectIdentifier());
+			builder.add(identifier);
+		});
+		getVariantOwnerIdentifier().ifPresent(builder::add);
+		builder.add(this);
+		return builder.build().iterator();
 	}
 }

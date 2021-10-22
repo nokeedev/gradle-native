@@ -15,4 +15,4 @@
  */
 package dev.nokee.model;
 
-public interface DomainObjectIdentifier {}
+public interface DomainObjectIdentifier extends Iterable<Object> {}

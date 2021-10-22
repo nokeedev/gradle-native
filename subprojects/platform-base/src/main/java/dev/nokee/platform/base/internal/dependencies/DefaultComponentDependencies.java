@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DependencyBucket;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,13 +33,13 @@ import java.util.Optional;
 
 // DO NOT EXTEND THIS CLASS, extends BaseComponentDependencies
 public abstract class DefaultComponentDependencies implements ComponentDependenciesInternal, ExtensionAware {
-	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
+	@Getter private final DomainObjectIdentifier ownerIdentifier;
 	private final DependencyBucketFactory factory;
 	@Getter(AccessLevel.PROTECTED) private final DomainObjectSet<DependencyBucket> buckets;
 
 	@Inject
 	@Deprecated // use ObjectFactory
-	public DefaultComponentDependencies(DomainObjectIdentifierInternal ownerIdentifier, DependencyBucketFactory factory, ObjectFactory objects) {
+	public DefaultComponentDependencies(DomainObjectIdentifier ownerIdentifier, DependencyBucketFactory factory, ObjectFactory objects) {
 		this.ownerIdentifier = ownerIdentifier;
 		this.factory = factory;
 		this.buckets = objects.domainObjectSet(DependencyBucket.class);

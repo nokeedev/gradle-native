@@ -34,9 +34,9 @@ class ProjectIdentifierTest extends Specification {
 
 	def "has display name"() {
 		expect:
-		of('root').displayName == "project ':'"
-		of('foo').displayName == "project ':'"
-		of('bar').displayName == "project ':'"
+		of('root').displayName == "project ':root'"
+		of('foo').displayName == "project ':foo'"
+		of('bar').displayName == "project ':bar'"
 	}
 
 	def "can create identifier for root project without name"() {

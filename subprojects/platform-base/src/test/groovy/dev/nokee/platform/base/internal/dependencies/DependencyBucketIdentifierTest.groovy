@@ -15,13 +15,13 @@
  */
 package dev.nokee.platform.base.internal.dependencies
 
+import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
-import dev.nokee.platform.base.Component
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.DependencyBucket
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
@@ -30,7 +30,7 @@ import spock.lang.Subject
 class DependencyBucketIdentifierTest extends Specification {
 	def "can create identifier owned by a project using factory method"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def bucketName = DependencyBucketName.of('implementation')
 
 		when:
@@ -46,7 +46,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "can create identifier owned by a component using factory method"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def bucketName = DependencyBucketName.of('implementation')
 
@@ -63,7 +63,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "can create identifier owned by a variant using factory method"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
 		def bucketName = DependencyBucketName.of('implementation')
@@ -81,7 +81,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "configuration name for project owned identifier is the same as bucket name"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 
 		expect:
 		identifier('implementation', projectIdentifier).configurationName == 'implementation'
@@ -91,7 +91,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "configuration name for main component owned identifier is the same as bucket name"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		expect:
@@ -102,7 +102,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "configuration name for non-main component owned identifier starts with component name"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 
 		expect:
@@ -113,7 +113,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "configuration name for variant owned identifier of main component starts with unambiguous variant name"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', Variant, componentIdentifier)
 
@@ -125,7 +125,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "configuration name for variant owned identifier of non-main component starts with component name followed by unambiguous variant name"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', Variant, componentIdentifier)
 
@@ -137,7 +137,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "configuration name for unique variant owned identifier of main component is the same as bucket name"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('', Variant, componentIdentifier)
 
@@ -149,7 +149,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "configuration name for unique variant owned identifier of non-main component starts with component name"() {
 		given:
-		def projectIdentifier = ProjectIdentifier.of('root')
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('', Variant, componentIdentifier)
 
@@ -170,7 +170,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "throws exception when bucket type is null"() {
 		when:
-		DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), null, ProjectIdentifier.of('root'))
+		DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), null, ProjectIdentifier.ofRootProject())
 
 		then:
 		def ex = thrown(IllegalArgumentException)
@@ -195,7 +195,7 @@ class DependencyBucketIdentifierTest extends Specification {
 		ex.message == 'Cannot construct a dependency identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier and VariantIdentifier are accepted.'
 	}
 
-	private static DependencyBucketIdentifier identifier(String name, DomainObjectIdentifierInternal owner) {
+	private static DependencyBucketIdentifier identifier(String name, DomainObjectIdentifier owner) {
 		return DependencyBucketIdentifier.of(DependencyBucketName.of(name), DependencyBucketIdentifierTest.TestableBucket, owner)
 	}
 

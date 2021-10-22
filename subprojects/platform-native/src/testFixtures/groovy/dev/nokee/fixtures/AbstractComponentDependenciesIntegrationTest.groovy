@@ -16,9 +16,9 @@
 package dev.nokee.fixtures
 
 import dev.nokee.internal.testing.util.ProjectTestUtils
+import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
@@ -276,7 +276,7 @@ abstract class AbstractLocalDarwinFrameworkDependenciesIntegrationTest extends S
 	def identifier = ComponentIdentifier.ofMain(ProjectIdentifier.of(project))
 	def dependencies = newDependencies(identifier)
 
-	protected abstract newDependencies(DomainObjectIdentifierInternal identifier)
+	protected abstract newDependencies(DomainObjectIdentifier identifier)
 
 	protected abstract List<String> getBucketsUnderTest()
 
@@ -427,7 +427,7 @@ abstract class AbstractLibraryComponentDependenciesIntegrationTest extends Speci
 	def identifier = ComponentIdentifier.ofMain(ProjectIdentifier.of(project))
 	def dependencies = newDependencies(identifier)
 
-	protected abstract newDependencies(DomainObjectIdentifierInternal identifier)
+	protected abstract newDependencies(DomainObjectIdentifier identifier)
 
 	protected abstract String getApiBucketNameUnderTest()
 

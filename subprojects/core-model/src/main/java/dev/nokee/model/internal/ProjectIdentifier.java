@@ -15,11 +15,13 @@
  */
 package dev.nokee.model.internal;
 
+import com.google.common.collect.Iterators;
 import lombok.EqualsAndHashCode;
 import lombok.var;
 import org.gradle.api.Project;
 import org.gradle.util.Path;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 @EqualsAndHashCode(doNotUseGetters = true)
@@ -46,7 +48,7 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 	}
 
 	public static ProjectIdentifier of(String name) {
-		return new ProjectIdentifier(Path.ROOT, name);
+		return new ProjectIdentifier(Path.ROOT.child(name), name);
 	}
 
 	public static ProjectIdentifier ofRootProject() {
@@ -73,5 +75,10 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 	@Override
 	public String toString() {
 		return "project '" + getPath() + "'";
+	}
+
+	@Override
+	public Iterator<Object> iterator() {
+		return Iterators.forArray(this);
 	}
 }

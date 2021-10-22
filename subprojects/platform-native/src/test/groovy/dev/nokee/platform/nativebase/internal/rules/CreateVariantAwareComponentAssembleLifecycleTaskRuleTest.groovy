@@ -30,7 +30,7 @@ class CreateVariantAwareComponentAssembleLifecycleTaskRuleTest extends Specifica
 	Project project = ProjectTestUtils.rootProject()
 	def subject = new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry)
 
-	VariantAwareComponentInternal<?> aComponent(ComponentIdentifier<?> identifier) {
+	VariantAwareComponentInternal<?> aComponent(ComponentIdentifier identifier) {
 		return Stub(VariantAwareComponentInternal) {
 			getIdentifier() >> identifier
 		}
@@ -38,9 +38,6 @@ class CreateVariantAwareComponentAssembleLifecycleTaskRuleTest extends Specifica
 
 	@Unroll
 	def "creates the assemble task if absent"(component) {
-		given:
-		discovered(component)
-
 		when:
 		subject.execute(aComponent(component))
 
@@ -55,7 +52,6 @@ class CreateVariantAwareComponentAssembleLifecycleTaskRuleTest extends Specifica
 	@Unroll
 	def "does not configure the assemble task group if already present"(component) {
 		given:
-		discovered(component)
 		def assembleTask = taskRegistry.register(aTaskOfComponent('assemble', component), configureGroup('some group')).get()
 
 		when:
@@ -70,9 +66,6 @@ class CreateVariantAwareComponentAssembleLifecycleTaskRuleTest extends Specifica
 
 	@Unroll
 	def "configures assemble task with a dependency on the buildable variant or warns"(component) {
-		given:
-		discovered(component)
-
 		when:
 		subject.execute(aComponent(component))
 
