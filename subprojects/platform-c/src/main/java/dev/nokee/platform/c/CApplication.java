@@ -30,5 +30,16 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  *
  * @since 0.5
  */
-public interface CApplication extends CApplicationExtension, Component, DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CApplicationSources>, TaskAwareComponent, HasPrivateHeaders, HasCSources, HasBaseName {
+public interface CApplication extends CApplicationExtension, Component
+	, DependencyAwareComponent<NativeApplicationComponentDependencies>
+	, VariantAwareComponent<NativeApplication>
+	, SourceAwareComponent<CApplicationSources>
+	, BinaryAwareComponent
+	, TaskAwareComponent
+	, TargetMachineAwareComponent
+	, TargetBuildTypeAwareComponent
+	, HasPrivateHeaders
+	, HasCSources
+	, HasBaseName
+{
 }

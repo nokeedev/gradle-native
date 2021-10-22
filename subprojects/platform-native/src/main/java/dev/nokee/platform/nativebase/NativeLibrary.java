@@ -25,5 +25,9 @@ import dev.nokee.platform.base.Variant;
  *
  * @since 0.4
  */
-public interface NativeLibrary extends Variant, DependencyAwareComponent<NativeLibraryComponentDependencies>, BinaryAwareComponent, TaskAwareComponent {
+public interface NativeLibrary extends Variant
+	, DependencyAwareComponent<NativeLibraryComponentDependencies>
+	, BinaryAwareComponent
+	, TaskAwareComponent
+{
 }

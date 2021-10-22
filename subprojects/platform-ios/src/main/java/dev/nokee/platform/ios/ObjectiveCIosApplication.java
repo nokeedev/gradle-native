@@ -20,5 +20,15 @@ import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 
-public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtension, Component, DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<ObjectiveCIosApplicationSources>, TaskAwareComponent, HasObjectiveCSources, HasPrivateHeaders, HasIosResources, HasBaseName {
+public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtension, Component
+	, DependencyAwareComponent<NativeComponentDependencies>
+	, VariantAwareComponent<IosApplication>
+	, SourceAwareComponent<ObjectiveCIosApplicationSources>
+	, BinaryAwareComponent
+	, TaskAwareComponent
+	, HasObjectiveCSources
+	, HasPrivateHeaders
+	, HasIosResources
+	, HasBaseName
+{
 }
