@@ -58,6 +58,7 @@ class CLibraryTest implements ComponentTester<CLibrary>
 	, HasCSourcesTester
 	, HasPrivateHeadersTester
 	, HasPublicHeadersTester
+	, HasDevelopmentVariantTester
 {
 	private final CLibrary subject = createSubject("ledk");
 	@Getter @TempDir File testDirectory;

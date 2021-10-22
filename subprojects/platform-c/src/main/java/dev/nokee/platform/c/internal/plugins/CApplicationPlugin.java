@@ -113,6 +113,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		, ModelBackedSourceAwareComponentMixIn<CApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
+		, ModelBackedHasDevelopmentVariantMixIn<NativeApplication>
 	{
 		@Override
 		public CSourceSet getCSources() {

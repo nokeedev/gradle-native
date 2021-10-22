@@ -53,6 +53,7 @@ public class SwiftApplicationTest implements ComponentTester<SwiftApplication>
 	, BinaryAwareComponentTester<BinaryView<Binary>>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasSwiftSourcesTester
+	, HasDevelopmentVariantTester
 {
 	private final SwiftApplication subject = createSubject("cefu");
 	@Getter @TempDir File testDirectory;

@@ -57,6 +57,7 @@ class ObjectiveCppApplicationTest implements ComponentTester<ObjectiveCppApplica
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasObjectiveCppSourcesTester
 	, HasPrivateHeadersTester
+	, HasDevelopmentVariantTester
 {
 	private final ObjectiveCppApplication subject = createSubject("bacu");
 	@Getter @TempDir File testDirectory;

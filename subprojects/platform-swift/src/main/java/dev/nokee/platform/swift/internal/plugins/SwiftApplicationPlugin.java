@@ -103,6 +103,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		, ModelBackedSourceAwareComponentMixIn<SwiftApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
+		, ModelBackedHasDevelopmentVariantMixIn<NativeApplication>
 	{
 		@Override
 		public SwiftSourceSet getSwiftSources() {

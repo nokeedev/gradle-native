@@ -100,6 +100,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		, ModelBackedSourceAwareComponentMixIn<SwiftLibrarySources>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
+		, ModelBackedHasDevelopmentVariantMixIn<NativeLibrary>
 	{
 		@Override
 		public SwiftSourceSet getSwiftSources() {

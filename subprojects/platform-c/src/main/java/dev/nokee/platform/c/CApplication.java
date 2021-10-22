@@ -32,7 +32,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  */
 public interface CApplication extends CApplicationExtension, Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
-	, VariantAwareComponent<NativeApplication>
+	, VariantAwareComponent<NativeApplication>, HasDevelopmentVariant<NativeApplication>
 	, SourceAwareComponent<CApplicationSources>
 	, BinaryAwareComponent
 	, TaskAwareComponent

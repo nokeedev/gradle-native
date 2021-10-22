@@ -56,6 +56,7 @@ class CppApplicationTest implements ComponentTester<CppApplication>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasCppSourcesTester
 	, HasPrivateHeadersTester
+	, HasDevelopmentVariantTester
 {
 	private final CppApplication subject = createSubject("sari");
 	@Getter @TempDir File testDirectory;

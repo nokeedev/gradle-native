@@ -59,6 +59,7 @@ class ObjectiveCLibraryTest implements ComponentTester<ObjectiveCLibrary>
 	, HasObjectiveCSourcesTester
 	, HasPrivateHeadersTester
 	, HasPublicHeadersTester
+	, HasDevelopmentVariantTester
 {
 	private final ObjectiveCLibrary subject = createSubject("weqi");
 	@Getter @TempDir File testDirectory;
