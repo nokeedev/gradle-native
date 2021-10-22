@@ -28,10 +28,10 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class ComponentIdentifier implements DomainObjectIdentifierInternal, NameAwareDomainObjectIdentifier {
+public final class ComponentIdentifier implements DomainObjectIdentifierInternal {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
 	private static final String MAIN_COMPONENT_DEFAULT_DISPLAY_NAME = "main component";
-	@Getter private final ComponentName name;
+	private final ComponentName name;
 	@EqualsAndHashCode.Exclude @Getter private final String displayName;
 	@Getter private final ProjectIdentifier projectIdentifier;
 
@@ -50,6 +50,10 @@ public final class ComponentIdentifier implements DomainObjectIdentifierInternal
 			return ofMain(projectIdentifier);
 		}
 		return new ComponentIdentifier(name, displayNameOf(name.get()), projectIdentifier);
+	}
+
+	public ComponentName getName() {
+		return name;
 	}
 
 	@Override

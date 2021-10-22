@@ -72,9 +72,9 @@ public final class RealizableDomainObjectRealizerImpl implements RealizableDomai
 
 		val resolveChain = new ArrayDeque<DomainObjectIdentifier>();
 		resolveChain.push(identifier);
-		DomainObjectIdentifierInternal currentIdentifier = (DomainObjectIdentifierInternal) identifier;
-		while (currentIdentifier.getParentIdentifier().isPresent()) {
-			currentIdentifier = currentIdentifier.getParentIdentifier().get();
+		DomainObjectIdentifier currentIdentifier = identifier;
+		while (currentIdentifier instanceof DomainObjectIdentifierInternal && ((DomainObjectIdentifierInternal) currentIdentifier).getParentIdentifier().isPresent()) {
+			currentIdentifier = ((DomainObjectIdentifierInternal) currentIdentifier).getParentIdentifier().get();
 			resolveChain.push(currentIdentifier);
 		}
 
