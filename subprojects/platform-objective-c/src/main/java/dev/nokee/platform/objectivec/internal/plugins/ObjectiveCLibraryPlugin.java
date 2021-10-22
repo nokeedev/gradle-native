@@ -120,7 +120,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
 				}
 			}));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), ObjectiveCLibrary.class, ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultObjectiveCLibrary implements ObjectiveCLibrary

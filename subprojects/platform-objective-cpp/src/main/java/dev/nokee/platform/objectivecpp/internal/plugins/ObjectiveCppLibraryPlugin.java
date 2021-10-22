@@ -121,7 +121,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
 				}
 			}));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), ObjectiveCppLibrary.class, ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary

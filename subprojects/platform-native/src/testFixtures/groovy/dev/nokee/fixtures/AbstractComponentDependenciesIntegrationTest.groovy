@@ -44,7 +44,7 @@ abstract class AbstractComponentDependenciesIntegrationTest extends Specificatio
 	def project = ProjectTestUtils.rootProject()
 
 	protected DomainObjectIdentifierInternal newNamingScheme(String variant = '') {
-		return VariantIdentifier.of(variant, Variant, ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project)))
+		return VariantIdentifier.of(variant, Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)))
 	}
 
 	protected newDependencies(String variant = '') {
@@ -273,7 +273,7 @@ abstract class AbstractComponentDependenciesIntegrationTest extends Specificatio
  */
 abstract class AbstractLocalDarwinFrameworkDependenciesIntegrationTest extends Specification {
 	def project = ProjectTestUtils.rootProject()
-	def identifier = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project))
+	def identifier = ComponentIdentifier.ofMain(ProjectIdentifier.of(project))
 	def dependencies = newDependencies(identifier)
 
 	protected abstract newDependencies(DomainObjectIdentifierInternal identifier)
@@ -424,7 +424,7 @@ abstract class AbstractLocalDarwinFrameworkDependenciesIntegrationTest extends S
 
 abstract class AbstractLibraryComponentDependenciesIntegrationTest extends Specification {
 	def project = ProjectTestUtils.rootProject()
-	def identifier = ComponentIdentifier.ofMain(Component, ProjectIdentifier.of(project))
+	def identifier = ComponentIdentifier.ofMain(ProjectIdentifier.of(project))
 	def dependencies = newDependencies(identifier)
 
 	protected abstract newDependencies(DomainObjectIdentifierInternal identifier)

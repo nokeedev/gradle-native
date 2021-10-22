@@ -28,7 +28,7 @@ class BinaryIdentifierTest extends Specification {
 	def "can create identifier owned by variant"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
 
 		when:
@@ -45,7 +45,7 @@ class BinaryIdentifierTest extends Specification {
 	def "can create identifier owned by component"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		when:
 		def result = BinaryIdentifier.of(BinaryName.of('foo'), TestableBinary, componentIdentifier)
@@ -61,7 +61,7 @@ class BinaryIdentifierTest extends Specification {
 	def "throws exception if binary name is null"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
 
 		when:
@@ -75,7 +75,7 @@ class BinaryIdentifierTest extends Specification {
 	def "throws exception if type is null"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
 
 		when:
@@ -114,7 +114,7 @@ class BinaryIdentifierTest extends Specification {
 
 		and:
 		def ownerProject = ProjectIdentifier.of(childProject)
-		def ownerComponent = ComponentIdentifier.ofMain(Component, ownerProject)
+		def ownerComponent = ComponentIdentifier.ofMain(ownerProject)
 		def ownerVariant = VariantIdentifier.of('macosRelease', Variant, ownerComponent)
 
 		expect:

@@ -118,7 +118,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), NativeApplicationExtension.class, ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
 	}
 
 

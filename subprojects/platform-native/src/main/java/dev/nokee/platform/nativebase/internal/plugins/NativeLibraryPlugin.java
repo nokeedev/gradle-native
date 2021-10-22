@@ -125,7 +125,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 				.build());
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeLibrarySources.class));
-		}).create(ComponentIdentifier.of(ComponentName.of(name), NativeLibraryExtension.class, ProjectIdentifier.of(project)));
+		}).create(ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project)));
 	}
 
 	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension

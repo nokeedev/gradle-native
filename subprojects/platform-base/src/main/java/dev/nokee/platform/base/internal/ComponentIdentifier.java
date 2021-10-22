@@ -18,11 +18,9 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Component;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.val;
 import org.gradle.util.Path;
 
 import java.util.Optional;
@@ -30,30 +28,28 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class ComponentIdentifier<T extends Component> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T>, NameAwareDomainObjectIdentifier {
+public final class ComponentIdentifier<T extends Component> implements DomainObjectIdentifierInternal, NameAwareDomainObjectIdentifier {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
 	private static final String MAIN_COMPONENT_DEFAULT_DISPLAY_NAME = "main component";
 	@Getter private final ComponentName name;
-	@Getter private final Class<T> type;
 	@EqualsAndHashCode.Exclude @Getter private final String displayName;
 	@Getter private final ProjectIdentifier projectIdentifier;
 
-	private ComponentIdentifier(ComponentName name, Class<T> type, String displayName, ProjectIdentifier projectIdentifier) {
+	private ComponentIdentifier(ComponentName name, String displayName, ProjectIdentifier projectIdentifier) {
 		this.name = requireNonNull(name);
-		this.type = requireNonNull(type);
 		this.displayName = requireNonNull(displayName);
 		this.projectIdentifier = requireNonNull(projectIdentifier);
 	}
 
-	public static <T extends Component> ComponentIdentifier<T> ofMain(Class<T> type, ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier<>(MAIN_COMPONENT_NAME, type, MAIN_COMPONENT_DEFAULT_DISPLAY_NAME, projectIdentifier);
+	public static <T extends Component> ComponentIdentifier<T> ofMain(ProjectIdentifier projectIdentifier) {
+		return new ComponentIdentifier<>(MAIN_COMPONENT_NAME, MAIN_COMPONENT_DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
-	public static <T extends Component> ComponentIdentifier<T> of(ComponentName name, Class<T> type, ProjectIdentifier projectIdentifier) {
+	public static <T extends Component> ComponentIdentifier<T> of(ComponentName name, ProjectIdentifier projectIdentifier) {
 		if (MAIN_COMPONENT_NAME.equals(name)) {
-			return ofMain(type, projectIdentifier);
+			return ofMain(projectIdentifier);
 		}
-		return new ComponentIdentifier<>(name, type, displayNameOf(name.get()), projectIdentifier);
+		return new ComponentIdentifier<>(name, displayNameOf(name.get()), projectIdentifier);
 	}
 
 	@Override
@@ -75,19 +71,12 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 
     public static final class Builder<T extends Component> {
 		private ComponentName name;
-		private Class<? extends T> type;
 		private String displayName;
 		private ProjectIdentifier projectIdentifier;
 
 		public Builder<T> withName(ComponentName name) {
 			this.name = name;
 			return this;
-		}
-
-		@SuppressWarnings("unchecked")
-		public <S extends T> Builder<S> withType(Class<S> type) {
-			this.type = type;
-			return (Builder<S>) this;
 		}
 
 		public Builder<T> withDisplayName(String displayName) {
@@ -101,9 +90,7 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 		}
 
 		public ComponentIdentifier<T> build() {
-			@SuppressWarnings("unchecked")
-			val componentType = (Class<T>) type;
-			return new ComponentIdentifier<>(name, componentType, displayName(), projectIdentifier);
+			return new ComponentIdentifier<>(name, displayName(), projectIdentifier);
 		}
 
 		private String displayName() {
@@ -128,6 +115,6 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 
 	@Override
 	public String toString() {
-		return "component '" + getPath() + "' (" + type.getSimpleName() + ")";
+		return "component '" + getPath() + "'";
 	}
 }

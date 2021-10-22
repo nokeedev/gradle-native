@@ -47,7 +47,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "can create identifier owned by a component using factory method"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def bucketName = DependencyBucketName.of('implementation')
 
 		when:
@@ -64,7 +64,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "can create identifier owned by a variant using factory method"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
 		def bucketName = DependencyBucketName.of('implementation')
 
@@ -92,7 +92,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "configuration name for main component owned identifier is the same as bucket name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		expect:
 		identifier('implementation', componentIdentifier).configurationName == 'implementation'
@@ -103,7 +103,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "configuration name for non-main component owned identifier starts with component name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 
 		expect:
 		identifier('implementation', componentIdentifier).configurationName == 'testImplementation'
@@ -114,7 +114,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "configuration name for variant owned identifier of main component starts with unambiguous variant name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', Variant, componentIdentifier)
 
 		expect:
@@ -126,7 +126,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "configuration name for variant owned identifier of non-main component starts with component name followed by unambiguous variant name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', Variant, componentIdentifier)
 
 		expect:
@@ -138,7 +138,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "configuration name for unique variant owned identifier of main component is the same as bucket name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('', Variant, componentIdentifier)
 
 		expect:
@@ -150,7 +150,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "configuration name for unique variant owned identifier of non-main component starts with component name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), Component, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('', Variant, componentIdentifier)
 
 		expect:

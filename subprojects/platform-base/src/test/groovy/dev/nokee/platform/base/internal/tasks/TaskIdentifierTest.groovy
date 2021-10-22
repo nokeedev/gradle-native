@@ -47,7 +47,7 @@ class TaskIdentifierTest extends Specification {
 	def "can create identifier owner by a component using factory method"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def taskName = TaskName.of('create')
 
 		when:
@@ -64,7 +64,7 @@ class TaskIdentifierTest extends Specification {
 	def "can create identifier owner by a variant using factory method"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('debug', TestableVariant, componentIdentifier)
 		def taskName = TaskName.of('create')
 
@@ -102,7 +102,7 @@ class TaskIdentifierTest extends Specification {
 	def "task name for main component owned identifier is the same as a verb-only task name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		expect:
 		identifier('compile', componentIdentifier).taskName == 'compile'
@@ -113,7 +113,7 @@ class TaskIdentifierTest extends Specification {
 	def "task name for main component owned identifier is the same as a verb/object concatenation task name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		expect:
 		identifier('compile', 'c', componentIdentifier).taskName == 'compileC'
@@ -124,8 +124,8 @@ class TaskIdentifierTest extends Specification {
 	def "task name for non-main component owned identifier is the same as a verb-only task name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def testComponentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
-		def integTestComponentIdentifier = ComponentIdentifier.of(ComponentName.of('integTest'), TestableComponent, projectIdentifier)
+		def testComponentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
+		def integTestComponentIdentifier = ComponentIdentifier.of(ComponentName.of('integTest'), projectIdentifier)
 
 		expect:
 		identifier('compile', testComponentIdentifier).taskName == 'compileTest'
@@ -141,8 +141,8 @@ class TaskIdentifierTest extends Specification {
 	def "task name for non-main component owned identifier is the same as a verb/object concatenation task name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def testComponentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
-		def integTestComponentIdentifier = ComponentIdentifier.of(ComponentName.of('integTest'), TestableComponent, projectIdentifier)
+		def testComponentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
+		def integTestComponentIdentifier = ComponentIdentifier.of(ComponentName.of('integTest'), projectIdentifier)
 
 		expect:
 		identifier('compile', 'c', testComponentIdentifier).taskName == 'compileTestC'
@@ -158,7 +158,7 @@ class TaskIdentifierTest extends Specification {
 	def "task name for variant owned identifier of main component is the concatenation of verb-only task name and variant name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
 
 		expect:
@@ -170,7 +170,7 @@ class TaskIdentifierTest extends Specification {
 	def "task name for variant owned identifier of main component is the concatenation of verb/object task name and variant name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
 
 		expect:
@@ -182,7 +182,7 @@ class TaskIdentifierTest extends Specification {
 	def "task name for variant owned identifier of non-main component is the concatenation of verb-only task name, component name and variant name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
 
 		expect:
@@ -194,7 +194,7 @@ class TaskIdentifierTest extends Specification {
 	def "task name for variant owned identifier of non-main component is the concatenation of verb/object task name, component name and variant name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
 
 		expect:
@@ -206,7 +206,7 @@ class TaskIdentifierTest extends Specification {
 	def "task name for unique variant owned identifier of main component is the same as task name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.ofMain(TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('', TestableVariant, componentIdentifier)
 
 		expect:
@@ -218,7 +218,7 @@ class TaskIdentifierTest extends Specification {
 	def "task name for unique variant owned identifier of non-main component is the same as concatenation task name and component name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('', TestableVariant, componentIdentifier)
 
 		expect:
@@ -272,7 +272,7 @@ class TaskIdentifierTest extends Specification {
 	def "can compare identifier based on task name"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
 
 		expect:
@@ -291,7 +291,7 @@ class TaskIdentifierTest extends Specification {
 	def "can compare identifier based on task type"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, projectIdentifier)
+		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
 
 		expect:
@@ -310,7 +310,7 @@ class TaskIdentifierTest extends Specification {
 	def "can compare identifier based on owner"() {
 		given:
 		def ownerProject = ProjectIdentifier.of('root')
-		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, ownerProject)
+		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), ownerProject)
 		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
 
 		expect:
@@ -332,7 +332,7 @@ class TaskIdentifierTest extends Specification {
 	def "can create pure lifecycle identifier owned by a variant of main component"() {
 		given:
 		def ownerProject = ProjectIdentifier.of('root')
-		def ownerComponent = ComponentIdentifier.ofMain(TestableComponent, ownerProject)
+		def ownerComponent = ComponentIdentifier.ofMain(ownerProject)
 		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
 
 		when:
@@ -350,7 +350,7 @@ class TaskIdentifierTest extends Specification {
 	def "can create pure lifecycle identifier owned by a variant of non-main component"() {
 		given:
 		def ownerProject = ProjectIdentifier.of('root')
-		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, ownerProject)
+		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), ownerProject)
 		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
 
 		when:
@@ -368,7 +368,7 @@ class TaskIdentifierTest extends Specification {
 	def "can create pure lifecycle identifier owned by a single-variant of non-main component"() {
 		given:
 		def ownerProject = ProjectIdentifier.of('root')
-		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), TestableComponent, ownerProject)
+		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), ownerProject)
 		def ownerVariant = VariantIdentifier.of('', TestableVariant, ownerComponent)
 
 		when:
@@ -386,7 +386,7 @@ class TaskIdentifierTest extends Specification {
 	def "can create pure lifecycle identifier owned by a non-main component"() {
 		given:
 		def ownerProject = ProjectIdentifier.of('root')
-		def ownerComponent = ComponentIdentifier.of(ComponentName.of('integTest'), TestableComponent, ownerProject)
+		def ownerComponent = ComponentIdentifier.of(ComponentName.of('integTest'), ownerProject)
 
 		when:
 		def result = TaskIdentifier.ofLifecycle(ownerComponent)
@@ -403,7 +403,7 @@ class TaskIdentifierTest extends Specification {
 	def "throws exception when creating pure lifecycle identifier owned by a main component"() {
 		given:
 		def ownerProject = ProjectIdentifier.of('root')
-		def ownerComponent = ComponentIdentifier.ofMain(TestableComponent, ownerProject)
+		def ownerComponent = ComponentIdentifier.ofMain(ownerProject)
 
 		when:
 		TaskIdentifier.ofLifecycle(ownerComponent)
@@ -428,7 +428,7 @@ class TaskIdentifierTest extends Specification {
 	def "throws exception when creating pure lifecycle identifier owned by a single-variant of a main component"() {
 		given:
 		def ownerProject = ProjectIdentifier.of('root')
-		def ownerComponent = ComponentIdentifier.ofMain(TestableComponent, ownerProject)
+		def ownerComponent = ComponentIdentifier.ofMain(ownerProject)
 		def ownerVariant = VariantIdentifier.of('', TestableVariant, ownerComponent)
 
 		when:
@@ -442,24 +442,24 @@ class TaskIdentifierTest extends Specification {
 	def "has meaningful toString() implementation"() {
 		given:
 		def ownerRootProject = ProjectIdentifier.ofRootProject()
-		def ownerComponentInRootProject = ComponentIdentifier.ofMain(TestableComponent, ownerRootProject)
+		def ownerComponentInRootProject = ComponentIdentifier.ofMain(ownerRootProject)
 		def ownerVariantInRootProject = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponentInRootProject)
 
 		and:
 		def ownerChildProject = ProjectIdentifier.ofChildProject('foo')
-		def ownerComponentInChildProject = ComponentIdentifier.ofMain(TestableComponent, ownerChildProject)
+		def ownerComponentInChildProject = ComponentIdentifier.ofMain(ownerChildProject)
 		def ownerVariantInChildProject = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponentInChildProject)
 
 		expect: 'in a root project'
 		TaskIdentifier.ofLifecycle(ownerVariantInRootProject).toString() == "task ':main:macosDebug' (Task)"
-		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), Component, ownerRootProject)).toString() == "task ':test' (Task)"
+		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), ownerRootProject)).toString() == "task ':test' (Task)"
 		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariantInRootProject).toString() == "task ':main:macosDebug:compileC' (${TestableTask.simpleName})"
 		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponentInRootProject).toString() == "task ':main:createJar' (${TestableTask.simpleName})"
 		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerRootProject).toString() == "task ':link' (${TestableTask.simpleName})"
 
 		and: 'in a child project'
 		TaskIdentifier.ofLifecycle(ownerVariantInChildProject).toString() == "task ':foo:main:macosDebug' (Task)"
-		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), Component, ownerChildProject)).toString() == "task ':foo:test' (Task)"
+		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), ownerChildProject)).toString() == "task ':foo:test' (Task)"
 		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariantInChildProject).toString() == "task ':foo:main:macosDebug:compileC' (${TestableTask.simpleName})"
 		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponentInChildProject).toString() == "task ':foo:main:createJar' (${TestableTask.simpleName})"
 		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerChildProject).toString() == "task ':foo:link' (${TestableTask.simpleName})"
