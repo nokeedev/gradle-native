@@ -15,8 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
-import dev.nokee.model.internal.NameAwareDomainObjectIdentifier;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Component;
 import lombok.EqualsAndHashCode;
@@ -28,7 +27,7 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class ComponentIdentifier implements DomainObjectIdentifierInternal {
+public final class ComponentIdentifier implements DomainObjectIdentifier {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
 	private static final String MAIN_COMPONENT_DEFAULT_DISPLAY_NAME = "main component";
 	private final ComponentName name;
@@ -56,7 +55,6 @@ public final class ComponentIdentifier implements DomainObjectIdentifierInternal
 		return name;
 	}
 
-	@Override
 	public Optional<ProjectIdentifier> getParentIdentifier() {
 		return Optional.of(projectIdentifier);
 	}
