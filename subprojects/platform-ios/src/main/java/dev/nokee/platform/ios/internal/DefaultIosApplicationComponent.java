@@ -94,7 +94,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	@Inject
-	public DefaultIosApplicationComponent(ComponentIdentifier<DefaultIosApplicationComponent> identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultIosApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.objects = objects;
 		this.providers = providers;

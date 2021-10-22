@@ -22,7 +22,6 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -77,7 +76,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		this.project = project;
 	}
 
-	public ModelRegistration create(ComponentIdentifier<?> identifier) {
+	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		val name = entityPath.getName();
 		return ModelRegistration.builder()

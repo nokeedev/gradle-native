@@ -28,7 +28,7 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class ComponentIdentifier<T extends Component> implements DomainObjectIdentifierInternal, NameAwareDomainObjectIdentifier {
+public final class ComponentIdentifier implements DomainObjectIdentifierInternal, NameAwareDomainObjectIdentifier {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
 	private static final String MAIN_COMPONENT_DEFAULT_DISPLAY_NAME = "main component";
 	@Getter private final ComponentName name;
@@ -41,15 +41,15 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 		this.projectIdentifier = requireNonNull(projectIdentifier);
 	}
 
-	public static <T extends Component> ComponentIdentifier<T> ofMain(ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier<>(MAIN_COMPONENT_NAME, MAIN_COMPONENT_DEFAULT_DISPLAY_NAME, projectIdentifier);
+	public static <T extends Component> ComponentIdentifier ofMain(ProjectIdentifier projectIdentifier) {
+		return new ComponentIdentifier(MAIN_COMPONENT_NAME, MAIN_COMPONENT_DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
-	public static <T extends Component> ComponentIdentifier<T> of(ComponentName name, ProjectIdentifier projectIdentifier) {
+	public static <T extends Component> ComponentIdentifier of(ComponentName name, ProjectIdentifier projectIdentifier) {
 		if (MAIN_COMPONENT_NAME.equals(name)) {
 			return ofMain(projectIdentifier);
 		}
-		return new ComponentIdentifier<>(name, displayNameOf(name.get()), projectIdentifier);
+		return new ComponentIdentifier(name, displayNameOf(name.get()), projectIdentifier);
 	}
 
 	@Override
@@ -89,8 +89,8 @@ public final class ComponentIdentifier<T extends Component> implements DomainObj
 			return this;
 		}
 
-		public ComponentIdentifier<T> build() {
-			return new ComponentIdentifier<>(name, displayName(), projectIdentifier);
+		public ComponentIdentifier build() {
+			return new ComponentIdentifier(name, displayName(), projectIdentifier);
 		}
 
 		private String displayName() {

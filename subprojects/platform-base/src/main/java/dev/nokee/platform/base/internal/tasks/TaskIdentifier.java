@@ -73,7 +73,7 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 			if (variantIdentifier.getUnambiguousName().isEmpty() && variantIdentifier.getComponentIdentifier().isMainComponent()) {
 				return false;
 			}
-		} else if (ownerIdentifier instanceof ComponentIdentifier && ((ComponentIdentifier<?>) ownerIdentifier).isMainComponent()) {
+		} else if (ownerIdentifier instanceof ComponentIdentifier && ((ComponentIdentifier) ownerIdentifier).isMainComponent()) {
 			return false;
 		} else if (ownerIdentifier instanceof ProjectIdentifier) {
 			return false;
@@ -99,11 +99,11 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 		return StringUtils.uncapitalize(segments.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
 
-	private Optional<ComponentIdentifier<?>> getComponentOwnerIdentifier() {
+	private Optional<ComponentIdentifier> getComponentOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
 			return Optional.of(((VariantIdentifier<?>) ownerIdentifier).getComponentIdentifier());
 		} else if (ownerIdentifier instanceof ComponentIdentifier) {
-			return Optional.of((ComponentIdentifier<?>) ownerIdentifier);
+			return Optional.of((ComponentIdentifier) ownerIdentifier);
 		}
 		return Optional.empty();
 	}

@@ -59,7 +59,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
 
-	public BaseNativeComponent(ComponentIdentifier<?> identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, objects);
 		this.objects = objects;
 		this.eventPublisher = eventPublisher;

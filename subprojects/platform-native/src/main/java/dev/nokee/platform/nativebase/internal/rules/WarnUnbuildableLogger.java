@@ -21,9 +21,9 @@ import org.gradle.api.logging.Logging;
 
 public class WarnUnbuildableLogger {
 	private static final Logger LOGGER = Logging.getLogger(WarnUnbuildableLogger.class);
-	private final ComponentIdentifier<?> identifier;
+	private final ComponentIdentifier identifier;
 
-	public WarnUnbuildableLogger(ComponentIdentifier<?> identifier) {
+	public WarnUnbuildableLogger(ComponentIdentifier identifier) {
 		this.identifier = identifier;
 	}
 
