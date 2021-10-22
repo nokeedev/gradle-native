@@ -202,7 +202,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultNativeTestSuiteVariant.class)), (entity, variantIdentifier, variantProjection) -> {
 			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultNativeTestSuiteVariant.class), entity));
 		}));
-		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {

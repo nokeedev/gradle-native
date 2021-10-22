@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.testing.nativebase;
+package dev.nokee.testing.xctest;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
@@ -23,34 +23,35 @@ import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import org.gradle.api.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.testing.nativebase.internal.plugins.NativeUnitTestingPlugin.nativeTestSuite;
+import static dev.nokee.testing.xctest.internal.plugins.ObjectiveCXCTestTestSuitePlugin.unitTestXCTestTestSuite;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
-class NativeTestSuiteTest extends AbstractPluginTest implements ComponentTester<NativeTestSuite>
+class UnitTestXCTestTestSuiteComponentTest extends AbstractPluginTest implements ComponentTester<DefaultUnitTestXCTestTestSuiteComponent>
 	, DependencyAwareComponentTester<NativeComponentDependencies>
 {
-	private NativeTestSuite subject;
+	private DefaultUnitTestXCTestTestSuiteComponent subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(nativeTestSuite("feme", project)).as(NativeTestSuite.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(unitTestXCTestTestSuite("vodo", project)).as(DefaultUnitTestXCTestTestSuiteComponent.class).get();
 	}
 
 	@Override
-	public NativeTestSuite subject() {
+	public DefaultUnitTestXCTestTestSuiteComponent subject() {
 		return subject;
 	}
 
 	@Nested
 	class AssembleTaskTest {
 		public Task subject() {
-			return project().getTasks().getByName("assembleFeme");
+			return project().getTasks().getByName("assembleVodo");
 		}
 
 		@Test
@@ -60,7 +61,7 @@ class NativeTestSuiteTest extends AbstractPluginTest implements ComponentTester<
 
 		@Test
 		public void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the native test suite ':feme'."));
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the XCTest test suite ':vodo'."));
 		}
 	}
 }
