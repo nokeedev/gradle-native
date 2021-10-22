@@ -15,13 +15,14 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Component;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.gradle.util.Path;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
@@ -29,10 +30,10 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode
 public final class ComponentIdentifier implements DomainObjectIdentifier {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
-	private static final String MAIN_COMPONENT_DEFAULT_DISPLAY_NAME = "main component";
+	private static final String DEFAULT_DISPLAY_NAME = "component";
 	private final ComponentName name;
-	@EqualsAndHashCode.Exclude @Getter private final String displayName;
-	@Getter private final ProjectIdentifier projectIdentifier;
+	private final String displayName;
+	private final ProjectIdentifier projectIdentifier;
 
 	private ComponentIdentifier(ComponentName name, String displayName, ProjectIdentifier projectIdentifier) {
 		this.name = requireNonNull(name);
@@ -40,83 +41,82 @@ public final class ComponentIdentifier implements DomainObjectIdentifier {
 		this.projectIdentifier = requireNonNull(projectIdentifier);
 	}
 
-	public static <T extends Component> ComponentIdentifier ofMain(ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier(MAIN_COMPONENT_NAME, MAIN_COMPONENT_DEFAULT_DISPLAY_NAME, projectIdentifier);
+	public static ComponentIdentifier ofMain(ProjectIdentifier projectIdentifier) {
+		return new ComponentIdentifier(MAIN_COMPONENT_NAME, DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
-	public static <T extends Component> ComponentIdentifier of(ComponentName name, ProjectIdentifier projectIdentifier) {
-		if (MAIN_COMPONENT_NAME.equals(name)) {
-			return ofMain(projectIdentifier);
-		}
-		return new ComponentIdentifier(name, displayNameOf(name.get()), projectIdentifier);
+	public static ComponentIdentifier of(String name, ProjectIdentifier projectIdentifier) {
+		return new ComponentIdentifier(ComponentName.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
+	}
+
+	public static ComponentIdentifier of(ComponentName name, ProjectIdentifier projectIdentifier) {
+		return new ComponentIdentifier(name, DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
 	public ComponentName getName() {
 		return name;
 	}
 
+	@Deprecated
+	public Path getPath() {
+		return getProjectIdentifier().getPath().child(name.get());
+	}
+
+	@Deprecated
 	public Optional<ProjectIdentifier> getParentIdentifier() {
 		return Optional.of(projectIdentifier);
+	}
+
+	@Deprecated
+	public ProjectIdentifier getProjectIdentifier() {
+		return projectIdentifier;
+	}
+
+	@Deprecated
+	public String getDisplayName() {
+		return displayName;
 	}
 
 	public boolean isMainComponent() {
 		return name.equals(MAIN_COMPONENT_NAME);
 	}
 
-	public static Builder builder() {
-		return new Builder();
-	}
-
-    boolean hasCustomDisplayName() {
-		return !defaultDisplayNameFor(name).equals(displayName);
-    }
-
-    public static final class Builder {
-		private ComponentName name;
-		private String displayName;
-		private ProjectIdentifier projectIdentifier;
-
-		public Builder withName(ComponentName name) {
-			this.name = name;
-			return this;
-		}
-
-		public Builder withDisplayName(String displayName) {
-			this.displayName = displayName;
-			return this;
-		}
-
-		public Builder withProjectIdentifier(ProjectIdentifier projectIdentifier) {
-			this.projectIdentifier = projectIdentifier;
-			return this;
-		}
-
-		public ComponentIdentifier build() {
-			return new ComponentIdentifier(name, displayName(), projectIdentifier);
-		}
-
-		private String displayName() {
-			return Optional.ofNullable(displayName).orElseGet(() -> defaultDisplayNameFor(name));
-		}
-	}
-
-	private static String defaultDisplayNameFor(ComponentName componentName) {
-		if (MAIN_COMPONENT_NAME.equals(componentName)) {
-			return MAIN_COMPONENT_DEFAULT_DISPLAY_NAME;
-		}
-		return displayNameOf(componentName.get());
-	}
-
-	private static String displayNameOf(String componentName) {
-		return "component '" + componentName + "'";
-	}
-
-	public Path getPath() {
-		return getProjectIdentifier().getPath().child(name.get());
+	@Override
+	public Iterator<Object> iterator() {
+		return Iterators.forArray(projectIdentifier, this);
 	}
 
 	@Override
 	public String toString() {
-		return "component '" + getPath() + "'";
+		return displayName + " '" + getPath() + "'";
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+    public static final class Builder {
+		private ComponentName name;
+		private String displayName = DEFAULT_DISPLAY_NAME;
+		private ProjectIdentifier projectIdentifier;
+
+		public Builder name(ComponentName name) {
+			this.name = requireNonNull(name);
+			return this;
+		}
+
+		public Builder displayName(String displayName) {
+			this.displayName = requireNonNull(displayName);
+			return this;
+		}
+
+		public Builder withProjectIdentifier(ProjectIdentifier projectIdentifier) {
+			this.projectIdentifier = requireNonNull(projectIdentifier);
+			return this;
+		}
+
+		public ComponentIdentifier build() {
+			return new ComponentIdentifier(name, displayName, projectIdentifier);
+		}
 	}
 }

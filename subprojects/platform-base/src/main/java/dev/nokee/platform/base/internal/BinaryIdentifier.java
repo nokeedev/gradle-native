@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
@@ -25,6 +26,7 @@ import lombok.val;
 import org.gradle.util.Path;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -98,8 +100,10 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	@Override
 	public Path getPath() {
-		if (getOwnerIdentifier() instanceof DomainObjectIdentifierInternal) {
-			return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath().child(name.get());
+		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
+			return ((DomainObjectIdentifierInternal) ownerIdentifier).getPath().child(name.get());
+		} else if (ownerIdentifier instanceof ComponentIdentifier) {
+			return ((ComponentIdentifier) ownerIdentifier).getPath().child(name.get());
 		}
 		return Path.path(name.get());
 	}
@@ -107,5 +111,17 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	@Override
 	public String toString() {
 		return "binary '" + getPath() + "' (" + type.getSimpleName() + ")";
+	}
+
+	@Override
+	public Iterator<Object> iterator() {
+		val builder = ImmutableList.builder();
+		getComponentOwnerIdentifier().ifPresent(identifier -> {
+			builder.add(identifier.getProjectIdentifier());
+			builder.add(identifier);
+		});
+		getVariantOwnerIdentifier().ifPresent(builder::add);
+		builder.add(this);
+		return builder.build().iterator();
 	}
 }

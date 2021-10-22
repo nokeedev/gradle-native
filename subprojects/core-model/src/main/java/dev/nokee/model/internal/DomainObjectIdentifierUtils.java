@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -28,13 +29,16 @@ public final class DomainObjectIdentifierUtils {
 	private DomainObjectIdentifierUtils() {}
 
 	public static boolean isDescendent(DomainObjectIdentifier self, DomainObjectIdentifier other) {
-		if (self instanceof DomainObjectIdentifierInternal) {
-			Optional<? extends DomainObjectIdentifier> parentIdentifier = ((DomainObjectIdentifierInternal) self).getParentIdentifier();
-			while (parentIdentifier.isPresent() && !parentIdentifier.get().equals(other)) {
-				parentIdentifier = ((DomainObjectIdentifierInternal) parentIdentifier.get()).getParentIdentifier();
+		val childCandidate = ImmutableList.copyOf(self);
+		val parentCandidate = ImmutableList.copyOf(other);
+		System.out.println(parentCandidate + " === " + childCandidate);
+		if (parentCandidate.size() < childCandidate.size()) {
+			for (int i = 0; i < parentCandidate.size(); ++i) {
+				if (!parentCandidate.get(i).equals(childCandidate.get(i))) {
+					return false;
+				}
 			}
-
-			return parentIdentifier.isPresent();
+			return true;
 		}
 		return false;
 	}

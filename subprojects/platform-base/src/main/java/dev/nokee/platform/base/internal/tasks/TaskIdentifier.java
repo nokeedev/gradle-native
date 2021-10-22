@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal.tasks;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -31,6 +32,7 @@ import org.gradle.api.Task;
 import org.gradle.util.Path;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -64,7 +66,7 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 
 	public static TaskIdentifier<Task> ofLifecycle(DomainObjectIdentifier ownerIdentifier) {
 		Preconditions.checkArgument(isValidLifecycleOwner(ownerIdentifier), "Cannot construct a lifecycle task identifier for specified owner as it will result into an invalid task name.");
-		return new TaskIdentifier<>(TaskName.empty(), Task.class, (DomainObjectIdentifierInternal)ownerIdentifier);
+		return new TaskIdentifier<>(TaskName.empty(), Task.class, ownerIdentifier);
 	}
 
 	private static boolean isValidLifecycleOwner(DomainObjectIdentifier ownerIdentifier) {
@@ -132,6 +134,11 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 				return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath();
 			}
 			return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath().child(getName().get());
+		} else if (ownerIdentifier instanceof ComponentIdentifier) {
+			if (getName().get().isEmpty()) {
+				return ((ComponentIdentifier) ownerIdentifier).getPath();
+			}
+			return ((ComponentIdentifier) ownerIdentifier).getPath().child(getName().get());
 		}
 		return Path.path(getName().get());
 	}
@@ -139,5 +146,17 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 	@Override
 	public String toString() {
 		return "task '" + getPath() + "' (" + type.getSimpleName() + ")";
+	}
+
+	@Override
+	public Iterator<Object> iterator() {
+		val builder = ImmutableList.builder();
+		getComponentOwnerIdentifier().ifPresent(identifier -> {
+			builder.add(identifier.getProjectIdentifier());
+			builder.add(identifier);
+		});
+		getVariantOwnerIdentifier().ifPresent(builder::add);
+		builder.add(this);
+		return builder.build().iterator();
 	}
 }

@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal.dependencies
 
 import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
-import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.DependencyBucket
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
@@ -57,7 +56,7 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 	@Unroll
 	def "can generate name for two words bucket name owned by a project"(bucketName, expectedValue) {
 		given:
-		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(bucketName), TestableBucket, ProjectIdentifier.of('root'))
+		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(bucketName), TestableBucket, ProjectIdentifier.ofRootProject())
 
 		expect:
 		identifier.displayName == "${expectedValue} dependencies for project ':'."
@@ -80,19 +79,19 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 
 	def "can generate name for single word bucket name owned by the main component"() {
 		given:
-		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ComponentIdentifier.ofMain(ProjectIdentifier.of('root')))
+		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ComponentIdentifier.ofMain(ProjectIdentifier.ofRootProject()))
 
 		expect:
-		identifier.displayName == "Implementation dependencies for main component."
+		identifier.displayName == "Implementation dependencies for component ':main'."
 	}
 
 	@Unroll
 	def "can generate name for single word bucket name owned by a non-main component"(componentName) {
 		given:
-		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ComponentIdentifier.of(ComponentName.of(componentName), ProjectIdentifier.of('root')))
+		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, ComponentIdentifier.of(ComponentName.of(componentName), ProjectIdentifier.ofRootProject()))
 
 		expect:
-		identifier.displayName == "Implementation dependencies for component '${componentName}'."
+		identifier.displayName == "Implementation dependencies for component ':${componentName}'."
 
 		where:
 		componentName << ['test', 'integTest', 'uiTest', 'unitTest']
@@ -101,7 +100,7 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 	@Unroll
 	def "can generate name for single word bucket name owned by a variant of the main component"(unambiguousVariantName) {
 		given:
-		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, VariantIdentifier.of(unambiguousVariantName, Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))))
+		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, VariantIdentifier.of(unambiguousVariantName, Variant, ComponentIdentifier.ofMain(ProjectIdentifier.ofRootProject())))
 
 		expect:
 		identifier.displayName == "Implementation dependencies for variant '${unambiguousVariantName}'."
@@ -113,10 +112,10 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 	@Unroll
 	def "can generate name for single word bucket name owned by a variant of the non-main component"(unambiguousVariantName, componentName) {
 		given:
-		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, VariantIdentifier.of(unambiguousVariantName, Variant, ComponentIdentifier.of(ComponentName.of(componentName), ProjectIdentifier.of('root'))))
+		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, VariantIdentifier.of(unambiguousVariantName, Variant, ComponentIdentifier.of(ComponentName.of(componentName), ProjectIdentifier.ofRootProject())))
 
 		expect:
-		identifier.displayName == "Implementation dependencies for variant '${unambiguousVariantName}' of component '${componentName}'."
+		identifier.displayName == "Implementation dependencies for variant '${unambiguousVariantName}' of component ':${componentName}'."
 
 		where:
 		[unambiguousVariantName, componentName] << [['macosDebug', 'x86-64Debug', 'windowsX86'], ['test', 'integTest', 'uiTest', 'unitTest']].combinations()
@@ -146,21 +145,21 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 
 	def "uses component display name for single variant"() {
 		given:
-		def mainOwnerIdentifier = VariantIdentifier.of('', Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of('root')))
-		def testOwnerIdentifier = VariantIdentifier.of('', Variant, ComponentIdentifier.of(ComponentName.of('test'), ProjectIdentifier.of('root')))
-		def customDisplayNameOwnerIdentifier = VariantIdentifier.of('', Variant, ComponentIdentifier.builder().withName(ComponentName.of('test')).withProjectIdentifier(ProjectIdentifier.of('root')).withDisplayName('JNI library').build())
+		def mainOwnerIdentifier = VariantIdentifier.of('', Variant, ComponentIdentifier.ofMain(ProjectIdentifier.ofRootProject()))
+		def testOwnerIdentifier = VariantIdentifier.of('', Variant, ComponentIdentifier.of(ComponentName.of('test'), ProjectIdentifier.ofRootProject()))
+		def customDisplayNameOwnerIdentifier = VariantIdentifier.of('', Variant, ComponentIdentifier.builder().name(ComponentName.of('test')).withProjectIdentifier(ProjectIdentifier.ofRootProject()).displayName('JNI library').build())
 
 		expect:
-		identifier('implementation', mainOwnerIdentifier).displayName == "Implementation dependencies for main component."
-		identifier('implementation', testOwnerIdentifier).displayName == "Implementation dependencies for component 'test'."
-		identifier('implementation', customDisplayNameOwnerIdentifier).displayName == "Implementation dependencies for JNI library."
+		identifier('implementation', mainOwnerIdentifier).displayName == "Implementation dependencies for component ':main'."
+		identifier('implementation', testOwnerIdentifier).displayName == "Implementation dependencies for component ':test'."
+		identifier('implementation', customDisplayNameOwnerIdentifier).displayName == "Implementation dependencies for JNI library ':test'."
 	}
 
 	private static DependencyBucketIdentifier identifier(String name, DomainObjectIdentifierInternal owner) {
 		return identifier(name, TestableBucket, owner)
 	}
 
-	private static <T extends DependencyBucket> DependencyBucketIdentifier<T> identifier(String name, Class<T> type = TestableBucket, DomainObjectIdentifierInternal owner = ProjectIdentifier.of('root')) {
+	private static <T extends DependencyBucket> DependencyBucketIdentifier<T> identifier(String name, Class<T> type = TestableBucket, DomainObjectIdentifierInternal owner = ProjectIdentifier.ofRootProject()) {
 		return DependencyBucketIdentifier.of(DependencyBucketName.of(name), type, owner)
 	}
 

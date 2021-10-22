@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.InvalidUserDataException;
@@ -26,7 +26,7 @@ import org.gradle.api.artifacts.ModuleDependency;
 import java.util.Optional;
 
 public interface ComponentDependenciesInternal {
-	DomainObjectIdentifierInternal getOwnerIdentifier(); // Only until we finish the refactoring
+	DomainObjectIdentifier getOwnerIdentifier(); // Only until we finish the refactoring
 	DependencyBucket add(DependencyBucket bucket);
 	DependencyBucket create(String name, Action<Configuration> action) throws InvalidUserDataException;
 	DependencyBucket getByName(String name) throws UnknownDomainObjectException;

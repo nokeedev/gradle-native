@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DependencyBucket;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
@@ -36,7 +36,7 @@ public class BaseComponentDependencies implements ComponentDependenciesInternal,
 	}
 
 	@Override
-	public DomainObjectIdentifierInternal getOwnerIdentifier() {
+	public DomainObjectIdentifier getOwnerIdentifier() {
 		return delegate.getOwnerIdentifier();
 	}
 

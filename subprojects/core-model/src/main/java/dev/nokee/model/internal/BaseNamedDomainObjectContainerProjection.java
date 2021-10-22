@@ -23,7 +23,9 @@ import lombok.val;
 import org.gradle.api.Action;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.ModelNodeContext.getCurrentModelNode;
 
@@ -50,6 +52,11 @@ public class BaseNamedDomainObjectContainerProjection implements AbstractModelNo
 		}
 		if (instantiator.getCreatableTypes().contains(type.getRawType())) {
 			return ModelNodeUtils.register(node, NodeRegistration.unmanaged(name, ModelType.of(toImplementationType(type.getConcreteType())), () -> instantiator.newInstance(new NameAwareDomainObjectIdentifier() {
+				@Override
+				public Iterator<Object> iterator() {
+					return Stream.empty().iterator();
+				}
+
 				@Override
 				public Object getName() {
 					return name;

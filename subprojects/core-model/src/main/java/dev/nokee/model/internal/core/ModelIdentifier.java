@@ -15,9 +15,12 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.Iterators;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
+
+import java.util.Iterator;
 
 import static java.util.Objects.requireNonNull;
 
@@ -52,4 +55,9 @@ public final class ModelIdentifier<T> implements DomainObjectIdentifier {
     public ModelType<T> getType() {
         return type;
     }
+
+	@Override
+	public Iterator<Object> iterator() {
+		return Iterators.forArray(this);
+	}
 }

@@ -21,6 +21,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import java.util.function.Consumer
+import java.util.stream.Stream
 
 @Subject(DomainObjectActions)
 class DomainObjectActionsTest extends Specification {
@@ -32,9 +33,11 @@ class DomainObjectActionsTest extends Specification {
 	}
 
 	protected DomainObjectIdentifier identifier(DomainObjectIdentifier owner) {
-		return Stub(DomainObjectIdentifierInternal) {
+		def result = Stub(DomainObjectIdentifierInternal) {
 			getParentIdentifier() >> Optional.of(owner)
 		}
+		result.iterator() >> { Stream.of(owner, result).iterator() }
+		return result
 	}
 
 	def "can execute empty action list"() {
@@ -89,6 +92,7 @@ class DomainObjectActionsTest extends Specification {
 	def "can filter object per identifier owner"() {
 		given:
 		def ownerIdentifier = Stub(DomainObjectIdentifierInternal)
+		ownerIdentifier.iterator() >> { Stream.of(ownerIdentifier).iterator() }
 		def ownedIdentifier = identifier(ownerIdentifier)
 		def notOwnedIdentifier = identifier(Stub(DomainObjectIdentifierInternal))
 

@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.Iterators;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
@@ -30,6 +31,7 @@ import org.gradle.api.Named;
 import org.gradle.util.Path;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -103,9 +105,9 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 			builder.append("variant").append(" '").append(unambiguousName).append("'");
 		}
 		if (unambiguousName.isEmpty()) {
-			builder.append(componentIdentifier.getDisplayName());
-		} else if (!componentIdentifier.isMainComponent() || componentIdentifier.hasCustomDisplayName()) {
-			builder.append(" of ").append(componentIdentifier.getDisplayName());
+			builder.append(componentIdentifier);
+		} else if (!componentIdentifier.isMainComponent()) {
+			builder.append(" of ").append(componentIdentifier);
 		}
 		return builder.toString();
 	}
@@ -122,6 +124,11 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 
 	public static Builder<Variant> builder() {
 		return new Builder<>();
+	}
+
+	@Override
+	public Iterator<Object> iterator() {
+		return Iterators.forArray(componentIdentifier.getProjectIdentifier(), componentIdentifier, this);
 	}
 
 	public static class Builder<T extends Variant> {

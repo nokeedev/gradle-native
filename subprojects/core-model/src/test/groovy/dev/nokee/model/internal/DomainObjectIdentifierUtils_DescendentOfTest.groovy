@@ -19,6 +19,8 @@ import dev.nokee.model.DomainObjectIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
 
+import java.util.stream.Stream
+
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.descendentOf
 
 @Subject(DomainObjectIdentifierUtils)
@@ -36,12 +38,15 @@ class DomainObjectIdentifierUtils_DescendentOfTest extends Specification {
 		def parentIdentifier = Stub(DomainObjectIdentifierInternal) {
 			getParentIdentifier() >> Optional.empty()
 		}
+		parentIdentifier.iterator() >> { Stream.of(parentIdentifier).iterator() }
 		def childIdentifier = Stub(DomainObjectIdentifierInternal) {
 			getParentIdentifier() >> Optional.of(parentIdentifier)
 		}
+		childIdentifier.iterator() >> { Stream.of(parentIdentifier, childIdentifier).iterator() }
 		def anotherChildIdentifier = Stub(DomainObjectIdentifierInternal) {
 			getParentIdentifier() >> Optional.of(parentIdentifier)
 		}
+		anotherChildIdentifier.iterator() >> { Stream.of(parentIdentifier, anotherChildIdentifier).iterator() }
 
 		expect:
 		descendentOf(parentIdentifier).test(childIdentifier)
@@ -53,15 +58,19 @@ class DomainObjectIdentifierUtils_DescendentOfTest extends Specification {
 		def parentIdentifier = Stub(DomainObjectIdentifierInternal) {
 			getParentIdentifier() >> Optional.empty()
 		}
+		parentIdentifier.iterator() >> { Stream.of(parentIdentifier).iterator() }
 		def indirectIdentifier = Stub(DomainObjectIdentifierInternal) {
 			getParentIdentifier() >> Optional.of(parentIdentifier)
 		}
+		indirectIdentifier.iterator() >> { Stream.of(parentIdentifier, indirectIdentifier).iterator() }
 		def childIdentifier = Stub(DomainObjectIdentifierInternal) {
 			getParentIdentifier() >> Optional.of(indirectIdentifier)
 		}
+		childIdentifier.iterator() >> { Stream.of(parentIdentifier, indirectIdentifier, childIdentifier).iterator() }
 		def anotherChildIdentifier = Stub(DomainObjectIdentifierInternal) {
 			getParentIdentifier() >> Optional.of(indirectIdentifier)
 		}
+		anotherChildIdentifier.iterator() >> { Stream.of(parentIdentifier, indirectIdentifier, anotherChildIdentifier).iterator() }
 
 		expect:
 		descendentOf(parentIdentifier).test(childIdentifier)
