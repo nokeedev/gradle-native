@@ -22,6 +22,7 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -40,6 +41,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryC
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
@@ -151,6 +153,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 					}
 				}
 			}))
+			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;
 				@Override
