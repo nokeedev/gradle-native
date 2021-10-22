@@ -53,6 +53,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	, ModelBackedVariantAwareComponentMixIn<DefaultNativeLibraryVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
+	, HasDevelopmentVariant<DefaultNativeLibraryVariant>
 {
 	private final TaskRegistry taskRegistry;
 	private final SetProperty<BuildVariantInternal> buildVariants;

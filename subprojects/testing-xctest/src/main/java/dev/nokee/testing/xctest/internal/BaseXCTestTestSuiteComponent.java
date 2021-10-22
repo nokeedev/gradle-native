@@ -61,7 +61,11 @@ import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdk
 import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.getSdkPlatformPath;
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements DependencyAwareComponent<NativeComponentDependencies>, BinaryAwareComponent, TestSuiteComponent {
+public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements TestSuiteComponent
+	, DependencyAwareComponent<NativeComponentDependencies>
+	, BinaryAwareComponent
+	, HasDevelopmentVariant<DefaultXCTestTestSuiteVariant>
+{
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
@@ -104,7 +108,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
-	public Provider<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
+	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
 		return developmentVariant;
 	}
 
