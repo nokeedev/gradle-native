@@ -120,7 +120,6 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(NativeLibrary.class)), (entity, variantIdentifier, variantProjection) -> {
 			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(NativeLibrary.class), entity));
 		}));
-		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {

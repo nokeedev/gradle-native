@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.cpp;
 
+import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
@@ -34,15 +35,18 @@ import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.stream.Stream;
 
+import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin.cppLibrary;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 
 class CppLibraryTest implements ComponentTester<CppLibrary>
 	, SourceAwareComponentTester<CppLibrary>
@@ -80,10 +84,38 @@ class CppLibraryTest implements ComponentTester<CppLibrary>
 		return subject;
 	}
 
-
 	@Test
 	void hasBaseNameConventionAsComponentName() {
 		subject().getBaseName().set((String) null);
 		assertThat(subject().getBaseName(), providerOf("gori"));
+	}
+
+	@Nested
+	class ComponentTasksTest {
+		public TaskView<Task> subject() {
+			return subject.getTasks();
+		}
+
+		@Test
+		void hasAssembleTask() {
+			assertThat(subject().get(), hasItem(named("assembleGori")));
+		}
+	}
+
+	@Nested
+	class AssembleTaskTest {
+		public Task subject() {
+			return subject.getTasks().filter(it -> it.getName().equals("assembleGori")).get().get(0);
+		}
+
+		@Test
+		public void hasBuildGroup() {
+			assertThat(subject(), TaskMatchers.group("build"));
+		}
+
+		@Test
+		public void hasDescription() {
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the C++ library ':gori'."));
+		}
 	}
 }
