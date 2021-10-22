@@ -38,9 +38,9 @@ import java.util.stream.Collectors;
 public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
 	@Getter private final TaskName name;
 	@Getter private final Class<T> type;
-	@Getter private final DomainObjectIdentifierInternal ownerIdentifier;
+	@Getter private final DomainObjectIdentifier ownerIdentifier;
 
-	public TaskIdentifier(TaskName name, Class<T> type, DomainObjectIdentifierInternal ownerIdentifier) {
+	public TaskIdentifier(TaskName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		Preconditions.checkArgument(name != null, "Cannot construct a task identifier because the task name is null.");
 		Preconditions.checkArgument(type != null, "Cannot construct a task identifier because the task type is null.");
 		Preconditions.checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
@@ -50,16 +50,16 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
-	private static boolean isValidOwner(DomainObjectIdentifierInternal ownerIdentifier) {
+	private static boolean isValidOwner(DomainObjectIdentifier ownerIdentifier) {
 		return ownerIdentifier instanceof ProjectIdentifier || ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier;
 	}
 
 	public static <T extends Task> TaskIdentifier<T> of(TaskName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
-		return new TaskIdentifier<>(name, type, (DomainObjectIdentifierInternal)ownerIdentifier);
+		return new TaskIdentifier<>(name, type, ownerIdentifier);
 	}
 
 	public static TaskIdentifier<Task> of(TaskName name, DomainObjectIdentifier ownerIdentifier) {
-		return new TaskIdentifier<>(name, Task.class, (DomainObjectIdentifierInternal)ownerIdentifier);
+		return new TaskIdentifier<>(name, Task.class, ownerIdentifier);
 	}
 
 	public static TaskIdentifier<Task> ofLifecycle(DomainObjectIdentifier ownerIdentifier) {
@@ -116,7 +116,7 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 	}
 
 	@Override
-	public Optional<? extends DomainObjectIdentifierInternal> getParentIdentifier() {
+	public Optional<? extends DomainObjectIdentifier> getParentIdentifier() {
 		return Optional.of(ownerIdentifier);
 	}
 
@@ -127,10 +127,13 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 
 	@Override
 	public Path getPath() {
-		if (getName().get().isEmpty()) {
-			return getOwnerIdentifier().getPath();
+		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
+			if (getName().get().isEmpty()) {
+				return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath();
+			}
+			return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath().child(getName().get());
 		}
-		return getOwnerIdentifier().getPath().child(getName().get());
+		return Path.path(getName().get());
 	}
 
 	@Override

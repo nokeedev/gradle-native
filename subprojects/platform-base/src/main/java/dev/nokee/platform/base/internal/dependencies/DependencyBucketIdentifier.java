@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -37,9 +38,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class DependencyBucketIdentifier<T extends DependencyBucket> implements DomainObjectIdentifierInternal {
 	DependencyBucketName name;
 	Class<T> type;
-	DomainObjectIdentifierInternal ownerIdentifier;
+	DomainObjectIdentifier ownerIdentifier;
 
-	private DependencyBucketIdentifier(DependencyBucketName name, Class<T> type, DomainObjectIdentifierInternal ownerIdentifier) {
+	private DependencyBucketIdentifier(DependencyBucketName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(name != null, "Cannot construct a dependency identifier because the bucket name is null.");
 		checkArgument(type != null, "Cannot construct a dependency identifier because the bucket type is null.");
 		checkArgument(ownerIdentifier != null, "Cannot construct a dependency identifier because the owner identifier is null.");
@@ -49,12 +50,12 @@ public class DependencyBucketIdentifier<T extends DependencyBucket> implements D
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
-	private static boolean isValidOwner(DomainObjectIdentifierInternal ownerIdentifier) {
+	private static boolean isValidOwner(DomainObjectIdentifier ownerIdentifier) {
 		return ownerIdentifier instanceof ProjectIdentifier || ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier;
 	}
 
 	@Override
-	public Optional<? extends DomainObjectIdentifierInternal> getParentIdentifier() {
+	public Optional<? extends DomainObjectIdentifier> getParentIdentifier() {
 		return Optional.of(ownerIdentifier);
 	}
 
@@ -81,13 +82,16 @@ public class DependencyBucketIdentifier<T extends DependencyBucket> implements D
 		if (!ConsumableDependencyBucket.class.isAssignableFrom(type) && !ResolvableDependencyBucket.class.isAssignableFrom(type)) {
 			builder.append(" dependencies");
 		}
-		builder.append(" for ").append(ownerIdentifier.getDisplayName()).append(".");
+		builder.append(" for ").append(((DomainObjectIdentifierInternal) ownerIdentifier).getDisplayName()).append(".");
 		return builder.toString();
 	}
 
 	@Override
 	public Path getPath() {
-		return getOwnerIdentifier().getPath().child(name.get());
+		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
+			return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath().child(name.get());
+		}
+		return Path.path(name.get());
 	}
 
 	public String getConfigurationName() {

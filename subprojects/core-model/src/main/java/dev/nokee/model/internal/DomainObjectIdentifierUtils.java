@@ -29,9 +29,9 @@ public final class DomainObjectIdentifierUtils {
 
 	public static boolean isDescendent(DomainObjectIdentifier self, DomainObjectIdentifier other) {
 		if (self instanceof DomainObjectIdentifierInternal) {
-			Optional<? extends DomainObjectIdentifierInternal> parentIdentifier = ((DomainObjectIdentifierInternal) self).getParentIdentifier();
+			Optional<? extends DomainObjectIdentifier> parentIdentifier = ((DomainObjectIdentifierInternal) self).getParentIdentifier();
 			while (parentIdentifier.isPresent() && !parentIdentifier.get().equals(other)) {
-				parentIdentifier = parentIdentifier.get().getParentIdentifier();
+				parentIdentifier = ((DomainObjectIdentifierInternal) parentIdentifier.get()).getParentIdentifier();
 			}
 
 			return parentIdentifier.isPresent();
