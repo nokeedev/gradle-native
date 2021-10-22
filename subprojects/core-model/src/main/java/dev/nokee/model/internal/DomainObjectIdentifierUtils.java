@@ -31,7 +31,6 @@ public final class DomainObjectIdentifierUtils {
 	public static boolean isDescendent(DomainObjectIdentifier self, DomainObjectIdentifier other) {
 		val childCandidate = ImmutableList.copyOf(self);
 		val parentCandidate = ImmutableList.copyOf(other);
-		System.out.println(parentCandidate + " === " + childCandidate);
 		if (parentCandidate.size() < childCandidate.size()) {
 			for (int i = 0; i < parentCandidate.size(); ++i) {
 				if (!parentCandidate.get(i).equals(childCandidate.get(i))) {
