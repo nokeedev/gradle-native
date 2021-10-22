@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -44,6 +45,7 @@ import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
+import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
@@ -148,6 +150,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					}
 				}
 			}))
+			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;
 				@Override

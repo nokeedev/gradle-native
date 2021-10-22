@@ -16,6 +16,7 @@
 package dev.nokee.platform.ios;
 
 import dev.nokee.internal.testing.FileSystemWorkspace;
+import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
@@ -34,12 +35,14 @@ import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.stream.Stream;
 
+import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin.objectiveCIosApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -90,5 +93,34 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 	void hasBaseNameConventionAsComponentName() {
 		subject().getBaseName().set((String) null);
 		assertThat(subject().getBaseName(), providerOf("bovi"));
+	}
+
+	@Nested
+	class ComponentTasksTest {
+		public TaskView<Task> subject() {
+			return subject.getTasks();
+		}
+
+		@Test
+		void hasAssembleTask() {
+			assertThat(subject().get(), hasItem(named("assembleBovi")));
+		}
+	}
+
+	@Nested
+	class AssembleTaskTest {
+		public Task subject() {
+			return subject.getTasks().filter(it -> it.getName().equals("assembleBovi")).get().get(0);
+		}
+
+		@Test
+		public void hasBuildGroup() {
+			assertThat(subject(), TaskMatchers.group("build"));
+		}
+
+		@Test
+		public void hasDescription() {
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the Objective-C iOS application ':bovi'."));
+		}
 	}
 }

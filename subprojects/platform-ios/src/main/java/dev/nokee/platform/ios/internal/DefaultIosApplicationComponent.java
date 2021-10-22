@@ -294,7 +294,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
 			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity));
 		}));
-		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {
