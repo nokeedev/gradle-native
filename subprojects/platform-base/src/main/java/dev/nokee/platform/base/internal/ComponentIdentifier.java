@@ -29,37 +29,36 @@ import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
 public final class ComponentIdentifier implements DomainObjectIdentifier {
-	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
 	private static final String DEFAULT_DISPLAY_NAME = "component";
-	private final ComponentName name;
+	private final ComponentIdentity identity;
 	private final String displayName;
 	private final ProjectIdentifier projectIdentifier;
 
-	private ComponentIdentifier(ComponentName name, String displayName, ProjectIdentifier projectIdentifier) {
-		this.name = requireNonNull(name);
+	private ComponentIdentifier(ComponentIdentity identity, String displayName, ProjectIdentifier projectIdentifier) {
+		this.identity = requireNonNull(identity);
 		this.displayName = requireNonNull(displayName);
 		this.projectIdentifier = requireNonNull(projectIdentifier);
 	}
 
 	public static ComponentIdentifier ofMain(ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier(MAIN_COMPONENT_NAME, DEFAULT_DISPLAY_NAME, projectIdentifier);
+		return new ComponentIdentifier(ComponentIdentity.ofMain(), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
 	public static ComponentIdentifier of(String name, ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier(ComponentName.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
+		return new ComponentIdentifier(ComponentIdentity.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
 	public static ComponentIdentifier of(ComponentName name, ProjectIdentifier projectIdentifier) {
-		return new ComponentIdentifier(name, DEFAULT_DISPLAY_NAME, projectIdentifier);
+		return new ComponentIdentifier(ComponentIdentity.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
 	public ComponentName getName() {
-		return name;
+		return identity.getName();
 	}
 
 	@Deprecated
 	public Path getPath() {
-		return getProjectIdentifier().getPath().child(name.get());
+		return getProjectIdentifier().getPath().child(getName().get());
 	}
 
 	@Deprecated
@@ -78,7 +77,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier {
 	}
 
 	public boolean isMainComponent() {
-		return name.equals(MAIN_COMPONENT_NAME);
+		return identity.isMainComponent();
 	}
 
 	@Override
@@ -116,7 +115,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier {
 		}
 
 		public ComponentIdentifier build() {
-			return new ComponentIdentifier(name, displayName, projectIdentifier);
+			return new ComponentIdentifier(ComponentIdentity.of(name), displayName, projectIdentifier);
 		}
 	}
 }
