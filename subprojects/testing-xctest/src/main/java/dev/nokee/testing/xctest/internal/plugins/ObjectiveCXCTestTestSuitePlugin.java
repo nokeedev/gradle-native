@@ -56,6 +56,10 @@ import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
+import dev.nokee.runtime.nativebase.*;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.IsTestComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
@@ -76,6 +80,7 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
@@ -219,6 +224,34 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.withComponent(IsModelProperty.tag())
 							.withComponent(createdUsing(of(new TypeOf<Property<DefaultXCTestTestSuiteVariant>>() {}), () -> project.getObjects().property(DefaultXCTestTestSuiteVariant.class)))
 							.build());
+
+						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+							.elementType(TargetLinkage.class)
+							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
+							.defaultValue(TargetLinkages.BUNDLE)
+							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetBuildTypes"))
+							.elementType(TargetBuildType.class)
+							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
+							.defaultValue(TargetBuildTypes.DEFAULT)
+							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
+							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
+							.build());
+						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
+					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+				private boolean alreadyExecuted = false;
+				@Override
+				public void execute(ModelNode entity, ModelPath path, ModelState state) {
+					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+						alreadyExecuted = true;
+						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 					}
 				}
 			}))
@@ -365,6 +398,34 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.withComponent(IsModelProperty.tag())
 							.withComponent(createdUsing(of(new TypeOf<Property<DefaultXCTestTestSuiteVariant>>() {}), () -> project.getObjects().property(DefaultXCTestTestSuiteVariant.class)))
 							.build());
+
+						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+							.elementType(TargetLinkage.class)
+							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
+							.defaultValue(TargetLinkages.BUNDLE)
+							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetBuildTypes"))
+							.elementType(TargetBuildType.class)
+							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
+							.defaultValue(TargetBuildTypes.DEFAULT)
+							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
+							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
+							.build());
+						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
+					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+				private boolean alreadyExecuted = false;
+				@Override
+				public void execute(ModelNode entity, ModelPath path, ModelState state) {
+					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+						alreadyExecuted = true;
+						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 					}
 				}
 			}))

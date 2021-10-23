@@ -56,12 +56,10 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeLibraryVariant>
 {
 	private final TaskRegistry taskRegistry;
-	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	@Inject
 	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultNativeLibraryVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
-		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 		this.taskRegistry = taskRegistry;
 	}
 
@@ -82,7 +80,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return buildVariants;
+		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
 	}
 
 	@Override

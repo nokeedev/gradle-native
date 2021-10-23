@@ -97,7 +97,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final ProjectLayout layout;
 	private final ConfigurationContainer configurations;
 	@Getter private final Property<String> moduleName;
-	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	@Inject
 	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
@@ -109,11 +108,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.dependencyHandler = dependencyHandler;
 		this.eventPublisher = eventPublisher;
 		this.groupId = objects.property(GroupId.class);
-		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
-
-		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE)));
-		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.named("Default"))));
-		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
 		this.taskRegistry = taskRegistry;
 		this.moduleName = objects.property(String.class).convention(getBaseName());
 	}
@@ -135,7 +129,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return buildVariants;
+		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
 	}
 
 	@Override

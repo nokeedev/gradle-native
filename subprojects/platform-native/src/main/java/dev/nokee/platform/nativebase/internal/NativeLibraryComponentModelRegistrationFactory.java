@@ -43,9 +43,10 @@ import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDepende
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.*;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
@@ -60,6 +61,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
@@ -157,23 +159,23 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 							.withComponent(createdUsing(of(new TypeOf<Property<NativeLibrary>>() {}), () -> project.getObjects().property(NativeLibrary.class)))
 							.build());
 
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("targetMachines"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(createdUsing(of(new TypeOf<SetProperty<TargetMachine>>() {}), () -> project.getObjects().setProperty(TargetMachine.class)))
+						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+							.elementType(TargetLinkage.class)
+							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
+							.defaultValue(TargetLinkages.SHARED)
 							.build());
-
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("targetBuildTypes"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(createdUsing(of(new TypeOf<SetProperty<TargetBuildType>>() {}), () -> project.getObjects().setProperty(TargetBuildType.class)))
+						registry.register(dimensions.newAxisProperty(path.child("targetBuildTypes"))
+							.elementType(TargetBuildType.class)
+							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
+							.defaultValue(TargetBuildTypes.DEFAULT)
 							.build());
-
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("targetLinkages"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(createdUsing(of(new TypeOf<SetProperty<TargetLinkage>>() {}), () -> project.getObjects().setProperty(TargetLinkage.class)))
+						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
+							.defaultValue(TargetMachines.host())
 							.build());
+						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeLibrary.class));
 
@@ -190,6 +192,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				public void execute(ModelNode entity, ModelPath path, ModelState state) {
 					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
+						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
 					}
 				}

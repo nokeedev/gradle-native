@@ -44,11 +44,14 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.ios.IosApplication;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
+import dev.nokee.runtime.nativebase.*;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
@@ -63,6 +66,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
@@ -152,6 +156,24 @@ public final class IosApplicationComponentModelRegistrationFactory {
 							.withComponent(createdUsing(of(new TypeOf<Property<IosApplication>>() {}), () -> project.getObjects().property(IosApplication.class)))
 							.build());
 
+						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+							.elementType(TargetLinkage.class)
+							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
+							.defaultValue(TargetLinkages.EXECUTABLE)
+							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetBuildTypes"))
+							.elementType(TargetBuildType.class)
+							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
+							.defaultValue(TargetBuildTypes.named("Default"))
+							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
+							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
+							.build());
+						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
+
 						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), DefaultIosApplicationVariant.class));
@@ -167,6 +189,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				public void execute(ModelNode entity, ModelPath path, ModelState state) {
 					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
+						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
 					}
 				}

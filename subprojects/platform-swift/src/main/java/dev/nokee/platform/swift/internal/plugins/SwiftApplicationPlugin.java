@@ -66,7 +66,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(swiftApplication("main", project)).as(SwiftApplication.class);
-		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen(configureBuildVariants())));
+		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName()))));
 		val extension = componentProvider.get();
 
 		// Other configurations
