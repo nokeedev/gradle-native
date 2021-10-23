@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.ios.internal;
 
+import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -36,6 +37,8 @@ import org.gradle.api.provider.Provider;
 
 import javax.inject.Inject;
 
+import static dev.nokee.utils.ConfigurationUtils.*;
+
 public class IosApplicationOutgoingDependencies implements NativeOutgoingDependencies {
 	@Getter(AccessLevel.PROTECTED) private final DefaultNativeComponentDependencies dependencies;
 	@Getter private final ConfigurableFileCollection exportedHeaders;
@@ -50,12 +53,14 @@ public class IosApplicationOutgoingDependencies implements NativeOutgoingDepende
 		this.exportedBinary = objects.property(Binary.class);
 
 		ConfigurationUtils builder = objects.newInstance(ConfigurationUtils.class);
-		val configurationRegistry = new ConfigurationBucketRegistryImpl(configurationContainer);
+		val configurationRegistry = NamedDomainObjectRegistry.of(configurationContainer);
 		val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"),
 			ConsumableDependencyBucket.class, ownerIdentifier);
-		val runtimeElements = configurationRegistry.createIfAbsent(identifier.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant));
+		val runtimeElements = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		runtimeElements.configure(configureAsConsumable());
+		runtimeElements.configure(builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant));
 
-		runtimeElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
+		runtimeElements.get().getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
 	}
 
 	private Provider<FileSystemLocation> getOutgoingRuntimeLibrary(Binary binary) {

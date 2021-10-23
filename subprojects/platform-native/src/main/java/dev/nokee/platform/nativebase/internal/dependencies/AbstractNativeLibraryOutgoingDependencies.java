@@ -16,10 +16,13 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.dependencies.*;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucket;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketName;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.ConfigurationUtils;
 import dev.nokee.platform.nativebase.internal.HasOutputFile;
@@ -30,6 +33,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.PublishArtifact;
@@ -42,14 +46,16 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
+import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
+
 public abstract class AbstractNativeLibraryOutgoingDependencies {
 	private final ConfigurationUtils builder;
 	@Getter private final ConfigurableFileCollection exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-	@Getter private final Configuration linkElements;
-	@Getter private final Configuration runtimeElements;
+	private final NamedDomainObjectProvider<Configuration> linkElements;
+	private final NamedDomainObjectProvider<Configuration> runtimeElements;
 
 	protected AbstractNativeLibraryOutgoingDependencies(DomainObjectIdentifierInternal ownerIdentifier, BuildVariantInternal buildVariant, DefaultNativeLibraryComponentDependencies dependencies, ConfigurationContainer configurationContainer, ObjectFactory objects) {
 		this.exportedHeaders = objects.fileCollection();
@@ -58,22 +64,34 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 		this.objects = objects;
 		this.builder = objects.newInstance(ConfigurationUtils.class);
 
-		val configurationRegistry = new ConfigurationBucketRegistryImpl(configurationContainer);
+		val configurationRegistry = NamedDomainObjectRegistry.of(configurationContainer);
 
 		val identifierLinkElements = DependencyBucketIdentifier.of(DependencyBucketName.of("linkElements"),
 			ConsumableDependencyBucket.class, ownerIdentifier);
-		this.linkElements = configurationRegistry.createIfAbsent(identifierLinkElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingLinkLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierLinkElements.getDisplayName()));
+		this.linkElements = configurationRegistry.registerIfAbsent(identifierLinkElements.getConfigurationName());
+		linkElements.configure(configureAsConsumable());
+		linkElements.configure(builder.asOutgoingLinkLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getLinkOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierLinkElements.getDisplayName()));
 
 		val identifierRuntimeElements = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"),
 			ConsumableDependencyBucket.class, ownerIdentifier);
-		this.runtimeElements = configurationRegistry.createIfAbsent(identifierRuntimeElements.getConfigurationName(), ConfigurationBucketType.CONSUMABLE, builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierRuntimeElements.getDisplayName()));
+		this.runtimeElements = configurationRegistry.registerIfAbsent(identifierRuntimeElements.getConfigurationName());
+		runtimeElements.configure(configureAsConsumable());
+		runtimeElements.configure(builder.asOutgoingRuntimeLibrariesFrom(dependencies.getImplementation().getAsConfiguration(), dependencies.getRuntimeOnly().getAsConfiguration()).withVariant(buildVariant).withDescription(identifierRuntimeElements.getDisplayName()));
 
-		linkElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
+		linkElements.get().getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
 
 		val artifacts = objects.listProperty(PublishArtifact.class);
 		artifacts.addAll(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
-		runtimeElements.getOutgoing().getArtifacts().addAllLater(artifacts);
+		runtimeElements.get().getOutgoing().getArtifacts().addAllLater(artifacts);
 //		runtimeElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
+	}
+
+	public Configuration getLinkElements() {
+		return linkElements.get();
+	}
+
+	public Configuration getRuntimeElements() {
+		return runtimeElements.get();
 	}
 
 	private Provider<RegularFile> getOutgoingLinkLibrary(Binary binary) {
