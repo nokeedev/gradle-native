@@ -32,6 +32,9 @@ import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.nativebase.testers.TargetBuildTypeAwareComponentTester;
+import dev.nokee.platform.nativebase.testers.TargetLinkageAwareComponentTester;
+import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
@@ -59,6 +62,9 @@ class CppLibraryTest implements ComponentTester<CppLibrary>
 	, HasPrivateHeadersTester
 	, HasPublicHeadersTester
 	, HasDevelopmentVariantTester
+	, TargetMachineAwareComponentTester
+	, TargetBuildTypeAwareComponentTester
+	, TargetLinkageAwareComponentTester
 {
 	private final CppLibrary subject = createSubject("gori");
 	@Getter @TempDir File testDirectory;

@@ -32,10 +32,7 @@ import dev.nokee.platform.cpp.HasCppSourceSet;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import groovy.lang.Closure;
 import lombok.AccessLevel;
@@ -113,6 +110,8 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedHasDevelopmentVariantMixIn<NativeApplication>
+		, ModelBackedTargetMachineAwareComponentMixIn
+		, ModelBackedTargetBuildTypeAwareComponentMixIn
 	{
 		@Override
 		public CppSourceSet getCppSources() {

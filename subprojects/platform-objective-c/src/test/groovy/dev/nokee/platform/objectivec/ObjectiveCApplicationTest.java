@@ -32,6 +32,8 @@ import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.nativebase.testers.TargetBuildTypeAwareComponentTester;
+import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
@@ -58,6 +60,8 @@ class ObjectiveCApplicationTest implements ComponentTester<ObjectiveCApplication
 	, HasObjectiveCSourcesTester
 	, HasPrivateHeadersTester
 	, HasDevelopmentVariantTester
+	, TargetMachineAwareComponentTester
+	, TargetBuildTypeAwareComponentTester
 {
 	private final ObjectiveCApplication subject = createSubject("jiro");
 	@Getter @TempDir File testDirectory;
