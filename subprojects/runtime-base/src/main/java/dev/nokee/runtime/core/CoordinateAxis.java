@@ -41,6 +41,9 @@ public interface CoordinateAxis<T> {
 	 * @return the coordinate, never null
 	 */
 	default Coordinate<T> create(T value) {
+		if (value instanceof Coordinate && ((Coordinate<?>) value).getAxis().equals(this)) {
+			return (Coordinate<T>) value;
+		}
 		return new DefaultCoordinate<>(this, value);
 	}
 
