@@ -16,26 +16,30 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.DependencyFactory;
+import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
 import lombok.val;
+import org.gradle.api.artifacts.Configuration;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.mapDisplayName;
 import static dev.nokee.utils.ConfigurationUtils.configureDescription;
 
 public final class DependencyBucketFactoryImpl implements DependencyBucketFactory {
-	private final ConfigurationBucketRegistry configurationBucketRegistry;
+	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyFactory dependencyFactory;
 
-	public DependencyBucketFactoryImpl(ConfigurationBucketRegistry configurationBucketRegistry, DependencyFactory dependencyFactory) {
-		this.configurationBucketRegistry = configurationBucketRegistry;
+	public DependencyBucketFactoryImpl(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyFactory dependencyFactory) {
+		this.configurationRegistry = configurationRegistry;
 		this.dependencyFactory = dependencyFactory;
 	}
 
 	@Override
 	public DependencyBucket create(DependencyBucketIdentifier<?> identifier) {
-		val configuration = configurationBucketRegistry.createIfAbsent(identifier.getConfigurationName(), bucketTypeOf(identifier.getType()), configureDescription(mapDisplayName(identifier)));
+		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		configurationProvider.configure(bucketTypeOf(identifier.getType())::configure);
+		configurationProvider.configure(configureDescription(mapDisplayName(identifier)));
 
-		return new DefaultDependencyBucket(identifier.getName().get(), configuration, dependencyFactory);
+		return new DefaultDependencyBucket(identifier.getName().get(), configurationProvider, dependencyFactory);
 	}
 
 	private static ConfigurationBucketType bucketTypeOf(Class<?> type) {

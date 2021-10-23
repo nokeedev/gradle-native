@@ -16,29 +16,41 @@
 package dev.nokee.platform.base.internal.dependencies
 
 import dev.nokee.model.DependencyFactory
+import dev.nokee.model.NamedDomainObjectRegistry
 import dev.nokee.model.internal.ProjectIdentifier
-import org.gradle.api.artifacts.Configuration
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.mapDisplayName
-import static dev.nokee.utils.ConfigurationUtils.configureDescription
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject
 
 @Subject(DependencyBucketFactoryImpl)
 class DependencyBucketFactoryImplTest extends Specification {
 	@Unroll
 	def "can create dependency bucket"(bucketType, expectedConfigurationType) {
 		given:
-		def configurationRegistry = Mock(ConfigurationBucketRegistry)
+		def configurations = rootProject().configurations
+		def configurationRegistry = NamedDomainObjectRegistry.of(configurations)
 		def subject = new DependencyBucketFactoryImpl(configurationRegistry, Stub(DependencyFactory))
 		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('foo'), bucketType, ProjectIdentifier.of('root'))
 
 		when:
-		subject.create(identifier)
+		def result = subject.create(identifier)
 
 		then:
-		1 * configurationRegistry.createIfAbsent('foo', expectedConfigurationType, configureDescription(mapDisplayName(identifier))) >> Stub(Configuration)
+		result.asConfiguration.description == identifier.displayName
+		if (bucketType == DeclarableDependencyBucket) {
+			!result.asConfiguration.canBeConsumed
+			!result.asConfiguration.canBeResolved
+		} else if (bucketType == ResolvableDependencyBucket) {
+			!result.asConfiguration.canBeConsumed
+			result.asConfiguration.canBeResolved
+		} else if (bucketType == ConsumableDependencyBucket) {
+			result.asConfiguration.canBeConsumed
+			!result.asConfiguration.canBeResolved
+		} else {
+			throw new UnsupportedOperationException()
+		}
 
 		where:
 		bucketType 					| expectedConfigurationType

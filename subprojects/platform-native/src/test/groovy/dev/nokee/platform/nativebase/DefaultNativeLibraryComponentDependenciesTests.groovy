@@ -20,8 +20,8 @@ import dev.nokee.fixtures.AbstractLibraryComponentDependenciesIntegrationTest
 import dev.nokee.fixtures.AbstractLocalDarwinFrameworkDependenciesIntegrationTest
 import dev.nokee.model.DependencyFactory
 import dev.nokee.model.DomainObjectIdentifier
+import dev.nokee.model.NamedDomainObjectRegistry
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
-import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl
 import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies
@@ -34,7 +34,7 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory
 class DefaultNativeLibraryComponentDependenciesIntegrationTest extends AbstractComponentDependenciesIntegrationTest {
 	@Override
 	protected newDependencies(DomainObjectIdentifierInternal identifier) {
-		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), DependencyFactory.forProject(project))))
+		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.configurations), DependencyFactory.forProject(project))))
 		return project.objects.newInstance(DefaultNativeLibraryComponentDependencies, dependencyContainer)
 	}
 
@@ -48,7 +48,7 @@ class DefaultNativeLibraryComponentDependenciesIntegrationTest extends AbstractC
 class DefaultNativeLibraryComponentDependenciesLocalDarwinFrameworkIntegrationTest extends AbstractLocalDarwinFrameworkDependenciesIntegrationTest {
 	@Override
 	protected newDependencies(DomainObjectIdentifier identifier) {
-		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), DependencyFactory.forProject(project))))
+		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.configurations), DependencyFactory.forProject(project))))
 		return project.objects.newInstance(DefaultNativeLibraryComponentDependencies, dependencyContainer)
 	}
 
@@ -62,7 +62,7 @@ class DefaultNativeLibraryComponentDependenciesLocalDarwinFrameworkIntegrationTe
 class DefaultNativeLibraryComponentDependenciesApiBucketIntegrationTest extends AbstractLibraryComponentDependenciesIntegrationTest {
 	@Override
 	protected newDependencies(DomainObjectIdentifier identifier) {
-		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), DependencyFactory.forProject(project))))
+		def dependencyContainer = project.objects.newInstance(DefaultComponentDependencies, identifier, new FrameworkAwareDependencyBucketFactory(objectFactory(), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.configurations), DependencyFactory.forProject(project))))
 		return project.objects.newInstance(DefaultNativeLibraryComponentDependencies, dependencyContainer)
 	}
 
