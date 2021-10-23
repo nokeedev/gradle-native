@@ -78,10 +78,7 @@ import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Action;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
+import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -133,6 +130,7 @@ import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmInclude
 import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
+import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
@@ -479,27 +477,31 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val library = componentProvider.get();
 
 		val dependencies = library.getDependencies();
-		val configurationRegistry = new ConfigurationBucketRegistryImpl(project.getConfigurations());
+		val configurationRegistry = NamedDomainObjectRegistry.of(project.getConfigurations());
 
 		val apiElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("apiElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
-		Configuration jvmApiElements = configurationRegistry.createIfAbsent("apiElements", ConfigurationBucketType.CONSUMABLE, configuration -> {
+		NamedDomainObjectProvider<Configuration> jvmApiElements = configurationRegistry.registerIfAbsent("apiElements");
+		jvmApiElements.configure(configureAsConsumable());
+		jvmApiElements.configure(configuration -> {
 			configuration.setDescription(apiElementsIdentifier.getDisplayName());
 			configuration.attributes(attributes -> {
 				attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
 				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
 			});
 		});
-		jvmApiElements.extendsFrom(dependencies.getApi().getAsConfiguration());
+		jvmApiElements.get().extendsFrom(dependencies.getApi().getAsConfiguration());
 
 		val runtimeElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
-		Configuration jvmRuntimeElements = configurationRegistry.createIfAbsent("runtimeElements", ConfigurationBucketType.CONSUMABLE, configuration -> {
+		NamedDomainObjectProvider<Configuration> jvmRuntimeElements = configurationRegistry.registerIfAbsent("runtimeElements");
+		jvmRuntimeElements.configure(configureAsConsumable());
+		jvmRuntimeElements.configure(configuration -> {
 			configuration.setDescription(runtimeElementsIdentifier.getDisplayName());
 			configuration.attributes(attributes -> {
 				attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
 				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
 			});
 		});
-		jvmRuntimeElements.extendsFrom(dependencies.getApi().getAsConfiguration());
+		jvmRuntimeElements.get().extendsFrom(dependencies.getApi().getAsConfiguration());
 
 		project.getPluginManager().withPlugin("java", appliedPlugin -> {
 			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnly().getAsConfiguration());
