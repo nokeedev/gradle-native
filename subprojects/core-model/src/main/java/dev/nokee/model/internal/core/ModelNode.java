@@ -62,13 +62,14 @@ public final class ModelNode {
 		return id;
 	}
 
-	public void addComponent(Object component) {
+	public <T> T addComponent(T component) {
 		ModelComponentType<? super Object> componentType = ModelComponentType.ofInstance(component);
 		val oldComponent = components.get(componentType);
 		if (oldComponent == null || !oldComponent.equals(component)) {
 			components.put(componentType, component);
 			notifyComponentAdded(component);
 		}
+		return component;
 	}
 
 	private void notifyComponentAdded(Object newComponent) {
