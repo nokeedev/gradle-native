@@ -22,13 +22,16 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DependencyFactory;
+import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.ComponentVariants;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.BuildVariantNamer;
+import dev.nokee.platform.base.internal.VariantCollection;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -42,7 +45,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDepende
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
@@ -101,7 +103,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	}
 
 	private VariantComponentDependencies newDependencies(BuildVariantInternal buildVariant, JniLibraryComponentInternal component, VariantIdentifier<JniLibraryInternal> variantIdentifier) {
-		val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyFactory));
+		val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(configurationContainer), dependencyFactory));
 		val variantDependencies = objectFactory.newInstance(DefaultJavaNativeInterfaceNativeComponentDependencies.class, dependencyContainer);
 		variantDependencies.configureEach(variantBucket -> {
 			component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
@@ -113,7 +115,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 			});
 		});
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyFactory));
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(configurationContainer), dependencyFactory));
 		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))));
 		boolean hasHeader = modelLookup.anyMatch(ModelSpecs.of(withType(of(CSourceSet.class)).or(withType(of(CppSourceSet.class))).or(withType(of(ObjectiveCSourceSet.class))).or(withType(of(ObjectiveCppSourceSet.class)))));
 		if (hasSwift) {
