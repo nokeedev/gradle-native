@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.DomainObjectProvider;
@@ -28,7 +27,6 @@ import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationBucketRegistryImpl;
 import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
@@ -39,19 +37,20 @@ import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDepende
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.*;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.SetProperty;
-import org.gradle.model.Model;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -138,17 +137,23 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 							.withComponent(createdUsing(of(new TypeOf<Property<NativeApplication>>() {}), () -> project.getObjects().property(NativeApplication.class)))
 							.build());
 
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("targetMachines"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(createdUsing(of(new TypeOf<SetProperty<TargetMachine>>() {}), () -> project.getObjects().setProperty(TargetMachine.class)))
+						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+							.elementType(TargetLinkage.class)
+							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
+							.defaultValue(TargetLinkages.EXECUTABLE)
 							.build());
-
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("targetBuildTypes"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(createdUsing(of(new TypeOf<SetProperty<TargetBuildType>>() {}), () -> project.getObjects().setProperty(TargetBuildType.class)))
+						registry.register(dimensions.newAxisProperty(path.child("targetBuildTypes"))
+							.elementType(TargetBuildType.class)
+							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
+							.defaultValue(TargetBuildTypes.DEFAULT)
 							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
+							.defaultValue(TargetMachines.host())
+							.build());
+						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeApplication.class));
 
@@ -165,6 +170,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 				public void execute(ModelNode entity, ModelPath path, ModelState state) {
 					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
+						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
 					}
 				}
@@ -199,7 +205,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 					val variant = ModelNodeUtils.register(entity, nativeApplicationVariant(variantIdentifier, component, project));
 
 					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
+					onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
 				}
 
 				private void onEachVariantDependencies(DomainObjectProvider<NativeApplication> variant, VariantComponentDependencies<?> dependencies) {

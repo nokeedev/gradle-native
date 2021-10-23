@@ -72,7 +72,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCApplication("main", project)).as(ObjectiveCApplication.class);
-		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName())));
 		val extension = componentProvider.get();
 
 		// Other configurations

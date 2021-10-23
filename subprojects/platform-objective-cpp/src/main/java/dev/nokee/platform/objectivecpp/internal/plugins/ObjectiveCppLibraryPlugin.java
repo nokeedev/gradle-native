@@ -74,7 +74,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCppLibrary("main", project)).as(ObjectiveCppLibrary.class);
-		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName())));
 		val extension = componentProvider.get();
 
 		// Other configurations

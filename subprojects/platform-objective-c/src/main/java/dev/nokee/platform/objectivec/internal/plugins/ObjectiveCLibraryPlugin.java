@@ -73,7 +73,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCLibrary("main", project)).as(ObjectiveCLibrary.class);
-		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName())));
 		val extension = componentProvider.get();
 
 		// Other configurations

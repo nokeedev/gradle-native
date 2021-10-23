@@ -73,7 +73,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	private final ProjectLayout layout;
 	@Getter private final Property<String> moduleName;
 	@Getter private final Property<String> productBundleIdentifier;
-	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
@@ -84,15 +83,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
 		this.moduleName = configureDisplayName(objects.property(String.class), "moduleName");
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
-		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
-
-		getDimensions().add(CoordinateSet.of(Coordinates.of(TargetLinkages.BUNDLE)));
-		getDimensions().add(CoordinateSet.of(Coordinates.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())));
-
-		// TODO: Move to extension
-		getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
-		getBuildVariants().finalizeValueOnRead();
-		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 	}
 
 	@Override
@@ -102,7 +92,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return buildVariants;
+		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
 	}
 
 	@Override

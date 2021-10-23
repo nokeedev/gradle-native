@@ -72,6 +72,8 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ComponentDependenciesPropertyRegistrationFactory.class, "__nokee_componentDependenciesPropertyFactory", new ComponentDependenciesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class)));
 		project.getExtensions().add(ComponentBinariesPropertyRegistrationFactory.class, "__nokee_componentBinariesPropertyFactory", new ComponentBinariesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
+
+		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects(), project.getExtensions().getByType(ModelLookup.class)));
 	}
 
 	private static NodeRegistration components() {

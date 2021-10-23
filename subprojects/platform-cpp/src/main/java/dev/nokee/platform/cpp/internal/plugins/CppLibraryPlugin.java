@@ -69,7 +69,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(cppLibrary("main", project)).as(CppLibrary.class);
-		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		componentProvider.configure(configureUsingProjection(DefaultNativeLibraryComponent.class, baseNameConvention(project.getName())));
 		val extension = componentProvider.get();
 
 		// Other configurations

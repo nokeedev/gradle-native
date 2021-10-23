@@ -59,13 +59,11 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeApplicationVariant>
 {
 	private final TaskRegistry taskRegistry;
-	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	@Inject
 	public DefaultNativeApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
 		super(identifier, DefaultNativeApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
 		this.taskRegistry = taskRegistry;
-		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 	}
 
 	@Override
@@ -105,7 +103,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return buildVariants;
+		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
 	}
 
 	public void finalizeExtension(Project project) {

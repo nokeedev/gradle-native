@@ -90,7 +90,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(nativeApplication("main", project)).as(NativeApplicationExtension.class);
-		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName()).andThen(configureBuildVariants())));
+		componentProvider.configure(configureUsingProjection(DefaultNativeApplicationComponent.class, baseNameConvention(project.getName())));
 		val extension = componentProvider.get();
 
 		// Other configurations

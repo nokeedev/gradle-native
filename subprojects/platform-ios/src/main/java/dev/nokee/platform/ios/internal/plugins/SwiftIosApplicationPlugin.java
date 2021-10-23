@@ -45,7 +45,6 @@ import org.gradle.util.GUtil;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin.configureBuildVariants;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -62,7 +61,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication("main", project)).as(SwiftIosApplication.class);
-		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup))).andThen(configureBuildVariants())));
+		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup)))));
 		project.getExtensions().add(SwiftIosApplication.class, EXTENSION_NAME, componentProvider.get());
 
 		// Other configurations
