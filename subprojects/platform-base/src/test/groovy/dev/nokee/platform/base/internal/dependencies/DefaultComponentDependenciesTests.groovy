@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal.dependencies
 
 import dev.nokee.internal.testing.util.ProjectTestUtils
+import dev.nokee.model.DependencyFactory
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.AbstractComponentDependenciesGroovyDslTest
 import dev.nokee.platform.base.DependencyBucket
@@ -175,7 +176,7 @@ class DefaultComponentDependenciesTest extends Specification {
 @Subject(DefaultComponentDependencies)
 class DefaultComponentDependenciesGroovyDslTest extends AbstractComponentDependenciesGroovyDslTest {
 	def project = ProjectTestUtils.rootProject()
-	def factory = new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), project.dependencies)
+	def factory = new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.configurations), DependencyFactory.forProject(project))
 	ComponentDependenciesInternal dependenciesUnderTest = project.objects.newInstance(DefaultComponentDependencies, ProjectIdentifier.of('root'), factory)
 
 

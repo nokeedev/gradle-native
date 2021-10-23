@@ -15,9 +15,9 @@
  */
 package dev.nokee.platform.base.internal.dependencies
 
+import dev.nokee.model.DependencyFactory
 import dev.nokee.model.internal.ProjectIdentifier
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.dsl.DependencyHandler
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
@@ -31,7 +31,7 @@ class DependencyBucketFactoryImplTest extends Specification {
 	def "can create dependency bucket"(bucketType, expectedConfigurationType) {
 		given:
 		def configurationRegistry = Mock(ConfigurationBucketRegistry)
-		def subject = new DependencyBucketFactoryImpl(configurationRegistry, Stub(DependencyHandler))
+		def subject = new DependencyBucketFactoryImpl(configurationRegistry, Stub(DependencyFactory))
 		def identifier = DependencyBucketIdentifier.of(DependencyBucketName.of('foo'), bucketType, ProjectIdentifier.of('root'))
 
 		when:
