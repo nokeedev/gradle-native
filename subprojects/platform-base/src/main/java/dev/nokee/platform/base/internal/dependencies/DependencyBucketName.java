@@ -27,7 +27,6 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @since 0.5
  */
-@ToString
 @EqualsAndHashCode
 public final class DependencyBucketName {
 	private final String name;
@@ -44,6 +43,11 @@ public final class DependencyBucketName {
 	}
 
 	public String get() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
 		return name;
 	}
 }

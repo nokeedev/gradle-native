@@ -65,4 +65,9 @@ class DependencyBucketNameTest extends Specification {
 		def ex = thrown(IllegalArgumentException)
 		ex.message == 'Cannot construct a dependency bucket name because the name is capitalized.'
 	}
+
+	def "to string check"() {
+		expect:
+		DependencyBucketName.of("fooBar").toString() == 'fooBar'
+	}
 }
