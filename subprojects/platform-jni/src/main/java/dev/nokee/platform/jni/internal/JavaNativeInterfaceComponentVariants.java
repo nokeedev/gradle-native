@@ -21,6 +21,7 @@ import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -55,7 +56,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	private final ObjectFactory objectFactory;
 	private final JniLibraryComponentInternal component;
 	private final ConfigurationContainer configurationContainer;
-	private final DependencyHandler dependencyHandler;
+	private final DependencyFactory dependencyFactory;
 	private final ProviderFactory providerFactory;
 	private final TaskRegistry taskRegistry;
 	private final DomainObjectEventPublisher eventPublisher;
@@ -63,7 +64,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	private final TaskViewFactory taskViewFactory;
 	private final ModelLookup modelLookup;
 
-	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
+	public JavaNativeInterfaceComponentVariants(ObjectFactory objectFactory, JniLibraryComponentInternal component, ConfigurationContainer configurationContainer, DependencyFactory dependencyFactory, ProviderFactory providerFactory, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, VariantViewFactory viewFactory, VariantRepository variantRepository, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
 		this.eventPublisher = eventPublisher;
 		this.binaryViewFactory = binaryViewFactory;
 		this.taskViewFactory = taskViewFactory;
@@ -72,7 +73,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 		this.objectFactory = objectFactory;
 		this.component = component;
 		this.configurationContainer = configurationContainer;
-		this.dependencyHandler = dependencyHandler;
+		this.dependencyFactory = dependencyFactory;
 		this.providerFactory = providerFactory;
 		this.taskRegistry = taskRegistry;
 	}
@@ -100,7 +101,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 	}
 
 	private VariantComponentDependencies newDependencies(BuildVariantInternal buildVariant, JniLibraryComponentInternal component, VariantIdentifier<JniLibraryInternal> variantIdentifier) {
-		val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
+		val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyFactory));
 		val variantDependencies = objectFactory.newInstance(DefaultJavaNativeInterfaceNativeComponentDependencies.class, dependencyContainer);
 		variantDependencies.configureEach(variantBucket -> {
 			component.getDependencies().findByName(variantBucket.getName()).ifPresent(componentBucket -> {
@@ -112,7 +113,7 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 			});
 		});
 
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(new NativeComponentDependenciesJavaNativeInterfaceAdapter(variantDependencies)).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyFactory));
 		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))));
 		boolean hasHeader = modelLookup.anyMatch(ModelSpecs.of(withType(of(CSourceSet.class)).or(withType(of(CppSourceSet.class))).or(withType(of(ObjectiveCSourceSet.class))).or(withType(of(ObjectiveCppSourceSet.class)))));
 		if (hasSwift) {

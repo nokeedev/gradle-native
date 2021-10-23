@@ -21,6 +21,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.core.*;
@@ -113,7 +114,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 						sourceRegistration.accept(entity, path);
 
 						// TODO: Should be created as ModelProperty (readonly) with VariantView<NativeLibrary> projection
-						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), project.getDependencies())));
+						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(project.getConfigurations()), DependencyFactory.forProject(project))));
 						val dependencies = project.getObjects().newInstance(DefaultNativeLibraryComponentDependencies.class, dependencyContainer);
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
 

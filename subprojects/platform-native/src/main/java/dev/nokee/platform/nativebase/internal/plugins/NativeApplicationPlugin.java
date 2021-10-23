@@ -22,6 +22,7 @@ import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -119,7 +120,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 
 	public static NodeRegistration nativeApplicationVariant(VariantIdentifier<DefaultNativeApplicationVariant> identifier, DefaultNativeApplicationComponent component, Project project) {
-		val variantDependencies = newDependencies((BuildVariantInternal) identifier.getBuildVariant(), identifier, component, project.getConfigurations(), project.getDependencies(), project.getObjects(), project.getExtensions().getByType(ModelLookup.class));
+		val variantDependencies = newDependencies((BuildVariantInternal) identifier.getBuildVariant(), identifier, component, project.getConfigurations(), DependencyFactory.forProject(project), project.getObjects(), project.getExtensions().getByType(ModelLookup.class));
 		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(NativeApplication.class), () -> {
 				val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
@@ -234,12 +235,12 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 
-	private static VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeApplicationVariant> variantIdentifier, DefaultNativeApplicationComponent component, ConfigurationContainer configurationContainer, DependencyHandler dependencyHandler, ObjectFactory objectFactory, ModelLookup modelLookup) {
-		val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
+	private static VariantComponentDependencies<DefaultNativeApplicationComponentDependencies> newDependencies(BuildVariantInternal buildVariant, VariantIdentifier<DefaultNativeApplicationVariant> variantIdentifier, DefaultNativeApplicationComponent component, ConfigurationContainer configurationContainer, DependencyFactory dependencyFactory, ObjectFactory objectFactory, ModelLookup modelLookup) {
+		val dependencyContainer = objectFactory.newInstance(DefaultComponentDependencies.class, variantIdentifier, new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyFactory));
 		val variantDependencies = objectFactory.newInstance(DefaultNativeApplicationComponentDependencies.class, dependencyContainer);
 
 		boolean hasSwift = modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))));
-		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyHandler));
+		val incomingDependenciesBuilder = DefaultNativeIncomingDependencies.builder(variantDependencies).withVariant(buildVariant).withOwnerIdentifier(variantIdentifier).withBucketFactory(new DependencyBucketFactoryImpl(new ConfigurationBucketRegistryImpl(configurationContainer), dependencyFactory));
 		if (hasSwift) {
 			incomingDependenciesBuilder.withIncomingSwiftModules();
 		} else {
