@@ -18,15 +18,18 @@ package dev.nokee.model;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 
+import java.util.Objects;
+
 final class DefaultDependencyFactory implements DependencyFactory {
 	private final DependencyHandler dependencies;
 
 	DefaultDependencyFactory(DependencyHandler dependencies) {
-		this.dependencies = dependencies;
+		this.dependencies = Objects.requireNonNull(dependencies);
 	}
 
 	@Override
 	public Dependency create(Object notation) {
+		Objects.requireNonNull(notation);
 		return dependencies.create(notation);
 	}
 }
