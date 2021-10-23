@@ -49,7 +49,7 @@ public interface DependencyFactoryTester {
 	default void canCreateExternalDependencyUsingStringNotation() {
 		val dependency = subject().create("jef.xipabir:dequ:5.6");
 		assertThat(dependency, isA(ExternalModuleDependency.class));
-		assertThat(dependency, forCoordinate("jef.xipabir", "luka", "2.3"));
+		assertThat(dependency, forCoordinate("jef.xipabir", "dequ", "5.6"));
 	}
 
 	@Test
