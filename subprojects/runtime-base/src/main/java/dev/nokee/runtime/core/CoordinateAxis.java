@@ -30,6 +30,10 @@ public interface CoordinateAxis<T> {
 		return Coordinates.inferCoordinateAxisNameFromType(getType());
 	}
 
+	default String getDisplayName() {
+		return Coordinates.inferCoordinateAxisDisplayNameFromType(getType());
+	}
+
 	/**
 	 * Creates a coordinate for the specified value on this axis.
 	 *

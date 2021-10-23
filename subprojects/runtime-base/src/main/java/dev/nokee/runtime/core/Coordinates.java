@@ -108,6 +108,10 @@ public final class Coordinates {
 		return GUtil.toWords(type.getSimpleName(), '-');
 	}
 
+	static String inferCoordinateAxisDisplayNameFromType(Class<?> type) {
+		return GUtil.toWords(type.getSimpleName());
+	}
+
 	private static final Collector<Coordinate<?>, ?, CoordinateTuple> TO_COORDINATE_TUPLE = new Collector<Coordinate<?>, ImmutableList.Builder<Coordinate<?>>, CoordinateTuple>() {
 		@Override
 		public Supplier<ImmutableList.Builder<Coordinate<?>>> supplier() {
