@@ -29,6 +29,8 @@ import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.nativebase.testers.TargetLinkageAwareComponentTester;
+import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
@@ -54,6 +56,8 @@ public class SwiftLibraryTest implements ComponentTester<SwiftLibrary>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasSwiftSourcesTester
 	, HasDevelopmentVariantTester
+	, TargetMachineAwareComponentTester
+	, TargetLinkageAwareComponentTester
 {
 	private final SwiftLibrary subject = createSubject("peso");
 	@Getter @TempDir File testDirectory;

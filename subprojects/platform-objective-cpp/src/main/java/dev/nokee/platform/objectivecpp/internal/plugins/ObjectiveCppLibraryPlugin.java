@@ -131,6 +131,9 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedHasDevelopmentVariantMixIn<NativeLibrary>
+		, ModelBackedTargetMachineAwareComponentMixIn
+		, ModelBackedTargetBuildTypeAwareComponentMixIn
+		, ModelBackedTargetLinkageAwareComponentMixIn
 	{
 		@Override
 		public ObjectiveCppSourceSet getObjectiveCppSources() {

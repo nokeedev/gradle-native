@@ -43,6 +43,9 @@ import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDepende
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
+import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
@@ -50,6 +53,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.SetProperty;
 
 import java.util.Iterator;
 import java.util.List;
@@ -151,6 +155,24 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 							.withComponent(path.child("developmentVariant"))
 							.withComponent(IsModelProperty.tag())
 							.withComponent(createdUsing(of(new TypeOf<Property<NativeLibrary>>() {}), () -> project.getObjects().property(NativeLibrary.class)))
+							.build());
+
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("targetMachines"))
+							.withComponent(IsModelProperty.tag())
+							.withComponent(createdUsing(of(new TypeOf<SetProperty<TargetMachine>>() {}), () -> project.getObjects().setProperty(TargetMachine.class)))
+							.build());
+
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("targetBuildTypes"))
+							.withComponent(IsModelProperty.tag())
+							.withComponent(createdUsing(of(new TypeOf<SetProperty<TargetBuildType>>() {}), () -> project.getObjects().setProperty(TargetBuildType.class)))
+							.build());
+
+						registry.register(ModelRegistration.builder()
+							.withComponent(path.child("targetLinkages"))
+							.withComponent(IsModelProperty.tag())
+							.withComponent(createdUsing(of(new TypeOf<SetProperty<TargetLinkage>>() {}), () -> project.getObjects().setProperty(TargetLinkage.class)))
 							.build());
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeLibrary.class));

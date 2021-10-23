@@ -31,6 +31,8 @@ import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.nativebase.testers.TargetBuildTypeAwareComponentTester;
+import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
@@ -57,6 +59,8 @@ class CApplicationTest implements ComponentTester<CApplication>
 	, HasCSourcesTester
 	, HasPrivateHeadersTester
 	, HasDevelopmentVariantTester
+	, TargetMachineAwareComponentTester
+	, TargetBuildTypeAwareComponentTester
 {
 	private final CApplication subject = createSubject("kdrj");
 	@Getter @TempDir File testDirectory;
