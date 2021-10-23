@@ -31,6 +31,11 @@ class CustomCoordinateAxisTest implements CoordinateAxisTester<TestAxis> {
 		assertThat(createSubject().getName(), equalTo("test-axis"));
 	}
 
+	@Test
+	void defaultImplementationInfersDisplayNameFromType() {
+		assertThat(createSubject().getDisplayName(), equalTo("test axis"));
+	}
+
 	protected static final class CustomAxis implements CoordinateAxis<TestAxis> {
 		@Override
 		public Class<TestAxis> getType() {

@@ -39,4 +39,9 @@ public interface CoordinateAxisTester<T> {
 	default void hasName() {
 		assertThat(createSubject().getName(), notNullValue(String.class));
 	}
+
+	@Test
+	default void hasDisplayName() {
+		assertThat(createSubject().getName(), notNullValue(String.class));
+	}
 }

@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 class DefaultCoordinateAxisTest implements CoordinateAxisTester<TestAxis>, CoordinateAxisFactoryTester {
@@ -35,6 +36,11 @@ class DefaultCoordinateAxisTest implements CoordinateAxisTester<TestAxis>, Coord
 	@Override
 	public <T> CoordinateAxis<T> createSubject(Class<T> type, String name) {
 		return new DefaultCoordinateAxis<>(type, name);
+	}
+
+	@Test
+	void hasDisplayNameInferredFromAxisType() {
+		assertThat(new DefaultCoordinateAxis<>(TestAxis.class).getDisplayName(), is("test axis"));
 	}
 
 	@Test
