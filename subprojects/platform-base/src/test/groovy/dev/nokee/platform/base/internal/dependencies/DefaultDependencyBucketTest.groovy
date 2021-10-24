@@ -17,20 +17,19 @@ package dev.nokee.platform.base.internal.dependencies
 
 import dev.nokee.model.DependencyFactory
 import org.gradle.api.Action
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.artifacts.ModuleDependency
 import spock.lang.Specification
 import spock.lang.Subject
+
+import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject
 
 @Subject(DefaultDependencyBucket)
 class DefaultDependencyBucketTest extends Specification {
 	def dependency = Mock(ModuleDependency)
 	def dependencyFactory = Mock(DependencyFactory)
 	def dependencySet = Mock(DependencySet)
-	def configuration = Mock(Configuration) {
-		getDependencies() >> dependencySet
-	}
+	def configuration = rootProject().configurations.register("kdrj")
 	def subject = new DefaultDependencyBucket('foo', configuration, dependencyFactory)
 
 	def "can add dependency"() {
@@ -39,15 +38,22 @@ class DefaultDependencyBucketTest extends Specification {
 
 		when:
 		subject.addDependency(notation)
+
 		then:
 		1 * dependencyFactory.create(notation) >> dependency
-		1 * dependencySet.add(dependency)
+		configuration.get().dependencies.contains(dependency)
+	}
+
+	def "can add dependency with configuration action"() {
+		given:
+		def notation = new Object()
 
 		when:
 		subject.addDependency(notation, Mock(Action))
+
 		then:
 		1 * dependencyFactory.create(notation) >> dependency
-		1 * dependencySet.add(dependency)
+		configuration.get().dependencies.contains(dependency)
 	}
 
 	def "can configure dependency"() {
