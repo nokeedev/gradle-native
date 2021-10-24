@@ -15,11 +15,9 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 
 public final class ModelPropertyRegistrationFactory {
 	private final ModelLookup lookup;
@@ -41,29 +39,7 @@ public final class ModelPropertyRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
 				if (p.equals(path)) {
 					e.addComponent(IsModelProperty.tag());
-					e.addComponent(new ModelProjection() {
-						private final ModelNode delegate = entity;
-
-						@Override
-						public ModelType<?> getType() {
-							return ModelNodeUtils.getProjections(entity).findFirst().orElseThrow(RuntimeException::new).getType();
-						}
-
-						@Override
-						public <T> boolean canBeViewedAs(ModelType<T> type) {
-							return ModelNodeUtils.canBeViewedAs(delegate, type);
-						}
-
-						@Override
-						public <T> T get(ModelType<T> type) {
-							return ModelNodeUtils.get(delegate, type);
-						}
-
-						@Override
-						public Iterable<String> getTypeDescriptions() {
-							return ImmutableList.of(ModelNodeUtils.getTypeDescription(delegate).orElse("<unknown>"));
-						}
-					});
+					e.addComponent(new DelegatedModelProjection(entity));
 				}
 			}))
 			.build();
