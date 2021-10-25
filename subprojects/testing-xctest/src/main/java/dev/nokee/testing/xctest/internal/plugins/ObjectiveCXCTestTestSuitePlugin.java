@@ -38,8 +38,7 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultComponentDependencies;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketFactoryImpl;
+import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -49,6 +48,7 @@ import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
+import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -180,40 +180,13 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 						registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(path.child("tasks")));
 
-						val componentIdentifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, componentIdentifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-						val dependencies = project.getObjects().newInstance(DefaultNativeComponentDependencies.class, dependencyContainer);
+						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeComponentDependencies.class, ModelBackedNativeComponentDependencies::new));
 
-						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
-
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("implementation"))
-							.withComponent(IsDependencyBucket.tag())
-							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getImplementation().getAsConfiguration()))
-							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getImplementation()))
-							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getImplementation().getAsConfiguration().getName())))
-							.build());
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("compileOnly"))
-							.withComponent(IsDependencyBucket.tag())
-							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getCompileOnly().getAsConfiguration()))
-							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getCompileOnly()))
-							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getCompileOnly().getAsConfiguration().getName())))
-							.build());
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("linkOnly"))
-							.withComponent(IsDependencyBucket.tag())
-							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getLinkOnly().getAsConfiguration()))
-							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getLinkOnly()))
-							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getLinkOnly().getAsConfiguration().getName())))
-							.build());
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("runtimeOnly"))
-							.withComponent(IsDependencyBucket.tag())
-							.withComponent(createdUsing(of(Configuration.class), () -> dependencies.getRuntimeOnly().getAsConfiguration()))
-							.withComponent(createdUsing(of(DependencyBucket.class), () -> dependencies.getRuntimeOnly()))
-							.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> project.getConfigurations().named(dependencies.getRuntimeOnly().getAsConfiguration().getName())))
-							.build());
+						registry.register(bucketFactory.create(path.child("implementation"), DependencyBucketIdentifier.of(DependencyBucketName.of("implementation"), DeclarableDependencyBucket.class, identifier)));
+						registry.register(bucketFactory.create(path.child("compileOnly"), DependencyBucketIdentifier.of(DependencyBucketName.of("compileOnly"), DeclarableDependencyBucket.class, identifier)));
+						registry.register(bucketFactory.create(path.child("linkOnly"), DependencyBucketIdentifier.of(DependencyBucketName.of("linkOnly"), DeclarableDependencyBucket.class, identifier)));
+						registry.register(bucketFactory.create(path.child("runtimeOnly"), DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeOnly"), DeclarableDependencyBucket.class, identifier)));
 
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
