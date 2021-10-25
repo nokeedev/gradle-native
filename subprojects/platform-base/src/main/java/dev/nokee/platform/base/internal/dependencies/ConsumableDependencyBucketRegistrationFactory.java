@@ -15,70 +15,117 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactory;
+import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.utils.ActionUtils;
+import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
+import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 
-import static dev.nokee.model.internal.core.ModelActions.initialize;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.ofConsumable;
-import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Subject.ofName;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.*;
 
-public final class ConsumableDependencyBucketRegistrationFactory implements NodeRegistrationFactory {
-	private final ProjectConfigurationRegistry configurationRegistry;
-	private final ConfigurationNamingScheme namingScheme;
-	private final ConfigurationDescriptionScheme descriptionScheme;
+public final class ConsumableDependencyBucketRegistrationFactory {
+	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
+	private final DependencyBucketFactory bucketFactory;
+	private final ObjectFactory objects;
 
-	public ConsumableDependencyBucketRegistrationFactory(ProjectConfigurationRegistry configurationRegistry, ConfigurationNamingScheme namingScheme, ConfigurationDescriptionScheme descriptionScheme) {
+	public ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ObjectFactory objects) {
 		this.configurationRegistry = configurationRegistry;
-		this.namingScheme = namingScheme;
-		this.descriptionScheme = descriptionScheme;
+		this.bucketFactory = bucketFactory;
+		this.objects = objects;
 	}
 
-	@Override
-	public NodeRegistration create(String name) {
-		return NodeRegistration.of(name, of(ConsumableDependencyBucket.class))
-			.action(self(initialize(context -> {
-				context.withProjection(managed(of(DependencyBucketProjection.class), name));
-				val outgoingArtifacts = context.withProjection(managed(of(OutgoingArtifacts.class)));
-
-				context.withProjection(ofInstance(configurationRegistry.createIfAbsent(nameOf(name),
-					asConsumable().andThen(attachOutgoingArtifactToConfiguration(outgoingArtifacts)).andThen(descriptionOf(name)))));
-			})));
+	public ModelRegistration create(ModelPath p, DependencyBucketIdentifier<?> identifier) {
+		val outgoing = objects.newInstance(OutgoingArtifacts.class);
+		val bucket = new DefaultConsumableDependencyBucket(bucketFactory.create(identifier), outgoing);
+		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		configurationProvider.configure(ConfigurationUtils.configureAsConsumable());
+		configurationProvider.configure(ConfigurationUtils.configureDescription(identifier.getDisplayName()));
+		configurationProvider.configure(configuration -> {
+			((ExtensionAware) configuration).getExtensions().add(ConsumableDependencyBucket.class, "__bucket", bucket);
+		});
+		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
+		val entityPath = p;
+		return ModelRegistration.builder()
+			.withComponent(entityPath)
+			.withComponent(identifier)
+			.withComponent(IsDependencyBucket.tag())
+			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
+			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
+			.withComponent(ofInstance(bucket))
+			.withComponent(ofInstance(outgoing))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path)) {
+					configurationProvider.configure(configuration -> {
+						((ConfigurationInternal) configuration).beforeLocking(it -> ModelStates.realize(entity));
+					});
+				}
+			}))
+			.build();
 	}
 
-	private String nameOf(String name) {
-		return namingScheme.configurationName(name);
-	}
+	private static final class DefaultConsumableDependencyBucket implements ConsumableDependencyBucket {
+		private final DependencyBucket delegate;
+		private final OutgoingArtifacts outgoing;
 
-	private ActionUtils.Action<Configuration> descriptionOf(String name) {
-		return description(descriptionScheme.description(ofName(name), ofConsumable()));
+		private DefaultConsumableDependencyBucket(DependencyBucket delegate, OutgoingArtifacts outgoing) {
+			this.delegate = delegate;
+			this.outgoing = outgoing;
+		}
+
+		@Override
+		public String getName() {
+			return delegate.getName();
+		}
+
+		@Override
+		public void addDependency(Object notation) {
+			delegate.addDependency(notation);
+		}
+
+		@Override
+		public void addDependency(Object notation, Action<? super ModuleDependency> action) {
+			delegate.addDependency(notation, action);
+		}
+
+		@Override
+		public Configuration getAsConfiguration() {
+			return delegate.getAsConfiguration();
+		}
+
+		@Override
+		public ConsumableDependencyBucket artifact(Object artifact) {
+			outgoing.getArtifacts().add(new LazyPublishArtifact((Provider<?>) artifact));
+			return this;
+		}
 	}
 
 	interface OutgoingArtifacts {
 		ListProperty<PublishArtifact> getArtifacts();
 	}
 
-	private static ActionUtils.Action<Configuration> attachOutgoingArtifactToConfiguration(KnownDomainObject<? extends OutgoingArtifacts> provider) {
-		return withObjectFactory((configuration, objectFactory) -> {
-			configuration.getOutgoing().getArtifacts().addAllLater(asCollectionProvider(objectFactory, provider.flatMap(OutgoingArtifacts::getArtifacts)));
-		});
-	}
-
-	private static <T> Provider<? extends Iterable<T>> asCollectionProvider(ObjectFactory objectFactory, Provider<? extends Iterable<T>> provider) {
-		val result = (ListProperty<T>) objectFactory.listProperty(Object.class);
-		result.addAll(provider);
-		return result;
+	private static ActionUtils.Action<Configuration> attachOutgoingArtifactToConfiguration(OutgoingArtifacts outgoing) {
+		return configuration -> {
+			configuration.getOutgoing().getArtifacts().addAllLater(outgoing.getArtifacts());
+		};
 	}
 }
