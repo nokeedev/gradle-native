@@ -37,17 +37,10 @@ import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import dev.nokee.runtime.core.CoordinateSet;
-import dev.nokee.runtime.core.Coordinates;
-import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
-import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
-import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.Cast;
 import groovy.lang.Closure;
 import lombok.Getter;
@@ -113,8 +106,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
+	public NativeComponentDependencies getDependencies() {
+		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
 	}
 
 	@Override
