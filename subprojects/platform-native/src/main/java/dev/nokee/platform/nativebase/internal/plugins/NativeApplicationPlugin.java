@@ -151,7 +151,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(path.child("tasks")));
 
 				val dependencies = variantDependencies.getDependencies();
-				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
+				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeApplicationComponentDependencies.class, ModelBackedNativeApplicationComponentDependencies::new));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
