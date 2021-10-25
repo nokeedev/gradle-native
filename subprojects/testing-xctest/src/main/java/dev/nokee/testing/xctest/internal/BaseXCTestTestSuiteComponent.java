@@ -32,12 +32,10 @@ import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.*;
-import dev.nokee.runtime.core.CoordinateSet;
-import dev.nokee.runtime.core.Coordinates;
-import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
-import dev.nokee.runtime.nativebase.internal.TargetLinkages;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentAssembleLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.Cast;
 import lombok.Getter;
@@ -86,8 +84,8 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
+	public NativeComponentDependencies getDependencies() {
+		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
 	}
 
 	@Override
