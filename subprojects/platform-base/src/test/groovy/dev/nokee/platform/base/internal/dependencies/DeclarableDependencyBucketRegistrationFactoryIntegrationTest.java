@@ -49,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @PluginRequirement.Require(id = "dev.nokee.model-base")
 class DeclarableDependencyBucketRegistrationFactoryIntegrationTest extends AbstractPluginTest {
 	private final ModelType<NamedDomainObjectProvider<Configuration>> PROVIDER_TYPE = ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {});
-	private final DeclarableDependencyBucketRegistrationFactory subject = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)));
+	private final DeclarableDependencyBucketRegistrationFactory subject = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)));
 	private ModelElement element;
 
 	@BeforeEach

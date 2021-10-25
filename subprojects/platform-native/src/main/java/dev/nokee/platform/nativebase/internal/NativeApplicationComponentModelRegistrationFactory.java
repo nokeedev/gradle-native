@@ -96,7 +96,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 
 						sourceRegistration.accept(entity, path);
 
-						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeApplicationComponentDependencies.class, ModelBackedNativeApplicationComponentDependencies::new));
 
 						registry.register(bucketFactory.create(path.child("implementation"), DependencyBucketIdentifier.of(DependencyBucketName.of("implementation"), DeclarableDependencyBucket.class, identifier)));
