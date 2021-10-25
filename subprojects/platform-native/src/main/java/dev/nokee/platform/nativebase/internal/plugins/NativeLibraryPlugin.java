@@ -189,7 +189,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 				}
 
 				val dependencies = variantDependencies.getDependencies();
-				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
+				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeLibraryComponentDependencies.class, ModelBackedNativeLibraryComponentDependencies::new));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("api"))

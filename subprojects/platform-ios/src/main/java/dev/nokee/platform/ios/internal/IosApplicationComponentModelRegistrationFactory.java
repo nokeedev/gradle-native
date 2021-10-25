@@ -209,7 +209,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val dependencies = variantDependencies.getDependencies();
 
-				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), dependencies));
+				registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeComponentDependencies.class, ModelBackedNativeComponentDependencies::new));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(path.child("implementation"))
