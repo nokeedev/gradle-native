@@ -19,6 +19,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentDependencies;
@@ -26,20 +27,25 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
 
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ComponentDependenciesPropertyRegistrationFactory {
 	private final ModelRegistry registry;
 	private final ModelPropertyRegistrationFactory propertyFactory;
 	private final ModelConfigurer modelConfigurer;
+	private final ModelLookup lookup;
 
-	public ComponentDependenciesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer) {
+	public ComponentDependenciesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ModelLookup lookup) {
 		this.registry = registry;
 		this.propertyFactory = propertyFactory;
 		this.modelConfigurer = modelConfigurer;
+		this.lookup = lookup;
 	}
 
 	// TODO: We should accept the property identifier and use that to figure out descendant, path, and finalizing.
@@ -58,7 +64,34 @@ public final class ComponentDependenciesPropertyRegistrationFactory {
 								.filter(it -> !it.isEmpty())
 								.map(StringUtils::capitalize)
 								.collect(Collectors.joining()));
-							registry.register(propertyFactory.create(path.child(elementName), e));
+							if (!lookup.has(path.child(elementName))) {
+								registry.register(propertyFactory.create(path.child(elementName), e));
+							}
+						}
+					}));
+				}
+			}))
+			.build();
+	}
+
+	public <T extends ComponentDependencies> ModelRegistration create(ModelPath path, Class<T> type, Supplier<? extends T> instance) {
+		assert path.getParent().isPresent();
+		val ownerPath = path.getParent().get();
+		return ModelRegistration.builder()
+			.withComponent(path)
+			.withComponent(IsModelProperty.tag())
+			.withComponent(createdUsing(of(type), instance::get))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
+				if (path.equals(pp)) {
+					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsDependencyBucket.class), ModelComponentReference.ofAny(projectionOf(Configuration.class)), (e, p, ignored1, ignored2, projection) -> {
+						if (ownerPath.isDescendant(p)) {
+							val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(ownerPath)))
+								.filter(it -> !it.isEmpty())
+								.map(StringUtils::capitalize)
+								.collect(Collectors.joining()));
+							if (!lookup.has(path.child(elementName))) {
+								registry.register(propertyFactory.create(path.child(elementName), e));
+							}
 						}
 					}));
 				}
