@@ -15,87 +15,120 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import com.google.common.annotations.VisibleForTesting;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactory;
+import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.utils.ActionUtils;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.IsDependencyBucket;
+import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
+import org.gradle.api.plugins.ExtensionAware;
 
-import javax.inject.Inject;
-
-import static dev.nokee.model.internal.core.ModelActions.initialize;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.ofResolvable;
-import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Subject.ofName;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.asResolvable;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.description;
 
-public final class ResolvableDependencyBucketRegistrationFactory implements NodeRegistrationFactory {
-	private final ProjectConfigurationRegistry configurationRegistry;
-	private final ConfigurationNamingScheme namingScheme;
-	private final ConfigurationDescriptionScheme descriptionScheme;
+public final class ResolvableDependencyBucketRegistrationFactory {
+	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
+	private final DependencyBucketFactory bucketFactory;
 
-	@VisibleForTesting
-	ResolvableDependencyBucketRegistrationFactory(ProjectConfigurationRegistry configurationRegistry) {
-		this(configurationRegistry, ConfigurationNamingScheme.identity(), ConfigurationDescriptionScheme.forThisProject());
-	}
-
-	public ResolvableDependencyBucketRegistrationFactory(ProjectConfigurationRegistry configurationRegistry, ConfigurationNamingScheme namingScheme, ConfigurationDescriptionScheme descriptionScheme) {
+	public ResolvableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory) {
 		this.configurationRegistry = configurationRegistry;
-		this.namingScheme = namingScheme;
-		this.descriptionScheme = descriptionScheme;
+		this.bucketFactory = bucketFactory;
 	}
 
-	@Override
-	public NodeRegistration create(String name) {
-		return NodeRegistration.of(name, of(ResolvableDependencyBucket.class))
-			.action(self(initialize(context -> {
-				context.withProjection(managed(of(IncomingArtifacts.class)));
-				context.withProjection(managed(of(DependencyBucketProjection.class), name));
-				context.withProjection(ofInstance(configurationRegistry.createIfAbsent(nameOf(name),
-					asResolvable()
-						.andThen(descriptionOf(name))
-						.andThen(realizeNodeBeforeResolve()))));
-			})));
+	public ModelRegistration create(ModelPath p, DependencyBucketIdentifier<?> identifier) {
+		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		val incoming = new IncomingArtifacts(configurationProvider);
+		val bucket = new DefaultResolvableDependencyBucket(bucketFactory.create(identifier), incoming);
+		configurationProvider.configure(ConfigurationUtils.configureAsResolvable());
+		configurationProvider.configure(ConfigurationUtils.configureDescription(identifier.getDisplayName()));
+		configurationProvider.configure(configuration -> {
+			((ExtensionAware) configuration).getExtensions().add(ResolvableDependencyBucket.class, "__bucket", bucket);
+		});
+		val entityPath = p;
+		return ModelRegistration.builder()
+			.withComponent(entityPath)
+			.withComponent(identifier)
+			.withComponent(IsDependencyBucket.tag())
+			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
+			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
+			.withComponent(ofInstance(bucket))
+			.withComponent(ofInstance(incoming))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path)) {
+					configurationProvider.configure(configuration -> {
+						((ConfigurationInternal) configuration).beforeLocking(it -> ModelStates.realize(entity));
+					});
+				}
+			}))
+			.build();
 	}
 
-	private String nameOf(String name) {
-		return namingScheme.configurationName(name);
+	private static final class DefaultResolvableDependencyBucket implements ResolvableDependencyBucket {
+		private final DependencyBucket delegate;
+		private final IncomingArtifacts incoming;
+
+		private DefaultResolvableDependencyBucket(DependencyBucket delegate, IncomingArtifacts incoming) {
+			this.delegate = delegate;
+			this.incoming = incoming;
+		}
+
+		@Override
+		public String getName() {
+			return delegate.getName();
+		}
+
+		@Override
+		public void addDependency(Object notation) {
+			delegate.addDependency(notation);
+		}
+
+		@Override
+		public void addDependency(Object notation, Action<? super ModuleDependency> action) {
+			delegate.addDependency(notation, action);
+		}
+
+		@Override
+		public Configuration getAsConfiguration() {
+			return delegate.getAsConfiguration();
+		}
+
+		@Override
+		public FileCollection getAsLenientFileCollection() {
+			return incoming.getAsLenient();
+		}
+
+		@Override
+		public FileCollection getAsFileCollection() {
+			return incoming.get();
+		}
 	}
 
-	private ActionUtils.Action<Configuration> descriptionOf(String name) {
-		return description(descriptionScheme.description(ofName(name), ofResolvable()));
-	}
+	static final class IncomingArtifacts {
+		private final NamedDomainObjectProvider<Configuration> delegate;
 
-	private static ActionUtils.Action<Configuration> realizeNodeBeforeResolve() {
-		val node = ModelNodeContext.getCurrentModelNode();
-		return configuration -> {
-			((ConfigurationInternal) configuration).beforeLocking(it -> ModelStates.realize(node));
-		};
-	}
-
-	static class IncomingArtifacts {
-		private final Configuration delegate = ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), Configuration.class);
-
-		@Inject
-		public IncomingArtifacts() {}
+		public IncomingArtifacts(NamedDomainObjectProvider<Configuration> delegate) {
+			this.delegate = delegate;
+		}
 
 		public FileCollection get() {
-			return delegate.getIncoming().getFiles();
+			return delegate.get().getIncoming().getFiles();
 		}
 
 		public FileCollection getAsLenient() {
-			return delegate.getIncoming().artifactView(this::asLenient).getFiles();
+			return delegate.get().getIncoming().artifactView(this::asLenient).getFiles();
 		}
 
 		private void asLenient(ArtifactView.ViewConfiguration view) {
