@@ -27,8 +27,10 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.*;
+import dev.nokee.platform.nativebase.internal.rules.CreateNativeBinaryLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
+import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.utils.Cast;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
@@ -64,8 +66,8 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	}
 
 	@Override
-	public DefaultNativeLibraryComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeLibraryComponentDependencies.class).get();
+	public NativeLibraryComponentDependencies getDependencies() {
+		return ModelProperties.getProperty(this, "dependencies").as(NativeLibraryComponentDependencies.class).get();
 	}
 
 	@Override
