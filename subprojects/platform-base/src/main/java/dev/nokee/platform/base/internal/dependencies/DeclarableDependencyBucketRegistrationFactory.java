@@ -37,7 +37,6 @@ import org.gradle.api.plugins.ExtensionAware;
 import java.util.Objects;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class DeclarableDependencyBucketRegistrationFactory {
@@ -55,7 +54,12 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
 		configurationProvider.configure(ConfigurationUtils.configureDescription("%s dependencies for %s.", StringUtils.capitalize(identifier.getName().toString()), identifier.getParentIdentifier().map(Objects::toString).orElse("<unknown>")));
 		configurationProvider.configure(configuration -> {
-			((ExtensionAware) configuration).getExtensions().add(DeclarableDependencyBucket.class, "__bucket", bucket);
+			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
+			if (extension == null) {
+				((ExtensionAware) configuration).getExtensions().add(DeclarableDependencyBucket.class, "__bucket", bucket);
+			} else if (!(extension instanceof DeclarableDependencyBucket)) {
+				throw new IllegalStateException("Bucket registration mismatch!");
+			}
 		});
 		val entityPath = p;
 		return ModelRegistration.builder()

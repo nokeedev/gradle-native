@@ -34,9 +34,11 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
+import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
@@ -166,6 +168,33 @@ class DeclarableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		void realizeNodeWhenConfigurationIsResolved() {
 			((ConfigurationInternal) subject()).preventFromFurtherMutation();
 			assertTrue(ModelStates.getState(ModelNodes.of(element)).isAtLeast(ModelState.Realized));
+		}
+	}
+
+	@Nested
+	class DependencyBucketExtensionTest {
+		@Test
+		void throwsExceptionWhenResolvableDependencyBucketExtensionAlreadyExists() {
+			project.getConfigurations().register("pora", configuration -> {
+				((ExtensionAware) configuration).getExtensions().add(ResolvableDependencyBucket.class, "__bucket", Mockito.mock(ResolvableDependencyBucket.class));
+			});
+			assertThrows(RuntimeException.class, () -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(ModelPath.path("pora"), DependencyBucketIdentifier.of(DependencyBucketName.of("pora"), ResolvableDependencyBucket.class, ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
+		}
+
+		@Test
+		void throwsExceptionWhenConsumableDependencyBucketExtensionAlreadyExists() {
+			project.getConfigurations().register("tufe", configuration -> {
+				((ExtensionAware) configuration).getExtensions().add(ConsumableDependencyBucket.class, "__bucket", Mockito.mock(ConsumableDependencyBucket.class));
+			});
+			assertThrows(RuntimeException.class, () -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(ModelPath.path("tufe"), DependencyBucketIdentifier.of(DependencyBucketName.of("tufe"), ConsumableDependencyBucket.class, ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
+		}
+
+		@Test
+		void doesNotThrowExceptionWhenDeclarableDependencyBucketExtensionAlreadyExists() {
+			project.getConfigurations().register("vabe", configuration -> {
+				((ExtensionAware) configuration).getExtensions().add(DeclarableDependencyBucket.class, "__bucket", Mockito.mock(DeclarableDependencyBucket.class));
+			});
+			assertDoesNotThrow(() -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(ModelPath.path("vabe"), DependencyBucketIdentifier.of(DependencyBucketName.of("vabe"), DeclarableDependencyBucket.class, ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
 		}
 	}
 }

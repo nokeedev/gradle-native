@@ -55,7 +55,12 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		configurationProvider.configure(ConfigurationUtils.configureAsResolvable());
 		configurationProvider.configure(ConfigurationUtils.configureDescription(identifier.getDisplayName()));
 		configurationProvider.configure(configuration -> {
-			((ExtensionAware) configuration).getExtensions().add(ResolvableDependencyBucket.class, "__bucket", bucket);
+			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
+			if (extension == null) {
+				((ExtensionAware) configuration).getExtensions().add(ResolvableDependencyBucket.class, "__bucket", bucket);
+			} else if (!(extension instanceof ResolvableDependencyBucket)) {
+				throw new IllegalStateException("Bucket registration mismatch!");
+			}
 		});
 		val entityPath = p;
 		return ModelRegistration.builder()

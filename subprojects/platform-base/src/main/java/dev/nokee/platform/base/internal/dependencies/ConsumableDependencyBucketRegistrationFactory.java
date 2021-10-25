@@ -61,7 +61,12 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		configurationProvider.configure(ConfigurationUtils.configureAsConsumable());
 		configurationProvider.configure(ConfigurationUtils.configureDescription(identifier.getDisplayName()));
 		configurationProvider.configure(configuration -> {
-			((ExtensionAware) configuration).getExtensions().add(ConsumableDependencyBucket.class, "__bucket", bucket);
+			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
+			if (extension == null) {
+				((ExtensionAware) configuration).getExtensions().add(ConsumableDependencyBucket.class, "__bucket", bucket);
+			} else if (!(extension instanceof ConsumableDependencyBucket)) {
+				throw new IllegalStateException("Bucket registration mismatch!");
+			}
 		});
 		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
 		val entityPath = p;
