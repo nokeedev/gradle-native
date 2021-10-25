@@ -28,8 +28,11 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
+import dev.nokee.utils.ActionTestUtils;
+import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -43,6 +46,8 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.ProjectMatchers.extensions;
 import static dev.nokee.internal.testing.ProjectMatchers.publicType;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.gradle.api.reflect.TypeOf.typeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -113,6 +118,13 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		@Test
 		void canGetAsConfiguration() {
 			assertThat(subject().getAsConfiguration(), allOf(named("vonu"), isA(Configuration.class)));
+		}
+
+		@Test
+		void canConfigureDependencyBeforeAddingIt() {
+			val action = ActionTestUtils.mockAction(ModuleDependency.class);
+			subject().addDependency("com.example:foo:4.2", action);
+			assertThat(action, calledOnceWith(singleArgumentOf(forCoordinate("com.example:foo:4.2"))));
 		}
 	}
 
