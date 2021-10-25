@@ -109,7 +109,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 
 						sourceRegistration.accept(entity, path);
 
-						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeLibraryComponentDependencies.class, ModelBackedNativeLibraryComponentDependencies::new));
 
 						registry.register(bucketFactory.create(path.child("api"), DependencyBucketIdentifier.of(DependencyBucketName.of("api"), DeclarableDependencyBucket.class, identifier)));
