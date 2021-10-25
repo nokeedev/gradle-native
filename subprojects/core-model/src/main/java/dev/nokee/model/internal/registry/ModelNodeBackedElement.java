@@ -27,6 +27,7 @@ import org.gradle.api.Action;
 
 import java.lang.reflect.Type;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public final class ModelNodeBackedElement implements ModelElement, ModelNodeAware {
 	private final ModelNode node;
@@ -43,7 +44,7 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 	@Override
 	public <T> DomainObjectProvider<T> as(ModelType<T> type) {
 		Objects.requireNonNull(type);
-		val result = ModelNodeUtils.getProjections(node).filter(it -> it.canBeViewedAs(type)).collect(MoreCollectors.toOptional()).orElseThrow(() -> new ClassCastException());
+		val result = ModelNodeUtils.getProjections(node).filter(it -> it.canBeViewedAs(type)).collect(MoreCollectors.toOptional()).orElseThrow(() -> new ClassCastException(String.format("Could not cast object '%s' to %s. Available instances: %s", getName(), type.getConcreteType().getSimpleName(), ModelNodeUtils.getProjections(node).map(it -> it.getType().getConcreteType().getSimpleName()).collect(Collectors.joining(", ")))));
 		return new ModelNodeBackedProvider<>((ModelType<T>) result.getType(), node);
 	}
 
