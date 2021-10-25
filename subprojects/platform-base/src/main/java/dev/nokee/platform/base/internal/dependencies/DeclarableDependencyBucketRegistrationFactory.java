@@ -15,47 +15,94 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.NodeRegistrationFactory;
-import dev.nokee.utils.ActionUtils;
+import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.IsDependencyBucket;
+import dev.nokee.utils.ConfigurationUtils;
+import lombok.val;
+import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
+import org.gradle.api.plugins.ExtensionAware;
 
-import static dev.nokee.model.internal.core.ModelActions.initialize;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import java.util.Objects;
+
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Bucket.ofDeclarable;
-import static dev.nokee.platform.base.internal.dependencies.ConfigurationDescription.Subject.ofName;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.asDeclarable;
-import static dev.nokee.platform.base.internal.dependencies.ProjectConfigurationActions.description;
 
-public final class DeclarableDependencyBucketRegistrationFactory implements NodeRegistrationFactory {
-	private final ProjectConfigurationRegistry configurationRegistry;
-	private final ConfigurationNamingScheme namingScheme;
-	private final ConfigurationDescriptionScheme descriptionScheme;
+public final class DeclarableDependencyBucketRegistrationFactory {
+	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
+	private final DependencyBucketFactory bucketFactory;
 
-	public DeclarableDependencyBucketRegistrationFactory(ProjectConfigurationRegistry configurationRegistry, ConfigurationNamingScheme namingScheme, ConfigurationDescriptionScheme descriptionScheme) {
+	public DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory) {
 		this.configurationRegistry = configurationRegistry;
-		this.namingScheme = namingScheme;
-		this.descriptionScheme = descriptionScheme;
+		this.bucketFactory = bucketFactory;
 	}
 
-	@Override
-	public NodeRegistration create(String name) {
-		return NodeRegistration.of(name, of(DeclarableDependencyBucket.class))
-			.action(self(initialize(context -> {
-				context.withProjection(managed(of(DependencyBucketProjection.class), name));
-				context.withProjection(ofInstance(configurationRegistry.createIfAbsent(nameOf(name),
-					asDeclarable().andThen(descriptionOf(name)))));
-			})));
+	public ModelRegistration create(ModelPath p, DependencyBucketIdentifier<?> identifier) {
+		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
+		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
+		configurationProvider.configure(ConfigurationUtils.configureDescription("%s dependencies for %s.", StringUtils.capitalize(identifier.getName().toString()), identifier.getParentIdentifier().map(Objects::toString).orElse("<unknown>")));
+		configurationProvider.configure(configuration -> {
+			((ExtensionAware) configuration).getExtensions().add(DeclarableDependencyBucket.class, "__bucket", bucket);
+		});
+		val entityPath = p;
+		return ModelRegistration.builder()
+			.withComponent(entityPath)
+			.withComponent(identifier)
+			.withComponent(IsDependencyBucket.tag())
+			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
+			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
+			.withComponent(createdUsing(of(DeclarableDependencyBucket.class),
+				() -> {
+					return ((ExtensionAware) configurationProvider.get()).getExtensions().getByType(DeclarableDependencyBucket.class);
+				}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path)) {
+					configurationProvider.configure(configuration -> {
+						((ConfigurationInternal) configuration).beforeLocking(it -> ModelStates.realize(entity));
+					});
+				}
+			}))
+			.build();
 	}
 
-	private String nameOf(String name) {
-		return namingScheme.configurationName(name);
-	}
+	private static final class DefaultDeclarableDependencyBucket implements DeclarableDependencyBucket {
+		private final DependencyBucket delegate;
 
-	private ActionUtils.Action<Configuration> descriptionOf(String name) {
-		return description(descriptionScheme.description(ofName(name), ofDeclarable()));
+		private DefaultDeclarableDependencyBucket(DependencyBucket delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public String getName() {
+			return delegate.getName();
+		}
+
+		@Override
+		public void addDependency(Object notation) {
+			delegate.addDependency(notation);
+		}
+
+		@Override
+		public void addDependency(Object notation, Action<? super ModuleDependency> action) {
+			delegate.addDependency(notation, action);
+		}
+
+		@Override
+		public Configuration getAsConfiguration() {
+			return delegate.getAsConfiguration();
+		}
 	}
 }
