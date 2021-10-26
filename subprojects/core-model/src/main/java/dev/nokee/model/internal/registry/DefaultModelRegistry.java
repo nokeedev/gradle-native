@@ -109,6 +109,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
+	public Optional<ModelNode> find(ModelPath path) {
+		Objects.requireNonNull(path);
+		return Optional.ofNullable(nodes.get(path));
+	}
+
+	@Override
 	public Result query(ModelSpec spec) {
 		val result = nodes.values().stream().filter(spec::isSatisfiedBy).collect(ImmutableList.toImmutableList());
 		return new ModelLookupDefaultResult(result);

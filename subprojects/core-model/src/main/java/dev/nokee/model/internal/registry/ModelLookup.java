@@ -20,6 +20,7 @@ import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelSpec;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -34,6 +35,14 @@ public interface ModelLookup {
 	 * @return the {@link ModelNode} for the specified path, never null.
 	 */
 	ModelNode get(ModelPath path);
+
+	/**
+	 * Returns the model node for the specified path if present.
+	 *
+	 * @param path  a model node path to retrive, must not be null
+	 * @return the {@link ModelNode} for the specified path if present, never null
+	 */
+	Optional<ModelNode> find(ModelPath path);
 
 	/**
 	 * Executes a complex query on the known model nodes.
@@ -108,6 +117,11 @@ public interface ModelLookup {
 			@Override
 			public ModelNode get(ModelPath path) {
 				throw new UnsupportedOperationException("This instance always fails.");
+			}
+
+			@Override
+			public Optional<ModelNode> find(ModelPath path) {
+				return Optional.empty();
 			}
 
 			@Override
