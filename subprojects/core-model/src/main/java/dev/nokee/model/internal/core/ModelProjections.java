@@ -71,6 +71,10 @@ public final class ModelProjections {
 		return new SupplyingModelProjection<>(type, asSupplier(memoize(compose(factory, InjectCurrentNodeFunction.INSTANCE.withNarrowType()))));
 	}
 
+	public static <T> TypeCompatibilityModelProjectionSupport<T> createdUsingNoInject(ModelType<T> type, Factory<T> factory) {
+		return new SupplyingModelProjection<>(type, asSupplier(memoize(factory)));
+	}
+
 	// To ensure Objects.equals works with the created model projections
 	private enum InjectCurrentNodeFunction implements Function<Object, Object> {
 		INSTANCE;
