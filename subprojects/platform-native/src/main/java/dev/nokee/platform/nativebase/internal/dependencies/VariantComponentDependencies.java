@@ -15,13 +15,37 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
+import com.google.common.base.Suppliers;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+import java.util.function.Supplier;
+
 public final class VariantComponentDependencies<T extends NativeComponentDependencies> {
-	@Getter private final T dependencies;
-	@Getter private final NativeIncomingDependencies incoming;
-	@Getter private final NativeOutgoingDependencies outgoing;
+	private final Supplier<T> dependencies;
+	private final NativeIncomingDependencies incoming;
+	private final NativeOutgoingDependencies outgoing;
+
+	public VariantComponentDependencies(Supplier<T> dependencies, NativeIncomingDependencies incoming, NativeOutgoingDependencies outgoing) {
+		this.dependencies = dependencies;
+		this.incoming = incoming;
+		this.outgoing = outgoing;
+	}
+
+	public VariantComponentDependencies(T dependencies, NativeIncomingDependencies incoming, NativeOutgoingDependencies outgoing) {
+		this.dependencies = Suppliers.ofInstance(dependencies);
+		this.incoming = incoming;
+		this.outgoing = outgoing;
+	}
+
+	public T getDependencies() {
+		return dependencies.get();
+	}
+
+	public NativeIncomingDependencies getIncoming() {
+		return incoming;
+	}
+
+	public NativeOutgoingDependencies getOutgoing() {
+		return outgoing;
+	}
 }
