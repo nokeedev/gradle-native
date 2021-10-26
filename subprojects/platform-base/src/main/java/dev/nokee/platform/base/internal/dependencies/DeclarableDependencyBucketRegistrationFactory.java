@@ -38,6 +38,7 @@ import org.gradle.util.GUtil;
 import java.util.Objects;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class DeclarableDependencyBucketRegistrationFactory {
@@ -68,7 +69,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsDependencyBucket.tag())
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
-			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
+			.withComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get))
 			.withComponent(createdUsing(of(DeclarableDependencyBucket.class),
 				() -> {
 					return ((ExtensionAware) configurationProvider.get()).getExtensions().getByType(DeclarableDependencyBucket.class);
