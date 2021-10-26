@@ -15,23 +15,29 @@
  */
 package dev.nokee.platform.ios;
 
+import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
+import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
+import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -43,7 +49,8 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.isA;
 
 class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 	, SourceAwareComponentTester<SwiftIosApplication>
@@ -108,6 +115,146 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 		@Test
 		public void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the Swift iOS application ':foma'."));
+		}
+	}
+
+	@Nested
+	class ComponentDependenciesTest {
+		public NativeComponentDependencies subject() {
+			return subject.getDependencies();
+		}
+
+		@Test
+		void hasImplementation() {
+			assertThat(subject().getImplementation().getAsConfiguration(), named("fomaImplementation"));
+		}
+
+		@Test
+		void hasCompileOnly() {
+			assertThat(subject().getCompileOnly().getAsConfiguration(), named("fomaCompileOnly"));
+		}
+
+		@Test
+		void hasLinkOnly() {
+			assertThat(subject().getLinkOnly().getAsConfiguration(), named("fomaLinkOnly"));
+		}
+
+		@Test
+		void hasRuntimeOnly() {
+			assertThat(subject().getRuntimeOnly().getAsConfiguration(), named("fomaRuntimeOnly"));
+		}
+	}
+
+	@Nested
+	class ImplementationConfigurationTest {
+		public Configuration subject() {
+			return subject.getDependencies().getImplementation().getAsConfiguration();
+		}
+
+		@Test
+		public void isDeclarable() {
+			assertThat(subject(), ConfigurationMatchers.declarable());
+		}
+
+		@Test
+		public void hasDescription() {
+			assertThat(subject(), ConfigurationMatchers.description(startsWith("Implementation dependencies for ")));
+		}
+	}
+
+	@Nested
+	class CompileOnlyConfigurationTest {
+		public Configuration subject() {
+			return subject.getDependencies().getCompileOnly().getAsConfiguration();
+		}
+
+		@Test
+		public void isDeclarable() {
+			assertThat(subject(), ConfigurationMatchers.declarable());
+		}
+
+		@Test
+		public void hasDescription() {
+			assertThat(subject(), ConfigurationMatchers.description(startsWith("Compile only dependencies for ")));
+		}
+	}
+
+	@Nested
+	class LinkOnlyConfigurationTest {
+		public Configuration subject() {
+			return subject.getDependencies().getLinkOnly().getAsConfiguration();
+		}
+
+		@Test
+		public void isDeclarable() {
+			assertThat(subject(), ConfigurationMatchers.declarable());
+		}
+
+		@Test
+		public void hasDescription() {
+			assertThat(subject(), ConfigurationMatchers.description(startsWith("Link only dependencies for ")));
+		}
+	}
+
+	@Nested
+	class RuntimeOnlyConfigurationTest {
+		public Configuration subject() {
+			return subject.getDependencies().getRuntimeOnly().getAsConfiguration();
+		}
+
+		@Test
+		public void isDeclarable() {
+			assertThat(subject(), ConfigurationMatchers.declarable());
+		}
+
+		@Test
+		public void hasDescription() {
+			assertThat(subject(), ConfigurationMatchers.description(startsWith("Runtime only dependencies for ")));
+		}
+	}
+
+	@Nested
+	class ComponentBinariesTest {
+		public BinaryView<Binary> subject() {
+			return subject.getBinaries();
+		}
+
+		@Test
+		void hasExecutableBinary() {
+			assertThat(subject().get(), hasItem(isA(ExecutableBinary.class)));
+		}
+
+		@Test
+		void hasApplicationBundle() {
+			assertThat(subject().get(), hasItem(isA(IosApplicationBundleInternal.class)));
+		}
+
+		@Test
+		void hasSignedApplicationBundle() {
+			assertThat(subject().get(), hasItem(isA(SignedIosApplicationBundle.class)));
+		}
+	}
+
+	@Nested
+	class ComponentVariantsTest {
+		public VariantView<IosApplication> subject() {
+			return subject.getVariants();
+		}
+
+		@Nested
+		class SingleVariantTest {
+			private final IosApplication variant = subject.getVariants().get().iterator().next();
+			@Nested
+			class ComponentDependenciesTest {
+				public NativeComponentDependencies subject() {
+					return variant.getDependencies();
+				}
+
+				@Test
+				public void hasLinkLibraries() {
+					assertThat(ModelProperties.getProperty(subject(), "linkLibraries").as(Configuration.class).asProvider(), providerOf(named("fomaLinkLibraries")));
+				}
+			}
 		}
 	}
 }
