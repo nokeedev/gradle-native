@@ -28,13 +28,15 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
+import java.util.concurrent.Callable;
+
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
 @EqualsAndHashCode
-public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>, ModelNodeAware {
+public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>, ModelNodeAware, Callable<Object> {
 	private final ModelIdentifier<T> identifier;
 	private final ModelType<T> type;
 	@EqualsAndHashCode.Exclude private final ModelNode node;
@@ -95,5 +97,10 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 	@Override
 	public NamedDomainObjectProvider<T> asProvider() {
 		return new ModelBackedNamedDomainObjectProvider<>(this);
+	}
+
+	@Override
+	public Object call() throws Exception {
+		return asProvider();
 	}
 }
