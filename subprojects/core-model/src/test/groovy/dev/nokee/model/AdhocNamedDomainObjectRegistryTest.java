@@ -37,7 +37,6 @@ class AdhocNamedDomainObjectRegistryTest implements NamedDomainObjectRegistryTes
 	@BeforeEach
 	void setup() {
 		val container = objectFactory().domainObjectContainer(MyType.class, MyType::new);
-		System.out.println(container);
 		subject = NamedDomainObjectRegistry.of(container);
 		e0 = container.register("a");
 		e1 = container.register("b");

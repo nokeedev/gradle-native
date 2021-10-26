@@ -36,7 +36,6 @@ class ConfigurationContainerRegistryTest implements NamedDomainObjectRegistryTes
 	@BeforeEach
 	void setup() {
 		val container = rootProject().getConfigurations();
-		System.out.println(container);
 		subject = NamedDomainObjectRegistry.of(container);
 		e0 = container.register("a");
 		e1 = container.register("b");

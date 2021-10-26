@@ -39,7 +39,6 @@ class TaskContainerRegistryTest implements PolymorphicDomainObjectRegistryTester
 	@BeforeEach
 	void setup() {
 		val container = rootProject().getTasks();
-		System.out.println(container);
 
 		subject =  PolymorphicDomainObjectRegistry.of(container);
 		e0 = container.register("a", MyTask.A.class);
