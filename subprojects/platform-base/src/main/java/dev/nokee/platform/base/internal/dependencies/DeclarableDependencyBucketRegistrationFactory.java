@@ -33,6 +33,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.util.GUtil;
 
 import java.util.Objects;
 
@@ -52,7 +53,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
 		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
 		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
-		configurationProvider.configure(ConfigurationUtils.configureDescription("%s dependencies for %s.", StringUtils.capitalize(identifier.getName().toString()), identifier.getParentIdentifier().map(Objects::toString).orElse("<unknown>")));
+		configurationProvider.configure(ConfigurationUtils.configureDescription("%s dependencies for %s.", StringUtils.capitalize(GUtil.toWords(identifier.getName().toString())), identifier.getParentIdentifier().map(Objects::toString).orElse("<unknown>")));
 		configurationProvider.configure(configuration -> {
 			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
 			if (extension == null) {
