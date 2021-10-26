@@ -26,6 +26,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -140,6 +141,14 @@ public final class ModelTestUtils {
 				return children.computeIfAbsent(path, key -> {
 					throw new UnsupportedOperationException("This instance always fails if path is not '" + parent + "' or any known direct children.");
 				});
+			}
+
+			@Override
+			public Optional<ModelNode> find(ModelPath path) {
+				if (ModelNodeUtils.getPath(parent).equals(path)) {
+					return Optional.of(parent);
+				}
+				return Optional.ofNullable(children.get(path));
 			}
 
 			@Override
