@@ -20,18 +20,13 @@ import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.util.GUtil;
-
-import java.util.function.Function;
 
 public final class DependencyBuckets {
 	public static String toDescription(DependencyBucketIdentifier identifier) {
 		val builder = new StringBuilder();
 		val identities = (Iterable<Object>) identifier;
-		builder.append(StringUtils.capitalize(GUtil.toWords(identifier.getName().get()).replace("api", "API")));
-		if (!ConsumableDependencyBucket.class.isAssignableFrom(identifier.getType()) && !ResolvableDependencyBucket.class.isAssignableFrom(identifier.getType())) {
-			builder.append(" dependencies");
-		}
+		val identity = Iterables.getLast(identifier);
+		builder.append(StringUtils.capitalize(identity.toString()));
 		builder.append(" for ");
 		if (Iterables.size(identities) == 1) {
 			builder.append("<unknown>");
