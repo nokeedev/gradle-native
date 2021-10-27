@@ -19,6 +19,7 @@ import com.google.common.base.Suppliers;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.runtime.darwin.internal.DarwinLibraryElements;
 import lombok.AccessLevel;
@@ -37,6 +38,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -56,10 +58,22 @@ public class ModelBackedNativeIncomingDependencies implements NativeIncomingDepe
 	public ModelBackedNativeIncomingDependencies(ModelPath owner, ObjectFactory objects, ProviderFactory providers, ModelLookup lookup) {
 		this.objects = objects;
 		this.providers = providers;
-		this.headers = Suppliers.memoize(() -> lookup.find(owner.child("headerSearchPaths")).<IncomingHeaders>map(entity -> new DefaultIncomingHeaders(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingHeaders::new));
-		this.swiftModules = Suppliers.memoize(() -> lookup.find(owner.child("importSwiftModules")).<IncomingSwiftModules>map(entity -> new DefaultIncomingSwiftModules(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingSwiftModules::new));
-		this.linkLibrariesBucket = Suppliers.memoize(() -> ModelNodeUtils.get(lookup.get(owner.child("linkLibraries")), DependencyBucket.class));
-		this.runtimeLibrariesBucket = Suppliers.memoize(() -> ModelNodeUtils.get(lookup.get(owner.child("runtimeLibraries")), DependencyBucket.class));
+		this.headers = Suppliers.memoize(() -> {
+			lookup.find(owner.child("headerSearchPaths")).ifPresent(ModelStates::realize);
+			return lookup.find(owner.child("headerSearchPaths")).<IncomingHeaders>map(entity -> new DefaultIncomingHeaders(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingHeaders::new);
+		});
+		this.swiftModules = Suppliers.memoize(() -> {
+			lookup.find(owner.child("importSwiftModules")).ifPresent(ModelStates::realize);
+			return lookup.find(owner.child("importSwiftModules")).<IncomingSwiftModules>map(entity -> new DefaultIncomingSwiftModules(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingSwiftModules::new);
+		});
+		this.linkLibrariesBucket = Suppliers.memoize(() -> {
+			ModelStates.realize(lookup.get(owner.child("linkLibraries")));
+			return ModelNodeUtils.get(lookup.get(owner.child("linkLibraries")), DependencyBucket.class);
+		});
+		this.runtimeLibrariesBucket = Suppliers.memoize(() -> {
+			ModelStates.realize(lookup.get(owner.child("runtimeLibraries")));
+			return ModelNodeUtils.get(lookup.get(owner.child("runtimeLibraries")), DependencyBucket.class);
+		});
 
 		this.linkerInputs = objects.listProperty(LinkerInput.class);
 
@@ -76,26 +90,26 @@ public class ModelBackedNativeIncomingDependencies implements NativeIncomingDepe
 
 	@Override
 	public FileCollection getSwiftModules() {
-		return swiftModules.get().getSwiftModules();
+		return objects.fileCollection().from((Callable<Object>) () -> swiftModules.get().getSwiftModules());
 	}
 
 	@Override
 	public FileCollection getHeaderSearchPaths() {
-		return headers.get().getHeaderSearchPaths();
+		return objects.fileCollection().from((Callable<Object>) () -> headers.get().getHeaderSearchPaths());
 	}
 
 	@Override
 	public FileCollection getFrameworkSearchPaths() {
-		return objects.fileCollection().from(headers.get().getFrameworkSearchPaths()).from(swiftModules.get().getFrameworkSearchPaths());
+		return objects.fileCollection().from((Callable<Object>) () -> headers.get().getFrameworkSearchPaths()).from((Callable<Object>) () -> swiftModules.get().getFrameworkSearchPaths());
 	}
 
 	//region Linker inputs
 	public FileCollection getLinkLibraries() {
-		return objects.fileCollection().from(getLinkerInputs().map(this::toLinkLibraries)).builtBy(linkLibrariesBucket.get().getAsConfiguration());
+		return objects.fileCollection().from(getLinkerInputs().map(this::toLinkLibraries)).builtBy((Callable<Object>) () -> linkLibrariesBucket.get().getAsConfiguration());
 	}
 
 	public FileCollection getLinkFrameworks() {
-		return objects.fileCollection().from(getLinkerInputs().map(this::toLinkFrameworks)).builtBy(linkLibrariesBucket.get().getAsConfiguration());
+		return objects.fileCollection().from(getLinkerInputs().map(this::toLinkFrameworks)).builtBy((Callable<Object>) () -> linkLibrariesBucket.get().getAsConfiguration());
 	}
 
 	private void configureLinkerInputs() {
