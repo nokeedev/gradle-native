@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 import java.util.Objects;
 
 @EqualsAndHashCode
-public final class ComponentIdentity {
+public final class ComponentIdentity implements HasName {
 	private static final ComponentName MAIN_COMPONENT_NAME = ComponentName.of("main");
 
 	public static ComponentIdentity ofMain() {
@@ -41,6 +41,7 @@ public final class ComponentIdentity {
 		this.name = Objects.requireNonNull(name);
 	}
 
+	@Override
 	public ComponentName getName() {
 		return name;
 	}
