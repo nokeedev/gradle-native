@@ -16,10 +16,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
@@ -70,10 +67,9 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(IsDependencyBucket.tag())
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get))
-			.withComponent(createdUsing(of(DeclarableDependencyBucket.class),
-				() -> {
-					return ((ExtensionAware) configurationProvider.get()).getExtensions().getByType(DeclarableDependencyBucket.class);
-				}))
+			.withComponent(createdUsing(of(DeclarableDependencyBucket.class), () -> {
+				return ((ExtensionAware) configurationProvider.get()).getExtensions().getByType(DeclarableDependencyBucket.class);
+			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path)) {
 					configurationProvider.configure(configuration -> {
