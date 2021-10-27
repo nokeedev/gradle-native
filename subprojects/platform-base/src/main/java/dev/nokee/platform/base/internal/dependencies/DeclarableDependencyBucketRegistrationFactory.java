@@ -60,7 +60,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 				throw new IllegalStateException("Bucket registration mismatch!");
 			}
 		});
-		val entityPath = p;
+		val entityPath = DependencyBuckets.toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
 			.withComponent(identifier)

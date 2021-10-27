@@ -70,7 +70,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			}
 		});
 		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
-		val entityPath = p;
+		val entityPath = DependencyBuckets.toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
 			.withComponent(identifier)
