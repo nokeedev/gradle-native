@@ -28,7 +28,7 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class ComponentIdentifier implements DomainObjectIdentifier {
+public final class ComponentIdentifier implements DomainObjectIdentifier, HasName {
 	private static final String DEFAULT_DISPLAY_NAME = "component";
 	private final ComponentIdentity identity;
 	private final String displayName;
@@ -52,6 +52,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier {
 		return new ComponentIdentifier(ComponentIdentity.of(name), DEFAULT_DISPLAY_NAME, projectIdentifier);
 	}
 
+	@Override
 	public ComponentName getName() {
 		return identity.getName();
 	}
