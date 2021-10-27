@@ -124,6 +124,7 @@ import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
@@ -479,7 +480,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val dependencies = library.getDependencies();
 		val configurationRegistry = NamedDomainObjectRegistry.of(project.getConfigurations());
 
-		val apiElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("apiElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
+		val apiElementsIdentifier = DependencyBucketIdentifier.of(consumable("apiElements"), ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
 		NamedDomainObjectProvider<Configuration> jvmApiElements = configurationRegistry.registerIfAbsent("apiElements");
 		jvmApiElements.configure(configureAsConsumable());
 		jvmApiElements.configure(configuration -> {
@@ -491,7 +492,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		});
 		jvmApiElements.get().extendsFrom(dependencies.getApi().getAsConfiguration());
 
-		val runtimeElementsIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeElements"), ConsumableDependencyBucket.class, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
+		val runtimeElementsIdentifier = DependencyBucketIdentifier.of(consumable("runtimeElements"), ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
 		NamedDomainObjectProvider<Configuration> jvmRuntimeElements = configurationRegistry.registerIfAbsent("runtimeElements");
 		jvmRuntimeElements.configure(configureAsConsumable());
 		jvmRuntimeElements.configure(configuration -> {

@@ -124,6 +124,10 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), type, ownerIdentifier);
 	}
 
+	public static DependencyBucketIdentifier of(DependencyBucketIdentity identity, DomainObjectIdentifier ownerIdentifier) {
+		return new DependencyBucketIdentifier(identity, DependencyBucket.class, ownerIdentifier);
+	}
+
 	@Override
 	public Iterator<Object> iterator() {
 		val builder = ImmutableList.builder();
