@@ -869,8 +869,8 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 
 		expect:
 		project.configurations.api.description == "API dependencies for component ':main'."
-		project.configurations.jvmImplementation.description == "Jvm implementation dependencies for component ':main'."
-		project.configurations.jvmRuntimeOnly.description == "Jvm runtime only dependencies for component ':main'."
+		project.configurations.jvmImplementation.description == "JVM implementation dependencies for component ':main'."
+		project.configurations.jvmRuntimeOnly.description == "JVM runtime only dependencies for component ':main'."
 
 		and:
 		// Conditional comparision of the description is required when the Java or Groovy language plugins are used as Nokee won't overwrite the description already defined.
