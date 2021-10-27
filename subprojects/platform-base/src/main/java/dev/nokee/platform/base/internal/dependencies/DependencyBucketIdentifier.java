@@ -97,9 +97,9 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 	@Override
 	public Path getPath() {
 		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
-			return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath().child(name.get());
+			return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath().child(getName().get());
 		}
-		return Path.path(name.get());
+		return Path.path(getName().get());
 	}
 
 	public String getConfigurationName() {
@@ -114,7 +114,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 			.map(VariantIdentifier::getUnambiguousName)
 			.filter(it -> !it.isEmpty())
 			.ifPresent(segments::add);
-		segments.add(name.get());
+		segments.add(getName().get());
 
 		return StringUtils.uncapitalize(segments.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
