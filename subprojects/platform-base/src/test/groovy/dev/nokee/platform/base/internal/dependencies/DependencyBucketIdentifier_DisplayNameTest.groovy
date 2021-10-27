@@ -125,8 +125,7 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 		expect:
 		identifier('api').displayName == "API dependencies for project ':'."
 		identifier('apiElements').displayName == "API elements dependencies for project ':'."
-		identifier('jvmApiElements').displayName == "Jvm API elements dependencies for project ':'."
-		// TODO: Should we also capitalize JVM?
+		identifier('jvmApiElements').displayName == "JVM API elements dependencies for project ':'."
 	}
 
 	def "does not add the word dependencies to the consumable buckets"() {
