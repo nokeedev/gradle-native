@@ -39,7 +39,7 @@ class DefaultComponentDependenciesTest extends Specification {
 		dependencies.create('foo', ActionUtils.doNothing())
 
 		then:
-		1 * factory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('foo'), DeclarableDependencyBucket, ownerIdentifier)) >> Mock(DependencyBucket)
+		1 * factory.create(DependencyBucketIdentifier.of(DependencyBucketIdentity.declarable('foo'), ownerIdentifier)) >> Mock(DependencyBucket)
 	}
 
 	def "can find missing and existing bucket"() {
@@ -103,17 +103,17 @@ class DefaultComponentDependenciesTest extends Specification {
 			childDependencies.create(it.name, ActionUtils.doNothing())
 		}
 		then:
-		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketIdentity.declarable('implementation'), ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
 			getName() >> 'implementation'
 		}
-		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('compileOnly'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketIdentity.declarable('compileOnly'), ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
 			getName() >> 'compileOnly'
 		}
 
 		when:
 		dependencies.create('runtimeOnly', ActionUtils.doNothing())
 		then:
-		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketName.of('runtimeOnly'), DeclarableDependencyBucket, ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
+		1 * childFactory.create(DependencyBucketIdentifier.of(DependencyBucketIdentity.declarable('runtimeOnly'), ProjectIdentifier.of('root'))) >> Mock(DependencyBucket) {
 			getName() >> 'runtimeOnly'
 		}
 	}

@@ -47,6 +47,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.ARTIFACT_COMPRESSION_STATE_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.UNCOMPRESSED;
 
@@ -190,7 +191,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 			val compileOnlyBucket = Optional.ofNullable((DependencyBucket) dependencies.findByName("compileOnly")); // As we reuse this code in JNI
 			IncomingHeaders incomingHeaders = null;
 			if (hasIncomingHeaders) {
-				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("headerSearchPaths")), ResolvableDependencyBucket.class, ownerIdentifier);
+				val identifier = DependencyBucketIdentifier.of(resolvable(withPrefix.apply("headerSearchPaths")), ownerIdentifier);
 				val bucket = bucketFactory.create(identifier);
 				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingHeaderSearchPathFrom(componentDependencies.getImplementation()))
 					.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
@@ -205,7 +206,7 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 
 			IncomingSwiftModules incomingSwiftModules = null;
 			if (hasIncomingSwiftModules) {
-				val identifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("importSwiftModules")), ResolvableDependencyBucket.class, ownerIdentifier);
+				val identifier = DependencyBucketIdentifier.of(resolvable(withPrefix.apply("importSwiftModules")), ownerIdentifier);
 				val bucket = bucketFactory.create(identifier);
 				ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingSwiftModuleFrom(componentDependencies.getImplementation()))
 					.andThen(compileOnlyBucket.map(this::extendsFrom).orElse(ActionUtils.doNothing()))
@@ -218,14 +219,14 @@ public class DefaultNativeIncomingDependencies implements NativeIncomingDependen
 				incomingSwiftModules = new AbsentIncomingSwiftModules(objects);
 			}
 
-			val linkLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("linkLibraries")), ResolvableDependencyBucket.class, ownerIdentifier);
+			val linkLibrariesBucketIdentifier = DependencyBucketIdentifier.of(resolvable(withPrefix.apply("linkLibraries")), ownerIdentifier);
 			val linkLibrariesBucket = bucketFactory.create(linkLibrariesBucketIdentifier);
 			ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingLinkLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getLinkOnly()))
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))
 				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible)
 				.andThen(it -> it.setDescription(linkLibrariesBucketIdentifier.getDisplayName()))
 				.execute(linkLibrariesBucket.getAsConfiguration());
-			val runtimeLibrariesBucketIdentifier = DependencyBucketIdentifier.of(DependencyBucketName.of(withPrefix.apply("runtimeLibraries")), ResolvableDependencyBucket.class, ownerIdentifier);
+			val runtimeLibrariesBucketIdentifier = DependencyBucketIdentifier.of(resolvable(withPrefix.apply("runtimeLibraries")), ownerIdentifier);
 			val runtimeLibrariesBucket = bucketFactory.create(runtimeLibrariesBucketIdentifier);
 			ActionUtils.Action.of(ConfigurationUtilsEx.asIncomingRuntimeLibrariesFrom(componentDependencies.getImplementation(), componentDependencies.getRuntimeOnly()))
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes(buildVariant, objects))

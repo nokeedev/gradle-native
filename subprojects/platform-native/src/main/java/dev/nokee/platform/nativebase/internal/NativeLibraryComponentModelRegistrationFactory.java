@@ -66,6 +66,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.nativeLibraryProjection;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
 import static dev.nokee.utils.TransformerUtils.transformEach;
@@ -112,11 +113,11 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeLibraryComponentDependencies.class, ModelBackedNativeLibraryComponentDependencies::new));
 
-						registry.register(bucketFactory.create(path.child("api"), DependencyBucketIdentifier.of(DependencyBucketName.of("api"), DeclarableDependencyBucket.class, identifier)));
-						registry.register(bucketFactory.create(path.child("implementation"), DependencyBucketIdentifier.of(DependencyBucketName.of("implementation"), DeclarableDependencyBucket.class, identifier)));
-						registry.register(bucketFactory.create(path.child("compileOnly"), DependencyBucketIdentifier.of(DependencyBucketName.of("compileOnly"), DeclarableDependencyBucket.class, identifier)));
-						registry.register(bucketFactory.create(path.child("linkOnly"), DependencyBucketIdentifier.of(DependencyBucketName.of("linkOnly"), DeclarableDependencyBucket.class, identifier)));
-						registry.register(bucketFactory.create(path.child("runtimeOnly"), DependencyBucketIdentifier.of(DependencyBucketName.of("runtimeOnly"), DeclarableDependencyBucket.class, identifier)));
+						registry.register(bucketFactory.create(path.child("api"), DependencyBucketIdentifier.of(declarable("api"), identifier)));
+						registry.register(bucketFactory.create(path.child("implementation"), DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
+						registry.register(bucketFactory.create(path.child("compileOnly"), DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
+						registry.register(bucketFactory.create(path.child("linkOnly"), DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
+						registry.register(bucketFactory.create(path.child("runtimeOnly"), DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
