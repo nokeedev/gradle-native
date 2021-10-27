@@ -17,14 +17,20 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DependencyBucketIdentityResolvableTest implements DependencyBucketIdentityTester {
-	private final DependencyBucketIdentity subject = DependencyBucketIdentity.resolvable("huzo");
+class DependencyBucketIdentityResolvableTest implements DependencyBucketIdentityTester, DependencyBucketIdentityDefaultDisplayNameTester {
+	private final DependencyBucketIdentity subject = resolvable("huzo");
 
 	@Override
 	public DependencyBucketIdentity subject() {
 		return subject;
+	}
+
+	@Override
+	public DependencyBucketIdentity createSubject(String name) {
+		return resolvable(name);
 	}
 
 	@Test

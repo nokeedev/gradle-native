@@ -21,7 +21,9 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.util.GUtil;
 
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 public final class DependencyBucketIdentity implements HasName {
@@ -108,10 +110,18 @@ public final class DependencyBucketIdentity implements HasName {
 	}
 
 	private static String defaultDisplayName(DependencyBucketName name) {
-		return GUtil.toWords(name.toString());
+		return Arrays.stream(GUtil.toWords(name.toString()).split(" ")).map(it -> {
+			if (it.equals("api")) {
+				return "API";
+			} else if (it.equals("jvm")) {
+				return "JVM";
+			} else {
+				return it;
+			}
+		}).collect(Collectors.joining(" "));
 	}
 
 	private static String defaultDisplayNameOfDeclarableBucket(DependencyBucketName name) {
-		return GUtil.toWords(name.toString()) + " dependencies";
+		return defaultDisplayName(name) + " dependencies";
 	}
 }

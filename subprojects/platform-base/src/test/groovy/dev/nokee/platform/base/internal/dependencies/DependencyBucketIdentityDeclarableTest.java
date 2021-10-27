@@ -17,14 +17,20 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DependencyBucketIdentityDeclarableTest implements DependencyBucketIdentityTester {
-	private final DependencyBucketIdentity subject = DependencyBucketIdentity.declarable("sesu");
+class DependencyBucketIdentityDeclarableTest implements DependencyBucketIdentityTester, DependencyBucketIdentityDefaultDisplayNameTester {
+	private final DependencyBucketIdentity subject = declarable("sesu");
 
 	@Override
 	public DependencyBucketIdentity subject() {
 		return subject;
+	}
+
+	@Override
+	public DependencyBucketIdentity createSubject(String name) {
+		return declarable(name);
 	}
 
 	@Test
