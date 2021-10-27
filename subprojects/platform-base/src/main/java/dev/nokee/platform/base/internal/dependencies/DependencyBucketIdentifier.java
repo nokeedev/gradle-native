@@ -26,7 +26,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.util.GUtil;
 import org.gradle.util.Path;
 
 import java.util.ArrayList;
@@ -89,23 +88,10 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return Optional.empty();
 	}
 
+	@Deprecated
 	@Override
 	public String getDisplayName() {
-		val builder = new StringBuilder();
-		builder.append(StringUtils.capitalize(GUtil.toWords(name.get()).replace("api", "API")));
-		if (!ConsumableDependencyBucket.class.isAssignableFrom(type) && !ResolvableDependencyBucket.class.isAssignableFrom(type)) {
-			builder.append(" dependencies");
-		}
-		builder.append(" for ");
-		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
-			builder.append(((DomainObjectIdentifierInternal) ownerIdentifier).getDisplayName());
-		} else if (ownerIdentifier instanceof ComponentIdentifier) {
-			builder.append(ownerIdentifier);
-		} else {
-			builder.append("<unknown>");
-		}
-		builder.append(".");
-		return builder.toString();
+		return DependencyBuckets.toDescription(this);
 	}
 
 	@Override
