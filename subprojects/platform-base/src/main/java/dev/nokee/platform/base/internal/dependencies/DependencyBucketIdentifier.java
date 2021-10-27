@@ -127,7 +127,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 	}
 
 	public static DependencyBucketIdentifier of(DependencyBucketIdentity identity, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(identity, DependencyBucket.class, ownerIdentifier);
+		return new DependencyBucketIdentifier(identity, identity.getType().toBucketType(), ownerIdentifier);
 	}
 
 	@Override
