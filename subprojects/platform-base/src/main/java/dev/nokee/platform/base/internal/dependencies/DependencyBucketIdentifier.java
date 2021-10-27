@@ -39,10 +39,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 @Value
 public class DependencyBucketIdentifier<T extends DependencyBucket> implements DomainObjectIdentifierInternal {
 	DependencyBucketName name;
-	Class<T> type;
+	Class<?> type;
 	DomainObjectIdentifier ownerIdentifier;
 
-	private DependencyBucketIdentifier(DependencyBucketName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+	private DependencyBucketIdentifier(DependencyBucketName name, Class<?> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(name != null, "Cannot construct a dependency identifier because the bucket name is null.");
 		checkArgument(type != null, "Cannot construct a dependency identifier because the bucket type is null.");
 		checkArgument(ownerIdentifier != null, "Cannot construct a dependency identifier because the owner identifier is null.");
@@ -121,7 +121,7 @@ public class DependencyBucketIdentifier<T extends DependencyBucket> implements D
 		return StringUtils.uncapitalize(segments.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
 
-	public static <T extends DependencyBucket> DependencyBucketIdentifier<T> of(DependencyBucketName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+	public static DependencyBucketIdentifier<?> of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
 		return new DependencyBucketIdentifier<>(name, type, ownerIdentifier);
 	}
 
