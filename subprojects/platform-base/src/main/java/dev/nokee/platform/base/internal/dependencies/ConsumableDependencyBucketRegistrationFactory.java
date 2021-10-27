@@ -54,7 +54,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		this.objects = objects;
 	}
 
-	public ModelRegistration create(ModelPath p, DependencyBucketIdentifier<?> identifier) {
+	public ModelRegistration create(ModelPath p, DependencyBucketIdentifier identifier) {
 		val outgoing = objects.newInstance(OutgoingArtifacts.class);
 		val bucket = new DefaultConsumableDependencyBucket(bucketFactory.create(identifier), outgoing);
 		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());

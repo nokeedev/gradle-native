@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Value
-public class DependencyBucketIdentifier<T extends DependencyBucket> implements DomainObjectIdentifierInternal {
+public class DependencyBucketIdentifier implements DomainObjectIdentifierInternal {
 	DependencyBucketName name;
 	Class<?> type;
 	DomainObjectIdentifier ownerIdentifier;
@@ -121,8 +121,8 @@ public class DependencyBucketIdentifier<T extends DependencyBucket> implements D
 		return StringUtils.uncapitalize(segments.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
 
-	public static DependencyBucketIdentifier<?> of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier<>(name, type, ownerIdentifier);
+	public static DependencyBucketIdentifier of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
+		return new DependencyBucketIdentifier(name, type, ownerIdentifier);
 	}
 
 	@Override
