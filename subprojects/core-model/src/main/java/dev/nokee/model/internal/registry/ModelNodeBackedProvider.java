@@ -23,6 +23,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
@@ -32,6 +33,7 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
@@ -66,7 +68,17 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 
 	@Override
 	public DomainObjectProvider<T> configure(Action<? super T> action) {
-		ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+		if (node.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
+			val provider = node.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
+			val type = ProviderUtils.getType(provider);
+			if (type.isPresent() && this.type.getConcreteType().isAssignableFrom((Class<?>) type.get())) {
+				provider.configure(action);
+			} else {
+				ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(this.type, action))));
+			}
+		} else {
+			ModelNodeUtils.applyTo(node, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+		}
 		return this;
 	}
 
@@ -96,7 +108,17 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 
 	@Override
 	public NamedDomainObjectProvider<T> asProvider() {
-		return new ModelBackedNamedDomainObjectProvider<>(this);
+		if (node.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
+			val provider = node.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
+			val type = ProviderUtils.getType(provider);
+			if (type.isPresent() && this.type.getConcreteType().isAssignableFrom((Class<?>) type.get())) {
+				return provider;
+			} else {
+				return new ModelBackedNamedDomainObjectProvider<>(this);
+			}
+		} else {
+			return new ModelBackedNamedDomainObjectProvider<>(this);
+		}
 	}
 
 	@Override
