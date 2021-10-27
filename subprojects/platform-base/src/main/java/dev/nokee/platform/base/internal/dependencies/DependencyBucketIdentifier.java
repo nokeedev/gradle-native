@@ -34,19 +34,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.from;
 
 @EqualsAndHashCode
 public class DependencyBucketIdentifier implements DomainObjectIdentifierInternal {
-	private final DependencyBucketName name;
+	private final DependencyBucketIdentity identity;
 	private final Class<?> type;
 	private final DomainObjectIdentifier ownerIdentifier;
 
-	private DependencyBucketIdentifier(DependencyBucketName name, Class<?> type, DomainObjectIdentifier ownerIdentifier) {
-		checkArgument(name != null, "Cannot construct a dependency identifier because the bucket name is null.");
+	private DependencyBucketIdentifier(DependencyBucketIdentity identity, Class<?> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(type != null, "Cannot construct a dependency identifier because the bucket type is null.");
 		checkArgument(ownerIdentifier != null, "Cannot construct a dependency identifier because the owner identifier is null.");
 		checkArgument(isValidOwner(ownerIdentifier), "Cannot construct a dependency identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier and VariantIdentifier are accepted.");
-		this.name = name;
+		this.identity = identity;
 		this.type = type;
 		this.ownerIdentifier = ownerIdentifier;
 	}
@@ -56,7 +57,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 	}
 
 	public DependencyBucketName getName() {
-		return name;
+		return identity.getName();
 	}
 
 	public Class<?> getType() {
@@ -120,7 +121,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 	}
 
 	public static DependencyBucketIdentifier of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(name, type, ownerIdentifier);
+		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), type, ownerIdentifier);
 	}
 
 	@Override
