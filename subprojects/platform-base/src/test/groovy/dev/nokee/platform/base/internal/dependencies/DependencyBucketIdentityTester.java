@@ -18,6 +18,8 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.platform.base.testers.HasNameTester;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public interface DependencyBucketIdentityTester extends HasNameTester {
@@ -31,5 +33,10 @@ public interface DependencyBucketIdentityTester extends HasNameTester {
 	@Test
 	default void hasType() {
 		assertNotNull(subject().getType());
+	}
+
+	@Test
+	default void useDisplayNameForToString() {
+		assertThat(subject(), hasToString(subject().getDisplayName()));
 	}
 }
