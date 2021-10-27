@@ -113,6 +113,29 @@ public class ConfigurationUtilsEx {
 		};
 	}
 
+	public static ActionUtils.Action<Configuration> configureOutgoingAttributes(BuildVariantInternal variant, ObjectFactory objects) {
+		return configuration -> {
+			val attributes = configuration.getAttributes();
+			variant.getDimensions().forEach(it -> {
+				if (it.getAxis().equals(OPERATING_SYSTEM_COORDINATE_AXIS)) {
+					attributes.attribute(OPERATING_SYSTEM_ATTRIBUTE, (OperatingSystemFamily) it.getValue());
+					attributes.attribute(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE,
+						objects.named(org.gradle.nativeplatform.OperatingSystemFamily.class, ((OperatingSystemFamily) it.getValue()).getCanonicalName()));
+				} else if (it.getAxis().equals(ARCHITECTURE_COORDINATE_AXIS)) {
+					attributes.attribute(ARCHITECTURE_ATTRIBUTE, (MachineArchitecture) it.getValue());
+					attributes.attribute(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE,
+						objects.named(org.gradle.nativeplatform.MachineArchitecture.class, ((MachineArchitecture) it.getValue()).getCanonicalName()));
+				} else if (it.getAxis().equals(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+					attributes.attribute(BinaryLinkage.BINARY_LINKAGE_ATTRIBUTE, (BinaryLinkage) it.getValue());
+				} else if (it.getAxis().equals(BuildType.BUILD_TYPE_COORDINATE_AXIS)) {
+					attributes.attribute(BuildType.BUILD_TYPE_ATTRIBUTE, (BuildType) it.getValue());
+				} else {
+					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
+				}
+			});
+		};
+	}
+
 	public static void configureAsGradleDebugCompatible(Configuration configuration) {
 		configuration.attributes(attributes -> {
 			attributes.attribute(CppBinary.DEBUGGABLE_ATTRIBUTE, Boolean.TRUE);
