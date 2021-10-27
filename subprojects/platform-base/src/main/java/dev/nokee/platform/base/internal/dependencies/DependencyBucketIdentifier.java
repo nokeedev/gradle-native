@@ -60,6 +60,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return identity.getName();
 	}
 
+	@Deprecated
 	public Class<?> getType() {
 		return type;
 	}
@@ -120,6 +121,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return StringUtils.uncapitalize(segments.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
 
+	@Deprecated
 	public static DependencyBucketIdentifier of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
 		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), type, ownerIdentifier);
 	}
