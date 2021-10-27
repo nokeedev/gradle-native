@@ -101,7 +101,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeApplicationComponentDependencies.class, ModelBackedNativeApplicationComponentDependencies::new));
 
 						registry.register(bucketFactory.create(path.child("implementation"), DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						registry.register(bucketFactory.create(path.child("compileOnluy"), DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
+						registry.register(bucketFactory.create(path.child("compileOnly"), DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
 						registry.register(bucketFactory.create(path.child("linkOnly"), DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
 						registry.register(bucketFactory.create(path.child("runtimeOnly"), DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
