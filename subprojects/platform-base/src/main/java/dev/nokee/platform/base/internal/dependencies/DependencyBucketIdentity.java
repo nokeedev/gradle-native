@@ -67,7 +67,7 @@ public final class DependencyBucketIdentity implements HasName {
 
 	@Override
 	public String toString() {
-		return name.get();
+		return displayName;
 	}
 
 	public static Builder builder() {

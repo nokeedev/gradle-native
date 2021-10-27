@@ -61,6 +61,11 @@ class DependencyBucketIdentityBuilderTest {
 	}
 
 	@Test
+	void useDisplayNameForToString() {
+		assertEquals("leqijug", builder().name(of("nora")).displayName("leqijug").build().toString());
+	}
+
+	@Test
 	void hasNameFromBuilder() {
 		assertEquals(of("seza"), builder().name(of("seza")).build().getName());
 	}
