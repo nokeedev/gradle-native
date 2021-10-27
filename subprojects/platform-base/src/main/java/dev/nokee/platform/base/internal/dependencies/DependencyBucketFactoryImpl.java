@@ -34,7 +34,7 @@ public final class DependencyBucketFactoryImpl implements DependencyBucketFactor
 	}
 
 	@Override
-	public DependencyBucket create(DependencyBucketIdentifier<?> identifier) {
+	public DependencyBucket create(DependencyBucketIdentifier identifier) {
 		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
 		configurationProvider.configure(bucketTypeOf(identifier.getType())::configure);
 		configurationProvider.configure(configureDescription(mapDisplayName(identifier)));

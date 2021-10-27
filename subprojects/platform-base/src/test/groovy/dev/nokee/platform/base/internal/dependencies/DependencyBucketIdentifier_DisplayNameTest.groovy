@@ -159,7 +159,7 @@ class DependencyBucketIdentifier_DisplayNameTest extends Specification {
 		return identifier(name, TestableBucket, owner)
 	}
 
-	private static <T extends DependencyBucket> DependencyBucketIdentifier<T> identifier(String name, Class<T> type = TestableBucket, DomainObjectIdentifierInternal owner = ProjectIdentifier.ofRootProject()) {
+	private static DependencyBucketIdentifier identifier(String name, Class<? extends DependencyBucket> type = TestableBucket, DomainObjectIdentifierInternal owner = ProjectIdentifier.ofRootProject()) {
 		return DependencyBucketIdentifier.of(DependencyBucketName.of(name), type, owner)
 	}
 

@@ -31,7 +31,7 @@ public class DefaultDependencyBucketFactory implements DependencyBucketFactory {
 	}
 
 	@Override
-	public DependencyBucket create(DependencyBucketIdentifier<?> identifier) {
+	public DependencyBucket create(DependencyBucketIdentifier identifier) {
 		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
 		return new DefaultDependencyBucket(identifier.getName().get(), configurationProvider, dependencyFactory);
 	}

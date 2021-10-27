@@ -30,7 +30,7 @@ public final class FrameworkAwareDependencyBucketFactory implements DependencyBu
 	}
 
 	@Override
-	public DependencyBucket create(DependencyBucketIdentifier<?> identifier) {
+	public DependencyBucket create(DependencyBucketIdentifier identifier) {
 		return new FrameworkAwareDependencyBucket(objects, delegate.create(identifier));
 	}
 }
