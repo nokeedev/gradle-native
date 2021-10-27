@@ -18,12 +18,12 @@ package dev.nokee.platform.base.internal.dependencies;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import lombok.Value;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.util.GUtil;
@@ -36,11 +36,11 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-@Value
+@EqualsAndHashCode
 public class DependencyBucketIdentifier implements DomainObjectIdentifierInternal {
-	DependencyBucketName name;
-	Class<?> type;
-	DomainObjectIdentifier ownerIdentifier;
+	private final DependencyBucketName name;
+	private final Class<?> type;
+	private final DomainObjectIdentifier ownerIdentifier;
 
 	private DependencyBucketIdentifier(DependencyBucketName name, Class<?> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(name != null, "Cannot construct a dependency identifier because the bucket name is null.");
@@ -54,6 +54,18 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 
 	private static boolean isValidOwner(DomainObjectIdentifier ownerIdentifier) {
 		return ownerIdentifier instanceof ProjectIdentifier || ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier;
+	}
+
+	public DependencyBucketName getName() {
+		return name;
+	}
+
+	public Class<?> getType() {
+		return type;
+	}
+
+	public DomainObjectIdentifier getOwnerIdentifier() {
+		return ownerIdentifier;
 	}
 
 	@Override
