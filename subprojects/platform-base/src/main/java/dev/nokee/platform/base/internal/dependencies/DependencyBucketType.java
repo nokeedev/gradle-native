@@ -15,6 +15,18 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.platform.base.DependencyBucket;
+
 public enum DependencyBucketType {
-	Declarable, Consumable, Resolvable
+	Declarable, Consumable, Resolvable;
+
+	static DependencyBucketType from(Class<? extends DependencyBucket> type) {
+		if (ConsumableDependencyBucket.class.isAssignableFrom(type)) {
+			return Consumable;
+		} else if (ResolvableDependencyBucket.class.isAssignableFrom(type)) {
+			return Resolvable;
+		} else {
+			return Declarable;
+		}
+	}
 }

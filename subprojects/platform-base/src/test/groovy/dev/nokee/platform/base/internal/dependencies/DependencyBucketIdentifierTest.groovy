@@ -164,8 +164,7 @@ class DependencyBucketIdentifierTest extends Specification {
 		DependencyBucketIdentifier.of(null, TestableBucket, ProjectIdentifier.of('root'))
 
 		then:
-		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a dependency identifier because the bucket name is null.'
+		thrown(NullPointerException)
 	}
 
 	def "throws exception when bucket type is null"() {
@@ -173,8 +172,7 @@ class DependencyBucketIdentifierTest extends Specification {
 		DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), null, ProjectIdentifier.ofRootProject())
 
 		then:
-		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a dependency identifier because the bucket type is null.'
+		thrown(NullPointerException)
 	}
 
 	def "throws exception when owner is null"() {
