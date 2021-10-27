@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -55,6 +56,10 @@ public final class ModelPath implements Iterable<String> {
 
 	public static ModelPath path(String path) {
 		return new ModelPath(path, splitPath(path));
+	}
+
+	public static ModelPath path(Iterable<String> components) {
+		return new ModelPath(String.join(".", components), Iterables.toArray(components, String.class));
 	}
 
 	public String get() {

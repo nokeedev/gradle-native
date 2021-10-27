@@ -16,10 +16,18 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.HasName;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class DependencyBuckets {
 	public static String toDescription(DependencyBucketIdentifier identifier) {
@@ -42,5 +50,19 @@ public final class DependencyBuckets {
 		}
 		builder.append(".");
 		return builder.toString();
+	}
+
+	public static ModelPath toPath(DependencyBucketIdentifier identifier) {
+		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
+			if (it instanceof ProjectIdentifier) {
+				return Stream.empty();
+			} else if (it instanceof HasName) {
+				return Stream.of(((HasName) it).getName().toString());
+			} else if (it instanceof VariantIdentifier) {
+				return Stream.of(((VariantIdentifier<?>) it).getUnambiguousName());
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}).collect(Collectors.toList()));
 	}
 }
