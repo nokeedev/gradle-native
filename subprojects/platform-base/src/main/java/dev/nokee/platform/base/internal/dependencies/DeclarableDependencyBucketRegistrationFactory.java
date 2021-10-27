@@ -16,27 +16,27 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.util.GUtil;
-
-import java.util.Objects;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
 public final class DeclarableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -51,7 +51,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
 		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
 		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
-		configurationProvider.configure(ConfigurationUtils.configureDescription("%s dependencies for %s.", StringUtils.capitalize(GUtil.toWords(identifier.getName().toString())), identifier.getParentIdentifier().map(Objects::toString).orElse("<unknown>")));
+		configurationProvider.configure(ConfigurationUtils.configureDescription(toDescription(identifier)));
 		configurationProvider.configure(configuration -> {
 			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
 			if (extension == null) {
