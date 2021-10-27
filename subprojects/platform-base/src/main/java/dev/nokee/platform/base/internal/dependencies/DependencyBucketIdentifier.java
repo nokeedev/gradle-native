@@ -133,6 +133,9 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 			builder.add(identifier);
 		});
 		getVariantOwnerIdentifier().ifPresent(builder::add);
+		if (!getComponentOwnerIdentifier().isPresent() && !getVariantOwnerIdentifier().isPresent()) {
+			builder.add(getOwnerIdentifier());
+		}
 		builder.add(this);
 		return builder.build().iterator();
 	}
