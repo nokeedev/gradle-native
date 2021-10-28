@@ -42,6 +42,7 @@ import org.gradle.api.provider.Provider;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
 public final class ConsumableDependencyBucketRegistrationFactory {
@@ -58,7 +59,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val outgoing = objects.newInstance(OutgoingArtifacts.class);
 		val bucket = new DefaultConsumableDependencyBucket(bucketFactory.create(identifier), outgoing);
-		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		val configurationProvider = configurationRegistry.registerIfAbsent(configurationName(identifier));
 		configurationProvider.configure(ConfigurationUtils.configureAsConsumable());
 		configurationProvider.configure(ConfigurationUtils.configureDescription(toDescription(identifier)));
 		configurationProvider.configure(configuration -> {

@@ -38,6 +38,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
 public final class ResolvableDependencyBucketRegistrationFactory {
@@ -50,7 +51,7 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
-		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		val configurationProvider = configurationRegistry.registerIfAbsent(configurationName(identifier));
 		val incoming = new IncomingArtifacts(configurationProvider);
 		val bucket = new DefaultResolvableDependencyBucket(bucketFactory.create(identifier), incoming);
 		configurationProvider.configure(ConfigurationUtils.configureAsResolvable());

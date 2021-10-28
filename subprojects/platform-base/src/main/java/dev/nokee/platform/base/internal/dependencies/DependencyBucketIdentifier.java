@@ -104,23 +104,6 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return Path.path(getName().get());
 	}
 
-	public String getConfigurationName() {
-		val segments = new ArrayList<String>();
-
-		getComponentOwnerIdentifier()
-			.filter(it -> !it.isMainComponent())
-			.map(ComponentIdentifier::getName)
-			.map(ComponentName::get)
-			.ifPresent(segments::add);
-		getVariantOwnerIdentifier()
-			.map(VariantIdentifier::getUnambiguousName)
-			.filter(it -> !it.isEmpty())
-			.ifPresent(segments::add);
-		segments.add(getName().get());
-
-		return StringUtils.uncapitalize(segments.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
-	}
-
 	@Deprecated
 	public static DependencyBucketIdentifier of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
 		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), type, ownerIdentifier);
