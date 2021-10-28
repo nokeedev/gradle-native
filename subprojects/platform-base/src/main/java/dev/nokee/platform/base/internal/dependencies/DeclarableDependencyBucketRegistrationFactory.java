@@ -36,6 +36,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
 public final class DeclarableDependencyBucketRegistrationFactory {
@@ -49,7 +50,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
-		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		val configurationProvider = configurationRegistry.registerIfAbsent(configurationName(identifier));
 		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
 		configurationProvider.configure(ConfigurationUtils.configureDescription(toDescription(identifier)));
 		configurationProvider.configure(configuration -> {

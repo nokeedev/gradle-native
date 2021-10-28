@@ -21,6 +21,7 @@ import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentIdentity;
 import dev.nokee.platform.base.internal.HasName;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.val;
@@ -64,5 +65,34 @@ public final class DependencyBuckets {
 				throw new UnsupportedOperationException();
 			}
 		}).collect(Collectors.toList()));
+	}
+
+	public static String configurationName(DependencyBucketIdentifier identifier) {
+		return StringUtils.uncapitalize(Streams.stream(identifier)
+			.flatMap(it -> {
+				if (it instanceof ProjectIdentifier) {
+					return Stream.empty();
+				} else if (it instanceof ComponentIdentifier) {
+					if (((ComponentIdentifier) it).isMainComponent()) {
+						return Stream.empty();
+					} else {
+						return Stream.of(((ComponentIdentifier) it).getName().get());
+					}
+				} else if (it instanceof ComponentIdentity) {
+					if (((ComponentIdentity) it).isMainComponent()) {
+						return Stream.empty();
+					} else {
+						return Stream.of(((ComponentIdentity) it).getName().get());
+					}
+				} else if (it instanceof VariantIdentifier) {
+					return Stream.of(((VariantIdentifier<?>) it).getUnambiguousName());
+				} else if (it instanceof HasName) {
+					return Stream.of(((HasName) it).getName().toString());
+				} else {
+					throw new UnsupportedOperationException();
+				}
+			})
+			.map(StringUtils::capitalize)
+			.collect(Collectors.joining()));
 	}
 }

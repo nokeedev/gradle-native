@@ -22,6 +22,7 @@ import lombok.val;
 import org.gradle.api.artifacts.Configuration;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.mapDisplayName;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName;
 import static dev.nokee.utils.ConfigurationUtils.configureDescription;
 
 public final class DependencyBucketFactoryImpl implements DependencyBucketFactory {
@@ -35,7 +36,7 @@ public final class DependencyBucketFactoryImpl implements DependencyBucketFactor
 
 	@Override
 	public DependencyBucket create(DependencyBucketIdentifier identifier) {
-		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
+		val configurationProvider = configurationRegistry.registerIfAbsent(configurationName(identifier));
 		configurationProvider.configure(bucketTypeOf(identifier.getType())::configure);
 		configurationProvider.configure(configureDescription(mapDisplayName(identifier)));
 

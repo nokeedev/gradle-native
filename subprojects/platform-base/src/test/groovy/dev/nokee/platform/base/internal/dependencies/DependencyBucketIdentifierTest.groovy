@@ -26,6 +26,8 @@ import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName
+
 @Subject(DependencyBucketIdentifier)
 class DependencyBucketIdentifierTest extends Specification {
 	def "can create identifier owned by a project using factory method"() {
@@ -84,9 +86,9 @@ class DependencyBucketIdentifierTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 
 		expect:
-		identifier('implementation', projectIdentifier).configurationName == 'implementation'
-		identifier('compileOnly', projectIdentifier).configurationName == 'compileOnly'
-		identifier('headerSearchPaths', projectIdentifier).configurationName == 'headerSearchPaths'
+		configurationName(identifier('implementation', projectIdentifier)) == 'implementation'
+		configurationName(identifier('compileOnly', projectIdentifier)) == 'compileOnly'
+		configurationName(identifier('headerSearchPaths', projectIdentifier)) == 'headerSearchPaths'
 	}
 
 	def "configuration name for main component owned identifier is the same as bucket name"() {
@@ -95,9 +97,9 @@ class DependencyBucketIdentifierTest extends Specification {
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		expect:
-		identifier('implementation', componentIdentifier).configurationName == 'implementation'
-		identifier('compileOnly', componentIdentifier).configurationName == 'compileOnly'
-		identifier('headerSearchPaths', componentIdentifier).configurationName == 'headerSearchPaths'
+		configurationName(identifier('implementation', componentIdentifier)) == 'implementation'
+		configurationName(identifier('compileOnly', componentIdentifier)) == 'compileOnly'
+		configurationName(identifier('headerSearchPaths', componentIdentifier)) == 'headerSearchPaths'
 	}
 
 	def "configuration name for non-main component owned identifier starts with component name"() {
@@ -106,9 +108,9 @@ class DependencyBucketIdentifierTest extends Specification {
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 
 		expect:
-		identifier('implementation', componentIdentifier).configurationName == 'testImplementation'
-		identifier('compileOnly', componentIdentifier).configurationName == 'testCompileOnly'
-		identifier('headerSearchPaths', componentIdentifier).configurationName == 'testHeaderSearchPaths'
+		configurationName(identifier('implementation', componentIdentifier)) == 'testImplementation'
+		configurationName(identifier('compileOnly', componentIdentifier)) == 'testCompileOnly'
+		configurationName(identifier('headerSearchPaths', componentIdentifier)) == 'testHeaderSearchPaths'
 	}
 
 	def "configuration name for variant owned identifier of main component starts with unambiguous variant name"() {
@@ -118,9 +120,9 @@ class DependencyBucketIdentifierTest extends Specification {
 		def variantIdentifier = VariantIdentifier.of('macosDebug', Variant, componentIdentifier)
 
 		expect:
-		identifier('implementation', variantIdentifier).configurationName == 'macosDebugImplementation'
-		identifier('compileOnly', variantIdentifier).configurationName == 'macosDebugCompileOnly'
-		identifier('headerSearchPaths', variantIdentifier).configurationName == 'macosDebugHeaderSearchPaths'
+		configurationName(identifier('implementation', variantIdentifier)) == 'macosDebugImplementation'
+		configurationName(identifier('compileOnly', variantIdentifier)) == 'macosDebugCompileOnly'
+		configurationName(identifier('headerSearchPaths', variantIdentifier)) == 'macosDebugHeaderSearchPaths'
 	}
 
 	def "configuration name for variant owned identifier of non-main component starts with component name followed by unambiguous variant name"() {
@@ -130,9 +132,9 @@ class DependencyBucketIdentifierTest extends Specification {
 		def variantIdentifier = VariantIdentifier.of('macosDebug', Variant, componentIdentifier)
 
 		expect:
-		identifier('implementation', variantIdentifier).configurationName == 'testMacosDebugImplementation'
-		identifier('compileOnly', variantIdentifier).configurationName == 'testMacosDebugCompileOnly'
-		identifier('headerSearchPaths', variantIdentifier).configurationName == 'testMacosDebugHeaderSearchPaths'
+		configurationName(identifier('implementation', variantIdentifier)) == 'testMacosDebugImplementation'
+		configurationName(identifier('compileOnly', variantIdentifier)) == 'testMacosDebugCompileOnly'
+		configurationName(identifier('headerSearchPaths', variantIdentifier)) == 'testMacosDebugHeaderSearchPaths'
 	}
 
 	def "configuration name for unique variant owned identifier of main component is the same as bucket name"() {
@@ -142,9 +144,9 @@ class DependencyBucketIdentifierTest extends Specification {
 		def variantIdentifier = VariantIdentifier.of('', Variant, componentIdentifier)
 
 		expect:
-		identifier('implementation', variantIdentifier).configurationName == 'implementation'
-		identifier('compileOnly', variantIdentifier).configurationName == 'compileOnly'
-		identifier('headerSearchPaths', variantIdentifier).configurationName == 'headerSearchPaths'
+		configurationName(identifier('implementation', variantIdentifier)) == 'implementation'
+		configurationName(identifier('compileOnly', variantIdentifier)) == 'compileOnly'
+		configurationName(identifier('headerSearchPaths', variantIdentifier)) == 'headerSearchPaths'
 	}
 
 	def "configuration name for unique variant owned identifier of non-main component starts with component name"() {
@@ -154,9 +156,9 @@ class DependencyBucketIdentifierTest extends Specification {
 		def variantIdentifier = VariantIdentifier.of('', Variant, componentIdentifier)
 
 		expect:
-		identifier('implementation', variantIdentifier).configurationName == 'testImplementation'
-		identifier('compileOnly', variantIdentifier).configurationName == 'testCompileOnly'
-		identifier('headerSearchPaths', variantIdentifier).configurationName == 'testHeaderSearchPaths'
+		configurationName(identifier('implementation', variantIdentifier)) == 'testImplementation'
+		configurationName(identifier('compileOnly', variantIdentifier)) == 'testCompileOnly'
+		configurationName(identifier('headerSearchPaths', variantIdentifier)) == 'testHeaderSearchPaths'
 	}
 
 	def "throws exception when dependency bucket name is null"() {
