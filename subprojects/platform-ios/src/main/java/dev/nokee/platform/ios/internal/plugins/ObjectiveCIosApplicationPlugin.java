@@ -62,7 +62,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
-import static dev.nokee.platform.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
