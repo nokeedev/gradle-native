@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal;
 
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -23,12 +24,15 @@ import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
 public final class ComponentName {
+	private static final String VALID_PART_CHARACTERS = "abcdefghijklmnopqrstuvwxyz" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "-_";
 	private static final String MAIN_COMPONENT_NAME = "main";
 	private final String name;
 
 	private ComponentName(String name) {
 		requireNonNull(name);
-		checkArgument(!StringUtils.isEmpty(name));
+		checkArgument(!name.isEmpty());
+		checkArgument(CharUtils.isAsciiAlphaLower(name.charAt(0)));
+		checkArgument(StringUtils.containsOnly(StringUtils.substring(name, 1), VALID_PART_CHARACTERS));
 		this.name = name;
 	}
 

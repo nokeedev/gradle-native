@@ -15,8 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.testing.EqualsTester;
-import com.google.common.testing.NullPointerTester;
+import dev.nokee.model.NameTester;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.platform.base.internal.ComponentName.of;
@@ -24,46 +23,11 @@ import static dev.nokee.platform.base.internal.ComponentName.ofMain;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ComponentNameTest {
-	@Test
-	@SuppressWarnings("UnstableApiUsage")
-	void checkNulls() {
-		new NullPointerTester().testAllPublicStaticMethods(ComponentName.class);
-	}
-
-	@Test
-	void throwsExceptionWhenNameIsEmpty() {
-		assertThrows(IllegalArgumentException.class, () -> of(""));
-	}
-
-	@Test
-	void canCreateComponentName() {
-		assertThat(of("main").get(), equalTo("main"));
-		assertThat(of("foo").get(), equalTo("foo"));
-		assertThat(of("bar").get(), equalTo("bar"));
-		assertThat(of("Foo").get(), equalTo("Foo"));
-		assertThat(of("Bar").get(), equalTo("Bar"));
-	}
-
-	@Test
-	void checkToStrings() {
-		assertThat(of("main"), hasToString("main"));
-		assertThat(of("foo"), hasToString("foo"));
-		assertThat(of("bar"), hasToString("bar"));
-		assertThat(of("Foo"), hasToString("Foo"));
-		assertThat(of("Bar"), hasToString("Bar"));
-	}
-
-	@Test
-	@SuppressWarnings("UnstableApiUsage")
-	void checkEquals() {
-		new EqualsTester()
-			.addEqualityGroup(of("main"), of("main"), ofMain())
-			.addEqualityGroup(of("foo"))
-			.addEqualityGroup(of("bar"))
-			.testEquals();
+class ComponentNameTest implements NameTester {
+	@Override
+	public Object createSubject(String name) {
+		return ComponentName.of(name);
 	}
 
 	@Test
