@@ -66,7 +66,7 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 
 	@BeforeEach
 	void setup() {
-		element = project().getExtensions().getByType(ModelRegistry.class).register(subject.create(ModelPath.path("vonu"), DependencyBucketIdentifier.of(consumable("vonu"), ProjectIdentifier.of(project()))));
+		element = project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(consumable("vonu"), ProjectIdentifier.of(project()))));
 	}
 
 	@Test
@@ -189,7 +189,7 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 			project.getConfigurations().register("basa", configuration -> {
 				((ExtensionAware) configuration).getExtensions().add(DeclarableDependencyBucket.class, "__bucket", Mockito.mock(DeclarableDependencyBucket.class));
 			});
-			assertThrows(RuntimeException.class, () -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(ModelPath.path("basa"), DependencyBucketIdentifier.of(resolvable("basa"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
+			assertThrows(RuntimeException.class, () -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(resolvable("basa"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
 		}
 
 		@Test
@@ -197,7 +197,7 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 			project.getConfigurations().register("woci", configuration -> {
 				((ExtensionAware) configuration).getExtensions().add(ResolvableDependencyBucket.class, "__bucket", Mockito.mock(ResolvableDependencyBucket.class));
 			});
-			assertThrows(RuntimeException.class, () -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(ModelPath.path("woci"), DependencyBucketIdentifier.of(resolvable("woci"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
+			assertThrows(RuntimeException.class, () -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(resolvable("woci"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
 		}
 
 		@Test
@@ -205,7 +205,7 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 			project.getConfigurations().register("wehi", configuration -> {
 				((ExtensionAware) configuration).getExtensions().add(ConsumableDependencyBucket.class, "__bucket", Mockito.mock(ConsumableDependencyBucket.class));
 			});
-			assertDoesNotThrow(() -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(ModelPath.path("wehi"), DependencyBucketIdentifier.of(consumable("wehi"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
+			assertDoesNotThrow(() -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(consumable("wehi"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
 		}
 	}
 }
