@@ -42,7 +42,9 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			val sourceSet = ModelNodeUtils.register(parentEntity.get(), sourceSet("objectiveCpp", ObjectiveCppSourceSet.class));
-			registry.register(propertyFactory.create(path.child("objectiveCpp"), ModelNodes.of(sourceSet)));
+			if (!ModelProperties.hasProperty(entity, "objectiveCpp")) {
+				registry.register(propertyFactory.create(path.child("objectiveCpp"), ModelNodes.of(sourceSet)));
+			}
 		}))));
 	}
 }

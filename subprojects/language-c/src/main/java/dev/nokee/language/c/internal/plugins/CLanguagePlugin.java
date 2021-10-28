@@ -41,7 +41,9 @@ public class CLanguagePlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			val sourceSet = ModelNodeUtils.register(parentEntity.get(), sourceSet("c", CSourceSet.class));
-			registry.register(propertyFactory.create(path.child("c"), ModelNodes.of(sourceSet)));
+			if (!ModelProperties.hasProperty(entity, "c")) {
+				registry.register(propertyFactory.create(path.child("c"), ModelNodes.of(sourceSet)));
+			}
 		}))));
 	}
 }

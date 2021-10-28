@@ -42,7 +42,9 @@ public class CppLanguagePlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			val sourceSet = ModelNodeUtils.register(parentEntity.get(), sourceSet("cpp", CppSourceSet.class));
-			registry.register(propertyFactory.create(path.child("cpp"), ModelNodes.of(sourceSet)));
+			if (!ModelProperties.hasProperty(entity, "cpp")) {
+				registry.register(propertyFactory.create(path.child("cpp"), ModelNodes.of(sourceSet)));
+			}
 		}))));
 	}
 }

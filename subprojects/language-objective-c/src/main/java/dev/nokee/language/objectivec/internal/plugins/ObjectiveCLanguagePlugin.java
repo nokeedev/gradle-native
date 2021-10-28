@@ -42,7 +42,9 @@ public class ObjectiveCLanguagePlugin implements Plugin<Project> {
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 			val sourceSet = ModelNodeUtils.register(parentEntity.get(), sourceSet("objectiveC", ObjectiveCSourceSet.class));
-			registry.register(propertyFactory.create(path.child("objectiveC"), ModelNodes.of(sourceSet)));
+			if (!ModelProperties.hasProperty(entity, "objectiveC")) {
+				registry.register(propertyFactory.create(path.child("objectiveC"), ModelNodes.of(sourceSet)));
+			}
 		}))));
 	}
 }

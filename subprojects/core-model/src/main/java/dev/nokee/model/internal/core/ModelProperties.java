@@ -31,6 +31,11 @@ public final class ModelProperties {
 		return new ModelNodeBackedElement(result);
 	}
 
+	public static boolean hasProperty(Object self, String name) {
+		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).findDescendant(name).filter(it -> it.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))).isPresent();
+
+	}
+
 	public static Stream<ModelElement> getProperties(Object self) {
 		val result = ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants();
 		return result.stream().filter(it -> it.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))).map(ModelNodeBackedElement::new);
