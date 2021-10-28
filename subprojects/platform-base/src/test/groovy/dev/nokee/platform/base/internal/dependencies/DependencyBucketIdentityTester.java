@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.platform.base.testers.HasNameTester;
+import dev.nokee.model.testers.HasNameTester;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
