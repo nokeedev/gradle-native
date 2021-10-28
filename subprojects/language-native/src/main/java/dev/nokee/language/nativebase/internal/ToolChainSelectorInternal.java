@@ -32,6 +32,7 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.nativeplatform.toolchain.internal.msvcpp.VisualCppToolChain;
 import org.gradle.nativeplatform.toolchain.internal.swift.SwiftcToolChain;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,10 +68,19 @@ public class ToolChainSelectorInternal {
 		return getToolChains().stream().anyMatch(it -> it.canBuild(targetMachine));
 	}
 
+	@Nullable
 	public NativeToolChainInternal select(TargetMachine targetMachine) {
 		NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
+		return select(targetPlatform);
+	}
+
+	@Nullable
+	public NativeToolChainInternal select(NativePlatformInternal targetPlatform) {
+		if (modelRegistry.find("toolChains", NativeToolChainRegistryInternal.class) == null) {
+			return null;
+		}
 		NativeToolChainRegistryInternal registry = modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class);
-		NativeToolChainInternal toolChain = (NativeToolChainInternal)registry.getForPlatform(targetPlatform);
+		NativeToolChainInternal toolChain = (NativeToolChainInternal) registry.getForPlatform(targetPlatform);
 		toolChain.assertSupported();
 
 		return toolChain;
@@ -83,8 +93,13 @@ public class ToolChainSelectorInternal {
 		if (targetMachine.getOperatingSystemFamily().getCanonicalName().equals(OperatingSystemFamily.IOS)) {
 			targetPlatform = DefaultNativePlatform.host();
 		}
+		return selectSwift(targetPlatform);
+	}
+
+	public NativeToolChainInternal selectSwift(NativePlatformInternal targetPlatform) {
 		NativeToolChainRegistryInternal registry = modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class);
-		NativeToolChainInternal toolChain = (NativeToolChainInternal)registry.getForPlatform(NativeLanguage.SWIFT, targetPlatform);
+		registry.forEach(System.out::println);
+		NativeToolChainInternal toolChain = registry.getForPlatform(NativeLanguage.SWIFT, targetPlatform);
 		toolChain.assertSupported();
 
 		return toolChain;
