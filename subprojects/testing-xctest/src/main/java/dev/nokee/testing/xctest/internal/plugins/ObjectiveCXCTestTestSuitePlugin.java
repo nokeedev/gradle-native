@@ -20,8 +20,10 @@ import com.google.common.collect.Iterables;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.*;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -33,7 +35,6 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
@@ -159,13 +160,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 						val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-						// TODO: Should be created using CSourceSetSpec
-						val objectiveC = registry.register(ModelRegistration.builder()
-							.withComponent(path.child("objectiveC"))
-							.withComponent(IsLanguageSourceSet.tag())
-							.withComponent(managed(of(ObjectiveCSourceSet.class)))
-							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC")));
 
 						// TODO: Should be created using CHeaderSetSpec
 						val headers = registry.register(ModelRegistration.builder()
@@ -307,13 +302,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-						// TODO: Should be created using CSourceSetSpec
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("objectiveC"))
-							.withComponent(IsLanguageSourceSet.tag())
-							.withComponent(managed(of(ObjectiveCSourceSet.class)))
-							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC")));
 
 						// TODO: Should be created using CHeaderSetSpec
 						registry.register(ModelRegistration.builder()

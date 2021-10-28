@@ -7,6 +7,7 @@ plugins {
 dependencies {
 	api project(':languageBase')
 	implementation project(':coreScript')
+	implementation "com.google.guava:guava:${guavaVersion}"
 
 	testImplementation testFixtures(project(':coreModel'))
 	testImplementation testFixtures(project(':coreScript'))
