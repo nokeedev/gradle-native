@@ -18,6 +18,7 @@ package dev.nokee.language.base.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.BridgedLanguageSourceSetProjection;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.scripts.DefaultImporter;
@@ -38,11 +39,13 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 	public static <T extends LanguageSourceSet> NodeRegistration sourceSet(String name, Class<T> publicType) {
 		return NodeRegistration.of(name, of(publicType))
+			.withComponent(IsLanguageSourceSet.tag())
 			.withComponent(managed(of(BaseLanguageSourceSetProjection.class)));
 	}
 
 	public static <T extends LanguageSourceSet> NodeRegistration bridgeSourceSet(SourceDirectorySet from, Class<T> to) {
 		return NodeRegistration.of(from.getName(), of(to))
+			.withComponent(IsLanguageSourceSet.tag())
 			.withComponent(managed(of(BridgedLanguageSourceSetProjection.class), from));
 	}
 }
