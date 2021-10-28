@@ -18,6 +18,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.registry.ModelLookup;
 
 import java.util.List;
+import java.util.Optional;
 
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 
@@ -45,5 +46,9 @@ public final class DescendantNodes {
 
 	public boolean hasDescendant(String name) {
 		return modelLookup.has(path.child(name));
+	}
+
+	public Optional<ModelNode> findDescendant(String name) {
+		return modelLookup.find(path.child(name));
 	}
 }
