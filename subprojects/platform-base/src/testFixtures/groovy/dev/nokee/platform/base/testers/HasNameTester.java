@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.testers;
 
-import dev.nokee.platform.base.internal.HasName;
+import dev.nokee.model.HasName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

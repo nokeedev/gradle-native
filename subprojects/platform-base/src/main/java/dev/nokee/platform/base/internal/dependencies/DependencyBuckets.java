@@ -22,7 +22,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentity;
-import dev.nokee.platform.base.internal.HasName;
+import dev.nokee.model.HasName;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;

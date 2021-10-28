@@ -15,9 +15,9 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ProjectIdentifier;
 import lombok.EqualsAndHashCode;
 import org.gradle.util.Path;
