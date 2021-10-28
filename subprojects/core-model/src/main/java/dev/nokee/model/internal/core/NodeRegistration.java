@@ -55,7 +55,7 @@ public final class NodeRegistration {
 	}
 
 	public NodeRegistration withComponent(Object component) {
-		assert !(component instanceof ModelAction) : "Use action(...) instead.";
+		assert !(component instanceof ModelAction) && !(component instanceof NodeAction): "Use action(...) instead.";
 		components.add(component);
 		return this;
 	}
