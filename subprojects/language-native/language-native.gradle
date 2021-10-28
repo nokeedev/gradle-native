@@ -9,6 +9,7 @@ dependencies {
 	implementation project(':runtimeNative')
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}" // for SystemUtils
 
 	testImplementation testFixtures(project(':coreModel'))
 

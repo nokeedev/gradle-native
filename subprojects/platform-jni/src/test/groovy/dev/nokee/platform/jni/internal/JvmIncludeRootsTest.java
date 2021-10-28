@@ -17,7 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
-import dev.nokee.platform.nativebase.internal.NativePlatformFactory;
+import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import org.gradle.api.Project;

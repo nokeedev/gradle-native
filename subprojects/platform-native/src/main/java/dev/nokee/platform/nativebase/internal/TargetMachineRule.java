@@ -16,6 +16,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
