@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.HasName;
 import lombok.EqualsAndHashCode;
 
 import java.util.Objects;

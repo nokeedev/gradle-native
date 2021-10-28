@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.model;
 
 /**
  * Represents something that carries a name represented by any object conforming to the name object contract.

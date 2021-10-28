@@ -16,7 +16,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.platform.base.internal.HasName;
+import dev.nokee.model.HasName;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.util.GUtil;
