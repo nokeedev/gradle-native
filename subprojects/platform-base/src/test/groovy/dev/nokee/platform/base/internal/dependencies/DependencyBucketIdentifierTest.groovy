@@ -26,6 +26,7 @@ import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName
 
 @Subject(DependencyBucketIdentifier)
@@ -81,86 +82,6 @@ class DependencyBucketIdentifierTest extends Specification {
 		identifier.parentIdentifier.get() == variantIdentifier
 	}
 
-	def "configuration name for project owned identifier is the same as bucket name"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-
-		expect:
-		configurationName(identifier('implementation', projectIdentifier)) == 'implementation'
-		configurationName(identifier('compileOnly', projectIdentifier)) == 'compileOnly'
-		configurationName(identifier('headerSearchPaths', projectIdentifier)) == 'headerSearchPaths'
-	}
-
-	def "configuration name for main component owned identifier is the same as bucket name"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-
-		expect:
-		configurationName(identifier('implementation', componentIdentifier)) == 'implementation'
-		configurationName(identifier('compileOnly', componentIdentifier)) == 'compileOnly'
-		configurationName(identifier('headerSearchPaths', componentIdentifier)) == 'headerSearchPaths'
-	}
-
-	def "configuration name for non-main component owned identifier starts with component name"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-
-		expect:
-		configurationName(identifier('implementation', componentIdentifier)) == 'testImplementation'
-		configurationName(identifier('compileOnly', componentIdentifier)) == 'testCompileOnly'
-		configurationName(identifier('headerSearchPaths', componentIdentifier)) == 'testHeaderSearchPaths'
-	}
-
-	def "configuration name for variant owned identifier of main component starts with unambiguous variant name"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('macosDebug', Variant, componentIdentifier)
-
-		expect:
-		configurationName(identifier('implementation', variantIdentifier)) == 'macosDebugImplementation'
-		configurationName(identifier('compileOnly', variantIdentifier)) == 'macosDebugCompileOnly'
-		configurationName(identifier('headerSearchPaths', variantIdentifier)) == 'macosDebugHeaderSearchPaths'
-	}
-
-	def "configuration name for variant owned identifier of non-main component starts with component name followed by unambiguous variant name"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('macosDebug', Variant, componentIdentifier)
-
-		expect:
-		configurationName(identifier('implementation', variantIdentifier)) == 'testMacosDebugImplementation'
-		configurationName(identifier('compileOnly', variantIdentifier)) == 'testMacosDebugCompileOnly'
-		configurationName(identifier('headerSearchPaths', variantIdentifier)) == 'testMacosDebugHeaderSearchPaths'
-	}
-
-	def "configuration name for unique variant owned identifier of main component is the same as bucket name"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('', Variant, componentIdentifier)
-
-		expect:
-		configurationName(identifier('implementation', variantIdentifier)) == 'implementation'
-		configurationName(identifier('compileOnly', variantIdentifier)) == 'compileOnly'
-		configurationName(identifier('headerSearchPaths', variantIdentifier)) == 'headerSearchPaths'
-	}
-
-	def "configuration name for unique variant owned identifier of non-main component starts with component name"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('', Variant, componentIdentifier)
-
-		expect:
-		configurationName(identifier('implementation', variantIdentifier)) == 'testImplementation'
-		configurationName(identifier('compileOnly', variantIdentifier)) == 'testCompileOnly'
-		configurationName(identifier('headerSearchPaths', variantIdentifier)) == 'testHeaderSearchPaths'
-	}
-
 	def "throws exception when dependency bucket name is null"() {
 		when:
 		DependencyBucketIdentifier.of(null, TestableBucket, ProjectIdentifier.of('root'))
@@ -179,7 +100,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "throws exception when owner is null"() {
 		when:
-		DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, null)
+		DependencyBucketIdentifier.of(declarable('implementation'), null)
 
 		then:
 		def ex = thrown(IllegalArgumentException)
@@ -188,15 +109,11 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "throws exception when owner is not a project, component or variant"() {
 		when:
-		DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), TestableBucket, Mock(DomainObjectIdentifierInternal))
+		DependencyBucketIdentifier.of(declarable('implementation'), Mock(DomainObjectIdentifierInternal))
 
 		then:
 		def ex = thrown(IllegalArgumentException)
 		ex.message == 'Cannot construct a dependency identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier and VariantIdentifier are accepted.'
-	}
-
-	private static DependencyBucketIdentifier identifier(String name, DomainObjectIdentifier owner) {
-		return DependencyBucketIdentifier.of(DependencyBucketName.of(name), DependencyBucketIdentifierTest.TestableBucket, owner)
 	}
 
 	interface TestableBucket extends DependencyBucket {}
