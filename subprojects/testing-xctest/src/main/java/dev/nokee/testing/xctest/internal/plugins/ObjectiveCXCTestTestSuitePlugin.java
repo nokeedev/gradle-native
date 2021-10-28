@@ -186,10 +186,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeComponentDependencies.class, ModelBackedNativeComponentDependencies::new));
 
-						registry.register(bucketFactory.create(path.child("implementation"), DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						registry.register(bucketFactory.create(path.child("compileOnly"), DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-						registry.register(bucketFactory.create(path.child("linkOnly"), DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-						registry.register(bucketFactory.create(path.child("runtimeOnly"), DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
@@ -478,39 +478,39 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 				val identifier = variantIdentifier;
 				val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)));
-				val implementation = registry.register(bucketFactory.create(path.child("implementation"), DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-				val compileOnly = registry.register(bucketFactory.create(path.child("compileOnly"), DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-				val linkOnly = registry.register(bucketFactory.create(path.child("linkOnly"), DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-				val runtimeOnly = registry.register(bucketFactory.create(path.child("runtimeOnly"), DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
+				val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
+				val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
+				val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
+				val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
 				val resolvableFactory = new ResolvableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)));
 				boolean hasSwift = project.getExtensions().getByType(ModelLookup.class).anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
 				if (hasSwift) {
-					val importModules = registry.register(resolvableFactory.create(path.child("importSwiftModules"), DependencyBucketIdentifier.of(resolvable("importSwiftModules"), identifier)));
+					val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("importSwiftModules"), identifier)));
 					importModules.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
 						.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))))
 						.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 				} else {
-					val headerSearchPaths = registry.register(resolvableFactory.create(path.child("headerSearchPaths"), DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier)));
+					val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier)));
 					headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
 						.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
 						.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 				}
-				val linkLibraries = registry.register(resolvableFactory.create(path.child("linkLibraries"), DependencyBucketIdentifier.of(resolvable("linkLibraries"), identifier)));
+				val linkLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("linkLibraries"), identifier)));
 				linkLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-				val runtimeLibraries = registry.register(resolvableFactory.create(path.child("runtimeLibraries"), DependencyBucketIdentifier.of(resolvable("runtimeLibraries"), identifier)));
+				val runtimeLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("runtimeLibraries"), identifier)));
 				runtimeLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 
 				val consumableFactory = new ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getObjects());
-				val runtimeElements = registry.register(consumableFactory.create(path.child("runtimeElements"), DependencyBucketIdentifier.of(consumable("runtimeElements"), identifier)));
+				val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("runtimeElements"), identifier)));
 				runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
 					.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects())));

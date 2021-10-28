@@ -49,7 +49,7 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		this.bucketFactory = bucketFactory;
 	}
 
-	public ModelRegistration create(ModelPath p, DependencyBucketIdentifier identifier) {
+	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
 		val incoming = new IncomingArtifacts(configurationProvider);
 		val bucket = new DefaultResolvableDependencyBucket(bucketFactory.create(identifier), incoming);

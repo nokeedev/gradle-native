@@ -113,11 +113,11 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeLibraryComponentDependencies.class, ModelBackedNativeLibraryComponentDependencies::new));
 
-						registry.register(bucketFactory.create(path.child("api"), DependencyBucketIdentifier.of(declarable("api"), identifier)));
-						registry.register(bucketFactory.create(path.child("implementation"), DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						registry.register(bucketFactory.create(path.child("compileOnly"), DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-						registry.register(bucketFactory.create(path.child("linkOnly"), DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-						registry.register(bucketFactory.create(path.child("runtimeOnly"), DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
+						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))

@@ -47,7 +47,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 		this.bucketFactory = bucketFactory;
 	}
 
-	public ModelRegistration create(ModelPath p, DependencyBucketIdentifier identifier) {
+	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
 		val configurationProvider = configurationRegistry.registerIfAbsent(identifier.getConfigurationName());
 		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
