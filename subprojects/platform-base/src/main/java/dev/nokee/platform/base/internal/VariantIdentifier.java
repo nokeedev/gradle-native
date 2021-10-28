@@ -66,6 +66,10 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 		return new VariantIdentifier<>(unambiguousName, type, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
 	}
 
+	public static VariantIdentifier<?> of(String unambiguousName, ComponentIdentifier identifier) {
+		return new VariantIdentifier<>(unambiguousName, Variant.class, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
+	}
+
 	public static <T extends Variant> VariantIdentifier<T> of(BuildVariant buildVariant, Class<T> type, ComponentIdentifier identifier) {
 		String unambiguousName = createUnambiguousName(buildVariant);
 		Dimensions ambiguousDimensions = Dimensions.of(createAmbiguousDimensionNames(buildVariant));
