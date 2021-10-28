@@ -15,9 +15,11 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -41,7 +43,7 @@ public class CppLanguagePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-			val sourceSet = ModelNodeUtils.register(parentEntity.get(), sourceSet("cpp", CppSourceSet.class));
+			val sourceSet = registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "cpp")));
 			if (!ModelProperties.hasProperty(entity, "cpp")) {
 				registry.register(propertyFactory.create(path.child("cpp"), ModelNodes.of(sourceSet)));
 			}

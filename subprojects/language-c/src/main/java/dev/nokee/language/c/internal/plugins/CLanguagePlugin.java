@@ -15,9 +15,10 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.CSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -26,8 +27,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.internal.core.ModelActions.*;
+import static dev.nokee.model.internal.core.ModelActions.matching;
+import static dev.nokee.model.internal.core.ModelActions.once;
 
 public class CLanguagePlugin implements Plugin<Project> {
 	@Override
@@ -40,7 +41,7 @@ public class CLanguagePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-			val sourceSet = ModelNodeUtils.register(parentEntity.get(), sourceSet("c", CSourceSet.class));
+			val sourceSet = registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "c")));
 			if (!ModelProperties.hasProperty(entity, "c")) {
 				registry.register(propertyFactory.create(path.child("c"), ModelNodes.of(sourceSet)));
 			}
