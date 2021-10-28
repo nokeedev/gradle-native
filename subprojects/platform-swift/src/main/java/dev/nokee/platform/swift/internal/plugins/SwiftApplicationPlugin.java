@@ -15,10 +15,10 @@
  */
 package dev.nokee.platform.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -43,8 +43,6 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static org.gradle.util.ConfigureUtil.configureUsing;
@@ -81,13 +79,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(SwiftApplication.class, DefaultSwiftApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			// TODO: Should be created using SwiftSourceSetSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("swift"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(SwiftSourceSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
+			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "swift")));
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftApplicationSources.class));
 		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Swift application").withProjectIdentifier(ProjectIdentifier.of(project)).build());

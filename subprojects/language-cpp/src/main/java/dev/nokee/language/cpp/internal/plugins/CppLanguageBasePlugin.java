@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.CppSourceSet;
@@ -35,5 +36,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 
 		// No need to register anything as CppHeaderSet and CppSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
+
+		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 	}
 }

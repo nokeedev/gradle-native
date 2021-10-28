@@ -17,9 +17,11 @@ package dev.nokee.platform.c.internal.plugins;
 
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
+import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -85,13 +87,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(CLibrary.class, DefaultCLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			// TODO: Should be created using CSourceSetSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("c"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(CSourceSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
+			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "c")));
 
 			// TODO: Should be created using CHeaderSetSpec
 			registry.register(ModelRegistration.builder()

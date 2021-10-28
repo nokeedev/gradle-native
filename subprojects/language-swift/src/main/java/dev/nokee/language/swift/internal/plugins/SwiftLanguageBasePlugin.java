@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.scripts.DefaultImporter;
@@ -30,5 +31,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
+
+		project.getExtensions().add("__nokee_swiftSourceSetFactory", new SwiftSourceSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 	}
 }

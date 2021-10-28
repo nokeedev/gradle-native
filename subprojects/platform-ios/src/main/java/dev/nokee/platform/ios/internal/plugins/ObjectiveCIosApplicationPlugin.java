@@ -18,11 +18,14 @@ package dev.nokee.platform.ios.internal.plugins;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -115,13 +118,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		return new IosApplicationComponentModelRegistrationFactory(ObjectiveCIosApplication.class, DefaultObjectiveCIosApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			// TODO: Should be created using CSourceSetSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("objectiveC"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(ObjectiveCSourceSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
+			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC")));
 
 			// TODO: Should be created using CHeaderSetSpec
 			registry.register(ModelRegistration.builder()
