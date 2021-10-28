@@ -9,6 +9,7 @@ dependencies {
 	implementation project(':coreUtils')
 	implementation project(':coreScript')
 	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
 	testCompileOnly project(':platformBase')
 	testImplementation testFixtures(project(':coreModel'))
