@@ -18,7 +18,6 @@ package dev.nokee.testing.xctest.internal.plugins;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CHeaderSet;

@@ -8,9 +8,9 @@ import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
 
 final class DefaultConfigurableSourceSet implements ConfigurableSourceSet {
-	private final LanguageSourceSetProjection strategy;
+	private final LanguageSourceSetStrategy strategy;
 
-	public DefaultConfigurableSourceSet(LanguageSourceSetProjection strategy) {
+	public DefaultConfigurableSourceSet(LanguageSourceSetStrategy strategy) {
 		this.strategy = strategy;
 	}
 

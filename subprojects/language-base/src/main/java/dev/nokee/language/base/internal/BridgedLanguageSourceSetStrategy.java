@@ -34,12 +34,12 @@ import java.io.File;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-public class BridgedLanguageSourceSetProjection implements LanguageSourceSetProjection {
+public class BridgedLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
 	private final SourceDirectorySet sourceSet;
 	private final ObjectFactory objectFactory;
 
 	@Inject
-	public BridgedLanguageSourceSetProjection(SourceDirectorySet sourceSet, ObjectFactory objectFactory) {
+	public BridgedLanguageSourceSetStrategy(SourceDirectorySet sourceSet, ObjectFactory objectFactory) {
 		this.sourceSet = sourceSet;
 		this.objectFactory = objectFactory;
 	}

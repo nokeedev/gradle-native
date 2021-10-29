@@ -20,7 +20,7 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
 
-public interface LanguageSourceSetProjection {
+public interface LanguageSourceSetStrategy {
 	void from(Object... paths);
 	void convention(Object... paths);
 	FileCollection getSourceDirectories();
