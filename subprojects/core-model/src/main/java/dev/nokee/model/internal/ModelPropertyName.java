@@ -28,6 +28,7 @@ public final class ModelPropertyName {
 
 	private ModelPropertyName(String name) {
 		Objects.requireNonNull(name);
+		// Checks are disabled until single variant names are not empty strings...
 //		checkArgument(!name.isEmpty());
 //		checkArgument(CharUtils.isAsciiAlphaLower(name.charAt(0)));
 //		checkArgument(StringUtils.containsOnly(StringUtils.substring(name, 1), VALID_PART_CHARACTERS));
