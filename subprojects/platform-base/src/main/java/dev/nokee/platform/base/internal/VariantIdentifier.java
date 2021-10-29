@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.Iterators;
+import dev.nokee.model.HasName;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.NamedDomainObjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier, TypeAwareDomainObjectIdentifier<T> {
+public final class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier, TypeAwareDomainObjectIdentifier<T>, HasName {
 	@Getter private final String unambiguousName;
 	@Getter private final Class<T> type;
 	@Getter private final ComponentIdentifier componentIdentifier;

@@ -19,6 +19,7 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -76,13 +77,14 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration swiftApplication(String name, Project project) {
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Swift application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return new NativeApplicationComponentModelRegistrationFactory(SwiftApplication.class, DefaultSwiftApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "swift")));
 
-			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftApplicationSources.class));
-		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Swift application").withProjectIdentifier(ProjectIdentifier.of(project)).build());
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), SwiftApplicationSources.class));
+		}).create(identifier);
 	}
 
 	public static abstract class DefaultSwiftApplication implements SwiftApplication

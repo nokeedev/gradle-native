@@ -8,6 +8,7 @@ plugins {
 dependencies {
 	implementation project(':coreUtils')
 	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"

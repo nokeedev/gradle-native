@@ -26,6 +26,7 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -89,6 +90,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration objectiveCLibrary(String name, Project project) {
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(ObjectiveCLibrary.class, DefaultObjectiveCLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -97,14 +99,14 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "public")));
 			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
-			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCLibrarySources.class));
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCLibrarySources.class));
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(ObjectiveCSourceSet.class)), (e, p, ignored, projection) -> {
 				if (path.isDescendant(p)) {
 					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
 				}
 			}));
-		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C library").withProjectIdentifier(ProjectIdentifier.of(project)).build());
+		}).create(identifier);
 	}
 
 	public static abstract class DefaultObjectiveCLibrary implements ObjectiveCLibrary

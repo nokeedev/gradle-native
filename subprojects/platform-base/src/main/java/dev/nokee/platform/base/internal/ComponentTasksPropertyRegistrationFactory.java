@@ -17,14 +17,15 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
+import dev.nokee.model.HasName;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,7 @@ import org.gradle.api.Task;
 import org.gradle.api.provider.ProviderFactory;
 
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
@@ -52,30 +54,43 @@ public final class ComponentTasksPropertyRegistrationFactory {
 		this.modelLookup = modelLookup;
 	}
 
-	// TODO: We should accept the property identifier and use that to figure out descendant, path, and finalizing.
-	public ModelRegistration create(ModelPath path) {
+	public ModelRegistration create(ModelPropertyIdentifier identifier) {
+		val path = toPath(identifier);
 		assert path.getParent().isPresent();
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
 			.withComponent(path)
+			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, pp, ignored) -> {
-				if (path.equals(pp)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
+				if (id.equals(identifier)) {
 					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsTask.class), ModelComponentReference.ofAny(projectionOf(Task.class)), (e, p, ignored1, ignored2, projection) -> {
 						if (ownerPath.isDescendant(p)) {
 							val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(ownerPath)))
 								.filter(it -> !it.isEmpty())
 								.map(StringUtils::capitalize)
 								.collect(Collectors.joining()));
-							registry.register(propertyFactory.create(path.child(elementName), e));
+							registry.register(propertyFactory.create(ModelPropertyIdentifier.of(identifier, elementName), e));
 						}
 					}));
 				}
 			}))
 			.build();
+	}
+
+	private static ModelPath toPath(ModelPropertyIdentifier identifier) {
+		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
+			if (it instanceof ProjectIdentifier) {
+				return Stream.empty();
+			} else if (it instanceof HasName) {
+				return Stream.of(((HasName) it).getName().toString());
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}).collect(Collectors.toList()));
 	}
 }

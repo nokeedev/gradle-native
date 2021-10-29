@@ -18,6 +18,8 @@ package dev.nokee.platform.base.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -63,7 +65,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsComponent.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(Component.class)), (e, p, ignored1, ignored2, projection) -> {
 			if (ModelPath.root().isDirectDescendant(p)) {
-				modeRegistry.register(propertyFactory.create(ModelPath.path("components").child(p.getName()), e));
+				modeRegistry.register(propertyFactory.create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ProjectIdentifier.of(project),"components"), p.getName()), e));
 			}
 		}));
 

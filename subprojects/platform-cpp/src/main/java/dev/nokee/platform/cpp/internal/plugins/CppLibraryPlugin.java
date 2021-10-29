@@ -25,6 +25,7 @@ import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -85,6 +86,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration cppLibrary(String name, Project project) {
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C++ library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return new NativeLibraryComponentModelRegistrationFactory(CppLibrary.class, DefaultCppLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -92,8 +94,8 @@ public class CppLibraryPlugin implements Plugin<Project> {
 			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "public")));
 			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
-			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CppLibrarySources.class));
-		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C++ library").withProjectIdentifier(ProjectIdentifier.of(project)).build());
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), CppLibrarySources.class));
+		}).create(identifier);
 	}
 
 	public static abstract class DefaultCppLibrary implements CppLibrary

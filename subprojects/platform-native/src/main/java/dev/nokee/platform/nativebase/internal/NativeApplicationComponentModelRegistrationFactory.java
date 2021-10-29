@@ -21,6 +21,7 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -29,7 +30,9 @@ import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.dependencies.*;
+import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
@@ -98,7 +101,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 						sourceRegistration.accept(entity, path);
 
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(path.child("dependencies"), NativeApplicationComponentDependencies.class, ModelBackedNativeApplicationComponentDependencies::new));
+						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), NativeApplicationComponentDependencies.class, ModelBackedNativeApplicationComponentDependencies::new));
 
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
@@ -129,11 +132,11 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 							.build());
 						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
 
-						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), NativeApplication.class));
+						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), NativeApplication.class));
 
-						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(path.child("binaries")));
+						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 
-						registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(path.child("tasks")));
+						registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "tasks")));
 					}
 				}
 			}))

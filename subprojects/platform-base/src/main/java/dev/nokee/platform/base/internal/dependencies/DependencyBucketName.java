@@ -16,7 +16,6 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

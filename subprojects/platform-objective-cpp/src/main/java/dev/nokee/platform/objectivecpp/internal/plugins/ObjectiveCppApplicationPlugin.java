@@ -26,6 +26,7 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetRegistrationFactory;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -88,6 +89,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration objectiveCppApplication(String name, Project project) {
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C++ application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCppApplication.class, DefaultObjectiveCppApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -95,14 +97,14 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
-			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCppApplicationSources.class));
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCppApplicationSources.class));
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(ObjectiveCppSourceSet.class)), (e, p, ignored, projection) -> {
 				if (path.isDescendant(p)) {
 					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
 				}
 			}));
-		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C++ application").withProjectIdentifier(ProjectIdentifier.of(project)).build());
+		}).create(identifier);
 	}
 
 	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication
