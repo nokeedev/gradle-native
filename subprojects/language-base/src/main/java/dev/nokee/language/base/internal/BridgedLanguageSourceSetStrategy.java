@@ -29,16 +29,14 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-public class BridgedLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
+final class BridgedLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
 	private final SourceDirectorySet sourceSet;
 	private final ObjectFactory objectFactory;
 
-	@Inject
 	public BridgedLanguageSourceSetStrategy(SourceDirectorySet sourceSet, ObjectFactory objectFactory) {
 		this.sourceSet = sourceSet;
 		this.objectFactory = objectFactory;
