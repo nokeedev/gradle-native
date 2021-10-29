@@ -28,6 +28,8 @@ import lombok.val;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
+
 public final class ModelPropertyRegistrationFactory {
 	private final ModelLookup lookup;
 
@@ -77,17 +79,5 @@ public final class ModelPropertyRegistrationFactory {
 				}
 			}))
 			.build();
-	}
-
-	private static ModelPath toPath(ModelPropertyIdentifier identifier) {
-		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
-			if (it instanceof ProjectIdentifier) {
-				return Stream.empty();
-			} else if (it instanceof HasName) {
-				return Stream.of(((HasName) it).getName().toString());
-			} else {
-				throw new UnsupportedOperationException();
-			}
-		}).collect(Collectors.toList()));
 	}
 }

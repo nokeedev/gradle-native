@@ -53,20 +53,6 @@ public final class DependencyBuckets {
 		return builder.toString();
 	}
 
-	public static ModelPath toPath(DependencyBucketIdentifier identifier) {
-		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
-			if (it instanceof ProjectIdentifier) {
-				return Stream.empty();
-			} else if (it instanceof HasName) {
-				return Stream.of(((HasName) it).getName().toString());
-			} else if (it instanceof VariantIdentifier) {
-				return Stream.of(((VariantIdentifier<?>) it).getUnambiguousName());
-			} else {
-				throw new UnsupportedOperationException();
-			}
-		}).collect(Collectors.toList()));
-	}
-
 	public static String configurationName(DependencyBucketIdentifier identifier) {
 		return StringUtils.uncapitalize(Streams.stream(identifier)
 			.flatMap(it -> {

@@ -39,6 +39,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -71,7 +72,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			}
 		});
 		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
-		val entityPath = DependencyBuckets.toPath(identifier);
+		val entityPath = toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
 			.withComponent(identifier)
