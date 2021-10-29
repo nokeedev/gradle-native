@@ -27,13 +27,12 @@ import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class DefaultLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
+final class DefaultLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
 	private final ConfigurableFileCollection sources;
 	private final ConfigurableFileCollection sourceDirectories;
 	private final ObjectFactory objectFactory;
@@ -41,7 +40,6 @@ public class DefaultLanguageSourceSetStrategy implements LanguageSourceSetStrate
 	private FileCollection conventionSources;
 	private boolean hasValue = false;
 
-	@Inject
 	public DefaultLanguageSourceSetStrategy(ObjectFactory objectFactory) {
 		this.sources = objectFactory.fileCollection().from(conventionIfSourceAbsent());
 		this.sourceDirectories = objectFactory.fileCollection().from(sourcesDeduction());
