@@ -16,17 +16,13 @@
 package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.*;
-import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.SourceDirectorySet;
-
-import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.type.ModelType.of;
 
 public class LanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -36,17 +32,5 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 
 		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(ModelRegistry.class), new SourceSetFactory(project.getObjects())));
-	}
-
-	public static <T extends LanguageSourceSet> NodeRegistration sourceSet(String name, Class<T> publicType) {
-		return NodeRegistration.of(name, of(publicType))
-			.withComponent(IsLanguageSourceSet.tag())
-			.withComponent(managed(of(BaseLanguageSourceSetProjection.class)));
-	}
-
-	public static <T extends LanguageSourceSet> NodeRegistration bridgeSourceSet(SourceDirectorySet from, Class<T> to) {
-		return NodeRegistration.of(from.getName(), of(to))
-			.withComponent(IsLanguageSourceSet.tag())
-			.withComponent(managed(of(BridgedLanguageSourceSetProjection.class), from));
 	}
 }
