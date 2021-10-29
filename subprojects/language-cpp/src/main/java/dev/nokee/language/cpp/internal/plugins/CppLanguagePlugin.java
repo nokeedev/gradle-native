@@ -41,12 +41,8 @@ public class CppLanguagePlugin implements Plugin<Project> {
 		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 		modelConfigurer.configure(matching(discoveringInstanceOf(CppSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentNode.class), ModelComponentReference.of(ModelPath.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
-			val sourceSet = registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "cpp")));
-			if (!ModelProperties.hasProperty(entity, "cpp")) {
-				registry.register(propertyFactory.create(path.child("cpp"), ModelNodes.of(sourceSet)));
-			}
+			registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "cpp")));
 		}))));
 	}
 }
