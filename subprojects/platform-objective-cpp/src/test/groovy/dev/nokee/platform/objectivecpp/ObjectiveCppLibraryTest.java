@@ -24,6 +24,7 @@ import dev.nokee.language.nativebase.HasPublicHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSourcesTester;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -74,6 +75,7 @@ class ObjectiveCppLibraryTest implements ComponentTester<ObjectiveCppLibrary>
 	public ObjectiveCppLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCppLibrary(componentName, project)).as(ObjectiveCppLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;

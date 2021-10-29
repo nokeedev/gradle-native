@@ -17,6 +17,7 @@ package dev.nokee.platform.c;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
@@ -32,6 +33,7 @@ class CApplicationSourcesTest implements ComponentSourcesTester<CApplicationSour
 	public CApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		val sources = project.getExtensions().getByType(ModelRegistry.class).register(cApplication("main", project)).as(CApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
