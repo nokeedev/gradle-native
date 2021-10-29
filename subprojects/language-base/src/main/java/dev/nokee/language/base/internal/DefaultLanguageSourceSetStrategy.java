@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class BaseLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
+public class DefaultLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
 	private final ConfigurableFileCollection sources;
 	private final ConfigurableFileCollection sourceDirectories;
 	private final ObjectFactory objectFactory;
@@ -42,7 +42,7 @@ public class BaseLanguageSourceSetStrategy implements LanguageSourceSetStrategy 
 	private boolean hasValue = false;
 
 	@Inject
-	public BaseLanguageSourceSetStrategy(ObjectFactory objectFactory) {
+	public DefaultLanguageSourceSetStrategy(ObjectFactory objectFactory) {
 		this.sources = objectFactory.fileCollection().from(conventionIfSourceAbsent());
 		this.sourceDirectories = objectFactory.fileCollection().from(sourcesDeduction());
 		this.objectFactory = objectFactory;
