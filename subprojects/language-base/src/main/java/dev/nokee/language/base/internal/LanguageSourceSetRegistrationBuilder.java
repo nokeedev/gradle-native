@@ -34,7 +34,7 @@ public final class LanguageSourceSetRegistrationBuilder {
 			.withComponent(toPath(identifier))
 			.withComponent(IsLanguageSourceSet.tag())
 			.withComponent(projection)
-			.withComponent(managed(of(BaseLanguageSourceSetStrategy.class)))
+			.withComponent(managed(of(DefaultLanguageSourceSetStrategy.class)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPath.class), (entity, id, state, path) -> {
 				if (id.equals(identifier)) {
 					registry.register(ModelRegistration.builder()

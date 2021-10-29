@@ -12,7 +12,7 @@ public final class SourceSetFactory {
 	}
 
 	public ConfigurableSourceSet sourceSet() {
-		return new DefaultConfigurableSourceSet(new BaseLanguageSourceSetStrategy(objectFactory));
+		return new DefaultConfigurableSourceSet(new DefaultLanguageSourceSetStrategy(objectFactory));
 	}
 
 	public ConfigurableSourceSet bridgedSourceSet(SourceDirectorySet delegate) {
