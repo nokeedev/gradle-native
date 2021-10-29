@@ -15,6 +15,8 @@
  */
 package dev.nokee.testing.base.internal.plugins;
 
+import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -47,7 +49,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsTestComponent.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(TestSuiteComponent.class)), (e, p, ignored1, ignored2, projection) -> {
 			if (ModelPath.root().isDirectDescendant(p)) {
-				modeRegistry.register(propertyFactory.create(ModelPath.path("testSuites").child(p.getName()), e));
+				modeRegistry.register(propertyFactory.create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "testSuites"), p.getName()), e));
 			}
 		}));
 

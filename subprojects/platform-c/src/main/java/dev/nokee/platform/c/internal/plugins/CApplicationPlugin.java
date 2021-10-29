@@ -25,6 +25,7 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -83,14 +84,15 @@ public class CApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration cApplication(String name, Project project) {
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return new NativeApplicationComponentModelRegistrationFactory(CApplication.class, DefaultCApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "c")));
 			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
-			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CApplicationSources.class));
-		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C application").withProjectIdentifier(ProjectIdentifier.of(project)).build());
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), CApplicationSources.class));
+		}).create(identifier);
 	}
 
 	public static abstract class DefaultCApplication implements CApplication

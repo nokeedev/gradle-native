@@ -42,6 +42,7 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -549,7 +550,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						// TODO: ONLY if applying include language plugin
 						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
-						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), JavaNativeInterfaceLibrarySources.class));
+						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), JavaNativeInterfaceLibrarySources.class));
 
 						val dependencyContainer = project.getObjects().newInstance(DefaultComponentDependencies.class, identifier, new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DependencyBucketFactoryImpl(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 						val dependencies = project.getObjects().newInstance(DefaultJavaNativeInterfaceLibraryComponentDependencies.class, dependencyContainer);
@@ -559,7 +560,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 							.withComponent(ModelProjections.ofInstance(dependencies))
 							.build());
 
-						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(path.child("variants"), JniLibrary.class));
+						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), JniLibrary.class));
 
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("binaries"))

@@ -25,6 +25,7 @@ import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -83,14 +84,15 @@ public class CppApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration cppApplication(String name, Project project) {
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C++ application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return new NativeApplicationComponentModelRegistrationFactory(CppApplication.class, DefaultCppApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "cpp")));
 			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
-			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CppApplicationSources.class));
-		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C++ application").withProjectIdentifier(ProjectIdentifier.of(project)).build());
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), CppApplicationSources.class));
+		}).create(identifier);
 	}
 
 	public static abstract class DefaultCppApplication implements CppApplication

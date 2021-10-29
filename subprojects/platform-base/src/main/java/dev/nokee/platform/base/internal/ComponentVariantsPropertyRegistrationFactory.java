@@ -15,6 +15,10 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.Streams;
+import dev.nokee.model.HasName;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -24,6 +28,9 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import lombok.val;
 import org.gradle.api.provider.ProviderFactory;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -41,8 +48,8 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 		this.modelLookup = modelLookup;
 	}
 
-	// TODO: We should accept the property identifier and use that to figure out descendant, path, and finalizing.
-	public ModelRegistration create(ModelPath path, Class<? extends Variant> elementType) {
+	public ModelRegistration create(ModelPropertyIdentifier identifier, Class<? extends Variant> elementType) {
+		val path = toPath(identifier);
 		assert path.getParent().isPresent();
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
@@ -51,9 +58,21 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(elementType)), (e, p, ignored1, ignored2, projection) -> {
 				if (ownerPath.isDirectDescendant(p)) {
-					registry.register(propertyFactory.create(path.child(p.getName()), e));
+					registry.register(propertyFactory.create(ModelPropertyIdentifier.of(identifier, p.getName()), e));
 				}
 			}))
 			.build();
+	}
+
+	private static ModelPath toPath(ModelPropertyIdentifier identifier) {
+		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
+			if (it instanceof ProjectIdentifier) {
+				return Stream.empty();
+			} else if (it instanceof HasName) {
+				return Stream.of(((HasName) it).getName().toString());
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}).collect(Collectors.toList()));
 	}
 }

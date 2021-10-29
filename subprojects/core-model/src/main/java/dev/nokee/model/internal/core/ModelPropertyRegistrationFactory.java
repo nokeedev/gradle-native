@@ -15,9 +15,18 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.collect.Streams;
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.HasName;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import lombok.val;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ModelPropertyRegistrationFactory {
 	private final ModelLookup lookup;
@@ -43,5 +52,42 @@ public final class ModelPropertyRegistrationFactory {
 				}
 			}))
 			.build();
+	}
+
+	public ModelRegistration create(ModelPropertyIdentifier identifier, ModelNode entity) {
+		assert entity.hasComponent(DomainObjectIdentifier.class);
+		val path = toPath(identifier);
+		return ModelRegistration.builder()
+			.withComponent(identifier)
+			.withComponent(path)
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, id, ignored) -> {
+				if (id.equals(identifier)) {
+					ModelStates.realize(entity);
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, ignored) -> {
+				if (entity.getId() == e.getId()) {
+					ModelStates.realize(lookup.get(path));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, id, ignored) -> {
+				if (id.equals(identifier)) {
+					e.addComponent(IsModelProperty.tag());
+					e.addComponent(new DelegatedModelProjection(entity));
+				}
+			}))
+			.build();
+	}
+
+	private static ModelPath toPath(ModelPropertyIdentifier identifier) {
+		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
+			if (it instanceof ProjectIdentifier) {
+				return Stream.empty();
+			} else if (it instanceof HasName) {
+				return Stream.of(((HasName) it).getName().toString());
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}).collect(Collectors.toList()));
 	}
 }
