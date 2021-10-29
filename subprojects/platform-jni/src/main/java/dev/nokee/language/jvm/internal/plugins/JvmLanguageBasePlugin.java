@@ -17,6 +17,7 @@ package dev.nokee.language.jvm.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
@@ -31,7 +32,6 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -44,7 +44,6 @@ import org.gradle.api.tasks.SourceSetContainer;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.bridgeSourceSet;
 import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -100,7 +99,7 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val sourceSetFactory = project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class);
 				val directorySet = asSourceDirectorySet(sourceSet);
-				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), directorySet.getName()), JavaSourceSet.class, directorySet).build());
+				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), directorySet.getName()), JavaSourceSet.class, DefaultJavaSourceSet.class, directorySet).build());
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
@@ -109,6 +108,8 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		};
 	}
 
+	public static class DefaultJavaSourceSet implements JavaSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet> {}
+
 	private static Action<SourceSet> registerGroovySourceSet(ModelNode sources, Project project) {
 		return new Action<SourceSet>() {
 			@Override
@@ -116,7 +117,7 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val sourceSetFactory = project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class);
 				val directorySet = asSourceDirectorySet(sourceSet);
-				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), directorySet.getName()), GroovySourceSet.class, directorySet).build());
+				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), directorySet.getName()), GroovySourceSet.class, DefaultGroovySourceSet.class, directorySet).build());
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
@@ -125,6 +126,8 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		};
 	}
 
+	public static class DefaultGroovySourceSet implements GroovySourceSet, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet> {}
+
 	private static Action<SourceSet> registerKotlinSourceSet(ModelNode sources, Project project) {
 		return new Action<SourceSet>() {
 			@Override
@@ -132,7 +135,7 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val sourceSetFactory = project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class);
 				val directorySet = asSourceDirectorySet(sourceSet);
-				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), "kotlin"), KotlinSourceSet.class, directorySet).build());
+				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), "kotlin"), KotlinSourceSet.class, DefaultKotlinSourceSet.class, directorySet).build());
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
@@ -147,4 +150,6 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 			}
 		};
 	}
+
+	public static class DefaultKotlinSourceSet implements KotlinSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet> {}
 }

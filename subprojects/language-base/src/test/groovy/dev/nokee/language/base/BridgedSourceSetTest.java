@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
@@ -33,9 +34,6 @@ import java.io.IOException;
 import static dev.nokee.internal.testing.FileSystemWorkspace.newFiles;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.bridgeSourceSet;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
 import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -46,14 +44,14 @@ public class BridgedSourceSetTest extends LanguageSourceSetTester<LanguageSource
 		val objects = objectFactory();
 		val registry = new DefaultModelRegistry(objects::newInstance);
 		val factory = new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects));
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), LanguageSourceSet.class, objectFactory().sourceDirectorySet("test", "test")).build()).as(LanguageSourceSet.class).get();
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), ModelBackedLanguageSourceSetLegacyMixIn.class, objectFactory().sourceDirectorySet("test", "test")).build()).as(LanguageSourceSet.class).get();
 	}
 
 	public LanguageSourceSet createSubject(SourceDirectorySet sourceSet) {
 		val objects = objectFactory();
 		val registry = new DefaultModelRegistry(objects::newInstance);
 		val factory = new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects));
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), LanguageSourceSet.class, sourceSet).build()).as(LanguageSourceSet.class).get();
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), ModelBackedLanguageSourceSetLegacyMixIn.class, sourceSet).build()).as(LanguageSourceSet.class).get();
 	}
 
 	@Test
@@ -108,6 +106,6 @@ public class BridgedSourceSetTest extends LanguageSourceSetTester<LanguageSource
 		val objects = createRootProject(baseDirectory).getObjects();
 		val registry = new DefaultModelRegistry(objects::newInstance);
 		val factory = new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects));
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), LanguageSourceSet.class, objects.sourceDirectorySet("test", "test")).build()).as(LanguageSourceSet.class).get();
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), ModelBackedLanguageSourceSetLegacyMixIn.class, objects.sourceDirectorySet("test", "test")).build()).as(LanguageSourceSet.class).get();
 	}
 }

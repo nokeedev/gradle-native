@@ -17,18 +17,20 @@ package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.internal.core.ModelRegistration;
 
 public final class ObjectiveCSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetFactory;
 
-
 	public ObjectiveCSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetFactory) {
 		this.sourceSetFactory = sourceSetFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, ObjectiveCSourceSet.class).build();
+		return sourceSetFactory.create(identifier, ObjectiveCSourceSet.class, DefaultObjectiveCSourceSet.class).build();
 	}
+
+	public static class DefaultObjectiveCSourceSet implements ObjectiveCSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet> {}
 }

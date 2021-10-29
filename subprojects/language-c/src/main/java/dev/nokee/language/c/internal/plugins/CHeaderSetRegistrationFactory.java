@@ -17,7 +17,9 @@ package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.core.ModelRegistration;
 
 public final class CHeaderSetRegistrationFactory {
@@ -28,6 +30,8 @@ public final class CHeaderSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, CHeaderSet.class).build();
+		return sourceSetFactory.create(identifier, CHeaderSet.class, DefaultCHeaderSet.class).build();
 	}
+
+	public static class DefaultCHeaderSet implements CHeaderSet, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet> {}
 }

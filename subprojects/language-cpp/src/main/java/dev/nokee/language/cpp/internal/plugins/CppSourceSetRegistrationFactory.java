@@ -17,6 +17,7 @@ package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.model.internal.core.ModelRegistration;
 
@@ -28,6 +29,8 @@ public final class CppSourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, CppSourceSet.class).build();
+		return sourceSetFactory.create(identifier, CppSourceSet.class, DefaultCppSourceSet.class).build();
 	}
+
+	public static class DefaultCppSourceSet implements CppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet> {}
 }

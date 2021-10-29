@@ -45,4 +45,8 @@ public final class LanguageSourceSetRegistrationFactory {
 	public <T extends LanguageSourceSet> LanguageSourceSetRegistrationBuilder create(LanguageSourceSetIdentifier identifier, Class<T> publicType, SourceDirectorySet sourceSet) {
 		return new LanguageSourceSetRegistrationBuilder(identifier, createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(publicType)), modelRegistry, () -> sourceSetFactory.bridgedSourceSet(sourceSet));
 	}
+
+	public <T extends LanguageSourceSet> LanguageSourceSetRegistrationBuilder create(LanguageSourceSetIdentifier identifier, Class<? super T> publicType, Class<T> implementationType, SourceDirectorySet sourceSet) {
+		return new LanguageSourceSetRegistrationBuilder(identifier, createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(implementationType)), modelRegistry, () -> sourceSetFactory.bridgedSourceSet(sourceSet));
+	}
 }

@@ -17,6 +17,7 @@ package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.core.ModelRegistration;
 
@@ -28,6 +29,8 @@ public final class ObjectiveCppSourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, ObjectiveCppSourceSet.class).build();
+		return sourceSetFactory.create(identifier, ObjectiveCppSourceSet.class, DefaultObjectiveCppSourceSet.class).build();
 	}
+
+	public static class DefaultObjectiveCppSourceSet implements ObjectiveCppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet> {}
 }
