@@ -18,6 +18,7 @@ package dev.nokee.testing.xctest;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.testers.ComponentTester;
@@ -40,6 +41,7 @@ class UnitTestXCTestTestSuiteComponentTest extends AbstractPluginTest implements
 
 	@BeforeEach
 	void createSubject() {
+		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(unitTestXCTestTestSuite("vodo", project)).as(DefaultUnitTestXCTestTestSuiteComponent.class).get();
 	}
 

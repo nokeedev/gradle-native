@@ -21,6 +21,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
@@ -68,6 +69,7 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 	public SwiftIosApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication(componentName, project)).as(SwiftIosApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;

@@ -18,6 +18,7 @@ package dev.nokee.platform.ios;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -32,6 +33,7 @@ class ObjectiveCIosApplicationSourcesTest implements ComponentSourcesTester<Obje
 	public ObjectiveCIosApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		val sources = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication("main", project)).as(ObjectiveCIosApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;

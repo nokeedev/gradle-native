@@ -20,6 +20,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.HasCppSourcesTester;
+import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -69,6 +70,7 @@ class CppApplicationTest implements ComponentTester<CppApplication>
 	public CppApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(cppApplication(componentName, project)).as(CppApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;

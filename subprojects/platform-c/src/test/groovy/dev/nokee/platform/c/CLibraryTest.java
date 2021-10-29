@@ -20,6 +20,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.HasCSourcesTester;
+import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.HasPublicHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -73,6 +74,7 @@ class CLibraryTest implements ComponentTester<CLibrary>
 	public CLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(cLibrary(componentName, project)).as(CLibrary.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;

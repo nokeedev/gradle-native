@@ -17,6 +17,7 @@ package dev.nokee.platform.swift;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -31,6 +32,7 @@ class SwiftApplicationSourcesTest implements ComponentSourcesTester<SwiftApplica
 	public SwiftApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		val sources = project.getExtensions().getByType(ModelRegistry.class).register(swiftApplication("main", project)).as(SwiftApplication.class).get().getSources();
 		sources.get(); // force realize
 		return sources;
