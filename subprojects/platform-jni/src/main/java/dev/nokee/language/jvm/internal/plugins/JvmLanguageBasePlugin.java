@@ -15,17 +15,23 @@
  */
 package dev.nokee.language.jvm.internal.plugins;
 
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.language.jvm.internal.JvmSourceSetExtensible;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.ModelActions;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ParentNode;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -51,19 +57,19 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 		project.getPluginManager().withPlugin("java-base", appliedPlugin -> {
 			modelConfigurer.configure(matching(discoveringInstanceOf(JvmSourceSetExtensible.class), ModelActions.once(sources -> {
-				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerJavaSourceSet(sources));
+				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerJavaSourceSet(sources, project));
 			})));
 		});
 
 		project.getPluginManager().withPlugin("groovy-base", appliedPlugin -> {
 			modelConfigurer.configure(matching(discoveringInstanceOf(JvmSourceSetExtensible.class), ModelActions.once(sources -> {
-				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerGroovySourceSet(sources));
+				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerGroovySourceSet(sources, project));
 			})));
 		});
 
 		project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", appliedPlugin -> {
 			modelConfigurer.configure(matching(discoveringInstanceOf(JvmSourceSetExtensible.class), ModelActions.once(sources -> {
-				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerKotlinSourceSet(sources));
+				sourceSetContainer(project).matching(nameOf(componentOf(sources))).all(registerKotlinSourceSet(sources, project));
 			})));
 		});
 	}
@@ -87,11 +93,14 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		return sourceSet -> sourceSet.getName().equals(componentName);
 	}
 
-	private static Action<SourceSet> registerJavaSourceSet(ModelNode sources) {
+	private static Action<SourceSet> registerJavaSourceSet(ModelNode sources, Project project) {
 		return new Action<SourceSet>() {
 			@Override
 			public void execute(SourceSet sourceSet) {
-				ModelNodeUtils.register(sources, bridgeSourceSet(asSourceDirectorySet(sourceSet), JavaSourceSet.class));
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val sourceSetFactory = project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class);
+				val directorySet = asSourceDirectorySet(sourceSet);
+				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), directorySet.getName()), JavaSourceSet.class, directorySet).build());
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
@@ -100,11 +109,14 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		};
 	}
 
-	private static Action<SourceSet> registerGroovySourceSet(ModelNode sources) {
+	private static Action<SourceSet> registerGroovySourceSet(ModelNode sources, Project project) {
 		return new Action<SourceSet>() {
 			@Override
 			public void execute(SourceSet sourceSet) {
-				ModelNodeUtils.register(sources, bridgeSourceSet(asSourceDirectorySet(sourceSet), GroovySourceSet.class));
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val sourceSetFactory = project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class);
+				val directorySet = asSourceDirectorySet(sourceSet);
+				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), directorySet.getName()), GroovySourceSet.class, directorySet).build());
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
@@ -113,11 +125,14 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		};
 	}
 
-	private static Action<SourceSet> registerKotlinSourceSet(ModelNode sources) {
+	private static Action<SourceSet> registerKotlinSourceSet(ModelNode sources, Project project) {
 		return new Action<SourceSet>() {
 			@Override
 			public void execute(SourceSet sourceSet) {
-				ModelNodeUtils.register(sources, bridgeSourceSet(asSourceDirectorySet(sourceSet), KotlinSourceSet.class));
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val sourceSetFactory = project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class);
+				val directorySet = asSourceDirectorySet(sourceSet);
+				registry.register(sourceSetFactory.create(LanguageSourceSetIdentifier.of(sources.getComponent(ParentNode.class).get().getComponent(DomainObjectIdentifier.class), "kotlin"), KotlinSourceSet.class, directorySet).build());
 			}
 
 			private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
