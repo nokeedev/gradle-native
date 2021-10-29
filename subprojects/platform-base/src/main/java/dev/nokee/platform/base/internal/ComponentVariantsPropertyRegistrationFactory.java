@@ -15,10 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.Streams;
-import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -29,9 +26,7 @@ import dev.nokee.platform.base.VariantView;
 import lombok.val;
 import org.gradle.api.provider.ProviderFactory;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -62,17 +57,5 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 				}
 			}))
 			.build();
-	}
-
-	private static ModelPath toPath(ModelPropertyIdentifier identifier) {
-		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
-			if (it instanceof ProjectIdentifier) {
-				return Stream.empty();
-			} else if (it instanceof HasName) {
-				return Stream.of(((HasName) it).getName().toString());
-			} else {
-				throw new UnsupportedOperationException();
-			}
-		}).collect(Collectors.toList()));
 	}
 }

@@ -16,7 +16,10 @@
 package dev.nokee.model.internal;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.HasName;
+import dev.nokee.model.internal.core.ModelPath;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
@@ -24,6 +27,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class DomainObjectIdentifierUtils {
 	private DomainObjectIdentifierUtils() {}
@@ -185,5 +190,17 @@ public final class DomainObjectIdentifierUtils {
 			return (TypeAwareDomainObjectIdentifier<S>) identifier;
 		}
 		throw new ClassCastException(String.format("Failed to cast identifier %s of type %s to identifier of type %s.", identifier.toString(), identifier.getType().getName(), outputIdentifierType.getName()));
+	}
+
+	public static ModelPath toPath(DomainObjectIdentifier identifier) {
+		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
+			if (it instanceof ProjectIdentifier) {
+				return Stream.empty();
+			} else if (it instanceof HasName) {
+				return Stream.of(((HasName) it).getName().toString());
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}).collect(Collectors.toList()));
 	}
 }
