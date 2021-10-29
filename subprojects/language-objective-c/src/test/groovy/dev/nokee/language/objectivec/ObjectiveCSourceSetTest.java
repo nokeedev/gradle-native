@@ -15,22 +15,34 @@
  */
 package dev.nokee.language.objectivec;
 
+import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
 class ObjectiveCSourceSetTest extends LanguageSourceSetTester<ObjectiveCSourceSet> {
 	@Override
 	public ObjectiveCSourceSet createSubject() {
-		return create(sourceSet("test", ObjectiveCSourceSet.class)).as(ObjectiveCSourceSet.class).get();
+		val objects = objectFactory();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new ObjectiveCSourceSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(ObjectiveCSourceSet.class).get();
 	}
 
 	@Override
 	public ObjectiveCSourceSet createSubject(File temporaryDirectory) {
-		return create(registry(temporaryDirectory), sourceSet("test", ObjectiveCSourceSet.class)).as(ObjectiveCSourceSet.class).get();
+		val objects = ProjectTestUtils.createRootProject(temporaryDirectory).getObjects();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new ObjectiveCSourceSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(ObjectiveCSourceSet.class).get();
 	}
 }

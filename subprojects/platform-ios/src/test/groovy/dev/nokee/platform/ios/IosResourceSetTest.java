@@ -15,22 +15,34 @@
  */
 package dev.nokee.platform.ios;
 
+import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
+import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
 class IosResourceSetTest extends LanguageSourceSetTester<IosResourceSet> {
 	@Override
 	public IosResourceSet createSubject() {
-		return create(sourceSet("test", IosResourceSet.class)).as(IosResourceSet.class).get();
+		val objects = objectFactory();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new IosResourceSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(IosResourceSet.class).get();
 	}
 
 	@Override
 	public IosResourceSet createSubject(File temporaryDirectory) {
-		return create(registry(temporaryDirectory), sourceSet("test", IosResourceSet.class)).as(IosResourceSet.class).get();
+		val objects = ProjectTestUtils.createRootProject(temporaryDirectory).getObjects();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new IosResourceSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(IosResourceSet.class).get();
 	}
 }

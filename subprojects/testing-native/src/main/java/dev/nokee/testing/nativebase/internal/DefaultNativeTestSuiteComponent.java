@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -255,21 +257,12 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				// If source set don't already exists on test suite
 				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(getNode())).and(withType(of(sourceSetType)))))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
+					val identifier = getNode().getComponent(ComponentIdentifier.class);
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						registry.register(ModelRegistration.builder()
-							.withComponent(getNode().getComponent(componentOf(ModelPath.class)).child("headers"))
-							.withComponent(IsLanguageSourceSet.tag())
-							.withComponent(managed(of(sourceSetType)))
-							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "headers"), sourceSetType).build());
 					} else {
-						registry.register(ModelRegistration.builder()
-							.withComponent(getNode().getComponent(componentOf(ModelPath.class)).child(ModelNodeUtils.getPath(entity).getName()))
-							.withComponent(IsLanguageSourceSet.tag())
-							.withComponent(managed(of(sourceSetType)))
-							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, entity.getComponent(LanguageSourceSetIdentifier.class).getName().toString()), sourceSetType).build());
 					}
 				}
 			}));

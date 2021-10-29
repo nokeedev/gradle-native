@@ -20,6 +20,7 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -88,22 +89,8 @@ public class CppLibraryPlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "cpp")));
-
-			// TODO: Should be created using CppHeaderSetSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("public"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(CppHeaderSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
-
-			// TODO: Should be created using CppHeaderSetSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("headers"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(CppHeaderSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
+			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "public")));
+			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), CppLibrarySources.class));
 		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C++ library").withProjectIdentifier(ProjectIdentifier.of(project)).build());

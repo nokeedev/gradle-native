@@ -15,8 +15,6 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
@@ -27,11 +25,11 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.IosApplication;
-import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.SwiftIosApplication;
 import dev.nokee.platform.ios.SwiftIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
+import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.swift.HasSwiftSourceSet;
@@ -44,8 +42,6 @@ import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.util.GUtil;
 
-import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static org.gradle.util.ConfigureUtil.configureUsing;
@@ -61,6 +57,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		// Create the component
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
+		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication("main", project)).as(SwiftIosApplication.class);
 		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup)))));
@@ -81,14 +78,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "swift")));
-
-			// TODO: Should be created using IosResourceSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("resources"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(IosResourceSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
+			registry.register(project.getExtensions().getByType(IosResourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "resources")));
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), SwiftIosApplicationSources.class));
 		}).create(ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Swift iOS application").withProjectIdentifier(ProjectIdentifier.of(project)).build());

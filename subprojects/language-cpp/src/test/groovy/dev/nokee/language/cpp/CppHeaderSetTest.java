@@ -15,22 +15,34 @@
  */
 package dev.nokee.language.cpp;
 
+import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
 class CppHeaderSetTest extends LanguageSourceSetTester<CppHeaderSet> {
 	@Override
 	public CppHeaderSet createSubject() {
-		return create(sourceSet("test", CppHeaderSet.class)).as(CppHeaderSet.class).get();
+		val objects = objectFactory();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new CppHeaderSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CppHeaderSet.class).get();
 	}
 
 	@Override
 	public CppHeaderSet createSubject(File temporaryDirectory) {
-		return create(registry(temporaryDirectory), sourceSet("test", CppHeaderSet.class)).as(CppHeaderSet.class).get();
+		val objects = ProjectTestUtils.createRootProject(temporaryDirectory).getObjects();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new CppHeaderSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CppHeaderSet.class).get();
 	}
 }
