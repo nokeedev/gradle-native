@@ -18,6 +18,7 @@ package dev.nokee.language.objectivecpp.internal.plugins;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.scripts.DefaultImporter;
@@ -37,6 +38,7 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
+		project.getExtensions().add("__nokee_objectiveCppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_objectiveCppSourceSetFactory", new ObjectiveCppSourceSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 	}
 }

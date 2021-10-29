@@ -20,6 +20,7 @@ import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
@@ -92,13 +93,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveCpp")));
 
-			// TODO: Should be created using CppHeaderSetSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("headers"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(CppHeaderSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
+			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCppApplicationSources.class));
 

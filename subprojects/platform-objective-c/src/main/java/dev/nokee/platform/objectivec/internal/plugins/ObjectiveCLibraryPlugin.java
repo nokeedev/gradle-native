@@ -20,6 +20,7 @@ import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -93,21 +94,8 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC")));
 
-			// TODO: Should be created using CHeaderSetSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("public"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(CHeaderSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
-
-			// TODO: Should be created using CHeaderSetSpec
-			registry.register(ModelRegistration.builder()
-				.withComponent(path.child("headers"))
-				.withComponent(IsLanguageSourceSet.tag())
-				.withComponent(managed(of(CHeaderSet.class)))
-				.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-				.build());
+			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "public")));
+			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), ObjectiveCLibrarySources.class));
 

@@ -37,6 +37,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as CHeaderSet and CSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
+		project.getExtensions().add("__nokee_cHeaderSetFactory", new CHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_cSourceSetFactory", new CSourceSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 	}
 }

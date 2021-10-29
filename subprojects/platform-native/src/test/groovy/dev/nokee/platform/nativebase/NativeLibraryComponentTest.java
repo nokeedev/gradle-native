@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.FunctionalSourceSet;
+import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -53,6 +54,7 @@ class NativeLibraryComponentTest implements ComponentTester<NativeLibraryExtensi
 	public NativeLibraryExtension createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(nativeLibrary(componentName, project)).as(NativeLibraryExtension.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize
 		return component;

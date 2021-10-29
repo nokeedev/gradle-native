@@ -34,6 +34,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
+import dev.nokee.platform.ios.internal.plugins.IosResourcePlugin;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -73,6 +74,7 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
+		project.getPluginManager().apply(IosResourcePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication(componentName, project)).as(ObjectiveCIosApplication.class).get();
 		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;

@@ -20,9 +20,12 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.CLanguagePlugin;
+import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
 import dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -541,22 +544,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-						// TODO: Should be created using CHeaderSetSpec
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("jni"))
-							.withComponent(IsLanguageSourceSet.tag())
-							.withComponent(managed(of(CHeaderSet.class)))
-							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "jni")));
 
-						// TODO: Should be created using CHeaderSetSpec
 						// TODO: ONLY if applying include language plugin
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("headers"))
-							.withComponent(IsLanguageSourceSet.tag())
-							.withComponent(managed(of(CHeaderSet.class)))
-							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
 						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), JavaNativeInterfaceLibrarySources.class));
 

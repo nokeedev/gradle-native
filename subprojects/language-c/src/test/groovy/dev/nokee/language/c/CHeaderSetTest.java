@@ -15,22 +15,34 @@
  */
 package dev.nokee.language.c;
 
+import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.sourceSet;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
-import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
 class CHeaderSetTest extends LanguageSourceSetTester<CHeaderSet> {
 	@Override
 	public CHeaderSet createSubject() {
-		return create(sourceSet("test", CHeaderSet.class)).as(CHeaderSet.class).get();
+		val objects = objectFactory();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new CHeaderSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CHeaderSet.class).get();
 	}
 
 	@Override
 	public CHeaderSet createSubject(File temporaryDirectory) {
-		return create(registry(temporaryDirectory), sourceSet("test", CHeaderSet.class)).as(CHeaderSet.class).get();
+		val objects = ProjectTestUtils.createRootProject(temporaryDirectory).getObjects();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new CHeaderSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CHeaderSet.class).get();
 	}
 }

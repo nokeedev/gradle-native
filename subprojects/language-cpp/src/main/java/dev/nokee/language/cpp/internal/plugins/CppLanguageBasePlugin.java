@@ -37,6 +37,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as CppHeaderSet and CppSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
+		project.getExtensions().add("__nokee_cppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 	}
 }
