@@ -82,7 +82,7 @@ public final class ModelNode {
 
 	@Deprecated
 	public <T> T getComponent(Class<T> type) {
-		return findComponent(type).orElseThrow(RuntimeException::new);
+		return findComponent(type).orElseThrow(() -> new RuntimeException(String.format("No components of type '%s'. Available: %s", type.getSimpleName(), components.keySet())));
 	}
 
 	public <T> T getComponent(ModelComponentType<T> componentType) {
