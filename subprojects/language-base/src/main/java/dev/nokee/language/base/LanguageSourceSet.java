@@ -15,9 +15,9 @@
  */
 package dev.nokee.language.base;
 
-import dev.nokee.language.base.internal.LanguageSourceSetProjection;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -52,7 +52,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return this source set, never null
 	 */
 	default LanguageSourceSet from(Object... paths) {
-		ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).from(paths);
+		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().from(paths);
 		return this;
 	}
 
@@ -67,7 +67,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return a {@link FileCollection} instance of all the source directories from this source set, never null
 	 */
 	default FileCollection getSourceDirectories() {
-		return ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).getSourceDirectories();
+		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getSourceDirectories();
 	}
 
 	/**
@@ -99,7 +99,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return the filter patterns, never null
 	 */
 	default PatternFilterable getFilter() {
-		return ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).getFilter();
+		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getFilter();
 	}
 
 	/**
@@ -108,7 +108,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return a {@link FileTree} instance representing all the files included in this source set, never null
 	 */
 	default FileTree getAsFileTree() {
-		return ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).getAsFileTree();
+		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getAsFileTree();
 	}
 
 	/**
@@ -116,7 +116,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 */
 	@Override
 	default TaskDependency getBuildDependencies() {
-		return ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).getBuildDependencies();
+		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getBuildDependencies();
 	}
 
 	/**
@@ -127,7 +127,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @return this source set, never null
 	 */
 	default LanguageSourceSet convention(Object... path) {
-		ModelNodeUtils.get(ModelNodes.of(this), LanguageSourceSetProjection.class).convention(path);
+		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().convention(path);
 		return this;
 	}
 }

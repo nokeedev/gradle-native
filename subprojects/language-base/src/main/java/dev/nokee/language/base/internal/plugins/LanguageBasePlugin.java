@@ -16,12 +16,10 @@
 package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
-import dev.nokee.language.base.internal.BridgedLanguageSourceSetProjection;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.*;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -37,7 +35,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 
-		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects()));
+		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(ModelRegistry.class), new SourceSetFactory(project.getObjects())));
 	}
 
 	public static <T extends LanguageSourceSet> NodeRegistration sourceSet(String name, Class<T> publicType) {

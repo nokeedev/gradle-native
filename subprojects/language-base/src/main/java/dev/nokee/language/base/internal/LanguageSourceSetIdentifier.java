@@ -17,10 +17,12 @@ package dev.nokee.language.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
+import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
 import java.util.Objects;
 
+@EqualsAndHashCode
 public final class LanguageSourceSetIdentifier implements DomainObjectIdentifier {
 	private final LanguageSourceSetIdentity identity;
 	private final DomainObjectIdentifier ownerIdentifier;

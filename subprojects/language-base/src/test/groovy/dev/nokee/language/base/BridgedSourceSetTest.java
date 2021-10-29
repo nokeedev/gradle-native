@@ -17,7 +17,11 @@ package dev.nokee.language.base;
 
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import lombok.val;
 import org.gradle.api.file.SourceDirectorySet;
 import org.junit.jupiter.api.Test;
@@ -32,19 +36,24 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.language.base.internal.plugins.LanguageBasePlugin.bridgeSourceSet;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.create;
 import static dev.nokee.model.fixtures.ModelRegistryTestUtils.registry;
+import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
 public class BridgedSourceSetTest extends LanguageSourceSetTester<LanguageSourceSet> {
 	@Override
 	public LanguageSourceSet createSubject() {
-		return create(bridgeSourceSet(objectFactory().sourceDirectorySet("test", "test"),
-			LanguageSourceSet.class)).as(LanguageSourceSet.class).get();
+		val objects = objectFactory();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), LanguageSourceSet.class, objectFactory().sourceDirectorySet("test", "test")).build()).as(LanguageSourceSet.class).get();
 	}
 
 	public LanguageSourceSet createSubject(SourceDirectorySet sourceSet) {
-		return create(bridgeSourceSet(sourceSet,
-			LanguageSourceSet.class)).as(LanguageSourceSet.class).get();
+		val objects = objectFactory();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), LanguageSourceSet.class, sourceSet).build()).as(LanguageSourceSet.class).get();
 	}
 
 	@Test
@@ -96,7 +105,9 @@ public class BridgedSourceSetTest extends LanguageSourceSetTester<LanguageSource
 
 	@Override
 	public LanguageSourceSet createSubject(File baseDirectory) {
-		val objectFactory = createRootProject(baseDirectory).getObjects();
-		return create(registry(objectFactory), bridgeSourceSet(objectFactory.sourceDirectorySet("test", "test"), LanguageSourceSet.class)).as(LanguageSourceSet.class).get();
+		val objects = createRootProject(baseDirectory).getObjects();
+		val registry = new DefaultModelRegistry(objects::newInstance);
+		val factory = new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects));
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), LanguageSourceSet.class, objects.sourceDirectorySet("test", "test")).build()).as(LanguageSourceSet.class).get();
 	}
 }
