@@ -21,26 +21,14 @@ import org.gradle.api.tasks.util.PatternFilterable;
 
 public interface SelfAwareLanguageSourceSet<SELF extends LanguageSourceSet> extends LanguageSourceSet {
 	@Override
-	default SELF from(Object... paths) {
-		LanguageSourceSet.super.from(paths);
-		return (SELF) this;
-	}
+	SELF from(Object... paths);
 
 	@Override
-	default SELF filter(Action<? super PatternFilterable> action) {
-		LanguageSourceSet.super.filter(action);
-		return (SELF) this;
-	}
+	SELF filter(Action<? super PatternFilterable> action);
 
 	@Override
-	default SELF filter(@SuppressWarnings("rawtypes") Closure closure) {
-		LanguageSourceSet.super.filter(closure);
-		return (SELF) this;
-	}
+	SELF filter(@SuppressWarnings("rawtypes") Closure closure);
 
 	@Override
-	default SELF convention(Object... paths) {
-		LanguageSourceSet.super.convention(paths);
-		return (SELF) this;
-	}
+	SELF convention(Object... paths);
 }

@@ -40,9 +40,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 *
 	 * @return the name of the source set, never null
 	 */
-	default String getName() {
-		return ModelNodeUtils.getPath(ModelNodes.of(this)).getName();
-	}
+	String getName();
 
 	/**
 	 * Adds a set of source paths to this source set.
@@ -51,10 +49,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @param paths  the files to add
 	 * @return this source set, never null
 	 */
-	default LanguageSourceSet from(Object... paths) {
-		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().from(paths);
-		return this;
-	}
+	LanguageSourceSet from(Object... paths);
 
 	/**
 	 * Returns the source directories that make up this set, represented as a {@link FileCollection}.
@@ -66,9 +61,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 *
 	 * @return a {@link FileCollection} instance of all the source directories from this source set, never null
 	 */
-	default FileCollection getSourceDirectories() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getSourceDirectories();
-	}
+	FileCollection getSourceDirectories();
 
 	/**
 	 * Configures the filter patterns using the specified configuration action.
@@ -76,10 +69,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @param action  the configuration action, must not be null
 	 * @return this language source set, never null
 	 */
-	default LanguageSourceSet filter(Action<? super PatternFilterable> action) {
-		action.execute(getFilter());
-		return this;
-	}
+	LanguageSourceSet filter(Action<? super PatternFilterable> action);
 
 	/**
 	 * Configures the filter patterns using the specified configuration closure.
@@ -87,9 +77,7 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @param closure  the configuration closure, must not be null
 	 * @return this language source set, never null
 	 */
-	default LanguageSourceSet filter(@DelegatesTo(value = PatternFilterable.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		return filter(ConfigureUtil.configureUsing(closure));
-	}
+	LanguageSourceSet filter(@DelegatesTo(value = PatternFilterable.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 
 	/**
 	 * Returns the filter used to select the source from the source directories.
@@ -98,26 +86,14 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 *
 	 * @return the filter patterns, never null
 	 */
-	default PatternFilterable getFilter() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getFilter();
-	}
+	PatternFilterable getFilter();
 
 	/**
 	 * Returns this source set as a filtered file tree.
 	 *
 	 * @return a {@link FileTree} instance representing all the files included in this source set, never null
 	 */
-	default FileTree getAsFileTree() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getAsFileTree();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	default TaskDependency getBuildDependencies() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getBuildDependencies();
-	}
+	FileTree getAsFileTree();
 
 	/**
 	 * Configures a set of source paths to use as a convention of this source set.
@@ -126,8 +102,5 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 * @param path  the files to use as convention
 	 * @return this source set, never null
 	 */
-	default LanguageSourceSet convention(Object... path) {
-		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().convention(path);
-		return this;
-	}
+	LanguageSourceSet convention(Object... path);
 }

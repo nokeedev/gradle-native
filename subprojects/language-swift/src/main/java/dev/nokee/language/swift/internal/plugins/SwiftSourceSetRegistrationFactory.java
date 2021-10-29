@@ -17,6 +17,7 @@ package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.core.ModelRegistration;
 
@@ -28,6 +29,8 @@ public final class SwiftSourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, SwiftSourceSet.class).build();
+		return sourceSetFactory.create(identifier, SwiftSourceSet.class, DefaultSwiftSourceSet.class).build();
 	}
+
+	public static class DefaultSwiftSourceSet implements SwiftSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet> {}
 }

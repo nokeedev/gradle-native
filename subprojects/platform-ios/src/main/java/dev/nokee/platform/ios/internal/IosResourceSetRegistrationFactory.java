@@ -17,6 +17,7 @@ package dev.nokee.platform.ios.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.ios.IosResourceSet;
@@ -29,6 +30,8 @@ public final class IosResourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, IosResourceSet.class).build();
+		return sourceSetFactory.create(identifier, IosResourceSet.class, DefaultIosResourceSet.class).build();
 	}
+
+	public static class DefaultIosResourceSet implements IosResourceSet, ModelBackedLanguageSourceSetLegacyMixIn<IosResourceSet> {}
 }

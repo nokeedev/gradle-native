@@ -17,6 +17,7 @@ package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.model.internal.core.ModelRegistration;
 
@@ -28,6 +29,8 @@ public final class CSourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, CSourceSet.class).build();
+		return sourceSetFactory.create(identifier, CSourceSet.class, DefaultCSourceSet.class).build();
 	}
+
+	public static class DefaultCSourceSet implements CSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet> {}
 }
