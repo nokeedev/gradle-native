@@ -22,6 +22,8 @@ import dev.nokee.language.base.internal.BaseLanguageSourceSetProjection;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
+import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -161,14 +163,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
 
 						registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC")));
-
-						// TODO: Should be created using CHeaderSetSpec
-						val headers = registry.register(ModelRegistration.builder()
-							.withComponent(path.child("headers"))
-							.withComponent(IsLanguageSourceSet.tag())
-							.withComponent(managed(of(CHeaderSet.class)))
-							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
 						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
 
@@ -303,14 +298,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 						registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC")));
-
-						// TODO: Should be created using CHeaderSetSpec
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("headers"))
-							.withComponent(IsLanguageSourceSet.tag())
-							.withComponent(managed(of(CHeaderSet.class)))
-							.withComponent(managed(of(BaseLanguageSourceSetProjection.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
 						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(path.child("sources"), NativeApplicationSources.class));
 
