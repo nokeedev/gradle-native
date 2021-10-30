@@ -11,6 +11,8 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation project(':platformBase')
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}" // for SystemUtils
+	implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
+	annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
 
 	testImplementation testFixtures(project(':coreModel'))
 

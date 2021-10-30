@@ -16,10 +16,10 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.nativebase.internal.*;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -28,7 +28,8 @@ import org.gradle.api.Project;
 public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply(LanguageBasePlugin.class);
+		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
+		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCppSourceSet.class)
@@ -39,6 +40,11 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		//   but don't depend on this behaviour.
 
 		project.getExtensions().add("__nokee_objectiveCppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
-		project.getExtensions().add("__nokee_objectiveCppSourceSetFactory", new ObjectiveCppSourceSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
+		project.getExtensions().add("__nokee_objectiveCppSourceSetFactory", new ObjectiveCppSourceSetRegistrationFactory(
+			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
+			project.getExtensions().getByType(HeadersPropertyRegistrationActionFactory.class),
+			project.getExtensions().getByType(HeaderSearchPathsConfigurationRegistrationActionFactory.class),
+			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+		));
 	}
 }

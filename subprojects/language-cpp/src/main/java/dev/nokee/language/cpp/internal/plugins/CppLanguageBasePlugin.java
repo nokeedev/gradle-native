@@ -16,10 +16,10 @@
 package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.nativebase.internal.*;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -27,7 +27,8 @@ import org.gradle.api.Project;
 public class CppLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply(LanguageBasePlugin.class);
+		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
+		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(NativeHeaderSet.class)
@@ -38,6 +39,11 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		//   but don't depend on this behaviour.
 
 		project.getExtensions().add("__nokee_cppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
-		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
+		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory(
+			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
+			project.getExtensions().getByType(HeadersPropertyRegistrationActionFactory.class),
+			project.getExtensions().getByType(HeaderSearchPathsConfigurationRegistrationActionFactory.class),
+			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+		));
 	}
 }
