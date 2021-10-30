@@ -17,6 +17,7 @@ package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourcePropertyRegistrationActionFactory;
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -31,6 +32,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 
-		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(ModelRegistry.class), new SourceSetFactory(project.getObjects())));
+		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), new SourceSetFactory(project.getObjects()), new SourcePropertyRegistrationActionFactory(() -> project.getExtensions().getByType(ModelRegistry.class))));
 	}
 }
