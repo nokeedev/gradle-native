@@ -27,6 +27,7 @@ class LanguageBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.language-base")
 			.pluginClass(LanguageBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}

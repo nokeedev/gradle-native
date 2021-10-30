@@ -21,6 +21,10 @@ dependencies {
 
 gradlePlugin {
 	plugins {
+		languageBase {
+			id = "dev.nokee.language-base"
+			implementationClass = "dev.nokee.language.base.internal.plugins.LanguageBasePlugin"
+		}
 	}
 }
 

@@ -18,6 +18,10 @@ dependencies {
 
 gradlePlugin {
 	plugins {
+		cppLanguageBase {
+			id = 'dev.nokee.cpp-language-base'
+			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin'
+		}
 		cppLanguage {
 			id = 'dev.nokee.cpp-language'
 			implementationClass = 'dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin'
