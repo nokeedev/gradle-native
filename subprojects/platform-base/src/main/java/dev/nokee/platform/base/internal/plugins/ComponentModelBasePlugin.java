@@ -15,11 +15,14 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
+import com.google.common.collect.Streams;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.DependencyFactory;
+import dev.nokee.model.HasName;
 import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -38,11 +41,16 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketR
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.BaseNamedDomainObjectView.namedView;
@@ -86,6 +94,42 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_consumableBucketFactory", new ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getObjects()));
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects(), project.getExtensions().getByType(ModelLookup.class)));
+		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory( PolymorphicDomainObjectRegistry.of(project.getTasks()), identifier -> taskName(identifier)));
+	}
+
+	// TODO: Move Namer into its own class. We should also do the same for configuration name
+	public static String taskName(TaskIdentifier<?> identifier) {
+		return identifier.getName().getVerb() + Streams.stream(identifier)
+			.flatMap(it -> {
+				if (it instanceof ProjectIdentifier) {
+					return Stream.empty();
+				} else if (it instanceof ComponentIdentifier) {
+					if (((ComponentIdentifier) it).isMainComponent()) {
+						return Stream.empty();
+					} else {
+						return Stream.of(((ComponentIdentifier) it).getName().get());
+					}
+				} else if (it instanceof ComponentIdentity) {
+					if (((ComponentIdentity) it).isMainComponent()) {
+						return Stream.empty();
+					} else {
+						return Stream.of(((ComponentIdentity) it).getName().get());
+					}
+				} else if (it instanceof VariantIdentifier) {
+					return Stream.of(((VariantIdentifier<?>) it).getUnambiguousName());
+				} else if (it instanceof HasName) {
+					val name = ((HasName) it).getName();
+					if (name instanceof TaskName) {
+						return Streams.stream(((TaskName) name).getObject());
+					} else {
+						return Stream.of(name.toString());
+					}
+				} else {
+					throw new UnsupportedOperationException();
+				}
+			})
+			.map(StringUtils::capitalize)
+			.collect(Collectors.joining());
 	}
 
 	private static NodeRegistration components() {
