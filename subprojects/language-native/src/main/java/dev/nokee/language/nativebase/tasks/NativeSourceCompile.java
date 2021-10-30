@@ -16,12 +16,10 @@
 package dev.nokee.language.nativebase.tasks;
 
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.nativebase.HasDestinationDirectory;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.HeaderSearchPath;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
@@ -36,7 +34,7 @@ import java.util.Set;
  *
  * @version 0.3
  */
-public interface NativeSourceCompile extends Task, SourceCompile, HasObjectFiles, HasDestinationDirectory {
+public interface NativeSourceCompile extends Task, SourceCompile, HasObjectFiles {
 	/**
 	 * The tool chain used for the compilation.
 	 *
@@ -71,11 +69,4 @@ public interface NativeSourceCompile extends Task, SourceCompile, HasObjectFiles
 	 */
 	@OutputFiles
 	ConfigurableFileCollection getObjectFiles();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Internal
-	DirectoryProperty getDestinationDirectory();
 }
