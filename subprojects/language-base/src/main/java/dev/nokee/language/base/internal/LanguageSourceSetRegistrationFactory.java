@@ -16,37 +16,52 @@
 package dev.nokee.language.base.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.core.ModelAction;
+import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class LanguageSourceSetRegistrationFactory {
 	private final ObjectFactory objectFactory;
-	private final ModelRegistry modelRegistry;
 	private final SourceSetFactory sourceSetFactory;
+	private final SourcePropertyRegistrationActionFactory sourcePropertyRegistrationFactory;
 
-	public LanguageSourceSetRegistrationFactory(ObjectFactory objectFactory, ModelRegistry modelRegistry, SourceSetFactory sourceSetFactory) {
+	public LanguageSourceSetRegistrationFactory(ObjectFactory objectFactory, SourceSetFactory sourceSetFactory, SourcePropertyRegistrationActionFactory sourcePropertyRegistrationFactory) {
 		this.objectFactory = objectFactory;
-		this.modelRegistry = modelRegistry;
 		this.sourceSetFactory = sourceSetFactory;
+		this.sourcePropertyRegistrationFactory = sourcePropertyRegistrationFactory;
 	}
 
-	public <T extends LanguageSourceSet> LanguageSourceSetRegistrationBuilder create(LanguageSourceSetIdentifier identifier, Class<T> publicType) {
-		return new LanguageSourceSetRegistrationBuilder(identifier, createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(publicType)), modelRegistry, sourceSetFactory::sourceSet);
+	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, Class<T> publicType) {
+		return create(identifier, sourcePropertyRegistrationFactory.create(identifier, sourceSetFactory::sourceSet), createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(publicType)));
 	}
 
-	public <T extends LanguageSourceSet> LanguageSourceSetRegistrationBuilder create(LanguageSourceSetIdentifier identifier, Class<? super T> publicType, Class<T> implementationType) {
-		return new LanguageSourceSetRegistrationBuilder(identifier, createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(implementationType)), modelRegistry, sourceSetFactory::sourceSet);
+	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, Class<? super T> publicType, Class<T> implementationType) {
+		return create(identifier, sourcePropertyRegistrationFactory.create(identifier, sourceSetFactory::sourceSet), createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(implementationType)));
 	}
 
-	public <T extends LanguageSourceSet> LanguageSourceSetRegistrationBuilder create(LanguageSourceSetIdentifier identifier, Class<T> publicType, SourceDirectorySet sourceSet) {
-		return new LanguageSourceSetRegistrationBuilder(identifier, createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(publicType)), modelRegistry, () -> sourceSetFactory.bridgedSourceSet(sourceSet));
+	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, Class<T> publicType, SourceDirectorySet sourceSet) {
+		return create(identifier, sourcePropertyRegistrationFactory.create(identifier, () -> sourceSetFactory.bridgedSourceSet(sourceSet)), createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(publicType)));
 	}
 
-	public <T extends LanguageSourceSet> LanguageSourceSetRegistrationBuilder create(LanguageSourceSetIdentifier identifier, Class<? super T> publicType, Class<T> implementationType, SourceDirectorySet sourceSet) {
-		return new LanguageSourceSetRegistrationBuilder(identifier, createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(implementationType)), modelRegistry, () -> sourceSetFactory.bridgedSourceSet(sourceSet));
+	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, Class<? super T> publicType, Class<T> implementationType, SourceDirectorySet sourceSet) {
+		return create(identifier, sourcePropertyRegistrationFactory.create(identifier, () -> sourceSetFactory.bridgedSourceSet(sourceSet)), createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(implementationType)));
+	}
+
+	private ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, ModelAction sourcePropertyAction, ModelProjection projection) {
+		return ModelRegistration.builder()
+			.withComponent(identifier)
+			.withComponent(toPath(identifier))
+			.withComponent(IsLanguageSourceSet.tag())
+			.withComponent(projection)
+			.withComponent(managed(of(DefaultLanguageSourceSetStrategy.class)))
+			.action(sourcePropertyAction);
 	}
 }

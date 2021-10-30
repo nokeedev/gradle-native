@@ -18,6 +18,7 @@ package dev.nokee.language.c;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourcePropertyRegistrationActionFactory;
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
@@ -34,7 +35,7 @@ class CHeaderSetTest extends LanguageSourceSetTester<CHeaderSet> {
 	public CHeaderSet createSubject() {
 		val objects = objectFactory();
 		val registry = new DefaultModelRegistry(objects::newInstance);
-		val factory = new CHeaderSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		val factory = new CHeaderSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, new SourceSetFactory(objects), new SourcePropertyRegistrationActionFactory(() -> registry)));
 		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CHeaderSet.class).get();
 	}
 
@@ -42,7 +43,7 @@ class CHeaderSetTest extends LanguageSourceSetTester<CHeaderSet> {
 	public CHeaderSet createSubject(File temporaryDirectory) {
 		val objects = ProjectTestUtils.createRootProject(temporaryDirectory).getObjects();
 		val registry = new DefaultModelRegistry(objects::newInstance);
-		val factory = new CHeaderSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		val factory = new CHeaderSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, new SourceSetFactory(objects), new SourcePropertyRegistrationActionFactory(() -> registry)));
 		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CHeaderSet.class).get();
 	}
 }
