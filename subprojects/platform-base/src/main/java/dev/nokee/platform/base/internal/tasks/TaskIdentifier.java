@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.HasName;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
@@ -38,7 +39,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
-public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
+public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T>, HasName {
 	@Getter private final TaskName name;
 	@Getter private final Class<T> type;
 	@Getter private final DomainObjectIdentifier ownerIdentifier;
