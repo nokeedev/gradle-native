@@ -15,19 +15,16 @@
  */
 package dev.nokee.platform.base.internal.dependencies
 
-import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.DependencyBucket
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
-import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
 
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName
 
 @Subject(DependencyBucketIdentifier)
 class DependencyBucketIdentifierTest extends Specification {
@@ -113,7 +110,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 		then:
 		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a dependency identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier and VariantIdentifier are accepted.'
+		ex.message == 'Cannot construct a dependency identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier, VariantIdentifier and LanguageSourceSetIdentifier are accepted.'
 	}
 
 	interface TestableBucket extends DependencyBucket {}
