@@ -27,6 +27,7 @@ class ObjectiveCLanguageBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.objective-c-language-base")
 			.pluginClass(ObjectiveCLanguageBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}

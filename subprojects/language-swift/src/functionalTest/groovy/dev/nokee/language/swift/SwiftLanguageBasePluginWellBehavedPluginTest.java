@@ -27,6 +27,7 @@ class SwiftLanguageBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
+			.qualifiedPluginId("dev.nokee.swift-language-base")
 			.pluginClass(SwiftLanguageBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);
 	}

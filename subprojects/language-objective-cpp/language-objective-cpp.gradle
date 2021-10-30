@@ -18,6 +18,10 @@ dependencies {
 
 gradlePlugin {
 	plugins {
+		objectiveCppLanguageBase {
+			id = 'dev.nokee.objective-cpp-language-base'
+			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin'
+		}
 		objectiveCppLanguage {
 			id = 'dev.nokee.objective-cpp-language'
 			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'

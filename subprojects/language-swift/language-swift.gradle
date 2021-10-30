@@ -18,6 +18,10 @@ dependencies {
 
 gradlePlugin {
 	plugins {
+		swiftLanguageBase {
+			id = "dev.nokee.swift-language-base"
+			implementationClass = "dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin"
+		}
 	}
 }
 

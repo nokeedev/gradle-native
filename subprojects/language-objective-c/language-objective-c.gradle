@@ -18,6 +18,10 @@ dependencies {
 
 gradlePlugin {
 	plugins {
+		objectiveCLanguageBase {
+			id = 'dev.nokee.objective-c-language-base'
+			implementationClass = 'dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin'
+		}
 		objectiveCLanguage {
 			id = 'dev.nokee.objective-c-language'
 			implementationClass = 'dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin'
