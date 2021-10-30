@@ -15,14 +15,16 @@
  */
 package dev.nokee.language.base.tasks;
 
+import dev.nokee.language.base.HasDestinationDirectory;
 import org.gradle.api.Task;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.platform.base.ToolChain;
 
-public interface SourceCompile extends Task {
+public interface SourceCompile extends Task, HasDestinationDirectory {
 	/**
 	 * The tool chain used for the compilation.
 	 *
@@ -41,4 +43,11 @@ public interface SourceCompile extends Task {
 	 */
 	@Input
 	ListProperty<String> getCompilerArgs();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Internal
+	DirectoryProperty getDestinationDirectory();
 }
