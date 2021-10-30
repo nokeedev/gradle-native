@@ -18,17 +18,15 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
+import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.utils.ActionTestUtils;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -58,14 +56,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@PluginRequirement.Require(id = "dev.nokee.model-base")
+@PluginRequirement.Require(type = ComponentModelBasePlugin.class)
 class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends AbstractPluginTest {
 	private final ModelType<NamedDomainObjectProvider<Configuration>> PROVIDER_TYPE = ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {});
-	private final ConsumableDependencyBucketRegistrationFactory subject = new ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getObjects());
+	private ConsumableDependencyBucketRegistrationFactory subject;
 	private ModelElement element;
 
 	@BeforeEach
 	void setup() {
+		subject = project.getExtensions().getByType(ConsumableDependencyBucketRegistrationFactory.class);
 		element = project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(consumable("vonu"), ProjectIdentifier.of(project()))));
 	}
 
