@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.tasks;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -46,14 +47,14 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 		Preconditions.checkArgument(name != null, "Cannot construct a task identifier because the task name is null.");
 		Preconditions.checkArgument(type != null, "Cannot construct a task identifier because the task type is null.");
 		Preconditions.checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
-		Preconditions.checkArgument(isValidOwner(ownerIdentifier), "Cannot construct a task identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier and VariantIdentifier are accepted.");
+		Preconditions.checkArgument(isValidOwner(ownerIdentifier), "Cannot construct a task identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier, VariantIdentifier and LanguageSourceSetIdentifier are accepted.");
 		this.name = name;
 		this.type = type;
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
 	private static boolean isValidOwner(DomainObjectIdentifier ownerIdentifier) {
-		return ownerIdentifier instanceof ProjectIdentifier || ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier;
+		return ownerIdentifier instanceof ProjectIdentifier || ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier || ownerIdentifier instanceof LanguageSourceSetIdentifier;
 	}
 
 	public static <T extends Task> TaskIdentifier<T> of(TaskName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
