@@ -18,18 +18,42 @@ package dev.nokee.language.objectivecpp.internal.plugins;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
+import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.HeadersPropertyRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.model.internal.core.ModelRegistration;
+import lombok.val;
 
 public final class ObjectiveCppSourceSetRegistrationFactory {
-	private final LanguageSourceSetRegistrationFactory sourceSetFactory;
+	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
+	private final HeadersPropertyRegistrationActionFactory headersPropertyFactory;
+	private final HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory;
+	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
 
-	public ObjectiveCppSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetFactory) {
-		this.sourceSetFactory = sourceSetFactory;
+	public ObjectiveCppSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeadersPropertyRegistrationActionFactory headersPropertyFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
+		this.headersPropertyFactory = headersPropertyFactory;
+		this.resolvableHeadersRegistrationFactory = resolvableHeadersRegistrationFactory;
+		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, ObjectiveCppSourceSet.class, DefaultObjectiveCppSourceSet.class).build();
+		return create(identifier, true);
+	}
+
+	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
+		val builder = sourceSetRegistrationFactory.create(identifier, ObjectiveCppSourceSet.class, DefaultObjectiveCppSourceSet.class);
+		if (!isLegacy) {
+			builder.action(headersPropertyFactory.create(identifier))
+				.action(compileTaskRegistrationFactory.create(identifier, ObjectiveCppCompile.class, ObjectiveCppCompileTask.class))
+				.action(resolvableHeadersRegistrationFactory.create(identifier))
+				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier));
+		}
+		return builder.build();
 	}
 
 	public static class DefaultObjectiveCppSourceSet implements ObjectiveCppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet> {}

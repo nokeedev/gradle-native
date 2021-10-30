@@ -19,17 +19,41 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.c.tasks.CCompile;
+import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
+import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.HeadersPropertyRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
+import lombok.val;
 
 public final class CSourceSetRegistrationFactory {
-	private final LanguageSourceSetRegistrationFactory sourceSetFactory;
+	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
+	private final HeadersPropertyRegistrationActionFactory headersPropertyFactory;
+	private final HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory;
+	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
 
-	public CSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetFactory) {
-		this.sourceSetFactory = sourceSetFactory;
+	public CSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeadersPropertyRegistrationActionFactory headersPropertyFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
+		this.headersPropertyFactory = headersPropertyFactory;
+		this.resolvableHeadersRegistrationFactory = resolvableHeadersRegistrationFactory;
+		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return sourceSetFactory.create(identifier, CSourceSet.class, DefaultCSourceSet.class).build();
+		return create(identifier, true);
+	}
+
+	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
+		val builder = sourceSetRegistrationFactory.create(identifier, CSourceSet.class, DefaultCSourceSet.class);
+		if (!isLegacy) {
+			builder.action(headersPropertyFactory.create(identifier))
+				.action(compileTaskRegistrationFactory.create(identifier, CCompile.class, CCompileTask.class))
+				.action(resolvableHeadersRegistrationFactory.create(identifier))
+				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier));
+		}
+		return builder.build();
 	}
 
 	public static class DefaultCSourceSet implements CSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet> {}

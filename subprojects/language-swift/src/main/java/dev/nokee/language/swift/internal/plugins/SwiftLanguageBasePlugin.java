@@ -16,8 +16,11 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -25,13 +28,21 @@ import org.gradle.api.Project;
 public class SwiftLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply(LanguageBasePlugin.class);
+		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 
 		DefaultImporter.forProject(project).defaultImport(SwiftSourceSet.class);
 
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		project.getExtensions().add("__nokee_swiftSourceSetFactory", new SwiftSourceSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
+		project.getExtensions().add("__nokee_swiftSourceSetFactory", new SwiftSourceSetRegistrationFactory(
+			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
+			new ImportModulesConfigurationRegistrationActionFactory(
+				() -> project.getExtensions().getByType(ModelRegistry.class),
+				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
+				() -> project.getObjects()
+			),
+			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+		));
 	}
 }
