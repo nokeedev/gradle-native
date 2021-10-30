@@ -111,16 +111,6 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 
 	@Override
 	public Iterator<Object> iterator() {
-		val builder = ImmutableList.builder();
-		getComponentOwnerIdentifier().ifPresent(identifier -> {
-			builder.add(identifier.getProjectIdentifier());
-			builder.add(identifier);
-		});
-		getVariantOwnerIdentifier().ifPresent(builder::add);
-		if (!getComponentOwnerIdentifier().isPresent() && !getVariantOwnerIdentifier().isPresent()) {
-			builder.add(getOwnerIdentifier());
-		}
-		builder.add(identity);
-		return builder.build().iterator();
+		return ImmutableList.builder().addAll(ownerIdentifier).add(identity).build().iterator();
 	}
 }
