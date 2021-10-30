@@ -17,32 +17,31 @@ package dev.nokee.language.c;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
 class CSourceSetTest extends LanguageSourceSetTester<CSourceSet> {
 	@Override
 	public CSourceSet createSubject() {
-		val objects = objectFactory();
-		val registry = new DefaultModelRegistry(objects::newInstance);
-		val factory = new CSourceSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		val project = ProjectTestUtils.rootProject();
+		project.getPluginManager().apply("dev.nokee.c-language-base");
+		val registry = project.getExtensions().getByType(ModelRegistry.class);
+		val factory = project.getExtensions().getByType(CSourceSetRegistrationFactory.class);
 		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CSourceSet.class).get();
 	}
 
 	@Override
 	public CSourceSet createSubject(File temporaryDirectory) {
-		val objects = ProjectTestUtils.createRootProject(temporaryDirectory).getObjects();
-		val registry = new DefaultModelRegistry(objects::newInstance);
-		val factory = new CSourceSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, registry, new SourceSetFactory(objects)));
+		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
+		project.getPluginManager().apply("dev.nokee.c-language-base");
+		val registry = project.getExtensions().getByType(ModelRegistry.class);
+		val factory = project.getExtensions().getByType(CSourceSetRegistrationFactory.class);
 		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CSourceSet.class).get();
 	}
 }
