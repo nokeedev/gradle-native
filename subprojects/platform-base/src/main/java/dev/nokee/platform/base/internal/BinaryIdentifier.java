@@ -115,13 +115,7 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	@Override
 	public Iterator<Object> iterator() {
-		val builder = ImmutableList.builder();
-		getComponentOwnerIdentifier().ifPresent(identifier -> {
-			builder.add(identifier.getProjectIdentifier());
-			builder.add(identifier);
-		});
-		getVariantOwnerIdentifier().ifPresent(builder::add);
-		builder.add(this);
-		return builder.build().iterator();
+		// TODO: Use identity instead of this
+		return ImmutableList.builder().addAll(ownerIdentifier).add(this).build().iterator();
 	}
 }

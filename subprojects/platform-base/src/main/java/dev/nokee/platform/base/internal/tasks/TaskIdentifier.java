@@ -152,13 +152,6 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 
 	@Override
 	public Iterator<Object> iterator() {
-		val builder = ImmutableList.builder();
-		getComponentOwnerIdentifier().ifPresent(identifier -> {
-			builder.add(identifier.getProjectIdentifier());
-			builder.add(identifier);
-		});
-		getVariantOwnerIdentifier().ifPresent(builder::add);
-		builder.add(this);
-		return builder.build().iterator();
+		return ImmutableList.builder().addAll(ownerIdentifier).add(this).build().iterator();
 	}
 }

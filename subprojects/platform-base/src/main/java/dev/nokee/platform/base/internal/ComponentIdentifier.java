@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.Iterators;
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -83,7 +83,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 
 	@Override
 	public Iterator<Object> iterator() {
-		return Iterators.forArray(projectIdentifier, this);
+		return ImmutableList.builder().addAll(projectIdentifier).add(this).build().iterator();
 	}
 
 	@Override
