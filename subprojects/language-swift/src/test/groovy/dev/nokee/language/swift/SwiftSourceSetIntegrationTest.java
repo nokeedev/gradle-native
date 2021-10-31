@@ -72,6 +72,11 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 		public String displayName() {
 			return "sources ':riku'";
 		}
+
+		@Override
+		public String name() {
+			return "riku";
+		}
 	}
 
 	@Nested
@@ -88,17 +93,6 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 		@Test
 		void defaultsModuleNameToSourceSetName() {
 			assertThat(subject().getModuleName(), providerOf("Riku"));
-		}
-
-		@Test
-		void hasDestinationDirectoryUnderObjsInsideBuildDirectory() {
-			assertThat(subject().getDestinationDirectory(),
-				providerOf(aFile(withAbsolutePath(containsString("/build/objs/")))));
-		}
-
-		@Test
-		void includesLanguageSourceSetNameInDestinationDirectory() {
-			assertThat(subject().getDestinationDirectory(), providerOf(aFileNamed("riku")));
 		}
 
 		@Test

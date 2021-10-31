@@ -20,22 +20,15 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
-import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.*;
-import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 
 @PluginRequirement.Require(id = "dev.nokee.c-language-base")
 class CSourceSetIntegrationTest extends AbstractPluginTest {
@@ -65,6 +58,11 @@ class CSourceSetIntegrationTest extends AbstractPluginTest {
 		}
 
 		@Override
+		public String name() {
+			return "nopu";
+		}
+
+		@Override
 		public String variantName() {
 			return "nopu";
 		}
@@ -72,29 +70,6 @@ class CSourceSetIntegrationTest extends AbstractPluginTest {
 		@Override
 		public String displayName() {
 			return "sources ':nopu'";
-		}
-	}
-
-	@Nested
-	class CompileTaskTest {
-		@BeforeEach
-		void configureTargetPlatform() {
-			subject().getTargetPlatform().set(NativePlatformFactory.create(TargetMachines.of("macos-x64")));
-		}
-
-		public CCompileTask subject() {
-			return (CCompileTask) project.getTasks().getByName("compileNopu");
-		}
-
-		@Test
-		void hasDestinationDirectoryUnderObjsInsideBuildDirectory() {
-			assertThat(subject().getDestinationDirectory(),
-				providerOf(aFile(withAbsolutePath(containsString("/build/objs/")))));
-		}
-
-		@Test
-		void includesLanguageSourceSetNameInDestinationDirectory() {
-			assertThat(subject().getDestinationDirectory(), providerOf(aFileNamed("nopu")));
 		}
 	}
 }
