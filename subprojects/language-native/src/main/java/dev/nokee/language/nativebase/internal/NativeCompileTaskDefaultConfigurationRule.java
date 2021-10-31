@@ -16,6 +16,7 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
@@ -40,7 +41,7 @@ import java.util.function.Function;
 
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 
-public final class NativeCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, NativeCompileTask> {
+public final class NativeCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeCompileTask, SourceFiles> {
 	private final LanguageSourceSetIdentifier identifier;
 
 	public NativeCompileTaskDefaultConfigurationRule(LanguageSourceSetIdentifier identifier) {
@@ -48,10 +49,11 @@ public final class NativeCompileTaskDefaultConfigurationRule extends ModelAction
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask) {
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
 		if (identifier.equals(this.identifier)) {
 			compileTask.configure(NativeSourceCompileTask.class, configurePositionIndependentCode(set(false)));
 			compileTask.configure(NativeSourceCompileTask.class, configureSystemIncludes(from(platformTool())));
+			compileTask.configure(NativeSourceCompileTask.class, configureSources(from(sourceFiles)));
 		}
 	}
 
@@ -92,6 +94,12 @@ public final class NativeCompileTaskDefaultConfigurationRule extends ModelAction
 		} else {
 			throw new IllegalArgumentException(String.format("Unknown task type, '%s', cannot choose ToolType.", taskType.getSimpleName()));
 		}
+	}
+	//endregion
+
+	//region Task sources
+	public static Action<NativeSourceCompileTask> configureSources(BiConsumer<? super NativeSourceCompileTask, ? super PropertyUtils.FileCollectionProperty> action) {
+		return task -> action.accept(task, wrap(task.getSource()));
 	}
 	//endregion
 }

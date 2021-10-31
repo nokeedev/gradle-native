@@ -17,6 +17,7 @@ package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
+import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
@@ -38,7 +39,7 @@ import java.util.function.Function;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toDirectoryPath;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 
-final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, NativeCompileTask> {
+final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeCompileTask, SourceFiles> {
 	private final LanguageSourceSetIdentifier identifier;
 
 	public SwiftCompileTaskDefaultConfigurationRule(LanguageSourceSetIdentifier identifier) {
@@ -46,11 +47,12 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask) {
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
 		if (identifier.equals(this.identifier)) {
 			compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier, asModuleFileOfModuleName()))));
 			compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName(identifier.getName()))));
 			compileTask.configure(SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5)));
+			compileTask.configure(SwiftCompileTask.class, configureSources(from(sourceFiles)));
 		}
 	}
 
@@ -85,6 +87,12 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	//region Source compatibility
 	private static Action<SwiftCompileTask> configureSourceCompatibility(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<SwiftVersion>> action) {
 		return task -> action.accept(task, wrap(task.getSourceCompatibility()));
+	}
+	//endregion
+
+	//region Task sources
+	public static Action<SwiftCompileTask> configureSources(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.FileCollectionProperty> action) {
+		return task -> action.accept(task, wrap(task.getSource()));
 	}
 	//endregion
 }
