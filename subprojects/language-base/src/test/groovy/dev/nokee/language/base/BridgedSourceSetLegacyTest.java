@@ -18,7 +18,7 @@ package dev.nokee.language.base;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.*;
-import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.language.base.testers.LanguageSourceSetLegacyTester;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import lombok.val;
 import org.gradle.api.file.SourceDirectorySet;
@@ -35,7 +35,7 @@ import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
-public class BridgedSourceSetTest extends LanguageSourceSetTester<LanguageSourceSet> {
+class BridgedSourceSetLegacyTest extends LanguageSourceSetLegacyTester<LanguageSourceSet> {
 	@Override
 	public LanguageSourceSet createSubject() {
 		val objects = objectFactory();

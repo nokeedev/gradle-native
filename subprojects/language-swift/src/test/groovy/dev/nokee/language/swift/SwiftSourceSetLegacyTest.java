@@ -17,7 +17,7 @@ package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.language.base.testers.LanguageSourceSetLegacyTester;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
@@ -26,7 +26,7 @@ import java.io.File;
 
 import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
-class SwiftSourceSetTest extends LanguageSourceSetTester<SwiftSourceSet> {
+class SwiftSourceSetLegacyTest extends LanguageSourceSetLegacyTester<SwiftSourceSet> {
 	@Override
 	public SwiftSourceSet createSubject() {
 		val project = ProjectTestUtils.rootProject();
