@@ -17,6 +17,7 @@ package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
+import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,7 @@ public abstract class SwiftSourceSetIntegrationTester extends LanguageSourceSetI
 	}
 
 	@Nested
-	class SwiftCompileTaskTest implements SwiftCompileTester, NativeCompileTaskTester {
+	class SwiftCompileTaskTest implements SwiftCompileTester, NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<SwiftCompileTask> {
 		public SwiftCompileTask subject() {
 			return (SwiftCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
 		}

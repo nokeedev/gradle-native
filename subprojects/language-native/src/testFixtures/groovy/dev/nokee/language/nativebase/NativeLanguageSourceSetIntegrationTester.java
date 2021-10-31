@@ -48,7 +48,7 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 	public abstract String displayName();
 
 	@Nested
-	class NativeCompileTaskTest implements NativeCompileTaskTester {
+	class NativeCompileTaskTest implements NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<NativeSourceCompile> {
 		public NativeSourceCompile subject() {
 			return ModelProperties.getProperty(NativeLanguageSourceSetIntegrationTester.this.subject(), "compileTask")
 				.as(NativeSourceCompile.class).get();
