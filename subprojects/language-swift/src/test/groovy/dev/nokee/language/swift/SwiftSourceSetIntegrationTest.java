@@ -16,37 +16,25 @@
 package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
-import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.internal.testing.TaskMatchers;
-import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.testers.ConfigurableSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
-import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.attributes.Usage;
-import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
-import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
 class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
@@ -59,49 +47,25 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class SourcePropertyTest extends ConfigurableSourceSetIntegrationTester {
+	class SourceSetTest extends SwiftSourceSetIntegrationTester {
 		@Override
-		public ConfigurableSourceSet subject() {
-			return ModelProperties.getProperty(subject, "source").as(ConfigurableSourceSet.class).get();
+		public SwiftSourceSet subject() {
+			return subject;
 		}
 
 		@Override
-		public File getTemporaryDirectory() throws IOException {
-			return Files.createDirectories(project().getProjectDir().toPath()).toFile();
-		}
-	}
-
-	@Nested
-	class CompileTaskPropertyTest {
-		public TaskProvider<SwiftCompile> subject() {
-			return ModelProperties.getProperty(subject, "compileTask").as(TaskProvider.class).get();
+		public Project project() {
+			return project;
 		}
 
-		@Test
-		void isCorrectTask() {
-			assertThat(subject(), providerOf(named("compileRiku")));
-		}
-	}
-
-	@Nested
-	class ImportModulesConfigurationTest {
-		public Configuration subject() {
-			return project.getConfigurations().getByName("rikuImportModules");
+		@Override
+		public String variantName() {
+			return "riku";
 		}
 
-		@Test
-		void isResolvable() {
-			assertThat(subject(), ConfigurationMatchers.resolvable());
-		}
-
-		@Test
-		void hasSwiftApiUsage() {
-			assertThat(subject(), ConfigurationMatchers.attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("swift-api"))));
-		}
-
-		@Test
-		void hasDescription() {
-			assertThat(subject(), ConfigurationMatchers.description("Import modules for sources ':riku'."));
+		@Override
+		public String displayName() {
+			return "sources ':riku'";
 		}
 	}
 
@@ -114,11 +78,6 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 
 		public SwiftCompileTask subject() {
 			return (SwiftCompileTask) project.getTasks().getByName("compileRiku");
-		}
-
-		@Test
-		public void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Compiles the sources ':riku'."));
 		}
 
 		@Test
@@ -147,10 +106,5 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 		void includesTargetNameInModuleFile() {
 			assertThat(subject().getModuleFile(), providerOf(aFile(parentFile(withAbsolutePath(endsWith("/riku"))))));
 		}
-
-//		@Test
-//		public void hasModuleName() {
-//			assertThat(subject().getModuleName(), providerOf("Riku"));
-//		}
 	}
 }
