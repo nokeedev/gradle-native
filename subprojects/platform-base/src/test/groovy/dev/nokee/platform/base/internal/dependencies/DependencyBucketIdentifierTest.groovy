@@ -24,7 +24,9 @@ import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable
 
 @Subject(DependencyBucketIdentifier)
 class DependencyBucketIdentifierTest extends Specification {
@@ -111,6 +113,17 @@ class DependencyBucketIdentifierTest extends Specification {
 		then:
 		def ex = thrown(IllegalArgumentException)
 		ex.message == 'Cannot construct a dependency identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier, VariantIdentifier and LanguageSourceSetIdentifier are accepted.'
+	}
+
+	def "has to string"() {
+		def projectIdentifier = ProjectIdentifier.ofRootProject()
+		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
+		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
+
+		expect:
+		DependencyBucketIdentifier.of(declarable('compileOnly'), projectIdentifier).toString() == "compile only dependencies ':compileOnly'"
+		DependencyBucketIdentifier.of(resolvable('linkLibraries'), componentIdentifier).toString() == "link libraries ':main:linkLibraries'"
+		DependencyBucketIdentifier.of(consumable('apiElements'), variantIdentifier).toString() == "API elements ':main:debug:apiElements'"
 	}
 
 	interface TestableBucket extends DependencyBucket {}

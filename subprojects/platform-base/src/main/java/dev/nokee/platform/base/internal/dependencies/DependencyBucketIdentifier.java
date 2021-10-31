@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.from;
 
@@ -112,5 +113,10 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 	@Override
 	public Iterator<Object> iterator() {
 		return ImmutableList.builder().addAll(ownerIdentifier).add(identity).build().iterator();
+	}
+
+	@Override
+	public String toString() {
+		return identity.getDisplayName() + " '" + toGradlePath(this) + "'";
 	}
 }
