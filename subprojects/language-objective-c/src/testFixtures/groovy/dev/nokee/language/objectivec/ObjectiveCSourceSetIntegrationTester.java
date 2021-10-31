@@ -16,6 +16,16 @@
 package dev.nokee.language.objectivec;
 
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
+import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Nested;
 
 public abstract class ObjectiveCSourceSetIntegrationTester extends NativeLanguageSourceSetIntegrationTester<ObjectiveCSourceSet> {
+	@Nested
+	class ObjectiveCCompileTaskTest implements ObjectiveCCompileTester {
+		@Override
+		public ObjectiveCCompileTask subject() {
+			return (ObjectiveCCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+		}
+	}
 }

@@ -15,7 +15,17 @@
  */
 package dev.nokee.language.c;
 
+import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Nested;
 
 public abstract class CSourceSetIntegrationTester extends NativeLanguageSourceSetIntegrationTester<CSourceSet> {
+	@Nested
+	class CCompileTaskTest implements CCompileTester {
+		@Override
+		public CCompileTask subject() {
+			return (CCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+		}
+	}
 }
