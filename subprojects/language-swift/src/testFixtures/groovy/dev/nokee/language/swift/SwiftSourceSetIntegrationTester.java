@@ -17,6 +17,8 @@ package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
+import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Nested;
@@ -47,6 +49,13 @@ public abstract class SwiftSourceSetIntegrationTester extends LanguageSourceSetI
 		@Test
 		void hasDescription() {
 			assertThat(subject(), ConfigurationMatchers.description("Import modules for " + displayName() + "."));
+		}
+	}
+
+	@Nested
+	class SwiftCompileTaskTest implements SwiftCompileTester {
+		public SwiftCompileTask subject() {
+			return (SwiftCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
 		}
 	}
 }
