@@ -19,7 +19,6 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -31,7 +30,7 @@ import java.util.function.BiConsumer;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionWithInputs.ModelAction5<LanguageSourceSetIdentifier, ModelState.IsAtLeastRealized, DependentHeaderSearchPaths, ProjectHeaderSearchPaths, NativeCompileTask> {
+public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionWithInputs.ModelAction4<LanguageSourceSetIdentifier, DependentHeaderSearchPaths, ProjectHeaderSearchPaths, NativeCompileTask> {
 	private final LanguageSourceSetIdentifier identifier;
 
 	public AttachHeaderSearchPathsToCompileTaskRule(LanguageSourceSetIdentifier identifier) {
@@ -39,7 +38,7 @@ public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionW
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRealized isAtLeastRealized, DependentHeaderSearchPaths incomingHeaders, ProjectHeaderSearchPaths userHeaders, NativeCompileTask compileTask) {
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentHeaderSearchPaths incomingHeaders, ProjectHeaderSearchPaths userHeaders, NativeCompileTask compileTask) {
 		if (identifier.equals(this.identifier)) {
 			compileTask.configure(NativeSourceCompile.class, configureIncludeRoots(from(userHeaders).andThen(from(incomingHeaders))));
 		}

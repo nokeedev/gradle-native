@@ -21,7 +21,6 @@ import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -32,7 +31,7 @@ import java.util.function.BiConsumer;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-public final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.ModelAction4<LanguageSourceSetIdentifier, ModelState.IsAtLeastRealized, DependentImportModules, NativeCompileTask> {
+final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, DependentImportModules, NativeCompileTask> {
 	private final LanguageSourceSetIdentifier identifier;
 
 	public AttachImportModulesToCompileTaskRule(LanguageSourceSetIdentifier identifier) {
@@ -40,7 +39,7 @@ public final class AttachImportModulesToCompileTaskRule extends ModelActionWithI
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRealized isAtLeastRealized, DependentImportModules incomingModules, NativeCompileTask compileTask) {
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentImportModules incomingModules, NativeCompileTask compileTask) {
 		if (identifier.equals(this.identifier)) {
 			compileTask.configure(SwiftCompile.class, configureImportModules(from(incomingModules)));
 		}
