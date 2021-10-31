@@ -22,6 +22,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.internal.core.ModelProperties;
 import lombok.val;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Set;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
@@ -36,6 +38,7 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.mock;
 
 public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourceSet> {
 	public abstract T subject();
@@ -48,6 +51,26 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 
 	private ConfigurableSourceSet source() {
 		return ModelProperties.getProperty(subject(), "source").as(ConfigurableSourceSet.class).get();
+	}
+
+	private SourceCompile compileTask() {
+		return ModelProperties.getProperty(subject(), "compileTask").as(SourceCompile.class).get();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void includesCompileTaskInBuildDependencies() {
+		val anyTask = mock(Task.class);
+		assertThat((Set<Task>) subject().getBuildDependencies().getDependencies(anyTask), hasItem(compileTask()));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void includesSourceBuildDependenciesInSourceSetBuildDependencies() {
+		val anyTask = mock(Task.class);
+		val buildTask = project().getTasks().create("buildSomeSources");
+		source().from(project().getObjects().fileCollection().from("foo.txt").builtBy(buildTask));
+		assertThat((Set<Task>) subject().getBuildDependencies().getDependencies(anyTask), hasItem(buildTask));
 	}
 
 	@Nested
@@ -79,7 +102,7 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 	@Nested
 	class BaseCompileTaskTest {
 		public SourceCompile subject() {
-			return (SourceCompile) project().getTasks().getByName("compile" + capitalize(variantName()));
+			return compileTask();
 		}
 
 		@Test
