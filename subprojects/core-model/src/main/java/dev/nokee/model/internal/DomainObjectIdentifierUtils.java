@@ -22,6 +22,7 @@ import dev.nokee.model.HasName;
 import dev.nokee.model.internal.core.ModelPath;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.gradle.util.Path;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -216,5 +217,17 @@ public final class DomainObjectIdentifierUtils {
 				throw new UnsupportedOperationException();
 			}
 		}).collect(Collectors.toList()));
+	}
+
+	public static Path toGradlePath(DomainObjectIdentifier identifier) {
+		return Path.path(Path.SEPARATOR + Streams.stream(identifier).flatMap(it -> {
+			if (it instanceof ProjectIdentifier) {
+				return Stream.empty();
+			} else if (it instanceof HasName) {
+				return Stream.of(((HasName) it).getName().toString()).filter(s -> !s.isEmpty());
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}).collect(Collectors.joining(Path.SEPARATOR)));
 	}
 }
