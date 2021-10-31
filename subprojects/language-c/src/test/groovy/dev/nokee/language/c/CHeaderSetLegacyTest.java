@@ -20,7 +20,7 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.SourcePropertyRegistrationActionFactory;
 import dev.nokee.language.base.internal.SourceSetFactory;
-import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.language.base.testers.LanguageSourceSetLegacyTester;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import lombok.val;
@@ -30,7 +30,7 @@ import java.io.File;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
-class CHeaderSetTest extends LanguageSourceSetTester<CHeaderSet> {
+class CHeaderSetLegacyTest extends LanguageSourceSetLegacyTester<CHeaderSet> {
 	@Override
 	public CHeaderSet createSubject() {
 		val objects = objectFactory();

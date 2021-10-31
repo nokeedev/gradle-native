@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp;
+package dev.nokee.language.objectivecpp;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.testers.LanguageSourceSetTester;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
+import dev.nokee.language.base.testers.LanguageSourceSetLegacyTester;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 
@@ -26,22 +26,22 @@ import java.io.File;
 
 import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
-class CppSourceSetTest extends LanguageSourceSetTester<CppSourceSet> {
+class ObjectiveCppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<ObjectiveCppSourceSet> {
 	@Override
-	public CppSourceSet createSubject() {
+	public ObjectiveCppSourceSet createSubject() {
 		val project = ProjectTestUtils.rootProject();
-		project.getPluginManager().apply("dev.nokee.cpp-language-base");
+		project.getPluginManager().apply("dev.nokee.objective-cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val factory = project.getExtensions().getByType(CppSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CppSourceSet.class).get();
+		val factory = project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class);
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(ObjectiveCppSourceSet.class).get();
 	}
 
 	@Override
-	public CppSourceSet createSubject(File temporaryDirectory) {
+	public ObjectiveCppSourceSet createSubject(File temporaryDirectory) {
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
-		project.getPluginManager().apply("dev.nokee.cpp-language-base");
+		project.getPluginManager().apply("dev.nokee.objective-cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val factory = project.getExtensions().getByType(CppSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CppSourceSet.class).get();
+		val factory = project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class);
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(ObjectiveCppSourceSet.class).get();
 	}
 }
