@@ -17,8 +17,11 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
-import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import lombok.val;
@@ -45,6 +48,12 @@ public final class TaskRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsTask.tag())
 			.withComponent(createdUsing(ModelType.of(type), taskProvider::get))
-			.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider));
+			.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(TaskIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, id, ignored) -> {
+				if (id.equals(identifier)) {
+					taskProvider.configure(task -> ModelStates.realize(entity));
+				}
+			}))
+			;
 	}
 }

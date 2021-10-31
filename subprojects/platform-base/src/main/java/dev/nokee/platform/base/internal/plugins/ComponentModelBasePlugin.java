@@ -94,7 +94,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_consumableBucketFactory", new ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getObjects()));
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects(), project.getExtensions().getByType(ModelLookup.class)));
-		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory( PolymorphicDomainObjectRegistry.of(project.getTasks()), identifier -> taskName(identifier)));
+		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory(PolymorphicDomainObjectRegistry.of(project.getTasks()), identifier -> taskName(identifier)));
 	}
 
 	// TODO: Move Namer into its own class. We should also do the same for configuration name
