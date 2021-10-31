@@ -22,6 +22,7 @@ import dev.nokee.language.base.testers.ConfigurableSourceSetIntegrationTester;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelProperties;
+import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
@@ -33,7 +34,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -47,6 +52,10 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 	public abstract String variantName();
 
 	public abstract String displayName();
+
+	private Configuration headerSearchPaths() {
+		return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
+	}
 
 	@Nested
 	class NativeCompileTaskTest implements NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<NativeSourceCompile> {
@@ -69,6 +78,13 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 		void disablesPositionIndependentCode() {
 			assertThat(((AbstractNativeCompileTask) subject()).isPositionIndependentCode(), is(false));
 		}
+
+		@Test
+		void linksHeaderSourcePathsConfigurationToCompileTaskIncludes() throws IOException {
+			val hdrs = Files.createTempDirectory("hdrs").toFile();
+			headerSearchPaths().getDependencies().add(createDependency(objectFactory().fileCollection().from(hdrs)));
+			assertThat(subject().getHeaderSearchPaths(), providerOf(hasItem(aFile(hdrs))));
+		}
 	}
 
 	@Nested
@@ -88,7 +104,7 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 	@Nested
 	class HeaderSearchPathsConfigurationTest {
 		public Configuration subject() {
-			return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
+			return headerSearchPaths();
 		}
 
 		@Test
