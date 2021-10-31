@@ -16,6 +16,10 @@
 package dev.nokee.language.swift.tasks;
 
 import dev.nokee.language.base.tasks.SourceCompile;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.*;
 
 /**
  * Compiles Swift source files into object files.
@@ -23,4 +27,32 @@ import dev.nokee.language.base.tasks.SourceCompile;
  * @since 0.4
  */
 public interface SwiftCompile extends SourceCompile {
+	/**
+	 * The modules required to compile the source.
+	 *
+	 * @return a file collection containing modules required to compile the source, never null
+	 * @since 0.5
+	 */
+	@InputFiles
+	@PathSensitive(PathSensitivity.NAME_ONLY)
+	ConfigurableFileCollection getModules();
+
+	/**
+	 * The location to write the Swift module file to.
+	 *
+	 * @return a property to configure the location of the Swift module file to produce, never null
+	 * @since 0.5
+	 */
+	@OutputFile
+	RegularFileProperty getModuleFile();
+
+	/**
+	 * The name of the module to produce.
+	 *
+	 * @return a property to configure the name of the module to produce, never null
+	 * @since 0.5
+	 */
+	@Optional
+	@Input
+	Property<String> getModuleName();
 }

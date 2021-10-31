@@ -39,6 +39,7 @@ import org.gradle.api.file.Directory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 
@@ -47,8 +48,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toDirectoryPath;
-import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
-import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
 @AutoFactory
@@ -59,14 +59,16 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
+	private final NativeToolChainSelector toolChainSelector;
 
-	public <T extends SourceCompile> NativeCompileTaskRegistrationAction(LanguageSourceSetIdentifier identifier, Class<T> publicType, Class<? extends T> implementationType, @Provided ModelRegistry registry, @Provided TaskRegistrationFactory taskRegistrationFactory, @Provided ModelPropertyRegistrationFactory propertyRegistrationFactory) {
+	public <T extends SourceCompile> NativeCompileTaskRegistrationAction(LanguageSourceSetIdentifier identifier, Class<T> publicType, Class<? extends T> implementationType, @Provided ModelRegistry registry, @Provided TaskRegistrationFactory taskRegistrationFactory, @Provided ModelPropertyRegistrationFactory propertyRegistrationFactory, @Provided NativeToolChainSelector toolChainSelector) {
 		this.identifier = identifier;
 		this.publicType = publicType;
 		this.implementationType = implementationType;
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.propertyRegistrationFactory = propertyRegistrationFactory;
+		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 			val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), publicType, identifier), implementationType).build());
 			compileTask.configure(publicType, configureDescription("Compiles the %s.", identifier));
 			compileTask.configure(publicType, configureDestinationDirectory(convention(forObjects(identifier))));
-//				compileTask.configure(ObjectiveCCompile.class, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
+			compileTask.configure(publicType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
 			registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTask"), ModelNodes.of(compileTask)));
 			entity.addComponent(new NativeCompileTask(compileTask));
 		}

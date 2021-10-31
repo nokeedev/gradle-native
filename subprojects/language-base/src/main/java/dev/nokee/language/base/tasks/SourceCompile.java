@@ -17,11 +17,11 @@ package dev.nokee.language.base.tasks;
 
 import dev.nokee.language.base.HasDestinationDirectory;
 import org.gradle.api.Task;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.*;
 import org.gradle.platform.base.ToolChain;
 
 public interface SourceCompile extends Task, HasDestinationDirectory {
@@ -50,4 +50,14 @@ public interface SourceCompile extends Task, HasDestinationDirectory {
 	@Override
 	@Internal
 	DirectoryProperty getDestinationDirectory();
+
+	/**
+	 * Returns the source files to compile.
+	 *
+	 * @return a file collection containing all the files to compile, never null
+	 */
+	@InputFiles
+	@SkipWhenEmpty
+	@PathSensitive(PathSensitivity.RELATIVE)
+	ConfigurableFileCollection getSource();
 }

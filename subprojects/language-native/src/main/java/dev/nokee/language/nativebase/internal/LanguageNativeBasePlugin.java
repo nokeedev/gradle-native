@@ -22,6 +22,7 @@ import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.internal.project.ProjectInternal;
 
 public class LanguageNativeBasePlugin implements Plugin<Project> {
 	@Override
@@ -33,6 +34,8 @@ public class LanguageNativeBasePlugin implements Plugin<Project> {
 			new NativeCompileTaskRegistrationActionFactory(
 				() -> project.getExtensions().getByType(ModelRegistry.class),
 				() -> project.getExtensions().getByType(TaskRegistrationFactory.class),
-				() -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class)));
+				() -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
+				() -> new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())
+			));
 	}
 }

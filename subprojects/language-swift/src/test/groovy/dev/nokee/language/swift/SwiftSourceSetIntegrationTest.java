@@ -22,16 +22,18 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.ConfigurableSourceSetIntegrationTester;
+import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import lombok.val;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -52,6 +54,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 
 	@BeforeEach
 	void createSubject() {
+		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"), false)).as(SwiftSourceSet.class).get();
 	}
 
@@ -103,13 +106,18 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class CompileTaskTest {
+	class CompileTaskTest implements SwiftCompileTester {
+		@BeforeEach
+		void configureTargetPlatform() {
+			subject().getTargetPlatform().set(NativePlatformFactory.create(TargetMachines.of("macos-x64")));
+		}
+
 		public SwiftCompileTask subject() {
 			return (SwiftCompileTask) project.getTasks().getByName("compileRiku");
 		}
 
 		@Test
-		void hasDescription() {
+		public void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Compiles the sources ':riku'."));
 		}
 
