@@ -46,6 +46,7 @@ public final class SwiftSourceSetRegistrationFactory {
 			builder.action(compileTaskRegistrationFactory.create(identifier, SwiftCompile.class, SwiftCompileTask.class))
 				.action(new AttachImportModulesToCompileTaskRule(identifier))
 				.action(importModulesRegistrationFactory.create(identifier))
+				.action(new SwiftCompileTaskDefaultConfigurationRule(identifier))
 			;
 		}
 		return builder.build();
