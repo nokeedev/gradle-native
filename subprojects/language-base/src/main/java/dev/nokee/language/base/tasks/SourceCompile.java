@@ -55,6 +55,7 @@ public interface SourceCompile extends Task, HasDestinationDirectory {
 	 * Returns the source files to compile.
 	 *
 	 * @return a file collection containing all the files to compile, never null
+	 * @since 0.5
 	 */
 	@InputFiles
 	@SkipWhenEmpty
