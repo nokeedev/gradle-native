@@ -24,6 +24,7 @@ import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelProperties;
 import lombok.val;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Set;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
@@ -41,6 +43,7 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.mock;
 
 public abstract class NativeLanguageSourceSetIntegrationTester<T extends LanguageSourceSet> extends LanguageSourceSetIntegrationTester<T> {
 	public abstract T subject();
@@ -60,6 +63,15 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 	private ConfigurableSourceSet headers() {
 		return ModelProperties.getProperty(subject(), "headers")
 			.as(ConfigurableSourceSet.class).get();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void includesHeadersBuildDependenciesInSourceSetBuildDependencies() {
+		val anyTask = mock(Task.class);
+		val buildTask = project().getTasks().create("buildSomeHeaders");
+		headers().from(project().getObjects().fileCollection().from("foo.txt").builtBy(buildTask));
+		assertThat((Set<Task>) subject().getBuildDependencies().getDependencies(anyTask), hasItem(buildTask));
 	}
 
 	@Nested

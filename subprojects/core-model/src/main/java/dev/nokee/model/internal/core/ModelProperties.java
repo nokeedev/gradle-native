@@ -18,6 +18,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.registry.ModelNodeBackedElement;
 import lombok.val;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public final class ModelProperties {
@@ -29,6 +30,15 @@ public final class ModelProperties {
 			throw new IllegalArgumentException("Not a property");
 		}
 		return new ModelNodeBackedElement(result);
+	}
+
+	public static Optional<ModelElement> findProperty(Object self, String name) {
+		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).findDescendant(name).map(it -> {
+			if (!it.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))) {
+				throw new IllegalArgumentException("Not a property");
+			}
+			return new ModelNodeBackedElement(it);
+		});
 	}
 
 	public static boolean hasProperty(Object self, String name) {
