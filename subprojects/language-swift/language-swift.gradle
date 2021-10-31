@@ -16,6 +16,7 @@ dependencies {
 
 	testImplementation testFixtures(project(':coreModel'))
 	testImplementation testFixtures(project(':coreScript'))
+	testImplementation testFixtures(project(':languageNative'))
 	testImplementation project(':runtimeNative')
 
 	testFixturesApi testFixtures(project(':languageNative'))
