@@ -32,6 +32,8 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
@@ -47,6 +49,11 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest {
 
 	@Nested
 	class SourceSetTest extends CppSourceSetIntegrationTester {
+		@BeforeEach
+		public void configureTargetPlatform() {
+			((CppCompileTask) project.getTasks().getByName("compileZomi")).getTargetPlatform().set(create(of("macos-x64")));
+		}
+
 		@Override
 		public CppSourceSet subject() {
 			return subject;
