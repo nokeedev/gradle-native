@@ -58,7 +58,7 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 	}
 
 	private ConfigurableSourceSet headers() {
-		return ModelProperties.getProperty(NativeLanguageSourceSetIntegrationTester.this.subject(), "headers")
+		return ModelProperties.getProperty(subject(), "headers")
 			.as(ConfigurableSourceSet.class).get();
 	}
 
