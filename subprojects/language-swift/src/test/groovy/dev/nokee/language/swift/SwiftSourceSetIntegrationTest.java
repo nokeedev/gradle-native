@@ -23,6 +23,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
+import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -93,6 +94,11 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 		@Test
 		void defaultsModuleNameToSourceSetName() {
 			assertThat(subject().getModuleName(), providerOf("Riku"));
+		}
+
+		@Test
+		void defaultsSourceCompatibilityToSwift5() {
+			assertThat(subject().getSourceCompatibility(), providerOf(SwiftVersion.SWIFT5));
 		}
 
 		@Test

@@ -24,10 +24,13 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
+import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
+import org.gradle.language.swift.SwiftVersion;
+import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.util.GUtil;
 
 import java.util.function.BiConsumer;
@@ -35,7 +38,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toDirectoryPath;
-import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 
 final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, DependentImportModules, NativeCompileTask> {
 	private final LanguageSourceSetIdentifier identifier;
@@ -49,12 +52,13 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 		if (identifier.equals(this.identifier)) {
 			compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier, asModuleFileOfModuleName()))));
 			compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName(identifier.getName()))));
+			compileTask.configure(SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5)));
 		}
 	}
 
 	//region Module file
 	public static Action<SwiftCompileTask> configureModuleFile(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<RegularFile>> action) {
-		return task -> action.accept(task, PropertyUtils.wrap(task.getModuleFile()));
+		return task -> action.accept(task, wrap(task.getModuleFile()));
 	}
 
 	public static BiFunction<SwiftCompileTask, Provider<Directory>, Object> asModuleFileOfModuleName() {
@@ -71,12 +75,18 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	//endregion
 
 	//region Module name
-	public static Action<org.gradle.language.swift.tasks.SwiftCompile> configureModuleName(BiConsumer<? super org.gradle.language.swift.tasks.SwiftCompile, ? super PropertyUtils.Property<String>> action) {
-		return task -> action.accept(task, PropertyUtils.wrap(task.getModuleName()));
+	public static Action<SwiftCompileTask> configureModuleName(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<String>> action) {
+		return task -> action.accept(task, wrap(task.getModuleName()));
 	}
 
 	public static String toModuleName(LanguageSourceSetName name) {
 		return GUtil.toCamelCase(name.toString());
+	}
+	//endregion
+
+	//region Source compatibility
+	private static Action<SwiftCompileTask> configureSourceCompatibility(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<SwiftVersion>> action) {
+		return task -> action.accept(task, wrap(task.getSourceCompatibility()));
 	}
 	//endregion
 }
