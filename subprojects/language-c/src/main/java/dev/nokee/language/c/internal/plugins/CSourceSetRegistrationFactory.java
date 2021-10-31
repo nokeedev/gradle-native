@@ -21,10 +21,7 @@ import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
-import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
-import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationActionFactory;
-import dev.nokee.language.nativebase.internal.HeadersPropertyRegistrationActionFactory;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.*;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
 
@@ -51,7 +48,9 @@ public final class CSourceSetRegistrationFactory {
 			builder.action(headersPropertyFactory.create(identifier))
 				.action(compileTaskRegistrationFactory.create(identifier, CCompile.class, CCompileTask.class))
 				.action(resolvableHeadersRegistrationFactory.create(identifier))
-				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier));
+				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))
+				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
+			;
 		}
 		return builder.build();
 	}

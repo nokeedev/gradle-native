@@ -24,13 +24,11 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
-import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.swift.SwiftVersion;
-import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.util.GUtil;
 
 import java.util.function.BiConsumer;
@@ -40,7 +38,7 @@ import java.util.function.Function;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toDirectoryPath;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 
-final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, DependentImportModules, NativeCompileTask> {
+final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, NativeCompileTask> {
 	private final LanguageSourceSetIdentifier identifier;
 
 	public SwiftCompileTaskDefaultConfigurationRule(LanguageSourceSetIdentifier identifier) {
@@ -48,7 +46,7 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentImportModules incomingModules, NativeCompileTask compileTask) {
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask) {
 		if (identifier.equals(this.identifier)) {
 			compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier, asModuleFileOfModuleName()))));
 			compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName(identifier.getName()))));

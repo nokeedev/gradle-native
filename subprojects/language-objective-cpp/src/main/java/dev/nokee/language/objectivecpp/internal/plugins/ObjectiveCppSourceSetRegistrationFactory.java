@@ -18,10 +18,7 @@ package dev.nokee.language.objectivecpp.internal.plugins;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
-import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
-import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationActionFactory;
-import dev.nokee.language.nativebase.internal.HeadersPropertyRegistrationActionFactory;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.*;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
@@ -51,7 +48,9 @@ public final class ObjectiveCppSourceSetRegistrationFactory {
 			builder.action(headersPropertyFactory.create(identifier))
 				.action(compileTaskRegistrationFactory.create(identifier, ObjectiveCppCompile.class, ObjectiveCppCompileTask.class))
 				.action(resolvableHeadersRegistrationFactory.create(identifier))
-				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier));
+				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))
+				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
+			;
 		}
 		return builder.build();
 	}
