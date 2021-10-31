@@ -40,7 +40,7 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
 @AutoFactory
-public final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
+final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
 	private final LanguageSourceSetIdentifier identifier;
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
