@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.core;
 
-import dev.nokee.model.HasName;
-import lombok.EqualsAndHashCode;
+import dev.nokee.model.internal.ModelPropertyIdentity;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Test;
 
-@EqualsAndHashCode
-public final class ModelPropertyIdentity implements HasName {
-	private final ModelPropertyName name;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-	private ModelPropertyIdentity(ModelPropertyName name) {
-		this.name = name;
-	}
+class ModelPropertyIdentityTest {
+	private final ModelPropertyIdentity subject = ModelPropertyIdentity.of("wogu");
 
-	public static ModelPropertyIdentity of(String name) {
-		return new ModelPropertyIdentity(ModelPropertyName.of(name));
-	}
-
-	@Override
-	public ModelPropertyName getName() {
-		return name;
-	}
-
-	@Override
-	public String toString() {
-		return "property '" + name + "'";
+	@Test
+	void hasToString() {
+		assertThat(subject, Matchers.hasToString("property 'wogu'"));
 	}
 }
