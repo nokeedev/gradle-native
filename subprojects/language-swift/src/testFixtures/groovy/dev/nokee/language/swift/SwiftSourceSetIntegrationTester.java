@@ -20,24 +20,34 @@ import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public abstract class SwiftSourceSetIntegrationTester extends LanguageSourceSetIntegrationTester<SwiftSourceSet> {
 	public abstract String name();
 
+	private Configuration importModules() {
+		return project().getConfigurations().getByName(variantName() + "ImportModules");
+	}
+
 	@Nested
 	class ImportModulesConfigurationTest {
 		public Configuration subject() {
-			return project().getConfigurations().getByName(variantName() + "ImportModules");
+			return importModules();
 		}
 
 		@Test
@@ -65,6 +75,13 @@ public abstract class SwiftSourceSetIntegrationTester extends LanguageSourceSetI
 		@Override
 		public String languageSourceSetName() {
 			return name();
+		}
+
+		@Test
+		void linksImportModulesConfigurationToCompileTaskModules() throws IOException {
+			val module = Files.createTempDirectory("Foo.swiftmodule").toFile();
+			importModules().getDependencies().add(createDependency(objectFactory().fileCollection().from(module)));
+			assertThat(subject().getModules(), hasItem(aFile(module)));
 		}
 	}
 }
