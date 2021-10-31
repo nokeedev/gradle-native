@@ -15,7 +15,9 @@
  */
 package dev.nokee.language.objectivecpp.internal.tasks;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.HeaderSearchPath;
+import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import org.gradle.api.provider.SetProperty;
@@ -23,5 +25,13 @@ import org.gradle.api.tasks.CacheableTask;
 
 @CacheableTask
 public abstract class ObjectiveCppCompileTask extends org.gradle.language.objectivecpp.tasks.ObjectiveCppCompile implements NativeSourceCompileTask, ObjectiveCppCompile {
+	public ObjectiveCppCompileTask() {
+		getHeaderSearchPaths().set(getIncludes().getElements().map(includes -> {
+			return includes.stream().map(it -> new DefaultHeaderSearchPath(it.getAsFile())).collect(ImmutableSet.toImmutableSet());
+		}));
+		getHeaderSearchPaths().disallowChanges();
+	}
+
+
 	public abstract SetProperty<HeaderSearchPath> getHeaderSearchPaths();
 }
