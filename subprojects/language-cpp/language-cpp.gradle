@@ -8,6 +8,7 @@ dependencies {
 	api project(':languageNative')
 	implementation project(':coreScript')
 	implementation project(':runtimeNative')
+	implementation "com.google.guava:guava:${guavaVersion}"
 
 	testImplementation project(':runtimeNative')
 	testImplementation testFixtures(project(':coreModel'))

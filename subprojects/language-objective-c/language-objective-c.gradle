@@ -7,6 +7,7 @@ plugins {
 dependencies {
 	api project(':languageC')
 	implementation project(':coreScript')
+	implementation "com.google.guava:guava:${guavaVersion}"
 
 	testImplementation project(':languageC')
 	testImplementation project(':runtimeNative')
