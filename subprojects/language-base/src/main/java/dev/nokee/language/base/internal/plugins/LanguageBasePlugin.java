@@ -32,6 +32,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 
-		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), new SourceSetFactory(project.getObjects()), new SourcePropertyRegistrationActionFactory(() -> project.getExtensions().getByType(ModelRegistry.class))));
+		project.getExtensions().add("__nokee_sourceSetFactory", new SourceSetFactory(project.getObjects()));
+		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(SourceSetFactory.class), new SourcePropertyRegistrationActionFactory(() -> project.getExtensions().getByType(ModelRegistry.class))));
 	}
 }
