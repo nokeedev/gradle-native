@@ -20,8 +20,8 @@ import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.internal.core.ModelProperties;
+import lombok.val;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,10 +30,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 
 public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourceSet> {
 	public abstract T subject();
@@ -43,6 +45,10 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 	public abstract String variantName();
 
 	public abstract String displayName();
+
+	private ConfigurableSourceSet source() {
+		return ModelProperties.getProperty(subject(), "source").as(ConfigurableSourceSet.class).get();
+	}
 
 	@Nested
 	class CompileTaskPropertyTest {
@@ -61,8 +67,7 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 	class SourcePropertyTest extends ConfigurableSourceSetIntegrationTester {
 		@Override
 		public ConfigurableSourceSet subject() {
-			return ModelProperties.getProperty(LanguageSourceSetIntegrationTester.this.subject(), "source")
-				.as(ConfigurableSourceSet.class).get();
+			return source();
 		}
 
 		@Override
@@ -73,13 +78,20 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 
 	@Nested
 	class BaseCompileTaskTest {
-		public Task subject() {
-			return project().getTasks().getByName("compile" + capitalize(variantName()));
+		public SourceCompile subject() {
+			return (SourceCompile) project().getTasks().getByName("compile" + capitalize(variantName()));
 		}
 
 		@Test
 		void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Compiles the " + displayName() + "."));
+		}
+
+		@Test
+		void includesSourceSetFilesInCompileTaskSources() throws IOException {
+			val path = Files.createTempFile("source", ".file").toFile();
+			source().from(path);
+			assertThat(subject().getSource(), hasItem(aFile(path)));
 		}
 	}
 }
