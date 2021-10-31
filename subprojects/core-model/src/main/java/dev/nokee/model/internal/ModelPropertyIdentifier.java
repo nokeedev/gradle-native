@@ -43,4 +43,9 @@ public final class ModelPropertyIdentifier implements DomainObjectIdentifier {
 	public Iterator<Object> iterator() {
 		return ImmutableList.builder().addAll(ownerIdentifier).add(identity).build().iterator();
 	}
+
+	@Override
+	public String toString() {
+		return ownerIdentifier.toString() + " " + identity;
+	}
 }
