@@ -9,6 +9,7 @@ dependencies {
 	implementation project(':coreScript')
 	implementation project(':runtimeNative')
 
+	testImplementation project(':runtimeNative')
 	testImplementation testFixtures(project(':coreModel'))
 	testImplementation testFixtures(project(':coreScript'))
 
