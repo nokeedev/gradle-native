@@ -16,6 +16,7 @@
 package dev.nokee.language.swift.tasks;
 
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.nativebase.HasObjectFiles;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
@@ -26,7 +27,13 @@ import org.gradle.api.tasks.*;
  *
  * @since 0.4
  */
-public interface SwiftCompile extends SourceCompile {
+public interface SwiftCompile extends SourceCompile, HasObjectFiles {
+	/**
+	 * {@inheritDoc}
+	 */
+	@OutputFiles
+	ConfigurableFileCollection getObjectFiles();
+
 	/**
 	 * The modules required to compile the source.
 	 *
