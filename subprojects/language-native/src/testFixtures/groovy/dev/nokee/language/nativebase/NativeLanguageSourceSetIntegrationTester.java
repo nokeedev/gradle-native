@@ -57,6 +57,11 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 		return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
 	}
 
+	private ConfigurableSourceSet headers() {
+		return ModelProperties.getProperty(NativeLanguageSourceSetIntegrationTester.this.subject(), "headers")
+			.as(ConfigurableSourceSet.class).get();
+	}
+
 	@Nested
 	class NativeCompileTaskTest implements NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<NativeSourceCompile> {
 		public NativeSourceCompile subject() {
@@ -85,14 +90,20 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 			headerSearchPaths().getDependencies().add(createDependency(objectFactory().fileCollection().from(hdrs)));
 			assertThat(subject().getHeaderSearchPaths(), providerOf(hasItem(aFile(hdrs))));
 		}
+
+		@Test
+		void includesSourceSetHeaderFilesInCompileTaskHeaders() throws IOException {
+			val path = Files.createTempDirectory("headers").toFile();
+			headers().from(path);
+			assertThat(subject().getHeaderSearchPaths(), providerOf(hasItem(aFile(path))));
+		}
 	}
 
 	@Nested
 	class HeadersPropertyTest extends ConfigurableSourceSetIntegrationTester {
 		@Override
 		public ConfigurableSourceSet subject() {
-			return ModelProperties.getProperty(NativeLanguageSourceSetIntegrationTester.this.subject(), "headers")
-				.as(ConfigurableSourceSet.class).get();
+			return headers();
 		}
 
 		@Override
