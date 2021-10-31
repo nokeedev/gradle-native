@@ -16,37 +16,24 @@
 package dev.nokee.language.objectivec;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
-import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.internal.testing.TaskMatchers;
-import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.testers.ConfigurableSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
-import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.attributes.Usage;
-import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
-import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
 
 @PluginRequirement.Require(id = "dev.nokee.objective-c-language-base")
 class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
@@ -59,62 +46,25 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class SourcePropertyTest extends ConfigurableSourceSetIntegrationTester {
+	class SourceSetTest extends ObjectiveCSourceSetIntegrationTester {
 		@Override
-		public ConfigurableSourceSet subject() {
-			return ModelProperties.getProperty(subject, "source").as(ConfigurableSourceSet.class).get();
-		}
-
-		@Override
-		public File getTemporaryDirectory() throws IOException {
-			return Files.createDirectories(project().getProjectDir().toPath()).toFile();
-		}
-	}
-
-	@Nested
-	class HeadersPropertyTest extends ConfigurableSourceSetIntegrationTester {
-		@Override
-		public ConfigurableSourceSet subject() {
-			return ModelProperties.getProperty(subject, "headers").as(ConfigurableSourceSet.class).get();
+		public ObjectiveCSourceSet subject() {
+			return subject;
 		}
 
 		@Override
-		public File getTemporaryDirectory() throws IOException {
-			return Files.createDirectories(project().getProjectDir().toPath()).toFile();
-		}
-	}
-
-	@Nested
-	class CompileTaskPropertyTest {
-		public TaskProvider<ObjectiveCCompile> subject() {
-			return ModelProperties.getProperty(subject, "compileTask").as(TaskProvider.class).get();
+		public Project project() {
+			return project;
 		}
 
-		@Test
-		void isCorrectTask() {
-			assertThat(subject(), providerOf(named("compileGote")));
-		}
-	}
-
-	@Nested
-	class HeaderSearchPathsConfigurationTest {
-		public Configuration subject() {
-			return project.getConfigurations().getByName("goteHeaderSearchPaths");
+		@Override
+		public String variantName() {
+			return "gote";
 		}
 
-		@Test
-		void isResolvable() {
-			assertThat(subject(), ConfigurationMatchers.resolvable());
-		}
-
-		@Test
-		void hasCPlusPlusApiUsage() {
-			assertThat(subject(), ConfigurationMatchers.attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("cplusplus-api"))));
-		}
-
-		@Test
-		void hasDescription() {
-			assertThat(subject(), ConfigurationMatchers.description("Header search paths for sources ':gote'."));
+		@Override
+		public String displayName() {
+			return "sources ':gote'";
 		}
 	}
 
@@ -127,11 +77,6 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
 
 		public ObjectiveCCompileTask subject() {
 			return (ObjectiveCCompileTask) project.getTasks().getByName("compileGote");
-		}
-
-		@Test
-		public void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Compiles the sources ':gote'."));
 		}
 
 		@Test
