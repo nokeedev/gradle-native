@@ -17,12 +17,10 @@ package dev.nokee.language.nativebase.internal;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.google.common.collect.Streams;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
@@ -31,7 +29,6 @@ import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
@@ -48,9 +45,8 @@ import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toDirectoryPath;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
@@ -91,21 +87,7 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 	}
 
 	private static Function<Task, Provider<Directory>> forObjects(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir(outputDirectoryBase("objs", identifier));
-	}
-
-	private static String outputDirectoryBase(String outputType, DomainObjectIdentifier identifier) {
-		return Streams.concat(Stream.of(outputType), Streams.stream(identifier)
-				.flatMap(it -> {
-					if (it instanceof HasName) {
-						return Stream.of(((HasName) it).getName().toString());
-					} else if (it instanceof VariantIdentifier) {
-						return Stream.of(((VariantIdentifier<?>) it).getUnambiguousName()).filter(s -> !s.isEmpty());
-					} else {
-						throw new UnsupportedOperationException();
-					}
-				}))
-			.collect(Collectors.joining("/"));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("objs/" + toDirectoryPath(identifier));
 	}
 	//endregion
 
