@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.nativebase;
 
-import dev.nokee.language.base.testers.HasDestinationDirectoryTester;
 import dev.nokee.language.base.testers.SourceCompileTester;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
@@ -27,7 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
 
-public interface NativeSourceCompileTester extends SourceCompileTester, HasDestinationDirectoryTester, HasObjectFilesTester {
+public interface NativeSourceCompileTester extends SourceCompileTester, HasObjectFilesTester {
 	NativeSourceCompile subject();
 
 	@Override
