@@ -16,6 +16,16 @@
 package dev.nokee.language.objectivecpp;
 
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
+import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Nested;
 
 public abstract class ObjectiveCppSourceSetIntegrationTester extends NativeLanguageSourceSetIntegrationTester<ObjectiveCppSourceSet> {
+	@Nested
+	class ObjectiveCppCompileTaskTest implements ObjectiveCppCompileTester {
+		@Override
+		public ObjectiveCppCompileTask subject() {
+			return (ObjectiveCppCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+		}
+	}
 }

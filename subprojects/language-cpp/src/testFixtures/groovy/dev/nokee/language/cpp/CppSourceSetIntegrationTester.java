@@ -15,7 +15,17 @@
  */
 package dev.nokee.language.cpp;
 
+import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Nested;
 
 public abstract class CppSourceSetIntegrationTester extends NativeLanguageSourceSetIntegrationTester<CppSourceSet> {
+	@Nested
+	class CppCompileTaskTest implements CppCompileTester {
+		@Override
+		public CppCompileTask subject() {
+			return (CppCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+		}
+	}
 }

@@ -76,7 +76,7 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class CompileTaskTest implements CppCompileTester {
+	class CompileTaskTest {
 		@BeforeEach
 		void configureTargetPlatform() {
 			subject().getTargetPlatform().set(NativePlatformFactory.create(TargetMachines.of("macos-x64")));
