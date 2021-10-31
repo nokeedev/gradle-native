@@ -22,6 +22,8 @@ import lombok.EqualsAndHashCode;
 import java.util.Iterator;
 import java.util.Objects;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
+
 @EqualsAndHashCode
 public final class LanguageSourceSetIdentifier implements DomainObjectIdentifier {
 	private final LanguageSourceSetIdentity identity;
@@ -47,5 +49,10 @@ public final class LanguageSourceSetIdentifier implements DomainObjectIdentifier
 	@Override
 	public Iterator<Object> iterator() {
 		return ImmutableList.builder().addAll(ownerIdentifier).add(identity).build().iterator();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("sources '%s'", toGradlePath(this));
 	}
 }
