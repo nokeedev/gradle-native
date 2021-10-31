@@ -17,6 +17,7 @@ package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
+import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
@@ -30,6 +31,8 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
 public abstract class SwiftSourceSetIntegrationTester extends LanguageSourceSetIntegrationTester<SwiftSourceSet> {
+	public abstract String name();
+
 	@Nested
 	class ImportModulesConfigurationTest {
 		public Configuration subject() {
@@ -53,9 +56,14 @@ public abstract class SwiftSourceSetIntegrationTester extends LanguageSourceSetI
 	}
 
 	@Nested
-	class SwiftCompileTaskTest implements SwiftCompileTester {
+	class SwiftCompileTaskTest implements SwiftCompileTester, NativeCompileTaskTester {
 		public SwiftCompileTask subject() {
 			return (SwiftCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+		}
+
+		@Override
+		public String languageSourceSetName() {
+			return name();
 		}
 	}
 }

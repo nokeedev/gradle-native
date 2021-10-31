@@ -41,15 +41,22 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 
 	public abstract Project project();
 
+	public abstract String name();
+
 	public abstract String variantName();
 
 	public abstract String displayName();
 
 	@Nested
-	class NativeCompileTaskTest {
-		NativeSourceCompile subject() {
+	class NativeCompileTaskTest implements NativeCompileTaskTester {
+		public NativeSourceCompile subject() {
 			return ModelProperties.getProperty(NativeLanguageSourceSetIntegrationTester.this.subject(), "compileTask")
 				.as(NativeSourceCompile.class).get();
+		}
+
+		@Override
+		public String languageSourceSetName() {
+			return name();
 		}
 
 		@Test
