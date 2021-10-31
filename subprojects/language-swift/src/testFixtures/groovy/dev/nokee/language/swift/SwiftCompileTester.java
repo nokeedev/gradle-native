@@ -2,6 +2,7 @@ package dev.nokee.language.swift;
 
 import dev.nokee.language.base.testers.HasDestinationDirectoryTester;
 import dev.nokee.language.base.testers.SourceCompileTester;
+import dev.nokee.language.nativebase.HasObjectFilesTester;
 import dev.nokee.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.notNullValue;
 
-public interface SwiftCompileTester extends SourceCompileTester, HasDestinationDirectoryTester {
+public interface SwiftCompileTester extends SourceCompileTester, HasDestinationDirectoryTester, HasObjectFilesTester {
 	SwiftCompile subject();
 
 	@Test
