@@ -27,7 +27,7 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public interface SourceCompileTester {
+public interface SourceCompileTester extends HasDestinationDirectoryTester {
 	SourceCompile subject();
 
 	@Test
