@@ -70,7 +70,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class CompileTaskTest implements SwiftCompileTester {
+	class CompileTaskTest {
 		@BeforeEach
 		void configureTargetPlatform() {
 			subject().getTargetPlatform().set(NativePlatformFactory.create(TargetMachines.of("macos-x64")));
