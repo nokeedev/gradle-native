@@ -21,6 +21,7 @@ import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.core.ModelRegistration;
+import org.gradle.api.reflect.TypeOf;
 
 public final class CHeaderSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetFactory;
@@ -33,5 +34,10 @@ public final class CHeaderSetRegistrationFactory {
 		return sourceSetFactory.create(identifier, CHeaderSet.class, DefaultCHeaderSet.class).build();
 	}
 
-	public static class DefaultCHeaderSet implements CHeaderSet, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet> {}
+	public static class DefaultCHeaderSet implements CHeaderSet, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet> {
+		@Override
+		public TypeOf<?> getPublicType() {
+			return TypeOf.typeOf(CHeaderSet.class);
+		}
+	}
 }
