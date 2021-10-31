@@ -17,12 +17,11 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
+import dev.nokee.model.HasName;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentity;
-import dev.nokee.model.HasName;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -40,13 +39,11 @@ public final class DependencyBuckets {
 		if (Iterables.size(identities) == 1) {
 			builder.append("<unknown>");
 		} else {
-			val ownerIdentifier = Iterables.get(identities, Iterables.size(identities) - 2);
+			val ownerIdentifier = identifier.getOwnerIdentifier();
 			if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
 				builder.append(((DomainObjectIdentifierInternal) ownerIdentifier).getDisplayName());
-			} else if (ownerIdentifier instanceof ComponentIdentifier) {
-				builder.append(ownerIdentifier);
 			} else {
-				builder.append("<unknown>");
+				builder.append(ownerIdentifier);
 			}
 		}
 		builder.append(".");
