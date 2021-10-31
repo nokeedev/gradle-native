@@ -79,6 +79,7 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 
 	@Override
 	public Iterator<Object> iterator() {
+		// TODO: Use identity instead of this
 		return Iterators.forArray(this);
 	}
 }

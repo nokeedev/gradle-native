@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.Iterators;
+import com.google.common.collect.ImmutableList;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.NamedDomainObjectIdentifier;
@@ -133,7 +133,8 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 
 	@Override
 	public Iterator<Object> iterator() {
-		return Iterators.forArray(componentIdentifier.getProjectIdentifier(), componentIdentifier, this);
+		// TODO: Use identity instead of this
+		return ImmutableList.builder().addAll(componentIdentifier).add(this).build().iterator();
 	}
 
 	public static class Builder<T extends Variant> {
