@@ -63,9 +63,7 @@ public interface NativeSourceCompile extends Task, SourceCompile, HasObjectFiles
 	Provider<Set<HeaderSearchPath>> getHeaderSearchPaths();
 
 	/**
-	 * Returns the object files produced during the compilation.
-	 *
-	 * @return a file collection containing the object files, never null.
+	 * {@inheritDoc}
 	 */
 	@OutputFiles
 	ConfigurableFileCollection getObjectFiles();
