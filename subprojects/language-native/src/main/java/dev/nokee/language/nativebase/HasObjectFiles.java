@@ -8,5 +8,10 @@ import org.gradle.api.file.ConfigurableFileCollection;
  * @since 0.5
  */
 public interface HasObjectFiles {
+	/**
+	 * Returns the object files produced during the compilation.
+	 *
+	 * @return a file collection containing the object files, never null.
+	 */
 	ConfigurableFileCollection getObjectFiles();
 }
