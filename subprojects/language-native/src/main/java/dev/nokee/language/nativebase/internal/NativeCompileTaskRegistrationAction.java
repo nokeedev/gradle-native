@@ -20,6 +20,7 @@ import com.google.auto.factory.Provided;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -35,11 +36,12 @@ import dev.nokee.platform.base.internal.util.PropertyUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.Transformer;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
-import org.gradle.language.objectivec.tasks.ObjectiveCCompile;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 
@@ -78,6 +80,7 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 			compileTask.configure(publicType, configureDescription("Compiles the %s.", identifier));
 			compileTask.configure(publicType, configureDestinationDirectory(convention(forObjects(identifier))));
 			compileTask.configure(publicType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
+			compileTask.configure(publicType, configureObjectFiles(from(objectFilesInDestinationDirectory())));
 			registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTask"), ModelNodes.of(compileTask)));
 			entity.addComponent(new NativeCompileTask(compileTask));
 		}
@@ -111,6 +114,28 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 		} else {
 			throw new IllegalArgumentException();
 		}
+	}
+	//endregion
+
+	//region Object files
+	private static Action<SourceCompile> configureObjectFiles(BiConsumer<? super SourceCompile, ? super PropertyUtils.FileCollectionProperty> action) {
+		return task -> action.accept(task, wrap(objectFilesProperty(task)));
+	}
+
+	private static ConfigurableFileCollection objectFilesProperty(Task task) {
+		if (task instanceof HasObjectFiles) {
+			return ((HasObjectFiles) task).getObjectFiles();
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	private static Function<SourceCompile, Object> objectFilesInDestinationDirectory() {
+		return task -> task.getDestinationDirectory().map(toObjectFiles());
+	}
+
+	private static Transformer<Object, Directory> toObjectFiles() {
+		return objectFileDirectory -> objectFileDirectory.getAsFileTree().matching(pattern -> pattern.include("**/*.o", "**/*.obj"));
 	}
 	//endregion
 }
