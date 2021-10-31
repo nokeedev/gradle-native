@@ -98,7 +98,6 @@ public class ToolChainSelectorInternal {
 
 	public NativeToolChainInternal selectSwift(NativePlatformInternal targetPlatform) {
 		NativeToolChainRegistryInternal registry = modelRegistry.realize("toolChains", NativeToolChainRegistryInternal.class);
-		registry.forEach(System.out::println);
 		NativeToolChainInternal toolChain = registry.getForPlatform(NativeLanguage.SWIFT, targetPlatform);
 		toolChain.assertSupported();
 
