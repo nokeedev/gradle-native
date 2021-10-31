@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.base.internal;
 
+import com.google.common.reflect.TypeToken;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SelfAwareLanguageSourceSet;
@@ -26,12 +27,14 @@ import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.util.ConfigureUtil;
 
 @SuppressWarnings("unchecked")
-public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSourceSet> extends SelfAwareLanguageSourceSet<SELF> {
+public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSourceSet> extends SelfAwareLanguageSourceSet<SELF>, HasPublicType {
 	default String getName() {
 		return ModelNodeUtils.getPath(ModelNodes.of(this)).getName();
 	}
@@ -71,5 +74,11 @@ public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSo
 	default SELF convention(Object... path) {
 		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().convention(path);
 		return (SELF) this;
+	}
+
+	@Override
+	@SuppressWarnings("UnstableApiUsage")
+	default TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(new TypeToken<SELF>(getClass()) {}.getType());
 	}
 }

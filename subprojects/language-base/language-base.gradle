@@ -18,6 +18,7 @@ dependencies {
 	testImplementation testFixtures(project(':coreScript'))
 
 	testFixturesApi project(':internalTesting')
+	testFixturesImplementation testFixtures(project(':coreModel'))
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 }
 
