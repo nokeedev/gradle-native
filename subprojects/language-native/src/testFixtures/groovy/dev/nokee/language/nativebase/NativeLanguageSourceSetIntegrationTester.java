@@ -25,6 +25,7 @@ import dev.nokee.model.internal.core.ModelProperties;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -62,6 +63,11 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 		@Test
 		void isNativeSourceCompile() {
 			assertThat(subject(), isA(NativeSourceCompile.class));
+		}
+
+		@Test
+		void disablesPositionIndependentCode() {
+			assertThat(((AbstractNativeCompileTask) subject()).isPositionIndependentCode(), is(false));
 		}
 	}
 

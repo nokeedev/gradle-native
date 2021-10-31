@@ -18,16 +18,12 @@ package dev.nokee.language.objectivec.internal.plugins;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
-import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
-import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationActionFactory;
-import dev.nokee.language.nativebase.internal.HeadersPropertyRegistrationActionFactory;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.*;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
-import org.gradle.language.objectivec.internal.DefaultObjectiveCSourceSet;
 
 public final class ObjectiveCSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
@@ -52,7 +48,9 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 			builder.action(headersPropertyFactory.create(identifier))
 				.action(compileTaskRegistrationFactory.create(identifier, ObjectiveCCompile.class, ObjectiveCCompileTask.class))
 				.action(resolvableHeadersRegistrationFactory.create(identifier))
-				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier));
+				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))
+				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
+			;
 		}
 		return builder.build();
 	}
