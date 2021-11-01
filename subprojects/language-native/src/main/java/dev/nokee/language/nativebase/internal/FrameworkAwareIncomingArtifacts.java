@@ -15,12 +15,12 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import com.google.common.collect.Streams;
 import dev.nokee.runtime.darwin.internal.DarwinLibraryElements;
 import dev.nokee.utils.SpecUtils;
-import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.gradle.api.Transformer;
-import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ArtifactCollection;
 import org.gradle.api.artifacts.ResolvableDependencies;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.attributes.Attribute;
@@ -31,13 +31,13 @@ import org.gradle.api.specs.Spec;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.ARTIFACT_COMPRESSION_STATE_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.UNCOMPRESSED;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
-import static dev.nokee.utils.TransformerUtils.*;
 
 public class FrameworkAwareIncomingArtifacts {
 	private static final Logger LOGGER = Logger.getLogger(HeaderSearchPathsConfigurationRegistrationAction.class.getCanonicalName());
@@ -52,18 +52,20 @@ public class FrameworkAwareIncomingArtifacts {
 	}
 
 	public Provider<Set<Path>> getAs(Spec<? super ResolvedArtifactResult> spec) {
-		TransformerUtils.Transformer<Iterable<ResolvedArtifactResult>, Iterable<ResolvedArtifactResult>> filtered = matching(spec);
-		return incomingArtifacts.map(asUncompressedArtifacts())
-			.map(filtered.andThen(transformEach(toPath())).andThen(toSetTransformer(Path.class)));
+		val artifacts = incomingArtifacts.map(asUncompressedArtifacts());
+		return artifacts.flatMap(it -> it.getArtifactFiles().getElements()).map(filterArtifacts(artifacts, spec));
 	}
 
-	private static Transformer<Path, ResolvedArtifactResult> toPath() {
+	private static Transformer<Set<Path>, Object> filterArtifacts(Provider<ArtifactCollection> artifacts, Spec<? super ResolvedArtifactResult> spec) {
+		return ignored -> Streams.stream(artifacts.get()).filter(spec::isSatisfiedBy).map(toPath()).collect(Collectors.toSet());
+	}
+
+	private static Function<ResolvedArtifactResult, Path> toPath() {
 		return it -> it.getFile().toPath();
 	}
 
-	private static Transformer<Set<ResolvedArtifactResult>, ResolvableDependencies> asUncompressedArtifacts() {
+	private static Transformer<ArtifactCollection, ResolvableDependencies> asUncompressedArtifacts() {
 		return incoming -> incoming.artifactView(configureAttributes(it -> it.attribute(ARTIFACT_COMPRESSION_STATE_ATTRIBUTE, UNCOMPRESSED)))
-			.getArtifacts()
 			.getArtifacts();
 	}
 
