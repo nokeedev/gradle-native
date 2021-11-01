@@ -515,7 +515,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 	public static ModelRegistration javaNativeInterfaceLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-		assert identifier.isMainComponent();
 		val entityPath = ModelPath.path(name);
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
