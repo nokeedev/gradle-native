@@ -92,8 +92,8 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 		}
 
 		@Test
-		void disablesPositionIndependentCode() {
-			assertThat(((AbstractNativeCompileTask) subject()).isPositionIndependentCode(), is(false));
+		void enablesPositionIndependentCodeByDefault() {
+			assertThat(((AbstractNativeCompileTask) subject()).isPositionIndependentCode(), is(true));
 		}
 
 		@Test
