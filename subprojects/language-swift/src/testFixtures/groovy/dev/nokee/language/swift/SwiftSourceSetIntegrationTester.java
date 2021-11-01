@@ -32,6 +32,7 @@ import java.nio.file.Files;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -75,6 +76,16 @@ public abstract class SwiftSourceSetIntegrationTester extends LanguageSourceSetI
 		@Override
 		public String languageSourceSetName() {
 			return name();
+		}
+
+		@Test
+		void disablesDebuggableByDefault() {
+			assertThat(subject().getDebuggable().value((Boolean) null), providerOf(false));
+		}
+
+		@Test
+		void disablesOptimizationByDefault() {
+			assertThat(subject().getOptimized().value((Boolean) null), providerOf(false));
 		}
 
 		@Test

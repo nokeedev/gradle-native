@@ -53,6 +53,8 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 			compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName(identifier.getName()))));
 			compileTask.configure(SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5)));
 			compileTask.configure(SwiftCompileTask.class, configureSources(from(sourceFiles)));
+			compileTask.configure(SwiftCompileTask.class, configureDebuggable(convention(false)));
+			compileTask.configure(SwiftCompileTask.class, configureOptimized(convention(false)));
 		}
 	}
 
@@ -93,6 +95,18 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	//region Task sources
 	private static Action<SwiftCompileTask> configureSources(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.FileCollectionProperty> action) {
 		return task -> action.accept(task, wrap(task.getSource()));
+	}
+	//endregion
+
+	//region Debuggable
+	private static Action<SwiftCompileTask> configureDebuggable(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<Boolean>> action) {
+		return task -> action.accept(task, wrap(task.getDebuggable()));
+	}
+	//endregion
+
+	//region Optimized
+	private static Action<SwiftCompileTask> configureOptimized(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<Boolean>> action) {
+		return task -> action.accept(task, wrap(task.getOptimized()));
 	}
 	//endregion
 }
