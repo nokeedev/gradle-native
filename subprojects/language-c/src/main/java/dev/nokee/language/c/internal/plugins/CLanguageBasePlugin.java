@@ -20,6 +20,7 @@ import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.*;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -29,6 +30,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
+		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(NativeHeaderSet.class)

@@ -20,6 +20,7 @@ import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.*;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -30,6 +31,7 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
+		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCppSourceSet.class)
