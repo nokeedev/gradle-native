@@ -239,7 +239,15 @@ public final class PropertyUtils {
 
 			@Override
 			public void addAll(Iterable<?> values) {
-				values.forEach(this::add);
+				values.forEach(value -> {
+					if (value instanceof Provider) {
+						target.addAll((Provider<? extends Iterable<? extends T>>) value);
+					} else if (value instanceof Iterable) {
+						target.addAll((Iterable<? extends T>) value);
+					} else {
+						add(value);
+					}
+				});
 			}
 
 			@Override
