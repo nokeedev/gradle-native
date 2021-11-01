@@ -541,10 +541,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "jni")));
+						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "jni")));
 
 						// TODO: ONLY if applying include language plugin
-						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
+						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "headers")));
 
 						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), JavaNativeInterfaceLibrarySources.class));
 
