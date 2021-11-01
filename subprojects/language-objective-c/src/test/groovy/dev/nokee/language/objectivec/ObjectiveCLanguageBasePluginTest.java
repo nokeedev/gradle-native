@@ -15,31 +15,31 @@
  */
 package dev.nokee.language.objectivec;
 
-import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.internal.testing.AbstractPluginTest;
+import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import lombok.val;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.ProjectMatchers.hasPlugin;
 import static dev.nokee.scripts.testing.DefaultImporterMatchers.hasDefaultImportFor;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ObjectiveCLanguageBasePluginTest {
+@PluginRequirement.Require(id = "dev.nokee.objective-c-language-base")
+class ObjectiveCLanguageBasePluginTest extends AbstractPluginTest {
 	@Test
 	void appliesLanguageBasePlugin() {
-		val project = rootProject();
-		project.apply(singletonMap("plugin", ObjectiveCLanguageBasePlugin.class));
-		assertTrue(project.getPlugins().hasPlugin(LanguageBasePlugin.class), "should apply language base plugin");
+		assertThat(project, hasPlugin("dev.nokee.language-base"));
+	}
+
+	@Test
+	void appliesStandardToolChainsPlugin() {
+		assertThat(project, hasPlugin(NokeeStandardToolChainsPlugin.class));
 	}
 
 	@Test
 	void defaultImportSourceSetTypes() {
-		val project = rootProject();
-		project.apply(singletonMap("plugin", ObjectiveCLanguageBasePlugin.class));
 		assertThat(project, hasDefaultImportFor(ObjectiveCSourceSet.class));
 		assertThat(project, hasDefaultImportFor(CHeaderSet.class));
 		assertThat(project, hasDefaultImportFor(NativeHeaderSet.class));

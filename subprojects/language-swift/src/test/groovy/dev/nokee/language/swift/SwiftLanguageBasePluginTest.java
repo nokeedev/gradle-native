@@ -15,29 +15,29 @@
  */
 package dev.nokee.language.swift;
 
-import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import lombok.val;
+import dev.nokee.internal.testing.AbstractPluginTest;
+import dev.nokee.internal.testing.PluginRequirement;
+import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.ProjectMatchers.hasPlugin;
 import static dev.nokee.scripts.testing.DefaultImporterMatchers.hasDefaultImportFor;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SwiftLanguageBasePluginTest {
+@PluginRequirement.Require(id = "dev.nokee.swift-language-base")
+class SwiftLanguageBasePluginTest extends AbstractPluginTest {
 	@Test
 	void appliesLanguageBasePlugin() {
-		val project = rootProject();
-		project.apply(singletonMap("plugin", SwiftLanguageBasePlugin.class));
-		assertTrue(project.getPlugins().hasPlugin(LanguageBasePlugin.class), "should apply language base plugin");
+		assertThat(project, hasPlugin("dev.nokee.language-base"));
+	}
+
+	@Test
+	void appliesSwiftcToolChainsPlugin() {
+		assertThat(project, hasPlugin(SwiftCompilerPlugin.class));
 	}
 
 	@Test
 	void defaultImportSourceSetTypes() {
-		val project = rootProject();
-		project.apply(singletonMap("plugin", SwiftLanguageBasePlugin.class));
 		assertThat(project, hasDefaultImportFor(SwiftSourceSet.class));
 	}
 }
