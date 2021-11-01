@@ -35,7 +35,7 @@ class ObjectiveCSourceSetFunctionalTest extends AbstractInstalledToolChainIntegr
 
 			def registry = extensions.getByType(ModelRegistry)
 			def identifier = LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "jure")
-			def sourceSet = registry.register(extensions.getByType(ObjectiveCSourceSetRegistrationFactory).create(identifier, false)).as(ObjectiveCSourceSet).get()
+			def sourceSet = registry.register(extensions.getByType(ObjectiveCSourceSetRegistrationFactory).create(identifier)).as(ObjectiveCSourceSet).get()
 			tasks.compileJure.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

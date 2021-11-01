@@ -35,7 +35,7 @@ class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainInte
 
 			def registry = extensions.getByType(ModelRegistry)
 			def identifier = LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "kupa")
-			def sourceSet = registry.register(extensions.getByType(ObjectiveCppSourceSetRegistrationFactory).create(identifier, false)).as(ObjectiveCppSourceSet).get()
+			def sourceSet = registry.register(extensions.getByType(ObjectiveCppSourceSetRegistrationFactory).create(identifier)).as(ObjectiveCppSourceSet).get()
 			tasks.compileKupa.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

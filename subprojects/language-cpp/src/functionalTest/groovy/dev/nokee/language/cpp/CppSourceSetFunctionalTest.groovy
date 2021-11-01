@@ -29,7 +29,7 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 
 			def registry = extensions.getByType(ModelRegistry)
 			def identifier = LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "qise")
-			def sourceSet = registry.register(extensions.getByType(CppSourceSetRegistrationFactory).create(identifier, false)).as(CppSourceSet).get()
+			def sourceSet = registry.register(extensions.getByType(CppSourceSetRegistrationFactory).create(identifier)).as(CppSourceSet).get()
 			tasks.compileQise.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

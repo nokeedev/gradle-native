@@ -42,7 +42,7 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return create(identifier, true);
+		return create(identifier, false);
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
