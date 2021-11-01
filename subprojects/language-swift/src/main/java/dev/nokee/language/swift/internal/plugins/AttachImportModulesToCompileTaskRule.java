@@ -15,7 +15,10 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.nativebase.internal.DependentFrameworkSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
 import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
@@ -24,14 +27,17 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.Transformer;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.provider.Provider;
 
+import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
-import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
-final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, DependentImportModules, NativeCompileTask> {
+final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.ModelAction4<LanguageSourceSetIdentifier, DependentImportModules, DependentFrameworkSearchPaths, NativeCompileTask> {
 	private final LanguageSourceSetIdentifier identifier;
 
 	public AttachImportModulesToCompileTaskRule(LanguageSourceSetIdentifier identifier) {
@@ -39,9 +45,10 @@ final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.M
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentImportModules incomingModules, NativeCompileTask compileTask) {
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentImportModules incomingModules, DependentFrameworkSearchPaths incomingFrameworks, NativeCompileTask compileTask) {
 		if (identifier.equals(this.identifier)) {
 			compileTask.configure(SwiftCompile.class, configureImportModules(from(incomingModules)));
+			compileTask.configure(SwiftCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks))));
 		}
 	}
 
@@ -56,6 +63,20 @@ final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.M
 		} else {
 			throw new IllegalArgumentException();
 		}
+	}
+	//endregion
+
+	//region Compiler arguments
+	private static Action<SourceCompile> configureCompilerArgs(BiConsumer<? super SourceCompile, ? super PropertyUtils.CollectionProperty<String>> action) {
+		return task -> action.accept(task, wrap(task.getCompilerArgs()));
+	}
+
+	private static Transformer<Iterable<String>, Path> toFrameworkSearchPathFlags() {
+		return it -> ImmutableList.of("-F", it.toString());
+	}
+
+	private static Provider<Iterable<String>> asFrameworkSearchPathFlags(DependentFrameworkSearchPaths frameworksSearchPaths) {
+		return frameworksSearchPaths.getAsProvider().map(flatTransformEach(toFrameworkSearchPathFlags()));
 	}
 	//endregion
 }
