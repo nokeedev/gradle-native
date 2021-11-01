@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
+import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
@@ -22,8 +23,10 @@ import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.internal.*;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
+import org.gradle.api.tasks.TaskProvider;
 
 public final class CSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
@@ -55,5 +58,17 @@ public final class CSourceSetRegistrationFactory {
 		return builder.build();
 	}
 
-	public static class DefaultCSourceSet implements CSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet> {}
+	public static class DefaultCSourceSet implements CSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet> {
+		public ConfigurableSourceSet getSource() {
+			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
+		}
+
+		public ConfigurableSourceSet getHeaders() {
+			return ModelProperties.getProperty(this, "headers").as(ConfigurableSourceSet.class).get();
+		}
+
+		public TaskProvider<CCompile> getCompileTask() {
+			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
+		}
+	}
 }

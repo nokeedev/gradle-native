@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
+import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
@@ -22,8 +23,10 @@ import dev.nokee.language.nativebase.internal.*;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
+import org.gradle.api.tasks.TaskProvider;
 
 public final class ObjectiveCSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
@@ -55,5 +58,17 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 		return builder.build();
 	}
 
-	public static class DefaultObjectiveCSourceSet implements ObjectiveCSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet> {}
+	public static class DefaultObjectiveCSourceSet implements ObjectiveCSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet> {
+		public ConfigurableSourceSet getSource() {
+			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
+		}
+
+		public ConfigurableSourceSet getHeaders() {
+			return ModelProperties.getProperty(this, "headers").as(ConfigurableSourceSet.class).get();
+		}
+
+		public TaskProvider<ObjectiveCCompile> getCompileTask() {
+			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
+		}
+	}
 }
