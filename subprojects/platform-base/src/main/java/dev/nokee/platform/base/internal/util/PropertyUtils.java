@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.util;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.utils.ConfigureUtils;
+import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
@@ -161,9 +162,16 @@ public final class PropertyUtils {
 	 * @param <T>  property type
 	 * @return a composable action that add the mapping of the property owner to the input property, never null
 	 */
-	public static <SELF, T> BiConsumer<SELF, CollectionAwareProperty<? extends T>> addAll(Function<? super SELF, ? extends Iterable<?>> mapper) {
+	public static <SELF, T> BiConsumer<SELF, CollectionAwareProperty<? extends T>> addAll(Function<? super SELF, ? extends Object> mapper) {
 		Objects.requireNonNull(mapper);
-		return (self, property) -> property.addAll(mapper.apply(self));
+		return (self, property) -> {
+			val values = mapper.apply(self);
+			if (values instanceof Iterable) {
+				property.addAll((Iterable<?>) values);
+			} else {
+				property.addAll(ImmutableList.of(values));
+			}
+		};
 	}
 
 	/**

@@ -38,7 +38,6 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.utils.ConfigurationUtils.*;
-import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
