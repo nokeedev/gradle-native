@@ -88,7 +88,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(ObjectiveCApplication.class, DefaultObjectiveCApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC")));
+			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC"), true));
 			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCApplicationSources.class));

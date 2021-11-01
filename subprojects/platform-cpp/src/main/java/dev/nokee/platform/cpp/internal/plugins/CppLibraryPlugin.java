@@ -86,7 +86,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(CppLibrary.class, DefaultCppLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "cpp")));
+			registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "cpp"), true));
 			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "public")));
 			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 

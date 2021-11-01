@@ -90,7 +90,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(ObjectiveCLibrary.class, DefaultObjectiveCLibrary.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC")));
+			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "objectiveC"), true));
 
 			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "public")));
 			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));

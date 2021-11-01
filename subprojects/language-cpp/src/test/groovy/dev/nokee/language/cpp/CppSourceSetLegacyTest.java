@@ -33,7 +33,7 @@ class CppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<CppSourceSet>
 		project.getPluginManager().apply("dev.nokee.cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val factory = project.getExtensions().getByType(CppSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CppSourceSet.class).get();
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), true)).as(CppSourceSet.class).get();
 	}
 
 	@Override
@@ -42,6 +42,6 @@ class CppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<CppSourceSet>
 		project.getPluginManager().apply("dev.nokee.cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val factory = project.getExtensions().getByType(CppSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(CppSourceSet.class).get();
+		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), true)).as(CppSourceSet.class).get();
 	}
 }

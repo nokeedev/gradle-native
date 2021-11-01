@@ -81,7 +81,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(SwiftApplication.class, DefaultSwiftApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "swift")));
+			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "swift"), true));
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), SwiftApplicationSources.class));
 		}).create(identifier);
