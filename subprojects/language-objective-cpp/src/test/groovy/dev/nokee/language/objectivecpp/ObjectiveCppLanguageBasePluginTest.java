@@ -15,31 +15,33 @@
  */
 package dev.nokee.language.objectivecpp;
 
-import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.internal.testing.AbstractPluginTest;
+import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
-import lombok.val;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
+import static dev.nokee.internal.testing.ProjectMatchers.hasPlugin;
 import static dev.nokee.scripts.testing.DefaultImporterMatchers.hasDefaultImportFor;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
 
-class ObjectiveCppLanguageBasePluginTest {
+@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language-base")
+class ObjectiveCppLanguageBasePluginTest extends AbstractPluginTest {
 	@Test
 	void appliesLanguageBasePlugin() {
-		val project = rootProject();
-		project.apply(singletonMap("plugin", ObjectiveCppLanguageBasePlugin.class));
-		assertTrue(project.getPlugins().hasPlugin(LanguageBasePlugin.class), "should apply language base plugin");
+		assertThat(project, hasPlugin("dev.nokee.language-base"));
+	}
+
+	@Test
+	void appliesStandardToolChainsPlugin() {
+		assertThat(project.getPlugins(), hasItem(isA(NokeeStandardToolChainsPlugin.class)));
 	}
 
 	@Test
 	void defaultImportSourceSetTypes() {
-		val project = rootProject();
-		project.apply(singletonMap("plugin", ObjectiveCppLanguageBasePlugin.class));
 		assertThat(project, hasDefaultImportFor(ObjectiveCppSourceSet.class));
 		assertThat(project, hasDefaultImportFor(CppHeaderSet.class));
 		assertThat(project, hasDefaultImportFor(NativeHeaderSet.class));
