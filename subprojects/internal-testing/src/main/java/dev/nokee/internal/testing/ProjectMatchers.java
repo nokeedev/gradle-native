@@ -16,6 +16,7 @@
 package dev.nokee.internal.testing;
 
 import org.gradle.api.NamedDomainObjectCollectionSchema;
+import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.ExtensionsSchema;
 import org.gradle.api.plugins.PluginAware;
@@ -48,6 +49,26 @@ public final class ProjectMatchers {
 			@Override
 			public void describeTo(Description description) {
 				description.appendText("a plugin aware object has plugin ").appendValue(id).appendText(" applied");
+			}
+		};
+	}
+
+	public static Matcher<PluginAware> hasPlugin(Class<? extends Plugin<?>> type) {
+		requireNonNull(type);
+		return new TypeSafeMatcher<PluginAware>() {
+			@Override
+			protected boolean matchesSafely(PluginAware actual) {
+				return actual.getPlugins().hasPlugin(type);
+			}
+
+			@Override
+			protected void describeMismatchSafely(PluginAware item, Description description) {
+				description.appendText("plugin ").appendValue(type.getSimpleName()).appendText(" is not applied to ").appendValue(item);
+			}
+
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("a plugin aware object has plugin ").appendValue(type.getSimpleName()).appendText(" applied");
 			}
 		};
 	}
