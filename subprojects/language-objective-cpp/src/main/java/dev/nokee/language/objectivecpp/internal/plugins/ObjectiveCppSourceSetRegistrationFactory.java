@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.objectivecpp.internal.plugins;
 
+import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
@@ -22,8 +23,10 @@ import dev.nokee.language.nativebase.internal.*;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
+import org.gradle.api.tasks.TaskProvider;
 
 public final class ObjectiveCppSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
@@ -55,5 +58,17 @@ public final class ObjectiveCppSourceSetRegistrationFactory {
 		return builder.build();
 	}
 
-	public static class DefaultObjectiveCppSourceSet implements ObjectiveCppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet> {}
+	public static class DefaultObjectiveCppSourceSet implements ObjectiveCppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet> {
+		public ConfigurableSourceSet getSource() {
+			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
+		}
+
+		public ConfigurableSourceSet getHeaders() {
+			return ModelProperties.getProperty(this, "headers").as(ConfigurableSourceSet.class).get();
+		}
+
+		public TaskProvider<ObjectiveCppCompile> getCompileTask() {
+			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
+		}
+	}
 }
