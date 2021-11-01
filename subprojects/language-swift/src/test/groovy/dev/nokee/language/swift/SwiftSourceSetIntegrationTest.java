@@ -34,8 +34,7 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
 class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
@@ -110,6 +109,12 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 		@Test
 		void includesTargetNameInModuleFile() {
 			assertThat(subject().getModuleFile(), providerOf(aFile(parentFile(withAbsolutePath(endsWith("/riku"))))));
+		}
+
+		@Test
+		void addsMacOsSdkPathToCompilerArguments() {
+			subject().getTargetPlatform().set(create(of("macos-x64")));
+			assertThat(subject().getCompilerArgs(), providerOf(hasItem("-sdk")));
 		}
 	}
 }

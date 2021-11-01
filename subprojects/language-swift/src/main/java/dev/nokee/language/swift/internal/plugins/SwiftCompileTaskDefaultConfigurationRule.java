@@ -15,9 +15,13 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
+import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.SourceFiles;
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
@@ -55,8 +59,26 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 			compileTask.configure(SwiftCompileTask.class, configureSources(from(sourceFiles)));
 			compileTask.configure(SwiftCompileTask.class, configureDebuggable(convention(false)));
 			compileTask.configure(SwiftCompileTask.class, configureOptimized(convention(false)));
+			compileTask.configure(SwiftCompileTask.class, configureCompilerArgs(addAll(forMacOsSdkIfAvailable())));
 		}
 	}
+
+	//region Compiler arguments
+	private static Action<SwiftCompileTask> configureCompilerArgs(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.CollectionProperty<String>> action) {
+		return task -> action.accept(task, wrap(task.getCompilerArgs()));
+	}
+
+	private static Function<SwiftCompileTask, Object> forMacOsSdkIfAvailable() {
+		return task -> task.getTargetPlatform().map(it -> {
+			if (it.getOperatingSystem().isMacOsX()) {
+				// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
+				return ImmutableList.of("-sdk", CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim());
+			} else {
+				return ImmutableList.of();
+			}
+		});
+	}
+	//endregion
 
 	//region Module file
 	private static Action<SwiftCompileTask> configureModuleFile(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<RegularFile>> action) {
