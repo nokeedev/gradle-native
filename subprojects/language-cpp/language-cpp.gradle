@@ -34,5 +34,8 @@ gradlePlugin {
 functionalTest {
 	dependencies {
 		pluginUnderTestMetadata project(':coreModel')
+		implementation project(':languageNative')
+		implementation project(':runtimeNative')
+		implementation 'dev.nokee:templates:latest.integration'
 	}
 }
