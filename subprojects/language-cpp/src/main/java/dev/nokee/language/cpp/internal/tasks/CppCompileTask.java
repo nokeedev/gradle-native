@@ -30,6 +30,7 @@ public abstract class CppCompileTask extends org.gradle.language.cpp.tasks.CppCo
 			return includes.stream().map(it -> new DefaultHeaderSearchPath(it.getAsFile())).collect(ImmutableSet.toImmutableSet());
 		}));
 		getHeaderSearchPaths().disallowChanges();
+		getObjectFileDir().value(getDestinationDirectory()).disallowChanges();
 	}
 
 	public abstract SetProperty<HeaderSearchPath> getHeaderSearchPaths();

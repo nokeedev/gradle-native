@@ -27,5 +27,6 @@ public abstract class SwiftCompileTask extends org.gradle.language.swift.tasks.S
 	@Inject
 	public SwiftCompileTask(CompilerOutputFileNamingSchemeFactory compilerOutputFileNamingSchemeFactory, Deleter deleter) {
 		super(compilerOutputFileNamingSchemeFactory, deleter);
+		getObjectFileDir().value(getDestinationDirectory()).disallowChanges();
 	}
 }

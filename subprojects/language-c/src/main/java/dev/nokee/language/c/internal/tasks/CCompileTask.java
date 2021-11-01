@@ -30,6 +30,7 @@ public abstract class CCompileTask extends org.gradle.language.c.tasks.CCompile 
 			return includes.stream().map(it -> new DefaultHeaderSearchPath(it.getAsFile())).collect(ImmutableSet.toImmutableSet());
 		}));
 		getHeaderSearchPaths().disallowChanges();
+		getObjectFileDir().value(getDestinationDirectory()).disallowChanges();
 	}
 
 	public abstract SetProperty<HeaderSearchPath> getHeaderSearchPaths();
