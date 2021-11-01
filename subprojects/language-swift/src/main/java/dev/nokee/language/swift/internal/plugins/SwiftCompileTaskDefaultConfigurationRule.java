@@ -57,29 +57,29 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	}
 
 	//region Module file
-	public static Action<SwiftCompileTask> configureModuleFile(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<RegularFile>> action) {
+	private static Action<SwiftCompileTask> configureModuleFile(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<RegularFile>> action) {
 		return task -> action.accept(task, wrap(task.getModuleFile()));
 	}
 
-	public static BiFunction<SwiftCompileTask, Provider<Directory>, Object> asModuleFileOfModuleName() {
+	private static BiFunction<SwiftCompileTask, Provider<Directory>, Object> asModuleFileOfModuleName() {
 		return (t, d) -> d.flatMap(toSwiftModuleFile(t.getModuleName()));
 	}
 
-	public static Transformer<Provider<RegularFile>, Directory> toSwiftModuleFile(Provider<? extends String> moduleName) {
+	private static Transformer<Provider<RegularFile>, Directory> toSwiftModuleFile(Provider<? extends String> moduleName) {
 		return dir -> dir.file(moduleName.map(m -> m + ".swiftmodule"));
 	}
 
-	public static Function<SwiftCompileTask, Object> ofFileSystemLocationInModulesDirectory(DomainObjectIdentifier identifier, BiFunction<? super SwiftCompileTask, ? super Provider<Directory>, ? extends Object> mapper) {
+	private static Function<SwiftCompileTask, Object> ofFileSystemLocationInModulesDirectory(DomainObjectIdentifier identifier, BiFunction<? super SwiftCompileTask, ? super Provider<Directory>, ? extends Object> mapper) {
 		return task -> mapper.apply(task, task.getProject().getLayout().getBuildDirectory().dir("modules/" + toDirectoryPath(identifier)));
 	}
 	//endregion
 
 	//region Module name
-	public static Action<SwiftCompileTask> configureModuleName(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<String>> action) {
+	private static Action<SwiftCompileTask> configureModuleName(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.Property<String>> action) {
 		return task -> action.accept(task, wrap(task.getModuleName()));
 	}
 
-	public static String toModuleName(LanguageSourceSetName name) {
+	private static String toModuleName(LanguageSourceSetName name) {
 		return GUtil.toCamelCase(name.toString());
 	}
 	//endregion
@@ -91,7 +91,7 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	//endregion
 
 	//region Task sources
-	public static Action<SwiftCompileTask> configureSources(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.FileCollectionProperty> action) {
+	private static Action<SwiftCompileTask> configureSources(BiConsumer<? super SwiftCompileTask, ? super PropertyUtils.FileCollectionProperty> action) {
 		return task -> action.accept(task, wrap(task.getSource()));
 	}
 	//endregion
