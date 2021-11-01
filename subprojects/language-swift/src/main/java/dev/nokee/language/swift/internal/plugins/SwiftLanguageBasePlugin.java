@@ -24,11 +24,13 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketR
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 
 public class SwiftLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
+		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 
 		DefaultImporter.forProject(project).defaultImport(SwiftSourceSet.class);
 
