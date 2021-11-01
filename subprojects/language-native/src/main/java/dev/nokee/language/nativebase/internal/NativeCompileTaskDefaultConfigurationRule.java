@@ -51,7 +51,7 @@ public final class NativeCompileTaskDefaultConfigurationRule extends ModelAction
 	@Override
 	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
 		if (identifier.equals(this.identifier)) {
-			compileTask.configure(NativeSourceCompileTask.class, configurePositionIndependentCode(set(false)));
+			compileTask.configure(NativeSourceCompileTask.class, configurePositionIndependentCode(set(true)));
 			compileTask.configure(NativeSourceCompileTask.class, configureSystemIncludes(from(platformTool())));
 			compileTask.configure(NativeSourceCompileTask.class, configureSources(from(sourceFiles)));
 		}
