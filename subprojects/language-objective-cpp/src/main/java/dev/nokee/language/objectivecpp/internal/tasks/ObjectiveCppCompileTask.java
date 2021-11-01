@@ -30,6 +30,7 @@ public abstract class ObjectiveCppCompileTask extends org.gradle.language.object
 			return includes.stream().map(it -> new DefaultHeaderSearchPath(it.getAsFile())).collect(ImmutableSet.toImmutableSet());
 		}));
 		getHeaderSearchPaths().disallowChanges();
+		getObjectFileDir().value(getDestinationDirectory()).disallowChanges();
 	}
 
 

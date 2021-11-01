@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
+import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
@@ -153,7 +154,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	private void configureNativeSourceCompileTask(AbstractNativeCompileTask task) {
-		task.getObjectFileDir().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
+		((HasDestinationDirectory) task).getDestinationDirectory().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
 
 		task.getTargetPlatform().set(getTargetPlatform());
 		task.getTargetPlatform().finalizeValueOnRead();
@@ -188,7 +189,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	private void configureSwiftCompileTask(SwiftCompileTask task) {
-		task.getObjectFileDir().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/mainSwift"));
+		((HasDestinationDirectory) task).getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/mainSwift"));
 
 		// TODO: Select the right value based on the build type dimension, once modeled
 		task.getDebuggable().set(false);
