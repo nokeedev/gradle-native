@@ -83,12 +83,6 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		this.tasks = tasks;
 		this.linkedFile = objects.fileProperty();
 
-		// configure includes using the native incoming compile configuration
-		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
-			NativeSourceCompileTask taskInternal = (NativeSourceCompileTask) task;
-			taskInternal.getHeaderSearchPaths().addAll(task.getIncludes().getElements().map(SharedLibraryBinaryInternal::toHeaderSearchPaths));
-		});
-
 		linkTask.configure(task -> {
 			task.getLibs().from(dependencies.getLinkLibraries());
 			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
