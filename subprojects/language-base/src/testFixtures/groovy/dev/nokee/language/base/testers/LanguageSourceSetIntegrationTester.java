@@ -20,6 +20,7 @@ import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.testers.NamedTester;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -40,7 +41,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.mock;
 
-public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourceSet> {
+public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourceSet> implements NamedTester {
 	public abstract T subject();
 
 	public abstract Project project();
@@ -55,6 +56,11 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 
 	private SourceCompile compileTask() {
 		return ModelProperties.getProperty(subject(), "compileTask").as(SourceCompile.class).get();
+	}
+
+	@Test
+	public void hasName() {
+		assertThat(subject(), named(variantName()));
 	}
 
 	@Test

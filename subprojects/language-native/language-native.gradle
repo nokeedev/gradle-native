@@ -17,6 +17,7 @@ dependencies {
 	testImplementation testFixtures(project(':coreModel'))
 
 	testFixturesApi testFixtures(project(':languageBase'))
+	testFixturesApi testFixtures(project(':coreModel'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }
 
