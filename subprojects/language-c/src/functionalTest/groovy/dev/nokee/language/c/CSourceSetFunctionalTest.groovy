@@ -29,7 +29,7 @@ class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 
 			def registry = extensions.getByType(ModelRegistry)
 			def identifier = LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "jixa")
-			def sourceSet = registry.register(extensions.getByType(CSourceSetRegistrationFactory).create(identifier, false)).as(CSourceSet).get()
+			def sourceSet = registry.register(extensions.getByType(CSourceSetRegistrationFactory).create(identifier)).as(CSourceSet).get()
 			tasks.compileJixa.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

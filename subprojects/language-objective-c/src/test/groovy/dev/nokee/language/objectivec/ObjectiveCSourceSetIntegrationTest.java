@@ -37,7 +37,7 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
 	@BeforeEach
 	void createSubject() {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gote"), false)).as(ObjectiveCSourceSet.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gote"))).as(ObjectiveCSourceSet.class).get();
 	}
 
 	@Nested

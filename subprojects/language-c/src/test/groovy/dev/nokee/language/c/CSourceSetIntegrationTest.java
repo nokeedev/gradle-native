@@ -37,7 +37,7 @@ class CSourceSetIntegrationTest extends AbstractPluginTest {
 	@BeforeEach
 	void createSubject() {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"), false)).as(CSourceSet.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"))).as(CSourceSet.class).get();
 	}
 
 	@Nested

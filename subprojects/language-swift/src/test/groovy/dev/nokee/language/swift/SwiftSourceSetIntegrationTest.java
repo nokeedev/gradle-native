@@ -43,7 +43,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 	@BeforeEach
 	void createSubject() {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"), false)).as(SwiftSourceSet.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSet.class).get();
 	}
 
 	@Nested
