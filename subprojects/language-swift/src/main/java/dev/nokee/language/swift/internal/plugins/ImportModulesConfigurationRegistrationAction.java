@@ -18,6 +18,8 @@ package dev.nokee.language.swift.internal.plugins;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.nativebase.internal.DependentFrameworkSearchPaths;
+import dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
@@ -27,17 +29,21 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolvableDependencies;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
+import java.nio.file.Path;
 import java.util.Set;
 
+import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts.frameworks;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
-import static dev.nokee.utils.FileCollectionUtils.elementsOf;
+import static dev.nokee.utils.TransformerUtils.toSetTransformer;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 @AutoFactory
 final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
@@ -58,7 +64,9 @@ final class ImportModulesConfigurationRegistrationAction extends ModelActionWith
 		if (identifier.equals(this.identifier)) {
 			val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("importModules"), identifier)));
 			importModules.configure(Configuration.class, forSwiftApiUsage());
-			entity.addComponent(new DependentImportModules(incomingArtifactsOf(importModules)));
+			val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));
+			entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
+			entity.addComponent(new DependentImportModules(incomingArtifacts.getAs(frameworks().negate())));
 		}
 	}
 
@@ -66,7 +74,11 @@ final class ImportModulesConfigurationRegistrationAction extends ModelActionWith
 		return configureAttributes(builder -> builder.usage(objects.named(Usage.class, Usage.SWIFT_API)));
 	}
 
-	private Provider<Set<FileSystemLocation>> incomingArtifactsOf(ModelElement element) {
-		return element.as(Configuration.class).flatMap(elementsOf(it -> it.getIncoming().getFiles()));
+	private static Transformer<Set<Path>, Iterable<? extends Path>> parentFiles() {
+		return transformEach(Path::getParent).andThen(toSetTransformer(Path.class));
+	}
+
+	private Provider<ResolvableDependencies> incomingArtifactsOf(ModelElement element) {
+		return element.as(Configuration.class).map(Configuration::getIncoming);
 	}
 }

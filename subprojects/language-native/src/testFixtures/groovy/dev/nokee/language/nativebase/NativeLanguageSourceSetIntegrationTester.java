@@ -16,18 +16,22 @@
 package dev.nokee.language.nativebase;
 
 import dev.nokee.internal.testing.ConfigurationMatchers;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.testers.ConfigurableSourceSetIntegrationTester;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +45,7 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
@@ -108,6 +113,25 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 			val path = Files.createTempDirectory("headers").toFile();
 			headers().from(path);
 			assertThat(subject().getHeaderSearchPaths(), providerOf(hasItem(aFile(path))));
+		}
+
+		@Test
+		void linksHeaderSourcePathsConfigurationToCompileTaskAsFrameworkCompileArguments() throws IOException {
+			val artifact = Files.createTempDirectory("Kuqo.framework").toFile();
+			val frameworkProducer = ProjectTestUtils.createChildProject(project());
+			frameworkProducer.getConfigurations().create("apiElements",
+				configureAsConsumable()
+					.andThen(configureAttributes(forUsage(project().getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
+					.andThen(configureAttributes(it -> it.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+						project().getObjects().named(LibraryElements.class, "framework-bundle"))))
+					.andThen(it -> it.getOutgoing().artifact(artifact, t -> t.setType("framework")))
+			);
+
+			headerSearchPaths().getDependencies().add(createDependency(frameworkProducer));
+			assertThat(subject().getHeaderSearchPaths(), providerOf(not(hasItem(aFile(artifact)))));
+			assertThat(subject().getCompilerArgs(), providerOf(containsInRelativeOrder(
+				"-F", artifact.getParentFile().getAbsolutePath()
+				)));
 		}
 	}
 

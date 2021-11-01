@@ -15,22 +15,27 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.Transformer;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
+import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
-import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
-public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionWithInputs.ModelAction4<LanguageSourceSetIdentifier, DependentHeaderSearchPaths, ProjectHeaderSearchPaths, NativeCompileTask> {
+public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionWithInputs.ModelAction5<LanguageSourceSetIdentifier, DependentHeaderSearchPaths, DependentFrameworkSearchPaths, ProjectHeaderSearchPaths, NativeCompileTask> {
 	private final LanguageSourceSetIdentifier identifier;
 
 	public AttachHeaderSearchPathsToCompileTaskRule(LanguageSourceSetIdentifier identifier) {
@@ -38,9 +43,10 @@ public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionW
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentHeaderSearchPaths incomingHeaders, ProjectHeaderSearchPaths userHeaders, NativeCompileTask compileTask) {
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentHeaderSearchPaths incomingHeaders, DependentFrameworkSearchPaths incomingFrameworks, ProjectHeaderSearchPaths userHeaders, NativeCompileTask compileTask) {
 		if (identifier.equals(this.identifier)) {
 			compileTask.configure(NativeSourceCompile.class, configureIncludeRoots(from(userHeaders).andThen(from(incomingHeaders))));
+			compileTask.configure(NativeSourceCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks))));
 		}
 	}
 
@@ -55,6 +61,20 @@ public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionW
 		} else {
 			throw new IllegalArgumentException();
 		}
+	}
+	//endregion
+
+	//region Compiler arguments
+	private static Action<SourceCompile> configureCompilerArgs(BiConsumer<? super SourceCompile, ? super PropertyUtils.CollectionProperty<String>> action) {
+		return task -> action.accept(task, wrap(task.getCompilerArgs()));
+	}
+
+	private static Transformer<Iterable<String>, Path> toFrameworkSearchPathFlags() {
+		return it -> ImmutableList.of("-F", it.toString());
+	}
+
+	private static Provider<Iterable<String>> asFrameworkSearchPathFlags(DependentFrameworkSearchPaths frameworksSearchPaths) {
+		return frameworksSearchPaths.getAsProvider().map(flatTransformEach(toFrameworkSearchPathFlags()));
 	}
 	//endregion
 }

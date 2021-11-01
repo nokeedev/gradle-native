@@ -21,15 +21,19 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-final class DependentHeaderSearchPaths implements Callable<Object> {
+public final class DependentFrameworkSearchPaths implements Callable<Object> {
 	private final Provider<Set<Path>> delegate;
 
-	DependentHeaderSearchPaths(Provider<Set<Path>> delegate) {
+	public DependentFrameworkSearchPaths(Provider<Set<Path>> delegate) {
 		this.delegate = delegate;
 	}
 
 	public Set<Path> get() {
 		return delegate.get();
+	}
+
+	public Provider<Set<Path>> getAsProvider() {
+		return delegate;
 	}
 
 	@Override

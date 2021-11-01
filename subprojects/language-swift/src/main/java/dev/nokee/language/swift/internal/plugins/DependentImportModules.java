@@ -24,14 +24,14 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 final class DependentImportModules implements Callable<Object> {
-	private final Provider<Set<FileSystemLocation>> delegate;
+	private final Provider<Set<Path>> delegate;
 
-	DependentImportModules(Provider<Set<FileSystemLocation>> delegate) {
+	DependentImportModules(Provider<Set<Path>> delegate) {
 		this.delegate = delegate;
 	}
 
 	public Set<Path> get() {
-		return delegate.get().stream().map(it -> it.getAsFile().toPath()).collect(ImmutableSet.toImmutableSet());
+		return delegate.get();
 	}
 
 	@Override
