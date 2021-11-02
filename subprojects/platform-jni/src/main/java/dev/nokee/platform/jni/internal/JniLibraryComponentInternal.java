@@ -45,7 +45,6 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
-import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
@@ -65,7 +64,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter private final GroupId groupId;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final BinaryView<Binary> binaries;
-	private final Supplier<JavaNativeInterfaceComponentVariants> componentVariants;
 	private final SetProperty<BuildVariant> buildVariants;
 	private final Property<JniLibraryInternal> developmentVariant;
 	private final TaskRegistry taskRegistry;
@@ -82,7 +80,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.buildVariants = objects.setProperty(BuildVariant.class);
 		this.developmentVariant = objects.property(JniLibraryInternal.class);
 		this.taskRegistry = taskRegistry;
-		this.componentVariants = () -> ModelNodeUtils.get(getNode(), JavaNativeInterfaceComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
 		this.dimensions = Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(CoordinateSet.class));
 		this.finalSpace = objects.property(CoordinateSpace.class);
@@ -171,7 +168,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(JniLibrary.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
 			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
-		componentVariants.get().calculateVariants();
 	}
 
 	private static void whenElementKnown(Object target, ModelAction action) {

@@ -19,6 +19,7 @@ import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.*;
@@ -61,7 +62,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	private final FunctionalSourceSet sources;
-	private final TaskProvider<Task> assembleTask;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
 	private final TargetMachine targetMachine;
@@ -74,13 +74,12 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, FunctionalSourceSet parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, TaskProvider<Task> assembleTask, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, FunctionalSourceSet parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
 		super(identifier, objects, binaryViewFactory);
 		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;
 		this.providers = providers;
 		this.sources = parentSources;
-		this.assembleTask = assembleTask;
 		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
 		this.targetMachine = getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
@@ -161,7 +160,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public TaskProvider<Task> getAssembleTask() {
-		return assembleTask;
+		return ModelProperties.getProperty(this, "assembleTask").as(TaskProvider.class).get();
 	}
 
 	@Override
