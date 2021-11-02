@@ -18,6 +18,7 @@ package dev.nokee.platform.jni;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
+import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -30,6 +31,7 @@ import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.javaNativeInterfaceLibrary;
 
@@ -45,11 +47,20 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 	@BeforeEach
 	void createSubject() {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
+		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(javaNativeInterfaceLibrary("quzu", project)).as(JavaNativeInterfaceLibrary.class).get();
 	}
 
 	@Override
 	public JavaNativeInterfaceLibrary subject() {
 		return subject;
+	}
+
+	@Nested
+	class ComponentSourcesTest extends JavaNativeInterfaceLibrarySourcesIntegrationTester {
+		@Override
+		public JavaNativeInterfaceLibrarySources subject() {
+			return subject.getSources();
+		}
 	}
 }
