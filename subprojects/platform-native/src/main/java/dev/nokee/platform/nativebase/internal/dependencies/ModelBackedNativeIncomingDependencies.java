@@ -39,7 +39,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -56,23 +58,27 @@ public class ModelBackedNativeIncomingDependencies implements NativeIncomingDepe
 	private final ProviderFactory providers;
 
 	public ModelBackedNativeIncomingDependencies(ModelPath owner, ObjectFactory objects, ProviderFactory providers, ModelLookup lookup) {
+		this(owner, objects, providers, lookup, UnaryOperator.identity());
+	}
+
+	public ModelBackedNativeIncomingDependencies(ModelPath owner, ObjectFactory objects, ProviderFactory providers, ModelLookup lookup, UnaryOperator<String> prefix) {
 		this.objects = objects;
 		this.providers = providers;
 		this.headers = Suppliers.memoize(() -> {
-			lookup.find(owner.child("headerSearchPaths")).ifPresent(ModelStates::realize);
-			return lookup.find(owner.child("headerSearchPaths")).<IncomingHeaders>map(entity -> new DefaultIncomingHeaders(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingHeaders::new);
+			lookup.find(owner.child(prefix.apply("headerSearchPaths"))).ifPresent(ModelStates::realize);
+			return lookup.find(owner.child(prefix.apply("headerSearchPaths"))).<IncomingHeaders>map(entity -> new DefaultIncomingHeaders(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingHeaders::new);
 		});
 		this.swiftModules = Suppliers.memoize(() -> {
-			lookup.find(owner.child("importSwiftModules")).ifPresent(ModelStates::realize);
-			return lookup.find(owner.child("importSwiftModules")).<IncomingSwiftModules>map(entity -> new DefaultIncomingSwiftModules(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingSwiftModules::new);
+			lookup.find(owner.child(prefix.apply("importSwiftModules"))).ifPresent(ModelStates::realize);
+			return lookup.find(owner.child(prefix.apply("importSwiftModules"))).<IncomingSwiftModules>map(entity -> new DefaultIncomingSwiftModules(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingSwiftModules::new);
 		});
 		this.linkLibrariesBucket = Suppliers.memoize(() -> {
-			ModelStates.realize(lookup.get(owner.child("linkLibraries")));
-			return ModelNodeUtils.get(lookup.get(owner.child("linkLibraries")), DependencyBucket.class);
+			ModelStates.realize(lookup.get(owner.child(prefix.apply("linkLibraries"))));
+			return ModelNodeUtils.get(lookup.get(owner.child(prefix.apply("linkLibraries"))), DependencyBucket.class);
 		});
 		this.runtimeLibrariesBucket = Suppliers.memoize(() -> {
-			ModelStates.realize(lookup.get(owner.child("runtimeLibraries")));
-			return ModelNodeUtils.get(lookup.get(owner.child("runtimeLibraries")), DependencyBucket.class);
+			ModelStates.realize(lookup.get(owner.child(prefix.apply("runtimeLibraries"))));
+			return ModelNodeUtils.get(lookup.get(owner.child(prefix.apply("runtimeLibraries"))), DependencyBucket.class);
 		});
 
 		this.linkerInputs = objects.listProperty(LinkerInput.class);

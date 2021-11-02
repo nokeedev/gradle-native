@@ -19,6 +19,9 @@ import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -57,8 +60,8 @@ import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
-public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal {
-	private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
+public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware {
+	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	private final FunctionalSourceSet sources;
@@ -71,12 +74,10 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 	@Getter private final Property<String> resourcePath;
 	@Getter private final ConfigurableFileCollection nativeRuntimeFiles;
-	private final ResolvableComponentDependencies resolvableDependencies;
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, FunctionalSourceSet parentSources, GroupId groupId, VariantComponentDependencies dependencies, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, FunctionalSourceSet parentSources, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
 		super(identifier, objects, binaryViewFactory);
-		this.dependencies = dependencies.getDependencies();
 		this.configurations = configurations;
 		this.providers = providers;
 		this.sources = parentSources;
@@ -86,7 +87,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.groupId = groupId;
 		this.resourcePath = objects.property(String.class);
 		this.nativeRuntimeFiles = objects.fileCollection();
-		this.resolvableDependencies = dependencies.getIncoming();
 		this.taskRegistry = taskRegistry;
 
 		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
@@ -99,7 +99,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
-		return resolvableDependencies;
+		return node.getComponent(VariantComponentDependencies.class).getIncoming();
 	}
 
 	private String getResourcePath(GroupId groupId) {
@@ -164,13 +164,13 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	@Override
-	public DefaultJavaNativeInterfaceNativeComponentDependencies getDependencies() {
-		return dependencies;
+	public JavaNativeInterfaceNativeComponentDependencies getDependencies() {
+		return ModelProperties.getProperty(this, "dependencies").as(JavaNativeInterfaceNativeComponentDependencies.class).get();
 	}
 
 	@Override
 	public void dependencies(Action<? super JavaNativeInterfaceNativeComponentDependencies> action) {
-		action.execute(dependencies);
+		action.execute(getDependencies());
 	}
 
 	@Override
@@ -186,5 +186,10 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Override
 	public void binaries(@SuppressWarnings("rawtypes") Closure closure) {
 		binaries(ConfigureUtil.configureUsing(closure));
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return node;
 	}
 }
