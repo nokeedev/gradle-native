@@ -33,7 +33,8 @@ public class BuildVariantNamer implements Namer<BuildVariantInternal> {
 	private String determineName(Coordinate<?> dimension) {
 		if (dimension instanceof Named) {
 			return ((Named) dimension).getName();
+		} else {
+			return dimension.getValue().toString();
 		}
-		throw new IllegalArgumentException("Can't determine name");
 	}
 }
