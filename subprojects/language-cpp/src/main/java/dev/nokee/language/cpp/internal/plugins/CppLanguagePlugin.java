@@ -17,6 +17,7 @@ package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.cpp.internal.CppSourceSetExtensible;
+import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -33,7 +34,7 @@ import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringIn
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
 
-public class CppLanguagePlugin implements Plugin<Project> {
+public class CppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
