@@ -15,12 +15,25 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+import java.util.function.Supplier;
+
 public class VariantComponentDependencies {
-	@Getter private final DefaultJavaNativeInterfaceNativeComponentDependencies dependencies;
-	@Getter private final NativeIncomingDependencies incoming;
+	private final Supplier<JavaNativeInterfaceNativeComponentDependencies> dependenciesSupplier;
+	private final NativeIncomingDependencies incoming;
+
+	public VariantComponentDependencies(Supplier<JavaNativeInterfaceNativeComponentDependencies> dependenciesSupplier, NativeIncomingDependencies incoming) {
+		this.dependenciesSupplier = dependenciesSupplier;
+		this.incoming = incoming;
+	}
+
+	public JavaNativeInterfaceNativeComponentDependencies getDependencies() {
+		return dependenciesSupplier.get();
+	}
+
+	public NativeIncomingDependencies getIncoming() {
+		return incoming;
+	}
 }

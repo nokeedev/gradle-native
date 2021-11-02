@@ -120,8 +120,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	}
 
 	@Override
-	public DefaultJavaNativeInterfaceLibraryComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(DefaultJavaNativeInterfaceLibraryComponentDependencies.class).get();
+	public JavaNativeInterfaceLibraryComponentDependencies getDependencies() {
+		return ModelProperties.getProperty(this, "dependencies").as(JavaNativeInterfaceLibraryComponentDependencies.class).get();
 	}
 
 	@Override
