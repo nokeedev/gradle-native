@@ -99,7 +99,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
-		return node.getComponent(VariantComponentDependencies.class).getIncoming();
+		return node.getComponent(NativeIncomingDependencies.class);
 	}
 
 	private String getResourcePath(GroupId groupId) {

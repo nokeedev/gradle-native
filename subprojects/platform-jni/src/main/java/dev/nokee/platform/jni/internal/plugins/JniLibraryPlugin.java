@@ -133,7 +133,6 @@ import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
@@ -686,9 +685,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
 						.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-
-					val incoming = entity.getComponent(NativeIncomingDependencies.class);
-					entity.addComponent(new VariantComponentDependencies(dependencies.as(JavaNativeInterfaceNativeComponentDependencies.class)::get, incoming));
 
 					val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), identifier), Task.class).build());
 					assembleTask.configure(Task.class, task -> {
