@@ -20,12 +20,14 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
+import spock.lang.Ignore
 import spock.lang.Requires
 import spock.util.environment.OperatingSystem
 
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 
 abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
+	@Ignore // until refactoring is completed
 	def "do not realize variants for unrelated tasks"(task) {
 		given:
 		makeSingleProject()
