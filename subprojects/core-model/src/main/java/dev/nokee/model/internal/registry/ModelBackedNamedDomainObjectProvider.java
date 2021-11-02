@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.registry;
 
+import dev.nokee.model.DomainObjectProvider;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
@@ -30,6 +31,10 @@ import javax.annotation.Nullable;
 public class ModelBackedNamedDomainObjectProvider<T> implements NamedDomainObjectProvider<T>, ProviderInternal<T> {
 	private final ProviderInternal<T> provider;
 	private final ModelNodeBackedProvider<T> delegate;
+
+	public ModelBackedNamedDomainObjectProvider(DomainObjectProvider<T> delegate) {
+		this((ModelNodeBackedProvider<T>) delegate);
+	}
 
 	public ModelBackedNamedDomainObjectProvider(ModelNodeBackedProvider<T> delegate) {
 		this.provider = (ProviderInternal<T>) delegate.getAsProvider();
