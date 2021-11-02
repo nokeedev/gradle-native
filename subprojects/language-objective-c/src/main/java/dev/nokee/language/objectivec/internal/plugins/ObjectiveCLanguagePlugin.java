@@ -16,6 +16,7 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetExtensible;
 import dev.nokee.model.DomainObjectIdentifier;
@@ -30,7 +31,7 @@ import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringIn
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
 
-public class ObjectiveCLanguagePlugin implements Plugin<Project> {
+public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
