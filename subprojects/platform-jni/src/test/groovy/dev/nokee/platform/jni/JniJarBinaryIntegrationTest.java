@@ -18,13 +18,13 @@ package dev.nokee.platform.jni;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.jni.internal.JarTaskRegistrationActionFactory;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryIdentity;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.jni.internal.JniJarBinaryRegistrationFactory;
 import lombok.val;
 import org.gradle.api.Project;
@@ -38,8 +38,8 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@PluginRequirement.Require(type = ComponentModelBasePlugin.class)
-public class JniJarBinaryIntegrationTest extends AbstractPluginTest {
+@PluginRequirement.Require(id = "dev.nokee.jni-library-base")
+class JniJarBinaryIntegrationTest extends AbstractPluginTest {
 	private JniJarBinary subject;
 
 	@BeforeEach
@@ -49,7 +49,8 @@ public class JniJarBinaryIntegrationTest extends AbstractPluginTest {
 		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).withComponent(toPath(componentIdentifier)).build());
 		val variantIdentifier = VariantIdentifier.of("qile", Variant.class, componentIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(variantIdentifier).withComponent(toPath(variantIdentifier)).build());
-		subject = registry.register(new JniJarBinaryRegistrationFactory(new JarTaskRegistrationActionFactory(() -> project.getExtensions().getByType(TaskRegistrationFactory.class), () -> project.getExtensions().getByType(ModelRegistry.class), () -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class))).create(BinaryIdentifier.of(variantIdentifier, BinaryIdentity.of("tuva", "Liha binary")))).as(JniJarBinary.class).get();
+		val factory = project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class);
+		subject = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, BinaryIdentity.of("tuva", "Liha binary")))).as(JniJarBinary.class).get();
 	}
 
 	@Nested

@@ -40,8 +40,8 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@PluginRequirement.Require(type = ComponentModelBasePlugin.class)
-public class JvmJarBinaryIntegrationTest extends AbstractPluginTest {
+@PluginRequirement.Require(id = "dev.nokee.jni-library-base")
+class JvmJarBinaryIntegrationTest extends AbstractPluginTest {
 	private JvmJarBinary subject;
 
 	@BeforeEach
@@ -49,7 +49,8 @@ public class JvmJarBinaryIntegrationTest extends AbstractPluginTest {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("rina", ProjectIdentifier.of(project));
 		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).withComponent(toPath(componentIdentifier)).build());
-		subject = registry.register(new JvmJarBinaryRegistrationFactory(new JarTaskRegistrationActionFactory(() -> project.getExtensions().getByType(TaskRegistrationFactory.class), () -> project.getExtensions().getByType(ModelRegistry.class), () -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class))).create(BinaryIdentifier.of(componentIdentifier, BinaryIdentity.of("wuke", "FASI binary")))).as(JvmJarBinary.class).get();
+		val factory = project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class);
+		subject = registry.register(factory.create(BinaryIdentifier.of(componentIdentifier, BinaryIdentity.of("wuke", "FASI binary")))).as(JvmJarBinary.class).get();
 	}
 
 	@Nested

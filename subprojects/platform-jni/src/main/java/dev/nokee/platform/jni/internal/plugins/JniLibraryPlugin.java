@@ -180,6 +180,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		project.getPluginManager().apply("base");
 		project.getPluginManager().apply("lifecycle-base");
+		project.getPluginManager().apply("dev.nokee.jni-library-base");
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 

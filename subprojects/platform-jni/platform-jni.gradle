@@ -26,6 +26,10 @@ dependencies {
 
 gradlePlugin {
 	plugins {
+		jniLibraryBase {
+			id = 'dev.nokee.jni-library-base'
+			implementationClass = 'dev.nokee.platform.jni.internal.plugins.JniLibraryBasePlugin'
+		}
 		jniLibrary {
 			id = 'dev.nokee.jni-library'
 			implementationClass = 'dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin'
