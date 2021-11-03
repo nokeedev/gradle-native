@@ -16,18 +16,13 @@
 package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.*;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.CLanguagePlugin;
-import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin;
 import dev.nokee.language.jvm.internal.GroovySourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
@@ -43,7 +38,6 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
-import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.NamedDomainObjectRegistry;
@@ -71,7 +65,6 @@ import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
@@ -82,9 +75,12 @@ import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -103,7 +99,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -111,7 +106,6 @@ import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.language.nativeplatform.internal.toolchains.ToolChainSelector;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.plugins.NativeBasePlugin;
 import org.gradle.process.CommandLineArgumentProvider;
@@ -119,7 +113,10 @@ import org.gradle.util.GradleVersion;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -128,21 +125,19 @@ import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.*;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
 import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
-import static dev.nokee.utils.ConfigurationUtils.*;
+import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
+import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TransformerUtils.transformEach;
@@ -157,7 +152,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 	private final ToolChainSelectorInternal toolChainSelectorInternal;
 	@Getter(AccessLevel.PROTECTED) private final DependencyHandler dependencyHandler;
-	@Getter(AccessLevel.PROTECTED) private final ToolChainSelector toolChainSelector;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
@@ -165,7 +159,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 
 	@Inject
-	public JniLibraryPlugin(ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, ProjectLayout layout, DependencyHandler dependencyHandler, ToolChainSelector toolChainSelector) {
+	public JniLibraryPlugin(ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ConfigurationContainer configurations, ProjectLayout layout, DependencyHandler dependencyHandler) {
 		this.objects = objects;
 		this.providers = providers;
 		this.tasks = tasks;
@@ -173,7 +167,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		this.layout = layout;
 		this.toolChainSelectorInternal = objects.newInstance(ToolChainSelectorInternal.class);
 		this.dependencyHandler = dependencyHandler;
-		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
@@ -192,7 +185,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		val extension = registerExtension(project);
 		TaskRegistry taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
-		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
@@ -470,19 +462,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		return new DefaultJvmJarBinary(jvmJarTask);
 	}
 
-	private static void assertNonEmpty(Collection<?> values, String propertyName, String componentName) {
-		if (values.isEmpty()) {
-			throw new IllegalArgumentException(String.format("A %s needs to be specified for the %s.", propertyName, componentName));
-		}
-	}
-
-	private void assertTargetMachinesAreKnown(Collection<TargetMachine> targetMachines) {
-		List<TargetMachine> unknownTargetMachines = targetMachines.stream().filter(it -> !toolChainSelectorInternal.isKnown(it)).collect(Collectors.toList());
-		if (!unknownTargetMachines.isEmpty()) {
-			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + it.getOperatingSystemFamily().getCanonicalName() + " " + it.getArchitecture().getCanonicalName()).collect(joining("\n")));
-		}
-	}
-
 	private JavaNativeInterfaceLibrary registerExtension(Project project) {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
@@ -581,13 +560,20 @@ public class JniLibraryPlugin implements Plugin<Project> {
 							}))
 							.build());
 
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("targetMachines"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(createdUsing(of(SetProperty.class), () -> {
-								return ModelNodeUtils.get(entity, JniLibraryComponentInternal.class).getTargetMachines();
-							}))
+						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+						val toolChainSelectorInternal = project.getObjects().newInstance(ToolChainSelectorInternal.class);
+						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
+							.defaultValue(TargetMachines.host())
+							.validateUsing((Iterable<TargetMachine> it) -> assertTargetMachinesAreKnown(it, toolChainSelectorInternal))
 							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+							.elementType(TargetLinkage.class)
+							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
+							.defaultValue(TargetLinkages.SHARED)
+							.build());
+						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
 					}
 				}
 			}))
@@ -625,6 +611,13 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			}))
 			.build()
 			;
+	}
+
+	private static void assertTargetMachinesAreKnown(Iterable<TargetMachine> targetMachines, ToolChainSelectorInternal toolChainSelector) {
+		List<TargetMachine> unknownTargetMachines = Streams.stream(targetMachines).filter(it -> !toolChainSelector.isKnown(it)).collect(Collectors.toList());
+		if (!unknownTargetMachines.isEmpty()) {
+			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + it.getOperatingSystemFamily().getCanonicalName() + " " + it.getArchitecture().getCanonicalName()).collect(joining("\n")));
+		}
 	}
 
 	private static ModelRegistration javaNativeInterfaceLibraryVariant(VariantIdentifier<JniLibraryInternal> identifier, JniLibraryComponentInternal component, Project project) {
