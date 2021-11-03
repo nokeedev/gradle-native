@@ -17,6 +17,7 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
@@ -284,7 +285,7 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 
 		@Test
 		void hasDescription() {
-			assertThat(subject().getDescription(), notNullValue()); // TODO: Normalize assemble task description
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of " + displayName() + "."));
 		}
 	}
 }

@@ -718,15 +718,6 @@ class JniLibraryPluginWithNoLanguageTasksTest extends AbstractJniLibraryPluginSp
 		project.tasks.sharedLibrary.description == 'Assembles a shared library binary containing the main objects.'
 	}
 
-	def "assemble task has group and description"() {
-		given:
-		applyPlugin()
-
-		expect:
-		project.tasks.assemble.group == 'build'
-		project.tasks.assemble.description == 'Assembles the outputs of this project.'
-	}
-
 	def "clean task has group and description"() {
 		given:
 		applyPluginAndEvaluate('plugin registers lifecycle tasks in afterEvaluate')
