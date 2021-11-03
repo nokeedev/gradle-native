@@ -653,11 +653,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 								alreadyExecuted = true;
 								val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier)));
 								val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("nativeHeaderSearchPaths"), identifier)));
-								headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class)/*, compileOnly.as(Configuration.class)*/)
+								headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
 									.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
 									.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
 									.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-								headerSearchPaths.configure(Configuration.class, configureExtendsFrom(compileOnly.as(Configuration.class)));
 							}
 						}
 					});
