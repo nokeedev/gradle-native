@@ -267,7 +267,7 @@ class TaskIdentifierTest extends Specification {
 
 		then:
 		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a task identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier, VariantIdentifier and LanguageSourceSetIdentifier are accepted.'
+		ex.message == 'Cannot construct a task identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier, VariantIdentifier, LanguageSourceSetIdentifier and BinaryIdentifier are accepted.'
 	}
 
 	def "can compare identifier based on task name"() {
