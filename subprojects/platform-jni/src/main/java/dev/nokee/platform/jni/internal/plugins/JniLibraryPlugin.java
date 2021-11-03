@@ -703,7 +703,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier), Task.class).build());
 					assembleTask.configure(Task.class, task -> {
 						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-						task.setDescription(String.format("Assembles the '%s' outputs of this project.", BuildVariantNamer.INSTANCE.determineName((BuildVariantInternal) identifier.getBuildVariant())));
+						if (task.getDescription() == null) {
+							task.setDescription(String.format("Assembles the outputs of %s.", identifier.getDisplayName()));
+						}
 					});
 					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "assembleTask"), ModelNodes.of(assembleTask)));
 
