@@ -394,6 +394,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		@BeforeEach
 		void configureTargetMachines() {
 			subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.of("macos-x64")));
+			subject();
 		}
 
 		@Override
@@ -427,7 +428,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 
 			@Test
 			void hasMachineArchitectureAttribute() {
-				assertThat(subject(), attributes(hasEntry(is(MachineArchitecture.ARCHITECTURE_ATTRIBUTE),  named("x86-64"))));
+				assertThat(subject(), attributes(hasEntry(is(MachineArchitecture.ARCHITECTURE_ATTRIBUTE),  named("x64"))));
 				assertThat(subject(), attributes(hasEntry(is(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE), named("x86-64"))));
 			}
 
@@ -528,6 +529,11 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 
 		@Nested
 		class WindowsX64VariantTest extends JavaNativeInterfaceLibraryVariantIntegrationTester {
+			@BeforeEach
+			void realizeVariant() {
+				subject();
+			}
+
 			@Override
 			public JniLibrary subject() {
 				return Iterables.get(subject.getVariants().get(), 0);
@@ -646,6 +652,11 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 
 		@Nested
 		class LinuxX86VariantTest extends JavaNativeInterfaceLibraryVariantIntegrationTester {
+			@BeforeEach
+			void realizeVariant() {
+				subject();
+			}
+
 			@Override
 			public JniLibrary subject() {
 				return Iterables.get(subject.getVariants().get(), 1);
