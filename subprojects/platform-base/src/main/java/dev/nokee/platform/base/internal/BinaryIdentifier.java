@@ -40,7 +40,6 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	public BinaryIdentifier(BinaryIdentity identity, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		requireNonNull(identity);
-		checkArgument(type != null, "Cannot construct a binary identifier because the task type is null.");
 		checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
 		checkArgument(isValidOwner(ownerIdentifier), "Cannot construct a task identifier because the owner identifier is invalid, only ComponentIdentifier and VariantIdentifier are accepted.");
 		this.identity = identity;
@@ -65,6 +64,7 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	}
 
 	public static <T extends Binary> BinaryIdentifier<T> of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+		checkArgument(type != null, "Cannot construct a binary identifier because the task type is null.");
 		return new BinaryIdentifier<>(new BinaryIdentity(name), type, ownerIdentifier);
 	}
 
