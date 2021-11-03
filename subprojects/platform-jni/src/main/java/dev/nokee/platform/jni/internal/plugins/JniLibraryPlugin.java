@@ -196,28 +196,51 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			}
 		});
 
-		whenElementKnown(extension, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), (entity, variantIdentifier, variantProjection) -> {
+		whenElementKnown(extension, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, variantIdentifier, variantProjection, ignored) -> {
 			val knownVariant = new ModelNodeBackedKnownDomainObject<>(ModelType.of(JniLibraryInternal.class), entity);
 			val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val sharedLibraryBinaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, variantIdentifier);
 			eventPublisher.publish(new DomainObjectDiscovered<>(sharedLibraryBinaryIdentifier));
 
 			if (project.getPluginManager().hasPlugin("java") && extension.getTargetMachines().get().size() == 1) {
 				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJvmJarBinary.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(jniJarIdentifier));
+				val binary = createJvmBinary(project);
+				registry.register(ModelRegistration.builder()
+					.withComponent(jniJarIdentifier)
+					.withComponent(DomainObjectIdentifierUtils.toPath(jniJarIdentifier))
+					.withComponent(IsBinary.tag())
+					.withComponent(createdUsing(ModelType.of(DefaultJvmJarBinary.class), () -> binary))
+					.build());
 				knownVariant.configure(variant -> {
-					variant.addJniJarBinary(createJvmBinary(project));
+					variant.addJniJarBinary(binary);
 				});
 			} else {
 				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJniJarBinary.class, variantIdentifier);
 				eventPublisher.publish(new DomainObjectDiscovered<>(jniJarIdentifier));
-				knownVariant.configure(JniLibraryInternal::registerJniJarBinary);
+				TaskProvider<Jar> jarTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("jar"), Jar.class, variantIdentifier));
+				val jniBinary = getObjects().newInstance(DefaultJniJarBinary.class, jarTask);
+				registry.register(ModelRegistration.builder()
+					.withComponent(jniJarIdentifier)
+					.withComponent(DomainObjectIdentifierUtils.toPath(jniJarIdentifier))
+					.withComponent(IsBinary.tag())
+					.withComponent(createdUsing(ModelType.of(DefaultJniJarBinary.class), () -> jniBinary))
+					.build());
+				knownVariant.configure(it -> it.addJniJarBinary(jniBinary));
 
 				if (project.getPluginManager().hasPlugin("java")) {
 					val jvmJarIdentifier = BinaryIdentifier.of(BinaryName.of("jvmJar"), DefaultJvmJarBinary.class, variantIdentifier);
 					eventPublisher.publish(new DomainObjectDiscovered<>(jvmJarIdentifier));
+					val jvmBinary = createJvmBinary(project);
+					registry.register(ModelRegistration.builder()
+						.withComponent(jvmJarIdentifier)
+						.withComponent(DomainObjectIdentifierUtils.toPath(jvmJarIdentifier))
+						.withComponent(IsBinary.tag())
+						.withComponent(createdUsing(ModelType.of(DefaultJvmJarBinary.class), () -> jvmBinary))
+						.build());
 					knownVariant.configure(variant -> {
-						variant.addJvmJarBinary(createJvmBinary(project));
+						variant.addJvmJarBinary(jvmBinary);
 					});
 				}
 //					if (proj.getPluginManager().hasPlugin("java")) {
