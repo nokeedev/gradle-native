@@ -116,8 +116,8 @@ class BinaryIdentifierTest extends Specification {
 		def ownerVariant = VariantIdentifier.of('macosRelease', Variant, ownerComponent)
 
 		expect:
-		BinaryIdentifier.of(BinaryName.of('bar'), TestableBinary, ownerComponent).toString() == "binary ':bar:main:bar' (${TestableBinary.simpleName})"
-		BinaryIdentifier.of(BinaryName.of('jar'), TestableBinary, ownerVariant).toString() == "binary ':bar:main:macosRelease:jar' (${TestableBinary.simpleName})"
+		BinaryIdentifier.of(BinaryName.of('bar'), TestableBinary, ownerComponent).toString() == "binary ':bar:main:bar'"
+		BinaryIdentifier.of(BinaryName.of('jar'), TestableBinary, ownerVariant).toString() == "binary ':bar:main:macosRelease:jar'"
 	}
 
 	interface TestableBinary extends Binary {}

@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -131,7 +132,7 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	@Override
 	public String toString() {
-		return "binary '" + getPath() + "' (" + type.getSimpleName() + ")";
+		return identity.getDisplayName() + " '" + toPath(this) + "'";
 	}
 
 	@Override
