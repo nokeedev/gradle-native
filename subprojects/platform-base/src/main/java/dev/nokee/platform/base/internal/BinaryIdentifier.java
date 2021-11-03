@@ -30,25 +30,26 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
 public final class BinaryIdentifier<T extends Binary> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
-	private final BinaryName name;
+	private final BinaryIdentity identity;
 	private final Class<T> type;
 	private final DomainObjectIdentifier ownerIdentifier;
 
-	public BinaryIdentifier(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
-		checkArgument(name != null, "Cannot construct a binary identifier because the task name is null.");
+	public BinaryIdentifier(BinaryIdentity identity, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+		requireNonNull(identity);
 		checkArgument(type != null, "Cannot construct a binary identifier because the task type is null.");
 		checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
 		checkArgument(isValidOwner(ownerIdentifier), "Cannot construct a task identifier because the owner identifier is invalid, only ComponentIdentifier and VariantIdentifier are accepted.");
-		this.name = name;
+		this.identity = identity;
 		this.type = type;
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
 	public BinaryName getName() {
-		return name;
+		return identity.getName();
 	}
 
 	public Class<T> getType() {
@@ -64,7 +65,7 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	}
 
 	public static <T extends Binary> BinaryIdentifier<T> of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
-		return new BinaryIdentifier<>(name, type, ownerIdentifier);
+		return new BinaryIdentifier<>(new BinaryIdentity(name), type, ownerIdentifier);
 	}
 
 	public String getOutputDirectoryBase(String outputType) {
@@ -113,11 +114,11 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	@Override
 	public Path getPath() {
 		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
-			return ((DomainObjectIdentifierInternal) ownerIdentifier).getPath().child(name.get());
+			return ((DomainObjectIdentifierInternal) ownerIdentifier).getPath().child(getName().get());
 		} else if (ownerIdentifier instanceof ComponentIdentifier) {
-			return ((ComponentIdentifier) ownerIdentifier).getPath().child(name.get());
+			return ((ComponentIdentifier) ownerIdentifier).getPath().child(getName().get());
 		}
-		return Path.path(name.get());
+		return Path.path(getName().get());
 	}
 
 	@Override
@@ -127,7 +128,6 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	@Override
 	public Iterator<Object> iterator() {
-		// TODO: Use identity instead of this
-		return ImmutableList.builder().addAll(ownerIdentifier).add(this).build().iterator();
+		return ImmutableList.builder().addAll(ownerIdentifier).add(identity).build().iterator();
 	}
 }
