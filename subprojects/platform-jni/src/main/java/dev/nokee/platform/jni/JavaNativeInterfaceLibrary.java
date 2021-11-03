@@ -37,6 +37,7 @@ public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Compone
 	, VariantAwareComponent<JniLibrary>
 	, SourceAwareComponent<JavaNativeInterfaceLibrarySources>
 	, BinaryAwareComponent
+	, TaskAwareComponent
 	, TargetMachineAwareComponent
 	, HasBaseName
 {

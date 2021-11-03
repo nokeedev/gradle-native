@@ -139,7 +139,7 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
-import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static dev.nokee.utils.TaskUtils.*;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
@@ -575,6 +575,12 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), JniLibrary.class));
 
+						registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "tasks")));
+
+						val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier), Task.class).build());
+						assembleTask.configure(Task.class, configureBuildGroup());
+						assembleTask.configure(Task.class, configureDescription("Assembles the outputs of %s.", identifier));
+
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("binaries"))
 							.withComponent(IsModelProperty.tag())
@@ -701,6 +707,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					});
 					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "assembleTask"), ModelNodes.of(assembleTask)));
 
+					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
+
 					whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ig, p) -> {
 						((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
 							val parentConfigurationResult = project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withPath(path.getParent().get().child(p.getName()))));
@@ -722,6 +730,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		, ModelBackedVariantAwareComponentMixIn<JniLibrary>
 		, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
 		, ModelBackedBinaryAwareComponentMixIn
+		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedNamedMixIn
 	{
 	}

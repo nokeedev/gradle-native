@@ -17,6 +17,7 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -35,6 +36,7 @@ import org.gradle.util.ConfigureUtil;
 public interface JniLibrary extends Variant
 	, DependencyAwareComponent<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponent
+	, TaskAwareComponent
 {
 	/**
 	 * Specifies the resource path where the native components of the JNI library will be located within the JAR.
