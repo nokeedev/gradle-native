@@ -23,13 +23,27 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode
 public final class BinaryIdentity implements HasName {
 	private final BinaryName name;
+	private final String displayName;
 
-	BinaryIdentity(BinaryName name) {
+	BinaryIdentity(BinaryName name, String displayName) {
 		this.name = requireNonNull(name);
+		this.displayName = requireNonNull(displayName);
 	}
 
 	@Override
 	public BinaryName getName() {
 		return name;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public static BinaryIdentity of(String name) {
+		return new BinaryIdentity(BinaryName.of(name), "binary");
+	}
+
+	public static BinaryIdentity of(String name, String displayName) {
+		return new BinaryIdentity(BinaryName.of(name), displayName);
 	}
 }
