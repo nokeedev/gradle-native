@@ -33,9 +33,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 @EqualsAndHashCode
 public final class BinaryIdentifier<T extends Binary> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T> {
-	@Getter private final BinaryName name;
-	@Getter private final Class<T> type;
-	@Getter private final DomainObjectIdentifier ownerIdentifier;
+	private final BinaryName name;
+	private final Class<T> type;
+	private final DomainObjectIdentifier ownerIdentifier;
 
 	public BinaryIdentifier(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(name != null, "Cannot construct a binary identifier because the task name is null.");
@@ -45,6 +45,18 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 		this.name = name;
 		this.type = type;
 		this.ownerIdentifier = ownerIdentifier;
+	}
+
+	public BinaryName getName() {
+		return name;
+	}
+
+	public Class<T> getType() {
+		return type;
+	}
+
+	public DomainObjectIdentifier getOwnerIdentifier() {
+		return ownerIdentifier;
 	}
 
 	private static boolean isValidOwner(DomainObjectIdentifier ownerIdentifier) {
