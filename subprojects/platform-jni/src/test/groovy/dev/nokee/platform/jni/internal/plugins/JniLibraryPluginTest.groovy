@@ -798,115 +798,6 @@ abstract class AbstractJniLibraryPluginConfigurationsTest extends AbstractJniLib
 			*languageConfigurations
 		))
 	}
-
-	def "creates variant-aware configurations for ambiguous operating system family dimension"() {
-		when:
-		applyPlugin()
-		project.library {
-			targetMachines = [machines.macOS, machines.linux]
-		}
-		evaluateProject('plugin register variants in afterEvaluate')
-		resolveAllVariants('plugin creates configuration on demand')
-
-		then:
-		MatcherAssert.assertThat(configurations*.name, containsInAnyOrder(
-			'api', 'jvmImplementation', 'jvmRuntimeOnly', /* JVM buckets */
-			'apiElements', 'runtimeElements', /* JVM outgoing */
-			'nativeImplementation', 'nativeLinkOnly', 'nativeRuntimeOnly', /* general native buckets */
-			'macosNativeImplementation', 'macosNativeLinkOnly', 'macosNativeRuntimeOnly', /* macOS buckets */
-			'linuxNativeImplementation', 'linuxNativeLinkOnly', 'linuxNativeRuntimeOnly', /* linux buckets */
-			'macosNativeLinkLibraries', 'macosNativeRuntimeLibraries', /* macOS incoming */
-			'linuxNativeLinkLibraries', 'linuxNativeRuntimeLibraries', /* linux incoming */
-			*(([*getLanguageConfigurations('macos'), *getLanguageConfigurations('linux')] as Set) as String[])
-		))
-	}
-
-	def "creates variant-aware configurations for ambiguous architecture dimension"() {
-		when:
-		applyPlugin()
-		project.library {
-			targetMachines = [machines.windows.x86, machines.windows.x86_64]
-		}
-		evaluateProject('plugin register variants in afterEvaluate')
-		resolveAllVariants('plugin creates configuration on demand')
-
-		then:
-		MatcherAssert.assertThat(configurations*.name, containsInAnyOrder(
-			'api', 'jvmImplementation', 'jvmRuntimeOnly', /* JVM buckets */
-			'apiElements', 'runtimeElements', /* JVM outgoing */
-			'nativeImplementation', 'nativeLinkOnly', 'nativeRuntimeOnly', /* general native buckets */
-			'x86NativeImplementation', 'x86NativeLinkOnly', 'x86NativeRuntimeOnly', /* x86 buckets */
-			'x86-64NativeImplementation', 'x86-64NativeLinkOnly', 'x86-64NativeRuntimeOnly', /* x86-64 buckets */
-			'x86NativeLinkLibraries', 'x86NativeRuntimeLibraries', /* x86 incoming */
-			'x86-64NativeLinkLibraries', 'x86-64NativeRuntimeLibraries', /* x86-64 incoming */
-			*(([*getLanguageConfigurations('x86'), *getLanguageConfigurations('x86-64')] as Set) as String[])
-		))
-	}
-
-	def "creates variant-aware configurations for ambiguous operating system family and architecture dimensions"() {
-		when:
-		applyPlugin()
-		project.library {
-			targetMachines = [machines.windows.x86, machines.macOS.x86_64]
-		}
-		evaluateProject('plugin register variants in afterEvaluate')
-		resolveAllVariants('plugin creates configuration on demand')
-
-		then:
-		MatcherAssert.assertThat(configurations*.name, containsInAnyOrder(
-			'api', 'jvmImplementation', 'jvmRuntimeOnly', /* JVM buckets */
-			'apiElements', 'runtimeElements', /* JVM outgoing */
-			'nativeImplementation', 'nativeLinkOnly', 'nativeRuntimeOnly', /* general native buckets */
-			'windowsX86NativeImplementation', 'windowsX86NativeLinkOnly', 'windowsX86NativeRuntimeOnly', /* windowsX86 buckets */
-			'macosX86-64NativeImplementation', 'macosX86-64NativeLinkOnly', 'macosX86-64NativeRuntimeOnly', /* macosX86-64 buckets */
-			'windowsX86NativeLinkLibraries', 'windowsX86NativeRuntimeLibraries', /* windowsX86 incoming */
-			'macosX86-64NativeLinkLibraries', 'macosX86-64NativeRuntimeLibraries', /* macosX86-64 incoming */
-			*(([*getLanguageConfigurations('windowsX86'), *getLanguageConfigurations('macosX86-64')] as Set) as String[])
-		))
-	}
-
-	def "JVM configurations has description"() {
-		given:
-		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
-		resolveAllVariants('plugin creates configurations on demand')
-
-		expect:
-		project.configurations.api.description == "API dependencies for component ':main'."
-		project.configurations.jvmImplementation.description == "JVM implementation dependencies for component ':main'."
-		project.configurations.jvmRuntimeOnly.description == "JVM runtime only dependencies for component ':main'."
-
-		and:
-		// Conditional comparision of the description is required when the Java or Groovy language plugins are used as Nokee won't overwrite the description already defined.
-		project.configurations.apiElements.description == expectedApiElementsDescription
-		project.configurations.runtimeElements.description == expectedRuntimeElementsDescription
-	}
-
-	protected String getExpectedApiElementsDescription() {
-		if (getClass().simpleName.contains('Java') || getClass().simpleName.contains('Groovy')) {
-			return 'API elements for main.'
-		}
-		return "API elements for component ':main'."
-	}
-
-	protected String getExpectedRuntimeElementsDescription() {
-		if (getClass().simpleName.contains('Java') || getClass().simpleName.contains('Groovy')) {
-			return 'Elements of runtime for main.'
-		}
-		return "Runtime elements for component ':main'."
-	}
-
-	def "native configurations has description"() {
-		given:
-		applyPluginAndEvaluate('plugin registers variants in afterEvaluate')
-		resolveAllVariants('plugin creates configurations on demand')
-
-		expect:
-		project.configurations.nativeImplementation.description == "Native implementation dependencies for component ':main'."
-		project.configurations.nativeLinkOnly.description == "Native link only dependencies for component ':main'."
-		project.configurations.nativeRuntimeOnly.description == "Native runtime only dependencies for component ':main'."
-		project.configurations.nativeLinkLibraries.description == "Native link libraries for component ':main'."
-		project.configurations.nativeRuntimeLibraries.description == "Native runtime libraries for component ':main'."
-	}
 }
 
 @Subject(JniLibraryPlugin)
@@ -972,9 +863,9 @@ abstract class AbstractJniLibraryPluginWithNativeLanguageConfigurationsTest exte
 
 	static List<String> getNativeLanguageConfigurations(String variantName) {
 		if (variantName.isEmpty()) {
-			return ['nativeHeaderSearchPaths']
+			return ['nativeHeaderSearchPaths', 'nativeCompileOnly']
 		}
-		return ["${variantName}NativeHeaderSearchPaths"]
+		return ["${variantName}NativeHeaderSearchPaths", "${variantName}NativeCompileOnly"]
 	}
 }
 
