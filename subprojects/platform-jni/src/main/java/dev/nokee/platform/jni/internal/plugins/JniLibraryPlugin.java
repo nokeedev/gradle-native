@@ -34,6 +34,7 @@ import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -59,10 +60,7 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -495,31 +493,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		val library = componentProvider.get();
 
 		val dependencies = library.getDependencies();
-		val configurationRegistry = NamedDomainObjectRegistry.of(project.getConfigurations());
-
-		val apiElementsIdentifier = DependencyBucketIdentifier.of(consumable("apiElements"), ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
-		NamedDomainObjectProvider<Configuration> jvmApiElements = configurationRegistry.registerIfAbsent("apiElements");
-		jvmApiElements.configure(configureAsConsumable());
-		jvmApiElements.configure(configuration -> {
-			configuration.setDescription(apiElementsIdentifier.getDisplayName());
-			configuration.attributes(attributes -> {
-				attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
-				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
-			});
-		});
-		jvmApiElements.get().extendsFrom(dependencies.getApi().getAsConfiguration());
-
-		val runtimeElementsIdentifier = DependencyBucketIdentifier.of(consumable("runtimeElements"), ComponentIdentifier.ofMain(ProjectIdentifier.of(project)));
-		NamedDomainObjectProvider<Configuration> jvmRuntimeElements = configurationRegistry.registerIfAbsent("runtimeElements");
-		jvmRuntimeElements.configure(configureAsConsumable());
-		jvmRuntimeElements.configure(configuration -> {
-			configuration.setDescription(runtimeElementsIdentifier.getDisplayName());
-			configuration.attributes(attributes -> {
-				attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME));
-				attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR));
-			});
-		});
-		jvmRuntimeElements.get().extendsFrom(dependencies.getApi().getAsConfiguration());
 
 		project.getPluginManager().withPlugin("java", appliedPlugin -> {
 			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnly().getAsConfiguration());
@@ -530,7 +503,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static ModelRegistration javaNativeInterfaceLibrary(String name, Project project) {
-		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("JNI library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		val entityPath = ModelPath.path(name);
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
@@ -574,10 +547,29 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier)));
 						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmImplementation"), identifier)));
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmRuntimeOnly"), identifier)));
+						project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
+							private boolean alreadyExecuted = false;
+
+							@Override
+							public void execute(NativeLanguagePlugin appliedPlugin) {
+								if (!alreadyExecuted) {
+									alreadyExecuted = true;
+									registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier)));
+								}
+							}
+						});
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeImplementation"), identifier)));
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeLinkOnly"), identifier)));
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeRuntimeOnly"), identifier)));
 						implementation.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+
+						val consumableFactory = project.getExtensions().getByType(ConsumableDependencyBucketRegistrationFactory.class);
+						val apiElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("apiElements"), identifier)));
+						apiElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
+						apiElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+						val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("runtimeElements"), identifier)));
+						runtimeElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
+						runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), JniLibrary.class));
 
@@ -599,8 +591,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, id, ignored) -> {
+				if (id.equals(identifier)) {
 					val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
 					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(component.getVariants()::get)));
 
@@ -653,28 +645,29 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				if (id.equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-					val dependencies = registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), JavaNativeInterfaceNativeComponentDependencies.class, ModelBackedJavaNativeInterfaceNativeComponentDependencies::new));
+					registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), JavaNativeInterfaceNativeComponentDependencies.class, ModelBackedJavaNativeInterfaceNativeComponentDependencies::new));
 					val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeImplementation"), identifier)));
 					val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeLinkOnly"), identifier)));
 					val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeRuntimeOnly"), identifier)));
 
 					val resolvableFactory = project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class);
-					boolean hasSwift = project.getExtensions().getByType(ModelLookup.class).anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))));
-					if (hasSwift) {
-						val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("nativeImportSwiftModules"), identifier)));
-						importModules.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class)/*, compileOnly.as(Configuration.class)*/)
-							.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))))
-							.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
-							.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-					}
-					boolean hasHeaders = project.getExtensions().getByType(ModelLookup.class).anyMatch(ModelSpecs.of(withType(of(CSourceSet.class)).or(withType(of(CppSourceSet.class))).or(withType(of(ObjectiveCSourceSet.class))).or(withType(of(ObjectiveCppSourceSet.class)))));
-					if (hasHeaders) {
-						val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("nativeHeaderSearchPaths"), identifier)));
-						headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class)/*, compileOnly.as(Configuration.class)*/)
-							.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
-							.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
-							.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-					}
+					project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
+						private boolean alreadyExecuted = false;
+
+						@Override
+						public void execute(NativeLanguagePlugin appliedPlugin) {
+							if (!alreadyExecuted) {
+								alreadyExecuted = true;
+								val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier)));
+								val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("nativeHeaderSearchPaths"), identifier)));
+								headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class)/*, compileOnly.as(Configuration.class)*/)
+									.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
+									.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
+									.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
+								headerSearchPaths.configure(Configuration.class, configureExtendsFrom(compileOnly.as(Configuration.class)));
+							}
+						}
+					});
 					val linkLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("nativeLinkLibraries"), identifier)));
 					linkLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class))
 						.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))))
@@ -686,7 +679,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 						.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
 						.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 
-					val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(LifecycleBasePlugin.ASSEMBLE_TASK_NAME), identifier), Task.class).build());
+					val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier), Task.class).build());
 					assembleTask.configure(Task.class, task -> {
 						task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 						task.setDescription(String.format("Assembles the '%s' outputs of this project.", BuildVariantNamer.INSTANCE.determineName((BuildVariantInternal) identifier.getBuildVariant())));
