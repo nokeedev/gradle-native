@@ -21,7 +21,6 @@ import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.val;
 import org.gradle.util.Path;
 
@@ -30,7 +29,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -132,7 +131,7 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	@Override
 	public String toString() {
-		return identity.getDisplayName() + " '" + toPath(this) + "'";
+		return identity.getDisplayName() + " '" + toGradlePath(this) + "'";
 	}
 
 	@Override
