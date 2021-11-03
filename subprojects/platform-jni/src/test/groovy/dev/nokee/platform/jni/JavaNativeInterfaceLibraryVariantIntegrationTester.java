@@ -46,11 +46,6 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester {
 
 	public abstract String variantName();
 
-	@BeforeEach
-	void realizeVariant() {
-		subject();
-	}
-
 	@Nested
 	class ComponentDependenciesTest extends JavaNativeInterfaceNativeComponentDependenciesIntegrationTester {
 		public JavaNativeInterfaceNativeComponentDependencies subject() {
