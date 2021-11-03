@@ -30,6 +30,7 @@ import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 
 public final class TaskRegistrationFactory {
 	private final PolymorphicDomainObjectRegistry<Task> taskRegistry;
@@ -47,7 +48,7 @@ public final class TaskRegistrationFactory {
 			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
 			.withComponent(identifier)
 			.withComponent(IsTask.tag())
-			.withComponent(createdUsing(ModelType.of(type), taskProvider::get))
+			.withComponent(createdUsingNoInject(ModelType.of(type), taskProvider::get))
 			.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(TaskIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {

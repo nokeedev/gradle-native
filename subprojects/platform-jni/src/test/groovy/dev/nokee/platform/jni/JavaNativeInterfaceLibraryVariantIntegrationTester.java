@@ -19,12 +19,15 @@ import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.language.cpp.CppBinary;
@@ -34,12 +37,15 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.TaskMatchers.group;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester implements VariantTester<JniLibrary>
 	, DependencyAwareComponentTester<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
 {
 	public abstract JniLibrary subject();
 
@@ -48,6 +54,18 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 	public abstract String displayName();
 
 	public abstract String variantName();
+
+	@Nested
+	class ComponentTasksTest {
+		public TaskView<Task> subject() {
+			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getTasks();
+		}
+
+		@Test
+		void hasAssembleTask() {
+			assertThat(subject().get(), hasItem(named("assemble" + capitalize(variantName()))));
+		}
+	}
 
 	@Nested
 	class ComponentDependenciesTest extends JavaNativeInterfaceNativeComponentDependenciesIntegrationTester {
@@ -250,6 +268,23 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		@Test
 		void hasDescription() {
 			assertThat(subject(), ConfigurationMatchers.description("Native runtime libraries for " + displayName() + "."));
+		}
+	}
+
+	@Nested
+	class AssembleTaskTest {
+		public Task subject() {
+			return project().getTasks().getByName("assemble" + capitalize(variantName()));
+		}
+
+		@Test
+		void hasBuildGroup() {
+			assertThat(subject(), group("build"));
+		}
+
+		@Test
+		void hasDescription() {
+			assertThat(subject().getDescription(), notNullValue()); // TODO: Normalize assemble task description
 		}
 	}
 }

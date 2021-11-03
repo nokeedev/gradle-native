@@ -20,13 +20,11 @@ import com.google.common.collect.Iterables;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
@@ -37,6 +35,7 @@ import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.attributes.Usage;
@@ -57,6 +56,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 	, DependencyAwareComponentTester<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
 	, BinaryAwareComponentTester<BinaryView<Binary>>
+	, TaskAwareComponentTester<TaskView<Task>>
 	, TargetMachineAwareComponentTester
 {
 	private JavaNativeInterfaceLibrary subject;
@@ -72,6 +72,18 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 	@Override
 	public JavaNativeInterfaceLibrary subject() {
 		return subject;
+	}
+
+	@Nested
+	class ComponentTasksTest {
+		public TaskView<Task> subject() {
+			return subject.getTasks();
+		}
+
+		@Test
+		void hasAssembleTask() {
+			assertThat(subject().get(), hasItem(named("assembleQuzu")));
+		}
 	}
 
 	@Nested
@@ -386,6 +398,23 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		@Test
 		void hasDescription() {
 			assertThat(subject(), ConfigurationMatchers.description("Runtime elements for " + displayName() + "."));
+		}
+	}
+
+	@Nested
+	class AssembleTaskTest {
+		public Task subject() {
+			return project().getTasks().getByName("assembleQuzu");
+		}
+
+		@Test
+		void hasBuildGroup() {
+			assertThat(subject(), TaskMatchers.group("build"));
+		}
+
+		@Test
+		void hasDescription() {
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of JNI library ':quzu'."));
 		}
 	}
 
