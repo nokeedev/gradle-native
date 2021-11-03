@@ -67,8 +67,7 @@ class BinaryIdentifierTest extends Specification {
 		BinaryIdentifier.of(null, TestableBinary, variantIdentifier)
 
 		then:
-		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a binary identifier because the task name is null.'
+		thrown(NullPointerException)
 	}
 
 	def "throws exception if type is null"() {
