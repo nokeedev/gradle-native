@@ -17,6 +17,7 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.platform.base.testers.VariantTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import org.gradle.api.Project;
@@ -32,7 +33,7 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester {
+public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester implements VariantTester<JniLibrary> {
 	public abstract JniLibrary subject();
 
 	public abstract Project project();
