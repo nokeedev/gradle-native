@@ -16,6 +16,7 @@
 package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.Binary;
+import org.gradle.api.Buildable;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 
@@ -24,7 +25,7 @@ import org.gradle.api.tasks.bundling.Jar;
  *
  * @since 0.3
  */
-public interface JarBinary extends Binary {
+public interface JarBinary extends Binary, Buildable {
 	/**
 	 * Returns the {@link Jar} task for this binary.
 	 *
