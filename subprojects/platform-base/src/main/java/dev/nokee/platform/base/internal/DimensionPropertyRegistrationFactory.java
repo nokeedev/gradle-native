@@ -36,6 +36,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,7 @@ public final class DimensionPropertyRegistrationFactory {
 		private CoordinateAxis<Object> axis;
 		private Set<Object> supportedValues;
 		private Set<Object> defaultValues;
+		private Consumer<? super Iterable<?>> axisValidator;
 
 		private Builder(ModelPath path) {
 			this.path = path;
@@ -94,6 +96,11 @@ public final class DimensionPropertyRegistrationFactory {
 
 		public Builder validValues(Object... values) {
 			this.supportedValues = ImmutableSet.copyOf(values);
+			return this;
+		}
+
+		public <T> Builder validateUsing(Consumer<? super Iterable<T>> axisValidator) {
+			this.axisValidator = (Consumer<? super Iterable<?>>) axisValidator;
 			return this;
 		}
 
@@ -119,6 +126,11 @@ public final class DimensionPropertyRegistrationFactory {
 
 					if (supportedValues != null) {
 						valueProvider = valueProvider.map(assertSupportedValues(supportedValues));
+					} else if (axisValidator != null) {
+						valueProvider = valueProvider.map(it -> {
+							axisValidator.accept(it);
+							return it;
+						});
 					}
 
 					return valueProvider
