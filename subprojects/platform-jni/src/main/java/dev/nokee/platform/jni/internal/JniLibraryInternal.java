@@ -51,6 +51,8 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -60,7 +62,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
-public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware {
+public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware, HasPublicType {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
@@ -191,5 +193,10 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Override
 	public ModelNode getNode() {
 		return node;
+	}
+
+	@Override
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(JniLibrary.class);
 	}
 }
