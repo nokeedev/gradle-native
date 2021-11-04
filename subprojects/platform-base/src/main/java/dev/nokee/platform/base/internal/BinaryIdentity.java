@@ -24,10 +24,12 @@ import static java.util.Objects.requireNonNull;
 public final class BinaryIdentity implements HasName {
 	private final BinaryName name;
 	private final String displayName;
+	private final boolean isMain;
 
-	BinaryIdentity(BinaryName name, String displayName) {
+	BinaryIdentity(BinaryName name, String displayName, boolean isMain) {
 		this.name = requireNonNull(name);
 		this.displayName = requireNonNull(displayName);
+		this.isMain = isMain;
 	}
 
 	@Override
@@ -39,11 +41,19 @@ public final class BinaryIdentity implements HasName {
 		return displayName;
 	}
 
+	public boolean isMain() {
+		return isMain;
+	}
+
 	public static BinaryIdentity of(String name) {
-		return new BinaryIdentity(BinaryName.of(name), "binary");
+		return new BinaryIdentity(BinaryName.of(name), "binary", false);
 	}
 
 	public static BinaryIdentity of(String name, String displayName) {
-		return new BinaryIdentity(BinaryName.of(name), displayName);
+		return new BinaryIdentity(BinaryName.of(name), displayName, false);
+	}
+
+	public static BinaryIdentity ofMain(String name, String displayName) {
+		return new BinaryIdentity(BinaryName.of(name), displayName, true);
 	}
 }
