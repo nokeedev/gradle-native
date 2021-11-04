@@ -22,8 +22,6 @@ import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.SourceSet;
 import dev.nokee.utils.ClosureTestUtils;
 import lombok.val;
-import org.gradle.api.Buildable;
-import org.gradle.api.Task;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.ProjectLayout;
@@ -39,6 +37,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static dev.nokee.internal.testing.FileSystemWorkspace.newFiles;
+import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.rootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -306,7 +305,7 @@ public abstract class ConfigurableSourceSetIntegrationTester implements Configur
 			val buildTask = project.getTasks().create("buildTask");
 			val files = project.files(project.file("foo")).builtBy(buildTask);
 			val sourceDirectories = subject().from(files).getSourceDirectories();
-			assertThat(buildDependencies(sourceDirectories), containsInAnyOrder(buildTask));
+			assertThat(sourceDirectories, buildDependencies(containsInAnyOrder(buildTask)));
 		}
 
 		@Test
@@ -315,7 +314,7 @@ public abstract class ConfigurableSourceSetIntegrationTester implements Configur
 			val buildTask = project.getTasks().create("buildTask");
 			val files = project.files(project.file("foo")).builtBy(buildTask);
 			val fileTree = subject().from(files).getAsFileTree();
-			assertThat(buildDependencies(fileTree), containsInAnyOrder(buildTask));
+			assertThat(fileTree, buildDependencies(containsInAnyOrder(buildTask)));
 		}
 
 		@Test
@@ -323,17 +322,12 @@ public abstract class ConfigurableSourceSetIntegrationTester implements Configur
 			val project = rootProject();
 			val buildTask = project.getTasks().create("buildTask");
 			val files = project.files(project.file("foo")).builtBy(buildTask);
-			assertThat(buildDependencies(subject().from(files)), containsInAnyOrder(buildTask));
+			assertThat(subject().from(files), buildDependencies(containsInAnyOrder(buildTask)));
 		}
 
 		@Test
 		void hasNoBuildDependenciesForEmptySourceSet() {
-			assertThat(buildDependencies(subject()), empty());
-		}
-
-		@SuppressWarnings("unchecked")
-		private Set<Task> buildDependencies(Buildable buildable) {
-			return (Set<Task>) buildable.getBuildDependencies().getDependencies(null);
+			assertThat(subject(), buildDependencies(emptyIterable()));
 		}
 	}
 
