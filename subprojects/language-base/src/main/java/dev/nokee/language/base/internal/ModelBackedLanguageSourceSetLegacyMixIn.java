@@ -16,10 +16,13 @@
 package dev.nokee.language.base.internal;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SelfAwareLanguageSourceSet;
+import dev.nokee.model.HasName;
+import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -27,6 +30,7 @@ import dev.nokee.utils.TaskDependencyUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
@@ -37,10 +41,19 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.util.ConfigureUtil;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @SuppressWarnings("unchecked")
 public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSourceSet> extends SelfAwareLanguageSourceSet<SELF>, HasPublicType {
 	default String getName() {
-		return ModelNodeUtils.getPath(ModelNodes.of(this)).getName();
+		return StringUtils.uncapitalize(Streams.stream(ModelNodes.of(this).getComponent(ModelComponentType.componentOf(LanguageSourceSetIdentifier.class))).flatMap(it -> {
+			if (it instanceof HasName) {
+				return Stream.of(((HasName) it).getName().toString());
+			} else {
+				return Stream.empty();
+			}
+		}).map(StringUtils::capitalize).collect(Collectors.joining()));
 	}
 
 	default SELF from(Object... paths) {
