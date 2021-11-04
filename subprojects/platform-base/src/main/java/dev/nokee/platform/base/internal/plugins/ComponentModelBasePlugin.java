@@ -117,6 +117,8 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 					}
 				} else if (it instanceof VariantIdentifier) {
 					return Stream.of(((VariantIdentifier<?>) it).getUnambiguousName());
+				} else if (it instanceof BinaryIdentity) {
+					return Stream.of((BinaryIdentity) it).filter(t -> !t.isMain()).map(t -> t.getName().toString());
 				} else if (it instanceof HasName) {
 					val name = ((HasName) it).getName();
 					if (name instanceof TaskName) {
