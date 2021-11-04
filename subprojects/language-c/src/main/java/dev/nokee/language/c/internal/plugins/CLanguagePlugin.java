@@ -16,8 +16,10 @@
 package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.c.internal.CSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
+import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -43,5 +45,25 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 
 			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "c"), true));
 		}))));
+
+		project.getExtensions().add("__nokee_defaultCSourceSetFactory", new DefaultCSourceSetRegistrationFactory(project.getExtensions().getByType(CSourceSetRegistrationFactory.class)));
+	}
+
+	@Override
+	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
+		return DefaultCSourceSetRegistrationFactory.class;
+	}
+
+	private static final class DefaultCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
+		private final CSourceSetRegistrationFactory factory;
+
+		private DefaultCSourceSetRegistrationFactory(CSourceSetRegistrationFactory factory) {
+			this.factory = factory;
+		}
+
+		@Override
+		public ModelRegistration create(DomainObjectIdentifier owner) {
+			return factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("c", "C sources")));
+		}
 	}
 }

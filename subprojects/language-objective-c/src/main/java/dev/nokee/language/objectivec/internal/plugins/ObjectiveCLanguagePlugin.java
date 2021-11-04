@@ -16,7 +16,9 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
+import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetExtensible;
 import dev.nokee.model.DomainObjectIdentifier;
@@ -43,5 +45,25 @@ public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguage
 
 			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "objectiveC"), true));
 		}))));
+
+		project.getExtensions().add("__nokee_defaultObjectiveCFactory", new DefaultObjectiveCSourceSetRegistrationFactory(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class)));
+	}
+
+	@Override
+	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
+		return DefaultObjectiveCSourceSetRegistrationFactory.class;
+	}
+
+	private static final class DefaultObjectiveCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
+		private final ObjectiveCSourceSetRegistrationFactory factory;
+
+		private DefaultObjectiveCSourceSetRegistrationFactory(ObjectiveCSourceSetRegistrationFactory factory) {
+			this.factory = factory;
+		}
+
+		@Override
+		public ModelRegistration create(DomainObjectIdentifier owner) {
+			return factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("objectiveC", "Objective-C sources")));
+		}
 	}
 }
