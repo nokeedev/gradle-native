@@ -15,13 +15,22 @@
  */
 package dev.nokee.platform.jni;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.CSourceSetIntegrationTester;
+import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.cpp.CppSourceSetIntegrationTester;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.ObjectiveCSourceSetIntegrationTester;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSetIntegrationTester;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.SourceView;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
@@ -36,8 +45,6 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.language.cpp.CppBinary;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.stream.Collectors;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
@@ -59,6 +66,83 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 	public abstract String displayName();
 
 	public abstract String variantName();
+
+	public abstract String path();
+
+	@Nested
+	class ComponentSourcesTest {
+		public SourceView<LanguageSourceSet> subject() {
+			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getSources();
+		}
+
+		@Nested
+		class CTest {
+			@Test
+			void noCSourceSetWhenCLanguagePluginNotApplied() {
+				assertThat(subject().get(), not(hasItem(isA(CSourceSet.class))));
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "dev.nokee.c-language")
+			class WhenCLanguagePluginApplied {
+				@Test
+				void hasCSourceSet() {
+					assertThat(subject().get(), hasItem(isA(CSourceSet.class)));
+				}
+			}
+		}
+
+		@Nested
+		class CppTest {
+			@Test
+			void noCppSourceSetWhenObjectiveCLanguagePluginNotApplied() {
+				assertThat(subject().get(), not(hasItem(isA(CppSourceSet.class))));
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "dev.nokee.cpp-language")
+			class WhenCppLanguagePluginApplied {
+				@Test
+				void hasCppSourceSet() {
+					assertThat(subject().get(), hasItem(isA(CppSourceSet.class)));
+				}
+			}
+		}
+
+		@Nested
+		class ObjectiveCTest {
+			@Test
+			void noObjectiveCSourceSetWhenObjectiveCLanguagePluginNotApplied() {
+				assertThat(subject().get(), not(hasItem(isA(ObjectiveCSourceSet.class))));
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
+			class WhenObjectiveCLanguagePluginApplied {
+				@Test
+				void hasObjectiveCSourceSet() {
+					assertThat(subject().get(), hasItem(isA(ObjectiveCSourceSet.class)));
+				}
+			}
+		}
+
+		@Nested
+		class ObjectiveCppTest {
+			@Test
+			void noObjectiveCppSourceSetWhenObjectiveCppLanguagePluginNotApplied() {
+				assertThat(subject().get(), not(hasItem(isA(ObjectiveCppSourceSet.class))));
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
+			class WhenObjectiveCppLanguagePluginApplied {
+				@Test
+				void hasObjectiveCppSourceSet() {
+					assertThat(subject().get(), hasItem(isA(ObjectiveCppSourceSet.class)));
+				}
+			}
+		}
+	}
 
 	@Nested
 	class ComponentTasksTest {
@@ -313,6 +397,154 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		@Override
 		public JniJarBinary subject() {
 			return (JniJarBinary) JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getBinaries().get().stream().filter(it -> it instanceof JniJarBinary).collect(MoreCollectors.onlyElement());
+		}
+	}
+
+	@Nested
+	class CSourceSetTest {
+		@Test
+		void noCSourceSetWhenCLanguagePluginNotApplied() {
+			assertThat(subject().getSources().get(), not(hasItem(isA(CSourceSet.class))));
+		}
+
+		@Nested
+		@PluginRequirement.Require(id = "dev.nokee.c-language")
+		class WhenCLanguagePluginApplied extends CSourceSetIntegrationTester {
+			@Override
+			public CSourceSet subject() {
+				return (CSourceSet) JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getSources().get().stream().filter(it -> it instanceof CSourceSet).collect(MoreCollectors.onlyElement());
+			}
+
+			@Override
+			public Project project() {
+				return JavaNativeInterfaceLibraryVariantIntegrationTester.this.project();
+			}
+
+			@Override
+			public String name() {
+				return "c";
+			}
+
+			@Override
+			public String variantName() {
+				return JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName() + "C";
+			}
+
+			@Override
+			public String displayName() {
+				return "C sources '" + path() + ":c'";
+			}
+		}
+	}
+
+	@Nested
+	class CppTest {
+		@Test
+		void noCppSourceSetWhenObjectiveCLanguagePluginNotApplied() {
+			assertThat(subject().getSources().get(), not(hasItem(isA(CppSourceSet.class))));
+		}
+
+		@Nested
+		@PluginRequirement.Require(id = "dev.nokee.cpp-language")
+		class WhenCppLanguagePluginApplied extends CppSourceSetIntegrationTester {
+			@Override
+			public CppSourceSet subject() {
+				return (CppSourceSet) JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getSources().get().stream().filter(it -> it instanceof CppSourceSet).collect(MoreCollectors.onlyElement());
+			}
+
+			@Override
+			public Project project() {
+				return JavaNativeInterfaceLibraryVariantIntegrationTester.this.project();
+			}
+
+			@Override
+			public String name() {
+				return "cpp";
+			}
+
+			@Override
+			public String variantName() {
+				return JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName() + "Cpp";
+			}
+
+			@Override
+			public String displayName() {
+				return "C++ sources '" + path() + ":cpp'";
+			}
+		}
+	}
+
+	@Nested
+	class ObjectiveCTest {
+		@Test
+		void noObjectiveCSourceSetWhenObjectiveCLanguagePluginNotApplied() {
+			assertThat(subject().getSources().get(), not(hasItem(isA(ObjectiveCSourceSet.class))));
+		}
+
+		@Nested
+		@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
+		class WhenObjectiveCLanguagePluginApplied extends ObjectiveCSourceSetIntegrationTester {
+			@Override
+			public ObjectiveCSourceSet subject() {
+				return (ObjectiveCSourceSet) JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getSources().get().stream().filter(it -> it instanceof ObjectiveCSourceSet).collect(MoreCollectors.onlyElement());
+			}
+
+			@Override
+			public Project project() {
+				return JavaNativeInterfaceLibraryVariantIntegrationTester.this.project();
+			}
+
+			@Override
+			public String name() {
+				return "objectiveC";
+			}
+
+			@Override
+			public String variantName() {
+				return JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName() + "ObjectiveC";
+			}
+
+			@Override
+			public String displayName() {
+				return "Objective-C sources '" + path() + ":objectiveC'";
+			}
+		}
+	}
+
+	@Nested
+	class ObjectiveCppTest {
+		@Test
+		void noObjectiveCppSourceSetWhenObjectiveCppLanguagePluginNotApplied() {
+			assertThat(subject().getSources().get(), not(hasItem(isA(ObjectiveCppSourceSet.class))));
+		}
+
+		@Nested
+		@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
+		class WhenObjectiveCppLanguagePluginApplied extends ObjectiveCppSourceSetIntegrationTester {
+			@Override
+			public ObjectiveCppSourceSet subject() {
+				return (ObjectiveCppSourceSet) JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getSources().get().stream().filter(it -> it instanceof ObjectiveCppSourceSet).collect(MoreCollectors.onlyElement());
+			}
+
+			@Override
+			public Project project() {
+				return JavaNativeInterfaceLibraryVariantIntegrationTester.this.project();
+			}
+
+			@Override
+			public String name() {
+				return "objectiveCpp";
+			}
+
+			@Override
+			public String variantName() {
+				return JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName() + "ObjectiveCpp";
+			}
+
+			@Override
+			public String displayName() {
+				return "Objective-C++ sources '" + path() + ":objectiveCpp'";
+			}
 		}
 	}
 }

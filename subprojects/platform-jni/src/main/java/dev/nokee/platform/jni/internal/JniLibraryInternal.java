@@ -16,6 +16,7 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.FunctionalSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -25,6 +26,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.SourceView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
@@ -64,11 +66,11 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 
 public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware, HasPublicType
 	, ModelBackedTaskAwareComponentMixIn
+	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
-	private final FunctionalSourceSet sources;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
 	private final TargetMachine targetMachine;
@@ -84,7 +86,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		super(identifier, objects, binaryViewFactory);
 		this.configurations = configurations;
 		this.providers = providers;
-		this.sources = parentSources;
 		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
 		this.targetMachine = getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
@@ -108,10 +109,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	private String getResourcePath(GroupId groupId) {
 		return groupId.get().map(it -> it.replace('.', '/') + '/').orElse("") + getIdentifier().getAmbiguousDimensions().getAsKebabCase().orElse("");
-	}
-
-	public FunctionalSourceSet getSources() {
-		return sources;
 	}
 
 	public void registerSharedLibraryBinary(DomainObjectSet<ObjectSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies) {

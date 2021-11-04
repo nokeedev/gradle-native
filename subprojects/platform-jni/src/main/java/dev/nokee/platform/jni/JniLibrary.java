@@ -15,10 +15,9 @@
  */
 package dev.nokee.platform.jni;
 
-import dev.nokee.platform.base.BinaryAwareComponent;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.TaskAwareComponent;
-import dev.nokee.platform.base.Variant;
+import dev.nokee.language.base.FunctionalSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import groovy.lang.Closure;
@@ -37,6 +36,7 @@ public interface JniLibrary extends Variant
 	, DependencyAwareComponent<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponent
 	, TaskAwareComponent
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 {
 	/**
 	 * Specifies the resource path where the native components of the JNI library will be located within the JAR.

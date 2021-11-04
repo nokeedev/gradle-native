@@ -546,6 +546,11 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		}
 
 		@Override
+		public String path() {
+			return ":quzu";
+		}
+
+		@Override
 		public String displayName() {
 			return "JNI library ':quzu'";
 		}
@@ -689,6 +694,11 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 			}
 
 			@Override
+			public String path() {
+				return ":quzu:windowsX64";
+			}
+
+			@Override
 			public String displayName() {
 				return "variant 'windowsX64' of JNI library ':quzu'";
 			}
@@ -809,6 +819,11 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 			@Override
 			public Project project() {
 				return project;
+			}
+
+			@Override
+			public String path() {
+				return ":quzu:linuxX86";
 			}
 
 			@Override
