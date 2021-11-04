@@ -43,6 +43,10 @@ test {
 		implementation testFixtures(project(':platformBase'))
 		implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"
 		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+		implementation testFixtures(project(':languageC'))
+		implementation testFixtures(project(':languageCpp'))
+		implementation testFixtures(project(':languageObjectiveC'))
+		implementation testFixtures(project(':languageObjectiveCpp'))
 	}
 }
 
