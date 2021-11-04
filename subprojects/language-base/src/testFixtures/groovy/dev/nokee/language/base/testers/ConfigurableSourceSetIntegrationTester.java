@@ -54,31 +54,6 @@ public abstract class ConfigurableSourceSetIntegrationTester implements Configur
 
 	public abstract File getTemporaryDirectory() throws IOException;
 
-	// TODO: most likely will have to remove
-	@Nested
-	class EmptyTest {
-		@Test
-		void hasEmptyFileTreeWhenNoSource() {
-			assertThat("file tree should be empty", subject().getAsFileTree(), emptyIterable());
-		}
-
-		@Test
-		void hasEmptySourceDirectoriesWhenNoSource() {
-			assertThat("source directories should be empty", subject().getSourceDirectories(), emptyIterable());
-		}
-
-		@Test
-		void hasNoFilterPatternByDefault() {
-			assertThat(subject().getFilter().getExcludes(), empty());
-			assertThat(subject().getFilter().getIncludes(), empty());
-		}
-
-		@Test
-		void hasNoBuildDependenciesForEmptySourceSet() {
-			assertThat(subject(), buildDependencies(emptyIterable()));
-		}
-	}
-
 	@Nested
 	class FilterTest {
 		@Test
