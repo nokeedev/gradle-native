@@ -15,8 +15,10 @@
  */
 package dev.nokee.internal.testing;
 
+import org.gradle.api.Buildable;
 import org.gradle.api.NamedDomainObjectCollectionSchema;
 import org.gradle.api.Plugin;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.ExtensionsSchema;
 import org.gradle.api.plugins.PluginAware;
@@ -77,8 +79,8 @@ public final class ProjectMatchers {
 	 * Returns a matcher for {@link ExtensionAware} objects.
 	 * Note the matcher will throw an exception if the actual object is not extension aware.
 	 *
-	 * @param matcher  the extensions matcher, must not be null
-	 * @return an extensions matcher, never null
+	 * @param matcher  the extension matcher, must not be null
+	 * @return an extension matcher, never null
 	 */
 	public static Matcher<Object> extensions(Matcher<? super Iterable<ExtensionsSchema.ExtensionSchema>> matcher) {
 		return new FeatureMatcher<Object, Iterable<ExtensionsSchema.ExtensionSchema>>(matcher, "a extension aware object", "extension aware object") {
@@ -104,6 +106,21 @@ public final class ProjectMatchers {
 				}
 
 				throw new UnsupportedOperationException(String.format("Object '%s' of type %s is not public type aware.", actual, actual.getClass().getCanonicalName()));
+			}
+		};
+	}
+
+	/**
+	 * Returns a matcher for {@link Buildable} objects' build dependencies.
+	 *
+	 * @param matcher  the build tasks matcher, must not be null
+	 * @return a buildable matcher, never null
+	 */
+	public static Matcher<Buildable> buildDependencies(Matcher<? super Iterable<? extends Task>> matcher) {
+		return new FeatureMatcher<Buildable, Iterable<? extends Task>>(matcher, "a buildable object with dependencies", "buildable object with dependencies") {
+			@Override
+			protected Iterable<? extends Task> featureValueOf(Buildable actual) {
+				return actual.getBuildDependencies().getDependencies(null);
 			}
 		};
 	}
