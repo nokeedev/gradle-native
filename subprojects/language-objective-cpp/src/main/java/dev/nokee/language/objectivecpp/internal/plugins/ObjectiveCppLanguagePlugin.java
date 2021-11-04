@@ -16,7 +16,9 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
+import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetExtensible;
 import dev.nokee.model.DomainObjectIdentifier;
@@ -43,5 +45,24 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLangua
 
 			registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "objectiveCpp"), true));
 		}))));
+		project.getExtensions().add("__nokee_defaultObjectiveCppFactory", new DefaultObjectiveCppSourceSetRegistrationFactory(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class)));
+	}
+
+	@Override
+	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
+		return DefaultObjectiveCppSourceSetRegistrationFactory.class;
+	}
+
+	private static final class DefaultObjectiveCppSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
+		private final ObjectiveCppSourceSetRegistrationFactory factory;
+
+		private DefaultObjectiveCppSourceSetRegistrationFactory(ObjectiveCppSourceSetRegistrationFactory factory) {
+			this.factory = factory;
+		}
+
+		@Override
+		public ModelRegistration create(DomainObjectIdentifier owner) {
+			return factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("objectiveCpp", "Objective-C++ sources")));
+		}
 	}
 }

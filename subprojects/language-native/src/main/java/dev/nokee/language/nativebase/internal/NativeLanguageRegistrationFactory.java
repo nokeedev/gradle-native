@@ -15,9 +15,9 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.core.ModelRegistration;
 
-public interface NativeLanguagePlugin extends Plugin<Project> {
-	Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType();
+public interface NativeLanguageRegistrationFactory {
+	ModelRegistration create(DomainObjectIdentifier owner);
 }

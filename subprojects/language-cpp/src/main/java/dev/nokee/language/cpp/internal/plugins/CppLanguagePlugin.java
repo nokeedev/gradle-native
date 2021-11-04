@@ -16,14 +16,14 @@
 package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
+import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
+import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ParentNode;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
@@ -46,5 +46,25 @@ public class CppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin 
 
 			registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "cpp"), true));
 		}))));
+
+		project.getExtensions().add("__nokee_defaultCppSourceSet", new DefaultCppSourceSetRegistrationFactory(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class)));
+	}
+
+	@Override
+	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
+		return DefaultCppSourceSetRegistrationFactory.class;
+	}
+
+	private static final class DefaultCppSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
+		private final CppSourceSetRegistrationFactory factory;
+
+		private DefaultCppSourceSetRegistrationFactory(CppSourceSetRegistrationFactory factory) {
+			this.factory = factory;
+		}
+
+		@Override
+		public ModelRegistration create(DomainObjectIdentifier owner) {
+			return factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("cpp", "C++ sources")));
+		}
 	}
 }
