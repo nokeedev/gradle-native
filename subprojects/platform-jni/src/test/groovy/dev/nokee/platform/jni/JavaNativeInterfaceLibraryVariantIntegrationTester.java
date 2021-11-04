@@ -400,6 +400,20 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		}
 	}
 
+	abstract class ParentHeaderSearchPathsConfigurationTester {
+		public abstract Configuration subject();
+
+		@Test
+		void extendsFromNativeCompileOnlyConfiguration() {
+			assertThat(subject(), extendsFrom(hasItem(named(variantName() + "NativeCompileOnly"))));
+		}
+
+		@Test
+		void extendsFromNativeImplementationConfiguration() {
+			assertThat(subject(), extendsFrom(hasItem(named(variantName() + "NativeImplementation"))));
+		}
+	}
+
 	@Nested
 	class CSourceSetTest {
 		@Test
@@ -433,6 +447,13 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 			@Override
 			public String displayName() {
 				return "C sources '" + path() + ":c'";
+			}
+
+			@Nested
+			class VariantHeaderSearchPathsConfigurationTest extends ParentHeaderSearchPathsConfigurationTester {
+				public Configuration subject() {
+					return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
+				}
 			}
 		}
 	}
@@ -471,6 +492,13 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 			public String displayName() {
 				return "C++ sources '" + path() + ":cpp'";
 			}
+
+			@Nested
+			class VariantHeaderSearchPathsConfigurationTest extends ParentHeaderSearchPathsConfigurationTester {
+				public Configuration subject() {
+					return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
+				}
+			}
 		}
 	}
 
@@ -508,6 +536,13 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 			public String displayName() {
 				return "Objective-C sources '" + path() + ":objectiveC'";
 			}
+
+			@Nested
+			class VariantHeaderSearchPathsConfigurationTest extends ParentHeaderSearchPathsConfigurationTester {
+				public Configuration subject() {
+					return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
+				}
+			}
 		}
 	}
 
@@ -544,6 +579,13 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 			@Override
 			public String displayName() {
 				return "Objective-C++ sources '" + path() + ":objectiveCpp'";
+			}
+
+			@Nested
+			class VariantHeaderSearchPathsConfigurationTest extends ParentHeaderSearchPathsConfigurationTester {
+				public Configuration subject() {
+					return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
+				}
 			}
 		}
 	}
