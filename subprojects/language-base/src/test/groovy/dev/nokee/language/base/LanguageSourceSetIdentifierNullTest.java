@@ -15,33 +15,18 @@
  */
 package dev.nokee.language.base;
 
+import com.google.common.testing.NullPointerTester;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
-import dev.nokee.model.internal.ProjectIdentifier;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-
-class LanguageSourceSetIdentifierTest {
-	@Nested
-	class NameOnly {
-		private final LanguageSourceSetIdentifier subject = LanguageSourceSetIdentifier.of(ProjectIdentifier.ofRootProject(), "tera");
-
-		@Test
-		void hasToString() {
-			assertThat(subject, Matchers.hasToString("sources ':tera'"));
-		}
-	}
-
-	@Nested
-	class WithCustomDisplayName {
-		private final LanguageSourceSetIdentifier subject = LanguageSourceSetIdentifier.of(ProjectIdentifier.ofRootProject(), LanguageSourceSetIdentity.of("feme", "Fome zutu"));
-
-		@Test
-		void hasToString() {
-			assertThat(subject, Matchers.hasToString("Fome zutu ':feme'"));
-		}
+class LanguageSourceSetIdentifierNullTest {
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkNulls() {
+		new NullPointerTester()
+			.setDefault(String.class, "default")
+			.setDefault(LanguageSourceSetIdentity.class, LanguageSourceSetIdentity.of("finu", "nife gaci"))
+			.testAllPublicStaticMethods(LanguageSourceSetIdentifier.class);
 	}
 }
