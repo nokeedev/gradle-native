@@ -15,11 +15,16 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
+
+import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class NativePlatformFactory {
 	public static NativePlatformInternal create(TargetMachine targetMachine) {
@@ -27,6 +32,14 @@ public class NativePlatformFactory {
 		result.architecture(architecturePlatformNameFor(targetMachine.getArchitecture()));
 		result.operatingSystem(operatingSystemPlatformNameFor(targetMachine.getOperatingSystemFamily()));
 		return result;
+	}
+
+	public static Optional<NativePlatformInternal> create(@Nullable BuildVariant buildVariant) {
+		return targetMachine((BuildVariantInternal) buildVariant).map(NativePlatformFactory::create);
+	}
+
+	private static Optional<TargetMachine> targetMachine(@Nullable BuildVariantInternal buildVariant) {
+		return Optional.ofNullable(buildVariant).flatMap(it -> it.findAxisValue(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS));
 	}
 
 	private static String architecturePlatformNameFor(MachineArchitecture architecture) {
