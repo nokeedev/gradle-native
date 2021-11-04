@@ -33,6 +33,7 @@ import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
+import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -48,6 +49,7 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.*;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -65,7 +67,7 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.jni.*;
+import dev.nokee.platform.base.internal.util.PropertyUtils;import dev.nokee.platform.jni.*;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
 import dev.nokee.platform.nativebase.internal.NativeLanguageRules;
@@ -103,6 +105,7 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -114,9 +117,14 @@ import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.plugins.NativeBasePlugin;
+import org.gradle.language.swift.tasks.SwiftCompile;
+import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.tasks.AbstractLinkTask;
+import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.util.GradleVersion;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
@@ -124,7 +132,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
@@ -137,6 +146,8 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.*;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
 import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
@@ -669,18 +680,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 					registry.register(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"))));
 
 					registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources")));
-					project.getPluginManager().withPlugin("dev.nokee.c-language", ignored -> {
-						registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, LanguageSourceSetIdentity.of("c", "C sources"))));
-					});
-					project.getPluginManager().withPlugin("dev.nokee.cpp-language", ignored -> {
-						registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, LanguageSourceSetIdentity.of("cpp", "C++ sources"))));
-					});
-					project.getPluginManager().withPlugin("dev.nokee.objective-c-language", ignored -> {
-						registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, LanguageSourceSetIdentity.of("objectiveC", "Objective-C sources"))));
-					});
-					project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", ignored -> {
-						registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, LanguageSourceSetIdentity.of("objectiveCpp", "Objective-C++ sources"))));
-					});
 
 					val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 					registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), JavaNativeInterfaceNativeComponentDependencies.class, ModelBackedJavaNativeInterfaceNativeComponentDependencies::new));
@@ -690,19 +689,30 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 					val resolvableFactory = project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class);
 					project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
-						private boolean alreadyExecuted = false;
+						private ModelElement compileOnly = null;
 
 						@Override
 						public void execute(NativeLanguagePlugin appliedPlugin) {
-							if (!alreadyExecuted) {
-								alreadyExecuted = true;
-								val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier)));
-								val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("nativeHeaderSearchPaths"), identifier)));
-								headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
-									.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
-									.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()))
-									.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
+							if (compileOnly == null) {
+								compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier)));
 							}
+							val sourceSet = registry.register(project.getExtensions().getByType(appliedPlugin.getRegistrationFactoryType()).create(identifier));
+							val sourceSetIdentifier = ModelNodes.of(sourceSet).getComponent(LanguageSourceSetIdentifier.class);
+							val configurer = project.getExtensions().getByType(ModelConfigurer.class);
+							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(DependencyBucketIdentifier.class), ModelComponentReference.ofInstance(projectionOf(NamedDomainObjectProvider.class)), (e, i, p) -> {
+								if (i.getOwnerIdentifier().equals(sourceSetIdentifier)) {
+									NamedDomainObjectProvider<Configuration> configuration = p.get(ModelType.of(NamedDomainObjectProvider.class));
+									configuration.configure(configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class)));
+									configuration.configure(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()));
+									configuration.configure(ConfigurationUtilsEx::configureAsGradleDebugCompatible);
+								}
+							}));
+							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(TaskIdentifier.class), ModelComponentReference.ofInstance(projectionOf(TaskProvider.class)), (e, i, p) -> {
+								if (i.getOwnerIdentifier().equals(sourceSetIdentifier)) {
+									NamedDomainObjectProvider<Task> compileTask = p.get(ModelType.of(NamedDomainObjectProvider.class));
+									compileTask.configure(configureTargetPlatform(set(fromBuildVariant(identifier.getBuildVariant()))));
+								}
+							}));
 						}
 					});
 					val linkLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("nativeLinkLibraries"), identifier)));
@@ -742,6 +752,28 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			}))
 			.build();
 	}
+
+	//region Target platform
+	public static <SELF extends Task> Action<SELF> configureTargetPlatform(BiConsumer<? super SELF, ? super PropertyUtils.Property<? extends NativePlatform>> action) {
+		return task -> {
+			action.accept(task, wrap(targetPlatformProperty(task)));
+		};
+	}
+
+	private static NativePlatform fromBuildVariant(BuildVariant buildVariant) {
+		return NativePlatformFactory.create(buildVariant).get();
+	}
+
+	private static Property<NativePlatform> targetPlatformProperty(Task task) {
+		if (task instanceof AbstractNativeCompileTask) {
+			return ((AbstractNativeCompileTask) task).getTargetPlatform();
+		} else if (task instanceof SwiftCompile) {
+			return ((SwiftCompile) task).getTargetPlatform();
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+	//endregion
 
 	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary
 		, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
