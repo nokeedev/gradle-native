@@ -183,6 +183,11 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	@Override
+	public BinaryView<Binary> getBinaries() {
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
+	}
+
+	@Override
 	public void binaries(Action<? super BinaryView<Binary>> action) {
 		action.execute(getBinaries());
 	}

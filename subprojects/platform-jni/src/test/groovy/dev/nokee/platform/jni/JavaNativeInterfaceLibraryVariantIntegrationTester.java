@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.jni;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.MoreCollectors;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
@@ -34,6 +36,8 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.language.cpp.CppBinary;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.stream.Collectors;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
@@ -65,6 +69,11 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		@Test
 		void hasAssembleTask() {
 			assertThat(subject().get(), hasItem(named("assemble" + capitalize(variantName()))));
+		}
+
+		@Test
+		void hasJarTask() {
+			assertThat(subject().get(), hasItem(named("jar" + capitalize(variantName()))));
 		}
 	}
 
@@ -286,6 +295,24 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		@Test
 		void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of " + displayName() + "."));
+		}
+	}
+
+	@Nested
+	class JniJarBinaryTest extends JniJarBinaryIntegrationTester {
+		@Override
+		public String variantName() {
+			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName();
+		}
+
+		@Override
+		public Project project() {
+			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.project();
+		}
+
+		@Override
+		public JniJarBinary subject() {
+			return (JniJarBinary) JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getBinaries().get().stream().filter(it -> it instanceof JniJarBinary).collect(MoreCollectors.onlyElement());
 		}
 	}
 }

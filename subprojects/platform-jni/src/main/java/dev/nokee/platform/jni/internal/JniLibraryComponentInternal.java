@@ -49,17 +49,15 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	, ModelBackedNamedMixIn
 {
 	@Getter private final GroupId groupId;
-	private final BinaryView<Binary> binaries;
 	private final Property<JniLibraryInternal> developmentVariant;
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier identifier, GroupId groupId, ObjectFactory objects, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
+	public JniLibraryComponentInternal(ComponentIdentifier identifier, GroupId groupId, ObjectFactory objects, TaskRegistry taskRegistry) {
 		super(identifier, objects);
 		this.groupId = groupId;
 		this.developmentVariant = objects.property(JniLibraryInternal.class);
 		this.taskRegistry = taskRegistry;
-		this.binaries = binaryViewFactory.create(identifier);
 	}
 
 	public SetProperty<TargetMachine> getTargetMachines() {
@@ -98,7 +96,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 
 	@Override
 	public BinaryView<Binary> getBinaries() {
-		return binaries;
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override

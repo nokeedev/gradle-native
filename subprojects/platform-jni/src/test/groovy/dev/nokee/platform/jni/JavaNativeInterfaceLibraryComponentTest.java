@@ -51,7 +51,7 @@ import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.javaNativ
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@PluginRequirement.Require(type = ComponentModelBasePlugin.class)
+@PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest implements ComponentTester<JavaNativeInterfaceLibrary>
 	, DependencyAwareComponentTester<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
@@ -83,6 +83,78 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		@Test
 		void hasAssembleTask() {
 			assertThat(subject().get(), hasItem(named("assembleQuzu")));
+		}
+
+		@Nested
+		class JarTest {
+			@Nested
+			@PluginRequirement.Require(id = "java")
+			class WhenJavaLanguagePluginApplied {
+				@Test
+				void hasJarTask() {
+					assertThat(subject().get(), hasItem(named("jarQuzu")));
+				}
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "groovy")
+			class WhenGroovyLanguagePluginApplied {
+				@Test
+				void hasJarTask() {
+					assertThat(subject().get(), hasItem(named("jarQuzu")));
+				}
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
+			class WhenKotlinLanguagePluginApplied {
+				@Test
+				void hasJarTask() {
+					assertThat(subject().get(), hasItem(named("jarQuzu")));
+				}
+			}
+		}
+	}
+
+	@Nested
+	class ComponentBinariesTest {
+		public BinaryView<Binary> subject() {
+			return subject.getBinaries();
+		}
+
+		@Nested
+		class JvmJarTest {
+			@Test
+			void noJvmJarBinaryWhenJvmLanguagePluginNotApplied() {
+				assertThat(subject().get(), not(hasItem(isA(JvmJarBinary.class))));
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "java")
+			class WhenJavaLanguagePluginApplied {
+				@Test
+				void hasJvmJarBinary() {
+					assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
+				}
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "groovy")
+			class WhenGroovyLanguagePluginApplied {
+				@Test
+				void hasJvmJarBinary() {
+					assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
+				}
+			}
+
+			@Nested
+			@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
+			class WhenKotlinLanguagePluginApplied {
+				@Test
+				void hasJvmJarBinary() {
+					assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
+				}
+			}
 		}
 	}
 
@@ -419,6 +491,43 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 	}
 
 	@Nested
+	class JvmJarBinaryTest {
+		@Test
+		void noJvmJarBinaryWhenJvmLanguagePluginNotApplied() {
+			assertThat(subject.getBinaries().get(), not(hasItem(isA(JvmJarBinary.class))));
+		}
+
+		abstract class  BinaryTester extends JvmJarBinaryIntegrationTester {
+			@Override
+			public String variantName() {
+				return "quzu";
+			}
+
+			@Override
+			public Project project() {
+				return project;
+			}
+
+			@Override
+			public JvmJarBinary subject() {
+				return (JvmJarBinary) subject.getBinaries().get().iterator().next();
+			}
+		}
+
+		@Nested
+		@PluginRequirement.Require(id = "java")
+		class WhenJavaLanguagePluginApplied extends BinaryTester {}
+
+		@Nested
+		@PluginRequirement.Require(id = "groovy")
+		class WhenGroovyLanguagePluginApplied extends BinaryTester {}
+
+		@Nested
+		@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
+		class WhenKotlinLanguagePluginApplied extends BinaryTester {}
+	}
+
+	@Nested
 	class SingleVariantTest extends JavaNativeInterfaceLibraryVariantIntegrationTester {
 		@BeforeEach
 		void configureTargetMachines() {
@@ -554,6 +663,12 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		@BeforeEach
 		void configureTargetMachine() {
 			subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.of("windows-x64"),TargetMachines.of("linux-x86")));
+		}
+
+		@Test
+		void noJarTaskWhenJvmLanguagePluginNotApplied() {
+			// We are checking for the JVM jar task, single variant has its JNI JAR task folded over the JVM JAR task
+			assertThat(subject.getTasks().get(), not(hasItem(named("jarQuzu"))));
 		}
 
 		@Nested
