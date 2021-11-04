@@ -20,11 +20,13 @@ import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BuildVariantInternal extends BuildVariant {
 	List<Coordinate<?>> getDimensions();
 
 	<T> T getAxisValue(CoordinateAxis<T> type);
+	<T> Optional<T> findAxisValue(CoordinateAxis<T> type);
 
 	boolean hasAxisValue(CoordinateAxis<?> type);
 

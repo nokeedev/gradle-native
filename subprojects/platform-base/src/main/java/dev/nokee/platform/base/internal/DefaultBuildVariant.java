@@ -83,6 +83,12 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 	}
 
 	@Override
+	public <T> Optional<T> findAxisValue(CoordinateAxis<T> type) {
+		// TODO: We can validate the type of the value match the type of the dimension.
+		return Coordinates.find(coordinates, type, true);
+	}
+
+	@Override
 	public boolean hasAxisValue(CoordinateAxis<?> type) {
 		return Coordinates.find(coordinates, type, true).isPresent();
 	}
