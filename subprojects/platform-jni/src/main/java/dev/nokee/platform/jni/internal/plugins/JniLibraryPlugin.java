@@ -246,9 +246,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 			// Build all language source set
 			val objectSourceSets = getObjects().domainObjectSet(ObjectSourceSet.class);
-			if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
-				objectSourceSets.addAll(new NativeLanguageRules(taskRegistry, objects, variant.getIdentifier()).apply(extension.getSources()));
-			}
+//			if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
+//				objectSourceSets.addAll(new NativeLanguageRules(taskRegistry, objects, variant.getIdentifier()).apply(extension.getSources()));
+//			}
 
 			TaskProvider<LinkSharedLibraryTask> linkTask = tasks.named(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variant.getIdentifier()).getTaskName(), LinkSharedLibraryTask.class);
 			MutationGuards.of(tasks).withMutationEnabled(ignored -> {
