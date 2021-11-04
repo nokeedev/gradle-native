@@ -25,15 +25,20 @@ import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.SourceView;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.provider.ProviderFactory;
 
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -41,11 +46,45 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 	private final ModelRegistry registry;
 	private final ModelPropertyRegistrationFactory propertyFactory;
 	private final ModelConfigurer modelConfigurer;
+	private final ProviderFactory providers;
+	private final ModelLookup modelLookup;
 
-	public ComponentSourcesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer) {
+	public ComponentSourcesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ProviderFactory providers, ModelLookup modelLookup) {
 		this.registry = registry;
 		this.propertyFactory = propertyFactory;
 		this.modelConfigurer = modelConfigurer;
+		this.providers = providers;
+		this.modelLookup = modelLookup;
+	}
+
+	public ModelRegistration create(ModelPropertyIdentifier identifier) {
+		val path = toPath(identifier);
+		assert path.getParent().isPresent();
+		val ownerPath = path.getParent().get();
+		return ModelRegistration.builder()
+			.withComponent(path)
+			.withComponent(identifier)
+			.withComponent(IsModelProperty.tag())
+			.withComponent(createdUsing(of(SourceView.class), () -> new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, () -> {
+				ModelStates.realize(modelLookup.get(ownerPath));
+				ModelStates.finalize(modelLookup.get(ownerPath));
+			})))))
+			.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
+			.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
+				if (id.equals(identifier)) {
+					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (e, p, ignored1, ignored2, projection) -> {
+						if (ownerPath.isDescendant(p)) {
+							val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(ownerPath)))
+								.filter(it -> !it.isEmpty())
+								.map(StringUtils::capitalize)
+								.collect(Collectors.joining()));
+							registry.register(propertyFactory.create(ModelPropertyIdentifier.of(identifier, elementName), e));
+						}
+					}));
+				}
+			}))
+			.build();
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier, Class<? extends FunctionalSourceSet> sourceViewType) {
