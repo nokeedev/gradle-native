@@ -17,6 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.core.*;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
@@ -42,6 +43,7 @@ public final class JniJarBinaryRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(toPath(identifier))
+			.withComponent(IsBinary.tag())
 			.withComponent(createdUsing(of(JniJarBinary.class), ModelBackedJniJarBinary::new))
 			.action(jarTaskFactory.create(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(JarTask.class), (entity, id, jarTask) -> {
