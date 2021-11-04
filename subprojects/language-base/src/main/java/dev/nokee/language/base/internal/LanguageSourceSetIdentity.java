@@ -18,20 +18,33 @@ package dev.nokee.language.base.internal;
 import dev.nokee.model.HasName;
 import lombok.EqualsAndHashCode;
 
+import static java.util.Objects.requireNonNull;
+
 @EqualsAndHashCode
 public final class LanguageSourceSetIdentity implements HasName {
 	private final LanguageSourceSetName name;
+	private final String displayName;
 
-	private LanguageSourceSetIdentity(LanguageSourceSetName name) {
+	private LanguageSourceSetIdentity(LanguageSourceSetName name, String displayName) {
 		this.name = name;
+		this.displayName = displayName;
 	}
 
-	public static LanguageSourceSetIdentity of(String name) {
-		return new LanguageSourceSetIdentity(LanguageSourceSetName.of(name));
+	public static LanguageSourceSetIdentity of(String name, String displayName) {
+		return new LanguageSourceSetIdentity(LanguageSourceSetName.of(name), requireNonNull(displayName));
 	}
 
 	@Override
 	public LanguageSourceSetName getName() {
 		return name;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	@Override
+	public String toString() {
+		return "sources '" + name + "'";
 	}
 }

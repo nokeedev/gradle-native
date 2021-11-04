@@ -43,7 +43,11 @@ public final class LanguageSourceSetIdentifier implements DomainObjectIdentifier
 	}
 
 	public static LanguageSourceSetIdentifier of(DomainObjectIdentifier ownerIdentifier, String name) {
-		return new LanguageSourceSetIdentifier(LanguageSourceSetIdentity.of(name), ownerIdentifier);
+		return new LanguageSourceSetIdentifier(LanguageSourceSetIdentity.of(name, "sources"), ownerIdentifier);
+	}
+
+	public static LanguageSourceSetIdentifier of(DomainObjectIdentifier ownerIdentifier, LanguageSourceSetIdentity identity) {
+		return new LanguageSourceSetIdentifier(identity, ownerIdentifier);
 	}
 
 	@Override
@@ -53,6 +57,6 @@ public final class LanguageSourceSetIdentifier implements DomainObjectIdentifier
 
 	@Override
 	public String toString() {
-		return String.format("sources '%s'", toGradlePath(this));
+		return String.format("%s '%s'", identity.getDisplayName(), toGradlePath(this));
 	}
 }

@@ -19,12 +19,15 @@ import com.google.common.testing.EqualsTester;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.model.testers.HasNameTester;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.language.base.internal.LanguageSourceSetIdentity.of;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LanguageSourceSetIdentityTest implements HasNameTester {
-	private final LanguageSourceSetIdentity subject = LanguageSourceSetIdentity.of("gofe");
+	private final LanguageSourceSetIdentity subject = of("gofe", "zewi duna");
 
 	@Override
 	public LanguageSourceSetIdentity subject() {
@@ -37,11 +40,22 @@ class LanguageSourceSetIdentityTest implements HasNameTester {
 	}
 
 	@Test
+	void hasDisplayName()  {
+		assertEquals("zewi duna", subject.getDisplayName());
+	}
+
+	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(LanguageSourceSetIdentity.of("kofo"), LanguageSourceSetIdentity.of("kofo"))
-			.addEqualityGroup(LanguageSourceSetIdentity.of("tiri"))
+			.addEqualityGroup(of("kofo", "sources"), of("kofo", "sources"))
+			.addEqualityGroup(of("tiri", "sources"))
+			.addEqualityGroup(of("kofo", "other sources"))
 			.testEquals();
+	}
+
+	@Test
+	void hasToString() {
+		assertThat(subject, Matchers.hasToString("sources 'gofe'"));
 	}
 }
