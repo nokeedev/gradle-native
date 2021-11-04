@@ -72,6 +72,11 @@ public abstract class ConfigurableSourceSetIntegrationTester implements Configur
 			assertThat(subject().getFilter().getExcludes(), empty());
 			assertThat(subject().getFilter().getIncludes(), empty());
 		}
+
+		@Test
+		void hasNoBuildDependenciesForEmptySourceSet() {
+			assertThat(subject(), buildDependencies(emptyIterable()));
+		}
 	}
 
 	@Nested
@@ -323,11 +328,6 @@ public abstract class ConfigurableSourceSetIntegrationTester implements Configur
 			val buildTask = project.getTasks().create("buildTask");
 			val files = project.files(project.file("foo")).builtBy(buildTask);
 			assertThat(subject().from(files), buildDependencies(containsInAnyOrder(buildTask)));
-		}
-
-		@Test
-		void hasNoBuildDependenciesForEmptySourceSet() {
-			assertThat(subject(), buildDependencies(emptyIterable()));
 		}
 	}
 
