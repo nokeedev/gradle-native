@@ -15,9 +15,6 @@
  */
 package dev.nokee.language.base;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -25,9 +22,7 @@ import org.gradle.api.Buildable;
 import org.gradle.api.Named;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * A set of sources for a programming language.
