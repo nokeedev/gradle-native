@@ -65,11 +65,11 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	public static <T extends Binary> BinaryIdentifier<T> of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(type != null, "Cannot construct a binary identifier because the task type is null.");
-		return new BinaryIdentifier<>(BinaryIdentity.of(name.toString()), type, ownerIdentifier);
+		return new BinaryIdentifier<>(BinaryIdentity.of(name.toString(), "binary"), type, ownerIdentifier);
 	}
 
 	public static BinaryIdentifier<?> of(DomainObjectIdentifier ownerIdentifier, String name) {
-		return new BinaryIdentifier<>(BinaryIdentity.of(name), null, ownerIdentifier);
+		return new BinaryIdentifier<>(BinaryIdentity.of(name, "binary"), null, ownerIdentifier);
 	}
 
 	public static BinaryIdentifier<?> of(DomainObjectIdentifier ownerIdentifier, BinaryIdentity identity) {

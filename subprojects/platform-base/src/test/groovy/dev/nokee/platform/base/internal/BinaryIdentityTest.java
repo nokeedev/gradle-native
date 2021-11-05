@@ -24,32 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BinaryIdentityTest {
 	@Nested
-	class NameOnlyTest {
-		private final BinaryIdentity subject = BinaryIdentity.of("veke");
-
-		@Test
-		void hasName() {
-			assertEquals(BinaryName.of("veke"), subject.getName());
-		}
-
-		@Test
-		void hasDisplayName() {
-			assertEquals("binary", subject.getDisplayName());
-		}
-
-		@Test
-		void isNotMainBinary() {
-			assertFalse(subject.isMain());
-		}
-
-		@Test
-		void hasToString() {
-			assertThat(subject, Matchers.hasToString("binary 'veke'"));
-		}
-	}
-
-	@Nested
-	class WithDisplayNameTest {
+	class NameWithDisplayNameTest {
 		private final BinaryIdentity subject = BinaryIdentity.of("kapi", "Xibe suda");
 
 		@Test
