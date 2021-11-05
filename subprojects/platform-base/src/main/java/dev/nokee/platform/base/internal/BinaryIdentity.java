@@ -45,10 +45,6 @@ public final class BinaryIdentity implements HasName {
 		return isMain;
 	}
 
-	public static BinaryIdentity of(String name) {
-		return new BinaryIdentity(BinaryName.of(name), "binary", false);
-	}
-
 	public static BinaryIdentity of(String name, String displayName) {
 		return new BinaryIdentity(BinaryName.of(name), displayName, false);
 	}
