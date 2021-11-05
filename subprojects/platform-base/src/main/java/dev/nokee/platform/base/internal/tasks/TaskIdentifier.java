@@ -45,7 +45,7 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 	@Getter private final Class<T> type;
 	@Getter private final DomainObjectIdentifier ownerIdentifier;
 
-	public TaskIdentifier(TaskName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+	private TaskIdentifier(TaskName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		Preconditions.checkArgument(name != null, "Cannot construct a task identifier because the task name is null.");
 		Preconditions.checkArgument(type != null, "Cannot construct a task identifier because the task type is null.");
 		Preconditions.checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
