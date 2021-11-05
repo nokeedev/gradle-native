@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package dev.nokee.platform.base;
 
 /**
- * A physical binary artifact, which can run on a particular platform or runtime.
+ * A physical artifact.
  *
- * @since 0.3
+ * @since 0.5
  */
-public interface Binary extends Artifact {
+public interface Artifact {
 }
