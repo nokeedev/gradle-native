@@ -26,7 +26,7 @@ public final class BinaryIdentity implements HasName {
 	private final String displayName;
 	private final boolean isMain;
 
-	BinaryIdentity(BinaryName name, String displayName, boolean isMain) {
+	private BinaryIdentity(BinaryName name, String displayName, boolean isMain) {
 		this.name = requireNonNull(name);
 		this.displayName = requireNonNull(displayName);
 		this.isMain = isMain;
