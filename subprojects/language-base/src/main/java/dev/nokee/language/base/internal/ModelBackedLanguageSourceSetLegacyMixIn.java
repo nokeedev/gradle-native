@@ -49,7 +49,7 @@ public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSo
 	default String getName() {
 		return StringUtils.uncapitalize(Streams.stream(ModelNodes.of(this).getComponent(ModelComponentType.componentOf(LanguageSourceSetIdentifier.class))).flatMap(it -> {
 			if (it instanceof HasName) {
-				return Stream.of(((HasName) it).getName().toString());
+				return Stream.of(((HasName) it).getName().toString()).filter(name -> !name.equals("main"));
 			} else {
 				return Stream.empty();
 			}
