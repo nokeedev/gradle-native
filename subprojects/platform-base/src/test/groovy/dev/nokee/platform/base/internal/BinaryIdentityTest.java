@@ -15,9 +15,11 @@
  */
 package dev.nokee.platform.base.internal;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BinaryIdentityTest {
@@ -39,6 +41,11 @@ class BinaryIdentityTest {
 		void isNotMainBinary() {
 			assertFalse(subject.isMain());
 		}
+
+		@Test
+		void hasToString() {
+			assertThat(subject, Matchers.hasToString("binary 'veke'"));
+		}
 	}
 
 	@Nested
@@ -59,6 +66,11 @@ class BinaryIdentityTest {
 		void isNotMainBinary() {
 			assertFalse(subject.isMain());
 		}
+
+		@Test
+		void hasToString() {
+			assertThat(subject, Matchers.hasToString("binary 'kapi'"));
+		}
 	}
 
 	@Nested
@@ -78,6 +90,11 @@ class BinaryIdentityTest {
 		@Test
 		void isMainBinary() {
 			assertTrue(subject.isMain());
+		}
+
+		@Test
+		void hasToString() {
+			assertThat(subject, Matchers.hasToString("binary 'leve'"));
 		}
 	}
 }
