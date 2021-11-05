@@ -56,4 +56,9 @@ public final class BinaryIdentity implements HasName {
 	public static BinaryIdentity ofMain(String name, String displayName) {
 		return new BinaryIdentity(BinaryName.of(name), displayName, true);
 	}
+
+	@Override
+	public String toString() {
+		return "binary '" + name + "'";
+	}
 }
