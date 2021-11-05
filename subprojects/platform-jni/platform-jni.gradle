@@ -20,6 +20,8 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
+	annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
 }
 
 gradlePlugin {
