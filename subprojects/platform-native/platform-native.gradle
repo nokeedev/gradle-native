@@ -28,6 +28,7 @@ dependencies {
 	testFixturesImplementation testFixtures(project(':languageObjectiveC'))
 	testFixturesImplementation testFixtures(project(':languageObjectiveCpp'))
 	testFixturesImplementation testFixtures(project(':languageSwift'))
+	testFixturesImplementation testFixtures(project(':platformBase'))
 	testFixturesApi 'dev.nokee:templates:latest.integration'
 }
 

@@ -23,13 +23,11 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.DefaultBuildVariant;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
@@ -38,6 +36,7 @@ import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
@@ -69,6 +68,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 		project.getPluginManager().apply(DarwinRuntimePlugin.class); // for now, later we will be more smart
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
+
+		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
+			project.getExtensions().getByType(TaskRegistrationFactory.class),
+			project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
+			project.getExtensions().getByType(ModelRegistry.class),
+			project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class)));
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {
