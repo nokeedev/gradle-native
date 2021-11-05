@@ -116,11 +116,12 @@ public final class ProjectMatchers {
 	 * @param matcher  the build tasks matcher, must not be null
 	 * @return a buildable matcher, never null
 	 */
-	public static Matcher<Buildable> buildDependencies(Matcher<? super Iterable<? extends Task>> matcher) {
-		return new FeatureMatcher<Buildable, Iterable<? extends Task>>(matcher, "a buildable object with dependencies", "buildable object with dependencies") {
+	public static Matcher<Buildable> buildDependencies(Matcher<? super Iterable<Task>> matcher) {
+		return new FeatureMatcher<Buildable, Iterable<Task>>(matcher, "a buildable object with dependencies", "buildable object with dependencies") {
 			@Override
-			protected Iterable<? extends Task> featureValueOf(Buildable actual) {
-				return actual.getBuildDependencies().getDependencies(null);
+			@SuppressWarnings("unchecked")
+			protected Iterable<Task> featureValueOf(Buildable actual) {
+				return (Iterable<Task>) actual.getBuildDependencies().getDependencies(null);
 			}
 		};
 	}
