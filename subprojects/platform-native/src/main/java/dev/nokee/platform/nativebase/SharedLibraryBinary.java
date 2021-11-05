@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
+import org.gradle.api.Buildable;
 import org.gradle.api.tasks.TaskProvider;
 
 /**
@@ -25,7 +26,7 @@ import org.gradle.api.tasks.TaskProvider;
  *
  * @since 0.3
  */
-public interface SharedLibraryBinary extends NativeBinary {
+public interface SharedLibraryBinary extends NativeBinary, Buildable {
 	/**
 	 * Returns a view of all the compile tasks that participate to compiling all the object files for this binary.
 	 *
