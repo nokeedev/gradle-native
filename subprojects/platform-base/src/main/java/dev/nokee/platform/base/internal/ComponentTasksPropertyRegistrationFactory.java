@@ -79,4 +79,19 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			}))
 			.build();
 	}
+
+	public ModelRegistration create(ModelPropertyIdentifier identifier, Class<? extends Task> elementType) {
+		val path = toPath(identifier);
+		assert path.getParent().isPresent();
+		val ownerPath = path.getParent().get();
+		return ModelRegistration.builder()
+			.withComponent(path)
+			.withComponent(identifier)
+			.withComponent(IsModelProperty.tag())
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, () -> {
+				ModelStates.realize(modelLookup.get(ownerPath));
+				ModelStates.finalize(modelLookup.get(ownerPath));
+			})))))
+			.build();
+	}
 }
