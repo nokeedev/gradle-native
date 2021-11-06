@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.notNullValue;
 public interface NativeSourceCompileTester extends SourceCompileTester, HasObjectFilesTester {
 	NativeSourceCompile subject();
 
-	@Override
+	@Test
 	default void hasToolChain() {
 		assertThat("provide NativeToolChain", subject().getToolChain(), providerOf(isA(NativeToolChain.class)));
 	}
