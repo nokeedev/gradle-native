@@ -28,15 +28,14 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
-import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.*;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
@@ -73,7 +72,18 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(TaskRegistrationFactory.class),
 			project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
 			project.getExtensions().getByType(ModelRegistry.class),
-			project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class)));
+			project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class),
+			new LinkLibrariesConfigurationRegistrationActionFactory(
+				() -> project.getExtensions().getByType(ModelRegistry.class),
+				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
+				() -> project.getObjects()
+			),
+			new RuntimeLibrariesConfigurationRegistrationActionFactory(
+				() -> project.getExtensions().getByType(ModelRegistry.class),
+				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
+				() -> project.getObjects()
+			)
+		));
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {

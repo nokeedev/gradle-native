@@ -28,6 +28,7 @@ import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFac
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.testers.SharedLibraryBinaryIntegrationTester;
 import lombok.val;
+import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 
@@ -54,6 +55,21 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		@Override
 		public SharedLibraryBinary subject() {
 			return subject;
+		}
+
+		@Override
+		public Project project() {
+			return project;
+		}
+
+		@Override
+		public String variantName() {
+			return "nuliCuzuRuca";
+		}
+
+		@Override
+		public String displayName() {
+			return "binary ':nuli:cuzu:ruca'";
 		}
 	}
 }

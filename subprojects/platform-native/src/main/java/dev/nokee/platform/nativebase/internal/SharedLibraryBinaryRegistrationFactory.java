@@ -32,6 +32,7 @@ import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
+import org.gradle.api.Task;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
@@ -39,18 +40,23 @@ import org.gradle.api.tasks.TaskProvider;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public final class SharedLibraryBinaryRegistrationFactory {
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final ModelRegistry registry;
 	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
+	private final LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory;
+	private final RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(TaskRegistrationFactory taskRegistrationFactory, ModelPropertyRegistrationFactory propertyRegistrationFactory, ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory) {
+	public SharedLibraryBinaryRegistrationFactory(TaskRegistrationFactory taskRegistrationFactory, ModelPropertyRegistrationFactory propertyRegistrationFactory, ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory, LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory, RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory) {
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.propertyRegistrationFactory = propertyRegistrationFactory;
 		this.registry = registry;
 		this.tasksPropertyRegistrationFactory = tasksPropertyRegistrationFactory;
+		this.linkLibrariesRegistrationFactory = linkLibrariesRegistrationFactory;
+		this.runtimeLibrariesRegistrationFactory = runtimeLibrariesRegistrationFactory;
 	}
 
 	public ModelRegistration create(BinaryIdentifier<?> identifier) {
@@ -63,9 +69,13 @@ public final class SharedLibraryBinaryRegistrationFactory {
 				if (id.equals(identifier)) {
 					val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(identifier, "link"), LinkSharedLibraryTask.class).build());
 					registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "linkTask"), ModelNodes.of(linkTask)));
+					linkTask.configure(Task.class, configureDescription("Links the %s.", identifier));
+
 					registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class));
 				}
 			}))
+			.action(linkLibrariesRegistrationFactory.create(identifier))
+			.action(runtimeLibrariesRegistrationFactory.create(identifier))
 			.build();
 	}
 
