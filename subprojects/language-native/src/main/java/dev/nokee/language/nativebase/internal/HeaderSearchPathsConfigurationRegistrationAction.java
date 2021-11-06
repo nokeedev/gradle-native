@@ -46,7 +46,6 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 
 @AutoFactory
 public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
-	private static final Logger LOGGER = Logger.getLogger(HeaderSearchPathsConfigurationRegistrationAction.class.getCanonicalName());
 	private final LanguageSourceSetIdentifier identifier;
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
