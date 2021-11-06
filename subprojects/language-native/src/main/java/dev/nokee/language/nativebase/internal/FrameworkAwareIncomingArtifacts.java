@@ -43,7 +43,7 @@ public final class FrameworkAwareIncomingArtifacts {
 	private static final Logger LOGGER = Logger.getLogger(HeaderSearchPathsConfigurationRegistrationAction.class.getCanonicalName());
 	private final Provider<ResolvableDependencies> incomingArtifacts;
 
-	public FrameworkAwareIncomingArtifacts(Provider<ResolvableDependencies> incomingArtifacts) {
+	private FrameworkAwareIncomingArtifacts(Provider<ResolvableDependencies> incomingArtifacts) {
 		this.incomingArtifacts = incomingArtifacts;
 	}
 
