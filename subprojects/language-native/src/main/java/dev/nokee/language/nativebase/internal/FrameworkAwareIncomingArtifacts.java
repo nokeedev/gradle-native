@@ -39,7 +39,7 @@ import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.ART
 import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.UNCOMPRESSED;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 
-public class FrameworkAwareIncomingArtifacts {
+public final class FrameworkAwareIncomingArtifacts {
 	private static final Logger LOGGER = Logger.getLogger(HeaderSearchPathsConfigurationRegistrationAction.class.getCanonicalName());
 	private final Provider<ResolvableDependencies> incomingArtifacts;
 
