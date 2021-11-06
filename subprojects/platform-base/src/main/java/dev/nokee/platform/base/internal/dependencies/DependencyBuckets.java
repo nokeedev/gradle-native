@@ -20,6 +20,7 @@ import com.google.common.collect.Streams;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentity;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -40,7 +41,9 @@ public final class DependencyBuckets {
 			builder.append("<unknown>");
 		} else {
 			val ownerIdentifier = identifier.getOwnerIdentifier();
-			if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
+			if (ownerIdentifier instanceof BinaryIdentifier) {
+				builder.append(ownerIdentifier);
+			} else if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
 				builder.append(((DomainObjectIdentifierInternal) ownerIdentifier).getDisplayName());
 			} else {
 				builder.append(ownerIdentifier);
