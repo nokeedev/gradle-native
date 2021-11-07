@@ -15,16 +15,19 @@
  */
 package dev.nokee.platform.nativebase.tasks;
 
+import dev.nokee.language.base.HasDestinationDirectory;
 import org.gradle.api.Task;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 
-public interface ObjectLink extends Task {
+public interface ObjectLink extends Task, HasDestinationDirectory {
 	/**
 	 * The tool chain used for the compilation.
 	 *
@@ -51,4 +54,11 @@ public interface ObjectLink extends Task {
 	 */
 	@OutputFile
 	Provider<RegularFile> getLinkedFile();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@OutputDirectory
+	DirectoryProperty getDestinationDirectory();
 }
