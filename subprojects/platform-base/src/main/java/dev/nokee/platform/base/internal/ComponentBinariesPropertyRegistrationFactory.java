@@ -66,7 +66,7 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 			})))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
 				if (id.equals(identifier)) {
-					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofAny(projectionOf(Binary.class)), (e, p, ignored1, ignored2, projection) -> {
+					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofProjection(Binary.class), (e, p, ignored1, ignored2, projection) -> {
 						if (ownerPath.isDescendant(p)) {
 							val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(ownerPath)))
 								.filter(it -> !it.isEmpty())

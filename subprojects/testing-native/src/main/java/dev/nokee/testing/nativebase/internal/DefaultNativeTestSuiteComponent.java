@@ -191,15 +191,15 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	public void finalizeExtension(Project project) {
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultNativeTestSuiteVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			createBinaries((KnownDomainObject<DefaultNativeTestSuiteVariant>) dev.nokee.utils.Cast.uncheckedCast("", new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultNativeTestSuiteVariant.class), entity)));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultNativeTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			createBinaries(knownVariant);
 		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultNativeTestSuiteVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultNativeTestSuiteVariant.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultNativeTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultNativeTestSuiteVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultNativeTestSuiteVariant.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultNativeTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 
 		// HACK: This should really be solve using the variant whenElementKnown API
@@ -246,7 +246,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			}));
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			whenElementKnown(component, ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), (entity, a, b, c) -> {
+			whenElementKnown(component, ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), (entity, a, b, c) -> {
 				// TODO: should have a way to report the public type of the "main" projection
 				//   The known and provider should use the public type of the projection... instead of the "assumed type"
 				//   BUT should it... seems a bit hacky... check what Software Model did.

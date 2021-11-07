@@ -21,9 +21,7 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -51,7 +49,6 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -161,18 +158,18 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 				binary.getBaseName().convention(GUtil.toCamelCase(project.getName()));
 			});
 		});
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultXCTestTestSuiteVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			onEachVariant(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultXCTestTestSuiteVariant.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultXCTestTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			onEachVariant(knownVariant);
 		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultXCTestTestSuiteVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			createBinaries((KnownDomainObject<DefaultXCTestTestSuiteVariant>) Cast.uncheckedCast("", new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultXCTestTestSuiteVariant.class), entity)));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultXCTestTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			createBinaries(knownVariant);
 		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultXCTestTestSuiteVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultXCTestTestSuiteVariant.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultXCTestTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultXCTestTestSuiteVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultXCTestTestSuiteVariant.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultXCTestTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 	}

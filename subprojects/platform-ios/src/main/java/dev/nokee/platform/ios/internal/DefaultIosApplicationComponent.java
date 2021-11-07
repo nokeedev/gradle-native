@@ -24,9 +24,7 @@ import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -41,7 +39,6 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecyc
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
-import dev.nokee.utils.Cast;
 import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.val;
@@ -66,7 +63,6 @@ import java.util.List;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -267,18 +263,18 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	public void finalizeValue() {
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			onEachVariant(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			onEachVariant(knownVariant);
 		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			createBinaries((KnownDomainObject<DefaultIosApplicationVariant>) Cast.uncheckedCast("", new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity)));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			createBinaries(knownVariant);
 		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(DefaultIosApplicationVariant.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(DefaultIosApplicationVariant.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 	}
 

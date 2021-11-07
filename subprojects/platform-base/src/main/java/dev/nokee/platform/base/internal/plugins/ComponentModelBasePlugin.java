@@ -77,7 +77,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ComponentContainer.class, "components", components);
 
 		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsComponent.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(Component.class)), (e, p, ignored1, ignored2, projection) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsComponent.class), ModelComponentReference.ofProjection(Component.class), (e, p, ignored1, ignored2, projection) -> {
 			if (ModelPath.root().isDirectDescendant(p)) {
 				modeRegistry.register(propertyFactory.create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ProjectIdentifier.of(project),"components"), p.getName()), e));
 			}

@@ -51,7 +51,7 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(IsModelProperty.tag())
 			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(elementType)), (e, p, ignored1, ignored2, projection) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofProjection(elementType), (e, p, ignored1, ignored2, projection) -> {
 				if (ownerPath.isDirectDescendant(p)) {
 					registry.register(propertyFactory.create(ModelPropertyIdentifier.of(identifier, p.getName()), e));
 				}

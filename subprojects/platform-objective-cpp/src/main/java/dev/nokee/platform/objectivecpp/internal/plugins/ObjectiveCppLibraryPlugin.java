@@ -98,9 +98,9 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCppLibrarySources.class));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(ObjectiveCppSourceSet.class)), (e, p, ignored, projection) -> {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofProjection(ObjectiveCppSourceSet.class).asDomainObject(), (e, p, ignored, sourceSet) -> {
 				if (path.isDescendant(p)) {
-					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
+					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name))).accept(sourceSet);
 				}
 			}));
 		}).create(identifier);

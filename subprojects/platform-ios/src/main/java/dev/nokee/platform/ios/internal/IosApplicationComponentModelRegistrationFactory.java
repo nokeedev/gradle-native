@@ -100,9 +100,9 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(entityPath)
 			.withComponent(identifier)
 			.withComponent(createdUsing(of(componentType), () -> project.getObjects().newInstance(implementationComponentType)))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
-					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+					withConventionOf(maven(identifier.getName())).accept(sourceSet);
 				}
 			}))
 			.withComponent(IsComponent.tag())
