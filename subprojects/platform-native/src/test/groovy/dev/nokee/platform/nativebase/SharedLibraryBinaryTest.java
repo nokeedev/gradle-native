@@ -26,13 +26,17 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.platform.nativebase.testers.SharedLibraryBinaryIntegrationTester;
 import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 
+import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class SharedLibraryBinaryTest extends AbstractPluginTest {
@@ -52,6 +56,12 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 	@Nested
 	class BinaryTest extends SharedLibraryBinaryIntegrationTester {
+		@BeforeEach
+		public void configureTargetPlatform() {
+			((LinkSharedLibraryTask) project.getTasks().getByName("link" + capitalize(variantName()))).getTargetPlatform()
+				.set(create(of("macos-x64")));
+		}
+
 		@Override
 		public SharedLibraryBinary subject() {
 			return subject;
