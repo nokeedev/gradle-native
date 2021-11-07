@@ -44,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
@@ -142,6 +143,11 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			@Test
 			void hasNoSourcesByDefault() {
 				assertThat(subject().getSource(), emptyIterable());
+			}
+
+			@Test
+			void includesBinaryNameInDestinationDirectory() {
+				assertThat(subject().getDestinationDirectory(), providerOf(aFileNamed("ruca")));
 			}
 		}
 	}
