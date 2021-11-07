@@ -32,11 +32,16 @@ import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class SharedLibraryBinaryTest extends AbstractPluginTest {
@@ -80,6 +85,33 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		@Override
 		public String displayName() {
 			return "binary ':nuli:cuzu:ruca'";
+		}
+
+		@Test
+		void noCompileTasksByDefault() {
+			assertThat(subject().getCompileTasks().get(), emptyIterable());
+		}
+
+		@Nested
+		class LinkSharedLibraryTaskTest {
+			public LinkSharedLibraryTask subject() {
+				return (LinkSharedLibraryTask) project().getTasks().getByName("link" + capitalize(variantName()));
+			}
+
+			@Test
+			void isNotDebuggableByDefault() {
+				assertThat(subject().isDebuggable(), is(false));
+			}
+
+			@Test
+			void hasNoLinkerArgumentsByDefault() {
+				assertThat(subject().getLinkerArgs(), providerOf(emptyIterable()));
+			}
+
+			@Test
+			void hasNoSourcesByDefault() {
+				assertThat(subject().getSource(), emptyIterable());
+			}
 		}
 	}
 }
