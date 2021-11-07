@@ -91,4 +91,21 @@ public final class FileSystemMatchers {
 	public static Matcher<Object> aFileNamed(String fileName) {
 		return aFile(FileMatchers.aFileNamed(Matchers.equalTo(fileName)));
 	}
+
+	public static Matcher<Object> aFileNamed(Matcher<String> matcher) {
+		return aFile(FileMatchers.aFileNamed(matcher));
+	}
+
+	public static Matcher<Object> aFileBaseNamed(Matcher<String> matcher) {
+		return aFileNamed(withoutExtension(matcher));
+	}
+
+	private static Matcher<String> withoutExtension(Matcher<String> matcher) {
+		return new FeatureMatcher<String, String>(matcher, "", "") {
+			@Override
+			protected String featureValueOf(String actual) {
+				return FilenameUtils.removeExtension(actual);
+			}
+		};
+	}
 }
