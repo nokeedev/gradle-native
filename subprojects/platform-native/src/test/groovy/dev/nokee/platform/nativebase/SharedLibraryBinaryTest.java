@@ -17,9 +17,16 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.IsModelProperty;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -29,19 +36,23 @@ import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.platform.nativebase.testers.SharedLibraryBinaryIntegrationTester;
 import lombok.val;
+import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Property;
+import org.gradle.platform.base.ToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class SharedLibraryBinaryTest extends AbstractPluginTest {
@@ -98,6 +109,20 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			assertThat(subject().getBaseName(), providerOf("ruca"));
 		}
 
+		@Test
+		void includesAllCompileTasksAsBuildDependencies() {
+			val compileTask = project().getTasks().create("xuvi", MySourceCompileTask.class);
+			val compileTasks = ModelProperties.getProperty(subject(), "compileTasks");
+			val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "xuvi");
+			project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
+				.withComponent(newPropertyIdentifier)
+				.withComponent(toPath(newPropertyIdentifier))
+				.withComponent(IsModelProperty.tag())
+				.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+				.build());
+			assertThat(subject(), buildDependencies(hasItem(compileTask)));
+		}
+
 		@Nested
 		class LinkSharedLibraryTaskTest {
 			public LinkSharedLibraryTask subject() {
@@ -119,5 +144,10 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				assertThat(subject().getSource(), emptyIterable());
 			}
 		}
+	}
+
+	public static abstract class MySourceCompileTask extends DefaultTask implements SourceCompile {
+		@Override
+		public abstract Property<ToolChain> getToolChain();
 	}
 }

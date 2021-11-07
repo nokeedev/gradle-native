@@ -41,7 +41,7 @@ public interface SharedLibraryBinaryTester extends ArtifactTester<SharedLibraryB
 	}
 
 	@Test
-	default void includesLinkTaskAsBuildable() {
+	default void includesLinkTaskAsBuildDependencies() {
 		assertThat(subject(), buildDependencies(hasItem(subject().getLinkTask().get())));
 	}
 
