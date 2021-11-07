@@ -33,6 +33,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
 import org.gradle.api.Task;
+import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
@@ -74,6 +75,8 @@ public final class SharedLibraryBinaryRegistrationFactory {
 					entity.addComponent(new NativeLinkTask(linkTask));
 
 					registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class));
+
+					registry.register(propertyRegistrationFactory.createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
 				}
 			}))
 			.action(linkLibrariesRegistrationFactory.create(identifier))
@@ -112,6 +115,11 @@ public final class SharedLibraryBinaryRegistrationFactory {
 		@Override
 		public ModelNode getNode() {
 			return node;
+		}
+
+		@Override
+		public Property<String> getBaseName() {
+			return ModelProperties.getProperty(this, "baseName").as(Property.class).get();
 		}
 	}
 }
