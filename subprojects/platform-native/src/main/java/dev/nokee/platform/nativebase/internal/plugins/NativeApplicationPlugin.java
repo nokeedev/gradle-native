@@ -212,6 +212,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, ModelBackedHasDevelopmentVariantMixIn<NativeApplication>
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 	}
 

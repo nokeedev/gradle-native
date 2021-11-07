@@ -123,6 +123,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base;
+package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.platform.base.HasBaseName;
 import org.gradle.api.provider.Property;
 
-public interface HasBaseName {
-	Property<String> getBaseName();
+public interface ModelBackedHasBaseNameMixIn extends HasBaseName {
+	default Property<String> getBaseName() {
+		return ModelNodeUtils.get(ModelNodes.of(this), BaseComponent.class).getBaseName();
+	}
 }

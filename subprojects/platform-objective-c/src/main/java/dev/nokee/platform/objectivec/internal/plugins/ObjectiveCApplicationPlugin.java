@@ -110,6 +110,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		, ModelBackedHasDevelopmentVariantMixIn<NativeApplication>
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {

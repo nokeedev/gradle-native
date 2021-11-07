@@ -112,6 +112,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedHasDevelopmentVariantMixIn<NativeApplication>
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 		@Override
 		public ObjectiveCppSourceSet getObjectiveCppSources() {

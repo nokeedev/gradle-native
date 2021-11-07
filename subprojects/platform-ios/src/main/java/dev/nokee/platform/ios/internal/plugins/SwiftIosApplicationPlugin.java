@@ -92,6 +92,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedSourceAwareComponentMixIn<SwiftIosApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 		@Override
 		public SwiftSourceSet getSwiftSources() {
