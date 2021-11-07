@@ -65,11 +65,13 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(toPath(identifier))
 			.withComponent(IsBinary.tag())
 			.withComponent(createdUsing(ModelType.of(SharedLibraryBinary.class), ModelBackedSharedLibraryBinary::new))
+			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
 					val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(identifier, "link"), LinkSharedLibraryTask.class).build());
 					registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "linkTask"), ModelNodes.of(linkTask)));
 					linkTask.configure(Task.class, configureDescription("Links the %s.", identifier));
+					entity.addComponent(new NativeLinkTask(linkTask));
 
 					registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class));
 				}

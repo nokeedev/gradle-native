@@ -17,16 +17,21 @@ package dev.nokee.platform.nativebase.testers;
 
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
@@ -34,6 +39,7 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.presentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
+import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -71,6 +77,32 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 		@Test
 		void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Links the " + displayName() + "."));
+		}
+
+		@Test
+		void attachesLinkLibrariesToLinkTaskLibraries() {
+			// We mock the resolution process by forcing a file dependency on the configuration
+			linkLibraries().getDependencies().add(createDependency(project().files().from("libfoo.a")));
+			assertThat(subject().getLibs(), contains(aFile(withAbsolutePath(endsWith("libfoo.a")))));
+		}
+
+		@Test
+		void linksLinkLibrariesConfigurationToLinkTaskAsFrameworkLinkArguments() throws IOException {
+			val artifact = Files.createTempDirectory("Vufa.framework").toFile();
+			val frameworkProducer = ProjectTestUtils.createChildProject(project());
+			frameworkProducer.getConfigurations().create("linkElements",
+				configureAsConsumable()
+					.andThen(configureAttributes(forUsage(project().getObjects().named(Usage.class, Usage.NATIVE_LINK))))
+					.andThen(configureAttributes(it -> it.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+						project().getObjects().named(LibraryElements.class, "framework-bundle"))))
+					.andThen(it -> it.getOutgoing().artifact(artifact, t -> t.setType("framework")))
+			);
+
+			linkLibraries().getDependencies().add(createDependency(frameworkProducer));
+			assertThat(subject().getLibs(), not(hasItem(aFile(artifact))));
+			assertThat(subject().getLinkerArgs(), providerOf(containsInRelativeOrder(
+				"-F", artifact.getParentFile().getAbsolutePath(), "-framework", "Vufa"
+			)));
 		}
 	}
 
