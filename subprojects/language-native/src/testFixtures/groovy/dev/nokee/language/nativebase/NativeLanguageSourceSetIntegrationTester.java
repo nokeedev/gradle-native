@@ -128,7 +128,7 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 			);
 
 			headerSearchPaths().getDependencies().add(createDependency(frameworkProducer));
-			assertThat(subject().getHeaderSearchPaths(), providerOf(not(hasItem(aFile(artifact)))));
+			assertThat(subject().getHeaderSearchPaths(), providerOf(allOf(not(hasItem(aFile(artifact))), not(hasItem(aFile(artifact.getParentFile()))))));
 			assertThat(subject().getCompilerArgs(), providerOf(containsInRelativeOrder(
 				"-F", artifact.getParentFile().getAbsolutePath()
 				)));
