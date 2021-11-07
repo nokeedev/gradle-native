@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,7 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 
-/**
- * Links a shared library binary from object files and imported libraries.
- *
- * @version 0.3
- */
-public interface LinkSharedLibrary extends ObjectLink {
+public interface ObjectLink extends Task {
 	/**
 	 * The tool chain used for the compilation.
 	 *
