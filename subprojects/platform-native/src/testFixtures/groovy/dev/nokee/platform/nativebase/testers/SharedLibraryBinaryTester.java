@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase.testers;
 
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.testers.ArtifactTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import org.junit.jupiter.api.Assertions;
@@ -28,7 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-public interface SharedLibraryBinaryTester extends ArtifactTester<SharedLibraryBinary> {
+public interface SharedLibraryBinaryTester extends ArtifactTester<SharedLibraryBinary>, HasBaseNameTester {
 	@Test
 	default void hasCompileTasks() {
 		assertThat(subject().getCompileTasks(), notNullValue(TaskView.class));
