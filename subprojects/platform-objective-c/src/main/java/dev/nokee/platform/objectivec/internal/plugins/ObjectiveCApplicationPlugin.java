@@ -93,9 +93,9 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCApplicationSources.class));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(ObjectiveCSourceSet.class)), (e, p, ignored, projection) -> {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofProjection(ObjectiveCSourceSet.class).asDomainObject(), (e, p, ignored, sourceSet) -> {
 				if (path.isDescendant(p)) {
-					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name))).accept(ModelNodeUtils.get(e, LanguageSourceSet.class));
+					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCGradle(ComponentName.of(name))).accept(sourceSet);
 				}
 			}));
 		}).create(identifier);

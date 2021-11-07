@@ -106,18 +106,18 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	}
 
 	public void finalizeExtension(Project project) {
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(NativeApplication.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateNativeBinaryLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(NativeApplication.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateNativeBinaryLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(NativeApplication.class)), (entity, variantIdentifier, variantProjection) -> {
-			createBinaries((KnownDomainObject<DefaultNativeApplicationVariant>) Cast.uncheckedCast("", new ModelNodeBackedKnownDomainObject<>(ModelType.of(NativeApplication.class), entity)));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			createBinaries((KnownDomainObject<DefaultNativeApplicationVariant>) Cast.uncheckedCast("internal vs public projection", knownVariant));
 		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(NativeApplication.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(NativeApplication.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(NativeApplication.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(NativeApplication.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 	}
 

@@ -143,9 +143,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(IsTestComponent.tag())
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
-					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+					withConventionOf(maven(identifier.getName())).accept(sourceSet);
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
@@ -213,9 +213,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(ObjectiveCSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(ObjectiveCSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
-					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(sourceSet);
 				}
 			}))
 			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
@@ -279,9 +279,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
-					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+					withConventionOf(maven(identifier.getName())).accept(sourceSet);
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
@@ -348,9 +348,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(ObjectiveCSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(ObjectiveCSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
-					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(sourceSet);
 				}
 			}))
 			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
@@ -464,8 +464,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				val incoming = entity.getComponent(NativeIncomingDependencies.class);
 				entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(dependencies.as(NativeComponentDependencies.class)::get, incoming, outgoing));
 
-				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {
-					((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
+				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofProjection(Configuration.class).asConfigurableProvider(), ModelComponentReference.of(ModelPath.class), (e, configurationProvider, p) -> {
+					configurationProvider.configure(configuration -> {
 						val parentConfigurationResult = project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withPath(path.getParent().get().child(p.getName()))));
 						Optional.ofNullable(Iterables.getOnlyElement(parentConfigurationResult.get(), null)).ifPresent(parentConfigurationEntity -> {
 							val parentConfiguration = ModelNodeUtils.get(parentConfigurationEntity, Configuration.class);

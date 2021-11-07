@@ -147,8 +147,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	}
 
 	public void finalizeValue() {
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), (entity, variantIdentifier, variantProjection) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(new ModelNodeBackedKnownDomainObject<>(ModelType.of(JniLibrary.class), entity));
+		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(JniLibrary.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
 		}));
 		componentVariants.get().calculateVariants();
 	}

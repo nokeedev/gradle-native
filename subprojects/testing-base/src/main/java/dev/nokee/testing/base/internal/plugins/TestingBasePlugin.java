@@ -47,7 +47,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(TestSuiteContainer.class, "testSuites", components);
 
 		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsTestComponent.class), ModelComponentReference.ofAny(ModelComponentType.projectionOf(TestSuiteComponent.class)), (e, p, ignored1, ignored2, projection) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsTestComponent.class), ModelComponentReference.ofProjection(TestSuiteComponent.class), (e, p, ignored1, ignored2, projection) -> {
 			if (ModelPath.root().isDirectDescendant(p)) {
 				modeRegistry.register(propertyFactory.create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "testSuites"), p.getName()), e));
 			}
