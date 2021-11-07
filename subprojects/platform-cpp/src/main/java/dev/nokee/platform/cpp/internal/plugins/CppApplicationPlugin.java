@@ -100,6 +100,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedHasDevelopmentVariantMixIn<NativeApplication>
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 		@Override
 		public CppSourceSet getCppSources() {

@@ -137,6 +137,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {

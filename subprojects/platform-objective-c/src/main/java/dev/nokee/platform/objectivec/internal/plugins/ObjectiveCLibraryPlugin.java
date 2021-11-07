@@ -115,6 +115,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {

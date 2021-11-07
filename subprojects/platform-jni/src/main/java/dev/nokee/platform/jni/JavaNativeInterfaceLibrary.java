@@ -15,10 +15,14 @@
  */
 package dev.nokee.platform.jni;
 
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 
 /**
@@ -42,5 +46,12 @@ public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Compone
 	@Override
 	default SetProperty<TargetMachine> getTargetMachines() {
 		return ModelProperties.getProperty(this, "targetMachines").as(SetProperty.class).get();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	default Property<String> getBaseName() {
+		return ModelNodeUtils.get(ModelNodes.of(this), BaseComponent.class).getBaseName();
 	}
 }

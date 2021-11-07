@@ -104,6 +104,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 		@Override
 		public CSourceSet getCSources() {
