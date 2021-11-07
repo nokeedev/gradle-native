@@ -15,26 +15,26 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.Streams;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 
 public final class ModelPropertyRegistrationFactory {
 	private final ModelLookup lookup;
+	private final ObjectFactory objects;
 
-	public ModelPropertyRegistrationFactory(ModelLookup lookup) {
+	public ModelPropertyRegistrationFactory(ModelLookup lookup, ObjectFactory objects) {
 		this.lookup = lookup;
+		this.objects = objects;
 	}
 
 	public ModelRegistration create(ModelPath path, ModelNode entity) {
@@ -78,6 +78,16 @@ public final class ModelPropertyRegistrationFactory {
 					e.addComponent(new DelegatedModelProjection(entity));
 				}
 			}))
+			.build();
+	}
+
+	public ModelRegistration createProperty(ModelPropertyIdentifier identifier, Class<?> type) {
+		val path = toPath(identifier);
+		return ModelRegistration.builder()
+			.withComponent(identifier)
+			.withComponent(path)
+			.withComponent(IsModelProperty.tag())
+			.withComponent(createdUsing(ModelType.of(Property.class), () -> objects.property(type)))
 			.build();
 	}
 }
