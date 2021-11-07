@@ -33,8 +33,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
-import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
+import static dev.nokee.internal.testing.FileSystemMatchers.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.presentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -103,6 +102,12 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 			assertThat(subject().getLinkerArgs(), providerOf(containsInRelativeOrder(
 				"-F", artifact.getParentFile().getAbsolutePath(), "-framework", "Vufa"
 			)));
+		}
+
+		@Test
+		void usesBinaryBaseNameForLinkTaskLinkedFileBaseName() {
+			binary().getBaseName().set("da-bo");
+			assertThat(subject().getLinkedFile(), providerOf(aFileBaseNamed(endsWith("da-bo"))));
 		}
 	}
 

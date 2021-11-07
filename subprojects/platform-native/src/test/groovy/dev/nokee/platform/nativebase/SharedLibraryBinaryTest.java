@@ -92,6 +92,12 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			assertThat(subject().getCompileTasks().get(), emptyIterable());
 		}
 
+		@Test
+		void usesBinaryNameAsBaseNameByDefault() {
+			subject().getBaseName().set((String) null); // force convention
+			assertThat(subject().getBaseName(), providerOf("ruca"));
+		}
+
 		@Nested
 		class LinkSharedLibraryTaskTest {
 			public LinkSharedLibraryTask subject() {
