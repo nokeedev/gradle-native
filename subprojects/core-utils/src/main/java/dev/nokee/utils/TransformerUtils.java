@@ -385,6 +385,84 @@ public final class TransformerUtils {
 	}
 
 	/**
+	 * Keeps only instance of specified type.
+	 * This approach differs from filtering elements as the returned elements will be of the correct type.
+	 *
+	 * @param type  the element type to filter, must not be null
+	 * @param <OUT>  the outgoing element type
+	 * @param <IN>  the incoming element type
+	 * @return a transformer that will filter and cast the element based on the specified type, never null
+	 */
+	public static <OUT, IN> TransformerUtils.Transformer<Iterable<OUT>, IN> onlyInstanceOf(Class<OUT> type) {
+		return new OnlyInstanceOfTransformer<>(type);
+	}
+
+	/** @see #onlyInstanceOf(Class) */
+	@EqualsAndHashCode
+	private static final class OnlyInstanceOfTransformer<OUT, IN> implements Transformer<Iterable<OUT>, IN> {
+		private final Class<OUT> type;
+
+		private OnlyInstanceOfTransformer(Class<OUT> type) {
+			this.type = requireNonNull(type);
+		}
+
+		@Override
+		public Iterable<OUT> transform(IN in) {
+			if (type.isInstance(in)) {
+				return ImmutableList.of(type.cast(in));
+			} else {
+				return ImmutableList.of();
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.onlyInstanceOf(" + type + ")";
+		}
+	}
+
+	/**
+	 * Keeps only instance of specified type transformed by the specified transformer.
+	 * This approach differs from filtering elements as the returned elements will be of the correct type.
+	 *
+	 * @param type  the element type to filter, must not be null
+	 * @param andThen  the transform to apply on each filtered elements, must not be null
+	 * @param <OUT>  the outgoing element type
+	 * @param <E>  the element type to keep and transform
+	 * @param <IN>  the incoming element type
+	 * @return a transformer that will filter, cast and transform the element based on the specified type, never null
+	 */
+	public static <OUT, E, IN> TransformerUtils.Transformer<Iterable<OUT>, IN> onlyInstanceOf(Class<E> type, org.gradle.api.Transformer<? extends OUT, ? super E> andThen) {
+		return new OnlyInstanceOfAndThenTransformer<>(type, andThen);
+	}
+
+	/** @see #onlyInstanceOf(Class, org.gradle.api.Transformer) */
+	@EqualsAndHashCode
+	private static final class OnlyInstanceOfAndThenTransformer<OUT, E, IN> implements Transformer<Iterable<OUT>, IN> {
+		private final Class<E> type;
+		private final org.gradle.api.Transformer<? extends OUT, ? super E> andThen;
+
+		private OnlyInstanceOfAndThenTransformer(Class<E> type, org.gradle.api.Transformer<? extends OUT, ? super E> andThen) {
+			this.type = requireNonNull(type);
+			this.andThen = requireNonNull(andThen);
+		}
+
+		@Override
+		public Iterable<OUT> transform(IN in) {
+			if (type.isInstance(in)) {
+				return ImmutableList.of(andThen.transform(type.cast(in)));
+			} else {
+				return ImmutableList.of();
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "TransformerUtils.onlyInstanceOf(" + type + ", " + andThen + ")";
+		}
+	}
+
+	/**
 	 * Returns a transformer that will perform a {@link Stream#collect(Collector)} on the incoming iterable.
 	 *
 	 * @param collector  the collector to use on the stream, must not be null
