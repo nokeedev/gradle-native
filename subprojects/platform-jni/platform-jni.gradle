@@ -48,6 +48,9 @@ test {
 		implementation testFixtures(project(':languageObjectiveC'))
 		implementation testFixtures(project(':languageObjectiveCpp'))
 	}
+	testTasks.configureEach {
+		maxParallelForks = Runtime.runtime.availableProcessors()
+	}
 }
 
 functionalTest {
