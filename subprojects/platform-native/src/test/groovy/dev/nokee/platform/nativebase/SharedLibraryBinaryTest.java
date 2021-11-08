@@ -18,10 +18,13 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.HeaderSearchPath;
+import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -43,10 +46,18 @@ import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.Property;
+import org.gradle.model.internal.core.ModelAction;
+import org.gradle.model.internal.core.ModelActionRole;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
+import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
+import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
+import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
+import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.platform.base.ToolChain;
+import org.gradle.platform.base.ToolChainRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -61,6 +72,7 @@ import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.host;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -114,6 +126,10 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			return subject;
 		}
 
+		private LinkSharedLibraryTask linkTask() {
+			return (LinkSharedLibraryTask) project.getTasks().getByName("link" + capitalize(variantName()));
+		}
+
 		@Test
 		void noCompileTasksByDefault() {
 			assertThat(subject().getCompileTasks().get(), emptyIterable());
@@ -123,6 +139,102 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		void usesBinaryNameAsBaseNameByDefault() {
 			subject().getBaseName().set((String) null); // force convention
 			assertThat(subject().getBaseName(), providerOf("ruca"));
+		}
+
+		@Nested
+		class BuildableTest {
+			@Test
+			void isBuildableIfLinkTaskBuildable() {
+				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+				linkTask().getTargetPlatform().set(create(host()));
+				assertThat(subject().isBuildable(), is(true));
+			}
+
+			@Test
+			void isNotBuildableIfLinkTaskNotBuildable() {
+				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+				linkTask().getTargetPlatform().set(create(of("unknown-unknown")));
+				assertThat(subject().isBuildable(), is(false));
+			}
+
+			@Test
+			void isBuildableIfAllCompileTasksAreBuildable() {
+				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
+
+				linkTask().getTargetPlatform().set(create(host()));
+
+				val compileTask = project().getTasks().create("tovi", CCompileTask.class);
+				compileTask.getTargetPlatform().set(create(host()));
+				compileTask.getToolChain().set(toolChainSelector.select(compileTask));
+				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
+				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "tovi");
+				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
+					.withComponent(newPropertyIdentifier)
+					.withComponent(toPath(newPropertyIdentifier))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.build());
+
+				assertThat(subject().isBuildable(), is(true));
+			}
+
+			@Test
+			void isBuildableIfSwiftCompileTasksAreBuildable() {
+				project.getPluginManager().apply(SwiftCompilerPlugin.class);
+				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
+
+				linkTask().getTargetPlatform().set(create(host()));
+
+				val compileTask = project().getTasks().create("vavu", SwiftCompileTask.class);
+				compileTask.getTargetPlatform().set(create(host()));
+				compileTask.getToolChain().set(toolChainSelector.select(compileTask));
+				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
+				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "vavu");
+				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
+					.withComponent(newPropertyIdentifier)
+					.withComponent(toPath(newPropertyIdentifier))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.build());
+
+				assertThat(subject().isBuildable(), is(true));
+			}
+
+			@Test
+			void isNotBuildableIfAnyCompileTasksAreNotBuildable() {
+				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
+				project.getExtensions().getByType(NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolchain -> {
+					// Ensure toolchain is known but not buildable
+					toolchain.target("notbuildable", it -> {
+						it.getLinker().setExecutable("not-found");
+						it.getAssembler().setExecutable("not-found");
+						it.getcCompiler().setExecutable("not-found");
+						it.getCppCompiler().setExecutable("not-found");
+						it.getObjcCompiler().setExecutable("not-found");
+						it.getObjcppCompiler().setExecutable("not-found");
+						it.getStaticLibArchiver().setExecutable("not-found");
+					});
+				});
+
+				linkTask().getTargetPlatform().set(create(host()));
+
+				val compileTask = project().getTasks().create("qizo", CCompileTask.class);
+				compileTask.getTargetPlatform().set(create(of("not-buildable")));
+				compileTask.getToolChain().set(toolChainSelector.select(compileTask));
+
+				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
+				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "qizo");
+				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
+					.withComponent(newPropertyIdentifier)
+					.withComponent(toPath(newPropertyIdentifier))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.build());
+
+				assertThat(subject().isBuildable(), is(false));
+			}
 		}
 
 		@Test
