@@ -98,6 +98,36 @@ public final class TaskDependencyUtils {
 	}
 
 	/**
+	 * Creates task dependency for specified iterable provider of tasks.
+	 * The provider is only realize when querying task dependency via {@link TaskDependency#getDependencies(Task)}.
+	 *
+	 * @param tasksProvider  the task provider to use as task dependency, must not be null
+	 * @return a task dependency for specified task provider, never null
+	 */
+	public static TaskDependency ofIterable(Provider<? extends Iterable<? extends Task>> tasksProvider) {
+		return new OfTasksDependency(tasksProvider);
+	}
+
+	@EqualsAndHashCode
+	private static final class OfTasksDependency implements TaskDependency {
+		private final Provider<? extends Iterable<? extends Task>> tasksProvider;
+
+		private OfTasksDependency(Provider<? extends Iterable<? extends Task>> tasksProvider) {
+			this.tasksProvider = requireNonNull(tasksProvider);
+		}
+
+		@Override
+		public Set<? extends Task> getDependencies(@Nullable Task task) {
+			return ImmutableSet.copyOf(tasksProvider.get());
+		}
+
+		@Override
+		public String toString() {
+			return "TaskDependencyUtils.ofIterable(" + tasksProvider + ")";
+		}
+	}
+
+	/**
 	 * Creates an empty {@link TaskDependency}.
 	 * It will always return an empty set.
 	 *
