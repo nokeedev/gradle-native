@@ -37,25 +37,6 @@ public final class ModelPropertyRegistrationFactory {
 		this.objects = objects;
 	}
 
-	public ModelRegistration create(ModelPath path, ModelNode entity) {
-		return ModelRegistration.builder()
-			.withComponent(path)
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, p, ignored) -> {
-				if (p.equals(path)) {
-					ModelStates.realize(entity);
-				} else if (p.equals(ModelNodeUtils.getPath(entity))) {
-					ModelStates.realize(lookup.get(path));
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, p, ignored) -> {
-				if (p.equals(path)) {
-					e.addComponent(IsModelProperty.tag());
-					e.addComponent(new DelegatedModelProjection(entity));
-				}
-			}))
-			.build();
-	}
-
 	public ModelRegistration create(ModelPropertyIdentifier identifier, ModelNode entity) {
 		assert entity.hasComponent(DomainObjectIdentifier.class);
 		val path = toPath(identifier);
