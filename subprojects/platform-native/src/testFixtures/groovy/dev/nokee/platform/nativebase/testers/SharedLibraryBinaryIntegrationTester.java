@@ -124,6 +124,13 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 		}
 
 		@Test
+		void usesDestinationDirectoryAsLinkedFileParentDirectory() {
+			val newDestinationDirectory = project().file("some-new-destination-directory");
+			subject().getDestinationDirectory().set(newDestinationDirectory);
+			assertThat(subject().getLinkedFile(), providerOf(aFile(parentFile(is(newDestinationDirectory)))));
+		}
+
+		@Test
 		void addsMacOsSdkPathToLinkerArguments() {
 			project().getPluginManager().apply(SwiftCompilerPlugin.class); // only for Swiftc, at the moment
 			subject().getTargetPlatform().set(create(of("macos-x64")));

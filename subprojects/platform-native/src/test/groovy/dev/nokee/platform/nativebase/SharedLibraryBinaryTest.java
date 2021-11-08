@@ -18,6 +18,9 @@ package dev.nokee.platform.nativebase;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.nativebase.HasObjectFiles;
+import dev.nokee.language.nativebase.HeaderSearchPath;
+import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -38,11 +41,17 @@ import dev.nokee.platform.nativebase.testers.SharedLibraryBinaryIntegrationTeste
 import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
+import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.platform.base.ToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -99,6 +108,10 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			return "binary ':nuli:cuzu:ruca'";
 		}
 
+		private SharedLibraryBinary binary() {
+			return subject;
+		}
+
 		@Test
 		void noCompileTasksByDefault() {
 			assertThat(subject().getCompileTasks().get(), emptyIterable());
@@ -149,10 +162,76 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			void includesBinaryNameInDestinationDirectory() {
 				assertThat(subject().getDestinationDirectory(), providerOf(aFileNamed("ruca")));
 			}
+
+			@Test
+			void includesNativeSourceCompileTaskAsLinkTaskSources() throws IOException {
+				val compileTask = project().getTasks().create("suti", MyNativeSourceCompileTask.class);
+				compileTask.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("foo.o")));
+				compileTask.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("foo.obj")));
+				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
+				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "suti");
+				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
+					.withComponent(newPropertyIdentifier)
+					.withComponent(toPath(newPropertyIdentifier))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(ModelType.of(NativeSourceCompile.class), () -> compileTask))
+					.build());
+				assertThat(subject().getSource(), contains(aFileNamed("foo.o"), aFileNamed("foo.obj")));
+			}
+
+			@Test
+			void includesSourceCompileTaskWithObjectFilesAsLinkTaskSources() throws IOException {
+				val compileTask = project().getTasks().create("kedi", MySourceCompileWithObjectFilesTask.class);
+				compileTask.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("bar.o")));
+				compileTask.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("bar.obj")));
+				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
+				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "kedi");
+				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
+					.withComponent(newPropertyIdentifier)
+					.withComponent(toPath(newPropertyIdentifier))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.build());
+				assertThat(subject().getSource(), contains(aFileNamed("bar.o"), aFileNamed("bar.obj")));
+			}
+
+			@Test
+			void doesNotThrowExceptionWhenResolvingSourcesWithCompileTasksWithoutObjectFiles() {
+				val compileTask = project().getTasks().create("xuvi", MySourceCompileTask.class);
+				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
+				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "xuvi");
+				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
+					.withComponent(newPropertyIdentifier)
+					.withComponent(toPath(newPropertyIdentifier))
+					.withComponent(IsModelProperty.tag())
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.build());
+				assertThat(subject().getSource(), emptyIterable());
+			}
 		}
 	}
 
+	private static File createFile(RegularFile provider) throws IOException {
+		val path = provider.getAsFile();
+		path.getParentFile().mkdirs();
+		path.createNewFile();
+		return path;
+	}
+
 	public static abstract class MySourceCompileTask extends DefaultTask implements SourceCompile {
+		@Override
+		public abstract Property<ToolChain> getToolChain();
+	}
+
+	public static abstract class MyNativeSourceCompileTask extends DefaultTask implements NativeSourceCompile {
+		@Override
+		public abstract Property<NativeToolChain> getToolChain();
+
+		@Override
+		public abstract Property<Set<HeaderSearchPath>> getHeaderSearchPaths();
+	}
+
+	public static abstract class MySourceCompileWithObjectFilesTask extends DefaultTask implements SourceCompile, HasObjectFiles {
 		@Override
 		public abstract Property<ToolChain> getToolChain();
 	}

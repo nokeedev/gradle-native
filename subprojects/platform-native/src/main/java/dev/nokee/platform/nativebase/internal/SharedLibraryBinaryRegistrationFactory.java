@@ -16,20 +16,15 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.utils.TaskDependencyUtils;
-import lombok.val;
 import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -67,6 +62,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(new ConfigureLinkTaskFromBaseNameRule(identifier))
 			.action(linkLibrariesRegistrationFactory.create(identifier))
 			.action(runtimeLibrariesRegistrationFactory.create(identifier))
+			.action(new AttachObjectFilesToLinkTaskRule(identifier))
 			.build();
 	}
 
