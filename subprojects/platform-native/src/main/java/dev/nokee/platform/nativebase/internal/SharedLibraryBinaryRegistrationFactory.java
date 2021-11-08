@@ -21,18 +21,27 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.Action;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
 public final class SharedLibraryBinaryRegistrationFactory {
 	private final LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory;
@@ -63,6 +72,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(linkLibrariesRegistrationFactory.create(identifier))
 			.action(runtimeLibrariesRegistrationFactory.create(identifier))
 			.action(new AttachObjectFilesToLinkTaskRule(identifier))
+			.action(new ConfigureLinkTaskDefaultsRule(identifier))
 			.build();
 	}
 

@@ -27,10 +27,13 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -45,6 +48,8 @@ import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibraryBinaryTester {
 	public abstract SharedLibraryBinary subject();
@@ -83,6 +88,11 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 		@Test
 		void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Links the " + displayName() + "."));
+		}
+
+		@Test
+		void locksToolChainProperty() {
+			assertThrows(RuntimeException.class, () -> subject().getToolChain().set(mock(NativeToolChain.class)));
 		}
 
 		@Test
@@ -133,8 +143,13 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 		@Test
 		void addsMacOsSdkPathToLinkerArguments() {
 			project().getPluginManager().apply(SwiftCompilerPlugin.class); // only for Swiftc, at the moment
-			subject().getTargetPlatform().set(create(of("macos-x64")));
+			subject().getTargetPlatform().set(macosPlatform());
 			assertThat(subject().getLinkerArgs(), providerOf(hasItem("-sdk")));
+		}
+
+		@Test
+		void locksImportLibraryProperty() {
+			assertThrows(RuntimeException.class, () -> subject().getImportLibrary().set(new File("/foo/bar")));
 		}
 	}
 
@@ -180,5 +195,9 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 		void hasNativeRuntimeUsage() {
 			assertThat(subject(), ConfigurationMatchers.attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("native-runtime"))));
 		}
+	}
+
+	private static NativePlatform macosPlatform() {
+		return create(of("osx-x64"));
 	}
 }
