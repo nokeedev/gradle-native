@@ -75,13 +75,15 @@ public final class ModelPropertyRegistrationFactory {
 			.build();
 	}
 
-	public ModelRegistration createProperty(ModelPropertyIdentifier identifier, Class<?> type) {
+	public <T> ModelRegistration createProperty(ModelPropertyIdentifier identifier, Class<T> type) {
 		val path = toPath(identifier);
+		val property = objects.property(type);
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(path)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(ModelType.of(Property.class), () -> objects.property(type)))
+			.withComponent(createdUsing(ModelType.of(type), property::getOrNull))
+			.withComponent(createdUsing(ModelType.of(Property.class), () -> property))
 			.build();
 	}
 }
