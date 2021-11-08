@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.internal.Factory;
+import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -49,6 +50,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Transformer;
+import org.gradle.api.internal.project.ProjectInternal;
 
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -69,7 +71,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
-			project.getExtensions().getByType(TaskRegistrationFactory.class),
 			project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
 			project.getExtensions().getByType(ModelRegistry.class),
 			project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class),
@@ -82,6 +83,16 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				() -> project.getExtensions().getByType(ModelRegistry.class),
 				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
 				() -> project.getObjects()
+			),
+			new NativeLinkTaskRegistrationActionFactory(
+				() -> project.getExtensions().getByType(ModelRegistry.class),
+				() -> project.getExtensions().getByType(TaskRegistrationFactory.class),
+				() -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
+				() -> new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())
+			),
+			new BaseNamePropertyRegistrationActionFactory(
+				() -> project.getExtensions().getByType(ModelRegistry.class),
+				() -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class)
 			)
 		));
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.tasks.internal;
+package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
-import org.gradle.api.file.RegularFile;
+import dev.nokee.model.DomainObjectProvider;
+import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.CacheableTask;
 
-import java.io.File;
+import java.util.function.Supplier;
 
-@CacheableTask
-public abstract class LinkSharedLibraryTask extends org.gradle.nativeplatform.tasks.LinkSharedLibrary implements LinkSharedLibrary, ObjectFilesToBinaryTask {
-	public LinkSharedLibraryTask() {
-		getDestinationDirectory().set((File) null);
+public final class BaseName implements Supplier<String> {
+	private final DomainObjectProvider<String> value;
+
+	public BaseName(DomainObjectProvider<String> value) {
+		this.value = value;
+	}
+
+	public String get() {
+		return value.get();
+	}
+
+	public <S> Provider<S> map(Transformer<? extends S, ? super String> mapper) {
+		return value.map(mapper);
 	}
 
 	@Override
-	public Provider<RegularFile> getBinaryFile() {
-		return getLinkedFile();
+	public String toString() {
+		return get();
 	}
 }
