@@ -48,9 +48,22 @@ public final class ModelPropertyRegistrationFactory {
 					ModelStates.realize(entity);
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, ignored) -> {
-				if (entity.getId() == e.getId()) {
-					ModelStates.realize(lookup.get(path));
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastRealized.class), new ModelActionWithInputs.A1<ModelState.IsAtLeastRealized>() {
+				private boolean realizePropertyWhenPresent = false;
+
+				@Override
+				public void execute(ModelNode e, ModelState.IsAtLeastRealized ignored) {
+					if (entity.getId() == e.getId()) {
+						val propertyNode = lookup.find(path);
+						if (propertyNode.isPresent()) {
+							ModelStates.realize(propertyNode.get());
+						} else {
+							realizePropertyWhenPresent = true;
+						}
+					} else if (realizePropertyWhenPresent && e.hasComponent(ModelPropertyIdentifier.class) && e.getComponent(ModelPropertyIdentifier.class).equals(identifier)) {
+						ModelStates.realize(e);
+						realizePropertyWhenPresent = false;
+					}
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, id, ignored) -> {
