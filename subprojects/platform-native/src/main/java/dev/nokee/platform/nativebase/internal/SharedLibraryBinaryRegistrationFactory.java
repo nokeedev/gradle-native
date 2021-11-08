@@ -25,14 +25,11 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
-import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -41,23 +38,24 @@ import org.gradle.api.tasks.TaskProvider;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public final class SharedLibraryBinaryRegistrationFactory {
-	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final ModelRegistry registry;
 	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
 	private final LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory;
 	private final RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory;
+	private final NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory;
+	private final BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(TaskRegistrationFactory taskRegistrationFactory, ModelPropertyRegistrationFactory propertyRegistrationFactory, ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory, LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory, RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory) {
-		this.taskRegistrationFactory = taskRegistrationFactory;
+	public SharedLibraryBinaryRegistrationFactory(ModelPropertyRegistrationFactory propertyRegistrationFactory, ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory, LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory, RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory, NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory, BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory) {
 		this.propertyRegistrationFactory = propertyRegistrationFactory;
 		this.registry = registry;
 		this.tasksPropertyRegistrationFactory = tasksPropertyRegistrationFactory;
 		this.linkLibrariesRegistrationFactory = linkLibrariesRegistrationFactory;
 		this.runtimeLibrariesRegistrationFactory = runtimeLibrariesRegistrationFactory;
+		this.linkTaskRegistrationActionFactory = linkTaskRegistrationActionFactory;
+		this.baseNamePropertyRegistrationActionFactory = baseNamePropertyRegistrationActionFactory;
 	}
 
 	public ModelRegistration create(BinaryIdentifier<?> identifier) {
@@ -67,18 +65,14 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(IsBinary.tag())
 			.withComponent(createdUsing(ModelType.of(SharedLibraryBinary.class), ModelBackedSharedLibraryBinary::new))
 			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))
+			.action(linkTaskRegistrationActionFactory.create(identifier, LinkSharedLibrary.class, LinkSharedLibraryTask.class))
+			.action(baseNamePropertyRegistrationActionFactory.create(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
-					val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(identifier, "link"), LinkSharedLibraryTask.class).build());
-					registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "linkTask"), ModelNodes.of(linkTask)));
-					linkTask.configure(Task.class, configureDescription("Links the %s.", identifier));
-					entity.addComponent(new NativeLinkTask(linkTask));
-
 					registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class));
-
-					registry.register(propertyRegistrationFactory.createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
 				}
 			}))
+			.action(new ConfigureLinkTaskFromBaseNameRule(identifier))
 			.action(linkLibrariesRegistrationFactory.create(identifier))
 			.action(runtimeLibrariesRegistrationFactory.create(identifier))
 			.build();
@@ -104,7 +98,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 
 		@Override
 		public TaskDependency getBuildDependencies() {
-			return TaskDependencyUtils.of(getLinkTask());
+			return TaskDependencyUtils.composite(TaskDependencyUtils.ofIterable(getCompileTasks().getElements()), TaskDependencyUtils.of(getLinkTask()));
 		}
 
 		@Override
