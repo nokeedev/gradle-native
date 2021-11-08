@@ -71,9 +71,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
-			project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
-			project.getExtensions().getByType(ModelRegistry.class),
-			project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class),
 			new LinkLibrariesConfigurationRegistrationActionFactory(
 				() -> project.getExtensions().getByType(ModelRegistry.class),
 				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
@@ -93,6 +90,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			new BaseNamePropertyRegistrationActionFactory(
 				() -> project.getExtensions().getByType(ModelRegistry.class),
 				() -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class)
+			),
+			new RegisterCompileTasksPropertyActionFactory(
+				() -> project.getExtensions().getByType(ModelRegistry.class),
+				() -> project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class)
 			)
 		));
 	}

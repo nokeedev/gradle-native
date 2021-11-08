@@ -40,22 +40,18 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 
 public final class SharedLibraryBinaryRegistrationFactory {
-	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
-	private final ModelRegistry registry;
-	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
 	private final LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory;
 	private final RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory;
 	private final NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory;
 	private final BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory;
+	private final RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(ModelPropertyRegistrationFactory propertyRegistrationFactory, ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory, LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory, RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory, NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory, BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory) {
-		this.propertyRegistrationFactory = propertyRegistrationFactory;
-		this.registry = registry;
-		this.tasksPropertyRegistrationFactory = tasksPropertyRegistrationFactory;
+	public SharedLibraryBinaryRegistrationFactory(LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory, RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory, NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory, BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory, RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory) {
 		this.linkLibrariesRegistrationFactory = linkLibrariesRegistrationFactory;
 		this.runtimeLibrariesRegistrationFactory = runtimeLibrariesRegistrationFactory;
 		this.linkTaskRegistrationActionFactory = linkTaskRegistrationActionFactory;
 		this.baseNamePropertyRegistrationActionFactory = baseNamePropertyRegistrationActionFactory;
+		this.compileTasksPropertyActionFactory = compileTasksPropertyActionFactory;
 	}
 
 	public ModelRegistration create(BinaryIdentifier<?> identifier) {
@@ -67,11 +63,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))
 			.action(linkTaskRegistrationActionFactory.create(identifier, LinkSharedLibrary.class, LinkSharedLibraryTask.class))
 			.action(baseNamePropertyRegistrationActionFactory.create(identifier))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
-				if (id.equals(identifier)) {
-					registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class));
-				}
-			}))
+			.action(compileTasksPropertyActionFactory.create(identifier))
 			.action(new ConfigureLinkTaskFromBaseNameRule(identifier))
 			.action(linkLibrariesRegistrationFactory.create(identifier))
 			.action(runtimeLibrariesRegistrationFactory.create(identifier))
