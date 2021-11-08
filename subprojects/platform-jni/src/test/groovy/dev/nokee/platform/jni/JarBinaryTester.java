@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni;
 
+import dev.nokee.platform.base.testers.ArtifactTester;
 import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.bundling.Jar;
@@ -28,7 +29,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.isA;
 import static org.mockito.Mockito.mock;
 
-public interface JarBinaryTester<T extends JarBinary> {
+public interface JarBinaryTester<T extends JarBinary> extends ArtifactTester<T> {
 	T subject();
 
 	@Test
