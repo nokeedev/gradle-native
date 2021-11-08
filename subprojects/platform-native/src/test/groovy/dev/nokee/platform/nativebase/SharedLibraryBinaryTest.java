@@ -20,6 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.HeaderSearchPath;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
@@ -43,6 +44,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
+import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.platform.base.ToolChain;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,8 +55,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
-import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.FileSystemMatchers.*;
+import static dev.nokee.internal.testing.GradleProviderMatchers.*;
 import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
@@ -208,6 +210,29 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					.build());
 				assertThat(subject().getSource(), emptyIterable());
 			}
+
+			@Test
+			void hasImportLibraryOnWindows() {
+				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+				subject().getTargetPlatform().set(windowsPlatform());
+				assertThat(subject().getImportLibrary(), presentProvider());
+			}
+
+			@Test
+			void usesDestinationDirectoryAsImportLibraryFileParentDirectory() {
+				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+				subject().getTargetPlatform().set(windowsPlatform());
+				val newDestinationDirectory = project().file("some-new-destination-directory");
+				subject().getDestinationDirectory().set(newDestinationDirectory);
+				assertThat(subject().getImportLibrary(), providerOf(aFile(parentFile(is(newDestinationDirectory)))));
+			}
+
+			@Test
+			void doesNotHaveImportLibraryOnNonWindows() {
+				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+				subject().getTargetPlatform().set(nixPlatform());
+				assertThat(subject().getImportLibrary(), absentProvider());
+			}
 		}
 	}
 
@@ -234,5 +259,13 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 	public static abstract class MySourceCompileWithObjectFilesTask extends DefaultTask implements SourceCompile, HasObjectFiles {
 		@Override
 		public abstract Property<ToolChain> getToolChain();
+	}
+
+	private static NativePlatform windowsPlatform() {
+		return create(of("windows-x86"));
+	}
+
+	private static NativePlatform nixPlatform() {
+		return create(of("linux-x86"));
 	}
 }
