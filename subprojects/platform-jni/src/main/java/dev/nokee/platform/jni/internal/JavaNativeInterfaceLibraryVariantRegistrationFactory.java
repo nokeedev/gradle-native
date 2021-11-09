@@ -92,7 +92,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 		this.project = project;
 	}
 
-	public ModelRegistration create(VariantIdentifier<?> identifier, JniLibraryComponentInternal component) {
+	public ModelRegistration create(VariantIdentifier<?> identifier) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
 
@@ -100,7 +100,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
-			.withComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, component.getSources(), component.getGroupId(), project.getObjects(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class))))
+			.withComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {
 				if (id.equals(identifier)) {
 					entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
