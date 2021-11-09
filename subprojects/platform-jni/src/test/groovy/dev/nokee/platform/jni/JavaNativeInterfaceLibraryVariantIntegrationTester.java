@@ -97,13 +97,10 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 				assertThat(subject().get(), not(hasItem(isA(CSourceSet.class))));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "dev.nokee.c-language")
-			class WhenCLanguagePluginApplied {
-				@Test
-				void hasCSourceSet() {
-					assertThat(subject().get(), hasItem(isA(CSourceSet.class)));
-				}
+			void hasCSourceSetWhenCLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(isA(CSourceSet.class)));
 			}
 		}
 
@@ -114,13 +111,10 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 				assertThat(subject().get(), not(hasItem(isA(CppSourceSet.class))));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "dev.nokee.cpp-language")
-			class WhenCppLanguagePluginApplied {
-				@Test
-				void hasCppSourceSet() {
-					assertThat(subject().get(), hasItem(isA(CppSourceSet.class)));
-				}
+			void hasCppSourceSetWhenCppLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(isA(CppSourceSet.class)));
 			}
 		}
 
@@ -131,13 +125,10 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 				assertThat(subject().get(), not(hasItem(isA(ObjectiveCSourceSet.class))));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
-			class WhenObjectiveCLanguagePluginApplied {
-				@Test
-				void hasObjectiveCSourceSet() {
-					assertThat(subject().get(), hasItem(isA(ObjectiveCSourceSet.class)));
-				}
+			void hasObjectiveCSourceSetWhenObjectiveCLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(isA(ObjectiveCSourceSet.class)));
 			}
 		}
 
@@ -148,13 +139,10 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 				assertThat(subject().get(), not(hasItem(isA(ObjectiveCppSourceSet.class))));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
-			class WhenObjectiveCppLanguagePluginApplied {
-				@Test
-				void hasObjectiveCppSourceSet() {
-					assertThat(subject().get(), hasItem(isA(ObjectiveCppSourceSet.class)));
-				}
+			void hasObjectiveCppSourceSetWhenObjectiveCppLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(isA(ObjectiveCppSourceSet.class)));
 			}
 		}
 	}
