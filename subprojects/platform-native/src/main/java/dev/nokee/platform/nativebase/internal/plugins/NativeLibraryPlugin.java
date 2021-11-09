@@ -154,6 +154,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 						.withComponent(path.child("sharedLibrary"))
 						.withComponent(IsBinary.tag())
 						.withComponent(binaryIdentifier)
+						.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 						.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
 							ModelStates.realize(entity);
 							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
@@ -167,6 +168,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 						.withComponent(path.child("staticLibrary"))
 						.withComponent(IsBinary.tag())
 						.withComponent(binaryIdentifier)
+						.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 						.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
 							ModelStates.realize(entity);
 							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);

@@ -19,8 +19,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -54,6 +53,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(toPath(identifier))
 			.withComponent(IsBinary.tag())
+			.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(ModelType.of(SharedLibraryBinary.class), ModelBackedSharedLibraryBinary::new))
 			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))
 			.action(linkTaskRegistrationActionFactory.create(identifier, LinkSharedLibrary.class, LinkSharedLibraryTask.class))
@@ -67,7 +67,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.build();
 	}
 
-	private static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware {
+	private static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware, ModelBackedNamedMixIn {
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
 

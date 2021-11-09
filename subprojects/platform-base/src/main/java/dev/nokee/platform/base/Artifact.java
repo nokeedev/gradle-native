@@ -15,10 +15,12 @@
  */
 package dev.nokee.platform.base;
 
+import org.gradle.api.Named;
+
 /**
  * A physical artifact.
  *
  * @since 0.5
  */
-public interface Artifact {
+public interface Artifact extends Named {
 }

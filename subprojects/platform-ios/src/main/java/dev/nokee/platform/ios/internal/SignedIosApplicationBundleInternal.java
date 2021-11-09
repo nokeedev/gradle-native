@@ -55,4 +55,9 @@ public class SignedIosApplicationBundleInternal implements SignedIosApplicationB
 	public Provider<FileSystemLocation> getApplicationBundleLocation() {
 		return bundleTask.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle);
 	}
+
+	@Override
+	public String getName() {
+		throw new UnsupportedOperationException();
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.jni.internal;
+package dev.nokee.platform.base.internal;
 
-import dev.nokee.platform.jni.JniJarBinary;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.bundling.Jar;
+import dev.nokee.model.internal.core.ModelNodes;
+import org.gradle.api.Named;
 
-import javax.inject.Inject;
-
-public class DefaultJniJarBinary extends AbstractJarBinary implements JniJarBinary {
-	@Inject
-	public DefaultJniJarBinary(TaskProvider<Jar> jarTask) {
-		super(jarTask);
-	}
-
+public interface ModelBackedNamedMixIn extends Named {
 	@Override
-	public String getName() {
-		throw new UnsupportedOperationException();
+	default String getName() {
+		return ModelNodes.of(this).getComponent(FullyQualifiedName.class).get();
 	}
 }

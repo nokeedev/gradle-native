@@ -39,4 +39,9 @@ public final class IosXCTestBundle implements Binary, HasOutputFile {
 		return createTask.flatMap(task ->
 			task.getProject().getObjects().fileProperty().fileProvider(task.getXCTestBundle().map(it -> it.getAsFile())));
 	}
+
+	@Override
+	public String getName() {
+		throw new UnsupportedOperationException();
+	}
 }

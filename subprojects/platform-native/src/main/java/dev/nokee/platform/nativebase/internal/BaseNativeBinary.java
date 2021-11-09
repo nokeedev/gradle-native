@@ -35,6 +35,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryNamer;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -114,6 +115,11 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 			task.getModules().from(dependencies.getSwiftModules());
 			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 		});
+	}
+
+	@Override
+	public String getName() {
+		return BinaryNamer.INSTANCE.determineName(identifier);
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
