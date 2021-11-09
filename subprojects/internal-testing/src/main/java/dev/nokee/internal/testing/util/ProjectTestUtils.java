@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Test utilities to access various Gradle services useful during testing as well as Project instances.
  */
 public final class ProjectTestUtils {
+	private static final Object lock = new Object();
 	private static final String CLEANUP_THREAD_NAME = "project-test-utils-cleanup";
 	private static final AtomicBoolean SHUTDOWN_REGISTERED = new AtomicBoolean();
 	private static final List<TestNameTestDirectoryProvider> PROJECT_DIRECTORIES_TO_CLEANUP = Collections.synchronizedList(new LinkedList<>());
@@ -98,7 +99,9 @@ public final class ProjectTestUtils {
 		maybeRegisterCleanup();
 		val testDirectory = new TestNameTestDirectoryProvider(ProjectTestUtils.class);
 		PROJECT_DIRECTORIES_TO_CLEANUP.add(testDirectory);
-		return ProjectBuilder.builder().withProjectDir(testDirectory.getTestDirectory().toFile()).build();
+		synchronized (lock) {
+			return ProjectBuilder.builder().withProjectDir(testDirectory.getTestDirectory().toFile()).build();
+		}
 	}
 
 	/**
@@ -108,10 +111,12 @@ public final class ProjectTestUtils {
 	 * @return a new {@link Project} instance, never null
 	 */
 	public static Project createRootProject(File rootDirectory) {
-		return ProjectBuilder
-			.builder()
-			.withProjectDir(rootDirectory)
-			.build();
+		synchronized (lock) {
+			return ProjectBuilder
+				.builder()
+				.withProjectDir(rootDirectory)
+				.build();
+		}
 	}
 
 	/**
@@ -156,12 +161,14 @@ public final class ProjectTestUtils {
 	 * @return a new child {@link Project} instance of the specified parent project, never null
 	 */
 	public static Project createChildProject(Project parent, String name, File projectDirectory) {
-		return ProjectBuilder
-			.builder()
-			.withName(name)
-			.withParent(parent)
-			.withProjectDir(toCanonicalFile(projectDirectory))
-			.build();
+		synchronized (lock) {
+			return ProjectBuilder
+				.builder()
+				.withName(name)
+				.withParent(parent)
+				.withProjectDir(toCanonicalFile(projectDirectory))
+				.build();
+		}
 	}
 
 	/**
