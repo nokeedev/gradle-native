@@ -95,6 +95,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.withComponent(createdUsing(of(componentType), () -> project.getObjects().newInstance(implementationComponentType)))
 			.withComponent(identifier)
 			.withComponent(IsComponent.tag())
+			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
 			// TODO: Should configure FileCollection on CApplication
 			//   and link FileCollection to source sets
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {

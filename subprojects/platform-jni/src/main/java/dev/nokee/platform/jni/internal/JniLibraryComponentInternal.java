@@ -60,6 +60,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
 	, ModelBackedBinaryAwareComponentMixIn
+	, ModelBackedNamedMixIn
 {
 	@Getter private final GroupId groupId;
 	@Getter private final SetProperty<TargetMachine> targetMachines;
