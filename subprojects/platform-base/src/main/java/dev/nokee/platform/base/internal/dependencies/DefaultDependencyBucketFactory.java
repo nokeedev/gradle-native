@@ -18,10 +18,9 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.ConfigurationNamer;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
-
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName;
 
 public class DefaultDependencyBucketFactory implements DependencyBucketFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -34,7 +33,7 @@ public class DefaultDependencyBucketFactory implements DependencyBucketFactory {
 
 	@Override
 	public DependencyBucket create(DependencyBucketIdentifier identifier) {
-		val configurationProvider = configurationRegistry.registerIfAbsent(configurationName(identifier));
+		val configurationProvider = configurationRegistry.registerIfAbsent(ConfigurationNamer.INSTANCE.determineName(identifier));
 		return new DefaultDependencyBucket(identifier.getName().get(), configurationProvider, dependencyFactory);
 	}
 }
