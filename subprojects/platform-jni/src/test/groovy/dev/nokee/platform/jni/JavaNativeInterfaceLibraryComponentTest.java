@@ -31,6 +31,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
@@ -633,7 +634,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 			@Override
 			public Configuration subject() {
-				return project().getConfigurations().getByName("quzuNativeLinkLibraries");
+				return project().getConfigurations().getByName("quzuLinkLibraries");
 			}
 		}
 
@@ -641,7 +642,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 			@Override
 			public Configuration subject() {
-				return project().getConfigurations().getByName("quzuNativeRuntimeLibraries");
+				return project().getConfigurations().getByName("quzuRuntimeLibraries");
 			}
 		}
 
@@ -697,6 +698,30 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 				void hasTargetPlatform() {
 					assertThat(subject().getTargetPlatform(), providerOf(named("macosx86-64")));
 				}
+			}
+		}
+
+		@Nested
+		class NativeLinkTask {
+			public LinkSharedLibraryTask subject() {
+				return (LinkSharedLibraryTask) project().getTasks().getByName("linkQuzu");
+			}
+
+			@Test
+			void hasTargetPlatform() {
+				assertThat(subject().getTargetPlatform(), providerOf(named("macosx86-64")));
+			}
+		}
+
+		@Nested
+		class ComponentComponentBinaries {
+			public BinaryView<Binary> subject() {
+				return subject.getBinaries();
+			}
+
+			@Test
+			void hasJniJar() {
+				assertThat(subject().get(), hasItem(isA(JniJarBinary.class)));
 			}
 		}
 	}
@@ -829,7 +854,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 			class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuWindowsX64NativeLinkLibraries");
+					return project().getConfigurations().getByName("quzuWindowsX64LinkLibraries");
 				}
 			}
 
@@ -837,7 +862,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 			class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuWindowsX64NativeRuntimeLibraries");
+					return project().getConfigurations().getByName("quzuWindowsX64RuntimeLibraries");
 				}
 			}
 
@@ -893,6 +918,18 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 					void hasTargetPlatform() {
 						assertThat(subject().getTargetPlatform(), providerOf(named("windowsx86-64")));
 					}
+				}
+			}
+
+			@Nested
+			class NativeLinkTask {
+				public LinkSharedLibraryTask subject() {
+					return (LinkSharedLibraryTask) project().getTasks().getByName("linkQuzuWindowsX64");
+				}
+
+				@Test
+				void hasTargetPlatform() {
+					assertThat(subject().getTargetPlatform(), providerOf(named("windowsx86-64")));
 				}
 			}
 		}
@@ -1012,7 +1049,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 			class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuLinuxX86NativeLinkLibraries");
+					return project().getConfigurations().getByName("quzuLinuxX86LinkLibraries");
 				}
 			}
 
@@ -1020,7 +1057,7 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 			class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuLinuxX86NativeRuntimeLibraries");
+					return project().getConfigurations().getByName("quzuLinuxX86RuntimeLibraries");
 				}
 			}
 
@@ -1076,6 +1113,18 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 					void hasTargetPlatform() {
 						assertThat(subject().getTargetPlatform(), providerOf(named("linuxx86")));
 					}
+				}
+			}
+
+			@Nested
+			class NativeLinkTask {
+				public LinkSharedLibraryTask subject() {
+					return (LinkSharedLibraryTask) project().getTasks().getByName("linkQuzuLinuxX86");
+				}
+
+				@Test
+				void hasTargetPlatform() {
+					assertThat(subject().getTargetPlatform(), providerOf(named("linuxx86")));
 				}
 			}
 		}

@@ -19,6 +19,7 @@ import com.google.common.collect.MoreCollectors;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.CSourceSetIntegrationTester;
@@ -36,6 +37,8 @@ import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantTester;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.testers.SharedLibraryBinaryIntegrationTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import org.gradle.api.Project;
@@ -68,6 +71,18 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 	public abstract String variantName();
 
 	public abstract String path();
+
+	@Test
+	void hasSharedLibrary() {
+		assertThat(subject().getSharedLibrary(), notNullValue());
+	}
+
+	@Test
+	void canConfigureSharedLibrary() {
+		ConfigureMethodTester.of(subject(), JniLibrary::getSharedLibrary)
+			.testAction(JniLibrary::sharedLibrary)
+			.testClosure(JniLibrary::sharedLibrary);
+	}
 
 	@Nested
 	class ComponentSourcesTest {
@@ -159,6 +174,11 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		void hasJarTask() {
 			assertThat(subject().get(), hasItem(named("jar" + capitalize(variantName()))));
 		}
+
+		@Test
+		void hasSharedLibraryTask() {
+			assertThat(subject().get(), hasItem(named("sharedLibrary" + capitalize(variantName()))));
+		}
 	}
 
 	@Nested
@@ -170,6 +190,23 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		@Override
 		public String variantName() {
 			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName();
+		}
+	}
+
+	@Nested
+	class ComponentBinariesTest {
+		public BinaryView<Binary> subject() {
+			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getBinaries();
+		}
+
+		@Test
+		void hasJniJarBinary() {
+			assertThat(subject().get(), hasItem(isA(JniJarBinary.class)));
+		}
+
+		@Test
+		void hasSharedLibraryBinary() {
+			assertThat(subject().get(), hasItem(isA(SharedLibraryBinary.class)));
 		}
 	}
 
@@ -266,106 +303,6 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 	}
 
 	@Nested
-	class NativeLinkLibrariesConfigurationTest {
-		public Configuration subject() {
-			return project().getConfigurations().getByName(variantName() + "NativeLinkLibraries");
-		}
-
-		@Test
-		void isResolvable() {
-			assertThat(subject(), ConfigurationMatchers.resolvable());
-		}
-
-		@Test
-		void hasNativeLinkUsage() {
-			assertThat(subject(), attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("native-link"))));
-		}
-
-		@Test
-		void extendsFromNativeImplementationConfiguration() {
-			assertThat(subject(), extendsFrom(hasItem(named(variantName() + "NativeImplementation"))));
-		}
-
-		@Test
-		void extendsFromNativeLinkOnlyConfiguration() {
-			assertThat(subject(), extendsFrom(hasItem(named(variantName() + "NativeLinkOnly"))));
-		}
-
-		@Test
-		void hasOperatingSystemFamilyAttribute() {
-			assertThat(subject(), attributes(hasKey(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE)));
-			assertThat(subject(), attributes(hasKey(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE)));
-		}
-
-		@Test
-		void hasMachineArchitectureAttribute() {
-			assertThat(subject(), attributes(hasKey(MachineArchitecture.ARCHITECTURE_ATTRIBUTE)));
-			assertThat(subject(), attributes(hasKey(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE)));
-		}
-
-		@Test
-		void hasLegacyBuildTypeAttributes() {
-			assertThat(subject(), attributes(hasKey(CppBinary.DEBUGGABLE_ATTRIBUTE)));
-			assertThat(subject(), attributes(hasKey(CppBinary.OPTIMIZED_ATTRIBUTE)));
-		}
-
-		@Test
-		void hasDescription() {
-			assertThat(subject(), ConfigurationMatchers.description("Native link libraries for " + displayName() + "."));
-		}
-	}
-
-	@Nested
-	class NativeRuntimeLibrariesConfigurationTest {
-		public Configuration subject() {
-			return project().getConfigurations().getByName(variantName() + "NativeRuntimeLibraries");
-		}
-
-		@Test
-		void isResolvable() {
-			assertThat(subject(), ConfigurationMatchers.resolvable());
-		}
-
-		@Test
-		void hasNativeRuntimeUsage() {
-			assertThat(subject(), attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("native-runtime"))));
-		}
-
-		@Test
-		void extendsFromNativeImplementationConfiguration() {
-			assertThat(subject(), extendsFrom(hasItem(named(variantName() + "NativeImplementation"))));
-		}
-
-		@Test
-		void extendsFromNativeRuntimeOnlyConfiguration() {
-			assertThat(subject(), extendsFrom(hasItem(named(variantName() + "NativeRuntimeOnly"))));
-		}
-
-		@Test
-		void hasOperatingSystemFamilyAttribute() {
-			assertThat(subject(), attributes(hasKey(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE)));
-			assertThat(subject(), attributes(hasKey(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE)));
-		}
-
-		@Test
-		void hasMachineArchitectureAttribute() {
-			assertThat(subject(), attributes(hasKey(MachineArchitecture.ARCHITECTURE_ATTRIBUTE)));
-			assertThat(subject(), attributes(hasKey(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE)));
-		}
-
-		@Test
-		void hasLegacyBuildTypeAttributes() {
-			assertThat(subject(), attributes(hasKey(CppBinary.DEBUGGABLE_ATTRIBUTE)));
-			assertThat(subject(), attributes(hasKey(CppBinary.OPTIMIZED_ATTRIBUTE)));
-		}
-
-		@Test
-		void hasDescription() {
-			assertThat(subject(), ConfigurationMatchers.description("Native runtime libraries for " + displayName() + "."));
-		}
-	}
-
-	@Nested
 	class AssembleTaskTest {
 		public Task subject() {
 			return project().getTasks().getByName("assemble" + capitalize(variantName()));
@@ -379,6 +316,23 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		@Test
 		void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of " + displayName() + "."));
+		}
+	}
+
+	@Nested
+	class SharedLibraryTaskTest {
+		public Task subject() {
+			return project().getTasks().getByName("sharedLibrary" + capitalize(variantName()));
+		}
+
+		@Test
+		void hasBuildGroup() {
+			assertThat(subject(), group("build"));
+		}
+
+		@Test
+		void hasDescription() {
+			assertThat(subject(), TaskMatchers.description("Assembles the shared library binary of " + displayName() + "."));
 		}
 	}
 
@@ -397,6 +351,100 @@ public abstract class JavaNativeInterfaceLibraryVariantIntegrationTester impleme
 		@Override
 		public JniJarBinary subject() {
 			return (JniJarBinary) JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getBinaries().get().stream().filter(it -> it instanceof JniJarBinary).collect(MoreCollectors.onlyElement());
+		}
+	}
+
+	@Nested
+	class SharedLibraryBinaryTest extends SharedLibraryBinaryIntegrationTester {
+		@Override
+		public SharedLibraryBinary subject() {
+			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getSharedLibrary();
+		}
+
+		@Override
+		public Project project() {
+			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.project();
+		}
+
+		@Override
+		public String variantName() {
+			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName();
+		}
+
+		@Override
+		public String displayName() {
+			return "shared library binary '" + path() + ":sharedLibrary'";
+		}
+
+
+		@Nested
+		class NativeLinkLibrariesConfigurationTest {
+			public Configuration subject() {
+				return project().getConfigurations().getByName(variantName() + "LinkLibraries");
+			}
+
+			@Test
+			void extendsFromNativeImplementationConfiguration() {
+				assertThat(subject(), extendsFrom(hasItem(named(variantName() + "NativeImplementation"))));
+			}
+
+			@Test
+			void extendsFromNativeLinkOnlyConfiguration() {
+				assertThat(subject(), extendsFrom(hasItem(named(variantName() + "NativeLinkOnly"))));
+			}
+
+			@Test
+			void hasOperatingSystemFamilyAttribute() {
+				assertThat(subject(), attributes(hasKey(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE)));
+				assertThat(subject(), attributes(hasKey(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE)));
+			}
+
+			@Test
+			void hasMachineArchitectureAttribute() {
+				assertThat(subject(), attributes(hasKey(MachineArchitecture.ARCHITECTURE_ATTRIBUTE)));
+				assertThat(subject(), attributes(hasKey(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE)));
+			}
+
+			@Test
+			void hasLegacyBuildTypeAttributes() {
+				assertThat(subject(), attributes(hasKey(CppBinary.DEBUGGABLE_ATTRIBUTE)));
+				assertThat(subject(), attributes(hasKey(CppBinary.OPTIMIZED_ATTRIBUTE)));
+			}
+		}
+
+		@Nested
+		class NativeRuntimeLibrariesConfigurationTest {
+			public Configuration subject() {
+				return project().getConfigurations().getByName(variantName() + "RuntimeLibraries");
+			}
+
+			@Test
+			void extendsFromNativeImplementationConfiguration() {
+				assertThat(subject(), extendsFrom(hasItem(named(JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName() + "NativeImplementation"))));
+			}
+
+			@Test
+			void extendsFromNativeRuntimeOnlyConfiguration() {
+				assertThat(subject(), extendsFrom(hasItem(named(JavaNativeInterfaceLibraryVariantIntegrationTester.this.variantName() + "NativeRuntimeOnly"))));
+			}
+
+			@Test
+			void hasOperatingSystemFamilyAttribute() {
+				assertThat(subject(), attributes(hasKey(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE)));
+				assertThat(subject(), attributes(hasKey(org.gradle.nativeplatform.OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE)));
+			}
+
+			@Test
+			void hasMachineArchitectureAttribute() {
+				assertThat(subject(), attributes(hasKey(MachineArchitecture.ARCHITECTURE_ATTRIBUTE)));
+				assertThat(subject(), attributes(hasKey(org.gradle.nativeplatform.MachineArchitecture.ARCHITECTURE_ATTRIBUTE)));
+			}
+
+			@Test
+			void hasLegacyBuildTypeAttributes() {
+				assertThat(subject(), attributes(hasKey(CppBinary.DEBUGGABLE_ATTRIBUTE)));
+				assertThat(subject(), attributes(hasKey(CppBinary.OPTIMIZED_ATTRIBUTE)));
+			}
 		}
 	}
 
