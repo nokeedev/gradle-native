@@ -25,25 +25,15 @@ public final class ModelProperties {
 	private ModelProperties() {}
 
 	public static ModelElement getProperty(Object self, String name) {
-		val result = ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDescendant(name);
-		if (!result.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))) {
-			throw new IllegalArgumentException("Not a property");
-		}
-		return new ModelNodeBackedElement(result);
+		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(IsModelProperty.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(ModelNodeBackedElement::new).orElseThrow(() -> new IllegalArgumentException("No property of name '" + name + "'"));
 	}
 
 	public static Optional<ModelElement> findProperty(Object self, String name) {
-		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).findDescendant(name).map(it -> {
-			if (!it.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))) {
-				throw new IllegalArgumentException("Not a property");
-			}
-			return new ModelNodeBackedElement(it);
-		});
+		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(IsModelProperty.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(ModelNodeBackedElement::new);
 	}
 
 	public static boolean hasProperty(Object self, String name) {
-		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).findDescendant(name).filter(it -> it.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))).isPresent();
-
+		return findProperty(self, name).isPresent();
 	}
 
 	public static Stream<ModelElement> getProperties(Object self) {
