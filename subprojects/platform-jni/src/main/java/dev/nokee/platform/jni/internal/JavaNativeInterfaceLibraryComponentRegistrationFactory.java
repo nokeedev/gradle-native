@@ -211,7 +211,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
 						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
-						val variant = project.getExtensions().getByType(ModelRegistry.class).register(variantFactory.create(variantIdentifier, component));
+						val variant = project.getExtensions().getByType(ModelRegistry.class).register(variantFactory.create(variantIdentifier));
 
 						ModelStates.realize(ModelNodes.of(variant)); // FIXME: Remove once the refactoring is over
 

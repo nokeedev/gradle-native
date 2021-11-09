@@ -76,7 +76,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
 	private final TargetMachine targetMachine;
-	private final GroupId groupId;
 	private final TaskRegistry taskRegistry;
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
@@ -84,19 +83,18 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Getter private final ConfigurableFileCollection nativeRuntimeFiles;
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, FunctionalSourceSet parentSources, GroupId groupId, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
 		super(identifier, objects, binaryViewFactory);
 		this.configurations = configurations;
 		this.providers = providers;
 		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
 		this.targetMachine = getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
-		this.groupId = groupId;
 		this.resourcePath = objects.property(String.class);
 		this.nativeRuntimeFiles = objects.fileCollection();
 		this.taskRegistry = taskRegistry;
 
-		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
+//		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
 		getDevelopmentBinary().convention(providers.provider(this::getJar));
 	}
 
