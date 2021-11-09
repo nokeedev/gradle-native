@@ -28,6 +28,7 @@ import java.util.*;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final Instantiator instantiator;
+	private final List<ModelNode> entities = new ArrayList<>();
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
 	private final List<ModelAction> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
@@ -52,6 +53,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 				});
 			} else if (state.equals(ModelState.Registered)) {
 				nodes.put(path, node);
+				entities.add(node);
 			}
 		}));
 		rootNode = ModelStates.register(createRootNode());
@@ -116,7 +118,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public Result query(ModelSpec spec) {
-		val result = nodes.values().stream().filter(spec::isSatisfiedBy).collect(ImmutableList.toImmutableList());
+		val result = entities.stream().filter(spec::isSatisfiedBy).collect(ImmutableList.toImmutableList());
 		return new ModelLookupDefaultResult(result);
 	}
 
@@ -127,15 +129,15 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public boolean anyMatch(ModelSpec spec) {
-		return nodes.values().stream().anyMatch(spec::isSatisfiedBy);
+		return entities.stream().anyMatch(spec::isSatisfiedBy);
 	}
 
 	@Override
 	public void configure(ModelAction configuration) {
 		configurations.add(configuration);
-		val size = nodes.size();
+		val size = entities.size();
 		for (int i = 0; i < size; i++) {
-			val node = Iterables.get(nodes.values(), i);
+			val node = entities.get(i);
 			if (configuration instanceof HasInputs && ((HasInputs) configuration).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
 				configuration.execute(node);
 			} else {
