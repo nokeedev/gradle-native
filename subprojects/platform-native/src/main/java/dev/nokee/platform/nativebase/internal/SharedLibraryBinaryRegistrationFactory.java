@@ -39,13 +39,15 @@ public final class SharedLibraryBinaryRegistrationFactory {
 	private final NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory;
 	private final BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory;
 	private final RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory;
+	private final AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory, RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory, NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory, BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory, RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory) {
+	public SharedLibraryBinaryRegistrationFactory(LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory, RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory, NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory, BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory, RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory) {
 		this.linkLibrariesRegistrationFactory = linkLibrariesRegistrationFactory;
 		this.runtimeLibrariesRegistrationFactory = runtimeLibrariesRegistrationFactory;
 		this.linkTaskRegistrationActionFactory = linkTaskRegistrationActionFactory;
 		this.baseNamePropertyRegistrationActionFactory = baseNamePropertyRegistrationActionFactory;
 		this.compileTasksPropertyActionFactory = compileTasksPropertyActionFactory;
+		this.attachAttributesToConfigurationRuleFactory = attachAttributesToConfigurationRuleFactory;
 	}
 
 	public ModelRegistration create(BinaryIdentifier<?> identifier) {
@@ -64,6 +66,9 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(runtimeLibrariesRegistrationFactory.create(identifier))
 			.action(new AttachObjectFilesToLinkTaskRule(identifier))
 			.action(new ConfigureLinkTaskDefaultsRule(identifier))
+			.action(attachAttributesToConfigurationRuleFactory.create(identifier, LinkLibrariesConfiguration.class))
+			.action(attachAttributesToConfigurationRuleFactory.create(identifier, RuntimeLibrariesConfiguration.class))
+			.action(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(identifier))
 			.build();
 	}
 

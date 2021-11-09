@@ -72,6 +72,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			new RegisterCompileTasksPropertyActionFactory(
 				() -> project.getExtensions().getByType(ModelRegistry.class),
 				() -> project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class)
+			),
+			new AttachAttributesToConfigurationRuleFactory(
+				() -> project.getObjects()
 			)
 		));
 	}
