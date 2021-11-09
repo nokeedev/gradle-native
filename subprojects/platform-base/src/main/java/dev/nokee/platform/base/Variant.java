@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base;
 
+import org.gradle.api.Named;
 import org.gradle.api.provider.Provider;
 
 /**
@@ -22,7 +23,7 @@ import org.gradle.api.provider.Provider;
  *
  * @since 0.2
  */
-public interface Variant extends BinaryAwareComponent {
+public interface Variant extends Named, BinaryAwareComponent {
 	/**
 	 * Configure the binaries of this variant.
 	 * The view contains only the binaries participating to this variant.

@@ -40,6 +40,7 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 	, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
+	, ModelBackedNamedMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
