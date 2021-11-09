@@ -60,6 +60,7 @@ public final class LinkLibrariesConfigurationRegistrationAction extends ModelAct
 			val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(linkLibraries));
 			entity.addComponent(new DependentFrameworks(incomingArtifacts.getAs(frameworks())));
 			entity.addComponent(new DependentLinkLibraries(incomingArtifacts.getAs(frameworks().negate())));
+			entity.addComponent(new LinkLibrariesConfiguration(linkLibraries.as(Configuration.class)));
 		}
 	}
 
