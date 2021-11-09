@@ -67,6 +67,8 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware, HasPublicType
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
+	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies>
+	, ModelBackedBinaryAwareComponentMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
@@ -132,13 +134,18 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		return jarBinary;
 	}
 
-	public SharedLibraryBinaryInternal getSharedLibrary() {
-		return sharedLibraryBinary;
+	public SharedLibraryBinary getSharedLibrary() {
+		return ModelProperties.getProperty(this, "sharedLibrary").as(SharedLibraryBinary.class).get();
 	}
 
 	@Override
 	public void sharedLibrary(Action<? super SharedLibraryBinary> action) {
-		action.execute(sharedLibraryBinary);
+		action.execute(getSharedLibrary());
+	}
+
+	@Override
+	public void sharedLibrary(@SuppressWarnings("rawtypes") Closure closure) {
+		sharedLibrary(ConfigureUtil.configureUsing(closure));
 	}
 
 	public void addJniJarBinary(AbstractJarBinary jniJarBinary) {
@@ -165,33 +172,8 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	@Override
-	public JavaNativeInterfaceNativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(JavaNativeInterfaceNativeComponentDependencies.class).get();
-	}
-
-	@Override
-	public void dependencies(Action<? super JavaNativeInterfaceNativeComponentDependencies> action) {
-		action.execute(getDependencies());
-	}
-
-	@Override
-	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtil.configureUsing(closure));
-	}
-
-	@Override
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
-	}
-
-	@Override
-	public void binaries(Action<? super BinaryView<Binary>> action) {
-		action.execute(getBinaries());
-	}
-
-	@Override
-	public void binaries(@SuppressWarnings("rawtypes") Closure closure) {
-		binaries(ConfigureUtil.configureUsing(closure));
 	}
 
 	@Override
