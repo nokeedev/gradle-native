@@ -113,6 +113,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
+		, ModelBackedNamedMixIn
 	{
 		@Override
 		public ObjectiveCppSourceSet getObjectiveCppSources() {

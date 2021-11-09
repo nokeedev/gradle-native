@@ -77,5 +77,10 @@ class DefaultComponentContainerTest {
 		public TestSuiteComponent testedComponent(Object component) {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public String getName() {
+			throw new UnsupportedOperationException();
+		}
 	}
 }

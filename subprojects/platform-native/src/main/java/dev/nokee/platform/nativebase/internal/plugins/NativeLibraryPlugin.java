@@ -124,6 +124,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
+		, ModelBackedNamedMixIn
 	{
 	}
 

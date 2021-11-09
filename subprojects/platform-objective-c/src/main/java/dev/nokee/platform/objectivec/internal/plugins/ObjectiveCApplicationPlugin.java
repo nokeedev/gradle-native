@@ -111,6 +111,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
+		, ModelBackedNamedMixIn
 	{
 		@Override
 		public ObjectiveCSourceSet getObjectiveCSources() {

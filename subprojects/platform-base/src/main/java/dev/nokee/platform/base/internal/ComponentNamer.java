@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base;
+package dev.nokee.platform.base.internal;
 
-import org.gradle.api.Named;
+import org.gradle.api.Namer;
 
-/**
- * A software component that is built by the Nokee plugins.
- *
- * @since 0.5
- */
-public interface Component extends Named {
+public final class ComponentNamer implements Namer<ComponentIdentifier> {
+	public static final ComponentNamer INSTANCE = new ComponentNamer();
+
+	@Override
+	public String determineName(ComponentIdentifier identifier) {
+		return identifier.getName().get();
+	}
 }

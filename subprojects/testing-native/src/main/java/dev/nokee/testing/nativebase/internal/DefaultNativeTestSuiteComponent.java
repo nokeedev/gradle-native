@@ -98,6 +98,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<DefaultNativeTestSuiteVariant>
 	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeTestSuiteVariant>
+	, ModelBackedNamedMixIn
 {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;

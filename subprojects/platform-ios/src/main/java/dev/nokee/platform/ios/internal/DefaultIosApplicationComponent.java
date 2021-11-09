@@ -76,6 +76,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedHasDevelopmentVariantMixIn<DefaultIosApplicationVariant>
+	, ModelBackedNamedMixIn
 {
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;

@@ -110,6 +110,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(IsTestComponent.tag())
 			.withComponent(IsComponent.tag())
 			.withComponent(identifier)
+			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
 					withConventionOf(maven(identifier.getName())).accept(sourceSet);

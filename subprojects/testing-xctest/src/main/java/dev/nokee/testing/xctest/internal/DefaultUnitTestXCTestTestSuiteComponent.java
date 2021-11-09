@@ -58,6 +58,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
+	, ModelBackedNamedMixIn
 {
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;

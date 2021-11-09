@@ -143,6 +143,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(IsTestComponent.tag())
+			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
 					withConventionOf(maven(identifier.getName())).accept(sourceSet);
@@ -278,6 +279,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(identifier)
 			.withComponent(IsComponent.tag())
 			.withComponent(IsTestComponent.tag())
+			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))

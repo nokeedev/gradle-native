@@ -105,6 +105,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
+		, ModelBackedNamedMixIn
 	{
 		@Override
 		public CppSourceSet getCppSources() {

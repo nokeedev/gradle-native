@@ -99,6 +99,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
+		, ModelBackedNamedMixIn
 	{
 		@Override
 		public SwiftSourceSet getSwiftSources() {

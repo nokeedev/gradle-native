@@ -97,6 +97,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
+		, ModelBackedNamedMixIn
 	{
 		@Override
 		public SwiftSourceSet getSwiftSources() {
