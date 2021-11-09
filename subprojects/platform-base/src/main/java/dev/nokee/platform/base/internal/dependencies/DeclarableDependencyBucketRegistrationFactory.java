@@ -23,11 +23,14 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.ConfigurationNamer;
+import dev.nokee.platform.base.internal.FullyQualifiedName;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
@@ -43,6 +46,7 @@ import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.to
 public final class DeclarableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
+	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
 	public DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory) {
 		this.configurationRegistry = configurationRegistry;
@@ -51,7 +55,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
-		val configurationProvider = configurationRegistry.registerIfAbsent(configurationName(identifier));
+		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
 		configurationProvider.configure(ConfigurationUtils.configureDescription(toDescription(identifier)));
 		configurationProvider.configure(configuration -> {
@@ -67,6 +71,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(entityPath)
 			.withComponent(identifier)
 			.withComponent(IsDependencyBucket.tag())
+			.withComponent(new FullyQualifiedName(namer.determineName(identifier)))
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get))
 			.withComponent(createdUsing(of(DeclarableDependencyBucket.class), () -> {
