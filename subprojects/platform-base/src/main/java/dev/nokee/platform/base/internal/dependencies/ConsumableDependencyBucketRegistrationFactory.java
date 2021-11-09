@@ -46,7 +46,6 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
 public final class ConsumableDependencyBucketRegistrationFactory {

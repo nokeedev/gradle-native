@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import org.junit.jupiter.api.Test;
 
@@ -23,10 +24,13 @@ import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 import static dev.nokee.platform.base.internal.ComponentIdentifier.ofMain;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.*;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DependencyBucketConfigurationNameTest {
+	private static String configurationName(DependencyBucketIdentifier identifier) {
+		return ConfigurationNamer.INSTANCE.determineName(identifier);
+	}
+
 	@Test
 	void canGenerateConfigurationNameForProjectOwnedIdentifierIsTheSameAsBucketName() {
 		assertEquals("implementation", configurationName(of(declarable("implementation"), ofRootProject())));

@@ -15,16 +15,46 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.Streams;
+import dev.nokee.model.HasName;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Namer;
 
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.configurationName;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ConfigurationNamer implements Namer<DependencyBucketIdentifier> {
 	public static final ConfigurationNamer INSTANCE = new ConfigurationNamer();
 
 	@Override
 	public String determineName(DependencyBucketIdentifier identifier) {
-		return configurationName(identifier);
+		return StringUtils.uncapitalize(Streams.stream(identifier)
+			.flatMap(it -> {
+				if (it instanceof ProjectIdentifier) {
+					return Stream.empty();
+				} else if (it instanceof ComponentIdentifier) {
+					if (((ComponentIdentifier) it).isMainComponent()) {
+						return Stream.empty();
+					} else {
+						return Stream.of(((ComponentIdentifier) it).getName().get());
+					}
+				} else if (it instanceof ComponentIdentity) {
+					if (((ComponentIdentity) it).isMainComponent()) {
+						return Stream.empty();
+					} else {
+						return Stream.of(((ComponentIdentity) it).getName().get());
+					}
+				} else if (it instanceof VariantIdentifier) {
+					return Stream.of(((VariantIdentifier<?>) it).getUnambiguousName());
+				} else if (it instanceof HasName) {
+					return Stream.of(((HasName) it).getName().toString());
+				} else {
+					throw new UnsupportedOperationException();
+				}
+			})
+			.map(StringUtils::capitalize)
+			.collect(Collectors.joining()));
 	}
 }
