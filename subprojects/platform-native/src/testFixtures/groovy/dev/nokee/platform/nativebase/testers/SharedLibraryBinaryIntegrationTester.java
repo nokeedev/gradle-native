@@ -27,9 +27,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
-import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -42,8 +40,6 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.presentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
-import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -141,13 +137,6 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 		}
 
 		@Test
-		void addsMacOsSdkPathToLinkerArguments() {
-			project().getPluginManager().apply(SwiftCompilerPlugin.class); // only for Swiftc, at the moment
-			subject().getTargetPlatform().set(macosPlatform());
-			assertThat(subject().getLinkerArgs(), providerOf(hasItem("-sdk")));
-		}
-
-		@Test
 		void locksImportLibraryProperty() {
 			assertThrows(RuntimeException.class, () -> subject().getImportLibrary().set(new File("/foo/bar")));
 		}
@@ -195,9 +184,5 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 		void hasNativeRuntimeUsage() {
 			assertThat(subject(), ConfigurationMatchers.attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("native-runtime"))));
 		}
-	}
-
-	private static NativePlatform macosPlatform() {
-		return create(of("osx-x64"));
 	}
 }
