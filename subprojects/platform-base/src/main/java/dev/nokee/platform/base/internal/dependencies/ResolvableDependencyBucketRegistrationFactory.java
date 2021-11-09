@@ -23,11 +23,14 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.ConfigurationNamer;
+import dev.nokee.platform.base.internal.FullyQualifiedName;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Namer;
 import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -45,6 +48,7 @@ import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.to
 public final class ResolvableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
+	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
 	public ResolvableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory) {
 		this.configurationRegistry = configurationRegistry;
@@ -52,7 +56,7 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
-		val configurationProvider = configurationRegistry.registerIfAbsent(configurationName(identifier));
+		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		val incoming = new IncomingArtifacts(configurationProvider);
 		val bucket = new DefaultResolvableDependencyBucket(bucketFactory.create(identifier), incoming);
 		configurationProvider.configure(ConfigurationUtils.configureAsResolvable());
@@ -70,6 +74,7 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 			.withComponent(entityPath)
 			.withComponent(identifier)
 			.withComponent(IsDependencyBucket.tag())
+			.withComponent(new FullyQualifiedName(namer.determineName(identifier)))
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))

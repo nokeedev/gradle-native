@@ -23,12 +23,15 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.ConfigurationNamer;
+import dev.nokee.platform.base.internal.FullyQualifiedName;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.PublishArtifact;
@@ -50,6 +53,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
 	private final ObjectFactory objects;
+	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
 	public ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ObjectFactory objects) {
 		this.configurationRegistry = configurationRegistry;
@@ -60,7 +64,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val outgoing = objects.newInstance(OutgoingArtifacts.class);
 		val bucket = new DefaultConsumableDependencyBucket(bucketFactory.create(identifier), outgoing);
-		val configurationProvider = configurationRegistry.registerIfAbsent(configurationName(identifier));
+		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		configurationProvider.configure(ConfigurationUtils.configureAsConsumable());
 		configurationProvider.configure(ConfigurationUtils.configureDescription(toDescription(identifier)));
 		configurationProvider.configure(configuration -> {
@@ -77,6 +81,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(entityPath)
 			.withComponent(identifier)
 			.withComponent(IsDependencyBucket.tag())
+			.withComponent(new FullyQualifiedName(namer.determineName(identifier)))
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
