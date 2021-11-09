@@ -28,4 +28,9 @@ public class DefaultJvmJarBinary extends AbstractJarBinary implements JvmJarBina
 	public DefaultJvmJarBinary(TaskProvider<Jar> jarTask) {
 		super(jarTask);
 	}
+
+	@Override
+	public String getName() {
+		throw new UnsupportedOperationException();
+	}
 }

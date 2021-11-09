@@ -133,6 +133,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 					.withComponent(path.child("executable"))
 					.withComponent(IsBinary.tag())
 					.withComponent(binaryIdentifier)
+					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						ModelStates.realize(entity);
 						return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);

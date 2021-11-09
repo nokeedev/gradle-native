@@ -18,6 +18,7 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
@@ -54,7 +55,7 @@ public final class JniJarBinaryRegistrationFactory {
 			.build();
 	}
 
-	public static class ModelBackedJniJarBinary implements JniJarBinary, ModelNodeAware, HasPublicType {
+	public static class ModelBackedJniJarBinary implements JniJarBinary, ModelNodeAware, HasPublicType, ModelBackedNamedMixIn {
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 		@Override

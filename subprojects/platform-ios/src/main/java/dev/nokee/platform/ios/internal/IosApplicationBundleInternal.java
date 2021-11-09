@@ -54,4 +54,9 @@ public class IosApplicationBundleInternal implements Binary, Buildable {
 	public Provider<FileSystemLocation> getApplicationBundleLocation() {
 		return bundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle);
 	}
+
+	@Override
+	public String getName() {
+		throw new UnsupportedOperationException();
+	}
 }

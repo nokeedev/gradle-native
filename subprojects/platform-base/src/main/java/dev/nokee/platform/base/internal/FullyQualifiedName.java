@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.jni.internal;
+package dev.nokee.platform.base.internal;
 
-import dev.nokee.platform.jni.JniJarBinary;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.bundling.Jar;
+public final class FullyQualifiedName {
+	private final String name;
 
-import javax.inject.Inject;
+	public FullyQualifiedName(String name) {
+		this.name = name;
+	}
 
-public class DefaultJniJarBinary extends AbstractJarBinary implements JniJarBinary {
-	@Inject
-	public DefaultJniJarBinary(TaskProvider<Jar> jarTask) {
-		super(jarTask);
+	public String get() {
+		return name;
 	}
 
 	@Override
-	public String getName() {
-		throw new UnsupportedOperationException();
+	public String toString() {
+		return name;
 	}
 }

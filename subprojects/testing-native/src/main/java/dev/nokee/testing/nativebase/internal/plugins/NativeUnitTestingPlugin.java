@@ -201,6 +201,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					.withComponent(path.child("executable"))
 					.withComponent(IsBinary.tag())
 					.withComponent(binaryIdentifier)
+					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> binaryRepository.get(binaryIdentifier)))
 					.build());
 				project.getExtensions().getByType(BinaryConfigurer.class)

@@ -263,6 +263,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(path.child("executable"))
 					.withComponent(IsBinary.tag())
 					.withComponent(executableIdentifier)
+					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(executableIdentifier)))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						return project.getExtensions().getByType(BinaryRepository.class).get(executableIdentifier);
 					}))
@@ -274,6 +275,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(path.child("applicationBundle"))
 					.withComponent(IsBinary.tag())
 					.withComponent(applicationBundleIdentifier)
+					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(applicationBundleIdentifier)))
 					.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> {
 						return project.getExtensions().getByType(BinaryRepository.class).get(applicationBundleIdentifier);
 					}))
@@ -285,6 +287,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(path.child("signedApplicationBundle"))
 					.withComponent(IsBinary.tag())
 					.withComponent(signedApplicationBundleIdentifier)
+					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(signedApplicationBundleIdentifier)))
 					.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {
 						return project.getExtensions().getByType(BinaryRepository.class).get(signedApplicationBundleIdentifier);
 					}))

@@ -64,7 +64,12 @@ trait BinaryFixture {
 		return MyBinary
 	}
 
-	static class MyBinary implements Binary {}
+	static class MyBinary implements Binary {
+		@Override
+		String getName() {
+			throw new UnsupportedOperationException()
+		}
+	}
 
 	Class<? extends Binary> getMyEntityChildType() {
 		return MyBinaryChild
@@ -72,5 +77,10 @@ trait BinaryFixture {
 
 	static class MyBinaryChild extends MyBinary {}
 
-	static class BinaryImpl implements Binary {}
+	static class BinaryImpl implements Binary {
+		@Override
+		String getName() {
+			throw new UnsupportedOperationException()
+		}
+	}
 }
