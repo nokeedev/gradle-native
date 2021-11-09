@@ -48,16 +48,12 @@ import org.gradle.api.Project;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.Property;
-import org.gradle.model.internal.core.ModelAction;
-import org.gradle.model.internal.core.ModelActionRole;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
-import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
 import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.platform.base.ToolChain;
-import org.gradle.platform.base.ToolChainRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -345,6 +341,13 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				subject().getTargetPlatform().set(nixPlatform());
 				assertThat(subject().getImportLibrary(), absentProvider());
 			}
+
+			@Test
+			void addsMacOsSdkPathToLinkerArguments() {
+				project().getPluginManager().apply(SwiftCompilerPlugin.class); // only for Swiftc, at the moment
+				subject().getTargetPlatform().set(macosPlatform());
+				assertThat(subject().getLinkerArgs(), providerOf(hasItem("-sdk")));
+			}
 		}
 	}
 
@@ -379,5 +382,9 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 	private static NativePlatform nixPlatform() {
 		return create(of("linux-x86"));
+	}
+
+	private static NativePlatform macosPlatform() {
+		return create(of("osx-x64"));
 	}
 }
