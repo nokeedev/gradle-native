@@ -91,31 +91,22 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 
 		@Nested
 		class JarTest {
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "java")
-			class WhenJavaLanguagePluginApplied {
-				@Test
-				void hasJarTask() {
-					assertThat(subject().get(), hasItem(named("jarQuzu")));
-				}
+			void hasJarTaskWhenJavaLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(named("jarQuzu")));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "groovy")
-			class WhenGroovyLanguagePluginApplied {
-				@Test
-				void hasJarTask() {
-					assertThat(subject().get(), hasItem(named("jarQuzu")));
-				}
+			void hasJarTaskWhenGroovyLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(named("jarQuzu")));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
-			class WhenKotlinLanguagePluginApplied {
-				@Test
-				void hasJarTask() {
-					assertThat(subject().get(), hasItem(named("jarQuzu")));
-				}
+			void hasJarTaskWhenKotlinLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(named("jarQuzu")));
 			}
 		}
 	}
@@ -133,31 +124,22 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 				assertThat(subject().get(), not(hasItem(isA(JvmJarBinary.class))));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "java")
-			class WhenJavaLanguagePluginApplied {
-				@Test
-				void hasJvmJarBinary() {
-					assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
-				}
+			void hasJvmJarBinaryWhenJavaLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "groovy")
-			class WhenGroovyLanguagePluginApplied {
-				@Test
-				void hasJvmJarBinary() {
-					assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
-				}
+			void hasJvmJarBinaryWhenGroovyLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
 			}
 
-			@Nested
+			@Test
 			@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
-			class WhenKotlinLanguagePluginApplied {
-				@Test
-				void hasJvmJarBinary() {
-					assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
-				}
+			void hasJvmJarBinaryWhenKotlinLanguagePluginApplied() {
+				assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
 			}
 		}
 	}
