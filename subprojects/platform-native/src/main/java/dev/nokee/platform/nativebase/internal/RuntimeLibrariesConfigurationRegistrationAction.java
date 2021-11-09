@@ -53,6 +53,7 @@ public final class RuntimeLibrariesConfigurationRegistrationAction extends Model
 		if (identifier.equals(this.identifier)) {
 			val runtimeLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("runtimeLibraries"), identifier)));
 			runtimeLibraries.configure(Configuration.class, forNativeRuntimeUsage());
+			entity.addComponent(new RuntimeLibrariesConfiguration(runtimeLibraries.as(Configuration.class)));
 		}
 	}
 
