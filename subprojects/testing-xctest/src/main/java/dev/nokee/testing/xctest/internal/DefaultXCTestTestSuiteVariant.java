@@ -41,6 +41,7 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
+	, ModelBackedNamedMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 

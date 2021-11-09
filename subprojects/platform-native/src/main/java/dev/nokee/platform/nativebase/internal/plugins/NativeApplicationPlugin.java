@@ -123,6 +123,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			})
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
+			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))

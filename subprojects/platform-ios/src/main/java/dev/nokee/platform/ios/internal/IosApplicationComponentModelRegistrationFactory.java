@@ -206,6 +206,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		})
 			.withComponent(identifier)
 			.withComponent(IsVariant.tag())
+			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))

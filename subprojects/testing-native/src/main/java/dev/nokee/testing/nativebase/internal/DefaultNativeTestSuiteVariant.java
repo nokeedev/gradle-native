@@ -43,6 +43,7 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn
+	, ModelBackedNamedMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 

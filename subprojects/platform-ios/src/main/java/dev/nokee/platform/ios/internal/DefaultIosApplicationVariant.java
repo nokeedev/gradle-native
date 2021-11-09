@@ -44,6 +44,7 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
+	, ModelBackedNamedMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter private final Property<String> productBundleIdentifier;

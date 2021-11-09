@@ -94,6 +94,11 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		getDevelopmentBinary().convention(providers.provider(this::getJar));
 	}
 
+	@Override
+	public String getName() {
+		return VariantNamer.INSTANCE.determineName(getIdentifier());
+	}
+
 	public ResolvableComponentDependencies getResolvableDependencies() {
 		return resolvableDependencies;
 	}

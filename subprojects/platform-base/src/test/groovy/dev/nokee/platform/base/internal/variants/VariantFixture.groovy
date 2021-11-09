@@ -17,7 +17,10 @@ package dev.nokee.platform.base.internal.variants
 
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
-import dev.nokee.platform.base.*
+import dev.nokee.platform.base.Binary
+import dev.nokee.platform.base.BinaryView
+import dev.nokee.platform.base.BuildVariant
+import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.platform.base.internal.VariantIdentifier
@@ -92,6 +95,11 @@ trait VariantFixture {
         BuildVariant getBuildVariant() {
 			throw new UnsupportedOperationException()
 		}
+
+		@Override
+		String getName() {
+			throw new UnsupportedOperationException()
+		}
 	}
 
 	Class<? extends Variant> getMyEntityChildType() {
@@ -122,6 +130,11 @@ trait VariantFixture {
 
 		@Override
         BuildVariant getBuildVariant() {
+			throw new UnsupportedOperationException()
+		}
+
+		@Override
+		String getName() {
 			throw new UnsupportedOperationException()
 		}
 	}

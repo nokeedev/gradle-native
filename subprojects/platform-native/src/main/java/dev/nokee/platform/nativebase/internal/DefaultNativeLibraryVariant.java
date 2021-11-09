@@ -40,6 +40,7 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
+	, ModelBackedNamedMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
