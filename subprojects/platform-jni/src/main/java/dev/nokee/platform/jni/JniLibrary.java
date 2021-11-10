@@ -37,6 +37,7 @@ public interface JniLibrary extends Variant
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, SourceAwareComponent<SourceView<LanguageSourceSet>>
+	, HasBaseName
 {
 	/**
 	 * Specifies the resource path where the native components of the JNI library will be located within the JAR.
