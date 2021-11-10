@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -33,24 +34,35 @@ import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistra
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.runtime.nativebase.internal.NativeArtifactTypes;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.attributes.LibraryElements;
+import org.gradle.api.attributes.Usage;
+import org.gradle.api.internal.component.ArtifactType;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.cpp.CppBinary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
 import static dev.nokee.internal.testing.TaskMatchers.group;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
-import static org.apache.commons.lang3.StringUtils.capitalize;
+import static dev.nokee.utils.ConfigurationUtils.*;
+import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -240,6 +252,32 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 		void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the object files of variant 'windowsX86' of component ':reqi'."));
 		}
+	}
+
+	@Test
+	void hasSharedLibraryBinaryLinkedFile() {
+		subject().getBaseName().set("heno");
+		assertThat(subject().getNativeRuntimeFiles(), hasItem(aFile(withAbsolutePath(endsWith("/build/libs/reqi/windowsX86/heno.dll")))));
+	}
+
+	private Configuration runtimeLibraries() {
+		return project.getConfigurations().getByName("reqiWindowsX86RuntimeLibraries");
+	}
+
+	@Test
+	void hasSharedLibraryBinaryRuntimeDependencies() throws IOException {
+		val artifact = Files.createTempFile("lib", ".dll").toFile();
+		val libraryProducer = ProjectTestUtils.createChildProject(project());
+		libraryProducer.getConfigurations().create("runtimeElements",
+			configureAsConsumable()
+				.andThen(configureAttributes(forUsage(project().getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
+				.andThen(configureAttributes(it -> it.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+					project().getObjects().named(LibraryElements.class, LibraryElements.DYNAMIC_LIB))))
+				.andThen(it -> it.getOutgoing().artifact(artifact, t -> t.setType(NativeArtifactTypes.DYNAMIC_LINK_LIBRARY)))
+		);
+
+		runtimeLibraries().getDependencies().add(createDependency(libraryProducer));
+		assertThat(subject().getNativeRuntimeFiles(), hasItem(aFile(is(artifact))));
 	}
 
 //	@Nested
