@@ -92,7 +92,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedSourceAwareComponentMixIn<SwiftIosApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
-		, ModelBackedHasBaseNameMixIn
+		, ModelBackedHasBaseNameLegacyMixIn
 		, ModelBackedNamedMixIn
 	{
 		@Override
