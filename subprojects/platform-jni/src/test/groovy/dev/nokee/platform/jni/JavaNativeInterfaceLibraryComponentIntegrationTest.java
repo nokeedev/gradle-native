@@ -61,6 +61,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	, BinaryAwareComponentTester<BinaryView<Binary>>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, TargetMachineAwareComponentTester
+	, HasBaseNameTester
 {
 	private JavaNativeInterfaceLibrary subject;
 
@@ -75,6 +76,12 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	@Override
 	public JavaNativeInterfaceLibrary subject() {
 		return subject;
+	}
+
+	@Test
+	void usesComponentNameAsBaseNameConvention() {
+		subject.getBaseName().set((String) null);
+		assertThat(subject.getBaseName(), providerOf("quzu"));
 	}
 
 	@Nested
@@ -462,6 +469,13 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			return subject.getVariants().get().iterator().next();
 		}
 
+		@Test
+		void usesComponentBaseNameAsBaseNameConvention() {
+			subject.getBaseName().set("jaru");
+			subject().getBaseName().set((String) null);
+			assertThat(subject().getBaseName(), providerOf("jaru"));
+		}
+
 		abstract class ResolvableConfigurationAttributeTester {
 			public abstract Configuration subject();
 
@@ -649,6 +663,13 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			}
 
 			@Test
+			void usesComponentBaseNameAsBaseNameConvention() {
+				subject.getBaseName().set("zihu");
+				subject().getBaseName().set((String) null);
+				assertThat(subject().getBaseName(), providerOf("zihu"));
+			}
+
+			@Test
 			void nativeImplementationExtendsFromMatchingParentConfiguration() {
 				assertThat(project().getConfigurations().getByName("quzuWindowsX64NativeImplementation"),
 					extendsFrom(hasItem(named("quzuNativeImplementation"))));
@@ -820,6 +841,13 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 			public JniLibrary subject() {
 				return Iterables.get(subject.getVariants().get(), 1);
+			}
+
+			@Test
+			void usesComponentBaseNameAsBaseNameConvention() {
+				subject.getBaseName().set("cebo");
+				subject().getBaseName().set((String) null);
+				assertThat(subject().getBaseName(), providerOf("cebo"));
 			}
 
 			@Test
