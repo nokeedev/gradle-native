@@ -19,10 +19,7 @@ import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
-import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
-import dev.nokee.platform.base.testers.TaskAwareComponentTester;
-import dev.nokee.platform.base.testers.VariantTester;
+import dev.nokee.platform.base.testers.*;
 import org.gradle.api.Task;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +30,7 @@ public interface JavaNativeInterfaceLibraryVariantTester extends VariantTester<J
 	, DependencyAwareComponentTester<JavaNativeInterfaceNativeComponentDependencies>
 	, BinaryAwareComponentTester<BinaryView<Binary>>
 	, TaskAwareComponentTester<TaskView<Task>>
+	, HasBaseNameTester
 {
 	@Test
 	default void hasResourcePath() {
