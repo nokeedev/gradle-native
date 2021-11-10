@@ -15,12 +15,12 @@
  */
 package dev.nokee.platform.jni.internal.plugins;
 
+import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
-import dev.nokee.platform.jni.internal.JarTaskRegistrationActionFactory;
-import dev.nokee.platform.jni.internal.JniJarBinaryRegistrationFactory;
-import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
+import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -30,6 +30,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
+		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		val jarTaskRegistrationFactory = new JarTaskRegistrationActionFactory(
 			() -> project.getExtensions().getByType(TaskRegistrationFactory.class),
@@ -38,5 +40,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		);
 		project.getExtensions().add("__nokee_jniJarBinaryFactory", new JniJarBinaryRegistrationFactory(jarTaskRegistrationFactory));
 		project.getExtensions().add("__nokee_jvmJarBinaryFactory", new JvmJarBinaryRegistrationFactory(jarTaskRegistrationFactory));
+		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory(project));
+		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory(project));
 	}
 }
