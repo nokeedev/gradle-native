@@ -56,6 +56,7 @@ import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
 import static dev.nokee.internal.testing.TaskMatchers.group;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
@@ -93,6 +94,12 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 	@Test
 	void hasTargetMachineFromVariantIdentifier() {
 		assertThat(subject.getTargetMachine(), is(of("windows-x86")));
+	}
+
+	@Test
+	void usesVariantNameAsBaseNameConvention() {
+		subject.getBaseName().set((String) null);
+		assertThat(subject.getBaseName(), providerOf("windowsX86"));
 	}
 
 	@Nested
@@ -300,10 +307,16 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 	@Nested
 	class SharedLibraryBinaryTest /*extends SharedLibraryBinaryIntegrationTester*/ {
-//		@Override
-//		public SharedLibraryBinary subject() {
-//			return JavaNativeInterfaceLibraryVariantIntegrationTester.this.subject().getSharedLibrary();
-//		}
+		public SharedLibraryBinary subject() {
+			return subject.getSharedLibrary();
+		}
+
+		@Test
+		void usesVariantNameAsBaseNameConvention() {
+			subject.getBaseName().set("huca");
+			subject().getBaseName().set((String) null);
+			assertThat(subject().getBaseName(), providerOf("huca"));
+		}
 //
 //		@Override
 //		public Project project() {
