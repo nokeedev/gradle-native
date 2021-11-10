@@ -207,40 +207,30 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			TaskProvider<LinkSharedLibraryTask> linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
 		}));
 
-		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
-			// Build all language source set
-			val objectSourceSets = getObjects().domainObjectSet(ObjectSourceSet.class);
-//			if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
-//				objectSourceSets.addAll(new NativeLanguageRules(taskRegistry, objects, variant.getIdentifier()).apply(extension.getSources()));
-//			}
-
-			TaskProvider<LinkSharedLibraryTask> linkTask = tasks.named(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variant.getIdentifier()).getTaskName(), LinkSharedLibraryTask.class);
-			MutationGuards.of(tasks).withMutationEnabled(ignored -> {
-				variant.registerSharedLibraryBinary(objectSourceSets, linkTask, (NativeIncomingDependencies)variant.getResolvableDependencies());
-
-				variant.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-					val taskInternal = (AbstractNativeCompileTask) task;
-					taskInternal.getIncludes().from(extension.getSources().filter(it -> it instanceof NativeHeaderSet).map(transformEach(LanguageSourceSet::getSourceDirectories)));
-				});
-			}).execute(null);
-		});
+//		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
+//			// Build all language source set
+//			val objectSourceSets = getObjects().domainObjectSet(ObjectSourceSet.class);
+//
+//			TaskProvider<LinkSharedLibraryTask> linkTask = tasks.named(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variant.getIdentifier()).getTaskName(), LinkSharedLibraryTask.class);
+//			MutationGuards.of(tasks).withMutationEnabled(ignored -> {
+//				variant.registerSharedLibraryBinary(objectSourceSets, linkTask, (NativeIncomingDependencies)variant.getResolvableDependencies());
+//
+//				variant.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
+//					val taskInternal = (AbstractNativeCompileTask) task;
+//					taskInternal.getIncludes().from(extension.getSources().filter(it -> it instanceof NativeHeaderSet).map(transformEach(LanguageSourceSet::getSourceDirectories)));
+//				});
+//			}).execute(null);
+//		});
 
 		val unbuildableMainComponentLogger = new WarnUnbuildableLogger(ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class).getIdentifier());
 		project.afterEvaluate(proj -> {
 			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
-			val projection = ModelNodeUtils.get(ModelNodes.of(extension), JniLibraryComponentInternal.class);
 
 			ModelNodeUtils.finalizeProjections(ModelNodes.of(extension));
 			whenElementKnown(extension, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), (entity, variantIdentifier, variantProjection) -> {
 				val knownVariant = new ModelNodeBackedKnownDomainObject<>(of(JniLibraryInternal.class), entity);
 				val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 				val targetMachine = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
-
-				if (project.getPlugins().stream().anyMatch(appliedPlugin -> isNativeLanguagePlugin(appliedPlugin))) {
-					taskRegistry.register(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getSharedLibrary().getCompileTasks())));
-				}
-
-				taskRegistry.register(TaskIdentifier.of(TaskName.of("sharedLibrary"), SharedLibraryLifecycleTask.class, variantIdentifier), configureDependsOn(knownVariant.map(it -> it.getSharedLibrary().getLinkTask())));
 
 				if (targetMachines.size() > 1) {
 					val jvmJarBinary = knownVariant.flatMap(variant -> variant.getBinaries().withType(DefaultJvmJarBinary.class).getElements()).orElse(ImmutableSet.of());
