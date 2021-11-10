@@ -16,9 +16,7 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.core.*;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
+import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
@@ -45,6 +43,7 @@ public final class JvmJarBinaryRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(toPath(identifier))
 			.withComponent(IsBinary.tag())
+			.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(JvmJarBinary.class), ModelBackedJvmJarBinary::new))
 			.action(jarTaskFactory.create(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(JarTask.class), (entity, id, jarTask) -> {
