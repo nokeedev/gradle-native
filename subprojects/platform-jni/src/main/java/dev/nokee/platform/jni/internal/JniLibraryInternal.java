@@ -69,6 +69,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>>
 	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
+	, ModelBackedHasBaseNameMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;

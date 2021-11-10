@@ -183,6 +183,10 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					});
 					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "assembleTask"), ModelNodes.of(assembleTask)));
 
+					val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
+					baseNameProperty.configure(Property.class, prop -> prop.convention(identifier.getUnambiguousName()));
+					ModelProperties.getProperty(sharedLibrary, "baseName").configure(Property.class, prop -> prop.convention(baseNameProperty.as(String.class).map(TransformerUtils.noOpTransformer())));
+
 					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
 
 					whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ig, p) -> {
