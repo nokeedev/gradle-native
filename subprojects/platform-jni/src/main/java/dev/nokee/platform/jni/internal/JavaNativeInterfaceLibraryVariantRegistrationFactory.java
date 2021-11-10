@@ -100,6 +100,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
+			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {
 				if (id.equals(identifier)) {

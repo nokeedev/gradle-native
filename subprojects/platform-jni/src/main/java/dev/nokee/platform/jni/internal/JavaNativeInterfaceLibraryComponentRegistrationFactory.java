@@ -96,6 +96,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(entityPath)
 			.withComponent(identifier)
+			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(JavaNativeInterfaceLibrary.class), () -> project.getObjects().newInstance(DefaultJavaNativeInterfaceLibrary.class)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
 				if (entityPath.isDescendant(path)) {
