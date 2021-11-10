@@ -22,6 +22,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 
@@ -84,6 +85,16 @@ public final class ModelPropertyRegistrationFactory {
 			.withComponent(IsModelProperty.tag())
 			.withComponent(createdUsing(ModelType.of(type), property::getOrNull))
 			.withComponent(createdUsing(ModelType.of(Property.class), () -> property))
+			.build();
+	}
+
+	public <T> ModelRegistration createFileCollectionProperty(ModelPropertyIdentifier identifier) {
+		val path = toPath(identifier);
+		return ModelRegistration.builder()
+			.withComponent(identifier)
+			.withComponent(path)
+			.withComponent(IsModelProperty.tag())
+			.withComponent(createdUsing(ModelType.of(ConfigurableFileCollection.class), () -> objects.fileCollection()))
 			.build();
 	}
 }
