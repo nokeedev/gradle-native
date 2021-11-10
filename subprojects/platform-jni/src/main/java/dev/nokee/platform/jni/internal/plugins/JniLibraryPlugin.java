@@ -167,46 +167,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			}
 		});
 
-		whenElementKnown(extension, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, variantIdentifier, variantProjection, ignored) -> {
-			val knownVariant = new ModelNodeBackedKnownDomainObject<>(ModelType.of(JniLibraryInternal.class), entity);
-			val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val sharedLibraryBinaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, variantIdentifier);
-			eventPublisher.publish(new DomainObjectDiscovered<>(sharedLibraryBinaryIdentifier));
-
-			if (project.getPluginManager().hasPlugin("java") && extension.getTargetMachines().get().size() == 1) {
-				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJvmJarBinary.class, variantIdentifier);
-				eventPublisher.publish(new DomainObjectDiscovered<>(jniJarIdentifier));
-				val binary = createJvmBinary(project);
-				knownVariant.configure(variant -> {
-					variant.addJniJarBinary(binary);
-				});
-			} else {
-				val jniJarIdentifier = BinaryIdentifier.of(BinaryName.of("jniJar"), DefaultJniJarBinary.class, variantIdentifier);
-				eventPublisher.publish(new DomainObjectDiscovered<>(jniJarIdentifier));
-				TaskProvider<Jar> jarTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("jar"), Jar.class, variantIdentifier));
-				val jniBinary = getObjects().newInstance(DefaultJniJarBinary.class, jarTask);
-				knownVariant.configure(it -> it.addJniJarBinary(jniBinary));
-
-				if (project.getPluginManager().hasPlugin("java")) {
-					val jvmJarIdentifier = BinaryIdentifier.of(BinaryName.of("jvmJar"), DefaultJvmJarBinary.class, variantIdentifier);
-					eventPublisher.publish(new DomainObjectDiscovered<>(jvmJarIdentifier));
-					val jvmBinary = createJvmBinary(project);
-					knownVariant.configure(variant -> {
-						variant.addJvmJarBinary(jvmBinary);
-					});
-				}
-//					if (proj.getPluginManager().hasPlugin("java")) {
-//						library.getAssembleTask().configure(task -> task.dependsOn(project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class)));
-//					} else {
-//						// FIXME: There is a gap here, if the project doesn't have any JVM plugin applied but specify multiple target machine what is expected?
-//						//   Only JNI Jar? or an empty JVM Jar and JNI Jar?... Hmmm....
-//					}
-			}
-
-			TaskProvider<LinkSharedLibraryTask> linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
-		}));
-
 //		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
 //			// Build all language source set
 //			val objectSourceSets = getObjects().domainObjectSet(ObjectSourceSet.class);

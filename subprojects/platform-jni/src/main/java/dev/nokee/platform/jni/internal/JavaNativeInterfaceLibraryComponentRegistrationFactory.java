@@ -56,6 +56,7 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
+import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -64,6 +65,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.plugins.AppliedPlugin;
+import org.gradle.api.provider.Property;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -118,6 +120,9 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 
 						// TODO: ONLY if applying include language plugin
 //						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "headers")));
+
+						val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
+						baseNameProperty.configure(Property.class, prop -> prop.convention(identifier.getName().get()));
 
 						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), JavaNativeInterfaceLibrarySources.class));
 
@@ -213,6 +218,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					component.getBuildVariants().get().forEach(buildVariant -> {
 						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
 						val variant = project.getExtensions().getByType(ModelRegistry.class).register(variantFactory.create(variantIdentifier));
+						variant.configure(JniLibrary.class, it -> it.getBaseName().convention(ModelProperties.getProperty(entity, "baseName").as(String.class).map(TransformerUtils.noOpTransformer())));
 
 						ModelStates.realize(ModelNodes.of(variant)); // FIXME: Remove once the refactoring is over
 
@@ -252,6 +258,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedNamedMixIn
+		, ModelBackedHasBaseNameMixIn
 	{
 	}
 }
