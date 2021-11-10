@@ -81,7 +81,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
 	@Getter private final Property<String> resourcePath;
-	@Getter private final ConfigurableFileCollection nativeRuntimeFiles;
 
 	@Inject
 	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
@@ -92,7 +91,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.taskViewFactory = taskViewFactory;
 		this.targetMachine = getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 		this.resourcePath = objects.property(String.class);
-		this.nativeRuntimeFiles = objects.fileCollection();
 		this.taskRegistry = taskRegistry;
 
 //		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
@@ -102,6 +100,10 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Override
 	public String getName() {
 		return VariantNamer.INSTANCE.determineName(getIdentifier());
+	}
+
+	public ConfigurableFileCollection getNativeRuntimeFiles() {
+		return ModelProperties.getProperty(this, "nativeRuntimeFiles").as(ConfigurableFileCollection.class).get();
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
