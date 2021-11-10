@@ -27,9 +27,12 @@ import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
@@ -37,6 +40,7 @@ import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import groovy.lang.Closure;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
@@ -69,7 +73,9 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	void createSubject() {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
-		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(javaNativeInterfaceLibrary("quzu", project)).as(JavaNativeInterfaceLibrary.class).get();
+		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
+		val identifier = ComponentIdentifier.of("quzu", ProjectIdentifier.of(project));
+		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.host()));
 	}
 

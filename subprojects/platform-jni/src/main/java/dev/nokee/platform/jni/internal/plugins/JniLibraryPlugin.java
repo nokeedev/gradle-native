@@ -389,13 +389,13 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private JavaNativeInterfaceLibrary registerExtension(Project project) {
-		project.getPluginManager().apply(ComponentModelBasePlugin.class);
-		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
+		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
+		val registry = project.getExtensions().getByType(ModelRegistry.class);
+		val identifier = ComponentIdentifier.builder().name(ComponentName.ofMain()).displayName("JNI library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 
-		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(javaNativeInterfaceLibrary("main", project)).as(JavaNativeInterfaceLibrary.class);
-		componentProvider.configure(configureUsingProjection(JniLibraryComponentInternal.class, baseNameConvention(project.getName())));
-		val library = componentProvider.get();
+		val component = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class);
+		component.configure(it -> it.getBaseName().convention(project.getName()));
+		val library = component.get();
 
 		val dependencies = library.getDependencies();
 
@@ -405,11 +405,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(JavaNativeInterfaceLibrary.class, "library", library);
 		return library;
-	}
-
-	public static ModelRegistration javaNativeInterfaceLibrary(String name, Project project) {
-		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("JNI library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new JavaNativeInterfaceLibraryComponentRegistrationFactory(project).create(identifier);
 	}
 
 	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {
@@ -443,9 +438,9 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			// See https://github.com/gradle/gradle/issues/12084.
 			task.getOptions().setIncremental(isGradleVersionGreaterOrEqualsTo6Dot3());
 		});
-		extension.getSources().configure("jni", CHeaderSet.class, sourceSet -> {
-			sourceSet.from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
-		});
+//		extension.getSources().configure("jni", CHeaderSet.class, sourceSet -> {
+//			sourceSet.from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
+//		});
 	}
 
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {
