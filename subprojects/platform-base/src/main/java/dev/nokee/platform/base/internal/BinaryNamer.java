@@ -31,8 +31,6 @@ public final class BinaryNamer implements Namer<BinaryIdentifier<?>> {
 		return StringUtils.uncapitalize(Streams.stream(identifier).flatMap(it -> {
 			if (it instanceof ComponentIdentifier) {
 				return Stream.of((ComponentIdentifier) it).filter(t -> !t.isMainComponent()).map(t -> t.getName().get());
-			} else if (it instanceof BinaryIdentity) {
-				return Stream.of((BinaryIdentity) it).filter(t -> !t.isMain()).map(t -> t.getName().get());
 			} else if (it instanceof HasName) {
 				return Stream.of(((HasName) it).getName().toString());
 			} else {
