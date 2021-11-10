@@ -29,6 +29,7 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -49,7 +50,6 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toDirectoryPath;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
@@ -92,7 +92,7 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 	}
 
 	private static Function<Task, Provider<Directory>> forObjects(DomainObjectIdentifier identifier) {
-		return task -> task.getProject().getLayout().getBuildDirectory().dir("objs/" + toDirectoryPath(identifier));
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("objs/" + OutputDirectoryPath.fromIdentifier(identifier));
 	}
 	//endregion
 
