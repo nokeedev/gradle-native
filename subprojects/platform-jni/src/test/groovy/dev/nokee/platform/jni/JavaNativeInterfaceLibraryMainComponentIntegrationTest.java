@@ -18,10 +18,14 @@ package dev.nokee.platform.jni;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
+import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library")
 class JavaNativeInterfaceLibraryMainComponentIntegrationTest extends AbstractPluginTest {
@@ -36,5 +40,14 @@ class JavaNativeInterfaceLibraryMainComponentIntegrationTest extends AbstractPlu
 	void usesProjectNameAsComponentBaseNameConvention() {
 		subject.getBaseName().set((String) null);
 		assertThat(subject.getBaseName(), providerOf(project.getName()));
+	}
+
+	@Nested
+	@PluginRequirement.Require(id = "java")
+	class WhenJavaPluginApplied {
+		@Test
+		void runtimeOnlyExtendsFromJvmRuntimeOnly() {
+			assertThat(project.getConfigurations().getByName("runtimeOnly"), extendsFrom(hasItem(named("jvmRuntimeOnly"))));
+		}
 	}
 }
