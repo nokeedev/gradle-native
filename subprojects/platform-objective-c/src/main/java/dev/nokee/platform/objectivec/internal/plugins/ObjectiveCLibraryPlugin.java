@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.objectivec.internal.plugins;
 
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -115,7 +114,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
-		, ModelBackedHasBaseNameMixIn
+		, ModelBackedHasBaseNameLegacyMixIn
 		, ModelBackedNamedMixIn
 	{
 		@Override

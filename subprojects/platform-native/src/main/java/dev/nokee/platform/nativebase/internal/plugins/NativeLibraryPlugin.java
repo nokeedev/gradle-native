@@ -48,7 +48,6 @@ import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -59,7 +58,6 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
@@ -123,7 +121,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn
-		, ModelBackedHasBaseNameMixIn
+		, ModelBackedHasBaseNameLegacyMixIn
 		, ModelBackedNamedMixIn
 	{
 	}
