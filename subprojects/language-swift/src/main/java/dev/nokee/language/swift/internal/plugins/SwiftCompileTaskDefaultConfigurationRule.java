@@ -21,12 +21,12 @@ import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.SourceFiles;
-import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
@@ -40,7 +40,6 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toDirectoryPath;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 
 final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeCompileTask, SourceFiles> {
@@ -94,7 +93,7 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	}
 
 	private static Function<SwiftCompileTask, Object> ofFileSystemLocationInModulesDirectory(DomainObjectIdentifier identifier, BiFunction<? super SwiftCompileTask, ? super Provider<Directory>, ? extends Object> mapper) {
-		return task -> mapper.apply(task, task.getProject().getLayout().getBuildDirectory().dir("modules/" + toDirectoryPath(identifier)));
+		return task -> mapper.apply(task, task.getProject().getLayout().getBuildDirectory().dir("modules/" + OutputDirectoryPath.fromIdentifier(identifier)));
 	}
 	//endregion
 

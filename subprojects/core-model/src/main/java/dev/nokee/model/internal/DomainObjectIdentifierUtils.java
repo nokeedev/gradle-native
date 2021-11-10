@@ -193,20 +193,6 @@ public final class DomainObjectIdentifierUtils {
 		throw new ClassCastException(String.format("Failed to cast identifier %s of type %s to identifier of type %s.", identifier.toString(), identifier.getType().getName(), outputIdentifierType.getName()));
 	}
 
-	public static String toDirectoryPath(DomainObjectIdentifier identifier) {
-		return Streams.stream(identifier)
-				.flatMap(it -> {
-					if (it instanceof ProjectIdentifier) {
-						return Stream.empty();
-					} else if (it instanceof HasName) {
-						return Stream.of(((HasName) it).getName().toString()).filter(s -> !s.isEmpty());
-					} else {
-						throw new UnsupportedOperationException();
-					}
-				})
-			.collect(Collectors.joining("/"));
-	}
-
 	public static ModelPath toPath(DomainObjectIdentifier identifier) {
 		return ModelPath.path(Streams.stream(identifier).flatMap(it -> {
 			if (it instanceof ProjectIdentifier) {
