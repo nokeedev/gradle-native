@@ -38,7 +38,6 @@ import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
-import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -56,7 +55,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
-class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest implements ComponentTester<JavaNativeInterfaceLibrary>
+class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginTest implements ComponentTester<JavaNativeInterfaceLibrary>
 	, DependencyAwareComponentTester<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
 	, BinaryAwareComponentTester<BinaryView<Binary>>
@@ -87,68 +86,6 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		@Test
 		void hasAssembleTask() {
 			assertThat(subject().get(), hasItem(named("assembleQuzu")));
-		}
-
-		@Nested
-		class JarTest {
-			@Test
-			@PluginRequirement.Require(id = "java")
-			void hasJarTaskWhenJavaLanguagePluginApplied() {
-				assertThat(subject().get(), hasItem(named("jarQuzu")));
-			}
-
-			@Test
-			@PluginRequirement.Require(id = "groovy")
-			void hasJarTaskWhenGroovyLanguagePluginApplied() {
-				assertThat(subject().get(), hasItem(named("jarQuzu")));
-			}
-
-			@Test
-			@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
-			void hasJarTaskWhenKotlinLanguagePluginApplied() {
-				assertThat(subject().get(), hasItem(named("jarQuzu")));
-			}
-		}
-	}
-
-	@Nested
-	class ComponentBinariesTest {
-		public BinaryView<Binary> subject() {
-			return subject.getBinaries();
-		}
-
-		@Nested
-		class JvmJarTest {
-			@Test
-			void noJvmJarBinaryWhenJvmLanguagePluginNotApplied() {
-				assertThat(subject().get(), not(hasItem(isA(JvmJarBinary.class))));
-			}
-
-			@Test
-			@PluginRequirement.Require(id = "java")
-			void hasJvmJarBinaryWhenJavaLanguagePluginApplied() {
-				assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
-			}
-
-			@Test
-			@PluginRequirement.Require(id = "groovy")
-			void hasJvmJarBinaryWhenGroovyLanguagePluginApplied() {
-				assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
-			}
-
-			@Test
-			@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
-			void hasJvmJarBinaryWhenKotlinLanguagePluginApplied() {
-				assertThat(subject().get(), hasItem(isA(JvmJarBinary.class)));
-			}
-		}
-	}
-
-	@Nested
-	class ComponentSourcesTest extends JavaNativeInterfaceLibrarySourcesIntegrationTester {
-		@Override
-		public JavaNativeInterfaceLibrarySources subject() {
-			return subject.getSources();
 		}
 	}
 
@@ -476,74 +413,53 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		}
 	}
 
+//	@Nested
+//	class JvmJarBinaryTest {
+//		@Test
+//		void noJvmJarBinaryWhenJvmLanguagePluginNotApplied() {
+//			assertThat(subject.getBinaries().get(), not(hasItem(isA(JvmJarBinary.class))));
+//		}
+//
+//		abstract class  BinaryTester extends JvmJarBinaryIntegrationTester {
+//			@Override
+//			public String variantName() {
+//				return "quzu";
+//			}
+//
+//			@Override
+//			public Project project() {
+//				return project;
+//			}
+//
+//			@Override
+//			public JvmJarBinary subject() {
+//				return (JvmJarBinary) subject.getBinaries().get().iterator().next();
+//			}
+//		}
+//
+//		@Nested
+//		@PluginRequirement.Require(id = "java")
+//		class WhenJavaLanguagePluginApplied extends BinaryTester {}
+//
+//		@Nested
+//		@PluginRequirement.Require(id = "groovy")
+//		class WhenGroovyLanguagePluginApplied extends BinaryTester {}
+//
+//		@Nested
+//		@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
+//		class WhenKotlinLanguagePluginApplied extends BinaryTester {}
+//	}
+
 	@Nested
-	class JvmJarBinaryTest {
-		@Test
-		void noJvmJarBinaryWhenJvmLanguagePluginNotApplied() {
-			assertThat(subject.getBinaries().get(), not(hasItem(isA(JvmJarBinary.class))));
-		}
-
-		abstract class  BinaryTester extends JvmJarBinaryIntegrationTester {
-			@Override
-			public String variantName() {
-				return "quzu";
-			}
-
-			@Override
-			public Project project() {
-				return project;
-			}
-
-			@Override
-			public JvmJarBinary subject() {
-				return (JvmJarBinary) subject.getBinaries().get().iterator().next();
-			}
-		}
-
-		@Nested
-		@PluginRequirement.Require(id = "java")
-		class WhenJavaLanguagePluginApplied extends BinaryTester {}
-
-		@Nested
-		@PluginRequirement.Require(id = "groovy")
-		class WhenGroovyLanguagePluginApplied extends BinaryTester {}
-
-		@Nested
-		@PluginRequirement.Require(id = "org.jetbrains.kotlin.jvm")
-		class WhenKotlinLanguagePluginApplied extends BinaryTester {}
-	}
-
-	@Nested
-	class SingleVariantTest extends JavaNativeInterfaceLibraryVariantIntegrationTester {
+	class SingleVariantTest {
 		@BeforeEach
 		void configureTargetMachines() {
 			subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.of("macos-x64")));
 			subject();
 		}
 
-		@Override
 		public JniLibrary subject() {
 			return subject.getVariants().get().iterator().next();
-		}
-
-		@Override
-		public Project project() {
-			return project;
-		}
-
-		@Override
-		public String path() {
-			return ":quzu";
-		}
-
-		@Override
-		public String displayName() {
-			return "JNI library ':quzu'";
-		}
-
-		@Override
-		public String variantName() {
-			return "quzu";
 		}
 
 		abstract class ResolvableConfigurationAttributeTester {
@@ -722,35 +638,14 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		}
 
 		@Nested
-		class WindowsX64VariantTest extends JavaNativeInterfaceLibraryVariantIntegrationTester {
+		class WindowsX64VariantTest {
 			@BeforeEach
 			void realizeVariant() {
 				subject();
 			}
 
-			@Override
 			public JniLibrary subject() {
 				return Iterables.get(subject.getVariants().get(), 0);
-			}
-
-			@Override
-			public Project project() {
-				return project;
-			}
-
-			@Override
-			public String path() {
-				return ":quzu:windowsX64";
-			}
-
-			@Override
-			public String displayName() {
-				return "variant 'windowsX64' of JNI library ':quzu'";
-			}
-
-			@Override
-			public String variantName() {
-				return "quzuWindowsX64";
 			}
 
 			@Test
@@ -917,35 +812,14 @@ class JavaNativeInterfaceLibraryComponentTest extends AbstractPluginTest impleme
 		}
 
 		@Nested
-		class LinuxX86VariantTest extends JavaNativeInterfaceLibraryVariantIntegrationTester {
+		class LinuxX86VariantTest {
 			@BeforeEach
 			void realizeVariant() {
 				subject();
 			}
 
-			@Override
 			public JniLibrary subject() {
 				return Iterables.get(subject.getVariants().get(), 1);
-			}
-
-			@Override
-			public Project project() {
-				return project;
-			}
-
-			@Override
-			public String path() {
-				return ":quzu:linuxX86";
-			}
-
-			@Override
-			public String displayName() {
-				return "variant 'linuxX86' of JNI library ':quzu'";
-			}
-
-			@Override
-			public String variantName() {
-				return "quzuLinuxX86";
 			}
 
 			@Test
