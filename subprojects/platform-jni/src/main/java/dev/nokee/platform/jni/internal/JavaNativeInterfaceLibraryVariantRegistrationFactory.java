@@ -32,6 +32,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -45,6 +46,7 @@ import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
+import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.DependentRuntimeLibraries;
 import dev.nokee.platform.nativebase.internal.LinkLibrariesConfiguration;
@@ -88,6 +90,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.TaskUtils.*;
+import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
@@ -118,7 +121,9 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 					registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
-					registry.register(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"))));
+					val jniJar = registry.register(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"))));
+					val developmentBinaryProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentBinary"), Binary.class));
+					developmentBinaryProperty.configure(Property.class, prop -> prop.convention(jniJar.as(JniJarBinary.class).map(noOpTransformer())));
 
 					registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources")));
 
@@ -194,9 +199,9 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 
 					val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
 					baseNameProperty.configure(Property.class, prop -> prop.convention(identifier.getUnambiguousName()));
-					ModelProperties.getProperty(sharedLibrary, "baseName").configure(Property.class, prop -> prop.convention(baseNameProperty.as(String.class).map(TransformerUtils.noOpTransformer())));
+					ModelProperties.getProperty(sharedLibrary, "baseName").configure(Property.class, prop -> prop.convention(baseNameProperty.as(String.class).map(noOpTransformer())));
 
-					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).map(TransformerUtils.noOpTransformer())));
+					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).map(noOpTransformer())));
 
 					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
 
