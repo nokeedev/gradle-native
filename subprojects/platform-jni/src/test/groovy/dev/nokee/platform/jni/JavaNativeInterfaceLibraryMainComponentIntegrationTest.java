@@ -17,15 +17,16 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library")
 class JavaNativeInterfaceLibraryMainComponentIntegrationTest extends AbstractPluginTest {
@@ -45,5 +46,28 @@ class JavaNativeInterfaceLibraryMainComponentIntegrationTest extends AbstractPlu
 	@Nested
 	@PluginRequirement.Require(id = "java")
 	class WhenJavaPluginApplied {
+		@Nested
+		class TestTaskTest {
+			public org.gradle.api.tasks.testing.Test subject() {
+				return (org.gradle.api.tasks.testing.Test) project.getTasks().getByName("test");
+			}
+
+			@Test
+			void doesNotHaveTaskDependenciesWhenNoDevelopmentVariant() {
+				// Fake an unbuildable variant :-)
+				subject.getDevelopmentVariant().convention((JniLibrary) null).value((JniLibrary) null);
+				assertThat(subject(), dependsOn(emptyIterable()));
+			}
+
+			@Test
+			void hasLinkTaskDependencyWhenDevelopmentVariantPresent() {
+				assertThat(subject(), dependsOn(hasItem(allOf(named("link"), isA(LinkSharedLibrary.class)))));
+			}
+
+			@Test
+			void hasDevelopmentVariantNativeRuntimeFilesParentDirectoryInJavaLibraryPathSystemProperty() {
+				assertThat(subject().getAllJvmArgs(), hasItem(allOf(startsWith("-Djava.library.path="), containsString("/build/libs/main"))));
+			}
+		}
 	}
 }
