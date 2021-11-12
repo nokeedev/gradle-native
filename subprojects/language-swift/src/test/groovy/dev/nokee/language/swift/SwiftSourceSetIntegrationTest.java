@@ -25,6 +25,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
 import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,11 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 	void createSubject() {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSet.class).get();
+	}
+
+	@Test
+	void hasToString() {
+		assertThat(subject, Matchers.hasToString("Swift sources 'riku'"));
 	}
 
 	@Nested

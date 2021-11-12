@@ -70,5 +70,10 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 		public TaskProvider<ObjectiveCCompile> getCompileTask() {
 			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
 		}
+
+		@Override
+		public String toString() {
+			return "Objective-C sources '" + getName() + "'";
+		}
 	}
 }
