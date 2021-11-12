@@ -158,7 +158,11 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), JavaNativeInterfaceLibraryComponentDependencies.class, ModelBackedJavaNativeInterfaceLibraryComponentDependencies::new));
 						val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier)));
 						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmImplementation"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmRuntimeOnly"), identifier)));
+						val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmRuntimeOnly"), identifier)));
+						project.getPluginManager().withPlugin("java", appliedPlugin -> {
+							project.getConfigurations().named(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("implementation"), identifier)), configureExtendsFrom(implementation.as(Configuration.class)));
+							project.getConfigurations().named(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)), configureExtendsFrom(runtimeOnly.as(Configuration.class)));
+						});
 						project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 							private boolean alreadyExecuted = false;
 

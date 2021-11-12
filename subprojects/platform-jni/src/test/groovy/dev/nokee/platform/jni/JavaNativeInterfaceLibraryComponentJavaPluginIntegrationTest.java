@@ -40,6 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -68,6 +69,16 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 	@Test
 	void hasJvmJarBinaryWhenJavaPluginApplied() {
 		assertThat(subject.getBinaries().get(), hasItem(allOf(named("qezuJvmJar"), isA(JvmJarBinary.class))));
+	}
+
+	@Test
+	void runtimeOnlyConfigurationExtendsFromJvmRuntimeOnlyConfiguration() {
+		assertThat(project.getConfigurations().getByName("qezuRuntimeOnly"), extendsFrom(hasItem(named("qezuJvmRuntimeOnly"))));
+	}
+
+	@Test
+	void implementationConfigurationExtendsFromJvmImplementationConfiguration() {
+		assertThat(project.getConfigurations().getByName("qezuImplementation"), extendsFrom(hasItem(named("qezuJvmImplementation"))));
 	}
 
 	// TODO: Test Jar task doesn't have JVM jar binary name
