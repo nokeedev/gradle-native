@@ -70,5 +70,10 @@ public final class ObjectiveCppSourceSetRegistrationFactory {
 		public TaskProvider<ObjectiveCppCompile> getCompileTask() {
 			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
 		}
+
+		@Override
+		public String toString() {
+			return "Objective-C++ sources '" + getName() + "'";
+		}
 	}
 }

@@ -24,11 +24,14 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(id = "dev.nokee.cpp-language-base")
 class CppSourceSetIntegrationTest extends AbstractPluginTest {
@@ -38,6 +41,11 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest {
 	void createSubject() {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "zomi"))).as(CppSourceSet.class).get();
+	}
+
+	@Test
+	void hasToString() {
+		assertThat(subject, Matchers.hasToString("C++ sources 'zomi'"));
 	}
 
 	@Nested

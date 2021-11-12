@@ -63,5 +63,10 @@ public final class SwiftSourceSetRegistrationFactory {
 		public TaskProvider<SwiftCompile> getCompileTask() {
 			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
 		}
+
+		@Override
+		public String toString() {
+			return "Swift sources '" + getName() + "'";
+		}
 	}
 }

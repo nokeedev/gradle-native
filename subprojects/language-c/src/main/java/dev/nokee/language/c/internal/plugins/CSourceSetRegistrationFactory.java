@@ -70,5 +70,10 @@ public final class CSourceSetRegistrationFactory {
 		public TaskProvider<CCompile> getCompileTask() {
 			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
 		}
+
+		@Override
+		public String toString() {
+			return "C sources '" + getName() + "'";
+		}
 	}
 }
