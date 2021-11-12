@@ -79,7 +79,7 @@ public final class JavaSourceSetRegistrationFactory {
 		val sourceSetProvider = sourceSetRegistry.registerIfAbsent(sourceSetNamer.determineName(identifier.getOwnerIdentifier()));
 		return languageSourceSetRegistrationFactory.create(identifier, JavaSourceSet.class, DefaultJavaSourceSet.class, sourceSetProvider.map(this::asSourceDirectorySet)::get)
 			.action(compileTaskRegistrationFactory.create(identifier, JavaCompile.class))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, id, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
 					sourceSetProvider.configure(task -> ModelStates.realize(entity));
 				}
