@@ -16,6 +16,8 @@
 package dev.nokee.internal.testing;
 
 import dev.nokee.utils.DeferredUtils;
+import lombok.val;
+import org.gradle.api.Buildable;
 import org.gradle.api.Task;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -65,7 +67,14 @@ public final class TaskMatchers {
 		return new FeatureMatcher<Task, Iterable<Object>>(matcher, "a task with dependency on", "task dependency") {
 			@Override
 			protected Iterable<Object> featureValueOf(Task actual) {
-				return DeferredUtils.flatUnpackWhile(actual.getDependsOn(), DeferredUtils::isDeferred);
+				return DeferredUtils.flatUnpackWhile(actual.getDependsOn(), it -> {
+					val result = DeferredUtils.unpack(it);
+					if (result instanceof Buildable) {
+						return ((Buildable) result).getBuildDependencies().getDependencies(null);
+					} else {
+						return result;
+					}
+				}, DeferredUtils::isDeferred);
 			}
 		};
 	}
