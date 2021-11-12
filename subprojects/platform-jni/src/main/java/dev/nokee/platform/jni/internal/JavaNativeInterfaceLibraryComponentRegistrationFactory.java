@@ -19,11 +19,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
+import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.internal.GroovySourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
+import dev.nokee.language.nativebase.internal.ProjectHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
@@ -35,7 +37,6 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
@@ -70,8 +71,13 @@ import org.gradle.api.provider.Property;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
+import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.NodePredicate.allDescendants;
+import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
@@ -130,7 +136,18 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 							registry.register(project.getExtensions().getByType(GroovySourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "groovy")));
 						});
 						project.getPluginManager().withPlugin("java", ignored -> {
-							registry.register(project.getExtensions().getByType(JavaSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "java")));
+							val sourceSetIdentifier = LanguageSourceSetIdentifier.of(identifier, "java");
+							val sourceSet = registry.register(project.getExtensions().getByType(JavaSourceSetRegistrationFactory.class).create(sourceSetIdentifier));
+
+							sourceSet.configure(JavaSourceSet.class, it -> {
+								it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(sourceSetIdentifier, project.getLayout()));
+							});
+
+							whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ProjectHeaderSearchPaths.class), (e, i, ss, l) -> {
+								if (!i.getOwnerIdentifier().equals(identifier) && ss instanceof HasHeaders) {
+									((HasHeaders) ss).getHeaders().from(sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
+								}
+							}));
 						});
 						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
 							registry.register(project.getExtensions().getByType(KotlinSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "kotlin")));
@@ -242,6 +259,10 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.build()
 			;
+	}
+
+	private static void whenElementKnown(Object target, ModelAction action) {
+		applyTo(ModelNodes.of(target), allDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 
 	private static void assertTargetMachinesAreKnown(Iterable<TargetMachine> targetMachines, ToolChainSelectorInternal toolChainSelector) {

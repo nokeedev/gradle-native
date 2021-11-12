@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-final class ProjectHeaderSearchPaths implements Callable<Object> {
+public final class ProjectHeaderSearchPaths implements Callable<Object> {
 	private final Provider<Set<FileSystemLocation>> delegate;
 
 	ProjectHeaderSearchPaths(Provider<Set<FileSystemLocation>> delegate) {
