@@ -52,6 +52,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					node.addComponent(new ParentNode(this.get(parentPath)));
 				});
 			} else if (state.equals(ModelState.Registered)) {
+				assert !entities.contains(node) : "duplicated registered notification";
 				nodes.put(path, node);
 				entities.add(node);
 			}
