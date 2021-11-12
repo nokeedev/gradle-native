@@ -41,7 +41,6 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.internal.component.ArtifactType;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.cpp.CppBinary;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +50,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import static com.google.common.collect.MoreCollectors.onlyElement;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
@@ -63,7 +63,6 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static dev.nokee.utils.ConfigurationUtils.*;
-import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -291,6 +290,24 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		runtimeLibraries().getDependencies().add(createDependency(libraryProducer));
 		assertThat(subject().getNativeRuntimeFiles(), hasItem(aFile(is(artifact))));
+	}
+
+	@Nested
+	class JniJarBinaryTest {
+		public JniJarBinary subject() {
+			return (JniJarBinary) subject.getBinaries().get().stream().filter(it -> it instanceof JniJarBinary).collect(onlyElement());
+		}
+
+		@Test
+		void doesNotIncludeBinaryNameInJarTaskName() {
+			assertThat(subject().getJarTask().map(Task::getName), providerOf("jarReqiWindowsX86"));
+		}
+
+		@Test
+		void usesVariantBaseNameAndBuildVariantAsJarArchiveBaseName() {
+			subject.getBaseName().set("coqu");
+			assertThat(subject().getJarTask().flatMap(Jar::getArchiveBaseName), providerOf("coqu-windows-x86"));
+		}
 	}
 
 //	@Nested
