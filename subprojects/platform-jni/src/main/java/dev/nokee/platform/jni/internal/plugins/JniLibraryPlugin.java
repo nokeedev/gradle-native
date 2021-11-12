@@ -17,31 +17,21 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.CLanguagePlugin;
 import dev.nokee.language.cpp.internal.plugins.CppLanguagePlugin;
-import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
-import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectDiscovered;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -49,12 +39,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.internal.*;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
-import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
-import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
-import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -71,23 +56,18 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.internal.MutationGuards;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
-import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.plugins.NativeBasePlugin;
 import org.gradle.process.CommandLineArgumentProvider;
-import org.gradle.util.GradleVersion;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -107,11 +87,10 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
 import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
-import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
@@ -159,7 +138,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
-		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJniHeaderSourceSet(project, extension));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJvmHeaderSourceSet(extension));
 		project.getPlugins().whenPluginAdded(appliedPlugin -> {
 			if (isNativeLanguagePlugin(appliedPlugin)) {
@@ -407,10 +385,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		return library;
 	}
 
-	private static boolean isGradleVersionGreaterOrEqualsTo6Dot3() {
-		return GradleVersion.current().compareTo(GradleVersion.version("6.3")) >= 0;
-	}
-
 	private void registerJvmHeaderSourceSet(JavaNativeInterfaceLibrary extension) {
 		// TODO: This is an external dependency meaning we should go through the component dependencies.
 		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
@@ -418,29 +392,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		extension.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
 			binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, includeRoots(from(jvmIncludes())));
 		});
-	}
-
-	private void registerJniHeaderSourceSet(Project project, JavaNativeInterfaceLibrary extension) {
-		SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
-		org.gradle.api.tasks.SourceSet main = sourceSets.getByName("main");
-
-		TaskProvider<JavaCompile> compileTask = project.getTasks().named(main.getCompileJavaTaskName(), JavaCompile.class, task -> {
-			task.getOptions().getHeaderOutputDirectory().convention(project.getLayout().getBuildDirectory().dir("generated/jni-headers"));
-
-			// The nested output is not marked automatically as an output of the task regarding task dependencies.
-			// So we mark it manually here.
-			// See https://github.com/gradle/gradle/issues/6619.
-			if (!isGradleVersionGreaterOrEqualsTo6Dot3()) {
-				task.getOutputs().dir(task.getOptions().getHeaderOutputDirectory());
-			}
-
-			// Cannot do incremental header generation before 6.3, since the pattern for cleaning them up is currently wrong.
-			// See https://github.com/gradle/gradle/issues/12084.
-			task.getOptions().setIncremental(isGradleVersionGreaterOrEqualsTo6Dot3());
-		});
-//		extension.getSources().configure("jni", CHeaderSet.class, sourceSet -> {
-//			sourceSet.from(compileTask.flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
-//		});
 	}
 
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {
