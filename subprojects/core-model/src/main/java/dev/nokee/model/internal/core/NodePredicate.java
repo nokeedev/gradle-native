@@ -25,8 +25,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
-import static dev.nokee.model.internal.core.ModelNodes.withParent;
-import static dev.nokee.model.internal.core.ModelNodes.withPath;
+import static dev.nokee.model.internal.core.ModelNodes.*;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -86,6 +85,18 @@ public abstract class NodePredicate {
 		};
 	}
 
+	public static NodePredicate allDescendants(Predicate<? super ModelNode> predicate) {
+		return new NodePredicate(predicate, NodePredicateScopeStrategy.ALL_DESCENDANT) {
+			@Override
+			void doNotExtendBeyondThisPackage() {}
+
+			@Override
+			public String toString() {
+				return "NodePredicate.allDescendants(" + predicate + ")";
+			}
+		};
+	}
+
 	public static NodePredicate self() {
 		return new NodePredicate(alwaysTrue(), NodePredicateScopeStrategy.SELF) {
 			@Override
@@ -138,6 +149,12 @@ public abstract class NodePredicate {
 			@Override
 			ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
 				return new BasicPredicateSpec(null, path, null, withParent(path).and(matcher));
+			}
+		},
+		ALL_DESCENDANT {
+			@Override
+			ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher) {
+				return new BasicPredicateSpec(null, path, null, descendantOf(path).and(matcher));
 			}
 		},
 		SELF {
