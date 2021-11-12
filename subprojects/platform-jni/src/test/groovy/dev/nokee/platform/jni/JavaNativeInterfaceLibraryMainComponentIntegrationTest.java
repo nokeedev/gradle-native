@@ -45,9 +45,5 @@ class JavaNativeInterfaceLibraryMainComponentIntegrationTest extends AbstractPlu
 	@Nested
 	@PluginRequirement.Require(id = "java")
 	class WhenJavaPluginApplied {
-		@Test
-		void runtimeOnlyExtendsFromJvmRuntimeOnly() {
-			assertThat(project.getConfigurations().getByName("runtimeOnly"), extendsFrom(hasItem(named("jvmRuntimeOnly"))));
-		}
 	}
 }

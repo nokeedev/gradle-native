@@ -388,9 +388,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {
 		val projection = ModelNodeUtils.get(ModelNodes.of(library), JniLibraryComponentInternal.class);
 
-		// Wire JVM to JniLibrary
-		project.getConfigurations().getByName("implementation").extendsFrom(projection.getJvmImplementationDependencies());
-
 		project.getTasks().named("test", Test.class, task -> {
 			Provider<List<FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
 			task.dependsOn((Callable<Iterable<File>>)() -> {
