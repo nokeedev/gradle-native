@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp;
+package dev.nokee.language.nativebase;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
-import dev.nokee.language.nativebase.HasHeaders;
+import dev.nokee.language.base.ConfigurableSourceSet;
 
 /**
- * A set of C++ source files.
+ * Represents an element that carries native headers.
  *
- * @see LanguageSourceSet
  * @since 0.5
  */
-public interface CppSourceSet extends SelfAwareLanguageSourceSet<CppSourceSet>, HasHeaders {}
+public interface HasHeaders {
+	/**
+	 * The headers of this source set.
+	 *
+	 * @return a {@link ConfigurableSourceSet}, never null
+	 */
+	ConfigurableSourceSet getHeaders();
+}
