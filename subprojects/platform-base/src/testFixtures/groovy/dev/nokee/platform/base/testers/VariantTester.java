@@ -29,4 +29,9 @@ public interface VariantTester<T extends Variant> extends HasPublicTypeTester<T>
 	default void hasBuildVariant() {
 		assertThat(subject().getBuildVariant(), notNullValue());
 	}
+
+	@Test
+	default void hasDevelopmentBinary() {
+		assertThat(subject().getDevelopmentBinary(), notNullValue());
+	}
 }
