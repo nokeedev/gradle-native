@@ -375,12 +375,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		component.configure(it -> it.getBaseName().convention(project.getName()));
 		val library = component.get();
 
-		val dependencies = library.getDependencies();
-
-		project.getPluginManager().withPlugin("java", appliedPlugin -> {
-			getConfigurations().getByName("runtimeOnly").extendsFrom(dependencies.getJvmRuntimeOnly().getAsConfiguration());
-		});
-
 		project.getExtensions().add(JavaNativeInterfaceLibrary.class, "library", library);
 		return library;
 	}
