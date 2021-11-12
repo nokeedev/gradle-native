@@ -31,6 +31,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.nativebase.NativeLibrary;
@@ -74,7 +75,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
-		val identifier = ComponentIdentifier.of("quzu", ProjectIdentifier.of(project));
+		val identifier = ComponentIdentifier.builder().name(ComponentName.of("quzu")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("JNI library component").build();
 		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
 		subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.host()));
 	}
@@ -215,7 +216,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	}
 
 	public String displayName() {
-		return "JNI library ':quzu'";
+		return "JNI library component ':quzu'";
 	}
 
 	@Nested
@@ -422,7 +423,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Assembles the outputs of JNI library ':quzu'."));
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of " + displayName() + "."));
 		}
 	}
 
