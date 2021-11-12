@@ -59,6 +59,7 @@ public class BaseDomainObjectViewProjection implements AbstractModelNodeBackedDo
 	}
 
 	private <T> Set<T> get(ModelType<T> type) {
+		ModelNodeUtils.getParent(node).ifPresent(ModelStates::finalize);
 		return ModelNodeUtils.getDirectDescendants(node)
 			.stream()
 			.filter(it -> ModelNodeUtils.canBeViewedAs(it, type))
