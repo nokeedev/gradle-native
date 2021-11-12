@@ -26,6 +26,7 @@ import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.platform.base.internal.VariantIdentifier
 import org.apache.commons.lang3.RandomStringUtils
 import org.gradle.api.Action
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 
 trait VariantFixture {
@@ -87,7 +88,7 @@ trait VariantFixture {
 		}
 
 		@Override
-		Provider<Binary> getDevelopmentBinary() {
+		Property<Binary> getDevelopmentBinary() {
 			throw new UnsupportedOperationException()
 		}
 
@@ -124,7 +125,7 @@ trait VariantFixture {
 		}
 
 		@Override
-		Provider<Binary> getDevelopmentBinary() {
+		Property<Binary> getDevelopmentBinary() {
 			throw new UnsupportedOperationException()
 		}
 
