@@ -286,6 +286,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, ModelBackedTargetMachineAwareComponentMixIn
+		, ModelBackedHasDevelopmentVariantMixIn<JniLibrary>
 	{
 	}
 }

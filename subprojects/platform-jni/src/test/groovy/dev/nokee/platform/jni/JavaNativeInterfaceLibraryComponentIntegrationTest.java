@@ -67,6 +67,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	, TaskAwareComponentTester<TaskView<Task>>
 	, TargetMachineAwareComponentTester
 	, HasBaseNameTester
+	, HasDevelopmentVariantTester
 {
 	private JavaNativeInterfaceLibrary subject;
 
