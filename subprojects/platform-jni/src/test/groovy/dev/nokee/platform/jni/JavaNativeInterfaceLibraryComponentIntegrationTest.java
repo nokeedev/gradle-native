@@ -293,46 +293,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	}
 
 	@Nested
-	class NativeCompileOnlyConfigurationTest {
-		@Test
-		void noNativeCompileOnlyConfigurationWhenNoNativeLanguageApplied() {
-			assertThat(project().getConfigurations(), not(hasItem(named("quzuNativeCompileOnly"))));
-		}
-
-		abstract class NativeCompileOnlyConfigurationTester {
-			public Configuration subject() {
-				return project().getConfigurations().getByName("quzuNativeCompileOnly");
-			}
-
-			@Test
-			void isDeclarable() {
-				assertThat(subject(), ConfigurationMatchers.declarable());
-			}
-
-			@Test
-			void hasDescription() {
-				assertThat(subject(), ConfigurationMatchers.description("Native compile only dependencies for " + displayName() + "."));
-			}
-		}
-
-		@Nested
-		@PluginRequirement.Require(id = "dev.nokee.c-language")
-		class WhenCLanguagePluginApplied extends NativeCompileOnlyConfigurationTester {}
-
-		@Nested
-		@PluginRequirement.Require(id = "dev.nokee.cpp-language")
-		class WhenCppLanguagePluginApplied extends NativeCompileOnlyConfigurationTester {}
-
-		@Nested
-		@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
-		class WhenObjectiveCLanguagePluginApplied extends NativeCompileOnlyConfigurationTester {}
-
-		@Nested
-		@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
-		class WhenObjectiveCppLanguagePluginApplied extends NativeCompileOnlyConfigurationTester {}
-	}
-
-	@Nested
 	class NativeLinkOnlyConfigurationTest {
 		public Configuration subject() {
 			return project().getConfigurations().getByName("quzuNativeLinkOnly");
