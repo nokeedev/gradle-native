@@ -30,17 +30,4 @@ import org.gradle.api.provider.SetProperty;
  */
 @Deprecated // Use JavaNativeInterfaceLibrary instead.
 public interface JniLibraryExtension extends DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>, VariantAwareComponent<JniLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, SourceAwareComponent<JavaNativeInterfaceLibrarySources> {
-	/**
-	 * Specifies the target machines this component should be built for.
-	 * The "machines" extension property (see {@link TargetMachineFactory}) can be used to construct common operating system and architecture combinations.
-	 *
-	 * <p>For example:</p>
-	 * <pre>
-	 * targetMachines = [machines.linux.x86_64, machines.windows.x86_64]
-	 * </pre>
-	 *
-	 * @return a property for configuring the {@link TargetMachine}, never null.
-	 * @since 0.1
-	 */
-	SetProperty<TargetMachine> getTargetMachines();
 }

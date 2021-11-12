@@ -37,11 +37,4 @@ public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Compone
 	, TargetMachineAwareComponent
 	, HasBaseName
 {
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	default SetProperty<TargetMachine> getTargetMachines() {
-		return ModelProperties.getProperty(this, "targetMachines").as(SetProperty.class).get();
-	}
 }
