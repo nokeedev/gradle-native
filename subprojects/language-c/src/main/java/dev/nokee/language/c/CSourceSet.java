@@ -17,6 +17,7 @@ package dev.nokee.language.c;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SelfAwareLanguageSourceSet;
+import dev.nokee.language.nativebase.HasHeaders;
 
 /**
  * A set of C source files.
@@ -24,4 +25,4 @@ import dev.nokee.language.base.SelfAwareLanguageSourceSet;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface CSourceSet extends SelfAwareLanguageSourceSet<CSourceSet> {}
+public interface CSourceSet extends SelfAwareLanguageSourceSet<CSourceSet>, HasHeaders {}
