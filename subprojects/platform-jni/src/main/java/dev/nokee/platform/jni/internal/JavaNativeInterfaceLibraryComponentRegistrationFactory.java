@@ -17,6 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.jvm.JavaSourceSet;
@@ -27,6 +28,7 @@ import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.ProjectHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.DependencyFactory;
@@ -37,6 +39,8 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
@@ -48,6 +52,7 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.jni.*;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -66,6 +71,7 @@ import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
+import org.gradle.api.reflect.TypeOf;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,6 +86,9 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
+import static dev.nokee.platform.jni.internal.plugins.JvmIncludeRoots.jvmIncludes;
+import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskProperties.includeRoots;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
@@ -213,7 +222,16 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						project.getPluginManager().withPlugin("groovy", registerJvmJarBinaryAction);
 						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", registerJvmJarBinaryAction);
 
-						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
+						val binaries = registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
+
+						// TODO: This is an external dependency meaning we should go through the component dependencies.
+						//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
+						//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
+						binaries.configure(new TypeOf<BinaryView<Binary>>() {}.getConcreteClass(), binaryView -> {
+							binaryView.configureEach(SharedLibraryBinary.class, binary -> {
+								binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, includeRoots(from(jvmIncludes())));
+							});
+						});
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));

@@ -141,7 +141,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
-		project.getPluginManager().withPlugin("java", appliedPlugin -> registerJvmHeaderSourceSet(extension));
 		project.getPlugins().whenPluginAdded(appliedPlugin -> {
 			if (isNativeLanguagePlugin(appliedPlugin)) {
 				project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
@@ -377,15 +376,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		project.getExtensions().add(JavaNativeInterfaceLibrary.class, "library", library);
 		return library;
-	}
-
-	private void registerJvmHeaderSourceSet(JavaNativeInterfaceLibrary extension) {
-		// TODO: This is an external dependency meaning we should go through the component dependencies.
-		//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
-		//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-		extension.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
-			binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, includeRoots(from(jvmIncludes())));
-		});
 	}
 
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {
