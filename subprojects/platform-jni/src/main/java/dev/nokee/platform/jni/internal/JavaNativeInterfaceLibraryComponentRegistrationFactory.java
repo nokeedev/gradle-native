@@ -50,6 +50,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
@@ -280,6 +281,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
+		, ModelBackedTargetMachineAwareComponentMixIn
 	{
 	}
 }
