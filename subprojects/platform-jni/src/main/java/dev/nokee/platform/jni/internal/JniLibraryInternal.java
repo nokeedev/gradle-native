@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.DomainObjectCreated;
@@ -94,7 +93,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.taskRegistry = taskRegistry;
 
 //		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
-		getDevelopmentBinary().convention(providers.provider(this::getJar));
 	}
 
 	@Override
@@ -104,6 +102,11 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	public ConfigurableFileCollection getNativeRuntimeFiles() {
 		return ModelProperties.getProperty(this, "nativeRuntimeFiles").as(ConfigurableFileCollection.class).get();
+	}
+
+	@Override
+	public Property<Binary> getDevelopmentBinary() {
+		return ModelProperties.getProperty(this, "developmentBinary").as(Property.class).get();
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {

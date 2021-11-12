@@ -102,6 +102,12 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 		assertThat(subject.getBaseName(), providerOf("windowsX86"));
 	}
 
+	@Test
+	void usesJniJarBinaryAsDevelopmentBinaryConvention() {
+		subject().getDevelopmentBinary().set((Binary) null);
+		assertThat(subject.getDevelopmentBinary(), providerOf(allOf(named("reqiWindowsX86JniJar"), isA(JniJarBinary.class))));
+	}
+
 	@Nested
 	class ComponentTasksTest {
 		public TaskView<Task> subject() {
