@@ -31,7 +31,10 @@ import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -386,12 +389,10 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {
-		val projection = ModelNodeUtils.get(ModelNodes.of(library), JniLibraryComponentInternal.class);
-
 		project.getTasks().named("test", Test.class, task -> {
 			Provider<List<FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
 			task.dependsOn((Callable<Iterable<File>>)() -> {
-				val variant = projection.getDevelopmentVariant().getOrNull();
+				val variant = library.getDevelopmentVariant().getOrNull();
 				if (variant == null) {
 					return emptyList();
 				}
