@@ -39,7 +39,6 @@ import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -56,10 +55,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
-import dev.nokee.utils.TaskUtils;
-import dev.nokee.utils.TransformerUtils;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
@@ -200,6 +196,12 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
 					baseNameProperty.configure(Property.class, prop -> prop.convention(identifier.getUnambiguousName()));
 					ModelProperties.getProperty(sharedLibrary, "baseName").configure(Property.class, prop -> prop.convention(baseNameProperty.as(String.class).map(noOpTransformer())));
+
+					jniJar.configure(JniJarBinary.class, binary -> {
+						binary.getJarTask().configure(task -> {
+							task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(baseName -> baseName + identifier.getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("")));
+						});
+					});
 
 					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).map(noOpTransformer())));
 

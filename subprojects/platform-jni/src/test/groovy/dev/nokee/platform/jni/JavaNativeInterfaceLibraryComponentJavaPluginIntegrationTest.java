@@ -35,15 +35,19 @@ import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static com.google.common.collect.MoreCollectors.onlyElement;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -81,7 +85,29 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 		assertThat(project.getConfigurations().getByName("qezuImplementation"), extendsFrom(hasItem(named("qezuJvmImplementation"))));
 	}
 
-	// TODO: Test Jar task doesn't have JVM jar binary name
+	@Nested
+	class JvmJarBinaryTest {
+		@BeforeEach
+		void configureMultipleVariant() {
+			// To avoid JVM and JNI Jar task folding, we configure multiple variant
+			subject.getTargetMachines().set(ImmutableSet.of(of("windows-x86"), of("macos-x64")));
+		}
+
+		public JvmJarBinary subject() {
+			return (JvmJarBinary) subject.getBinaries().get().stream().filter(it -> it instanceof JvmJarBinary).collect(onlyElement());
+		}
+
+		@Test
+		void doesNotIncludeBinaryNameInJarTaskName() {
+			assertThat(subject().getJarTask().map(Task::getName), providerOf("jarQezu"));
+		}
+
+		@Test
+		void usesComponentBaseNameAsJarArchiveBaseName() {
+			subject.getBaseName().set("hexu");
+			assertThat(subject().getJarTask().flatMap(Jar::getArchiveBaseName), providerOf("hexu"));
+		}
+	}
 
 	@Nested
 	class JavaComponentSourcesTest implements SourceTester<HasJavaSourceSet, JavaSourceSet> {

@@ -46,10 +46,7 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
-import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
-import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
-import dev.nokee.platform.jni.JniLibrary;
+import dev.nokee.platform.jni.*;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -202,7 +199,10 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 							public void execute(AppliedPlugin ignored) {
 								if (!alreadyExecuted) {
 									alreadyExecuted = true;
-									registry.register(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"))));
+									val jvmJar = registry.register(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"))));
+									jvmJar.configure(JvmJarBinary.class, binary -> {
+										binary.getJarTask().configure(task -> task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(TransformerUtils.noOpTransformer())));
+									});
 								}
 							}
 						};
