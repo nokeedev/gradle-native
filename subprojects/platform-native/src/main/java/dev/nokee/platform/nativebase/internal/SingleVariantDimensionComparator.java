@@ -15,12 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.runtime.core.CoordinateAxis;
 
 import java.util.Comparator;
 
-final class SingleVariantDimensionComparator<T> implements Comparator<VariantInternal> {
+final class SingleVariantDimensionComparator<T> implements Comparator<Variant> {
 	private final CoordinateAxis<T> type;
 	private final Comparator<? super T> delegate;
 
@@ -30,12 +32,16 @@ final class SingleVariantDimensionComparator<T> implements Comparator<VariantInt
 	}
 
 	@Override
-	public final int compare(VariantInternal lhs, VariantInternal rhs) {
-		if (lhs.getBuildVariant().hasAxisValue(type) && rhs.getBuildVariant().hasAxisValue(type)) {
-			return delegate.compare(lhs.getBuildVariant().getAxisValue(type), rhs.getBuildVariant().getAxisValue(type));
-		} else if (lhs.getBuildVariant().hasAxisValue(type)) {
+	public final int compare(Variant lhs, Variant rhs) {
+		return compare((BuildVariantInternal) lhs.getBuildVariant(), (BuildVariantInternal) rhs.getBuildVariant());
+	}
+
+	private int compare(BuildVariantInternal lhs, BuildVariantInternal rhs) {
+		if (lhs.hasAxisValue(type) && rhs.hasAxisValue(type)) {
+			return delegate.compare(lhs.getAxisValue(type), rhs.getAxisValue(type));
+		} else if (lhs.hasAxisValue(type)) {
 			return -1;
-		} else if (rhs.getBuildVariant().hasAxisValue(type)) {
+		} else if (rhs.hasAxisValue(type)) {
 			return 1;
 		}
 		return 0;

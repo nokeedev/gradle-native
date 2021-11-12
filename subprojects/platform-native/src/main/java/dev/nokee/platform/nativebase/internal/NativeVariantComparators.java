@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.nativebase.BuildType;
 
 import java.util.Comparator;
@@ -25,19 +25,19 @@ import static dev.nokee.runtime.nativebase.MachineArchitecture.ARCHITECTURE_COOR
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 
 public class NativeVariantComparators {
-	public static Comparator<VariantInternal> preferDebugBuildType() {
+	public static Comparator<Variant> preferDebugBuildType() {
 		return new SingleVariantDimensionComparator<>(BuildType.BUILD_TYPE_COORDINATE_AXIS, new PreferDebugBuildTypeComparator());
 	}
 
-	public static Comparator<VariantInternal> preferSharedBinaryLinkage() {
+	public static Comparator<Variant> preferSharedBinaryLinkage() {
 		return new SingleVariantDimensionComparator<>(BINARY_LINKAGE_COORDINATE_AXIS, new PreferSharedBinaryLinkageComparator());
 	}
 
-	public static Comparator<VariantInternal> preferHostMachineArchitecture() {
+	public static Comparator<Variant> preferHostMachineArchitecture() {
 		return new SingleVariantDimensionComparator<>(ARCHITECTURE_COORDINATE_AXIS, new PreferHostMachineArchitectureComparator());
 	}
 
-	public static Comparator<VariantInternal> preferHostOperatingSystemFamily() {
+	public static Comparator<Variant> preferHostOperatingSystemFamily() {
 		return new SingleVariantDimensionComparator<>(OPERATING_SYSTEM_COORDINATE_AXIS, new PreferHostOperatingSystemFamilyComparator());
 	}
 }
