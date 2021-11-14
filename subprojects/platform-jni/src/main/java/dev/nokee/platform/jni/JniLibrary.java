@@ -79,6 +79,8 @@ public interface JniLibrary extends Variant
 		sharedLibrary(ConfigureUtil.configureUsing(closure));
 	}
 
+	JniJarBinary getJavaNativeInterfaceJar();
+
 	/**
 	 * Configure the native runtime files to include inside the JNI JAR at the resource path location.
 	 *

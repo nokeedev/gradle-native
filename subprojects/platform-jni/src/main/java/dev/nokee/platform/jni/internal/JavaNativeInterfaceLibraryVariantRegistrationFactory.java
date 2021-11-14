@@ -203,6 +203,8 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 						});
 					});
 
+					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "javaNativeInterfaceJar"), ModelNodes.of(jniJar)));
+
 					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).map(noOpTransformer())));
 
 					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
