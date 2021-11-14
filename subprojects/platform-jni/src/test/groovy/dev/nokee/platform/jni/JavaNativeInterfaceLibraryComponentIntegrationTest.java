@@ -39,7 +39,6 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
@@ -48,15 +47,23 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.cpp.CppBinary;
+import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
+import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.*;
-import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFileBaseNamed;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.host;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -79,7 +86,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of("quzu")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("JNI library component").build();
 		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();
-		subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.host()));
+		subject.getTargetMachines().set(ImmutableSet.of(host()));
 	}
 
 	@Override
@@ -387,6 +394,29 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of " + displayName() + "."));
 		}
+
+		@Test
+		void hasOnlyBuildableJarAsTaskDependency() {
+			subject.getTargetMachines().set(ImmutableSet.of(of("unbuildable-unbuildable"), host()));
+			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> {
+				toolChain.target("unbuildableunbuildable", t -> {
+					// Make the target unbuildable
+					t.getLinker().setExecutable("not-found");
+					t.getcCompiler().setExecutable("not-found");
+					t.getCppCompiler().setExecutable("not-found");
+				});
+			});
+			assertThat("has buildable JAR", subject(), dependsOn(hasItem(
+				allOf(named("quzu" + capitalize(host().getOperatingSystemFamily().getName()) + capitalize(host().getArchitecture().getName()) + "JniJar"), isA(JniJarBinary.class)))));
+			assertThat("has no unbuildable JAR", subject(), dependsOn(not(hasItem(named("quzuUnbuildableUnbuildableJniJar")))));
+		}
+
+		@Test
+		void hasCrossCompileBuildableJarAsTaskDependency() {
+			subject.getTargetMachines().set(ImmutableSet.of(of("linux-aarch64"), host()));
+			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("linuxaarch64"));
+			assertThat(subject(), dependsOn(hasItem(allOf(named("quzuLinuxAarch64JniJar"), isA(JniJarBinary.class)))));
+		}
 	}
 
 	@Nested
@@ -451,6 +481,26 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		void hasJarLibraryElementsAttribute() {
 			assertThat(subject(), attributes(hasEntry(is(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE), named("jar"))));
 		}
+
+		@Test
+		void hasOnlyBuildableJarAsOutgoingArtifacts() {
+			subject.getTargetMachines().set(ImmutableSet.of(of("unbuildable-unbuildable"), host()));
+			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("unbuildableunbuildable", t -> {
+				// Make the target unbuildable
+				t.getLinker().setExecutable("not-found");
+				t.getcCompiler().setExecutable("not-found");
+				t.getCppCompiler().setExecutable("not-found");
+			}));
+			assertThat("has only host JAR, not unbuildable JAR", subject(), hasPublishArtifact(ofFile(aFileBaseNamed(
+				allOf(startsWith("quzu-"), not("quzu-unbuildable-unbuildable"))))));
+		}
+
+		@Test
+		void hasCrossCompileBuildableJarAsOutgoingArtifacts() {
+			subject.getTargetMachines().set(ImmutableSet.of(of("linux-aarch64"), host()));
+			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("linuxaarch64"));
+			assertThat(subject(), hasPublishArtifact(ofFile(aFileBaseNamed("quzu-linux-aarch64"))));
+		}
 	}
 
 //	@Nested
@@ -494,7 +544,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	class SingleVariantTest {
 		@BeforeEach
 		void configureTargetMachines() {
-			subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.of("macos-x64")));
+			subject.getTargetMachines().set(ImmutableSet.of(of("macos-x64")));
 			subject();
 		}
 
@@ -675,7 +725,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	class MultipleVariantTest {
 		@BeforeEach
 		void configureTargetMachine() {
-			subject.getTargetMachines().set(ImmutableSet.of(TargetMachines.of("windows-x64"),TargetMachines.of("linux-x86")));
+			subject.getTargetMachines().set(ImmutableSet.of(of("windows-x64"), of("linux-x86")));
 		}
 
 		@Test

@@ -17,7 +17,6 @@ package dev.nokee.platform.jni.internal;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
-import com.google.common.reflect.TypeToken;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.jvm.JavaSourceSet;
@@ -67,10 +66,13 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 
 import java.util.List;
@@ -92,8 +94,8 @@ import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskPropertie
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
-import static dev.nokee.utils.TaskUtils.configureBuildGroup;
-import static dev.nokee.utils.TaskUtils.configureDescription;
+import static dev.nokee.utils.TaskUtils.*;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
@@ -120,6 +122,10 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getExtensions().getByType(TaskRegistry.class))))
+			.withComponent(createdUsing(of(new dev.nokee.model.internal.type.TypeOf<Provider<JavaNativeInterfaceLibrary>>() {}), () -> {
+				val entity = ModelNodeContext.getCurrentModelNode();
+				return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JavaNativeInterfaceLibrary.class));
+			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;
 
@@ -204,6 +210,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier), Task.class).build());
 						assembleTask.configure(Task.class, configureBuildGroup());
 						assembleTask.configure(Task.class, configureDescription("Assembles the outputs of %s.", identifier));
+						entity.addComponent(new AssembleTask(ModelNodes.of(assembleTask)));
 
 						val registerJvmJarBinaryAction = new Action<AppliedPlugin>() {
 							private boolean alreadyExecuted = false;
@@ -255,6 +262,36 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
 				if (id.equals(identifier)) {
 					runtimeElements.add(jvmJar.getJarFile());
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jvmJar, assemble) -> {
+				if (id.equals(identifier)) {
+					assemble.configure(configureDependsOn(jvmJar));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(AssembleTask.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, assemble, component) -> {
+				if (id.equals(identifier)) {
+					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
+					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine())));
+					Provider<Iterable<JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
+					assemble.configure(configureDependsOn(allJniJars));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, runtimeElements, component) -> {
+				if (id.equals(identifier)) {
+					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
+					val values = project.getObjects().listProperty(PublishArtifact.class);
+					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine())));
+					Provider<Iterable<JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
+					Provider<List<PublishArtifact>> allArtifacts = allJniJars.flatMap(binaries -> {
+						val result = project.getObjects().listProperty(PublishArtifact.class);
+						for (JniJarBinary binary : binaries) {
+							result.add(new LazyPublishArtifact(binary.getJarTask()));
+						}
+						return result;
+					});
+					values.addAll(allArtifacts);
+					runtimeElements.addAll(values);
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, id, ignored) -> {

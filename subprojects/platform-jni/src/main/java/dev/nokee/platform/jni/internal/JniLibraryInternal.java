@@ -34,6 +34,7 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
+import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
@@ -136,6 +137,11 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	public AbstractJarBinary getJar() {
 		return jarBinary;
+	}
+
+	@Override
+	public JniJarBinary getJavaNativeInterfaceJar() {
+		return ModelProperties.getProperty(this, "javaNativeInterfaceJar").as(JniJarBinary.class).get();
 	}
 
 	public SharedLibraryBinary getSharedLibrary() {

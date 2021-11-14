@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.testers.SourceTester;
 import dev.nokee.language.c.CSourceSet;
@@ -207,6 +208,18 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 		@Test
 		void hasJvmJarBinaryAsOutgoingArtifact() {
 			assertThat(subject(), ConfigurationMatchers.hasPublishArtifact(ofFile(withAbsolutePath(endsWith("/build/libs/qezu.jar")))));
+		}
+	}
+
+	@Nested
+	class AssembleTaskTest {
+		public Task subject() {
+			return project.getTasks().getByName("assembleQezu");
+		}
+
+		@Test
+		void dependsOnJvmJarBinary() {
+			assertThat(subject(), TaskMatchers.dependsOn(hasItem(allOf(named("jarQezu"), isA(Jar.class)))));
 		}
 	}
 }

@@ -19,23 +19,18 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.provider.Provider;
+import org.gradle.api.Action;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
-public final class RuntimeElementsConfiguration {
+public final class AssembleTask {
 	private final ModelNode entity;
 
-	RuntimeElementsConfiguration(ModelNode entity) {
+	public AssembleTask(ModelNode entity) {
 		this.entity = entity;
 	}
 
-	public void add(Object notation) {
-		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {})).configure(configuration -> configuration.getOutgoing().artifact(notation));
-	}
-
-	public void addAll(Provider<? extends Iterable<PublishArtifact>> values) {
-		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {})).configure(configuration -> configuration.getOutgoing().getArtifacts().addAllLater(values));
+	public void configure(Action<? super Task> action) {
+		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<TaskProvider<Task>>() {})).configure(action);
 	}
 }
