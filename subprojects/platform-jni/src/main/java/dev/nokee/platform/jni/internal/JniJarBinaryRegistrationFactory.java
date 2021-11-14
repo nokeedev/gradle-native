@@ -47,6 +47,7 @@ public final class JniJarBinaryRegistrationFactory {
 			.action(jarTaskFactory.create(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(JarTask.class), (entity, id, jarTask) -> {
 				if (id.equals(identifier)) {
+					jarTask.configure(task -> task.getArchiveBaseName().convention(identifier.getName().get()));
 					jarTask.configure(configureDescription("Assembles a JAR archive containing the shared library for %s.", identifier));
 				}
 			}))
