@@ -46,14 +46,15 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.language.cpp.CppBinary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
-import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
+import static dev.nokee.internal.testing.ConfigurationMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -385,6 +386,70 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		@Test
 		void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of " + displayName() + "."));
+		}
+	}
+
+	@Nested
+	class ApiElementsTest {
+		public Configuration subject() {
+			return project.getConfigurations().getByName("quzuApiElements");
+		}
+
+		@Test
+		void isConsumable() {
+			assertThat(subject(), consumable());
+		}
+
+		@Test
+		void hasDescription() {
+			assertThat(subject(), ConfigurationMatchers.description("API elements for " + displayName() + "."));
+		}
+
+		@Test
+		void extendsFromApiConfiguration() {
+			assertThat(subject(), extendsFrom(hasItem(named("quzuApi"))));
+		}
+
+		@Test
+		void hasJavaApiUsageAttribute() {
+			assertThat(subject(), attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("java-api"))));
+		}
+
+		@Test
+		void hasJarLibraryElementsAttribute() {
+			assertThat(subject(), attributes(hasEntry(is(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE), named("jar"))));
+		}
+	}
+
+	@Nested
+	class RuntimeElementsTest {
+		public Configuration subject() {
+			return project.getConfigurations().getByName("quzuRuntimeElements");
+		}
+
+		@Test
+		void isConsumable() {
+			assertThat(subject(), consumable());
+		}
+
+		@Test
+		void hasDescription() {
+			assertThat(subject(), ConfigurationMatchers.description("Runtime elements for " + displayName() + "."));
+		}
+
+		@Test
+		void extendsFromApiConfiguration() {
+			assertThat(subject(), extendsFrom(hasItem(named("quzuApi"))));
+		}
+
+		@Test
+		void hasJavaRuntimeUsageAttribute() {
+			assertThat(subject(), attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("java-runtime"))));
+		}
+
+		@Test
+		void hasJarLibraryElementsAttribute() {
+			assertThat(subject(), attributes(hasEntry(is(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE), named("jar"))));
 		}
 	}
 
