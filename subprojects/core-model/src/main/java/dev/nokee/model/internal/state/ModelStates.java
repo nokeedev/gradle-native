@@ -87,16 +87,21 @@ public final class ModelStates {
 		if (!self.hasComponent(ModelState.IsAtLeastRegistered.class)) {
 			initialize(self);
 			if (!isAtLeast(self, ModelState.Registered)) {
-				if (self.hasComponent(ModelState.class)) {
-					self.setComponent(ModelState.class, ModelState.Registered);
-				} else {
-					self.addComponent(ModelState.Registered);
+				if (!self.hasComponent(Registering.class)) {
+					self.addComponent(new Registering());
+					if (self.hasComponent(ModelState.class)) {
+						self.setComponent(ModelState.class, ModelState.Registered);
+					} else {
+						self.addComponent(ModelState.Registered);
+					}
 				}
 			}
 			self.addComponent(REGISTERED_TAG);
 		}
 		return self;
 	}
+
+	private static final class Registering {}
 
 	public static ModelNode finalize(ModelNode self) {
 		if (!self.hasComponent(ModelState.IsAtLeastFinalized.class)) {
