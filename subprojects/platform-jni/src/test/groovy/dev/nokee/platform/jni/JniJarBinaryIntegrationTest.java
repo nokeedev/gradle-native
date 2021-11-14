@@ -33,10 +33,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+
+import static dev.nokee.internal.testing.FileSystemMatchers.*;
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.description;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 class JniJarBinaryIntegrationTest extends AbstractPluginTest {
@@ -79,6 +84,26 @@ class JniJarBinaryIntegrationTest extends AbstractPluginTest {
 			@Test
 			void hasDescription() {
 				assertThat(subject(), description("Assembles a JAR archive containing the shared library for Liha binary ':poto:qile:tuva'."));
+			}
+
+			@Test
+			void usesBinaryNameForJarTaskArchiveBaseNameConvention() {
+				subject().getArchiveBaseName().set((String) null);
+				assertThat(subject().getArchiveBaseName(), providerOf("tuva"));
+			}
+
+			@Test
+			void hasDestinationDirectoryUnderLibsInsideBuildDirectory() {
+				subject().getDestinationDirectory().set((File) null);
+				assertThat(subject().getDestinationDirectory(),
+					providerOf(aFile(withAbsolutePath(containsString("/build/libs/")))));
+			}
+
+			@Test
+			void usesDestinationDirectoryAsArchiveFileParentDirectory() {
+				val newDestinationDirectory = project().file("some-new-destination-directory");
+				subject().getDestinationDirectory().set(newDestinationDirectory);
+				assertThat(subject().getArchiveFile(), providerOf(aFile(parentFile(is(newDestinationDirectory)))));
 			}
 		}
 	}

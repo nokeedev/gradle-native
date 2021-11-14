@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.GradleProviderMatchers.presentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -65,6 +66,11 @@ public abstract class JarBinaryIntegrationTester<T extends JarBinary> implements
 		@Test
 		void hasBuildGroup() {
 			assertThat(subject().getGroup(), equalTo("build"));
+		}
+
+		@Test
+		void hasArchiveFile() {
+			assertThat(subject().getArchiveFile(), presentProvider());
 		}
 	}
 }
