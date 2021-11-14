@@ -96,6 +96,10 @@ public final class FileSystemMatchers {
 		return aFile(FileMatchers.aFileNamed(matcher));
 	}
 
+	public static Matcher<Object> aFileBaseNamed(String baseName) {
+		return aFileNamed(withoutExtension(Matchers.equalTo(baseName)));
+	}
+
 	public static Matcher<Object> aFileBaseNamed(Matcher<String> matcher) {
 		return aFileNamed(withoutExtension(matcher));
 	}
