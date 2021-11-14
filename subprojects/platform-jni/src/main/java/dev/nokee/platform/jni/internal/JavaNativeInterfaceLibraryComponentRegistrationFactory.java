@@ -192,6 +192,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("runtimeElements"), identifier)));
 						runtimeElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
 						runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+						entity.addComponent(new RuntimeElementsConfiguration(ModelNodes.of(runtimeElements)));
 
 						val variants = registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), JniLibrary.class));
 
@@ -215,6 +216,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 									jvmJar.configure(JvmJarBinary.class, binary -> {
 										binary.getJarTask().configure(task -> task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(TransformerUtils.noOpTransformer())));
 									});
+									entity.addComponent(new JvmJarArtifact(ModelNodes.of(jvmJar)));
 								}
 							}
 						};
@@ -248,6 +250,11 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 							.build());
 						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
 					}
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
+				if (id.equals(identifier)) {
+					runtimeElements.add(jvmJar.getJarFile());
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, id, ignored) -> {

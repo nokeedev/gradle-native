@@ -17,6 +17,7 @@ package dev.nokee.platform.jni;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.testing.AbstractPluginTest;
+import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.testers.SourceTester;
@@ -36,6 +37,7 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +46,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.collect.MoreCollectors.onlyElement;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
+import static dev.nokee.internal.testing.ConfigurationMatchers.ofFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -181,5 +184,29 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 		subject.getSources().get(); // force realize until named can realize
 		assertThat(subject.getSources().named("objectiveCpp", ObjectiveCppSourceSet.class).get().getHeaders().getSourceDirectories(),
 			hasItem(aFile(withAbsolutePath(endsWith("/generated/jni-headers/qezu")))));
+	}
+
+	@Nested
+	class ApiElementsConfigurationTest {
+		public Configuration subject() {
+			return project.getConfigurations().getByName("qezuApiElements");
+		}
+
+		@Test
+		void hasJvmJarBinaryAsOutgoingArtifact() {
+			assertThat(subject(), ConfigurationMatchers.hasPublishArtifact(ofFile(withAbsolutePath(endsWith("/build/libs/qezu.jar")))));
+		}
+	}
+
+	@Nested
+	class RuntimeElementsConfigurationTest {
+		public Configuration subject() {
+			return project.getConfigurations().getByName("qezuRuntimeElements");
+		}
+
+		@Test
+		void hasJvmJarBinaryAsOutgoingArtifact() {
+			assertThat(subject(), ConfigurationMatchers.hasPublishArtifact(ofFile(withAbsolutePath(endsWith("/build/libs/qezu.jar")))));
+		}
 	}
 }
