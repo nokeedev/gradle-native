@@ -65,7 +65,6 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
@@ -166,7 +165,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				public void execute(ModelNode entity, ModelPath path, ModelState state) {
 					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
-						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
 					}
 				}

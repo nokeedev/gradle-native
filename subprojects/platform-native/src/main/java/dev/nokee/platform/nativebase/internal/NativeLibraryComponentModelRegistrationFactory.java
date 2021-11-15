@@ -162,7 +162,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				public void execute(ModelNode entity, ModelPath path, ModelState state) {
 					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
-						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
 					}
 				}

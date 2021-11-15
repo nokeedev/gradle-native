@@ -63,7 +63,6 @@ import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
 import dev.nokee.testing.xctest.internal.*;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -76,8 +75,6 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
@@ -201,16 +198,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
 							.build());
 						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
-					}
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
-				private boolean alreadyExecuted = false;
-				@Override
-				public void execute(ModelNode entity, ModelPath path, ModelState state) {
-					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
-						alreadyExecuted = true;
-						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 					}
 				}
 			}))
@@ -339,16 +326,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
 							.build());
 						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
-					}
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
-				private boolean alreadyExecuted = false;
-				@Override
-				public void execute(ModelNode entity, ModelPath path, ModelState state) {
-					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
-						alreadyExecuted = true;
-						ModelNodeUtils.get(entity, BaseComponent.class).getDimensions().convention(entity.getComponent(componentOf(BuildVariants.class)).dimensions());
 					}
 				}
 			}))
