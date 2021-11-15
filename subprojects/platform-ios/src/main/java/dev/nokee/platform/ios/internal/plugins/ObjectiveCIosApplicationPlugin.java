@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -25,7 +24,10 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlug
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -56,13 +58,11 @@ import org.gradle.nativeplatform.toolchain.internal.gcc.DefaultGccPlatformToolCh
 import org.gradle.util.GUtil;
 
 import java.util.Arrays;
-import java.util.function.BiConsumer;
 
-import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
-import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 
@@ -102,14 +102,6 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 				});
 			});
 		}
-	}
-
-	public static <T, PROJECTION extends BaseComponent<?>> BiConsumer<T, PROJECTION> configureBuildVariants() {
-		return (t, projection) -> {
-			projection.getBuildVariants().set(projection.getFinalSpace().map(DefaultBuildVariant::fromSpace));
-			projection.getBuildVariants().finalizeValueOnRead();
-			projection.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
-		};
 	}
 
 	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
