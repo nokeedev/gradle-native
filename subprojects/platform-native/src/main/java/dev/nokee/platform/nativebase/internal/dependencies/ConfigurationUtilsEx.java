@@ -107,7 +107,7 @@ public class ConfigurationUtilsEx {
 				} else if (it.getAxis().equals(BuildType.BUILD_TYPE_COORDINATE_AXIS)) {
 					attributes.attribute(BuildType.BUILD_TYPE_ATTRIBUTE, (BuildType) it.getValue());
 				} else {
-					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
+					// ignores unknown variant dimension
 				}
 			});
 		};
@@ -130,7 +130,7 @@ public class ConfigurationUtilsEx {
 				} else if (it.getAxis().equals(BuildType.BUILD_TYPE_COORDINATE_AXIS)) {
 					attributes.attribute(BuildType.BUILD_TYPE_ATTRIBUTE, (BuildType) it.getValue());
 				} else {
-					throw new IllegalArgumentException(String.format("Unknown dimension variant '%s'", it.toString()));
+					// ignores unknown variant dimension
 				}
 			});
 		};
