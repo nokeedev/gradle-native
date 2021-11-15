@@ -59,7 +59,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
@@ -69,6 +68,7 @@ import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static com.google.common.base.Predicates.instanceOf;
@@ -127,8 +127,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
+	public Provider<Set<BuildVariant>> getBuildVariants() {
+		return ModelProperties.getProperty(this, "buildVariants").as(Provider.class).get();
 	}
 
 	@Override
@@ -177,7 +177,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
-			val variantIdentifier = VariantIdentifier.builder().withType(DefaultNativeTestSuiteVariant.class).withComponentIdentifier(getIdentifier()).withBuildVariant(buildVariant).build();
+			val variantIdentifier = VariantIdentifier.builder().withType(DefaultNativeTestSuiteVariant.class).withComponentIdentifier(getIdentifier()).withBuildVariant((BuildVariantInternal) buildVariant).build();
 
 			// TODO: The variant should have give access to the testTask
 			val runTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("run"), RunTestExecutable.class, variantIdentifier), task -> {

@@ -23,7 +23,8 @@ import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.SetProperty;
+
+import java.util.Set;
 
 public abstract class BaseComponent<T extends Variant> implements Component, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -46,7 +47,7 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 //	public abstract LanguageSourceSetViewInternal<LanguageSourceSet> getSources();
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
-	public abstract SetProperty<BuildVariantInternal> getBuildVariants();
+	public abstract Provider<Set<BuildVariant>> getBuildVariants();
 
 	@Override
 	public ModelNode getNode() {

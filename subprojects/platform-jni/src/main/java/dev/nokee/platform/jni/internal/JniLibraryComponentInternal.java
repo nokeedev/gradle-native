@@ -17,9 +17,7 @@ package dev.nokee.platform.jni.internal;
 
 import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
@@ -50,7 +48,6 @@ import javax.inject.Inject;
 import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -69,7 +66,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	@Getter private final SetProperty<TargetMachine> targetMachines;
 	private final BinaryView<Binary> binaries;
 	private final Supplier<JavaNativeInterfaceComponentVariants> componentVariants;
-	private final SetProperty<BuildVariantInternal> buildVariants;
+	private final SetProperty<BuildVariant> buildVariants;
 	private final Property<JniLibraryInternal> developmentVariant;
 	private final TaskRegistry taskRegistry;
 
@@ -82,7 +79,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		super(identifier, objects);
 		this.groupId = groupId;
 		this.targetMachines = ConfigureUtils.configureDisplayName(objects.setProperty(TargetMachine.class), "targetMachines");
-		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
+		this.buildVariants = objects.setProperty(BuildVariant.class);
 		this.developmentVariant = objects.property(JniLibraryInternal.class);
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = () -> ModelNodeUtils.get(getNode(), JavaNativeInterfaceComponentVariants.class);
@@ -166,7 +163,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	}
 
 	@Override
-	public SetProperty<BuildVariantInternal> getBuildVariants() {
+	public SetProperty<BuildVariant> getBuildVariants() {
 		return buildVariants;
 	}
 

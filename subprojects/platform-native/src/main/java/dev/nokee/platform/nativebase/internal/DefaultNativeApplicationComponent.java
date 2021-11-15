@@ -35,11 +35,12 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.SetProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
+import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
@@ -99,8 +100,8 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	}
 
 	@Override
-	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
+	public Provider<Set<BuildVariant>> getBuildVariants() {
+		return ModelProperties.getProperty(this, "buildVariants").as(Provider.class).get();
 	}
 
 	public void finalizeExtension(Project project) {

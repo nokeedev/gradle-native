@@ -182,7 +182,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 
 		ToXcodeIdeTargets(BaseComponent<?> component) {
 			this.component = component;
-			this.hasMultipleLinkages = component.getBuildVariants().get().stream().map(buildVariant -> buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).distinct().count() > 1;
+			this.hasMultipleLinkages = component.getBuildVariants().get().stream().map(buildVariant -> ((BuildVariantInternal) buildVariant).getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)).distinct().count() > 1;
 		}
 
 		private OperatingSystemOperations operatingSystemOperations(BuildVariantInternal buildVariant) {

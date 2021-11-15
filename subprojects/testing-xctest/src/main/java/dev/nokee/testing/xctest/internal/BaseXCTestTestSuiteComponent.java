@@ -48,6 +48,8 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
 
+import java.util.Set;
+
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
@@ -86,8 +88,8 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
-	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
+	public Provider<Set<BuildVariant>> getBuildVariants() {
+		return ModelProperties.getProperty(this, "buildVariants").as(Provider.class).get();
 	}
 
 	@Override
