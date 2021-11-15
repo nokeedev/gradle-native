@@ -127,7 +127,9 @@ public final class DimensionPropertyRegistrationFactory {
 					return result;
 				}))
 				.withComponent(new Dimension(axis, () -> {
-					Provider<Iterable<Object>> valueProvider = ModelNodeUtils.get(modelLookup.get(path), SetProperty.class)
+					val property = ModelNodeUtils.get(modelLookup.get(path), SetProperty.class);
+					property.finalizeValueOnRead();
+					Provider<Iterable<Object>> valueProvider = property
 						.map(assertNonEmpty(axis.getDisplayName(), path.getParent().get().getName()));
 
 					if (supportedValues != null) {
