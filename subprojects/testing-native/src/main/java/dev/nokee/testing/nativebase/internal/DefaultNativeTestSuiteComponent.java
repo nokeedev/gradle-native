@@ -46,9 +46,6 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentO
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.runtime.core.CoordinateSet;
-import dev.nokee.runtime.core.Coordinates;
-import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import groovy.lang.Closure;
@@ -96,7 +93,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
 	private final ModelLookup modelLookup;
-	private final SetProperty<BuildVariantInternal> buildVariants;
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup) {
@@ -105,26 +101,10 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.providers = providers;
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
-		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 
-		getDimensions().addAll(providers.provider(() -> {
-			if (getTestedComponent().isPresent()) {
-				return ((BaseComponent<?>) getTestedComponent().get()).getDimensions().get().stream().map(it -> (CoordinateSet<?>) it).map((CoordinateSet<?> set) -> {
-					if (set.getAxis().equals(BINARY_LINKAGE_COORDINATE_AXIS)) {
-						return CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE));
-					}
-					return set;
-				}).collect(toList());
-			}
-			throw new UnsupportedOperationException();
-		}));
 		this.getBaseName().convention(BaseNameUtils.from(identifier).getAsString());
 
 		this.taskRegistry = taskRegistry;
-
-		this.getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
-		this.getBuildVariants().finalizeValueOnRead();
-		this.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
 	}
 
 	public Property<Component> getTestedComponent() {
@@ -148,7 +128,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Override
 	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return buildVariants;
+		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
 	}
 
 	@Override
