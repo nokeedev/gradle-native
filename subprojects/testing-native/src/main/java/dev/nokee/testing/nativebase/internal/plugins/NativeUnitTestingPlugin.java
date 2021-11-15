@@ -16,6 +16,7 @@
 package dev.nokee.testing.nativebase.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -46,11 +47,18 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
+import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
+import dev.nokee.runtime.nativebase.*;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import dev.nokee.testing.base.TestSuiteContainer;
 import dev.nokee.testing.base.internal.IsTestComponent;
 import dev.nokee.testing.base.internal.plugins.TestingBasePlugin;
@@ -58,12 +66,14 @@ import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
+import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
 
 import java.util.Optional;
 
@@ -156,7 +166,39 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 							.withComponent(createdUsing(of(new TypeOf<Property<NativeTestSuiteVariant>>() {}), () -> project.getObjects().property(NativeTestSuiteVariant.class)))
 							.build());
 
-						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "testedComponent"), Component.class));
+						val testedComponentProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "testedComponent"), Component.class));
+
+						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+							.elementType(TargetLinkage.class)
+							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
+							.defaultValue(TargetLinkages.EXECUTABLE)
+							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetBuildTypes"))
+							.elementType(TargetBuildType.class)
+							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
+							.defaultValues(testedComponentProperty.as(Component.class).flatMap(component -> {
+								val property = ModelProperties.findProperty(component, "targetBuildTypes");
+								if (property.isPresent()) {
+									return property.get().as(SetProperty.class).get();
+								} else {
+									return ProviderUtils.notDefined();
+								}
+							}).orElse(ImmutableSet.of(TargetBuildTypes.DEFAULT)))
+							.build());
+						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
+							.defaultValues(testedComponentProperty.as(Component.class).flatMap(component -> {
+								val property = ModelProperties.findProperty(component, "targetMachines");
+								if (property.isPresent()) {
+									return property.get().as(SetProperty.class).get();
+								} else {
+									return ProviderUtils.notDefined();
+								}
+							}).orElse(ImmutableSet.of(TargetMachines.host())))
+							.build());
+						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
 					}
 				}
 			}))
