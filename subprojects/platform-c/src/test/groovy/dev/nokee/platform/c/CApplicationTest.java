@@ -24,10 +24,7 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
@@ -37,6 +34,7 @@ import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -63,8 +61,13 @@ class CApplicationTest implements ComponentTester<CApplication>
 	, TargetMachineAwareComponentTester
 	, TargetBuildTypeAwareComponentTester
 {
-	private final CApplication subject = createSubject("kdrj");
+	private CApplication subject;
 	@Getter @TempDir File testDirectory;
+
+	@BeforeEach
+	void createASubject() {
+		subject = createSubject("kdrj");
+	}
 
 	@Override
 	public CApplication createSubject(String componentName) {

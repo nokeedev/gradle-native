@@ -29,6 +29,7 @@ import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -48,8 +49,13 @@ class NativeLibraryComponentTest implements ComponentTester<NativeLibraryExtensi
 	, BinaryAwareComponentTester<BinaryView<Binary>>
 	, TaskAwareComponentTester<TaskView<Task>>
 {
-	private final NativeLibraryExtension subject = createSubject("zasi");
+	private NativeLibraryExtension subject;
 	@Getter @TempDir File testDirectory;
+
+	@BeforeEach
+	void createASubject() {
+		subject = createSubject("zasi");
+	}
 
 	public NativeLibraryExtension createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(testDirectory);
