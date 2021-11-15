@@ -19,7 +19,6 @@ import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
@@ -79,7 +78,6 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication(componentName, project)).as(ObjectiveCIosApplication.class).get();
-		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}
 

@@ -17,7 +17,6 @@ package dev.nokee.platform.cpp;
 
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.HasCppSourcesTester;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
@@ -79,7 +78,6 @@ class CppLibraryTest implements ComponentTester<CppLibrary>
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CppLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(cppLibrary(componentName, project)).as(CppLibrary.class).get();
-		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}
 

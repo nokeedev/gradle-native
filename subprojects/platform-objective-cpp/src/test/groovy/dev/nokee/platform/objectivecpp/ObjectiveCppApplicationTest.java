@@ -18,7 +18,6 @@ package dev.nokee.platform.objectivecpp;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSourcesTester;
@@ -76,7 +75,6 @@ class ObjectiveCppApplicationTest implements ComponentTester<ObjectiveCppApplica
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCppApplication(componentName, project)).as(ObjectiveCppApplication.class).get();
-		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}
 

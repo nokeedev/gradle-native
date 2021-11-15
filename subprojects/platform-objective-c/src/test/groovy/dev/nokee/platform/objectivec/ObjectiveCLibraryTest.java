@@ -18,7 +18,6 @@ package dev.nokee.platform.objectivec;
 import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.HasPublicHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -80,7 +79,6 @@ class ObjectiveCLibraryTest implements ComponentTester<ObjectiveCLibrary>
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCLibrary(componentName, project)).as(ObjectiveCLibrary.class).get();
-		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}
 
