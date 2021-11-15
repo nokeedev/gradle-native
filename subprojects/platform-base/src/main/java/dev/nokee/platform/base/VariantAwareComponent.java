@@ -44,4 +44,11 @@ public interface VariantAwareComponent<T extends Variant> {
 
 	/** @see #variants(Action) */
 	void variants(@ClosureParams(value = SimpleType.class, options = "dev.nokee.platform.base.VariantView") @DelegatesTo(value = VariantView.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
+
+	/**
+	 * Returns the variant dimensions for this component.
+	 *
+	 * @return variant dimensions, never null
+	 */
+	VariantDimensions getDimensions();
 }

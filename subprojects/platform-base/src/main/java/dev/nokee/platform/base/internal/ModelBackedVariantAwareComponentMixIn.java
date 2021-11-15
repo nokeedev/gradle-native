@@ -19,6 +19,7 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.VariantDimensions;
 import dev.nokee.platform.base.VariantView;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
@@ -40,5 +41,10 @@ public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extend
 	@SuppressWarnings("unchecked")
 	default void variants(@SuppressWarnings("rawtypes") Closure closure) {
 		ModelProperties.getProperty(this, "variants").as((Class<VariantView<T>>)new TypeToken<VariantView<T>>(getClass()) {}.getRawType()).configure(closure);
+	}
+
+	@Override
+	default VariantDimensions getDimensions() {
+		return new VariantDimensions() {};
 	}
 }

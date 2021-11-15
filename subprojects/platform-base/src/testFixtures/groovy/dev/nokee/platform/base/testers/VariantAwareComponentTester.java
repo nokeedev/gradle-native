@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.notNullValue;
 
 public interface VariantAwareComponentTester<T extends ComponentVariants> {
 	VariantAwareComponent<? extends Variant> subject();
@@ -42,5 +43,10 @@ public interface VariantAwareComponentTester<T extends ComponentVariants> {
 		ConfigureMethodTester.of(subject(), VariantAwareComponent::getVariants)
 			.testAction(VariantAwareComponent::variants)
 			.testClosure(VariantAwareComponent::variants);
+	}
+
+	@Test
+	default void hasVariantDimensions() {
+		assertThat(subject().getDimensions(), notNullValue(VariantDimensions.class));
 	}
 }
