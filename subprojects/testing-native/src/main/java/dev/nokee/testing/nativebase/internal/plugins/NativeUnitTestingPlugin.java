@@ -35,6 +35,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
@@ -58,7 +59,6 @@ import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteComponent;
 import dev.nokee.testing.nativebase.internal.DefaultNativeTestSuiteVariant;
 import lombok.val;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -69,7 +69,6 @@ import java.util.Optional;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
@@ -156,6 +155,8 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 							.withComponent(IsModelProperty.tag())
 							.withComponent(createdUsing(of(new TypeOf<Property<NativeTestSuiteVariant>>() {}), () -> project.getObjects().property(NativeTestSuiteVariant.class)))
 							.build());
+
+						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "testedComponent"), Component.class));
 					}
 				}
 			}))

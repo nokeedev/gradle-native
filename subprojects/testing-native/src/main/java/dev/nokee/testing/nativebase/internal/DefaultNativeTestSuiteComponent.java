@@ -24,18 +24,12 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -58,7 +52,6 @@ import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import groovy.lang.Closure;
-import lombok.Getter;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -71,7 +64,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
-import org.gradle.internal.Cast;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
@@ -84,7 +76,6 @@ import java.util.concurrent.Callable;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -102,7 +93,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
-	@Getter Property<BaseComponent<?>> testedComponent;
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
 	private final ModelLookup modelLookup;
@@ -117,11 +107,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.modelLookup = modelLookup;
 		this.buildVariants = objects.setProperty(BuildVariantInternal.class);
 
-		this.testedComponent = Cast.uncheckedCast(objects.property(BaseComponent.class));
-
 		getDimensions().addAll(providers.provider(() -> {
 			if (getTestedComponent().isPresent()) {
-				return getTestedComponent().get().getDimensions().get().stream().map(it -> (CoordinateSet<?>) it).map((CoordinateSet<?> set) -> {
+				return ((BaseComponent<?>) getTestedComponent().get()).getDimensions().get().stream().map(it -> (CoordinateSet<?>) it).map((CoordinateSet<?> set) -> {
 					if (set.getAxis().equals(BINARY_LINKAGE_COORDINATE_AXIS)) {
 						return CoordinateSet.of(Coordinates.of(TargetLinkages.EXECUTABLE));
 					}
@@ -137,6 +125,10 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		this.getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
 		this.getBuildVariants().finalizeValueOnRead();
 		this.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
+	}
+
+	public Property<Component> getTestedComponent() {
+		return ModelProperties.getProperty(this, "testedComponent").as(Property.class).get();
 	}
 
 	@Override
@@ -235,7 +227,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 		getTestedComponent().disallowChanges();
 		if (getTestedComponent().isPresent()) {
-			val component = getTestedComponent().get();
+			val component = (BaseComponent<?>) getTestedComponent().get();
 
 			// TODO: Map name to something close to what is expected
 			getBaseName().convention(component.getBaseName().map(it -> {
