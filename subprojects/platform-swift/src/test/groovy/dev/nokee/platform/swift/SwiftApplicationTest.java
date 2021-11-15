@@ -22,10 +22,7 @@ import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
@@ -121,6 +118,14 @@ public class SwiftApplicationTest implements ComponentTester<SwiftApplication>
 		@Test
 		public void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the Swift application ':cefu'."));
+		}
+	}
+
+	@Nested
+	class VariantDimensionsTest extends VariantDimensionsIntegrationTester {
+		@Override
+		public VariantAwareComponent<?> subject() {
+			return subject;
 		}
 	}
 }

@@ -15,10 +15,32 @@
  */
 package dev.nokee.platform.base;
 
+import org.gradle.api.provider.SetProperty;
+
 /**
  * The dimensions of a component for build variant.
+ *
+ * Creates new variants by declaring additional dimensions:
+ * <pre class="autoTested">
+ * enum MyAxis { v0, v1, v2 }
+ * library {
+ *     // We recommend keeping a reference of the value property as an extension
+ *     extensions.add('myAxis', variantDimensions.newAxis(MyAxis))
+ *     myAxis.set([v0, v2])  // configure the values
+ * }
+ * assert library.buildVariants.get().any { it.hasAxisOf(MyAxis.v0) }
+ * assert !library.buildVariants.get().any { it.hasAxisOf(MyAxis.v1) }
+ * </pre>
  *
  * @since 0.5
  */
 public interface VariantDimensions {
+	/**
+	 * Creates a new dimension axis of the specified type.
+	 *
+	 * @param axisType  the dimension axis type, must not be null
+	 * @param <T>  the dimension axis type
+	 * @return  a set property to configure the axis values, never null
+	 */
+	<T> SetProperty<T> newAxis(Class<T> axisType);
 }

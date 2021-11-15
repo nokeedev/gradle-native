@@ -125,4 +125,12 @@ class CApplicationTest implements ComponentTester<CApplication>
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the C application ':kdrj'."));
 		}
 	}
+
+	@Nested
+	class VariantDimensionsTest extends VariantDimensionsIntegrationTester {
+		@Override
+		public VariantAwareComponent<?> subject() {
+			return subject;
+		}
+	}
 }

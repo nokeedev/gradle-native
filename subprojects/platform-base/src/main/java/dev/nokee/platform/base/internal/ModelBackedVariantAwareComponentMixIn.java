@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.*;
 import groovy.lang.Closure;
@@ -45,7 +46,7 @@ public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extend
 
 	@Override
 	default VariantDimensions getDimensions() {
-		return new VariantDimensions() {};
+		return ModelNodes.of(this).getComponent(VariantDimensions.class);
 	}
 
 	@Override
