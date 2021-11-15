@@ -29,9 +29,11 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.runtime.core.CoordinateSet;
+import dev.nokee.runtime.core.CoordinateSpace;
 import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
+import dev.nokee.utils.Cast;
 import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import lombok.Getter;
@@ -39,6 +41,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.util.ConfigureUtil;
@@ -70,6 +73,10 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	private final Property<JniLibraryInternal> developmentVariant;
 	private final TaskRegistry taskRegistry;
 
+	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
+	private final ListProperty<CoordinateSet<?>> dimensions;
+	private final Property<CoordinateSpace> finalSpace;
+
 	@Inject
 	public JniLibraryComponentInternal(ComponentIdentifier identifier, GroupId groupId, ObjectFactory objects, BinaryViewFactory binaryViewFactory, TaskRegistry taskRegistry) {
 		super(identifier, objects);
@@ -80,6 +87,14 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		this.taskRegistry = taskRegistry;
 		this.componentVariants = () -> ModelNodeUtils.get(getNode(), JavaNativeInterfaceComponentVariants.class);
 		this.binaries = binaryViewFactory.create(identifier);
+		this.dimensions = Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(CoordinateSet.class));
+		this.finalSpace = objects.property(CoordinateSpace.class);
+
+		getDimensions().finalizeValueOnRead();
+
+		getFinalSpace().convention(getDimensions().map(CoordinateSpace::cartesianProduct));
+		getFinalSpace().disallowChanges();
+		getFinalSpace().finalizeValueOnRead();
 
 		// Order here doesn't align with general native
 		getDimensions().add(getTargetMachines()
@@ -91,6 +106,14 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 		getBuildVariants().convention(getFinalSpace().map(DefaultBuildVariant::fromSpace));
 		getBuildVariants().finalizeValueOnRead();
 		getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
+	}
+
+	public ListProperty<CoordinateSet<?>> getDimensions() {
+		return dimensions;
+	}
+
+	public Property<CoordinateSpace> getFinalSpace() {
+		return finalSpace;
 	}
 
 	private static <I extends Iterable<T>, T> Transformer<I, I> assertNonEmpty(String propertyName, String componentName) {
