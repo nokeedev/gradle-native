@@ -40,6 +40,7 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -63,8 +64,13 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 	, TaskAwareComponentTester<TaskView<Task>>
 	, HasSwiftSourcesTester
 {
-	private final SwiftIosApplication subject = createSubject("foma");
+	private SwiftIosApplication subject;
 	@Getter @TempDir File testDirectory;
+
+	@BeforeEach
+	void createASubject() {
+		subject = createSubject("foma");
+	}
 
 	@Override
 	public SwiftIosApplication createSubject(String componentName) {

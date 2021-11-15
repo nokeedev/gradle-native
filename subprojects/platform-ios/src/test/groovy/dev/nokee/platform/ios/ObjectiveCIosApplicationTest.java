@@ -43,6 +43,7 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -66,8 +67,13 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 	, HasObjectiveCSourcesTester
 	, HasPrivateHeadersTester
 {
-	private final ObjectiveCIosApplication subject = createSubject("bovi");
+	private ObjectiveCIosApplication subject;
 	@Getter @TempDir File testDirectory;
+
+	@BeforeEach
+	void createASubject() {
+		subject = createSubject("bovi");
+	}
 
 	@Override
 	public ObjectiveCIosApplication createSubject(String componentName) {

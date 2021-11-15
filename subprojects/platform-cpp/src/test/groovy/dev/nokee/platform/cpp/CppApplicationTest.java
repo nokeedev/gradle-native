@@ -37,6 +37,7 @@ import dev.nokee.platform.nativebase.testers.TargetMachineAwareComponentTester;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -63,8 +64,13 @@ class CppApplicationTest implements ComponentTester<CppApplication>
 	, TargetMachineAwareComponentTester
 	, TargetBuildTypeAwareComponentTester
 {
-	private final CppApplication subject = createSubject("sari");
+	private CppApplication subject;
 	@Getter @TempDir File testDirectory;
+
+	@BeforeEach
+	void createASubject() {
+		subject = createSubject("sari");
+	}
 
 	@Override
 	public CppApplication createSubject(String componentName) {
