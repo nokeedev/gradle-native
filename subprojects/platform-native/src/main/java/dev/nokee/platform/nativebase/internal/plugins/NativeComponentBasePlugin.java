@@ -15,9 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
@@ -33,35 +30,16 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketR
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
-import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
-import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.*;
-import dev.nokee.runtime.core.CoordinateSet;
-import dev.nokee.runtime.core.Coordinates;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
-import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Transformer;
 import org.gradle.api.internal.project.ProjectInternal;
 
-import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Predicates.not;
-import static dev.nokee.runtime.core.Coordinates.coordinateTypeOf;
-import static dev.nokee.runtime.nativebase.internal.TargetLinkages.*;
-import static dev.nokee.utils.TransformerUtils.collect;
-import static dev.nokee.utils.TransformerUtils.toSetTransformer;
-import static java.util.stream.Collectors.joining;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -114,65 +92,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 	public static <T extends Component, PROJECTION extends BaseComponent<?>> BiConsumer<T, PROJECTION> baseNameConvention(String baseName) {
 		return (t, projection) -> projection.getBaseName().convention(baseName);
-	}
-
-	public static <T extends Component, PROJECTION extends BaseComponent<?>> BiConsumer<T, PROJECTION> configureBuildVariants() {
-		return (component, projection) -> {
-			// Handle linkage dimension
-			if (component instanceof TargetLinkageAwareComponent) {
-				projection.getDimensions().add(((TargetLinkageAwareComponent) component).getTargetLinkages()
-					.map(assertNonEmpty("target linkage", projection.getIdentifier().getName().toString()))
-					.map(assertSupportedValues(SHARED, STATIC))
-					.map(toSetTransformer(coordinateTypeOf(BinaryLinkage.class)).andThen(collect(Coordinates.toCoordinateSet()))));
-			} else if (projection instanceof DefaultNativeApplicationComponent) {
-				projection.getDimensions().add(CoordinateSet.of(Coordinates.of(EXECUTABLE)));
-			} else if (projection instanceof DefaultNativeLibraryComponent) {
-				projection.getDimensions().add(CoordinateSet.of(Coordinates.of(SHARED)));
-			}
-
-			// Handle build type dimension
-			if (component instanceof TargetBuildTypeAwareComponent) {
-				projection.getDimensions().add(((TargetBuildTypeAwareComponent) component).getTargetBuildTypes()
-					.map(assertNonEmpty("target build type", projection.getIdentifier().getName().toString()))
-					.map(toSetTransformer(coordinateTypeOf(TargetBuildType.class)).andThen(collect(Coordinates.toCoordinateSet()))));
-			} else {
-				projection.getDimensions().add(CoordinateSet.of(Coordinates.of(TargetBuildTypes.DEFAULT)));
-			}
-
-			// Handle operating system family and machine architecture dimension
-			if (component instanceof TargetMachineAwareComponent) {
-				projection.getDimensions().add(((TargetMachineAwareComponent) component).getTargetMachines()
-					.map(assertNonEmpty("target machine", projection.getIdentifier().getName().toString()))
-					.map(toSetTransformer(coordinateTypeOf(TargetMachine.class)).andThen(collect(Coordinates.toCoordinateSet()))));
-			}
-
-			projection.getBuildVariants().convention(projection.getFinalSpace().map(DefaultBuildVariant::fromSpace));
-			projection.getBuildVariants().finalizeValueOnRead();
-			projection.getBuildVariants().disallowChanges(); // Let's disallow changing them for now.
-		};
-	}
-
-	private static <I extends Iterable<T>, T> Transformer<I, I> assertNonEmpty(String propertyName, String componentName) {
-		return values -> {
-			if (Iterables.isEmpty(values)) {
-				throw new IllegalArgumentException(String.format("A %s needs to be specified for component '%s'.", propertyName, componentName));
-			}
-			return values;
-		};
-	}
-
-	private static <I extends Iterable<T>, T> Transformer<I, I> assertSupportedValues(T... supportedValues) {
-		return assertSupportedValues(ImmutableSet.copyOf(supportedValues));
-	}
-
-	private static <I extends Iterable<T>, T> Transformer<I, I> assertSupportedValues(Set<T> supportedValues) {
-		return values -> {
-			val unsupportedValues = Streams.stream(values).filter(not(supportedValues::contains)).collect(Collectors.toList());
-			if (!unsupportedValues.isEmpty()) {
-				throw new IllegalArgumentException("The following values are not supported:\n" + unsupportedValues.stream().map(it -> " * " + it).collect(joining("\n")));
-			}
-			return values;
-		};
 	}
 
 	public static Action<Project> finalizeModelNodeOf(Object target) {
