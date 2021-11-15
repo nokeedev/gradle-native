@@ -34,8 +34,8 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 	@Getter private final ComponentIdentifier identifier;
 
 	// TODO: We may want to model this as a DimensionRegistry for more richness than a plain set
-	@Getter private final ListProperty<CoordinateSet<?>> dimensions;
-	@Getter private final Property<CoordinateSpace> finalSpace;
+	private final ListProperty<CoordinateSet<?>> dimensions;
+	private final Property<CoordinateSpace> finalSpace;
 
 	@Getter private final Property<String> baseName;
 
@@ -50,6 +50,14 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 		getFinalSpace().convention(getDimensions().map(CoordinateSpace::cartesianProduct));
 		getFinalSpace().disallowChanges();
 		getFinalSpace().finalizeValueOnRead();
+	}
+
+	public ListProperty<CoordinateSet<?>> getDimensions() {
+		return dimensions;
+	}
+
+	public Property<CoordinateSpace> getFinalSpace() {
+		return finalSpace;
 	}
 
 	public abstract Provider<T> getDevelopmentVariant();
