@@ -77,7 +77,7 @@ public final class DimensionPropertyRegistrationFactory {
 		private Class<Object> elementType;
 		private CoordinateAxis<Object> axis;
 		private Set<Object> supportedValues;
-		private Set<Object> defaultValues;
+		private Object defaultValues;
 		private Consumer<? super Iterable<?>> axisValidator;
 
 		private Builder(ModelPath path) {
@@ -109,6 +109,11 @@ public final class DimensionPropertyRegistrationFactory {
 			return this;
 		}
 
+		public Builder defaultValues(Provider<? extends Iterable<? extends Object>> value) {
+			this.defaultValues = value;
+			return this;
+		}
+
 		public ModelRegistration build() {
 			if (elementType == null) {
 				elementType = axis.getType();
@@ -118,7 +123,13 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(path)
 				.withComponent(IsModelProperty.tag())
 				.withComponent(createdUsing(ModelType.of(new TypeOf<SetProperty<?>>() {}), () -> {
-					return objectFactory.setProperty(elementType).convention(defaultValues);
+					val result = objectFactory.setProperty(elementType);
+					if (defaultValues instanceof Provider) {
+						result.convention((Provider<? extends Iterable<?>>) defaultValues);
+					} else {
+						result.convention((Iterable<?>) defaultValues);
+					}
+					return result;
 				}))
 				.withComponent(new Dimension(axis, () -> {
 					Provider<Iterable<Object>> valueProvider = ModelNodeUtils.get(modelLookup.get(path), SetProperty.class)
