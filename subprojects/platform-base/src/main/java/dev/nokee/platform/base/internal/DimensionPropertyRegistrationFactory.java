@@ -70,7 +70,7 @@ public final class DimensionPropertyRegistrationFactory {
 		private Class<Object> elementType;
 		private CoordinateAxis<Object> axis;
 		private Set<Object> supportedValues;
-		private Object defaultValues;
+		private Object defaultValues = ImmutableSet.of();
 		private Consumer<? super Iterable<?>> axisValidator;
 
 		private Builder(ModelPropertyIdentifier identifier) {
