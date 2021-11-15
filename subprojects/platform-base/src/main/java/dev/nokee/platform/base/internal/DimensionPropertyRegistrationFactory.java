@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Predicates.not;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.runtime.core.Coordinates.toCoordinateSet;
 import static java.util.stream.Collectors.joining;
 
 public final class DimensionPropertyRegistrationFactory {
@@ -58,18 +57,7 @@ public final class DimensionPropertyRegistrationFactory {
 
 	// TODO: Can select default value?
 	public <T> ModelRegistration newAxisProperty(ModelPropertyIdentifier identifier, CoordinateAxis<T> axis) {
-		val path = toPath(identifier);
-		return ModelRegistration.builder()
-			.withComponent(path)
-			.withComponent(identifier)
-			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(ModelType.of(new TypeOf<SetProperty<T>>() {}), () -> objectFactory.setProperty(axis.getType())))
-			.withComponent(new Dimension<>(axis,
-				() -> ((SetProperty<T>) ModelNodeUtils.get(modelLookup.get(path), SetProperty.class))
-					.map(assertNonEmpty(axis.getName(), path.getParent().get().getName()))
-					.map(it -> Streams.stream(it).map(axis::create).collect(toCoordinateSet()))
-					.get()))
-			.build();
+		return newAxisProperty(identifier).axis(axis).build();
 	}
 
 	public Builder newAxisProperty(ModelPropertyIdentifier identifier) {
