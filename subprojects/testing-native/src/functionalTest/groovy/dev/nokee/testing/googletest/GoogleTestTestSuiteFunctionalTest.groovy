@@ -52,8 +52,16 @@ class GoogleTestTestSuiteFunctionalTest extends AbstractInstalledToolChainIntegr
 				test(${NativeTestSuite.simpleName}) {
 					testedComponent library
 					dependencies {
-						implementation 'com.github.google.googletest:gtest:latest.integration'
-						implementation 'com.github.google.googletest:gtest_main:latest.integration'
+						implementation('com.github.google.googletest:gtest:latest.integration') {
+							version {
+								branch = 'main'
+							}
+						}
+						implementation('com.github.google.googletest:gtest_main:latest.integration') {
+							version {
+								branch = 'main'
+							}
+						}
 					}
 					binaries.configureEach(${ExecutableBinary.simpleName}) {
 						compileTasks.configureEach {
