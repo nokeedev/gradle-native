@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.testers;
 
 import dev.nokee.internal.testing.FileSystemWorkspace;
+import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.platform.base.SourceAwareComponent;
 import groovy.lang.Closure;
@@ -57,13 +58,17 @@ public interface SourceAwareComponentTester<T extends SourceAwareComponent<?>> {
 	@ParameterizedTest
 	@MethodSource("provideSourceSetUnderTest")
 	default void canConfigureSourceSetViaMethodUsingAction(SourcesUnderTest sources) {
-		assertThat(executeWith(action(sources.configureUsingAction(createSubject())::invoke)), calledOnceWith(sources.asMatcher()));
+		val subject = createSubject();
+		((FunctionalSourceSet) subject.getSources()).get();
+		assertThat(executeWith(action(sources.configureUsingAction(subject)::invoke)), calledOnceWith(sources.asMatcher()));
 	}
 
 	@ParameterizedTest
 	@MethodSource("provideSourceSetUnderTest")
 	default void canConfigureSourceSetViaMethodUsingClosure(SourcesUnderTest sources) {
-		assertThat(executeWith(closure(sources.configureUsingClosure(createSubject())::invoke)), calledOnceWith(sources.asMatcher()));
+		val subject = createSubject();
+		((FunctionalSourceSet) subject.getSources()).get();
+		assertThat(executeWith(closure(sources.configureUsingClosure(subject)::invoke)), calledOnceWith(sources.asMatcher()));
 	}
 
 	@ParameterizedTest

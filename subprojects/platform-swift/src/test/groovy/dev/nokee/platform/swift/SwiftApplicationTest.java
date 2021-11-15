@@ -17,7 +17,6 @@ package dev.nokee.platform.swift;
 
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
@@ -72,7 +71,6 @@ public class SwiftApplicationTest implements ComponentTester<SwiftApplication>
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftApplication(componentName, project)).as(SwiftApplication.class).get();
-		((FunctionalSourceSet) component.getSources()).get(); // force realize
 		return component;
 	}
 

@@ -17,7 +17,6 @@ package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.*;
@@ -59,7 +58,6 @@ class NativeApplicationComponentTest  implements ComponentTester<NativeApplicati
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(nativeApplication(componentName, project)).as(NativeApplicationExtension.class).get();
-		((FunctionalSourceSet) component.getSources()).get(); // force realize
 		return component;
 	}
 

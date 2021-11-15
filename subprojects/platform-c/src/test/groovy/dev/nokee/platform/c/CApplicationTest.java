@@ -17,7 +17,6 @@ package dev.nokee.platform.c;
 
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.HasCSourcesTester;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
@@ -75,7 +74,6 @@ class CApplicationTest implements ComponentTester<CApplication>
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(cApplication(componentName, project)).as(CApplication.class).get();
-		((FunctionalSourceSet) component.getSources()).get(); // force realize all source set
 		return component;
 	}
 
