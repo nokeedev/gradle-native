@@ -183,21 +183,21 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
 							.elementType(TargetLinkage.class)
 							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
 							.defaultValue(TargetLinkages.BUNDLE)
 							.build());
-						registry.register(dimensions.newAxisProperty(path.child("targetBuildTypes"))
+						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetBuildTypes"))
 							.elementType(TargetBuildType.class)
 							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
 							.defaultValue(TargetBuildTypes.DEFAULT)
 							.build());
-						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
 							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
 							.build());
-						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
+						registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
 					}
 				}
 			}))
@@ -311,21 +311,21 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
 							.elementType(TargetLinkage.class)
 							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
 							.defaultValue(TargetLinkages.BUNDLE)
 							.build());
-						registry.register(dimensions.newAxisProperty(path.child("targetBuildTypes"))
+						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetBuildTypes"))
 							.elementType(TargetBuildType.class)
 							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
 							.defaultValue(TargetBuildTypes.DEFAULT)
 							.build());
-						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
 							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
 							.build());
-						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
+						registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
 					}
 				}
 			}))

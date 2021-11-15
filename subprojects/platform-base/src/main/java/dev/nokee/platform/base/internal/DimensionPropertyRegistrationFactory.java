@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
+import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.IsModelProperty;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
@@ -41,6 +42,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.not;
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.runtime.core.Coordinates.toCoordinateSet;
 import static java.util.stream.Collectors.joining;
@@ -55,9 +57,11 @@ public final class DimensionPropertyRegistrationFactory {
 	}
 
 	// TODO: Can select default value?
-	public <T> ModelRegistration newAxisProperty(ModelPath path, CoordinateAxis<T> axis) {
+	public <T> ModelRegistration newAxisProperty(ModelPropertyIdentifier identifier, CoordinateAxis<T> axis) {
+		val path = toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(path)
+			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
 			.withComponent(createdUsing(ModelType.of(new TypeOf<SetProperty<T>>() {}), () -> objectFactory.setProperty(axis.getType())))
 			.withComponent(new Dimension<>(axis,
@@ -68,11 +72,12 @@ public final class DimensionPropertyRegistrationFactory {
 			.build();
 	}
 
-	public Builder newAxisProperty(ModelPath path) {
-		return new Builder(path);
+	public Builder newAxisProperty(ModelPropertyIdentifier identifier) {
+		return new Builder(identifier);
 	}
 
 	public final class Builder {
+		private final ModelPropertyIdentifier identifier;
 		private final ModelPath path;
 		private Class<Object> elementType;
 		private CoordinateAxis<Object> axis;
@@ -80,8 +85,9 @@ public final class DimensionPropertyRegistrationFactory {
 		private Object defaultValues;
 		private Consumer<? super Iterable<?>> axisValidator;
 
-		private Builder(ModelPath path) {
-			this.path = path;
+		private Builder(ModelPropertyIdentifier identifier) {
+			this.identifier = identifier;
+			this.path = toPath(identifier);
 		}
 
 		public Builder axis(CoordinateAxis<?> axis) {
@@ -121,6 +127,7 @@ public final class DimensionPropertyRegistrationFactory {
 
 			return ModelRegistration.builder()
 				.withComponent(path)
+				.withComponent(identifier)
 				.withComponent(IsModelProperty.tag())
 				.withComponent(createdUsing(ModelType.of(new TypeOf<SetProperty<?>>() {}), () -> {
 					val result = objectFactory.setProperty(elementType);
@@ -153,9 +160,10 @@ public final class DimensionPropertyRegistrationFactory {
 	}
 
 	// TODO: We register build variant
-	public ModelRegistration buildVariants(ModelPath path, Provider<Set<BuildVariant>> buildVariantProvider) {
+	public ModelRegistration buildVariants(ModelPropertyIdentifier identifier, Provider<Set<BuildVariant>> buildVariantProvider) {
 		return ModelRegistration.builder()
-			.withComponent(path)
+			.withComponent(toPath(identifier))
+			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
 			.withComponent(createdUsing(ModelType.of(new TypeOf<SetProperty<BuildVariant>>() {}), () -> {
 				val result = objectFactory.setProperty(BuildVariant.class).convention(buildVariantProvider);
