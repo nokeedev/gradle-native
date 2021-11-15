@@ -24,10 +24,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
@@ -253,7 +250,13 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 
 		@Nested
 		class SingleVariantTest {
-			private final IosApplication variant = subject.getVariants().get().iterator().next();
+			private IosApplication variant;
+
+			@BeforeEach
+			void singleVariant() {
+				variant = subject.getVariants().get().iterator().next();
+			}
+
 			@Nested
 			class ComponentDependenciesTest {
 				public NativeComponentDependencies subject() {
@@ -265,6 +268,14 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 					assertThat(ModelProperties.getProperty(subject(), "linkLibraries").as(Configuration.class).asProvider(), providerOf(named("fomaLinkLibraries")));
 				}
 			}
+		}
+	}
+
+	@Nested
+	class VariantDimensionsTest extends VariantDimensionsIntegrationTester {
+		@Override
+		public VariantAwareComponent<?> subject() {
+			return subject;
 		}
 	}
 }

@@ -20,9 +20,11 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import org.gradle.api.Task;
@@ -64,6 +66,14 @@ class UnitTestXCTestTestSuiteComponentTest extends AbstractPluginTest implements
 		@Test
 		public void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the XCTest test suite ':vodo'."));
+		}
+	}
+
+	@Nested
+	class VariantDimensionsTest extends VariantDimensionsIntegrationTester {
+		@Override
+		public VariantAwareComponent<?> subject() {
+			return subject;
 		}
 	}
 }

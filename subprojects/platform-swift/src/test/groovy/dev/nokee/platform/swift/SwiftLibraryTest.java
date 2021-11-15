@@ -22,10 +22,7 @@ import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import dev.nokee.platform.base.testers.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -121,6 +118,14 @@ public class SwiftLibraryTest implements ComponentTester<SwiftLibrary>
 		@Test
 		public void hasDescription() {
 			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the Swift library ':peso'."));
+		}
+	}
+
+	@Nested
+	class VariantDimensionsTest extends VariantDimensionsIntegrationTester {
+		@Override
+		public VariantAwareComponent<?> subject() {
+			return subject;
 		}
 	}
 }
