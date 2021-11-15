@@ -52,7 +52,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.ConfigureUtil;
@@ -60,6 +59,7 @@ import org.gradle.util.ConfigureUtil;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
@@ -118,8 +118,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	public SetProperty<BuildVariantInternal> getBuildVariants() {
-		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
+	public Provider<Set<BuildVariant>> getBuildVariants() {
+		return ModelProperties.getProperty(this, "buildVariants").as(Provider.class).get();
 	}
 
 	@Override

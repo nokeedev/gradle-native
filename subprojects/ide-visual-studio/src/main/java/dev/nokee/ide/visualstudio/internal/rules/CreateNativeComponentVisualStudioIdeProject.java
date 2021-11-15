@@ -27,6 +27,7 @@ import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -133,7 +134,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 
 		ToVisualStudioIdeTargets(BaseComponent<?> component) {
 			this.component = component;
-			this.allLinkages = component.getBuildVariants().get().stream().map(it -> it.getAxisValue(BINARY_LINKAGE_COORDINATE_AXIS)).collect(Collectors.toSet());
+			this.allLinkages = component.getBuildVariants().get().stream().map(it -> ((BuildVariantInternal) it).getAxisValue(BINARY_LINKAGE_COORDINATE_AXIS)).collect(Collectors.toSet());
 		}
 
 		@Override

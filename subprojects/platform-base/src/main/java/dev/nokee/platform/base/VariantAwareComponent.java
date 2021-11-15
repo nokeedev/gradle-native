@@ -20,6 +20,9 @@ import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
+import org.gradle.api.provider.Provider;
+
+import java.util.Set;
 
 /**
  * A component with variants.
@@ -51,4 +54,11 @@ public interface VariantAwareComponent<T extends Variant> {
 	 * @return variant dimensions, never null
 	 */
 	VariantDimensions getDimensions();
+
+	/**
+	 * Returns the build variants for this component.
+	 *
+	 * @return a provider of build variants, never null
+	 */
+	Provider<Set<BuildVariant>> getBuildVariants();
 }

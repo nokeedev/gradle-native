@@ -189,12 +189,12 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-			component.getBuildVariants().get().forEach(new Consumer<BuildVariantInternal>() {
+			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
 				private final ModelLookup modelLookup = project.getExtensions().getByType(ModelLookup.class);
 
 				@Override
-				public void accept(BuildVariantInternal buildVariant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeLibraryVariant.class).build();
+				public void accept(BuildVariant buildVariant) {
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeLibraryVariant.class).build();
 					val variant = ModelNodeUtils.register(entity, nativeLibraryVariant(variantIdentifier, component, project));
 
 					variants.put(buildVariant, ModelNodes.of(variant));

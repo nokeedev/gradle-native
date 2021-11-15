@@ -17,12 +17,12 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.platform.base.Variant;
-import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.VariantDimensions;
-import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.*;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.provider.Provider;
+
+import java.util.Set;
 
 public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T> {
 	@Override
@@ -46,5 +46,10 @@ public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extend
 	@Override
 	default VariantDimensions getDimensions() {
 		return new VariantDimensions() {};
+	}
+
+	@Override
+	default Provider<Set<BuildVariant>> getBuildVariants() {
+		return ModelProperties.getProperty(this, "buildVariants").as(Provider.class).get();
 	}
 }

@@ -174,10 +174,10 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 			component.getDevelopmentVariant().set(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get()))); // TODO: VariantView#get should force finalize the component.
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-			component.getBuildVariants().get().forEach(new Consumer<BuildVariantInternal>() {
+			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
 				@Override
-				public void accept(BuildVariantInternal buildVariant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeApplicationVariant.class).build();
+				public void accept(BuildVariant buildVariant) {
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeApplicationVariant.class).build();
 					val variant = ModelNodeUtils.register(entity, nativeApplicationVariant(variantIdentifier, component, project));
 
 					variants.put(buildVariant, ModelNodes.of(variant));

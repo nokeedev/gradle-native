@@ -177,7 +177,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultIosApplicationVariant.class).build();
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultIosApplicationVariant.class).build();
 
 						val variant = ModelNodeUtils.register(entity, iosApplicationVariant(variantIdentifier, component, project));
 						variants.put(buildVariant, ModelNodes.of(variant));

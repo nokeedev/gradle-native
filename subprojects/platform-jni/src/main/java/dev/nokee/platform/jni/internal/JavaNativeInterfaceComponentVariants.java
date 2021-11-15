@@ -82,9 +82,9 @@ public final class JavaNativeInterfaceComponentVariants implements ComponentVari
 
 	public void calculateVariants() {
 		component.getBuildVariants().get().forEach(buildVariant -> {
-			val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
+			val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
 
-			val dependencies = newDependencies(buildVariant, component, variantIdentifier);
+			val dependencies = newDependencies((BuildVariantInternal) buildVariant, component, variantIdentifier);
 			variantCollection.registerVariant(variantIdentifier, (name, bv) -> createVariant(variantIdentifier, dependencies));
 		});
 	}

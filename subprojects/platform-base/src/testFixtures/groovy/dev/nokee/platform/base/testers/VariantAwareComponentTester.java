@@ -18,11 +18,13 @@ package dev.nokee.platform.base.testers;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.testing.testers.ConfigureMethodTester;
 import dev.nokee.platform.base.*;
+import lombok.val;
+import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 public interface VariantAwareComponentTester<T extends ComponentVariants> {
 	VariantAwareComponent<? extends Variant> subject();
@@ -48,5 +50,23 @@ public interface VariantAwareComponentTester<T extends ComponentVariants> {
 	@Test
 	default void hasVariantDimensions() {
 		assertThat(subject().getDimensions(), notNullValue(VariantDimensions.class));
+	}
+
+	@Test
+	default void hasBuildVariants() {
+		assertThat(subject().getBuildVariants(), notNullValue(Provider.class));
+	}
+
+	@Test
+	default void hasAtLeastOneBuildVariantByDefault() {
+		assertThat(subject().getBuildVariants(), providerOf(iterableWithSize(greaterThanOrEqualTo(1))));
+	}
+
+	@Test
+	default void hasAllVariantBuildVariants() {
+		val allBuildVariants = subject().getVariants().map(Variant::getBuildVariant).get();
+		assertThat("conceptually, build variants is build variant of all variants",
+			subject().getBuildVariants(),
+			providerOf(contains(allBuildVariants.toArray(new BuildVariant[0]))));
 	}
 }

@@ -212,7 +212,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeTestSuiteVariant.class).build();
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeTestSuiteVariant.class).build();
 
 						val variant = ModelNodeUtils.register(entity, nativeTestSuiteVariant(variantIdentifier, component, project));
 						variants.put(buildVariant, ModelNodes.of(variant));
