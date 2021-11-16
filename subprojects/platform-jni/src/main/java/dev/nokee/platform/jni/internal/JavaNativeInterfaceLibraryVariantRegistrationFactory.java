@@ -33,6 +33,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.*;
@@ -121,12 +122,16 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class))))
+			.withComponent(createdUsing(of(new TypeOf<Provider<JniLibrary>>() {}), () -> {
+				val entity = ModelNodeContext.getCurrentModelNode();
+				return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JniLibraryInternal.class));
+			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {
 				if (id.equals(identifier)) {
 					entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPath.class), (entity, id, ign, path) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (entity, id, state, path, library) -> {
 				if (id.equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 
