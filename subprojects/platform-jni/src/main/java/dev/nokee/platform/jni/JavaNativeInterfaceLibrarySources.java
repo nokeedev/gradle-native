@@ -16,20 +16,10 @@
 package dev.nokee.platform.jni;
 
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.language.base.internal.BaseFunctionalSourceSet;
-import dev.nokee.language.c.internal.CSourceSetExtensible;
-import dev.nokee.language.cpp.internal.CppSourceSetExtensible;
-import dev.nokee.language.jvm.*;
-import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetExtensible;
-import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetExtensible;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.registry.ModelBackedNamedDomainObjectProvider;
+import dev.nokee.language.jvm.HasGroovySourceSet;
+import dev.nokee.language.jvm.HasJavaSourceSet;
+import dev.nokee.language.jvm.HasKotlinSourceSet;
 import dev.nokee.platform.base.ComponentSources;
-import groovy.lang.Closure;
-import lombok.val;
-import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * Sources for a Java Native Interface (JNI) library supporting C, C++, Objective-C, ObjectiveC++, Java, Groovy, and Kotlin implementation language.
@@ -38,57 +28,6 @@ import org.gradle.util.ConfigureUtil;
  * @see ComponentSources
  * @since 0.5
  */
-public class JavaNativeInterfaceLibrarySources extends BaseFunctionalSourceSet implements ComponentSources
-	, CSourceSetExtensible
-	, CppSourceSetExtensible
-	, ObjectiveCSourceSetExtensible
-	, ObjectiveCppSourceSetExtensible
+public interface JavaNativeInterfaceLibrarySources extends FunctionalSourceSet, ComponentSources
 	, HasJavaSourceSet, HasGroovySourceSet, HasKotlinSourceSet {
-	public NamedDomainObjectProvider<GroovySourceSet> getGroovy() {
-		val result = ModelProperties.findProperty(this, "groovy");
-		if (result.isPresent()) {
-			return new ModelBackedNamedDomainObjectProvider<>(result.get().as(GroovySourceSet.class));
-		}
-		throw new RuntimeException("Please apply 'groovy' plugin to access Groovy source set.");
-	}
-
-	public void groovy(Action<? super GroovySourceSet> action) {
-		getGroovy().configure(action);
-	}
-
-	public void groovy(@SuppressWarnings("rawtypes") Closure closure) {
-		groovy(ConfigureUtil.configureUsing(closure));
-	}
-
-	public NamedDomainObjectProvider<JavaSourceSet> getJava() {
-		val result = ModelProperties.findProperty(this, "java");
-		if (result.isPresent()) {
-			return new ModelBackedNamedDomainObjectProvider<>(result.get().as(JavaSourceSet.class));
-		}
-		throw new RuntimeException("Please apply 'java' plugin to access Java source set.");
-	}
-
-	public void java(Action<? super JavaSourceSet> action) {
-		getJava().configure(action);
-	}
-
-	public void java(@SuppressWarnings("rawtypes") Closure closure) {
-		java(ConfigureUtil.configureUsing(closure));
-	}
-
-	public NamedDomainObjectProvider<KotlinSourceSet> getKotlin() {
-		val result = ModelProperties.findProperty(this, "kotlin");
-		if (result.isPresent()) {
-			return new ModelBackedNamedDomainObjectProvider<>(result.get().as(KotlinSourceSet.class));
-		}
-		throw new RuntimeException("Please apply 'org.jetbrains.kotlin.jvm' plugin to access Kotlin source set.");
-	}
-
-	public void kotlin(Action<? super KotlinSourceSet> action) {
-		getKotlin().configure(action);
-	}
-
-	public void kotlin(@SuppressWarnings("rawtypes") Closure closure) {
-		kotlin(ConfigureUtil.configureUsing(closure));
-	}
 }
