@@ -35,6 +35,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static com.google.common.collect.MoreCollectors.onlyElement;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
@@ -118,6 +121,18 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 		@Test
 		void hasTargetPlatform() {
 			assertThat(subject().getTargetPlatform(), providerOf(named("windowsx86-64")));
+		}
+	}
+
+	@Nested
+	class ObjectiveCSourceSetTest {
+		public ObjectiveCSourceSet subject() {
+			return (ObjectiveCSourceSet) subject.getSources().get().stream().filter(it -> it.getName().equals("vedaWindowsX64ObjectiveC")).collect(onlyElement());
+		}
+
+		@Test
+		void usesConventionalHeadersLocation() {
+			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/headers")))));
 		}
 	}
 }

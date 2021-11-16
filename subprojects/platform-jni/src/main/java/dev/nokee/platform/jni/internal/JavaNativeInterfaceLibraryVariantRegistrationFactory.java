@@ -18,7 +18,9 @@ package dev.nokee.platform.jni.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
@@ -125,6 +127,11 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(createdUsing(of(new TypeOf<Provider<JniLibrary>>() {}), () -> {
 				val entity = ModelNodeContext.getCurrentModelNode();
 				return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JniLibraryInternal.class));
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {
+				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && sourceSet instanceof HasHeaders) {
+					((HasHeaders) sourceSet).getHeaders().from("src/" + identifier.getComponentIdentifier().getName() + "/headers");
+				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {
 				if (id.equals(identifier)) {
