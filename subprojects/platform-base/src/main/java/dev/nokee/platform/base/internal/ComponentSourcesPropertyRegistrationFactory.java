@@ -72,8 +72,6 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
-			.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-			.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
 				if (id.equals(identifier)) {
 					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), (e, p, ignored1, ignored2, projection) -> {
