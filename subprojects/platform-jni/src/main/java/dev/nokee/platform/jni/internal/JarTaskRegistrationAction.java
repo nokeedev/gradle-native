@@ -54,7 +54,7 @@ public final class JarTaskRegistrationAction extends ModelActionWithInputs.Model
 		if (identifier.equals(this.identifier)) {
 			val jarTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("jar"), identifier), Jar.class).build());
 			jarTask.configure(Task.class, configureBuildGroup());
-			jarTask.configure(Jar.class, task -> task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier))));
+			jarTask.configure(Jar.class, task -> task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs")));
 			registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "jarTask"), ModelNodes.of(jarTask)));
 			entity.addComponent(new JarTask(jarTask));
 		}
