@@ -16,6 +16,7 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.HasObjectFiles;
@@ -46,6 +47,7 @@ import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
+import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.DependentRuntimeLibraries;
 import dev.nokee.platform.nativebase.internal.LinkLibrariesConfiguration;
@@ -54,7 +56,10 @@ import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFac
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
+import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -62,16 +67,23 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.logging.Logger;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.platform.NativePlatform;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
@@ -85,8 +97,10 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
+import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.*;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
@@ -204,6 +218,8 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 						binary.getJarTask().configure(task -> {
 							task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(baseName -> baseName + identifier.getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("")));
 						});
+						val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
+						binary.getJarTask().configure(configureJarTaskUsing(library, unbuildableMainComponentLogger));
 					});
 
 					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "javaNativeInterfaceJar"), ModelNodes.of(jniJar)));
@@ -226,6 +242,96 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 				}
 			}))
 			.build();
+	}
+
+	// NOTE(daniel): I added the diagnostic because I lost about 2 hours debugging missing files from the generated JAR file.
+	//  The concept of diagnostic is something I want to push forward throughout Nokee to inform the user of possible configuration problems.
+	//  I'm still hesitant at this stage to throw an exception vs warning in the console.
+	//  Some of the concept here should be shared with the incompatible plugin usage (and vice-versa).
+	private static class MissingFileDiagnostic {
+		private boolean hasAlreadyRan = false;
+		private final List<File> missingFiles = new ArrayList<>();
+
+		public void logTo(Logger logger) {
+			if (!missingFiles.isEmpty()) {
+				StringBuilder builder = new StringBuilder();
+				builder.append("The following file");
+				if (missingFiles.size() > 1) {
+					builder.append("s are");
+				} else {
+					builder.append(" is");
+				}
+				builder.append(" missing and will be absent from the JAR file:").append(System.lineSeparator());
+				for (File file : missingFiles) {
+					builder.append(" * ").append(file.getPath()).append(System.lineSeparator());
+				}
+				builder.append("We recommend taking the following actions:").append(System.lineSeparator());
+				builder.append(" - Verify 'nativeRuntimeFile' property configuration for each variants").append(System.lineSeparator());
+				builder.append("Missing files from the JAR file can lead to runtime errors such as 'NoClassDefFoundError'.");
+				logger.warn(builder.toString());
+			}
+		}
+
+		public void missingFiles(List<File> missingFiles) {
+			this.missingFiles.addAll(missingFiles);
+		}
+
+		public void run(Consumer<MissingFileDiagnostic> action) {
+			if (!hasAlreadyRan) {
+				action.accept(this);
+				hasAlreadyRan = false;
+			}
+		}
+	}
+
+	private static Action<Jar> configureJarTaskUsing(Provider<JniLibrary> library, WarnUnbuildableLogger logger) {
+		val runnableLogger = onlyOnce(logger::warn);
+		return task -> {
+			MissingFileDiagnostic diagnostic = new MissingFileDiagnostic();
+			task.doFirst(new Action<Task>() {
+				@Override
+				public void execute(Task task) {
+					diagnostic.run(warnAboutMissingFiles(task.getInputs().getSourceFiles()));
+					diagnostic.logTo(task.getLogger());
+				}
+
+				private Consumer<MissingFileDiagnostic> warnAboutMissingFiles(Iterable<File> files) {
+					return diagnostic -> {
+						ImmutableList.Builder<File> builder = ImmutableList.builder();
+						File linkedFile = library.map(it -> it.getSharedLibrary().getLinkTask().get().getLinkedFile().get().getAsFile()).get();
+						for (File file : files) {
+							if (!file.exists() && !file.equals(linkedFile)) {
+								builder.add(file);
+							}
+						}
+						diagnostic.missingFiles(builder.build());
+					};
+				}
+			});
+			task.from(library.flatMap(it -> {
+				// TODO: The following is debt that we accumulated from gradle/gradle.
+				//  The real condition to check is, do we know of a way to build the target machine on the current host.
+				//  If yes, we crash the build by attaching the native file which will tell the user how to install the right tools.
+				//  If no, we can "silently" ignore the build by saying you can't build on this machine.
+				//  One consideration is to deactivate publishing so we don't publish a half built jar.
+				//  TL;DR:
+				//    - Single variant where no toolchain could ever build the binary (unavailable) => print a warning
+				//    - Single variant where no toolchain is found to build the binary (unbuildable) => fail
+				//    - Single variant where toolchain is found to build the binary (buildable) => build (and hopefully succeed)
+				if (task.getName().equals("jar")) {
+					if (it.getTargetMachine().getOperatingSystemFamily().equals(OperatingSystemFamily.forName(System.getProperty("os.name")))) {
+						return it.getNativeRuntimeFiles().getElements();
+					} else {
+						runnableLogger.run();
+						return ProviderUtils.fixed(emptyList());
+					}
+				}
+				return it.getNativeRuntimeFiles().getElements();
+			}), spec -> {
+				// Don't resolve the resourcePath now as the JVM Kotlin plugin (as of 1.3.72) was resolving the `jar` task early.
+				spec.into(library.map(JniLibrary::getResourcePath));
+			});
+		};
 	}
 
 	//region Target platform
