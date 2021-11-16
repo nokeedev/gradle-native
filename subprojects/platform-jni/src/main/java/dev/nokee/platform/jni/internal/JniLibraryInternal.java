@@ -80,7 +80,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final TaskRegistry taskRegistry;
 	private AbstractJarBinary jarBinary;
 	private SharedLibraryBinaryInternal sharedLibraryBinary;
-	@Getter private final Property<String> resourcePath;
 
 	@Inject
 	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, ObjectFactory objects, ConfigurationContainer configurations, ProviderFactory providers, TaskRegistry taskRegistry, DomainObjectEventPublisher eventPublisher, BinaryViewFactory binaryViewFactory, TaskViewFactory taskViewFactory) {
@@ -90,10 +89,12 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
 		this.targetMachine = getBuildVariant().getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
-		this.resourcePath = objects.property(String.class);
 		this.taskRegistry = taskRegistry;
+	}
 
-//		getResourcePath().convention(getProviders().provider(() -> getResourcePath(groupId)));
+	@Override
+	public Property<String> getResourcePath() {
+		return ModelProperties.getProperty(this, "resourcePath").as(Property.class).get();
 	}
 
 	@Override
