@@ -131,6 +131,11 @@ class JavaNativeInterfaceLibraryVariantCLanguagePluginIntegrationTest extends Ab
 		}
 
 		@Test
+		void usesConventionalSourceLocation() {
+			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/liho/c")))));
+		}
+
+		@Test
 		void usesConventionalHeadersLocation() {
 			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/liho/headers")))));
 		}

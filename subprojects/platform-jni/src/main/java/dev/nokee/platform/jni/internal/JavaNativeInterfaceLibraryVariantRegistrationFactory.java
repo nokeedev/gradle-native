@@ -24,6 +24,8 @@ import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.NamedDomainObjectRegistry;
@@ -131,6 +133,16 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {
 				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && sourceSet instanceof HasHeaders) {
 					((HasHeaders) sourceSet).getHeaders().from("src/" + identifier.getComponentIdentifier().getName() + "/headers");
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {
+				if (DomainObjectIdentifierUtils.isDescendent(id, identifier)) {
+					sourceSet.from("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get());
+					if (sourceSet instanceof ObjectiveCSourceSet) {
+						sourceSet.from("src/" + identifier.getComponentIdentifier().getName() + "/objc");
+					} else if (sourceSet instanceof ObjectiveCppSourceSet) {
+						sourceSet.from("src/" + identifier.getComponentIdentifier().getName() + "/objcpp");
+					}
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {

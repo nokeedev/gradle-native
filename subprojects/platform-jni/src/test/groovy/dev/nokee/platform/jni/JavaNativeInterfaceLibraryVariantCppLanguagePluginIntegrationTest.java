@@ -131,6 +131,11 @@ class JavaNativeInterfaceLibraryVariantCppLanguagePluginIntegrationTest extends 
 		}
 
 		@Test
+		void usesConventionalSourceLocation() {
+			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/difi/cpp")))));
+		}
+
+		@Test
 		void usesConventionalHeadersLocation() {
 			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/difi/headers")))));
 		}
