@@ -131,6 +131,16 @@ class JavaNativeInterfaceLibraryVariantObjectiveCppLanguagePluginIntegrationTest
 		}
 
 		@Test
+		void usesConventionalSourceLocation() {
+			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/xapi/objectiveCpp")))));
+		}
+
+		@Test
+		void usesLegacyConventionalSourceLocation() {
+			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/xapi/objcpp")))));
+		}
+
+		@Test
 		void usesConventionalHeadersLocation() {
 			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/xapi/headers")))));
 		}

@@ -131,6 +131,16 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 		}
 
 		@Test
+		void usesConventionalSourceLocation() {
+			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/objectiveC")))));
+		}
+
+		@Test
+		void usesLegacyConventionalSourceLocation() {
+			assertThat(subject().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/objc")))));
+		}
+
+		@Test
 		void usesConventionalHeadersLocation() {
 			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/headers")))));
 		}
