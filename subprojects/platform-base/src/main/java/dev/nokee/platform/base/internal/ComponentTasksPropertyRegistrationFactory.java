@@ -28,6 +28,7 @@ import dev.nokee.platform.base.TaskView;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
 import java.util.stream.Collectors;
@@ -43,13 +44,15 @@ public final class ComponentTasksPropertyRegistrationFactory {
 	private final ModelConfigurer modelConfigurer;
 	private final ProviderFactory providers;
 	private final ModelLookup modelLookup;
+	private final ObjectFactory objects;
 
-	public ComponentTasksPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ProviderFactory providers, ModelLookup modelLookup) {
+	public ComponentTasksPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ProviderFactory providers, ModelLookup modelLookup, ObjectFactory objects) {
 		this.registry = registry;
 		this.propertyFactory = propertyFactory;
 		this.modelConfigurer = modelConfigurer;
 		this.providers = providers;
 		this.modelLookup = modelLookup;
+		this.objects = objects;
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier) {
@@ -60,7 +63,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, () -> {
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
@@ -88,7 +91,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, () -> {
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))

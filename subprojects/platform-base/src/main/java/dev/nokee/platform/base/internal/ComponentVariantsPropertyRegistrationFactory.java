@@ -24,6 +24,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import lombok.val;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
@@ -35,12 +36,14 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 	private final ModelPropertyRegistrationFactory propertyFactory;
 	private final ProviderFactory providerFactory;
 	private final ModelLookup modelLookup;
+	private final ObjectFactory objects;
 
-	public ComponentVariantsPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ProviderFactory providerFactory, ModelLookup modelLookup) {
+	public ComponentVariantsPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ProviderFactory providerFactory, ModelLookup modelLookup, ObjectFactory objects) {
 		this.registry = registry;
 		this.propertyFactory = propertyFactory;
 		this.providerFactory = providerFactory;
 		this.modelLookup = modelLookup;
+		this.objects = objects;
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier, Class<? extends Variant> elementType) {
@@ -50,7 +53,7 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(path)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
+			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, objects, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofProjection(elementType), (e, p, ignored1, ignored2, projection) -> {
 				if (ownerPath.isDirectDescendant(p)) {
 					registry.register(propertyFactory.create(ModelPropertyIdentifier.of(identifier, p.getName()), e));
