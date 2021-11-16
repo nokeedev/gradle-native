@@ -303,7 +303,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant(buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
 						val variant = project.getExtensions().getByType(ModelRegistry.class).register(variantFactory.create(variantIdentifier));
 						variant.configure(JniLibrary.class, it -> it.getBaseName().convention(ModelProperties.getProperty(entity, "baseName").as(String.class).map(TransformerUtils.noOpTransformer())));
 
