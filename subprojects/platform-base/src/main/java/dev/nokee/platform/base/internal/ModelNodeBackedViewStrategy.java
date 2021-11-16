@@ -16,16 +16,22 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.TypeOf;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskProvider;
 
 import java.util.Set;
 
@@ -40,19 +46,22 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	private final Runnable realize;
 	private final ModelNode entity;
 	private final ProviderFactory providerFactory;
+	private final ObjectFactory objects;
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory) {
+	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, ObjectFactory objects) {
 		this.providerFactory = providerFactory;
+		this.objects = objects;
 		this.entity = ModelNodeContext.getCurrentModelNode();
 		this.realize = NO_OP_REALIZE;
 	}
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize) {
-		this(providerFactory, realize, ModelNodeContext.getCurrentModelNode());
+	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, ObjectFactory objects, Runnable realize) {
+		this(providerFactory, objects, realize, ModelNodeContext.getCurrentModelNode());
 	}
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize, ModelNode entity) {
+	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, ObjectFactory objects, Runnable realize, ModelNode entity) {
 		this.providerFactory = providerFactory;
+		this.objects = objects;
 		this.realize = new RunOnceRunnable(realize);
 		this.entity = entity;
 	}
@@ -67,7 +76,23 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
 		return providerFactory.provider(() -> {
 			realize.run();
-			return ModelProperties.getProperties(entity).filter(it -> it.instanceOf(elementType)).map(it -> it.as(elementType).get()).collect(ImmutableSet.toImmutableSet());
+			if (Task.class.isAssignableFrom(elementType)) {
+				return ModelProperties.getProperties(entity).filter(it -> it.instanceOf(elementType))
+					.map(it -> it.as(TaskProvider.class).get()).collect(ImmutableSet.toImmutableSet());
+			} else {
+				return ModelProperties.getProperties(entity).filter(it -> it.instanceOf(elementType))
+					.map(it -> it.as(elementType).get()).collect(ImmutableSet.toImmutableSet());
+			}
+		}).flatMap(it -> {
+			val result = objects.setProperty(elementType);
+			for (Object o : it) {
+				if (o instanceof Provider) {
+					result.add((Provider<? extends T>) o);
+				} else {
+					result.add((T) o);
+				}
+			}
+			return result;
 		});
 	}
 
