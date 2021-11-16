@@ -245,17 +245,17 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
 						val toolChainSelectorInternal = project.getObjects().newInstance(ToolChainSelectorInternal.class);
-						registry.register(dimensions.newAxisProperty(path.child("targetMachines"))
+						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
 							.axis(TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(TargetMachines.host())
 							.validateUsing((Iterable<TargetMachine> it) -> assertTargetMachinesAreKnown(it, toolChainSelectorInternal))
 							.build());
-						registry.register(dimensions.newAxisProperty(path.child("targetLinkages"))
+						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
 							.elementType(TargetLinkage.class)
 							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
 							.defaultValue(TargetLinkages.SHARED)
 							.build());
-						registry.register(dimensions.buildVariants(path.child("buildVariants"), buildVariants.get()));
+						registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
 					}
 				}
 			}))
