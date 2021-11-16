@@ -28,6 +28,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
 import java.util.stream.Collectors;
@@ -43,13 +44,15 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 	private final ModelConfigurer modelConfigurer;
 	private final ProviderFactory providers;
 	private final ModelLookup modelLookup;
+	private final ObjectFactory objects;
 
-	public ComponentBinariesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ProviderFactory providers, ModelLookup modelLookup) {
+	public ComponentBinariesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ProviderFactory providers, ModelLookup modelLookup, ObjectFactory objects) {
 		this.registry = registry;
 		this.propertyFactory = propertyFactory;
 		this.modelConfigurer = modelConfigurer;
 		this.providers = providers;
 		this.modelLookup = modelLookup;
+		this.objects = objects;
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier) {
@@ -60,7 +63,7 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(providers, () -> {
+			.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
