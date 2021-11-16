@@ -143,7 +143,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
 						baseNameProperty.configure(Property.class, prop -> prop.convention(identifier.getName().get()));
 
-						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), JavaNativeInterfaceLibrarySources.class));
+						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), JavaNativeInterfaceLibrarySources.class, JavaNativeInterfaceSourcesViewAdapter::new));
 
 						project.getPluginManager().withPlugin("groovy", ignored -> {
 							registry.register(project.getExtensions().getByType(GroovySourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "groovy")));
