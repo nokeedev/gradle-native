@@ -41,7 +41,8 @@ import static dev.nokee.internal.testing.TaskMatchers.description;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 class JniJarBinaryIntegrationTest extends AbstractPluginTest {
@@ -96,7 +97,7 @@ class JniJarBinaryIntegrationTest extends AbstractPluginTest {
 			void hasDestinationDirectoryUnderLibsInsideBuildDirectory() {
 				subject().getDestinationDirectory().set((File) null);
 				assertThat(subject().getDestinationDirectory(),
-					providerOf(aFile(withAbsolutePath(containsString("/build/libs/")))));
+					providerOf(aFile(withAbsolutePath(endsWith("/build/libs")))));
 			}
 
 			@Test
