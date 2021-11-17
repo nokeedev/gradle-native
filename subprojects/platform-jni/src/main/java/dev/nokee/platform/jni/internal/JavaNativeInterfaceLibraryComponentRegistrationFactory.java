@@ -242,6 +242,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+						entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
 						val toolChainSelectorInternal = project.getObjects().newInstance(ToolChainSelectorInternal.class);
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
 							.axis(TARGET_MACHINE_COORDINATE_AXIS)
