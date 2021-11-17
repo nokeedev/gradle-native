@@ -70,6 +70,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -190,6 +191,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						val apiElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("apiElements"), identifier)));
 						apiElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
 						apiElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+						entity.addComponent(new ApiElementsConfiguration(ModelNodes.of(apiElements)));
 						val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("runtimeElements"), identifier)));
 						runtimeElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
 						runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
@@ -254,9 +256,14 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}
 				}
 			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
+				if (id.equals(identifier)) {
+					apiElements.add(jvmJar.getJarFile().map(Path::toFile));
+				}
+			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
 				if (id.equals(identifier)) {
-					runtimeElements.add(jvmJar.getJarFile());
+					runtimeElements.add(jvmJar.getJarFile().map(Path::toFile));
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jvmJar, assemble) -> {
