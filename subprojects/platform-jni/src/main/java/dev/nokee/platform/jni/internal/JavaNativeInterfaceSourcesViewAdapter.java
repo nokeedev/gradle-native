@@ -23,13 +23,10 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.HasName;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.registry.ModelBackedNamedDomainObjectProvider;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import groovy.lang.Closure;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
@@ -48,11 +45,11 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	public NamedDomainObjectProvider<GroovySourceSet> getGroovy() {
-		val result = ModelProperties.findProperty(this, "groovy");
-		if (result.isPresent()) {
-			return new ModelBackedNamedDomainObjectProvider<>(result.get().as(GroovySourceSet.class));
+		try {
+			return named("groovy", GroovySourceSet.class);
+		} catch (Throwable ex) {
+			throw new RuntimeException("Please apply 'groovy' plugin to access Groovy source set.", ex);
 		}
-		throw new RuntimeException("Please apply 'groovy' plugin to access Groovy source set.");
 	}
 
 	public void groovy(Action<? super GroovySourceSet> action) {
@@ -64,11 +61,11 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	public NamedDomainObjectProvider<JavaSourceSet> getJava() {
-		val result = ModelProperties.findProperty(this, "java");
-		if (result.isPresent()) {
-			return new ModelBackedNamedDomainObjectProvider<>(result.get().as(JavaSourceSet.class));
+		try {
+			return named("java", JavaSourceSet.class);
+		} catch (Throwable ex) {
+			throw new RuntimeException("Please apply 'java' plugin to access Java source set.", ex);
 		}
-		throw new RuntimeException("Please apply 'java' plugin to access Java source set.");
 	}
 
 	public void java(Action<? super JavaSourceSet> action) {
@@ -80,11 +77,11 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	public NamedDomainObjectProvider<KotlinSourceSet> getKotlin() {
-		val result = ModelProperties.findProperty(this, "kotlin");
-		if (result.isPresent()) {
-			return new ModelBackedNamedDomainObjectProvider<>(result.get().as(KotlinSourceSet.class));
+		try {
+			return named("kotlin", KotlinSourceSet.class);
+		} catch (Throwable ex) {
+			throw new RuntimeException("Please apply 'org.jetbrains.kotlin.jvm' plugin to access Kotlin source set.", ex);
 		}
-		throw new RuntimeException("Please apply 'org.jetbrains.kotlin.jvm' plugin to access Kotlin source set.");
 	}
 
 	public void kotlin(Action<? super KotlinSourceSet> action) {
@@ -218,6 +215,9 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 
 	@Override
 	public <S extends LanguageSourceSet> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
+		if (delegate instanceof ViewAdapter) {
+			return ((ViewAdapter<LanguageSourceSet>) delegate).named(name, type);
+		}
 		throw new UnsupportedOperationException();
 	}
 }
