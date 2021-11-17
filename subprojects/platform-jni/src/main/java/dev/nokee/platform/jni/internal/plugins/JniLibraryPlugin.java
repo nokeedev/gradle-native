@@ -101,7 +101,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			.assertPluginClass(NativeBasePlugin.class, IncompatiblePluginsAdvice::forNativeBasePlugin);
 
 		project.getPluginManager().apply("base");
-		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply("dev.nokee.jni-library-base");
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		project.getPluginManager().apply(NativeRuntimePlugin.class);

@@ -29,6 +29,7 @@ import org.gradle.api.Project;
 public class JniLibraryBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply("lifecycle-base");
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);

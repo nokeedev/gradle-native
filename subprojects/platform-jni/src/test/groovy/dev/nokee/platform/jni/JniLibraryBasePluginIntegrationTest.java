@@ -29,4 +29,9 @@ class JniLibraryBasePluginIntegrationTest extends AbstractPluginTest {
 	void appliesComponentModelBasePlugin() {
 		assertThat(project(), hasPlugin(ComponentModelBasePlugin.class));
 	}
+
+	@Test
+	void appliesLifecycleBasePlugin() {
+		assertThat(project(), hasPlugin("lifecycle-base"));
+	}
 }
