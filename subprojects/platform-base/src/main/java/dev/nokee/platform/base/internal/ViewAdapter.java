@@ -20,6 +20,7 @@ import dev.nokee.platform.base.View;
 import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
@@ -103,5 +104,6 @@ public final class ViewAdapter<T> implements View<T> {
 		<T> void configureEach(Class<T> elementType, Action<? super T> action);
 		<T> Provider<Set<T>> getElements(Class<T> elementType);
 		<T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action);
+		<T> NamedDomainObjectProvider<T> named(String name, Class<T> elementType);
 	}
 }
