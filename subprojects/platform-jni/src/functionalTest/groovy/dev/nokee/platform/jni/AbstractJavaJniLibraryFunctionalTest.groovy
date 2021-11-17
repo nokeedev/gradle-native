@@ -40,7 +40,7 @@ abstract class AbstractJavaJniLibraryFunctionalTest extends AbstractJniLibraryFu
 		succeeds('compileJava')
 
 		then:
-		file('build/generated/jni-headers').assertHasDescendants('com_example_greeter_Greeter.h')
+		file('build/generated/jni-headers/main').assertHasDescendants('com_example_greeter_Greeter.h')
 	}
 
 	def "build fails when Java compilation fails"() {
