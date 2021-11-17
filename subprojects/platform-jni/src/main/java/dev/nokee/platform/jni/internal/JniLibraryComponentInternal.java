@@ -15,83 +15,56 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.platform.base.*;
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
-import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
-import dev.nokee.runtime.nativebase.TargetMachine;
-import groovy.lang.Closure;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import lombok.Getter;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.SetProperty;
-import org.gradle.util.ConfigureUtil;
+import org.gradle.api.provider.Provider;
 
 import javax.inject.Inject;
+import java.util.Set;
 
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
-
-public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInternal> implements Component
-	, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>
+public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
+	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
+	, ModelBackedVariantAwareComponentMixIn<JniLibrary>
 	, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
 	, ModelBackedBinaryAwareComponentMixIn
+	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedNamedMixIn
+	, ModelBackedHasBaseNameMixIn
+	, ModelBackedTargetMachineAwareComponentMixIn
+	, ModelBackedHasDevelopmentVariantMixIn<JniLibrary>
 {
 	@Getter private final GroupId groupId;
-	private final Property<JniLibraryInternal> developmentVariant;
-	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier identifier, GroupId groupId, ObjectFactory objects, TaskRegistry taskRegistry) {
+	public JniLibraryComponentInternal(ComponentIdentifier identifier, GroupId groupId, ObjectFactory objects) {
 		super(identifier, objects);
 		this.groupId = groupId;
-		this.developmentVariant = objects.property(JniLibraryInternal.class);
-		this.taskRegistry = taskRegistry;
 	}
 
-	public SetProperty<TargetMachine> getTargetMachines() {
-		return ModelProperties.getProperty(this, "targetMachines").as(SetProperty.class).get();
-	}
-
-	@Override
-	public JavaNativeInterfaceLibraryComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(JavaNativeInterfaceLibraryComponentDependencies.class).get();
+	public VariantView<JniLibrary> getVariants() {
+		return ModelBackedVariantAwareComponentMixIn.super.getVariants();
 	}
 
 	@Override
-	public void dependencies(Action<? super JavaNativeInterfaceLibraryComponentDependencies> action) {
-		action.execute(getDependencies());
+	public Property<String> getBaseName() {
+		return ModelBackedHasBaseNameMixIn.super.getBaseName();
 	}
 
 	@Override
-	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtil.configureUsing(closure));
-	}
-
-	//region Variant-awareness
-	public VariantView<JniLibraryInternal> getVariants() {
-		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
-	}
-	//endregion
-
-	public Configuration getJvmImplementationDependencies() {
-		return getDependencies().getJvmImplementation().getAsConfiguration();
-	}
-
-	@Override
-	public Property<JniLibraryInternal> getDevelopmentVariant() {
-		return developmentVariant;
+	public Property<JniLibrary> getDevelopmentVariant() {
+		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override
@@ -100,22 +73,12 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibraryInterna
 	}
 
 	@Override
-	public VariantCollection<JniLibraryInternal> getVariantCollection() {
+	public VariantCollection<JniLibrary> getVariantCollection() {
 		throw new UnsupportedOperationException("Use 'variants' property instead.");
 	}
 
 	@Override
-	public SetProperty<BuildVariant> getBuildVariants() {
-		return ModelProperties.getProperty(this, "buildVariants").as(SetProperty.class).get();
-	}
-
-	public void finalizeValue() {
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(JniLibrary.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
-		}));
-	}
-
-	private static void whenElementKnown(Object target, ModelAction action) {
-		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
+	public Provider<Set<BuildVariant>> getBuildVariants() {
+		return ModelBackedVariantAwareComponentMixIn.super.getBuildVariants();
 	}
 }

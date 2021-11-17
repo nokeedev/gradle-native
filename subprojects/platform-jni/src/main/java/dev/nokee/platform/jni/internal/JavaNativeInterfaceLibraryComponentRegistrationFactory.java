@@ -35,7 +35,6 @@ import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -47,10 +46,8 @@ import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFact
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.jni.*;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
@@ -83,7 +80,8 @@ import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.*;
+import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
+import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
@@ -112,14 +110,13 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.withComponent(entityPath)
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
-			.withComponent(createdUsing(of(JavaNativeInterfaceLibrary.class), () -> project.getObjects().newInstance(DefaultJavaNativeInterfaceLibrary.class)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
 				if (entityPath.isDescendant(path)) {
 					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
 				}
 			}))
 			.withComponent(IsComponent.tag())
-			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects(), project.getExtensions().getByType(TaskRegistry.class))))
+			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects())))
 			.withComponent(createdUsing(of(new dev.nokee.model.internal.type.TypeOf<Provider<JavaNativeInterfaceLibrary>>() {}), () -> {
 				val entity = ModelNodeContext.getCurrentModelNode();
 				return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JavaNativeInterfaceLibrary.class));
@@ -295,17 +292,12 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
 					val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
-					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(component.getVariants()::get)));
-
-					component.finalizeValue();
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
 						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibraryInternal.class).build();
 						val variant = project.getExtensions().getByType(ModelRegistry.class).register(variantFactory.create(variantIdentifier));
 						variant.configure(JniLibrary.class, it -> it.getBaseName().convention(ModelProperties.getProperty(entity, "baseName").as(String.class).map(TransformerUtils.noOpTransformer())));
-
-						ModelStates.realize(ModelNodes.of(variant)); // FIXME: Remove once the refactoring is over
 
 						variants.put(buildVariant, ModelNodes.of(variant));
 					});
@@ -325,18 +317,5 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		if (!unknownTargetMachines.isEmpty()) {
 			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + it.getOperatingSystemFamily().getCanonicalName() + " " + it.getArchitecture().getCanonicalName()).collect(joining("\n")));
 		}
-	}
-
-	public static abstract class DefaultJavaNativeInterfaceLibrary implements JavaNativeInterfaceLibrary
-		, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
-		, ModelBackedVariantAwareComponentMixIn<JniLibrary>
-		, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
-		, ModelBackedBinaryAwareComponentMixIn
-		, ModelBackedTaskAwareComponentMixIn
-		, ModelBackedNamedMixIn
-		, ModelBackedHasBaseNameMixIn
-		, ModelBackedTargetMachineAwareComponentMixIn
-		, ModelBackedHasDevelopmentVariantMixIn<JniLibrary>
-	{
 	}
 }
