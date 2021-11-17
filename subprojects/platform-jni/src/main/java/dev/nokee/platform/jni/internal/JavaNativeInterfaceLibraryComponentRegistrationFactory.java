@@ -33,6 +33,7 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.Binary;
@@ -309,6 +310,17 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						variants.put(buildVariant, ModelNodes.of(variant));
 					});
 					entity.addComponent(new Variants(variants.build()));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asDomainObject(), (entity, id, ignored, jvmJar, component) -> {
+				if (id.equals(identifier)) {
+					if (component.getBuildVariants().get().size() == 1) {
+						project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.ofProjection(JvmJarBinary.class).asDomainObject(), (e, i, binary) -> {
+							if (i.getOwnerIdentifier().equals(identifier)) {
+								binary.getJarTask().configure(configureDescription("Assembles a JAR archive containing the classes and shared library for %s.", ModelNodes.of(binary).getComponent(BinaryIdentifier.class)));
+							}
+						}));
+					}
 				}
 			}))
 			.build()

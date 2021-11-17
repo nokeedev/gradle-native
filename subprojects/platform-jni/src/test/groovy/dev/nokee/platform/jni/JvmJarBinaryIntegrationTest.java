@@ -83,7 +83,7 @@ class JvmJarBinaryIntegrationTest extends AbstractPluginTest {
 
 			@Test
 			void hasDescription() {
-				assertThat(subject(), description("Assembles a JAR archive containing the main classes for FASI binary ':rina:wuke'."));
+				assertThat(subject(), description("Assembles a JAR archive containing the classes for FASI binary ':rina:wuke'."));
 			}
 
 			@Test
