@@ -23,75 +23,50 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
-import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JniLibrary;
-import dev.nokee.platform.jni.internal.*;
-import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
+import dev.nokee.platform.jni.internal.IncompatiblePluginUsage;
+import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
-import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.logging.Logger;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.testing.Test;
-import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.plugins.NativeBasePlugin;
 import org.gradle.process.CommandLineArgumentProvider;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
-import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
-import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
-import static dev.nokee.utils.RunnableUtils.onlyOnce;
-import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public class JniLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
@@ -132,7 +107,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeRuntimePlugin.class);
 
 		val extension = registerExtension(project);
-		TaskRegistry taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 
 		// TODO: On `java` apply, just apply the `java-library` (but don't allow other users to apply it
 		project.getPluginManager().withPlugin("java", appliedPlugin -> configureJavaJniRuntime(project, extension));
@@ -140,85 +114,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			if (isNativeLanguagePlugin(appliedPlugin)) {
 				project.getPluginManager().apply(DarwinFrameworkResolutionSupportPlugin.class);
 			}
-		});
-
-//		extension.getVariants().configureEach(JniLibraryInternal.class, variant -> {
-//			// Build all language source set
-//			val objectSourceSets = getObjects().domainObjectSet(ObjectSourceSet.class);
-//
-//			TaskProvider<LinkSharedLibraryTask> linkTask = tasks.named(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variant.getIdentifier()).getTaskName(), LinkSharedLibraryTask.class);
-//			MutationGuards.of(tasks).withMutationEnabled(ignored -> {
-//				variant.registerSharedLibraryBinary(objectSourceSets, linkTask, (NativeIncomingDependencies)variant.getResolvableDependencies());
-//
-//				variant.getSharedLibrary().getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-//					val taskInternal = (AbstractNativeCompileTask) task;
-//					taskInternal.getIncludes().from(extension.getSources().filter(it -> it instanceof NativeHeaderSet).map(transformEach(LanguageSourceSet::getSourceDirectories)));
-//				});
-//			}).execute(null);
-//		});
-
-		project.afterEvaluate(proj -> {
-			Set<TargetMachine> targetMachines = extension.getTargetMachines().get();
-
-			ModelNodeUtils.finalizeProjections(ModelNodes.of(extension));
-			whenElementKnown(extension, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofAny(projectionOf(JniLibrary.class)), (entity, variantIdentifier, variantProjection) -> {
-				val knownVariant = new ModelNodeBackedKnownDomainObject<>(of(JniLibraryInternal.class), entity);
-				val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
-				val targetMachine = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
-
-				if (targetMachines.size() > 1) {
-					val jvmJarBinary = knownVariant.flatMap(variant -> variant.getBinaries().withType(DefaultJvmJarBinary.class).getElements()).orElse(ImmutableSet.of());
-					taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier)).configure(configureDependsOn(knownVariant.map(it -> it.getJar().getJarTask()), jvmJarBinary));
-				}
-
-				// Include native runtime files inside JNI jar
-				if (targetMachines.size() == 1) {
-					if (project.getPluginManager().hasPlugin("java")) {
-						taskRegistry.registerIfAbsent(JavaPlugin.JAR_TASK_NAME, Jar.class, task -> {
-							task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-							task.setDescription("Assembles a jar archive containing the main classes and shared library.");
-						});
-
-						// NOTE: We don't need to attach the JNI JAR to runtimeElements as the `java` plugin take cares of this.
-					} else {
-						TaskProvider<Jar> jarTask = taskRegistry.register(JavaPlugin.JAR_TASK_NAME, Jar.class, task -> {
-							task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-							task.setDescription("Assembles a jar archive containing the shared library.");
-						});
-
-						// Attach JNI Jar to runtimeElements
-						// TODO: We could set the classes directory as secondary variant.
-						// TODO: We could maybe set the shared library directory as secondary variant.
-						//  However, the shared library would requires the resource path to be taken into consideration...
-						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
-					}
-				} else {
-					TaskProvider<Jar> jarTask = taskRegistry.register(TaskIdentifier.of(TaskName.of(JavaPlugin.JAR_TASK_NAME), Jar.class, variantIdentifier));
-
-					// Attach JNI Jar to runtimeElements
-					// TODO: only for the buildable elements? For a single variant, we attach the JNI binaries (see above)...
-					//  for multiple one, it's a bit convoluted.
-					//  If a buildable variant is available, we can attach that one and everything will be ketchup.
-					//  However, if all variants are unbuildable, we should still be alright as the consumer will still crash, but because of not found... :-(
-					//  We should probably attach at least one of the unbuildable variant to give a better error message.
-					// TODO: We should really be testing: toolChainSelector.canBuild(targetMachineInternal)
-					//  However, since we have to differ everything for testing, we have to approximate the API.
-					if (toolChainSelectorInternal.canBuild(targetMachine)) {
-						// TODO: We could maybe set the shared library directory as secondary variant.
-						//  However, the shared library would requires the resource path to be taken into consideration...
-						getConfigurations().named("runtimeElements", it -> it.getOutgoing().artifact(jarTask.flatMap(Jar::getArchiveFile)));
-					}
-				}
-
-
-				// Attach JNI Jar to assemble task
-				if (TargetMachines.isTargetingHost(targetMachine)) {
-					// Attach JNI Jar to assemble
-					taskRegistry.registerIfAbsent(ASSEMBLE_TASK_NAME).configure(it -> {
-						it.dependsOn(knownVariant.map(l -> l.getJar().getJarTask()));
-					});
-				}
-			}));
 		});
 
 		project.afterEvaluate(proj -> {
@@ -253,17 +148,8 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(finalizeModelNodeOf(extension));
 	}
 
-	private static void whenElementKnown(Object target, ModelAction action) {
-		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
-	}
-
 	private static boolean isNativeLanguagePlugin(Plugin<Project> appliedPlugin) {
 		return NATIVE_LANGUAGE_PLUGINS.stream().anyMatch(it -> it.isAssignableFrom(appliedPlugin.getClass()));
-	}
-
-	private DefaultJvmJarBinary createJvmBinary(Project project) {
-		TaskProvider<Jar> jvmJarTask = project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class);
-		return new DefaultJvmJarBinary(jvmJarTask);
 	}
 
 	private JavaNativeInterfaceLibrary registerExtension(Project project) {
