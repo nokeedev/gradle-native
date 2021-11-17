@@ -177,14 +177,14 @@ abstract class AbstractJniLibraryFunctionalTest extends AbstractInstalledToolCha
 					def binaries = variants.get().first().binaries.elements
 					assert binaries.get().size() == 2
 					assert binaries.get().count { it instanceof ${JarBinary.simpleName} } == 1
-					assert binaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 0
-					assert binaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+					assert binaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
+					assert binaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 0
 					assert binaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
 
 					def allBinaries = library.binaries.elements
-					assert allBinaries.get().size() == 2
-					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 1
-					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 0
+					assert allBinaries.get().size() == 3
+					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 2
+					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
 					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
 					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
 				}
@@ -214,13 +214,15 @@ abstract class AbstractJniLibraryFunctionalTest extends AbstractInstalledToolCha
 			tasks.register('verify') {
 				doLast {
 					def allBinaries = library.binaries.elements
-					assert allBinaries.get().size() == 2
-					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 1
-					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 0
+					assert allBinaries.get().size() == 3
+					assert allBinaries.get().count { it instanceof ${JarBinary.simpleName} } == 2
+					assert allBinaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
 					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
 					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
 
-					assert configuredVariants.size() == 1
+					// In theory, we should realize (or at least force any action that "creates" binaries on variants)
+					//   In practice, we don't realize as finalizing the component is enough to tickle down the binary creation
+					assert configuredVariants.size() == 0
 				}
 			}
 		"""
