@@ -104,6 +104,14 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	}
 
 	@Nested
+	class VariantDimensionsTest extends VariantDimensionsIntegrationTester {
+		@Override
+		public VariantAwareComponent<?> subject() {
+			return subject;
+		}
+	}
+
+	@Nested
 	class ComponentTasksTest {
 		public TaskView<Task> subject() {
 			return subject.getTasks();
