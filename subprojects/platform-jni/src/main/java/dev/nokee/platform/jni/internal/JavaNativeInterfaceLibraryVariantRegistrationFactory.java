@@ -125,11 +125,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
-			.withComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class))))
-			.withComponent(createdUsing(of(new TypeOf<Provider<JniLibrary>>() {}), () -> {
-				val entity = ModelNodeContext.getCurrentModelNode();
-				return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JniLibraryInternal.class));
-			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {
 				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && sourceSet instanceof HasHeaders) {
 					((HasHeaders) sourceSet).getHeaders().from("src/" + identifier.getComponentIdentifier().getName() + "/headers");
@@ -150,7 +145,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (entity, id, state, path, library) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPath.class), (entity, id, state, path) -> {
 				if (id.equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -242,8 +237,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 						binary.getJarTask().configure(task -> {
 							task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(baseName -> baseName + identifier.getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("")));
 						});
-						val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
-						binary.getJarTask().configure(configureJarTaskUsing(library, unbuildableMainComponentLogger));
 					});
 
 					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "javaNativeInterfaceJar"), ModelNodes.of(jniJar)));
@@ -251,6 +244,18 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).map(noOpTransformer())));
 
 					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
+
+					entity.addComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getConfigurations(), project.getProviders(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(BinaryViewFactory.class), project.getExtensions().getByType(TaskViewFactory.class))));
+					entity.addComponent(createdUsing(of(new TypeOf<Provider<JniLibrary>>() {}), () -> {
+						return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JniLibraryInternal.class));
+					}));
+
+					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (e, i, s, p, library) -> {
+						if (i.equals(identifier)) {
+							val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
+							library.get().getJavaNativeInterfaceJar().getJarTask().configure(configureJarTaskUsing(library, unbuildableMainComponentLogger));
+						}
+					}));
 
 					whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ig, p) -> {
 						((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
