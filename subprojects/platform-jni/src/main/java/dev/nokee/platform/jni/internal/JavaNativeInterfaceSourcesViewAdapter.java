@@ -25,7 +25,8 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelBackedNamedDomainObjectProvider;
-import dev.nokee.platform.base.SourceView;
+import dev.nokee.platform.base.View;
+import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import groovy.lang.Closure;
 import lombok.val;
@@ -40,9 +41,9 @@ import java.util.List;
 import java.util.Set;
 
 public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeInterfaceLibrarySources {
-	private final SourceView<LanguageSourceSet> delegate;
+	private final View<LanguageSourceSet> delegate;
 
-	public JavaNativeInterfaceSourcesViewAdapter(SourceView<LanguageSourceSet> delegate) {
+	public JavaNativeInterfaceSourcesViewAdapter(View<LanguageSourceSet> delegate) {
 		this.delegate = delegate;
 	}
 
