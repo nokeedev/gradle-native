@@ -116,7 +116,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 				}
 			}))
 			.withComponent(IsComponent.tag())
-			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> new JniLibraryComponentInternal(identifier, GroupId.of(project::getGroup), project.getObjects())))
+			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup), project.getObjects())))
 			.withComponent(createdUsing(of(new dev.nokee.model.internal.type.TypeOf<Provider<JavaNativeInterfaceLibrary>>() {}), () -> {
 				val entity = ModelNodeContext.getCurrentModelNode();
 				return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JavaNativeInterfaceLibrary.class));
