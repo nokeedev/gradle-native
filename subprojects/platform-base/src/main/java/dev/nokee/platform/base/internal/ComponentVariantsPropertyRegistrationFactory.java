@@ -52,6 +52,7 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
 			.withComponent(path)
+			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
 			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, objects, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofProjection(elementType), (e, p, ignored1, ignored2, projection) -> {
