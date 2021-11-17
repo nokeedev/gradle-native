@@ -150,9 +150,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 					registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
-					val jniJar = registry.register(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"))));
-					val developmentBinaryProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentBinary"), Binary.class));
-					developmentBinaryProperty.configure(Property.class, prop -> prop.convention(jniJar.as(JniJarBinary.class).map(noOpTransformer())));
 
 					registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources")));
 
@@ -179,6 +176,10 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					sharedLibraryTask.configure(Task.class, configureBuildGroup());
 					sharedLibraryTask.configure(Task.class, configureDescription("Assembles the shared library binary of %s.", identifier.getDisplayName()));
 					sharedLibraryTask.configure(Task.class, configureDependsOn(sharedLibrary.as(SharedLibraryBinary.class)));
+
+					val jniJar = registry.register(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"))));
+					val developmentBinaryProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentBinary"), Binary.class));
+					developmentBinaryProperty.configure(Property.class, prop -> prop.convention(jniJar.as(JniJarBinary.class).map(noOpTransformer())));
 
 					project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 						private ModelElement compileOnly = null;
