@@ -32,6 +32,7 @@ import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.internal.NativeArtifactTypes;
@@ -245,7 +246,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		@Test
 		void dependsOnSharedLibraryBinary() {
-			assertThat(subject(), dependsOn(hasItem(allOf(named("reqiWindowsX86SharedLibrary"), isA(SharedLibraryBinary.class)))));
+			assertThat(subject(), dependsOn(hasItem(allOf(named("linkReqiWindowsX86"), isA(LinkSharedLibrary.class)))));
 		}
 	}
 
