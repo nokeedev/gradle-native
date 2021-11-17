@@ -100,6 +100,14 @@ public final class ViewAdapter<T> implements View<T> {
 		return getElements().map(matching(spec).andThen(toListTransformer(elementType)));
 	}
 
+	public NamedDomainObjectProvider<T> named(String name) {
+		return strategy.named(name, elementType);
+	}
+
+	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
+		return strategy.named(name, type);
+	}
+
 	public interface Strategy {
 		<T> void configureEach(Class<T> elementType, Action<? super T> action);
 		<T> Provider<Set<T>> getElements(Class<T> elementType);
