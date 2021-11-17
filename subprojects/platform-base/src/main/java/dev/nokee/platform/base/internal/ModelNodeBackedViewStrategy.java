@@ -16,17 +16,16 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.TypeToken;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.registry.ModelBackedNamedDomainObjectProvider;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -100,6 +99,15 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	public <T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action) {
 		applyTo(entity, allDirectDescendants(stateAtLeast(ModelState.Created).and(ModelNodes.withType(of(elementType))))
 			.apply(once(executeAsKnownProjection(of(elementType), action))));
+	}
+
+	@Override
+	public <T> NamedDomainObjectProvider<T> named(String name, Class<T> elementType) {
+		val result = ModelProperties.findProperty(entity, name);
+		if (result.isPresent()) {
+			return new ModelBackedNamedDomainObjectProvider<>(result.get().as(elementType));
+		}
+		throw new RuntimeException(String.format("Element '%s' not found.", name));
 	}
 
 	private static final class RunOnceRunnable implements Runnable {
