@@ -28,13 +28,10 @@ import org.gradle.api.Project
 import org.gradle.api.internal.plugins.PluginApplicationException
 import org.gradle.jvm.tasks.Jar
 import org.gradle.testfixtures.ProjectBuilder
-import org.hamcrest.MatcherAssert
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
-
-import static org.hamcrest.Matchers.containsInAnyOrder
 
 trait JniLibraryPluginTestFixture {
 	abstract Project getProjectUnderTest()
@@ -638,84 +635,12 @@ class JniLibraryPluginWithNoLanguageTasksTest extends AbstractJniLibraryPluginSp
 		if (SystemUtils.IS_OS_WINDOWS) {
 			NativeServicesTestFixture.initialize()
 		}
-		project = project = ProjectBuilder.builder().withName('lib').build()
+		project = ProjectBuilder.builder().withName('lib').build()
 	}
 
 	@Override
 	Project getProjectUnderTest() {
 		return project
-	}
-
-	def "creates variant-aware tasks for ambiguous operating system family dimension"() {
-		when:
-		applyPlugin()
-		project.library {
-			targetMachines = [machines.macOS, machines.linux]
-		}
-		evaluateProject('plugin registers lifecycle tasks in afterEvaluate')
-		resolveAllVariants('plugin creates some tasks on demand')
-
-		then:
-		tasks*.name as Set == [
-			'jarMacos', 'jarLinux', /* JVM lifecycle */
-			'sharedLibraryMacos', 'sharedLibraryLinux', /* native lifecycle */
-			'linkMacos', 'linkLinux', /* native link tasks */
-			'assemble', 'assembleMacos', 'assembleLinux', 'clean', 'build', 'check' /* general lifecycle */
-		] as Set
-	}
-
-	def "creates variant-aware tasks for ambiguous architecture dimension"() {
-		when:
-		applyPlugin()
-		project.library {
-			targetMachines = [machines.windows.x86, machines.windows.x86_64]
-		}
-		evaluateProject('plugin registers lifecycle tasks in afterEvaluate')
-		resolveAllVariants('plugin creates some tasks on demand')
-
-		then:
-		tasks*.name as Set == [
-			'jarX86', 'jarX86-64', /* JVM lifecycle */
-			'sharedLibraryX86', 'sharedLibraryX86-64', /* native lifecycle */
-			'linkX86', 'linkX86-64', /* native link tasks */
-			'assemble', 'assembleX86', 'assembleX86-64', 'clean', 'build', 'check' /* general lifecycle */
-		] as Set
-	}
-
-	def "creates variant-aware tasks for ambiguous operating system family and architecture dimensions"() {
-		when:
-		applyPlugin()
-		project.library {
-			targetMachines = [machines.windows.x86, machines.macOS.x86_64]
-		}
-		evaluateProject('plugin registers lifecycle tasks in afterEvaluate')
-		resolveAllVariants('plugin creates some tasks on demand')
-
-		then:
-		tasks*.name as Set == [
-			'jarWindowsX86', 'jarMacosX86-64', /* JVM lifecycle */
-			'sharedLibraryWindowsX86', 'sharedLibraryMacosX86-64', /* native lifecycle */
-			'linkWindowsX86', 'linkMacosX86-64', /* native link tasks */
-			'assemble', 'assembleWindowsX86', 'assembleMacosX86-64', 'clean', 'build', 'check' /* general lifecycle */
-		] as Set
-	}
-
-	def "jar task has group and description"() {
-		given:
-		applyPluginAndEvaluate('plugin registers lifecycle tasks in afterEvaluate')
-
-		expect:
-		project.tasks.jar.group == 'build'
-		project.tasks.jar.description == 'Assembles a jar archive containing the shared library.'
-	}
-
-	def "sharedLibrary task has group and description"() {
-		given:
-		applyPluginAndEvaluate('plugin registers lifecycle tasks in afterEvaluate')
-
-		expect:
-		project.tasks.sharedLibrary.group == 'build'
-		project.tasks.sharedLibrary.description == 'Assembles a shared library binary containing the main objects.'
 	}
 
 	def "clean task has group and description"() {
@@ -743,16 +668,6 @@ class JniLibraryPluginWithNoLanguageTasksTest extends AbstractJniLibraryPluginSp
 		expect:
 		project.tasks.check.group == 'verification'
 		project.tasks.check.description == 'Runs all checks.'
-	}
-
-	def "link task has no group and a description"() {
-		given:
-		applyPluginAndEvaluate('plugin registers lifecycle tasks in afterEvaluate')
-		resolveAllVariants('plugin creates some tasks on demand')
-
-		expect:
-		project.tasks.link.group == null
-		project.tasks.link.description == 'Links the shared library.'
 	}
 }
 
