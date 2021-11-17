@@ -15,16 +15,25 @@
  */
 package dev.nokee.platform.jni;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MoreCollectors;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
+import dev.nokee.runtime.nativebase.internal.TargetMachines;
+import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -41,6 +50,54 @@ class JavaNativeInterfaceLibraryMainComponentIntegrationTest extends AbstractPlu
 	void usesProjectNameAsComponentBaseNameConvention() {
 		subject.getBaseName().set((String) null);
 		assertThat(subject.getBaseName(), providerOf(project.getName()));
+	}
+
+	@Nested
+	class ResourcePathConventionTest {
+		@Test
+		void hasEmptyResourcePathWhenGroupIsEmptyAndSingleVariant() {
+			project.setGroup("");
+			assertThat(allResourcePaths(), contains(providerOf(emptyString())));
+		}
+
+		@Test
+		void usesProjectGroupAsResourcePathOnlyWhenSingleVariant() {
+			project.setGroup("com.example.hezebe");
+			assertThat(allResourcePaths(), contains(providerOf("com/example/hezebe")));
+		}
+
+		@Test
+		void usesProjectGroupAtStartOfResourcePathForAllVariant() {
+			project.setGroup("com.example.reqawa");
+			subject.getTargetMachines().set(ImmutableSet.of(of("windows-x86"), of("linux-x64")));
+			assertThat(allResourcePaths(), contains(providerOf(startsWith("com/example/reqawa/")), providerOf(startsWith("com/example/reqawa/"))));
+		}
+
+		@Test
+		void usesVariantAmbiguousDimensionAtEndOfResourcePathForAllVariant() {
+			project.setGroup("com.example.xupude");
+			subject.getTargetMachines().set(ImmutableSet.of(of("macos-x64"), of("linux-x64")));
+			assertThat(allResourcePaths(), contains(providerOf(endsWith("/macos")), providerOf(endsWith("/linux"))));
+		}
+
+		@Test
+		void includesAllVariantAmbiguousDimensionsAsKebabCaseInResourcePathForAllVariant() {
+			project.setGroup("com.example.mijupa");
+			subject.getTargetMachines().set(ImmutableSet.of(of("macos-x64"), of("windows-x86")));
+			assertThat(allResourcePaths(), contains(providerOf(endsWith("/macos-x64")), providerOf(endsWith("/windows-x86"))));
+		}
+
+		@Test
+		void canChangeProjectGroupAfterVariantRealize() {
+			project.setGroup("com.example.zepacu");
+			assertThat(allResourcePaths(), contains(providerOf("com/example/zepacu")));
+			project.setGroup("com.example.mifohu");
+			assertThat(allResourcePaths(), contains(providerOf("com/example/mifohu")));
+		}
+
+		private List<Provider<String>> allResourcePaths() {
+			return subject.getVariants().get().stream().map(it -> it.getResourcePath().value((String) null)).collect(toList());
+		}
 	}
 
 	@Nested

@@ -231,7 +231,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					ModelProperties.getProperty(sharedLibrary, "baseName").configure(Property.class, prop -> prop.convention(baseNameProperty.as(String.class).map(noOpTransformer())));
 
 					val resourcePathProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "resourcePath"), String.class));
-					resourcePathProperty.configure(Property.class, prop -> prop.convention(""));
+					resourcePathProperty.configure(Property.class, prop -> prop.convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse("")));
 
 					jniJar.configure(JniJarBinary.class, binary -> {
 						binary.getJarTask().configure(task -> {

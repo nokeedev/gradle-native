@@ -159,10 +159,23 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 		val component = registry.register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class);
 		component.configure(it -> it.getBaseName().convention(project.getName()));
+		component.configure(it -> {
+			it.getVariants().configureEach(variant -> {
+				variant.getResourcePath().convention(project.provider(() -> {
+					val group = getResourcePath(project.getGroup());
+					val dimensions = ((BaseVariant) variant).getIdentifier().getAmbiguousDimensions().getAsKebabCase();
+					return group.map(lhs -> dimensions.map(rhs -> lhs + "/" + rhs).orElse(lhs)).orElse(dimensions.orElse(""));
+				}));
+			});
+		});
 		val library = component.get();
 
 		project.getExtensions().add(JavaNativeInterfaceLibrary.class, "library", library);
 		return library;
+	}
+
+	private static Optional<String> getResourcePath(@Nullable Object group) {
+		return Optional.ofNullable(group).map(Objects::toString).filter(it -> !it.isEmpty()).map(it -> it.replace('.', '/'));
 	}
 
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {

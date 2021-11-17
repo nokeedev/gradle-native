@@ -48,13 +48,15 @@ import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.api.tasks.bundling.Jar;
+import org.gradle.api.provider.Provider;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.*;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileBaseNamed;
@@ -63,6 +65,7 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.host;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -500,6 +503,31 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			subject.getTargetMachines().set(ImmutableSet.of(of("linux-aarch64"), host()));
 			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("linuxaarch64"));
 			assertThat(subject(), hasPublishArtifact(ofFile(aFileBaseNamed("quzu-linux-aarch64"))));
+		}
+	}
+
+	@Nested
+	class ResourcePathConventionTest {
+		@Test
+		void hasEmptyResourcePathWhenGroupIsEmptyAndSingleVariant() {
+			project.setGroup("");
+			assertThat(allResourcePaths(), contains(providerOf(emptyString())));
+		}
+
+		@Test
+		void usesVariantAmbiguousDimensionAsResourcePathForAllVariant() {
+			subject.getTargetMachines().set(ImmutableSet.of(of("windows-x64"), of("macos-x64")));
+			assertThat(allResourcePaths(), contains(providerOf("windows"), providerOf("macos")));
+		}
+
+		@Test
+		void includesAllVariantAmbiguousDimensionsAsKebabCaseInResourcePathForAllVariant() {
+			subject.getTargetMachines().set(ImmutableSet.of(of("windows-x86"), of("linux-x64")));
+			assertThat(allResourcePaths(), contains(providerOf("windows-x86"), providerOf("linux-x64")));
+		}
+
+		private List<Provider<String>> allResourcePaths() {
+			return subject.getVariants().get().stream().map(it -> it.getResourcePath().value((String) null)).collect(toList());
 		}
 	}
 
