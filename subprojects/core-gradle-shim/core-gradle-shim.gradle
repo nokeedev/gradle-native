@@ -1,0 +1,81 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+//region capability code
+static String toGradleVersion(String name) {
+	return name - 'v' - 'Test'
+}
+static Closure mainSourceSets() {
+	return { it.name.startsWith('v') && !it.name.endsWith('Test') }
+}
+
+sourceSets {
+	api {}
+	main { SourceSet sourceSet ->
+		compileClasspath += api.runtimeClasspath
+		output.classesDirs.from(api.output.classesDirs)
+	}
+	test {
+		compileClasspath += api.runtimeClasspath
+	}
+
+	matching(mainSourceSets()).all { SourceSet sourceSet ->
+		main.compileClasspath += sourceSet.runtimeClasspath
+		main.runtimeClasspath += sourceSet.runtimeClasspath
+		main.output.classesDirs.from(sourceSet.output.classesDirs)
+	}
+
+	matching(mainSourceSets()).all { SourceSet sourceSet ->
+		// Include API classes
+		compileClasspath += api.runtimeClasspath
+		runtimeClasspath += api.runtimeClasspath
+	}
+
+	// Add Gradle API compile only dependency
+	matching({ it.name.startsWith('v') }).all { SourceSet sourceSet ->
+		configurations.getByName(sourceSet.compileOnlyConfigurationName).dependencies.add(dependencies.gradleApi(toGradleVersion(sourceSet.name)))
+	}
+}
+//endregion
+
+sourceSets {
+	'v6.2' {}
+	'v6.4' {}
+	'v6.5' {}
+	'v6.6' {}
+	'v7.0' {}
+}
+
+test {
+	testingStrategies = [
+		strategies.coverageForGradleVersion('6.2'),
+		strategies.coverageForGradleVersion('6.3'),
+		strategies.coverageForGradleVersion('6.4'),
+		strategies.coverageForGradleVersion('6.5'),
+		strategies.coverageForGradleVersion('6.6'),
+		strategies.coverageForGradleVersion('6.7'),
+		strategies.coverageForGradleVersion('6.8'),
+		strategies.coverageForGradleVersion('6.9'),
+		strategies.coverageForGradleVersion('7.0'),
+		strategies.coverageForGradleVersion('7.1'),
+		strategies.coverageForGradleVersion('7.2'),
+	]
+	testTasks.configureEach {
+		def testRuntimeClasspath = files(testingStrategy.map { strategy ->
+			project.configurations.create("${strategy.version}TestRuntimeClasspath") { Configuration configuration ->
+				configuration.canBeResolved = true
+				configuration.canBeConsumed = false
+				configuration.extendsFrom(project.configurations.getByName("testRuntimeClasspath"))
+				configuration.dependencies.add(project.dependencies.gradleApi(strategy.version))
+			}
+		}.orElse([]))
+		testRuntimeClasspath.finalizeValueOnRead()
+		classpath = testRuntimeClasspath + project.files({ sourceSets.main.runtimeClasspath }) + sourceSets.test.output + sourceSets.api.runtimeClasspath
+	}
+}
+
+dependencies {
+	compileOnly gradleApi(minimumGradleVersion)
+	apiCompileOnly gradleApi(minimumGradleVersion)
+}
