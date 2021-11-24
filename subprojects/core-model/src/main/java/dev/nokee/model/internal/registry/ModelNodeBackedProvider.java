@@ -16,8 +16,13 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.base.Preconditions;
+import dev.nokee.gradle.NamedDomainObjectProviderFactory;
+import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -39,6 +44,7 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 
 @EqualsAndHashCode
 public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>, ModelNodeAware, Callable<Object> {
+	private static final NamedDomainObjectProviderFactory PROVIDER_FACTORY = new NamedDomainObjectProviderFactory();
 	private final ModelIdentifier<T> identifier;
 	private final ModelType<T> type;
 	@EqualsAndHashCode.Exclude private final ModelNode node;
@@ -114,10 +120,10 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 			if (type.isPresent() && this.type.getConcreteType().isAssignableFrom((Class<?>) type.get())) {
 				return provider;
 			} else {
-				return new ModelBackedNamedDomainObjectProvider<>(this);
+				return PROVIDER_FACTORY.create(NamedDomainObjectProviderSpec.builder().named("").delegateTo(getAsProvider()).configureUsing(this::configure).build());
 			}
 		} else {
-			return new ModelBackedNamedDomainObjectProvider<>(this);
+			return PROVIDER_FACTORY.create(NamedDomainObjectProviderSpec.builder().named("").delegateTo(getAsProvider()).configureUsing(this::configure).build());
 		}
 	}
 
