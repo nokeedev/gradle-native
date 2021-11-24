@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.nativebase;
 
+import dev.nokee.internal.testing.NativeServicesInitializedOnWindows;
 import dev.nokee.language.base.testers.SourceCompileTester;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
@@ -30,6 +31,7 @@ public interface NativeSourceCompileTester extends SourceCompileTester, HasObjec
 	NativeSourceCompile subject();
 
 	@Test
+	@NativeServicesInitializedOnWindows
 	default void hasToolChain() {
 		assertThat("provide NativeToolChain", subject().getToolChain(), providerOf(isA(NativeToolChain.class)));
 	}

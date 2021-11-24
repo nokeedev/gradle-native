@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.swift;
 
+import dev.nokee.internal.testing.NativeServicesInitializedOnWindows;
 import dev.nokee.language.base.testers.HasDestinationDirectoryTester;
 import dev.nokee.language.base.testers.SourceCompileTester;
 import dev.nokee.language.nativebase.HasObjectFilesTester;
@@ -31,6 +32,7 @@ public interface SwiftCompileTester extends SourceCompileTester, HasDestinationD
 	SwiftCompile subject();
 
 	@Test
+	@NativeServicesInitializedOnWindows
 	default void hasToolChain() {
 		assertThat("provide NativeToolChain", subject().getToolChain(), providerOf(isA(NativeToolChain.class)));
 	}
