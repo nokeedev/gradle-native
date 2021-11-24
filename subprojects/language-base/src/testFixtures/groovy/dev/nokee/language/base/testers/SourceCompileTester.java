@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.base.testers;
 
+import dev.nokee.internal.testing.NativeServicesInitializedOnWindows;
 import dev.nokee.language.base.tasks.SourceCompile;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.ListProperty;
@@ -31,6 +32,7 @@ public interface SourceCompileTester extends HasDestinationDirectoryTester {
 	SourceCompile subject();
 
 	@Test
+	@NativeServicesInitializedOnWindows
 	default void hasToolChain() {
 		assertThat("not null as per contract", subject().getToolChain(), notNullValue(Provider.class));
 		assertThat("provide a ToolChain", subject().getToolChain(), providerOf(isA(ToolChain.class)));
