@@ -16,6 +16,7 @@
 package dev.nokee.platform.jni.internal.plugins
 
 import dev.nokee.fixtures.*
+import dev.nokee.internal.testing.NativeServicesTestFixture
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.jni.*
 import dev.nokee.platform.nativebase.SharedLibraryBinary

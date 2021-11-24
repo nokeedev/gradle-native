@@ -15,6 +15,7 @@
  */
 package dev.nokee.fixtures
 
+import dev.nokee.internal.testing.NativeServicesTestFixture
 import dev.nokee.platform.base.*
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies
