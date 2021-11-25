@@ -20,10 +20,6 @@ include 'coreGradle'
 project(':coreGradle').projectDir = file('subprojects/core-gradle')
 project(':coreGradle').buildFileName = 'core-gradle.gradle'
 
-include 'coreGradleShim'
-project(':coreGradleShim').projectDir = file('subprojects/core-gradle-shim')
-project(':coreGradleShim').buildFileName = 'core-gradle-shim.gradle'
-
 include 'coreModel'
 project(':coreModel').projectDir = file('subprojects/core-model')
 project(':coreModel').buildFileName = 'core-model.gradle'
@@ -51,6 +47,10 @@ project(':distributions:bom').buildFileName = 'distributions-bom.gradle'
 include 'gradleAnnotation'
 project(':gradleAnnotation').projectDir = file('subprojects/gradle-annotation')
 project(':gradleAnnotation').buildFileName = 'gradle-annotation.gradle'
+
+include 'gradleShim'
+project(':gradleShim').projectDir = file('subprojects/gradle-shim')
+project(':gradleShim').buildFileName = 'gradle-shim.gradle'
 
 include 'ideBase'
 project(':ideBase').projectDir = file('subprojects/ide-base')
