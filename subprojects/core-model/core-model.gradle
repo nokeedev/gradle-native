@@ -7,7 +7,7 @@ plugins {
 
 dependencies {
 	implementation project(':coreUtils')
-	implementation project(':coreGradleShim')
+	implementation project(':gradleShim')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 
