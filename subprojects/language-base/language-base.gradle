@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+	compileOnly project(':gradleAnnotation')
 	api project(':coreModel')
 	implementation project(':coreUtils')
 	implementation project(':coreScript')

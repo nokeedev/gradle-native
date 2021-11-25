@@ -40,6 +40,7 @@ public class AssetCatalogCompileTask extends DefaultTask {
 	}
 
 	@SkipWhenEmpty
+	@IgnoreEmptyDirectories
 	@InputDirectory
 	public RegularFileProperty getSource() {
 		return source;

@@ -59,6 +59,7 @@ public interface SourceCompile extends Task, HasDestinationDirectory {
 	 */
 	@InputFiles
 	@SkipWhenEmpty
+	@IgnoreEmptyDirectories
 	@PathSensitive(PathSensitivity.RELATIVE)
 	ConfigurableFileCollection getSource();
 }

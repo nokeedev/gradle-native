@@ -38,6 +38,7 @@ public class ProcessPropertyListTask extends DefaultTask {
 
 	@Optional
 	@SkipWhenEmpty // TODO: Test no source
+	@IgnoreEmptyDirectories
 	@InputFiles
 	public ConfigurableFileCollection getSources() {
 		return sources;

@@ -1,0 +1,5 @@
+plugins {
+	id 'java-library'
+}
+
+description = 'Includes annotation from future Gradle distribution to ensure forward compatibility. Please only use `compileOnly` dependencies to this project'

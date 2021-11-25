@@ -35,6 +35,7 @@ public class SignIosApplicationBundleTask extends DefaultTask {
 	private final ObjectFactory objects;
 
 	@SkipWhenEmpty
+	@IgnoreEmptyDirectories
 	@InputDirectory
 	public Property<FileSystemLocation> getUnsignedApplicationBundle() {
 		return unsignedApplicationBundle;

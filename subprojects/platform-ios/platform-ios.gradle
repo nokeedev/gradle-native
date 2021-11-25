@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+	compileOnly project(':gradleAnnotation')
 	implementation project(':coreUtils')
 	implementation project(':coreModel')
 	implementation project(':languageObjectiveC')
