@@ -61,6 +61,7 @@ public class CreateIosApplicationBundleTask extends DefaultTask {
 	}
 
 	@SkipWhenEmpty
+	@IgnoreEmptyDirectories
 	@InputFiles
 	@PathSensitive(PathSensitivity.RELATIVE)
 	protected FileTree getInputFiles() {

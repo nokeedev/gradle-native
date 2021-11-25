@@ -50,6 +50,7 @@ public class StoryboardLinkTask extends DefaultTask {
 
 	// TODO: This may need to be richer so we keep the context path
 	@SkipWhenEmpty
+	@IgnoreEmptyDirectories
 	@InputFiles
 	protected List<File> getInputFiles() {
 		return getSources().getFiles().stream().flatMap(it -> {
