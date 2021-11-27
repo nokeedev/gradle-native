@@ -1,5 +1,6 @@
 plugins {
 	id 'java-library'
+	id 'maven-publish'
 }
 
 //region capability code
@@ -78,4 +79,12 @@ sourceSets {
 
 dependencies {
 	compileOnly gradleApi(minimumGradleVersion)
+}
+
+publishing {
+	publications {
+		library(MavenPublication) {
+			from components.java
+		}
+	}
 }
