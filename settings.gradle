@@ -48,6 +48,10 @@ include 'gradleAnnotation'
 project(':gradleAnnotation').projectDir = file('subprojects/gradle-annotation')
 project(':gradleAnnotation').buildFileName = 'gradle-annotation.gradle'
 
+include 'gradleApi'
+project(':gradleApi').projectDir = file('subprojects/gradle-api')
+project(':gradleApi').buildFileName = 'gradle-api.gradle'
+
 include 'gradleShim'
 project(':gradleShim').projectDir = file('subprojects/gradle-shim')
 project(':gradleShim').buildFileName = 'gradle-shim.gradle'
