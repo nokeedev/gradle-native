@@ -8,177 +8,71 @@ includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 includeBuild 'gradle/plugins/license-gradle-plugin'
 
-include 'buildAdapterCmake'
-project(':buildAdapterCmake').projectDir = file('subprojects/build-adapter-cmake')
-project(':buildAdapterCmake').buildFileName = 'build-adapter-cmake.gradle'
+/**
+ * Adds specified subproject path to this Gradle build.
+ *
+ * @param path  the subproject path under {@literal subprojects} folder, must not be null
+ * @param closure  a subproject {@link ProjectDescriptor} configuration closure, must not be null
+ */
+void subproject(String path, Closure closure = {}) {
+	def tokens = path.split('/')
+	def projectName = tokens.collect { name -> name.split('-').collect { it.capitalize() }.join().uncapitalize() }
+	def projectPath = projectName.join(':')
+	include(projectPath)
+	project(":${projectPath}").projectDir = file("subprojects/${path}")
+	project(":${projectPath}").buildFileName = "${tokens.join('-')}.gradle"
 
-include 'coreExec'
-project(':coreExec').projectDir = file('subprojects/core-exec')
-project(':coreExec').buildFileName = 'core-exec.gradle'
+	closure.delegate = project(":${projectPath}")
+	closure.resolveStrategy = Closure.DELEGATE_FIRST
+	closure.call(project(":${projectPath}"))
+}
 
-include 'coreGradle'
-project(':coreGradle').projectDir = file('subprojects/core-gradle')
-project(':coreGradle').buildFileName = 'core-gradle.gradle'
-
-include 'coreModel'
-project(':coreModel').projectDir = file('subprojects/core-model')
-project(':coreModel').buildFileName = 'core-model.gradle'
-
-include 'coreScript'
-project(':coreScript').projectDir = file('subprojects/core-script')
-project(':coreScript').buildFileName = 'core-script.gradle'
-
-include 'coreUtils'
-project(':coreUtils').projectDir = file('subprojects/core-utils')
-project(':coreUtils').buildFileName = 'core-utils.gradle'
-
-include 'distributions'
-project(':distributions').projectDir = file('subprojects/distributions')
-project(':distributions').buildFileName = 'distributions.gradle'
-
-include 'distributions:all'
-project(':distributions:all').projectDir = file('subprojects/distributions/all')
-project(':distributions:all').buildFileName = 'distributions-all.gradle'
-
-include 'distributions:bom'
-project(':distributions:bom').projectDir = file('subprojects/distributions/bom')
-project(':distributions:bom').buildFileName = 'distributions-bom.gradle'
-
-include 'gradleAnnotation'
-project(':gradleAnnotation').projectDir = file('subprojects/gradle-annotation')
-project(':gradleAnnotation').buildFileName = 'gradle-annotation.gradle'
-
-include 'gradleApi'
-project(':gradleApi').projectDir = file('subprojects/gradle-api')
-project(':gradleApi').buildFileName = 'gradle-api.gradle'
-
-include 'gradleShim'
-project(':gradleShim').projectDir = file('subprojects/gradle-shim')
-project(':gradleShim').buildFileName = 'gradle-shim.gradle'
-
-include 'ideBase'
-project(':ideBase').projectDir = file('subprojects/ide-base')
-project(':ideBase').buildFileName = 'ide-base.gradle'
-
-include 'ideVisualStudio'
-project(':ideVisualStudio').projectDir = file('subprojects/ide-visual-studio')
-project(':ideVisualStudio').buildFileName = 'ide-visual-studio.gradle'
-
-include 'ideXcode'
-project(':ideXcode').projectDir = file('subprojects/ide-xcode')
-project(':ideXcode').buildFileName = 'ide-xcode.gradle'
-
-include 'internalSmokeTest'
-project(':internalSmokeTest').projectDir = file('subprojects/internal-smoke-test')
-project(':internalSmokeTest').buildFileName = 'internal-smoke-test.gradle'
-
-include 'internalTesting'
-project(':internalTesting').projectDir = file('subprojects/internal-testing')
-project(':internalTesting').buildFileName = 'internal-testing.gradle'
-
-include 'languageBase'
-project(':languageBase').projectDir = file('subprojects/language-base')
-project(':languageBase').buildFileName = 'language-base.gradle'
-
-include 'languageC'
-project(':languageC').projectDir = file('subprojects/language-c')
-project(':languageC').buildFileName = 'language-c.gradle'
-
-include 'languageCpp'
-project(':languageCpp').projectDir = file('subprojects/language-cpp')
-project(':languageCpp').buildFileName = 'language-cpp.gradle'
-
-include 'languageNative'
-project(':languageNative').projectDir = file('subprojects/language-native')
-project(':languageNative').buildFileName = 'language-native.gradle'
-
-include 'languageObjectiveC'
-project(':languageObjectiveC').projectDir = file('subprojects/language-objective-c')
-project(':languageObjectiveC').buildFileName = 'language-objective-c.gradle'
-
-include 'languageObjectiveCpp'
-project(':languageObjectiveCpp').projectDir = file('subprojects/language-objective-cpp')
-project(':languageObjectiveCpp').buildFileName = 'language-objective-cpp.gradle'
-
-include 'languageSwift'
-project(':languageSwift').projectDir = file('subprojects/language-swift')
-project(':languageSwift').buildFileName = 'language-swift.gradle'
-
-include 'platformBase'
-project(':platformBase').projectDir = file('subprojects/platform-base')
-project(':platformBase').buildFileName = 'platform-base.gradle'
-
-include 'platformC'
-project(':platformC').projectDir = file('subprojects/platform-c')
-project(':platformC').buildFileName = 'platform-c.gradle'
-
-include 'platformCpp'
-project(':platformCpp').projectDir = file('subprojects/platform-cpp')
-project(':platformCpp').buildFileName = 'platform-cpp.gradle'
-
-include 'platformNative'
-project(':platformNative').projectDir = file('subprojects/platform-native')
-project(':platformNative').buildFileName = 'platform-native.gradle'
-
-include 'platformObjectiveC'
-project(':platformObjectiveC').projectDir = file('subprojects/platform-objective-c')
-project(':platformObjectiveC').buildFileName = 'platform-objective-c.gradle'
-
-include 'platformObjectiveCpp'
-project(':platformObjectiveCpp').projectDir = file('subprojects/platform-objective-cpp')
-project(':platformObjectiveCpp').buildFileName = 'platform-objective-cpp.gradle'
-
-include 'platformSwift'
-project(':platformSwift').projectDir = file('subprojects/platform-swift')
-project(':platformSwift').buildFileName = 'platform-swift.gradle'
-
-include 'platformIos'
-project(':platformIos').projectDir = file('subprojects/platform-ios')
-project(':platformIos').buildFileName = 'platform-ios.gradle'
-
-include 'platformJni'
-project(':platformJni').projectDir = file('subprojects/platform-jni')
-project(':platformJni').buildFileName = 'platform-jni.gradle'
-
-include 'publishingCore'
-project(':publishingCore').projectDir = file('subprojects/publishing-core')
-project(':publishingCore').buildFileName = 'publishing-core.gradle'
-
-include 'runtimeBase'
-project(':runtimeBase').projectDir = file('subprojects/runtime-base')
-project(':runtimeBase').buildFileName = 'runtime-base.gradle'
-
-include 'runtimeNative'
-project(':runtimeNative').projectDir = file('subprojects/runtime-native')
-project(':runtimeNative').buildFileName = 'runtime-native.gradle'
-
-include 'runtimeDarwin'
-project(':runtimeDarwin').projectDir = file('subprojects/runtime-darwin')
-project(':runtimeDarwin').buildFileName = 'runtime-darwin.gradle'
-
-include 'runtimeWindows'
-project(':runtimeWindows').projectDir = file('subprojects/runtime-windows')
-project(':runtimeWindows').buildFileName = 'runtime-windows.gradle'
-
-include 'testingBase'
-project(':testingBase').projectDir = file('subprojects/testing-base')
-project(':testingBase').buildFileName = 'testing-base.gradle'
-
-include 'testingNative'
-project(':testingNative').projectDir = file('subprojects/testing-native')
-project(':testingNative').buildFileName = 'testing-native.gradle'
-
-include 'testingXctest'
-project(':testingXctest').projectDir = file('subprojects/testing-xctest')
-project(':testingXctest').buildFileName = 'testing-xctest.gradle'
-
-include 'docs'
-project(':docs').projectDir = file('subprojects/docs')
-project(':docs').buildFileName = 'docs.gradle'
-
-include 'docs:exemplarKit'
-project(':docs:exemplarKit').projectDir = file('subprojects/docs/exemplar-kit')
-project(':docs:exemplarKit').buildFileName = 'exemplar-kit.gradle'
+subproject('build-adapter-cmake')
+subproject('core-exec')
+subproject('core-gradle')
+subproject('core-model')
+subproject('core-model')
+subproject('core-script')
+subproject('core-utils')
+subproject('distributions')
+subproject('distributions/all')
+subproject('distributions/bom')
+subproject('docs')
+subproject('docs/exemplar-kit') {
+	buildFileName = 'exemplar-kit.gradle'
+}
+subproject('gradle-annotation')
+subproject('gradle-api')
+subproject('gradle-shim')
+subproject('ide-base')
+subproject('ide-visual-studio')
+subproject('ide-xcode')
+subproject('internal-smoke-test')
+subproject('internal-testing')
+subproject('language-base')
+subproject('language-c')
+subproject('language-cpp')
+subproject('language-native')
+subproject('language-objective-c')
+subproject('language-objective-cpp')
+subproject('language-swift')
+subproject('platform-base')
+subproject('platform-c')
+subproject('platform-cpp')
+subproject('platform-native')
+subproject('platform-objective-c')
+subproject('platform-objective-cpp')
+subproject('platform-swift')
+subproject('platform-ios')
+subproject('platform-jni')
+subproject('publishing-core')
+subproject('runtime-base')
+subproject('runtime-native')
+subproject('runtime-darwin')
+subproject('runtime-windows')
+subproject('testing-base')
+subproject('testing-native')
+subproject('testing-xctest')
 
 buildCache {
 	remote(HttpBuildCache) {
