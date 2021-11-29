@@ -49,7 +49,7 @@ public final class Coordinates {
 	public static <T> Optional<T> find(CoordinateTuple self, CoordinateAxis<T> axis, boolean includeNested) {
 		requireNonNull(axis);
 		for (Coordinate<?> coordinate : self) {
-			if (axis.equals(coordinate.getAxis())) {
+			if (axis.equals(coordinate.getAxis()) && !Coordinates.isAbsentCoordinate(coordinate)) {
 				@SuppressWarnings("unchecked")
 				T result = (T) coordinate.getValue();
 				return Optional.of(result);
