@@ -63,9 +63,13 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 
 	private static Function<Coordinate<?>, String> named() {
 		return it -> {
-			val value = it.getValue();
-			if (value instanceof Named) {
-				return ((Named) value).getName();
+			if (Coordinates.isAbsentCoordinate(it)) {
+				return "";
+			} else {
+				val value = it.getValue();
+				if (value instanceof Named) {
+					return ((Named) value).getName();
+				}
 			}
 			throw new UnsupportedOperationException("Need to be named");
 		};
@@ -106,7 +110,7 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 			Optional<Boolean> result = Coordinates.find(coordinates, type, true).map(it -> Objects.equals(it, ((Coordinate<?>) axisValue).getValue()));
 			return result.orElse(false);
 		} else {
-			return Streams.stream(coordinates).flatMap(Coordinates::flatten).anyMatch(it -> Objects.equals(it.getValue(), axisValue));
+			return Streams.stream(coordinates).flatMap(Coordinates::flatten).anyMatch(it -> !Coordinates.isAbsentCoordinate(it) && Objects.equals(it.getValue(), axisValue));
 		}
 	}
 

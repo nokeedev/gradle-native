@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
@@ -36,10 +37,14 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Predicates.not;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
@@ -72,6 +77,8 @@ public final class DimensionPropertyRegistrationFactory {
 		private Set<Object> supportedValues;
 		private Object defaultValues = ImmutableSet.of();
 		private Consumer<? super Iterable<?>> axisValidator;
+		private boolean includeEmptyCoordinate = false;
+		private List<Predicate<? super BuildVariantInternal>> filters = new ArrayList<>();
 
 		private Builder(ModelPropertyIdentifier identifier) {
 			this.identifier = identifier;
@@ -95,6 +102,16 @@ public final class DimensionPropertyRegistrationFactory {
 
 		public <T> Builder validateUsing(Consumer<? super Iterable<T>> axisValidator) {
 			this.axisValidator = (Consumer<? super Iterable<?>>) axisValidator;
+			return this;
+		}
+
+		public Builder includeEmptyCoordinate() {
+			this.includeEmptyCoordinate = true;
+			return this;
+		}
+
+		public Builder filterVariant(Predicate<? super BuildVariantInternal> predicate) {
+			filters.add(predicate);
 			return this;
 		}
 
@@ -141,10 +158,17 @@ public final class DimensionPropertyRegistrationFactory {
 						});
 					}
 
-					return valueProvider
-						.map(it -> Streams.stream(it).map(a -> axis.create(a)).collect(Coordinates.<Object>toCoordinateSet()))
-						.get();
-				}))
+					if (includeEmptyCoordinate) {
+						return valueProvider
+							.map(it -> Streams.concat(Streams.stream(it).map(a -> axis.create(a)), Stream.of(Coordinates.absentCoordinate(axis)))
+								.collect(Coordinates.<Object>toCoordinateSet()))
+							.get();
+					} else {
+						return valueProvider
+							.map(it -> Streams.stream(it).map(a -> axis.create(a)).collect(Coordinates.<Object>toCoordinateSet()))
+							.get();
+					}
+				}, filters))
 				.build();
 		}
 	}
@@ -186,10 +210,12 @@ public final class DimensionPropertyRegistrationFactory {
 	public static final class Dimension<T> {
 		private final CoordinateAxis<T> axis;
 		private final Supplier<CoordinateSet<T>> values;
+		private final List<Predicate<BuildVariantInternal>> filters;
 
-		public Dimension(CoordinateAxis<T> axis, Supplier<CoordinateSet<T>> values) {
+		public Dimension(CoordinateAxis<T> axis, Supplier<CoordinateSet<T>> values, List<Predicate<BuildVariantInternal>> filters) {
 			this.axis = axis;
 			this.values = values;
+			this.filters = ImmutableList.copyOf(filters);
 		}
 
 		public CoordinateAxis<T> getAxis() {
@@ -198,6 +224,10 @@ public final class DimensionPropertyRegistrationFactory {
 
 		public CoordinateSet<T> get() {
 			return values.get();
+		}
+
+		public List<Predicate<BuildVariantInternal>> getFilters() {
+			return filters;
 		}
 	}
 }
