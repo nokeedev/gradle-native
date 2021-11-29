@@ -17,6 +17,7 @@ package dev.nokee.runtime.core;
 
 import com.google.common.collect.*;
 import com.google.common.reflect.TypeToken;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.reflect.TypeOf;
@@ -110,6 +111,38 @@ public final class Coordinates {
 
 	static String inferCoordinateAxisDisplayNameFromType(Class<?> type) {
 		return GUtil.toWords(type.getSimpleName());
+	}
+
+	public static <T> Coordinate<T> absentCoordinate(CoordinateAxis<T> axis) {
+		return new AbsentCoordinate<>(axis);
+	}
+
+	public static boolean isAbsentCoordinate(Coordinate<?> coordinate) {
+		return coordinate instanceof AbsentCoordinate;
+	}
+
+	@EqualsAndHashCode
+	private static final class AbsentCoordinate<T> implements Coordinate<T> {
+		private final CoordinateAxis<T> axis;
+
+		public AbsentCoordinate(CoordinateAxis<T> axis) {
+			this.axis = axis;
+		}
+
+		@Override
+		public CoordinateAxis<T> getAxis() {
+			return axis;
+		}
+
+		@Override
+		public T getValue() {
+			throw new UnsupportedOperationException("Absent coordinate does not have any value.");
+		}
+
+		@Override
+		public String toString() {
+			return "absent value for " + axis;
+		}
 	}
 
 	private static final Collector<Coordinate<?>, ?, CoordinateTuple> TO_COORDINATE_TUPLE = new Collector<Coordinate<?>, ImmutableList.Builder<Coordinate<?>>, CoordinateTuple>() {
