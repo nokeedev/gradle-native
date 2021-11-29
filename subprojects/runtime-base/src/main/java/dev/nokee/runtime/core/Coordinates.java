@@ -15,23 +15,26 @@
  */
 package dev.nokee.runtime.core;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.api.attributes.Attribute;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.util.GUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.*;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.collect.Iterables.getFirst;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
