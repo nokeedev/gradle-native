@@ -25,6 +25,7 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistr
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.*;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -228,7 +229,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val binaryConfigurer = project.getExtensions().getByType(BinaryConfigurer.class);
 						val binaryIdentifierXCTestBundle = BinaryIdentifier.of(BinaryName.of("unitTestXCTestBundle"), IosXCTestBundle.class, variantIdentifier);
 						val xcTestBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("unitTestXCTestBundle"))
+							.withComponent(DomainObjectIdentifierUtils.toPath(binaryIdentifierXCTestBundle))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierXCTestBundle)
 							.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifierXCTestBundle)))
