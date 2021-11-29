@@ -83,6 +83,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		val variantIdentifier = ModelNodes.of(variant).getComponent(componentOf(VariantIdentifier.class));
 
 		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
+		TaskNamer namer = TaskNamer.INSTANCE;
 
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {
@@ -94,34 +95,34 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		});
 
 		// XCTest UI Testing
-		val processUiTestPropertyListTask = taskRegistry.register("processUiTestPropertyList", ProcessPropertyListTask.class, task -> {
+		val processUiTestPropertyListTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "processUiTestPropertyList")), ProcessPropertyListTask.class, task -> {
 			task.getIdentifier().set(providers.provider(() -> getGroupId().get().get().get() + "." + moduleName));
 			task.getModule().set(moduleName);
 			task.getSources().from("src/uiTest/resources/Info.plist");
 			task.getOutputFile().set(layout.getBuildDirectory().file("ios/uiTest/Info.plist"));
 		});
 
-		TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = taskRegistry.register("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, task -> {
+		TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "createUiTestXCTestBundle")), CreateIosXCTestBundleTask.class, task -> {
 			task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.xctest"));
 			task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 			task.getSources().from(variant.flatMap(testSuite -> testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().flatMap(LinkBundle::getLinkedFile)).collect(Collectors.toList()))));
 		});
 
 		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/codesign")));
-		TaskProvider<SignIosApplicationBundleTask> signUiTestXCTestBundle = taskRegistry.register("signUiTestXCTestBundle", SignIosApplicationBundleTask.class, task -> {
+		TaskProvider<SignIosApplicationBundleTask> signUiTestXCTestBundle = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "signUiTestXCTestBundle")), SignIosApplicationBundleTask.class, task -> {
 			task.getUnsignedApplicationBundle().set(createUiTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + ".xctest"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
-		TaskProvider<Sync> prepareXctRunner = taskRegistry.register("prepareUiTestXctRunner", Sync.class, task -> {
+		TaskProvider<Sync> prepareXctRunner = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "prepareUiTestXctRunner")), Sync.class, task -> {
 			task.from(getXCTRunner());
 			task.rename("XCTRunner", moduleName + "-Runner");
 			task.setDestinationDir(task.getTemporaryDir());
 		});
 
-		TaskProvider<CreateIosApplicationBundleTask> createUiTestApplicationBundleTask = taskRegistry.register("createUiTestLauncherApplicationBundle", CreateIosApplicationBundleTask.class, task -> {
+		TaskProvider<CreateIosApplicationBundleTask> createUiTestApplicationBundleTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "createUiTestLauncherApplicationBundle")), CreateIosApplicationBundleTask.class, task -> {
 			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.app"));
 			task.getSources().from(prepareXctRunner.map(it -> it.getDestinationDir()));
 			task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
@@ -135,7 +136,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		val launcherApplicationBundle = new IosApplicationBundleInternal(createUiTestApplicationBundleTask);
 		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierApplicationBundle, launcherApplicationBundle));
 
-		val signTask = taskRegistry.register("signUiTestLauncherApplicationBundle", SignIosApplicationBundleTask.class, task -> {
+		val signTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "signUiTestLauncherApplicationBundle")), SignIosApplicationBundleTask.class, task -> {
 			task.getUnsignedApplicationBundle().set(createUiTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner.app"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
