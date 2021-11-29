@@ -15,19 +15,28 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.core.DescendantNodes;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.CoordinateSpace;
+import dev.nokee.utils.Cast;
+import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.*;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static dev.nokee.utils.TransformerUtils.toListTransformer;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class BuildVariants {
 	private final Provider<List<CoordinateSet<?>>> dimensions;
@@ -35,19 +44,29 @@ public final class BuildVariants {
 	private final SetProperty<BuildVariant> buildVariants;
 
 	public BuildVariants(ModelNode entity, ProviderFactory providers, ObjectFactory objects) {
-		this.dimensions = providers.provider(() -> {
+		Provider<List<DimensionPropertyRegistrationFactory.Dimension<?>>> dimensions = providers.provider(() -> {
 			val nodes = entity.getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream();
 			val dimensionNodes = nodes.filter(it -> it.hasComponent(ModelComponentType.componentOf(DimensionPropertyRegistrationFactory.Dimension.class)));
-			val dimensions = dimensionNodes.map(it -> it.getComponent(ModelComponentType.componentOf(DimensionPropertyRegistrationFactory.Dimension.class)).get());
-			return dimensions.map(it -> (CoordinateSet<?>) it).collect(Collectors.toList());
+			return dimensionNodes.map(it -> it.getComponent(ModelComponentType.componentOf(DimensionPropertyRegistrationFactory.Dimension.class))).map(it -> (DimensionPropertyRegistrationFactory.Dimension<?>) it).collect(Collectors.toList());
 		});
-		this.finalSpace = dimensions.map(CoordinateSpace::cartesianProduct);
+		this.dimensions = dimensions.map(transformEach(it -> it.get())).map(toListTransformer());
+		this.finalSpace = this.dimensions.map(CoordinateSpace::cartesianProduct);
 		this.buildVariants = objects.setProperty(BuildVariant.class);
 
-		buildVariants.convention(finalSpace.map(DefaultBuildVariant::fromSpace));
+		buildVariants.convention(finalSpace.map(DefaultBuildVariant::fromSpace).map(buildVariants -> {
+			val allFilters = dimensions.get().stream()
+				.flatMap(it -> it.getFilters().stream())
+				.collect(Collectors.toList());
+			return buildVariants.stream().filter(buildVariant -> {
+				return allFilters.stream()
+					.noneMatch(it -> it.test(buildVariant));
+			}).collect(Collectors.toSet());
+		}));
 		buildVariants.finalizeValueOnRead();
 		buildVariants.disallowChanges();
 	}
+
+
 
 	public Provider<List<CoordinateSet<?>>> dimensions() {
 		return dimensions;
