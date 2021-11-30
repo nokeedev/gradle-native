@@ -29,6 +29,8 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -118,6 +120,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 		}
 
 		@Test
+		@EnabledOnOs(OS.MAC)
 		void addsMacOsSdkPathToCompilerArguments() {
 			subject().getTargetPlatform().set(create(of("macos-x64")));
 			assertThat(subject().getCompilerArgs(), providerOf(hasItem("-sdk")));
