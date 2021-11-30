@@ -16,6 +16,7 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
+import dev.nokee.internal.testing.NativeServicesInitializedOnWindows;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
@@ -140,6 +141,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		}
 
 		@Nested
+		@NativeServicesInitializedOnWindows
 		class BuildableTest {
 			@Test
 			void isBuildableIfLinkTaskBuildable() {
@@ -322,6 +324,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			}
 
 			@Test
+			@NativeServicesInitializedOnWindows
 			void hasImportLibraryOnWindows() {
 				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				subject().getTargetPlatform().set(windowsPlatform());
@@ -329,6 +332,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			}
 
 			@Test
+			@NativeServicesInitializedOnWindows
 			void usesDestinationDirectoryAsImportLibraryFileParentDirectory() {
 				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				subject().getTargetPlatform().set(windowsPlatform());
@@ -338,6 +342,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			}
 
 			@Test
+			@NativeServicesInitializedOnWindows
 			void doesNotHaveImportLibraryOnNonWindows() {
 				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				subject().getTargetPlatform().set(nixPlatform());
