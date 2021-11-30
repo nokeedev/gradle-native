@@ -47,6 +47,7 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -133,7 +134,7 @@ public final class NativeLinkTaskRegistrationAction extends ModelActionWithInput
 	private static Function<ObjectLink, Object> forMacOsSdkIfAvailable() {
 		return task -> ((AbstractLinkTask) task).getTargetPlatform().map(it -> {
 			if (((AbstractLinkTask) task).getToolChain().isPresent()) {
-				if (((AbstractLinkTask) task).getToolChain().get() instanceof Swiftc && it.getOperatingSystem().isMacOsX()) {
+				if (((AbstractLinkTask) task).getToolChain().get() instanceof Swiftc && it.getOperatingSystem().isMacOsX() && OperatingSystem.current().isMacOsX()) {
 					// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
 					return ImmutableList.of("-sdk", CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim());
 				} else {

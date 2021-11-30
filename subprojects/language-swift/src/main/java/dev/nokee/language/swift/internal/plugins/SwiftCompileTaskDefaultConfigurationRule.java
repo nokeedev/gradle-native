@@ -33,6 +33,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
+import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.swift.SwiftVersion;
 import org.gradle.util.GUtil;
 
@@ -69,7 +70,7 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 
 	private static Function<SwiftCompileTask, Object> forMacOsSdkIfAvailable() {
 		return task -> task.getTargetPlatform().map(it -> {
-			if (it.getOperatingSystem().isMacOsX()) {
+			if (it.getOperatingSystem().isMacOsX() && OperatingSystem.current().isMacOsX()) {
 				// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
 				return ImmutableList.of("-sdk", CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim());
 			} else {
