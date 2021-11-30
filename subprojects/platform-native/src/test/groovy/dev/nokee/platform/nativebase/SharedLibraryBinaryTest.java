@@ -57,6 +57,8 @@ import org.gradle.platform.base.ToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
 import java.io.IOException;
@@ -343,6 +345,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			}
 
 			@Test
+			@EnabledOnOs(OS.MAC)
 			void addsMacOsSdkPathToLinkerArguments() {
 				project().getPluginManager().apply(SwiftCompilerPlugin.class); // only for Swiftc, at the moment
 				subject().getTargetPlatform().set(macosPlatform());
