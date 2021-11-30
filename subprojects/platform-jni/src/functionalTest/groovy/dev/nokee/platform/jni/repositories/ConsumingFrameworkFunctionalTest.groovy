@@ -448,9 +448,9 @@ Searched in the following locations:
 		versionNotation       			| displayName
 		'latest.integration'  			| 'latest status for integration'
 		'latest.release'      			| 'latest status for release'
-		'11.+'                			| 'prefix version range'
-		'[10.0,11.17]'        			| 'version range'
-		"[10.0,11.17]!!${sdkVersion}"	| 'version range with preference'
+		'12.+'                			| 'prefix version range'
+		'[10.0,12.0]'        			| 'version range'
+		"[10.0,12.0]!!${sdkVersion}"	| 'version range with preference'
 	}
 
 	def "handles xcrun errors without logging beyond info level"() {
