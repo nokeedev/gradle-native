@@ -82,6 +82,7 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDescendants;
+import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
@@ -312,6 +313,15 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 							((HasHeaders) ss).getHeaders().convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
 						}
 					}));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JvmJarArtifact.class), (entity, id, variants, jvmJar) -> {
+				if (id.equals(identifier)) {
+					variants.forEach(it -> {
+						applyTo(it, self(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTask.class), (e, assembleTask) -> {
+							assembleTask.configure(configureDependsOn(jvmJar));
+						})));
+					});
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asDomainObject(), (entity, id, ignored, jvmJar, component) -> {

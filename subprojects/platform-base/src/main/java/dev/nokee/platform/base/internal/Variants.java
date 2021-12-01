@@ -19,12 +19,18 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.ComponentVariants;
 
+import java.util.Iterator;
 import java.util.Map;
 
-public final class Variants implements ComponentVariants {
+public final class Variants implements ComponentVariants, Iterable<ModelNode> {
 	private final Map<BuildVariant, ModelNode> variants;
 
 	public Variants(Map<BuildVariant, ModelNode> variants) {
 		this.variants = variants;
+	}
+
+	@Override
+	public Iterator<ModelNode> iterator() {
+		return variants.values().iterator();
 	}
 }
