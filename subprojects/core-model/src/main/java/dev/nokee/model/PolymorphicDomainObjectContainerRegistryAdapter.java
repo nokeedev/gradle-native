@@ -15,6 +15,8 @@
  */
 package dev.nokee.model;
 
+import dev.nokee.model.internal.DefaultNamedDomainObjectSelfMutationDecoratorFactory;
+import dev.nokee.model.internal.NamedDomainObjectProviderDecorator;
 import dev.nokee.utils.NamedDomainObjectCollectionUtils;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.PolymorphicDomainObjectContainer;
@@ -37,24 +39,26 @@ final class PolymorphicDomainObjectContainerRegistryAdapter<T> implements Polymo
 
 	private final PolymorphicDomainObjectContainer<T> container;
 	private final RegistrableTypes registrableTypes;
+	private final NamedDomainObjectProviderDecorator decorator;
 
 	private PolymorphicDomainObjectContainerRegistryAdapter(PolymorphicDomainObjectContainer<T> container, RegistrableTypes registrableTypes) {
 		this.container = container;
 		this.registrableTypes = registrableTypes;
+		this.decorator = new DefaultNamedDomainObjectSelfMutationDecoratorFactory().forContainer(container);
 	}
 
 	@Override
 	public <S extends T> NamedDomainObjectProvider<S> register(String name, Class<S> type) {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(type);
-		return container.register(name, type);
+		return decorator.decorate(container.register(name, type));
 	}
 
 	@Override
 	public <S extends T> NamedDomainObjectProvider<S> registerIfAbsent(String name, Class<S> type) {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(type);
-		return NamedDomainObjectCollectionUtils.registerIfAbsent(container, name, type);
+		return decorator.decorate(NamedDomainObjectCollectionUtils.registerIfAbsent(container, name, type));
 	}
 
 	@Override
