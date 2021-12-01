@@ -71,7 +71,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -260,12 +259,12 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
 				if (id.equals(identifier)) {
-					apiElements.add(jvmJar.getJarFile().map(Path::toFile));
+					apiElements.add(jvmJar.getJarTask());
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
 				if (id.equals(identifier)) {
-					runtimeElements.add(jvmJar.getJarFile().map(Path::toFile));
+					runtimeElements.add(jvmJar.getJarTask());
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jvmJar, assemble) -> {
