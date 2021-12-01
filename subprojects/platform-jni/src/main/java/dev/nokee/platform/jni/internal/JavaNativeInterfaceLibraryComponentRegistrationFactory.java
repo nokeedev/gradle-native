@@ -152,11 +152,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 								it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(sourceSetIdentifier, project.getLayout()));
 							});
 
-							whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ProjectHeaderSearchPaths.class), (e, i, ss, l) -> {
-								if (!i.getOwnerIdentifier().equals(identifier) && ss instanceof HasHeaders) {
-									((HasHeaders) ss).getHeaders().convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
-								}
-							}));
+							entity.addComponent(new JavaLanguageSourceSet(sourceSet));
 						});
 						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
 							registry.register(project.getExtensions().getByType(KotlinSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "kotlin")));
@@ -310,6 +306,15 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						variants.put(buildVariant, ModelNodes.of(variant));
 					});
 					entity.addComponent(new Variants(variants.build()));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JavaLanguageSourceSet.class), (entity, id, variants, sourceSet) -> {
+				if (id.equals(identifier)) {
+					whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ProjectHeaderSearchPaths.class)/*, ModelComponentReference.of(ModelState.IsAtLeastRealized.class)*/, (e, i, ss, l/*, ii*/) -> {
+						if (!i.getOwnerIdentifier().equals(identifier) && ss instanceof HasHeaders) {
+							((HasHeaders) ss).getHeaders().convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
+						}
+					}));
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asDomainObject(), (entity, id, ignored, jvmJar, component) -> {
