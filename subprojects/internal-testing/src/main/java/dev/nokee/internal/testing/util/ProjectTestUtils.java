@@ -15,8 +15,10 @@
  */
 package dev.nokee.internal.testing.util;
 
+import dev.nokee.internal.testing.NativeServicesTestFixture;
 import dev.nokee.internal.testing.file.TestNameTestDirectoryProvider;
 import lombok.val;
+import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
@@ -58,6 +60,12 @@ public final class ProjectTestUtils {
 		return _use_project_method;
 	}
 
+	private static void initializeNativeServices() {
+		if (SystemUtils.IS_OS_WINDOWS) {
+			NativeServicesTestFixture.initialize();
+		}
+	}
+
 	/**
 	 * Returns an functional {@link ObjectFactory} instance.
 	 *
@@ -97,6 +105,7 @@ public final class ProjectTestUtils {
 	 */
 	public static Project rootProject() {
 		maybeRegisterCleanup();
+		initializeNativeServices();
 		val testDirectory = new TestNameTestDirectoryProvider(ProjectTestUtils.class);
 		PROJECT_DIRECTORIES_TO_CLEANUP.add(testDirectory);
 		synchronized (lock) {
@@ -112,6 +121,7 @@ public final class ProjectTestUtils {
 	 */
 	public static Project createRootProject(File rootDirectory) {
 		synchronized (lock) {
+			initializeNativeServices();
 			return ProjectBuilder
 				.builder()
 				.withProjectDir(rootDirectory)
@@ -162,6 +172,7 @@ public final class ProjectTestUtils {
 	 */
 	public static Project createChildProject(Project parent, String name, File projectDirectory) {
 		synchronized (lock) {
+			initializeNativeServices();
 			return ProjectBuilder
 				.builder()
 				.withName(name)
