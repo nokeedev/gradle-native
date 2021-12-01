@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
@@ -32,10 +33,12 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 public final class ModelPropertyRegistrationFactory {
 	private final ModelLookup lookup;
 	private final ObjectFactory objects;
+	private final ModelConfigurer modelConfigurer;
 
-	public ModelPropertyRegistrationFactory(ModelLookup lookup, ObjectFactory objects) {
+	public ModelPropertyRegistrationFactory(ModelLookup lookup, ObjectFactory objects, ModelConfigurer modelConfigurer) {
 		this.lookup = lookup;
 		this.objects = objects;
+		this.modelConfigurer = modelConfigurer;
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier, ModelNode entity) {
@@ -45,25 +48,23 @@ public final class ModelPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(path)
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, id, ignored) -> {
+				// When property is realized... realize the source entity
 				if (id.equals(identifier)) {
 					ModelStates.realize(entity);
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastRealized.class), new ModelActionWithInputs.A1<ModelState.IsAtLeastRealized>() {
-				private boolean realizePropertyWhenPresent = false;
-
-				@Override
-				public void execute(ModelNode e, ModelState.IsAtLeastRealized ignored) {
-					if (entity.getId() == e.getId()) {
-						val propertyNode = lookup.find(path);
-						if (propertyNode.isPresent()) {
-							ModelStates.realize(propertyNode.get());
-						} else {
-							realizePropertyWhenPresent = true;
-						}
-					} else if (realizePropertyWhenPresent && e.hasComponent(ModelPropertyIdentifier.class) && e.getComponent(ModelPropertyIdentifier.class).equals(identifier)) {
-						ModelStates.realize(e);
-						realizePropertyWhenPresent = false;
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.class), (e, state) -> {
+				// When entity is realized by not the property
+				if (state.isAtLeast(ModelState.Realized) && entity.getId() == e.getId()) {
+					val propertyNode = lookup.find(path);
+					if (propertyNode.isPresent()) {
+						ModelStates.realize(propertyNode.get());
+					} else {
+						modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
+							if (id.equals(identifier)) {
+								ModelStates.realize(ee);
+							}
+						}));
 					}
 				}
 			}))
