@@ -39,6 +39,10 @@ public final class ModelPropertyIdentifier implements DomainObjectIdentifier {
 		return ownerIdentifier;
 	}
 
+	public ModelPropertyName getName() {
+		return identity.getName();
+	}
+
 	@Override
 	public Iterator<Object> iterator() {
 		return ImmutableList.builder().addAll(ownerIdentifier).add(identity).build().iterator();
