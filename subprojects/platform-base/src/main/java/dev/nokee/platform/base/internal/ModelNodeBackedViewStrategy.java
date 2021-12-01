@@ -21,7 +21,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.registry.ModelBackedNamedDomainObjectProvider;
 import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 import org.gradle.api.Action;
@@ -105,7 +104,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	public <T> NamedDomainObjectProvider<T> named(String name, Class<T> elementType) {
 		val result = ModelProperties.findProperty(entity, name);
 		if (result.isPresent()) {
-			return new ModelBackedNamedDomainObjectProvider<>(result.get().as(elementType));
+			return result.get().as(elementType).asProvider();
 		}
 		throw new RuntimeException(String.format("Element '%s' not found.", name));
 	}
