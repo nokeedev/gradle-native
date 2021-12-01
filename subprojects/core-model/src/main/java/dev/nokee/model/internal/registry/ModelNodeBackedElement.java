@@ -17,15 +17,11 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Action;
 
-import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -60,6 +56,10 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 	public boolean instanceOf(ModelType<?> type) {
 		Objects.requireNonNull(type);
 		return ModelNodeUtils.canBeViewedAs(node, type);
+	}
+
+	public ModelElement property(String name) {
+		return ModelProperties.getProperty(this, name);
 	}
 
 	@Override
