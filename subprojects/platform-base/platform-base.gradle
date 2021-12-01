@@ -7,7 +7,7 @@ plugins {
 
 dependencies {
 	api project(':coreModel')
-	implementation project(':coreGradleShim')
+	implementation project(':gradleApi')
 	implementation project(':languageBase')
 	implementation project(':coreUtils')
 	implementation project(':runtimeBase')
