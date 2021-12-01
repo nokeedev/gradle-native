@@ -63,7 +63,7 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 	}
 
 	@Override
-	public <T> ModelElement configure(Class<T> type, Action<? super T> action) {
+	public <T> ModelElement configure(ModelType<T> type, Action<? super T> action) {
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(action);
 		as(type).configure(action);
