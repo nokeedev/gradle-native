@@ -93,7 +93,6 @@ public abstract class DomainElementsDynamicObject extends AbstractDynamicObject 
 
 	private static Boolean log(String message, Supplier<Boolean> factory) {
 		val result = factory.get();
-//		System.out.println(message + ": " + result);
 		return result;
 	}
 
