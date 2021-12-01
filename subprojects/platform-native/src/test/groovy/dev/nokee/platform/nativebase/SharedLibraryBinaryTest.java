@@ -58,6 +58,7 @@ import org.gradle.platform.base.ToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -180,6 +181,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			}
 
 			@Test
+			@DisabledOnOs(OS.WINDOWS)
 			void isBuildableIfSwiftCompileTasksAreBuildable() {
 				project.getPluginManager().apply(SwiftCompilerPlugin.class);
 				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
