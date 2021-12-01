@@ -123,16 +123,17 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {
 				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && sourceSet instanceof HasHeaders) {
-					((HasHeaders) sourceSet).getHeaders().from("src/" + identifier.getComponentIdentifier().getName() + "/headers");
+					((HasHeaders) sourceSet).getHeaders().convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {
 				if (DomainObjectIdentifierUtils.isDescendent(id, identifier)) {
-					sourceSet.from("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get());
 					if (sourceSet instanceof ObjectiveCSourceSet) {
-						sourceSet.from("src/" + identifier.getComponentIdentifier().getName() + "/objc");
+						sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objc"));
 					} else if (sourceSet instanceof ObjectiveCppSourceSet) {
-						sourceSet.from("src/" + identifier.getComponentIdentifier().getName() + "/objcpp");
+						sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objcpp"));
+					} else {
+						sourceSet.convention("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get());
 					}
 				}
 			}))
