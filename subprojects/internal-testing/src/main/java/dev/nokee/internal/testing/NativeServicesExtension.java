@@ -15,7 +15,6 @@
  */
 package dev.nokee.internal.testing;
 
-import lombok.val;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -26,10 +25,10 @@ public class NativeServicesExtension implements BeforeEachCallback {
 	@Override
 	public void beforeEach(ExtensionContext context) throws Exception {
 		if (SystemUtils.IS_OS_WINDOWS) {
-			val optional = findAnnotation(context.getElement(), NativeServicesInitializedOnWindows.class);
-			if (optional.isPresent()) {
+			findAnnotation(context.getElement(), NativeServicesInitializedOnWindows.class).ifPresent(ignored -> {
 				NativeServicesTestFixture.initialize();
-			}
+				System.out.println("Native services initialized");
+			});
 		}
 	}
 }
