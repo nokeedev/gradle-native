@@ -19,10 +19,7 @@ import com.google.common.base.Preconditions;
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.ModelIdentifier;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -77,6 +74,11 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 
 	@Override
 	public DomainObjectProvider<T> configure(Action<? super T> action) {
+		val o = node.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst();
+		if (o.isPresent()) {
+			o.get().get(ModelType.of(NamedDomainObjectProvider.class)).configure(action);
+			return this;
+		}
 		if (node.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
 			val provider = node.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
 			val type = ProviderUtils.getType(provider);
