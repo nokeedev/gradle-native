@@ -20,8 +20,8 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.jni.JvmJarBinary;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.bundling.Jar;
 
-import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 public final class JvmJarArtifact implements Callable<Object> {
@@ -31,8 +31,8 @@ public final class JvmJarArtifact implements Callable<Object> {
 		this.entity = entity;
 	}
 
-	public Provider<Path> getJarFile() {
-		return ModelNodeUtils.get(entity, JvmJarBinary.class).getJarTask().flatMap(it -> it.getArchiveFile()).map(it -> it.getAsFile().toPath());
+	public Provider<Jar> getJarTask() {
+		return ModelNodeUtils.get(entity, JvmJarBinary.class).getJarTask();
 	}
 
 	@Override
