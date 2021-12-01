@@ -125,4 +125,9 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	public TypeOf<?> getPublicType() {
 		return TypeOf.typeOf(JniLibrary.class);
 	}
+
+	@Override
+	public String toString() {
+		return node.getComponent(VariantIdentifier.class).getDisplayName();
+	}
 }
