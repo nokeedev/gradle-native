@@ -23,22 +23,31 @@ import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.internal.*;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
+
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 
 public final class CppSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
 	private final HeadersPropertyRegistrationActionFactory headersPropertyFactory;
 	private final HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory;
 	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
+	private final ObjectFactory objectFactory;
 
-	public CppSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeadersPropertyRegistrationActionFactory headersPropertyFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+	public CppSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeadersPropertyRegistrationActionFactory headersPropertyFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory, ObjectFactory objectFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
 		this.headersPropertyFactory = headersPropertyFactory;
 		this.resolvableHeadersRegistrationFactory = resolvableHeadersRegistrationFactory;
 		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
+		this.objectFactory = objectFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
@@ -46,7 +55,7 @@ public final class CppSourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
-		val builder = sourceSetRegistrationFactory.create(identifier, CppSourceSet.class, DefaultCppSourceSet.class);
+		val builder = sourceSetRegistrationFactory.create(identifier);
 		if (!isLegacy) {
 			builder.action(headersPropertyFactory.create(identifier))
 				.action(compileTaskRegistrationFactory.create(identifier, CppCompile.class, CppCompileTask.class))
@@ -55,6 +64,11 @@ public final class CppSourceSetRegistrationFactory {
 				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
 			;
 		}
+		builder.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
+			if (id.equals(identifier)) {
+				entity.addComponent(createdUsing(ModelType.of(CppSourceSet.class), () -> objectFactory.newInstance(DefaultCppSourceSet.class)));
+			}
+		}));
 		return builder.build();
 	}
 

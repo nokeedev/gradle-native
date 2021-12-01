@@ -44,7 +44,8 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
 				() -> project.getObjects()
 			),
-			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class),
+			project.getObjects()
 		));
 	}
 }
