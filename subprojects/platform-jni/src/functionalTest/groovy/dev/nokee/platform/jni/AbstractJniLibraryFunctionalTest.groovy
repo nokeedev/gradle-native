@@ -220,9 +220,7 @@ abstract class AbstractJniLibraryFunctionalTest extends AbstractInstalledToolCha
 					assert allBinaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
 					assert allBinaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
 
-					// In theory, we should realize (or at least force any action that "creates" binaries on variants)
-					//   In practice, we don't realize as finalizing the component is enough to tickle down the binary creation
-					assert configuredVariants.size() == 0
+					assert configuredVariants.size() == 1
 				}
 			}
 		"""
