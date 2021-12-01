@@ -67,7 +67,7 @@ abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInsta
 			library {
 				variants.configureEach { variant ->
 					configuredVariants << variant
-					tasks.register("custom${variant.identifier.fullName.capitalize()}") {
+					project.tasks.register("custom${variant.identifier.fullName.capitalize()}") {
 						group = 'Custom'
 						description = "Custom task for variant '${variant.identifier.fullName}'."
 					}
