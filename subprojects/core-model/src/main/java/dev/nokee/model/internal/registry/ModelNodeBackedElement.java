@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.provider.Property;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -66,7 +67,11 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 	public <T> ModelElement configure(ModelType<T> type, Action<? super T> action) {
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(action);
-		as(type).configure(action);
+		if (type.isSubtypeOf(Property.class)) {
+			action.execute(as(type).get());
+		} else {
+			as(type).configure(action);
+		}
 		return this;
 	}
 
