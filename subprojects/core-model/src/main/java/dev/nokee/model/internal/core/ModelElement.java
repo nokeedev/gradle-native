@@ -35,5 +35,8 @@ public interface ModelElement extends Named {
 
 	ModelElement property(String name);
 
-	<T> ModelElement configure(Class<T> type, Action<? super T> action);
+	<T> ModelElement configure(ModelType<T> type, Action<? super T> action);
+	default <T> ModelElement configure(Class<T> type, Action<? super T> action) {
+		return configure(ModelType.of(type), action);
+	}
 }
