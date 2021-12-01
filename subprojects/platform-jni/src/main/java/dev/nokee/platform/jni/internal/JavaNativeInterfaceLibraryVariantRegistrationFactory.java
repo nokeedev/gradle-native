@@ -35,6 +35,7 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.registry.ProvidedModelProjection;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
@@ -243,14 +244,13 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 
 					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
 
-					entity.addComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class))));
-					entity.addComponent(createdUsing(of(new TypeOf<Provider<JniLibrary>>() {}), () -> {
-						return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JniLibraryInternal.class));
-					}));
+					entity.addComponent(new ProvidedModelProjection<>(createdUsing(of(JniLibrary.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class))), project.getProviders(), entity));
+
 
 					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (e, i, s, p, library) -> {
 						if (i.equals(identifier)) {
 							val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
+
 							library.get().getJavaNativeInterfaceJar().getJarTask().configure(configureJarTaskUsing(library, unbuildableMainComponentLogger));
 						}
 					}));
