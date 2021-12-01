@@ -70,8 +70,6 @@ import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.TypeOf;
-import org.gradle.api.tasks.bundling.Jar;
-import org.gradle.api.tasks.compile.JavaCompile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -151,7 +149,9 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 							val sourceSetIdentifier = LanguageSourceSetIdentifier.of(identifier, "java");
 							val sourceSet = registry.register(project.getExtensions().getByType(JavaSourceSetRegistrationFactory.class).create(sourceSetIdentifier));
 
-							sourceSet.property("compileTask").configure(JavaCompile.class, new ConfigureJniHeaderDirectoryOnJavaCompileAction(sourceSetIdentifier, project.getLayout()));
+							sourceSet.configure(JavaSourceSet.class, it -> {
+								it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(sourceSetIdentifier, project.getLayout()));
+							});
 
 							entity.addComponent(new JavaLanguageSourceSet(sourceSet));
 						});
@@ -214,7 +214,9 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 								if (!alreadyExecuted) {
 									alreadyExecuted = true;
 									val jvmJar = registry.register(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"))));
-									jvmJar.property("jarTask").configure(Jar.class, task -> task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(TransformerUtils.noOpTransformer())));
+									jvmJar.configure(JvmJarBinary.class, binary -> {
+										binary.getJarTask().configure(task -> task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(TransformerUtils.noOpTransformer())));
+									});
 									entity.addComponent(new JvmJarArtifact(ModelNodes.of(jvmJar)));
 								}
 							}
@@ -299,7 +301,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					component.getBuildVariants().get().forEach(buildVariant -> {
 						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(JniLibrary.class).build();
 						val variant = project.getExtensions().getByType(ModelRegistry.class).register(variantFactory.create(variantIdentifier));
-						variant.property("baseName").configure(Property.class, it -> it.convention(ModelProperties.getProperty(entity, "baseName").as(String.class).map(TransformerUtils.noOpTransformer())));
+						variant.configure(JniLibrary.class, it -> it.getBaseName().convention(ModelProperties.getProperty(entity, "baseName").as(String.class).map(TransformerUtils.noOpTransformer())));
 
 						variants.put(buildVariant, ModelNodes.of(variant));
 					});
