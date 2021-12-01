@@ -33,5 +33,7 @@ public interface ModelElement extends Named {
 	}
 	boolean instanceOf(ModelType<?> type);
 
+	ModelElement property(String name);
+
 	<T> ModelElement configure(Class<T> type, Action<? super T> action);
 }
