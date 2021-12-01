@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.*;
@@ -56,7 +57,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(toPath(identifier))
 			.withComponent(IsBinary.tag())
 			.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(identifier)))
-			.withComponent(createdUsing(ModelType.of(SharedLibraryBinary.class), ModelBackedSharedLibraryBinary::new))
 			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))
 			.action(linkTaskRegistrationActionFactory.create(identifier, LinkSharedLibrary.class, LinkSharedLibraryTask.class))
 			.action(baseNamePropertyRegistrationActionFactory.create(identifier))
@@ -69,6 +69,11 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(attachAttributesToConfigurationRuleFactory.create(identifier, LinkLibrariesConfiguration.class))
 			.action(attachAttributesToConfigurationRuleFactory.create(identifier, RuntimeLibrariesConfiguration.class))
 			.action(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(identifier))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
+				if (id.equals(identifier)) {
+					entity.addComponent(createdUsing(ModelType.of(SharedLibraryBinary.class), ModelBackedSharedLibraryBinary::new));
+				}
+			}))
 			.build();
 	}
 
