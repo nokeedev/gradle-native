@@ -413,8 +413,12 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				toolChain.target("unbuildableunbuildable", t -> {
 					// Make the target unbuildable
 					t.getLinker().setExecutable("not-found");
+					t.getAssembler().setExecutable("not-found");
 					t.getcCompiler().setExecutable("not-found");
 					t.getCppCompiler().setExecutable("not-found");
+					t.getObjcCompiler().setExecutable("not-found");
+					t.getObjcppCompiler().setExecutable("not-found");
+					t.getStaticLibArchiver().setExecutable("not-found");
 				});
 			});
 			assertThat("has buildable JAR", subject(), dependsOn(hasItem(
