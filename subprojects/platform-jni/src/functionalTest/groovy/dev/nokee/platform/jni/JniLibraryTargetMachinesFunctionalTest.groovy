@@ -201,10 +201,10 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 					// Each variants has the expected binaries
 					variants.get().each { variant ->
 						def binaries = variant.binaries.elements
-						assert binaries.get().size() == 3
-						assert binaries.get().count { it instanceof ${JarBinary.simpleName} } == 2
+						assert binaries.get().size() == 2
+						assert binaries.get().count { it instanceof ${JarBinary.simpleName} } == 1
 						assert binaries.get().count { it instanceof ${JniJarBinary.simpleName} } == 1
-						assert binaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 1
+						assert binaries.get().count { it instanceof ${JvmJarBinary.simpleName} } == 0
 						assert binaries.get().count { it instanceof ${SharedLibraryBinary.simpleName} } == 1
 					}
 
