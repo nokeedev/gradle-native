@@ -16,21 +16,17 @@
 package dev.nokee.model.internal;
 
 import com.google.common.collect.Streams;
-import groovy.lang.Closure;
-import org.gradle.api.*;
+import dev.nokee.gradle.NamedDomainObjectProviderFactory;
+import dev.nokee.gradle.TaskProviderFactory;
+import lombok.val;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.internal.MutationGuard;
 import org.gradle.api.internal.MutationGuards;
-import org.gradle.api.internal.provider.ProviderInternal;
-import org.gradle.api.internal.provider.ValueSanitizer;
-import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskContainer;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.internal.DisplayName;
-import org.gradle.internal.state.Managed;
-import org.gradle.util.ConfigureUtil;
 
-import javax.annotation.Nullable;
+import static dev.nokee.gradle.NamedDomainObjectProviderSpec.builder;
 
 public final class DefaultNamedDomainObjectSelfMutationDecoratorFactory implements NamedDomainObjectProviderSelfMutationDecoratorFactory {
 	@Override
@@ -43,6 +39,7 @@ public final class DefaultNamedDomainObjectSelfMutationDecoratorFactory implemen
 	}
 
 	private static final class DefaultTaskProviderDecorator implements NamedDomainObjectProviderDecorator {
+		private static final TaskProviderFactory PROVIDER_FACTORY = new TaskProviderFactory();
 		private final MutationGuard guard;
 		private final NamedDomainObjectContainer<?> container;
 
@@ -52,23 +49,18 @@ public final class DefaultNamedDomainObjectSelfMutationDecoratorFactory implemen
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({"unchecked", "rawtypes"})
 		public <T> NamedDomainObjectProvider<T> decorate(NamedDomainObjectProvider<T> provider) {
 			if (Streams.stream(container.getCollectionSchema().getElements()).noneMatch(it -> it.getName().equals(provider.getName()))) {
 				throw new UnsupportedOperationException(String.format("Cannot decorate %s.", provider));
 			}
-			return new DefaultTaskProvider(provider);
-		}
-
-		@SuppressWarnings("rawtypes")
-		private final class DefaultTaskProvider extends AbstractNamedDomainObjectProvider implements TaskProvider {
-			private DefaultTaskProvider(NamedDomainObjectProvider delegate) {
-				super(delegate, new NamedDomainObjectProviderSelfMutationConfigureStrategy(guard));
-			}
+			val configureStrategy = new NamedDomainObjectProviderSelfMutationConfigureStrategy(guard);
+			return PROVIDER_FACTORY.create(builder().delegateTo((NamedDomainObjectProvider) provider).configureUsing(a -> configureStrategy.configure(provider, (Action) a)).build());
 		}
 	}
 
 	private static final class DefaultNamedDomainObjectProviderDecorator implements NamedDomainObjectProviderDecorator {
+		private static final NamedDomainObjectProviderFactory PROVIDER_FACTORY = new NamedDomainObjectProviderFactory();
 		private final MutationGuard guard;
 		private final NamedDomainObjectContainer<?> container;
 
@@ -78,147 +70,13 @@ public final class DefaultNamedDomainObjectSelfMutationDecoratorFactory implemen
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({"unchecked", "rawtypes"})
 		public <T> NamedDomainObjectProvider<T> decorate(NamedDomainObjectProvider<T> provider) {
 			if (Streams.stream(container.getCollectionSchema().getElements()).noneMatch(it -> it.getName().equals(provider.getName()))) {
 				throw new UnsupportedOperationException(String.format("Cannot decorate %s.", provider));
 			}
-			return new DefaultNamedDomainObjectProvider(provider);
-		}
-
-		private final class DefaultNamedDomainObjectProvider extends AbstractNamedDomainObjectProvider {
-			private DefaultNamedDomainObjectProvider(NamedDomainObjectProvider delegate) {
-				super(delegate, new NamedDomainObjectProviderSelfMutationConfigureStrategy(guard));
-			}
-		}
-	}
-
-	// Note: Implements Named interface because of DefaultNamedDomainObjectCollection.AbstractNamedDomainObjectProvider implementation
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	private abstract static class AbstractNamedDomainObjectProvider implements NamedDomainObjectProvider, ProviderInternal, Managed, Named {
-		protected final NamedDomainObjectProvider delegate;
-		private final NamedDomainObjectProviderSelfMutationConfigureStrategy configureStrategy;
-
-		protected AbstractNamedDomainObjectProvider(NamedDomainObjectProvider delegate, NamedDomainObjectProviderSelfMutationConfigureStrategy configureStrategy) {
-			this.delegate = delegate;
-			this.configureStrategy = configureStrategy;
-		}
-
-		@Override
-		public final void configure(Action action) {
-			configureStrategy.configure(delegate, action);
-		}
-
-		public final void configure(Closure closure) {
-			configureStrategy.configure(delegate, ConfigureUtil.configureUsing(closure));
-		}
-
-		@Override
-		public final String getName() {
-			return delegate.getName();
-		}
-
-		@Nullable
-		@Override
-		public final Class<Object> getType() {
-			return ((ProviderInternal) delegate).getType();
-		}
-
-		@Override
-		public final ProviderInternal map(Transformer transformer) {
-			return ((ProviderInternal) delegate).map(transformer);
-		}
-
-		@Override
-		public final Value calculateValue() {
-			return ((ProviderInternal) delegate).calculateValue();
-		}
-
-		@Override
-		public final ProviderInternal asSupplier(DisplayName owner, Class targetType, ValueSanitizer sanitizer) {
-			return ((ProviderInternal) delegate).asSupplier(owner, targetType, sanitizer);
-		}
-
-		@Override
-		public final ProviderInternal withFinalValue() {
-			return ((ProviderInternal) delegate).withFinalValue();
-		}
-
-		@Override
-		public final boolean maybeVisitBuildDependencies(TaskDependencyResolveContext context) {
-			return ((ProviderInternal) delegate).maybeVisitBuildDependencies(context);
-		}
-
-		@Override
-		public final void visitProducerTasks(Action<? super Task> visitor) {
-			((ProviderInternal) delegate).visitProducerTasks(visitor);
-		}
-
-		@Override
-		public final boolean isValueProducedByTask() {
-			return ((ProviderInternal) delegate).isValueProducedByTask();
-		}
-
-		@Override
-		public final void visitDependencies(TaskDependencyResolveContext context) {
-			((ProviderInternal) delegate).visitDependencies(context);
-		}
-
-		@Override
-		public final Object get() {
-			return delegate.get();
-		}
-
-		@Nullable
-		@Override
-		public final Object getOrNull() {
-			return delegate.getOrNull();
-		}
-
-		@Override
-		public final Object getOrElse(Object defaultValue) {
-			return delegate.getOrElse(defaultValue);
-		}
-
-		@Override
-		public final Provider flatMap(Transformer transformer) {
-			return delegate.flatMap(transformer);
-		}
-
-		@Override
-		public final boolean isPresent() {
-			return delegate.isPresent();
-		}
-
-		@Override
-		public final Provider orElse(Object value) {
-			return delegate.orElse(value);
-		}
-
-		@Override
-		public final Provider orElse(Provider provider) {
-			return delegate.orElse(provider);
-		}
-
-		@Nullable
-		@Override
-		public final Object unpackState() {
-			return ((Managed) delegate).unpackState();
-		}
-
-		@Override
-		public final boolean isImmutable() {
-			return ((Managed) delegate).isImmutable();
-		}
-
-		@Override
-		public final Class<?> publicType() {
-			return ((Managed) delegate).publicType();
-		}
-
-		@Override
-		public final int getFactoryId() {
-			return ((Managed) delegate).getFactoryId();
+			val configureStrategy =  new NamedDomainObjectProviderSelfMutationConfigureStrategy(guard);
+			return PROVIDER_FACTORY.create(builder().delegateTo((NamedDomainObjectProvider) provider).configureUsing(a -> configureStrategy.configure(provider, (Action) a)).build());
 		}
 	}
 }
