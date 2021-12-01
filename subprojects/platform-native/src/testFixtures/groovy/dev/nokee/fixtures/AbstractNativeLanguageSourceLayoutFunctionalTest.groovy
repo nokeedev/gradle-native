@@ -84,17 +84,17 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		componentUnderTest.writeToSourceDir(file('srcs'))
 		buildFile << """
 			import ${LanguageSourceSet.canonicalName}
-			pluginManager.withPlugin('java-base') {
+			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
-				${componentUnderTestDsl}.sources.java(LanguageSourceSet) { filter.include('**/*.java') }
+				${componentUnderTestDsl}.sources.java { filter.include('**/*.java') }
 			}
-			pluginManager.withPlugin('groovy-base') {
+			pluginManager.withPlugin('groovy') {
 				sourceSets.main.groovy.setSrcDirs([])
-				${componentUnderTestDsl}.sources.groovy(LanguageSourceSet) { filter.include('**/*.groovy') }
+				${componentUnderTestDsl}.sources.groovy { filter.include('**/*.groovy') }
 			}
 			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
 				sourceSets.main.kotlin.setSrcDirs([])
-				${componentUnderTestDsl}.sources.kotlin(LanguageSourceSet) { filter.include('**/*.kt') }
+				${componentUnderTestDsl}.sources.kotlin { filter.include('**/*.kt') }
 			}
 
 			def generatedSources = tasks.register('generateSources') {
@@ -148,17 +148,17 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		and:
 		file('library', buildFileName) << """
 			import ${LanguageSourceSet.canonicalName}
-			pluginManager.withPlugin('java-base') {
+			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
-				library.sources.java(LanguageSourceSet) { filter.include('**/*.java') }
+				library.sources.java { filter.include('**/*.java') }
 			}
-			pluginManager.withPlugin('groovy-base') {
+			pluginManager.withPlugin('groovy') {
 				sourceSets.main.groovy.setSrcDirs([])
-				library.sources.groovy(LanguageSourceSet) { filter.include('**/*.groovy') }
+				library.sources.groovy { filter.include('**/*.groovy') }
 			}
 			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
 				sourceSets.main.kotlin.setSrcDirs([])
-				library.sources.kotlin(LanguageSourceSet) { filter.include('**/*.kt') }
+				library.sources.kotlin { filter.include('**/*.kt') }
 			}
 
 			def generatedSources = tasks.register('generateSources') {
@@ -228,20 +228,24 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 	protected abstract void makeProjectWithLibrary()
 
+	protected boolean isLegacy() {
+		return true
+	}
+
 	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl) {
 		return """
 			import ${LanguageSourceSet.canonicalName}
-			pluginManager.withPlugin('java-base') {
+			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
-				${dsl}.sources.java(LanguageSourceSet) { filter.include('**/*.java') }
+				${dsl}.sources.java { filter.include('**/*.java') }
 			}
-			pluginManager.withPlugin('groovy-base') {
+			pluginManager.withPlugin('groovy') {
 				sourceSets.main.groovy.setSrcDirs([])
-				${dsl}.sources.groovy(LanguageSourceSet) { filter.include('**/*.groovy') }
+				${dsl}.sources.groovy { filter.include('**/*.groovy') }
 			}
 			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
 				sourceSets.main.kotlin.setSrcDirs([])
-				${dsl}.sources.kotlin(LanguageSourceSet) { filter.include('**/*.kt') }
+				${dsl}.sources.kotlin { filter.include('**/*.kt') }
 			}
 
 			import ${NativeHeaderSet.canonicalName}
@@ -269,7 +273,13 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			${dsl}.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
 			${dsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
 			${dsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
-		"""
+		""" + (legacy ? '' : """
+			${dsl}.sources.configureEach(CSourceSet) { headers.from('headers', 'includes') }
+			${dsl}.sources.configureEach(CppSourceSet) { headers.from('headers', 'includes') }
+			${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from('headers', 'includes') }
+			${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from('headers', 'includes') }
+			${dsl}.sources.configureEach(SwiftSourceSet) { headers.from('headers', 'includes') }
+		""")
 	}
 
 	protected String configureSourcesAsExplicitFiles() {
@@ -277,15 +287,15 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			import ${LanguageSourceSet.canonicalName}
 			pluginManager.withPlugin('java-base') {
 				sourceSets.main.java.setSrcDirs([])
-				${componentUnderTestDsl}.sources.java(LanguageSourceSet) { filter.include('**/*.java') }
+				${componentUnderTestDsl}.sources.java { filter.include('**/*.java') }
 			}
 			pluginManager.withPlugin('groovy-base') {
 				sourceSets.main.groovy.setSrcDirs([])
-				${componentUnderTestDsl}.sources.groovy(LanguageSourceSet) { filter.include('**/*.groovy') }
+				${componentUnderTestDsl}.sources.groovy { filter.include('**/*.groovy') }
 			}
 			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
 				sourceSets.main.kotlin.setSrcDirs([])
-				${componentUnderTestDsl}.sources.kotlin(LanguageSourceSet) { filter.include('**/*.kt') }
+				${componentUnderTestDsl}.sources.kotlin { filter.include('**/*.kt') }
 			}
 
 			import ${NativeHeaderSet.canonicalName}
@@ -313,6 +323,12 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
 			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
 			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
-		"""
+		""" + (legacy ? '' : """
+			${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.from('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.from('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { headers.from('headers', 'includes') }
+		""")
 	}
 }
