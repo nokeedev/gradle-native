@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-	id 'org.shipkit.shipkit-auto-version' version '1.1.1'
+	id 'nokeebuild.nokee-auto-version'
 }
 
 allprojects {
@@ -30,57 +30,7 @@ allprojects {
 	}
 }
 
-import org.gradle.util.VersionNumber
-
-import java.text.SimpleDateFormat
-
-class Version {
-	private VersionNumber delegate = null
-	private final ProjectLayout projectLayout
-	private final Object autoVersion
-
-	Version(ProjectLayout projectLayout, Object autoVersion) {
-		this.autoVersion = autoVersion
-		this.projectLayout = projectLayout
-	}
-
-	@Override
-	String toString() {
-		maybeLoad()
-		return delegate.toString()
-	}
-
-	private void maybeLoad() {
-		if (delegate == null) {
-			if (System.getProperties().containsKey("release")) {
-				delegate = VersionNumber.parse(loadBaseVersion())
-			} else if (System.getProperties().containsKey('milestone')) {
-				delegate = VersionNumber.parse(autoVersion.toString())
-			} else if (System.getProperties().containsKey('integration')) { // Support multiple version of the same commit
-				delegate = VersionNumber.parse("${autoVersion}-${new SimpleDateFormat("yyyyMMddHHmm").format(new Date())}.${loadQualifier()}")
-			} else {
-				delegate = VersionNumber.parse("${loadBaseVersion()}-SNAPSHOT") // stable local
-			}
-		}
-	}
-
-	private String loadBaseVersion() {
-		return projectLayout.projectDirectory.file('version.txt').asFile.text.trim()
-	}
-
-	private String loadQualifier() {
-		// CI macOS is using a version that prompt a shorter value by 1 char... Tabar...
-		def process = "git rev-parse --short=8 HEAD".execute(null, projectLayout.projectDirectory.asFile)
-		process.waitFor()
-		def result = process.in.text.trim()
-		return result
-	}
-}
-
-def v = new Version(layout, version)
-println("Version overridden to ${v}")
 allprojects {
-	version = v
 	group = 'dev.nokee'
 }
 
