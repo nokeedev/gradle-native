@@ -41,7 +41,7 @@ abstract class AbstractNativeCompilationAwareComponentFunctionalTest extends Abs
 		then:
 		result.assertTasksExecuted(additionalCompileTasks, taskNames.tasks.allToObjects)
 		and:
-		objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/main${taskNames.languageTaskSuffix}")*.assertExists()
+		objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertExists()
 	}
 
 	def "can compile native sources of a specific variant using objects lifecycle tasks"() {
@@ -58,9 +58,9 @@ abstract class AbstractNativeCompilationAwareComponentFunctionalTest extends Abs
 		then:
 		result.assertTasksExecuted(additionalCompileTasks, taskNames.tasks.withOperatingSystemFamily(currentOsFamilyName).allToObjects)
 		and:
-		objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${currentOsFamilyName}/main${taskNames.languageTaskSuffix}")*.assertExists()
+		objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${currentOsFamilyName}/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertExists()
 		(['windows', 'macos', 'linux'] - [currentOsFamilyName]).each {
-			objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${it}/main${taskNames.languageTaskSuffix}")*.assertDoesNotExist()
+			objectFiles(componentUnderTest.nativeSources.sources, "build/objs/main/${it}/${taskNames.languageTaskSuffix.uncapitalize()}")*.assertDoesNotExist()
 		}
 	}
 
