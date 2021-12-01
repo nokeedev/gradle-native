@@ -76,6 +76,10 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 		return new TaskIdentifier<>(TaskName.of(name), Task.class, ownerIdentifier);
 	}
 
+	public static TaskIdentifier<?> of(DomainObjectIdentifier ownerIdentifier, TaskName name) {
+		return new TaskIdentifier<>(name, Task.class, ownerIdentifier);
+	}
+
 	private static boolean isValidLifecycleOwner(DomainObjectIdentifier ownerIdentifier) {
 		if (ownerIdentifier instanceof VariantIdentifier) {
 			val variantIdentifier = (VariantIdentifier<?>) ownerIdentifier;
