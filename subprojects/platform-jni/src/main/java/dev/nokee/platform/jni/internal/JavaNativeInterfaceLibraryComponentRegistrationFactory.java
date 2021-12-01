@@ -113,7 +113,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
-				if (entityPath.isDescendant(path)) {
+				if (entityPath.isDirectDescendant(path)) {
 					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
 				}
 			}))
@@ -155,7 +155,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 
 							whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ProjectHeaderSearchPaths.class), (e, i, ss, l) -> {
 								if (!i.getOwnerIdentifier().equals(identifier) && ss instanceof HasHeaders) {
-									((HasHeaders) ss).getHeaders().from(sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
+									((HasHeaders) ss).getHeaders().convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
 								}
 							}));
 						});
