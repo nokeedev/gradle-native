@@ -219,6 +219,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 							task.setDescription(String.format("Assembles the outputs of %s.", identifier.getDisplayName()));
 						}
 					});
+					entity.addComponent(new AssembleTask(ModelNodes.of(assembleTask)));
 					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "assembleTask"), ModelNodes.of(assembleTask)));
 
 					val nativeRuntimeFiles = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createFileCollectionProperty(ModelPropertyIdentifier.of(identifier, "nativeRuntimeFiles")));
@@ -237,6 +238,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 							task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(baseName -> baseName + identifier.getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("")));
 						});
 					});
+					entity.addComponent(new JniJarArtifact(ModelNodes.of(jniJar)));
 
 					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "javaNativeInterfaceJar"), ModelNodes.of(jniJar)));
 
@@ -266,6 +268,11 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 							});
 						});
 					}));
+				}
+			}))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(JniJarArtifact.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jniJar, assembleTask) -> {
+				if (id.equals(identifier) && !id.getUnambiguousName().isEmpty()) {
+					assembleTask.configure(configureDependsOn(jniJar));
 				}
 			}))
 			.build();
