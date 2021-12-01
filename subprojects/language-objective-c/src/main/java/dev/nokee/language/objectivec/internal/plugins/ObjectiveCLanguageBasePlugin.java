@@ -46,7 +46,8 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
 			project.getExtensions().getByType(HeadersPropertyRegistrationActionFactory.class),
 			project.getExtensions().getByType(HeaderSearchPathsConfigurationRegistrationActionFactory.class),
-			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class),
+			project.getObjects()
 		));
 	}
 }

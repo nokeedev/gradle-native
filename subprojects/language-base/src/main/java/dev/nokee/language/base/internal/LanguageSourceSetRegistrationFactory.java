@@ -20,6 +20,7 @@ import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.type.ModelType;
+import lombok.val;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
 
@@ -39,6 +40,10 @@ public final class LanguageSourceSetRegistrationFactory {
 		this.objectFactory = objectFactory;
 		this.sourceSetFactory = sourceSetFactory;
 		this.sourcePropertyRegistrationFactory = sourcePropertyRegistrationFactory;
+	}
+
+	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier) {
+		return create(identifier, sourcePropertyRegistrationFactory.create(identifier, sourceSetFactory::sourceSet));
 	}
 
 	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, Class<T> publicType) {
@@ -62,11 +67,16 @@ public final class LanguageSourceSetRegistrationFactory {
 	}
 
 	private ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, ModelAction sourcePropertyAction, ModelProjection projection) {
+		val result = create(identifier, sourcePropertyAction);
+		result.withComponent(projection);
+		return result;
+	}
+
+	private ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, ModelAction sourcePropertyAction) {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(toPath(identifier))
 			.withComponent(IsLanguageSourceSet.tag())
-			.withComponent(projection)
 			.withComponent(managed(of(DefaultLanguageSourceSetStrategy.class)))
 			.action(sourcePropertyAction);
 	}
