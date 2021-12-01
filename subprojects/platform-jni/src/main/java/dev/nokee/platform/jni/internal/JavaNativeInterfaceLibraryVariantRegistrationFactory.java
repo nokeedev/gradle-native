@@ -353,7 +353,8 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 				//    - Single variant where no toolchain is found to build the binary (unbuildable) => fail
 				//    - Single variant where toolchain is found to build the binary (buildable) => build (and hopefully succeed)
 				if (task.getName().equals("jar")) {
-					if (it.getTargetMachine().getOperatingSystemFamily().equals(OperatingSystemFamily.forName(System.getProperty("os.name")))) {
+					// TODO: Test this scenario in a functional test
+					if (it.getSharedLibrary().isBuildable()) {
 						return it.getNativeRuntimeFiles().getElements();
 					} else {
 						runnableLogger.run();
