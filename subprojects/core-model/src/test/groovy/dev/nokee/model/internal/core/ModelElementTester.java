@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.testing.WrongType;
 import com.google.common.testing.NullPointerTester;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ActionTestUtils;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,7 @@ public interface ModelElementTester {
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	default void checkNulls() {
-		new NullPointerTester().testAllPublicInstanceMethods(subject());
+		new NullPointerTester().setDefault(ModelType.class, ModelType.untyped()).testAllPublicInstanceMethods(subject());
 	}
 
 	@Test
