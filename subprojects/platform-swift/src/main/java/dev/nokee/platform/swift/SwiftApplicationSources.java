@@ -16,7 +16,6 @@
 package dev.nokee.platform.swift;
 
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.language.base.internal.BaseFunctionalSourceSet;
 import dev.nokee.platform.base.ComponentSources;
 
 /**
@@ -27,4 +26,4 @@ import dev.nokee.platform.base.ComponentSources;
  * @see HasSwiftSourceSet
  * @since 0.5
  */
-public class SwiftApplicationSources extends BaseFunctionalSourceSet implements ComponentSources, HasSwiftSourceSet {}
+public interface SwiftApplicationSources extends FunctionalSourceSet, ComponentSources, HasSwiftSourceSet {}

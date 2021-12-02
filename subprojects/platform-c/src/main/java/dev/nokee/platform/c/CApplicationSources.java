@@ -16,7 +16,6 @@
 package dev.nokee.platform.c;
 
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.language.base.internal.BaseFunctionalSourceSet;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 
@@ -29,4 +28,4 @@ import dev.nokee.platform.nativebase.HasHeadersSourceSet;
  * @see HasCSourceSet
  * @since 0.5
  */
-public class CApplicationSources extends BaseFunctionalSourceSet implements ComponentSources, HasHeadersSourceSet, HasCSourceSet {}
+public interface CApplicationSources extends FunctionalSourceSet, ComponentSources, HasHeadersSourceSet, HasCSourceSet {}

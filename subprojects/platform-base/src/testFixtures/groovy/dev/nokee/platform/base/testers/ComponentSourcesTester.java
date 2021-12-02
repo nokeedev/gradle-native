@@ -16,18 +16,17 @@
 package dev.nokee.platform.base.testers;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.ComponentSources;
-import dev.nokee.utils.ProviderUtils;
 import groovy.lang.Closure;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.internal.provider.ProviderInternal;
+import org.gradle.api.reflect.TypeOf;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -36,10 +35,10 @@ import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.lang.reflect.Type;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.base.testing.LanguageSourceSetMatchers.sourceSetOf;
@@ -83,7 +82,7 @@ public interface ComponentSourcesTester<T extends ComponentSources> {
 	@MethodSource("provideSourceSetUnderTest")
 	default void checkSourceSetTypeSafeAccessorAndConfigurationMethodsPrototypeIntegrity(SourceSetUnderTest sourceSet) throws Throwable {
 		val subject = createSubject();
-		assertThat("accessor should return a provider", sourceSet.typeSafeAccessor(subject).getReturnType(), equalTo(NamedDomainObjectProvider.class));
+		assertThat("accessor should return a provider", TypeToken.of(sourceSet.typeSafeAccessor(subject).getReturnType()).getRawType(), equalTo(NamedDomainObjectProvider.class));
 		assertThat("accessor provider should provide the public source set type", sourceSet.typeSafeAccessor(subject).invoke().get(), isA(sourceSet.getType()));
 //		assertThat("configuration method using action should not return anything", sourceSet.configureUsingAction(subject).getReturnType(), equalTo(Void.TYPE));
 //		assertThat("configuration method using closure should not return anything", sourceSet.configureUsingClosure(subject).getReturnType(), equalTo(Void.TYPE));

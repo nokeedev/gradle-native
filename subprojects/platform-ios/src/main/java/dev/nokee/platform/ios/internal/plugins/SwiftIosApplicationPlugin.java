@@ -31,6 +31,7 @@ import dev.nokee.platform.ios.SwiftIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
+import dev.nokee.platform.ios.internal.SwiftIosApplicationSourcesAdapter;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.swift.HasSwiftSourceSet;
@@ -82,7 +83,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "swift"), true));
 			registry.register(project.getExtensions().getByType(IosResourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "resources")));
 
-			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), SwiftIosApplicationSources.class));
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), SwiftIosApplicationSources.class, SwiftIosApplicationSourcesAdapter::new));
 		}).create(identifier);
 	}
 

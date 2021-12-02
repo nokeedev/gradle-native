@@ -16,7 +16,6 @@
 package dev.nokee.platform.objectivec;
 
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.language.base.internal.BaseFunctionalSourceSet;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.HasPublicSourceSet;
@@ -31,4 +30,4 @@ import dev.nokee.platform.nativebase.HasPublicSourceSet;
  * @see HasPublicSourceSet
  * @since 0.5
  */
-public class ObjectiveCLibrarySources extends BaseFunctionalSourceSet implements ComponentSources, HasHeadersSourceSet, HasObjectiveCSourceSet, HasPublicSourceSet {}
+public interface ObjectiveCLibrarySources extends FunctionalSourceSet, ComponentSources, HasHeadersSourceSet, HasObjectiveCSourceSet, HasPublicSourceSet {}
