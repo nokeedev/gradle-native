@@ -54,6 +54,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
+import dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicationSourcesAdapter;
 import dev.nokee.runtime.nativebase.*;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
@@ -144,7 +145,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCApplicationSources.class));
+						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCApplicationSources.class, ObjectiveCApplicationSourcesAdapter::new));
 
 						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 

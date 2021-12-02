@@ -16,7 +16,6 @@
 package dev.nokee.platform.objectivecpp;
 
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.language.base.internal.BaseFunctionalSourceSet;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 
@@ -29,4 +28,4 @@ import dev.nokee.platform.nativebase.HasHeadersSourceSet;
  * @see HasObjectiveCppSourceSet
  * @since 0.5
  */
-public class ObjectiveCppApplicationSources extends BaseFunctionalSourceSet implements ComponentSources, HasHeadersSourceSet, HasObjectiveCppSourceSet {}
+public interface ObjectiveCppApplicationSources extends FunctionalSourceSet, ComponentSources, HasHeadersSourceSet, HasObjectiveCppSourceSet {}
