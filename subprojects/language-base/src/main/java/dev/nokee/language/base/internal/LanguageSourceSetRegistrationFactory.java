@@ -77,7 +77,6 @@ public final class LanguageSourceSetRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(toPath(identifier))
 			.withComponent(IsLanguageSourceSet.tag())
-			.withComponent(managed(of(DefaultLanguageSourceSetStrategy.class)))
 			.action(sourcePropertyAction);
 	}
 }
