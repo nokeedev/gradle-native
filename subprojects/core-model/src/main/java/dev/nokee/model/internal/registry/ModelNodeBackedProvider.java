@@ -74,9 +74,9 @@ public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>
 
 	@Override
 	public DomainObjectProvider<T> configure(Action<? super T> action) {
-		val o = node.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst();
-		if (o.isPresent()) {
-			o.get().get(ModelType.of(NamedDomainObjectProvider.class)).configure(action);
+		val o = node.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
+		if (o.isPresent() && ((Boolean) ProviderUtils.getType(o.get()).map(it -> it.equals(type.getConcreteType())).orElse(Boolean.FALSE))) {
+			o.get().configure(action);
 			return this;
 		}
 		if (node.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
