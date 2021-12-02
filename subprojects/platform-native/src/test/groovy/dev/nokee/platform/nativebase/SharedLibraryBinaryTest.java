@@ -49,6 +49,7 @@ import org.gradle.api.Project;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
@@ -64,6 +65,7 @@ import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Set;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
@@ -165,16 +167,18 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 				linkTask().getTargetPlatform().set(create(host()));
 
-				val compileTask = project().getTasks().create("tovi", CCompileTask.class);
-				compileTask.getTargetPlatform().set(create(host()));
-				compileTask.getToolChain().set(toolChainSelector.select(compileTask));
+				val compileTask = project().getTasks().register("tovi", CCompileTask.class, task -> {
+					task.getTargetPlatform().set(create(host()));
+					task.getToolChain().set(toolChainSelector.select(task));
+				});
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "tovi");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 					.build());
 
 				assertThat(subject().isBuildable(), is(true));
@@ -188,16 +192,18 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 				linkTask().getTargetPlatform().set(create(host()));
 
-				val compileTask = project().getTasks().create("vavu", SwiftCompileTask.class);
-				compileTask.getTargetPlatform().set(create(host()));
-				compileTask.getToolChain().set(toolChainSelector.select(compileTask));
+				val compileTask = project().getTasks().register("vavu", SwiftCompileTask.class, task -> {
+					task.getTargetPlatform().set(create(host()));
+					task.getToolChain().set(toolChainSelector.select(task));
+				});
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "vavu");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 					.build());
 
 				assertThat(subject().isBuildable(), is(true));
@@ -241,16 +247,17 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 		@Test
 		void includesAllCompileTasksAsBuildDependencies() {
-			val compileTask = project().getTasks().create("xuvi", MySourceCompileTask.class);
+			val compileTask = project().getTasks().register("xuvi", MySourceCompileTask.class);
 			val compileTasks = ModelProperties.getProperty(subject(), "compileTasks");
 			val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "xuvi");
 			project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 				.withComponent(newPropertyIdentifier)
 				.withComponent(toPath(newPropertyIdentifier))
 				.withComponent(IsModelProperty.tag())
-				.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+				.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
+				.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 				.build());
-			assertThat(subject(), buildDependencies(hasItem(compileTask)));
+			assertThat(subject(), buildDependencies(hasItem(compileTask.get())));
 		}
 
 		@Nested
@@ -281,46 +288,59 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 			@Test
 			void includesNativeSourceCompileTaskAsLinkTaskSources() throws IOException {
-				val compileTask = project().getTasks().create("suti", MyNativeSourceCompileTask.class);
-				compileTask.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("foo.o")));
-				compileTask.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("foo.obj")));
+				val compileTask = project().getTasks().register("suti", MyNativeSourceCompileTask.class, task -> {
+					try {
+						task.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("foo.o")));
+						task.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("foo.obj")));
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
+				});
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "suti");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(ModelType.of(NativeSourceCompile.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(NativeSourceCompile.class), compileTask::get))
 					.build());
 				assertThat(subject().getSource(), contains(aFileNamed("foo.o"), aFileNamed("foo.obj")));
 			}
 
 			@Test
 			void includesSourceCompileTaskWithObjectFilesAsLinkTaskSources() throws IOException {
-				val compileTask = project().getTasks().create("kedi", MySourceCompileWithObjectFilesTask.class);
-				compileTask.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("bar.o")));
-				compileTask.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("bar.obj")));
+				val compileTask = project().getTasks().register("kedi", MySourceCompileWithObjectFilesTask.class, task -> {
+					try {
+						task.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("bar.o")));
+						task.getObjectFiles().from(createFile(project().getLayout().getProjectDirectory().file("bar.obj")));
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
+				});
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "kedi");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 					.build());
 				assertThat(subject().getSource(), contains(aFileNamed("bar.o"), aFileNamed("bar.obj")));
 			}
 
 			@Test
 			void doesNotThrowExceptionWhenResolvingSourcesWithCompileTasksWithoutObjectFiles() {
-				val compileTask = project().getTasks().create("xuvi", MySourceCompileTask.class);
+				val compileTask = project().getTasks().register("xuvi", MySourceCompileTask.class);
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "xuvi");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
+					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 					.build());
 				assertThat(subject().getSource(), emptyIterable());
 			}
