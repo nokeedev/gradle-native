@@ -159,7 +159,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
 		Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
-		val resources = sourceViewOf(this).get("resources", IosResourceSet.class).get();
+		val resources = sourceViewOf(this).named("resources", IosResourceSet.class).get();
 
 		val compileStoryboardTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "compileStoryboard")), StoryboardCompileTask.class, task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/compiled/main"));

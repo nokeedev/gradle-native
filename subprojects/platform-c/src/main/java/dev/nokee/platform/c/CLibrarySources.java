@@ -16,7 +16,6 @@
 package dev.nokee.platform.c;
 
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.language.base.internal.BaseFunctionalSourceSet;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.HasPublicSourceSet;
@@ -30,4 +29,4 @@ import dev.nokee.platform.nativebase.HasPublicSourceSet;
  * @see HasCSourceSet
  * @since 0.5
  */
-public class CLibrarySources extends BaseFunctionalSourceSet implements ComponentSources, HasHeadersSourceSet, HasCSourceSet, HasPublicSourceSet {}
+public interface CLibrarySources extends FunctionalSourceSet, ComponentSources, HasHeadersSourceSet, HasCSourceSet, HasPublicSourceSet {}

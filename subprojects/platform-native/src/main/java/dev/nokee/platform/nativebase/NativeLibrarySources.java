@@ -16,7 +16,6 @@
 package dev.nokee.platform.nativebase;
 
 import dev.nokee.language.base.FunctionalSourceSet;
-import dev.nokee.language.base.internal.BaseFunctionalSourceSet;
 import dev.nokee.language.c.internal.CSourceSetExtensible;
 import dev.nokee.language.cpp.internal.CppSourceSetExtensible;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetExtensible;
@@ -30,4 +29,4 @@ import dev.nokee.platform.base.ComponentSources;
  * @see ComponentSources
  * @since 0.5
  */
-public class NativeLibrarySources extends BaseFunctionalSourceSet implements ComponentSources, CSourceSetExtensible, CppSourceSetExtensible, ObjectiveCSourceSetExtensible, ObjectiveCppSourceSetExtensible {}
+public interface NativeLibrarySources extends FunctionalSourceSet, ComponentSources, CSourceSetExtensible, CppSourceSetExtensible, ObjectiveCSourceSetExtensible, ObjectiveCppSourceSetExtensible {}

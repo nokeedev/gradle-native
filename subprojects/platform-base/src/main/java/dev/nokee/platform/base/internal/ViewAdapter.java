@@ -19,6 +19,7 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
 import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
@@ -100,12 +101,52 @@ public final class ViewAdapter<T> implements View<T> {
 		return getElements().map(matching(spec).andThen(toListTransformer(elementType)));
 	}
 
+	public void whenElementKnown(Action<? super KnownDomainObject<T>> action) {
+		strategy.whenElementKnown(elementType, action);
+	}
+
+	public void whenElementKnown(@SuppressWarnings("rawtypes") Closure closure) {
+		strategy.whenElementKnown(elementType, new ClosureWrappedConfigureAction<>(closure));
+	}
+
+	public <S extends T> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action) {
+		strategy.whenElementKnown(type, action);
+	}
+
+	public <S extends T> void whenElementKnown(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
+		strategy.whenElementKnown(type, new ClosureWrappedConfigureAction<>(closure));
+	}
+
 	public NamedDomainObjectProvider<T> named(String name) {
 		return strategy.named(name, elementType);
 	}
 
+	public NamedDomainObjectProvider<T> named(String name, Action<? super T> action) {
+		val result = strategy.named(name, elementType);
+		result.configure(action);
+		return result;
+	}
+
+	public NamedDomainObjectProvider<T> named(String name, Closure closure) {
+		val result = strategy.named(name, elementType);
+		result.configure(new ClosureWrappedConfigureAction<>(closure));
+		return result;
+	}
+
 	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
 		return strategy.named(name, type);
+	}
+
+	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type, Action<? super S> action) {
+		val result = strategy.named(name, type);
+		result.configure(action);
+		return result;
+	}
+
+	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type, Closure closure) {
+		val result = strategy.named(name, type);
+		result.configure(new ClosureWrappedConfigureAction<>(closure));
+		return result;
 	}
 
 	public interface Strategy {

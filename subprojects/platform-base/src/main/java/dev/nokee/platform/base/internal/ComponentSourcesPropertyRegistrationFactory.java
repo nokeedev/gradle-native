@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
@@ -110,6 +111,34 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 							registry.register(propertyFactory.create(ModelPropertyIdentifier.of(identifier, elementName), e));
 						}
 					}));
+				}
+			}))
+			.build();
+	}
+
+	public <T extends FunctionalSourceSet> ModelRegistration create(ModelPropertyIdentifier identifier, Class<T> sourceViewType, Function<? super ViewAdapter<LanguageSourceSet>, ? extends T> factory) {
+		val path = toPath(identifier);
+		assert path.getParent().isPresent();
+		val ownerPath = path.getParent().get();
+		return ModelRegistration.builder()
+			.withComponent(path)
+			.withComponent(identifier)
+			.withComponent(IsModelProperty.tag())
+			.withComponent(createdUsing(of(sourceViewType), () -> factory.apply(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
+				ModelStates.realize(modelLookup.get(ownerPath));
+				ModelStates.finalize(modelLookup.get(ownerPath));
+			})))))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
+				if (id.equals(identifier)) {
+					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), (e, p, ignored1, ignored2, projection) -> {
+							if (ownerPath.isDescendant(p)) {
+								val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(ownerPath)))
+									.filter(it -> !it.isEmpty())
+									.map(StringUtils::capitalize)
+									.collect(Collectors.joining()));
+								registry.register(propertyFactory.create(ModelPropertyIdentifier.of(identifier, elementName), e));
+							}
+						}));
 				}
 			}))
 			.build();

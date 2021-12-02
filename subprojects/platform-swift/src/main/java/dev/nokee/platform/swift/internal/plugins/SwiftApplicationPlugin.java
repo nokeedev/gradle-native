@@ -83,7 +83,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 
 			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "swift"), true));
 
-			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), SwiftApplicationSources.class));
+			registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), SwiftApplicationSources.class, SwiftApplicationSourcesAdapter::new));
 		}).create(identifier);
 	}
 
