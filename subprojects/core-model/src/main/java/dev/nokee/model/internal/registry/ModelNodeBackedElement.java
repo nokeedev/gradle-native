@@ -60,6 +60,7 @@ public final class ModelNodeBackedElement implements ModelElement, ModelNodeAwar
 	}
 
 	public ModelElement property(String name) {
+		Objects.requireNonNull(name);
 		return ModelProperties.getProperty(this, name);
 	}
 
