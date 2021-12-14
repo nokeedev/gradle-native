@@ -38,9 +38,8 @@ class ProviderUtils_GetElementTypeTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked") // ignores unmatched types
 	void doesNotReturnElementTypeFromNormalProperty() {
-		assertThat(getElementType((Provider) objectFactory().property(MyType.class)), emptyOptional());
+		assertThat(getElementType(Cast.uncheckedCast("we tick the type system", objectFactory().property(MyType.class))), emptyOptional());
 	}
 
 	@Test
