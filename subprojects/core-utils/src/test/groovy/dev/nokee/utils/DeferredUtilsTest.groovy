@@ -102,12 +102,4 @@ class DeferredUtilsTest extends DeferredUtils_BaseSpec {
 		where:
 		collectionFactoryMethod << ['domainObjectContainer', 'domainObjectSet', 'namedDomainObjectList', 'namedDomainObjectSet']
 	}
-
-//	def "can unpack list to File"() {
-//		given:
-//		def deferred = []
-//
-//		expect:
-//
-//	}
 }
