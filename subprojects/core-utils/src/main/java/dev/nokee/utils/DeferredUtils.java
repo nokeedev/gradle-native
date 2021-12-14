@@ -171,7 +171,7 @@ public final class DeferredUtils {
 	}
 
 	@Nullable
-	static Object unpackNestableDeferred(Object deferred) {
+	static Object unpackNestableDeferred(@Nullable Object deferred) {
 		Object current = deferred;
 		while (isNestableDeferred(current)) {
 			if (current instanceof Callable) {
@@ -186,15 +186,15 @@ public final class DeferredUtils {
 	}
 
 	private static boolean isKotlinFunction0Deferrable(@Nullable Object value) {
-		return KOTLIN_FUNCTION0_CLASS.map(it -> it.isAssignableFrom(value.getClass())).orElse(false);
+		return KOTLIN_FUNCTION0_CLASS.map(it -> value != null && it.isAssignableFrom(value.getClass())).orElse(false);
 	}
 
 	@Nullable
-	private static Object unpackKotlinFunction0(Object value) {
+	private static Object unpackKotlinFunction0(@Nullable Object value) {
 		try {
 			return KOTLIN_FUNCTION0_CLASS.orElseThrow(() -> new RuntimeException("kotlin.jvm.functions.Function0 not found in classpath.")).getMethod("invoke").invoke(value);
 		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			throw new RuntimeException(String.format("Could not access kotlin.jvm.functions.Function0#invoke() method on object of type '%s'.", value.getClass().getCanonicalName()), e);
+			throw new RuntimeException(String.format("Could not access kotlin.jvm.functions.Function0#invoke() method on object of type '%s'.", Optional.ofNullable(value).map(it -> it.getClass().getCanonicalName()).orElse("<null>")), e);
 		}
 	}
 
