@@ -4,6 +4,9 @@
  * @since 0.5
  */
 @Nonnull
+@NonNullApi
 package dev.nokee.utils;
+
+import org.gradle.api.NonNullApi;
 
 import javax.annotation.Nonnull;
