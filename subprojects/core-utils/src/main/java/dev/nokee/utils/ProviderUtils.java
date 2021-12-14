@@ -16,6 +16,8 @@
 package dev.nokee.utils;
 
 import org.gradle.api.internal.provider.DefaultProvider;
+import lombok.val;
+import org.gradle.api.internal.provider.CollectionProviderInternal;
 import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.Provider;
@@ -24,6 +26,7 @@ import org.gradle.util.GradleVersion;
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -76,6 +79,23 @@ public final class ProviderUtils {
 		requireNonNull(self);
 		if (self instanceof ProviderInternal) {
 			return Optional.ofNullable(((ProviderInternal<T>) self).getType());
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * Returns the element type provided by the Gradle collection provider.
+	 *
+	 * @param self  the provider to query the provided element type, must not be null
+	 * @param <T>  the type of element type provided
+	 * @return a class representing the element type provided by the collection provider, or null if not a collection provider
+	 */
+	public static <T> Optional<Class<T>> getElementType(Provider<? extends Collection<T>> self) {
+		requireNonNull(self);
+		if (self instanceof CollectionProviderInternal) {
+			@SuppressWarnings("unchecked")
+			val elementType = (Class<T>) ((CollectionProviderInternal<T, ?>) self).getElementType();
+			return Optional.of(elementType);
 		}
 		return Optional.empty();
 	}
