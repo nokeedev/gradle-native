@@ -15,7 +15,8 @@
  */
 package dev.nokee.model.internal.plugins;
 
-import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.internal.testing.AbstractPluginTest;
+import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -27,39 +28,32 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.collect.ImmutableMap.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class ModelBasePluginTest {
-	private final Project project = ProjectTestUtils.rootProject();
-
+@PluginRequirement.Require(type = ModelBasePlugin.class)
+class ModelBasePluginTest extends AbstractPluginTest {
 	@Test
 	void registersEventPublisherService() {
-		project.apply(of("plugin", ModelBasePlugin.class));
 		assertThat(project, hasExtensionOf(DomainObjectEventPublisher.class));
 	}
 
 	@Test
 	void registersRealizableService() {
-		project.apply(of("plugin", ModelBasePlugin.class));
 		assertThat(project, hasExtensionOf(RealizableDomainObjectRealizer.class));
 	}
 
 	@Test
 	void registersModelRegistryService() {
-		project.apply(of("plugin", ModelBasePlugin.class));
 		assertThat(project, hasExtensionOf(ModelRegistry.class));
 	}
 
 	@Test
 	void registersModelLookupService() {
-		project.apply(of("plugin", ModelBasePlugin.class));
 		assertThat(project, hasExtensionOf(ModelLookup.class));
 	}
 
 	@Test
 	void registersModelConfigurerService() {
-		project.apply(of("plugin", ModelBasePlugin.class));
 		assertThat(project, hasExtensionOf(ModelConfigurer.class));
 	}
 
