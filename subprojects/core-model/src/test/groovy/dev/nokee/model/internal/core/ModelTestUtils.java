@@ -209,6 +209,11 @@ public final class ModelTestUtils {
 			}
 
 			@Override
+			public ModelElement register(ModelNode entity) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
 			public ModelElement register(NodeRegistration registration) {
 				throw new UnsupportedOperationException();
 			}

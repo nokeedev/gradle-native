@@ -202,6 +202,11 @@ public final class ModelNode {
 				}
 
 				@Override
+				public ModelElement register(ModelNode entity) {
+					throw new UnsupportedOperationException("This instance always fails.");
+				}
+
+				@Override
 				public ModelElement register(NodeRegistration registration) {
 					throw new UnsupportedOperationException("This instance always fails.");
 				}

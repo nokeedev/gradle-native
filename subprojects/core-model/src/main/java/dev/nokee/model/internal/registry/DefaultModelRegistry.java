@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
@@ -74,6 +73,28 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		}
 
 		return new ModelNodeBackedProvider<>(identifier.getType(), get(identifier.getPath()));
+	}
+
+	@Override
+	public ModelElement register(ModelNode entity) {
+		val entities = ImmutableList.copyOf(entity.findComponent(ModelComponentType.componentOf(LinkedEntityGroup.class)).map(it -> (Iterable<ModelNode>) it).orElseGet(() -> ImmutableList.of(entity)));
+		for (ModelNode e : entities.reverse()) {
+			e.addComponent(nodeStateListener);
+			for (int i = 0; i < configurations.size(); ++i) {
+				val configuration = configurations.get(i);
+				if (configuration instanceof HasInputs) {
+					if (((HasInputs) configuration).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(e.getComponentTypes()))) {
+						configuration.execute(e);
+					} else if (((HasInputs) configuration).getInputs().isEmpty()) {
+						configuration.execute(e);
+					}
+				} else {
+					configuration.execute(e);
+				}
+			}
+			ModelStates.register(e);
+		}
+		return new ModelNodeBackedElement(entity);
 	}
 
 	@Override
