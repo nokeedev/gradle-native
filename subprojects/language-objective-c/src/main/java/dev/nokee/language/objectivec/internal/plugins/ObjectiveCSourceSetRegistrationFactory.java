@@ -15,39 +15,25 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
-import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.*;
-import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.TaskProvider;
-
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 
 public final class ObjectiveCSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
 	private final HeadersPropertyRegistrationActionFactory headersPropertyFactory;
 	private final HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory;
 	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
-	private final ObjectFactory objectFactory;
 
-	public ObjectiveCSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeadersPropertyRegistrationActionFactory headersPropertyFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory, ObjectFactory objectFactory) {
+	public ObjectiveCSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeadersPropertyRegistrationActionFactory headersPropertyFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
 		this.headersPropertyFactory = headersPropertyFactory;
 		this.resolvableHeadersRegistrationFactory = resolvableHeadersRegistrationFactory;
 		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
-		this.objectFactory = objectFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
@@ -56,7 +42,10 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
 		val builder = sourceSetRegistrationFactory.create(identifier);
-		if (!isLegacy) {
+		builder.withComponent(ObjectiveCSourceSetTag.INSTANCE);
+		if (isLegacy) {
+			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
+		} else {
 			builder.action(headersPropertyFactory.create(identifier))
 				.action(compileTaskRegistrationFactory.create(identifier, ObjectiveCCompile.class, ObjectiveCCompileTask.class))
 				.action(resolvableHeadersRegistrationFactory.create(identifier))
@@ -64,30 +53,6 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
 			;
 		}
-		builder.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
-			if (id.equals(identifier)) {
-				entity.addComponent(createdUsing(ModelType.of(ObjectiveCSourceSet.class), () -> objectFactory.newInstance(DefaultObjectiveCSourceSet.class)));
-			}
-		}));
 		return builder.build();
-	}
-
-	public static class DefaultObjectiveCSourceSet implements ObjectiveCSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet> {
-		public ConfigurableSourceSet getSource() {
-			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
-		}
-
-		public ConfigurableSourceSet getHeaders() {
-			return ModelProperties.getProperty(this, "headers").as(ConfigurableSourceSet.class).get();
-		}
-
-		public TaskProvider<ObjectiveCCompile> getCompileTask() {
-			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
-		}
-
-		@Override
-		public String toString() {
-			return "Objective-C sources '" + getName() + "'";
-		}
 	}
 }
