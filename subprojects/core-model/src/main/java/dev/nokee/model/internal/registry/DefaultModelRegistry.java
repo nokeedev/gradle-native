@@ -27,7 +27,6 @@ import lombok.val;
 import java.util.*;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
-	private final Instantiator instantiator;
 	private final List<ModelNode> entities = new ArrayList<>();
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
 	private final List<ModelAction> configurations = new ArrayList<>();
@@ -36,7 +35,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final ModelNode rootNode;
 
 	public DefaultModelRegistry(Instantiator instantiator) {
-		this.instantiator = instantiator;
 		this.bindingService = new BindManagedProjectionService(instantiator);
 		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 			if (state.equals(ModelState.Created)) {
