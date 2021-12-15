@@ -15,8 +15,6 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelElement;
@@ -36,7 +34,6 @@ import org.gradle.api.provider.Provider;
 
 import java.nio.file.Path;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts.frameworks;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
@@ -44,29 +41,24 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-@AutoFactory
-public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
-	private final LanguageSourceSetIdentifier identifier;
+public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeHeaderLanguageTag, ModelState.IsAtLeastRegistered> {
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
-	HeaderSearchPathsConfigurationRegistrationAction(LanguageSourceSetIdentifier identifier, @Provided ModelRegistry registry, @Provided ResolvableDependencyBucketRegistrationFactory resolvableFactory, @Provided ObjectFactory objects) {
-		this.identifier = identifier;
+	HeaderSearchPathsConfigurationRegistrationAction(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
 		this.registry = registry;
 		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier)));
-			headerSearchPaths.configure(Configuration.class, forCPlusPlusApiUsage());
-			val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));
-			entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
-			entity.addComponent(new DependentHeaderSearchPaths(incomingArtifacts.getAs(frameworks().negate())));
-		}
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeHeaderLanguageTag headerTag, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+		val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier)));
+		headerSearchPaths.configure(Configuration.class, forCPlusPlusApiUsage());
+		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));
+		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
+		entity.addComponent(new DependentHeaderSearchPaths(incomingArtifacts.getAs(frameworks().negate())));
 	}
 
 	private Action<Configuration> forCPlusPlusApiUsage() {

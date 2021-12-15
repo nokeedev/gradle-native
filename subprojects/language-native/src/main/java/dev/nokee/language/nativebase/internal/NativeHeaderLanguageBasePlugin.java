@@ -28,13 +28,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
-		project.getExtensions().add("__nokee_headerSearchPathsFactory",
-			new HeaderSearchPathsConfigurationRegistrationActionFactory(
-				() -> project.getExtensions().getByType(ModelRegistry.class),
-				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
-				() -> project.getObjects()
-			));
-
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new HeadersPropertyRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(SourceSetFactory.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new HeaderSearchPathsConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects()));
 	}
 }
