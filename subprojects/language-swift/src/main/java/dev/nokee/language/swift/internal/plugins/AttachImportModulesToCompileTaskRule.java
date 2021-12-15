@@ -16,7 +16,6 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.internal.DependentFrameworkSearchPaths;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
@@ -37,19 +36,11 @@ import java.util.function.BiConsumer;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
-final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.ModelAction4<LanguageSourceSetIdentifier, DependentImportModules, DependentFrameworkSearchPaths, NativeCompileTask> {
-	private final LanguageSourceSetIdentifier identifier;
-
-	public AttachImportModulesToCompileTaskRule(LanguageSourceSetIdentifier identifier) {
-		this.identifier = identifier;
-	}
-
+final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.ModelAction3<DependentImportModules, DependentFrameworkSearchPaths, NativeCompileTask> {
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentImportModules incomingModules, DependentFrameworkSearchPaths incomingFrameworks, NativeCompileTask compileTask) {
-		if (identifier.equals(this.identifier)) {
-			compileTask.configure(SwiftCompile.class, configureImportModules(from(incomingModules)));
-			compileTask.configure(SwiftCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks))));
-		}
+	protected void execute(ModelNode entity, DependentImportModules incomingModules, DependentFrameworkSearchPaths incomingFrameworks, NativeCompileTask compileTask) {
+		compileTask.configure(SwiftCompile.class, configureImportModules(from(incomingModules)));
+		compileTask.configure(SwiftCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks))));
 	}
 
 	//region Import modules

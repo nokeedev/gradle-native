@@ -48,5 +48,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterSwiftSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(SwiftSourceSetTag.class, SwiftCompile.class, SwiftCompileTask.class));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ImportModulesConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects()));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachImportModulesToCompileTaskRule());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new SwiftCompileTaskDefaultConfigurationRule());
 	}
 }
