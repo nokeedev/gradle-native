@@ -32,31 +32,26 @@ import lombok.val;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
-@AutoFactory
-public final class HeadersPropertyRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
-	private final LanguageSourceSetIdentifier identifier;
+public final class HeadersPropertyRegistrationAction extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeHeaderLanguageTag, ModelState.IsAtLeastRegistered> {
 	private final ModelRegistry registry;
 	private final SourceSetFactory sourceSetFactory;
 
-	HeadersPropertyRegistrationAction(LanguageSourceSetIdentifier identifier, @Provided ModelRegistry registry, @Provided SourceSetFactory sourceSetFactory) {
-		this.identifier = identifier;
+	HeadersPropertyRegistrationAction(ModelRegistry registry, SourceSetFactory sourceSetFactory) {
 		this.registry = registry;
 		this.sourceSetFactory = sourceSetFactory;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			val propertyIdentifier = ModelPropertyIdentifier.of(identifier, "headers");
-			val element = registry.register(ModelRegistration.builder()
-				.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
-				.withComponent(propertyIdentifier)
-				.withComponent(IsModelProperty.tag())
-				.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory::sourceSet))
-				.build());
-			entity.addComponent(new HeadersProperty(ModelNodes.of(element)));
-			entity.addComponent(new ProjectHeaderSearchPaths(element.as(SourceSet.class).flatMap(elementsOf(SourceSet::getSourceDirectories))));
-		}
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeHeaderLanguageTag headerTag, ModelState.IsAtLeastRegistered stateTag) {
+		val propertyIdentifier = ModelPropertyIdentifier.of(identifier, "headers");
+		val element = registry.register(ModelRegistration.builder()
+			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
+			.withComponent(propertyIdentifier)
+			.withComponent(IsModelProperty.tag())
+			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory::sourceSet))
+			.build());
+		entity.addComponent(new HeadersProperty(ModelNodes.of(element)));
+		entity.addComponent(new ProjectHeaderSearchPaths(element.as(SourceSet.class).flatMap(elementsOf(SourceSet::getSourceDirectories))));
 	}
 
 }

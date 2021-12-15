@@ -25,13 +25,11 @@ import lombok.val;
 
 public final class ObjectiveCSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
-	private final HeadersPropertyRegistrationActionFactory headersPropertyFactory;
 	private final HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory;
 	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
 
-	public ObjectiveCSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeadersPropertyRegistrationActionFactory headersPropertyFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+	public ObjectiveCSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
-		this.headersPropertyFactory = headersPropertyFactory;
 		this.resolvableHeadersRegistrationFactory = resolvableHeadersRegistrationFactory;
 		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
 	}
@@ -46,7 +44,7 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 		if (isLegacy) {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
 		} else {
-			builder.action(headersPropertyFactory.create(identifier))
+			builder.withComponent(NativeHeaderLanguageTag.INSTANCE)
 				.action(compileTaskRegistrationFactory.create(identifier, ObjectiveCCompile.class, ObjectiveCCompileTask.class))
 				.action(resolvableHeadersRegistrationFactory.create(identifier))
 				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))

@@ -19,7 +19,10 @@ import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.nativebase.internal.*;
+import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -45,7 +48,6 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_objectiveCppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_objectiveCppSourceSetFactory", new ObjectiveCppSourceSetRegistrationFactory(
 			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
-			project.getExtensions().getByType(HeadersPropertyRegistrationActionFactory.class),
 			project.getExtensions().getByType(HeaderSearchPathsConfigurationRegistrationActionFactory.class),
 			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
 		));

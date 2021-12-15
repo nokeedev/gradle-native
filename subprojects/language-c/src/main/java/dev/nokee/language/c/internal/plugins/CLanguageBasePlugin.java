@@ -19,7 +19,10 @@ import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.nativebase.internal.*;
+import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
+import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.scripts.DefaultImporter;
@@ -44,7 +47,6 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_cHeaderSetFactory", new CHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_cSourceSetFactory", new CSourceSetRegistrationFactory(
 			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
-			project.getExtensions().getByType(HeadersPropertyRegistrationActionFactory.class),
 			project.getExtensions().getByType(HeaderSearchPathsConfigurationRegistrationActionFactory.class),
 			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
 		));
