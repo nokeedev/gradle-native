@@ -22,6 +22,7 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.*;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -46,8 +47,10 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
 			project.getExtensions().getByType(HeadersPropertyRegistrationActionFactory.class),
 			project.getExtensions().getByType(HeaderSearchPathsConfigurationRegistrationActionFactory.class),
-			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class),
-			project.getObjects()
+			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
 		));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
 	}
 }
