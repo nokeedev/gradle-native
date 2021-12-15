@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -41,20 +40,12 @@ import java.util.function.Function;
 
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 
-public final class NativeCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeCompileTask, SourceFiles> {
-	private final LanguageSourceSetIdentifier identifier;
-
-	public NativeCompileTaskDefaultConfigurationRule(LanguageSourceSetIdentifier identifier) {
-		this.identifier = identifier;
-	}
-
+public final class NativeCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction2<NativeCompileTask, SourceFiles> {
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
-		if (identifier.equals(this.identifier)) {
-			compileTask.configure(NativeSourceCompileTask.class, configurePositionIndependentCode(set(true)));
-			compileTask.configure(NativeSourceCompileTask.class, configureSystemIncludes(from(platformTool())));
-			compileTask.configure(NativeSourceCompileTask.class, configureSources(from(sourceFiles)));
-		}
+	protected void execute(ModelNode entity, NativeCompileTask compileTask, SourceFiles sourceFiles) {
+		compileTask.configure(NativeSourceCompileTask.class, configurePositionIndependentCode(set(true)));
+		compileTask.configure(NativeSourceCompileTask.class, configureSystemIncludes(from(platformTool())));
+		compileTask.configure(NativeSourceCompileTask.class, configureSources(from(sourceFiles)));
 	}
 
 	//region Position independent code

@@ -16,7 +16,6 @@
 package dev.nokee.language.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -35,19 +34,11 @@ import java.util.function.BiConsumer;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
-public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionWithInputs.ModelAction5<LanguageSourceSetIdentifier, DependentHeaderSearchPaths, DependentFrameworkSearchPaths, ProjectHeaderSearchPaths, NativeCompileTask> {
-	private final LanguageSourceSetIdentifier identifier;
-
-	public AttachHeaderSearchPathsToCompileTaskRule(LanguageSourceSetIdentifier identifier) {
-		this.identifier = identifier;
-	}
-
+public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionWithInputs.ModelAction4<DependentHeaderSearchPaths, DependentFrameworkSearchPaths, ProjectHeaderSearchPaths, NativeCompileTask> {
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, DependentHeaderSearchPaths incomingHeaders, DependentFrameworkSearchPaths incomingFrameworks, ProjectHeaderSearchPaths userHeaders, NativeCompileTask compileTask) {
-		if (identifier.equals(this.identifier)) {
-			compileTask.configure(NativeSourceCompile.class, configureIncludeRoots(from(userHeaders).andThen(from(incomingHeaders))));
-			compileTask.configure(NativeSourceCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks))));
-		}
+	protected void execute(ModelNode entity, DependentHeaderSearchPaths incomingHeaders, DependentFrameworkSearchPaths incomingFrameworks, ProjectHeaderSearchPaths userHeaders, NativeCompileTask compileTask) {
+		compileTask.configure(NativeSourceCompile.class, configureIncludeRoots(from(userHeaders).andThen(from(incomingHeaders))));
+		compileTask.configure(NativeSourceCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks))));
 	}
 
 	//region Includes

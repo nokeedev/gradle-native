@@ -17,8 +17,6 @@ package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskDefaultConfigurationRule;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageTag;
 import dev.nokee.language.nativebase.internal.NativeSourceSetLegacyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -41,10 +39,7 @@ public final class CppSourceSetRegistrationFactory {
 		if (isLegacy) {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
 		} else {
-			builder.withComponent(NativeHeaderLanguageTag.INSTANCE)
-				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))
-				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
-			;
+			builder.withComponent(NativeHeaderLanguageTag.INSTANCE);
 		}
 		return builder.build();
 	}

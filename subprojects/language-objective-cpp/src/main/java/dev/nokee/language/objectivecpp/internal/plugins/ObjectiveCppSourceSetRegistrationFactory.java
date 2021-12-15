@@ -17,14 +17,15 @@ package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.nativebase.internal.*;
+import dev.nokee.language.nativebase.internal.NativeHeaderLanguageTag;
+import dev.nokee.language.nativebase.internal.NativeSourceSetLegacyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
 
 public final class ObjectiveCppSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
 
-	public ObjectiveCppSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+	public ObjectiveCppSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
 	}
 
@@ -38,10 +39,7 @@ public final class ObjectiveCppSourceSetRegistrationFactory {
 		if (isLegacy) {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
 		} else {
-			builder.withComponent(NativeHeaderLanguageTag.INSTANCE)
-				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))
-				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
-			;
+			builder.withComponent(NativeHeaderLanguageTag.INSTANCE);
 		}
 		return builder.build();
 	}
