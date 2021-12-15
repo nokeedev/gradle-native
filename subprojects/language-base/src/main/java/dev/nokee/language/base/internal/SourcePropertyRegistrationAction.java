@@ -22,10 +22,7 @@ import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.SourceSet;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.IsModelProperty;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
@@ -56,6 +53,7 @@ public final class SourcePropertyRegistrationAction extends ModelActionWithInput
 				.withComponent(IsModelProperty.tag())
 				.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory))
 				.build());
+			entity.addComponent(new SourceProperty(ModelNodes.of(element)));
 			entity.addComponent(new SourceFiles(element.as(SourceSet.class).map(SourceSet::getAsFileTree)));
 		}
 	}
