@@ -37,11 +37,6 @@ public final class SwiftSourceSetRegistrationFactory {
 		builder.withComponent(SwiftSourceSetTag.INSTANCE);
 		if (isLegacy) {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
-		} else {
-			builder
-				.action(new AttachImportModulesToCompileTaskRule(identifier))
-				.action(new SwiftCompileTaskDefaultConfigurationRule(identifier))
-			;
 		}
 		return builder.build();
 	}

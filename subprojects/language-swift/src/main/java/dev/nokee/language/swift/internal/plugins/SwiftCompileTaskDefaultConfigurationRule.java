@@ -43,24 +43,16 @@ import java.util.function.Function;
 
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 
-final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeCompileTask, SourceFiles> {
-	private final LanguageSourceSetIdentifier identifier;
-
-	public SwiftCompileTaskDefaultConfigurationRule(LanguageSourceSetIdentifier identifier) {
-		this.identifier = identifier;
-	}
-
+final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction4<SwiftSourceSetTag, LanguageSourceSetIdentifier, NativeCompileTask, SourceFiles> {
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
-		if (identifier.equals(this.identifier)) {
-			compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier, asModuleFileOfModuleName()))));
-			compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName(identifier.getName()))));
-			compileTask.configure(SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5)));
-			compileTask.configure(SwiftCompileTask.class, configureSources(from(sourceFiles)));
-			compileTask.configure(SwiftCompileTask.class, configureDebuggable(convention(false)));
-			compileTask.configure(SwiftCompileTask.class, configureOptimized(convention(false)));
-			compileTask.configure(SwiftCompileTask.class, configureCompilerArgs(addAll(forMacOsSdkIfAvailable())));
-		}
+	protected void execute(ModelNode entity, SwiftSourceSetTag sourceSetTag, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
+		compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier, asModuleFileOfModuleName()))));
+		compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName(identifier.getName()))));
+		compileTask.configure(SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5)));
+		compileTask.configure(SwiftCompileTask.class, configureSources(from(sourceFiles)));
+		compileTask.configure(SwiftCompileTask.class, configureDebuggable(convention(false)));
+		compileTask.configure(SwiftCompileTask.class, configureOptimized(convention(false)));
+		compileTask.configure(SwiftCompileTask.class, configureCompilerArgs(addAll(forMacOsSdkIfAvailable())));
 	}
 
 	//region Compiler arguments
