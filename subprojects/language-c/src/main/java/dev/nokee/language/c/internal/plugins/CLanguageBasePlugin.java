@@ -18,6 +18,8 @@ package dev.nokee.language.c.internal.plugins;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
@@ -45,11 +47,11 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_cHeaderSetFactory", new CHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_cSourceSetFactory", new CSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
-			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
 		));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCSourceSetProjectionRule.LegacyCSourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCSourceSetProjectionRule.DefaultCSourceSetRule(project.getObjects()));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(CSourceSetTag.class, CCompile.class, CCompileTask.class));
 	}
 }

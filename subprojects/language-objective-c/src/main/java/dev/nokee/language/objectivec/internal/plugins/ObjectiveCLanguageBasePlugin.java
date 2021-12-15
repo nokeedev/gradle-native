@@ -24,6 +24,8 @@ import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActio
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -46,11 +48,11 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_objectiveCHeaderSetFactory", new CHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_objectiveCSourceSetFactory", new ObjectiveCSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
-			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
 		));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(ObjectiveCSourceSetTag.class, ObjectiveCCompile.class, ObjectiveCCompileTask.class));
 	}
 }

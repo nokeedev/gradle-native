@@ -24,6 +24,8 @@ import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActio
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -46,11 +48,11 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_objectiveCppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_objectiveCppSourceSetFactory", new ObjectiveCppSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
-			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
 		));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCppSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCppSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(ObjectiveCppSourceSetTag.class, ObjectiveCppCompile.class, ObjectiveCppCompileTask.class));
 	}
 }

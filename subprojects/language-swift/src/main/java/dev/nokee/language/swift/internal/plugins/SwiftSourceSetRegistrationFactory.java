@@ -17,22 +17,17 @@ package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.language.nativebase.internal.NativeSourceSetLegacyTag;
-import dev.nokee.language.swift.tasks.SwiftCompile;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
 
 public final class SwiftSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
 	private final ImportModulesConfigurationRegistrationActionFactory importModulesRegistrationFactory;
-	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
 
-	public SwiftSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, ImportModulesConfigurationRegistrationActionFactory importModulesRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+	public SwiftSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, ImportModulesConfigurationRegistrationActionFactory importModulesRegistrationFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
 		this.importModulesRegistrationFactory = importModulesRegistrationFactory;
-		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
@@ -45,7 +40,7 @@ public final class SwiftSourceSetRegistrationFactory {
 		if (isLegacy) {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
 		} else {
-			builder.action(compileTaskRegistrationFactory.create(identifier, SwiftCompile.class, SwiftCompileTask.class))
+			builder
 				.action(new AttachImportModulesToCompileTaskRule(identifier))
 				.action(importModulesRegistrationFactory.create(identifier))
 				.action(new SwiftCompileTaskDefaultConfigurationRule(identifier))
