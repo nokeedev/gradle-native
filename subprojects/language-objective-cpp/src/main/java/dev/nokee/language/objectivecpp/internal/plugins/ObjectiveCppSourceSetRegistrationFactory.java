@@ -18,18 +18,14 @@ package dev.nokee.language.objectivecpp.internal.plugins;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.internal.*;
-import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
-import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
 
 public final class ObjectiveCppSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
-	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
 
 	public ObjectiveCppSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
-		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
@@ -43,7 +39,6 @@ public final class ObjectiveCppSourceSetRegistrationFactory {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
 		} else {
 			builder.withComponent(NativeHeaderLanguageTag.INSTANCE)
-				.action(compileTaskRegistrationFactory.create(identifier, ObjectiveCppCompile.class, ObjectiveCppCompileTask.class))
 				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))
 				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
 			;

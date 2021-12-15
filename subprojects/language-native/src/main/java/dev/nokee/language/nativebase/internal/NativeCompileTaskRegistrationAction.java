@@ -23,10 +23,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
@@ -54,8 +51,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
 @AutoFactory
-public final class NativeCompileTaskRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
-	private final LanguageSourceSetIdentifier identifier;
+public final class NativeCompileTaskRegistrationAction extends ModelActionWithInputs.ModelAction3<Object, LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
 	private final Class<? extends SourceCompile> publicType;
 	private final Class<? extends SourceCompile> implementationType;
 	private final ModelRegistry registry;
@@ -63,8 +59,8 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
-	public <T extends SourceCompile> NativeCompileTaskRegistrationAction(LanguageSourceSetIdentifier identifier, Class<T> publicType, Class<? extends T> implementationType, @Provided ModelRegistry registry, @Provided TaskRegistrationFactory taskRegistrationFactory, @Provided ModelPropertyRegistrationFactory propertyRegistrationFactory, @Provided NativeToolChainSelector toolChainSelector) {
-		this.identifier = identifier;
+	public <T extends SourceCompile> NativeCompileTaskRegistrationAction(Class<?> sourceSetTag, Class<T> publicType, Class<? extends T> implementationType, @Provided ModelRegistry registry, @Provided TaskRegistrationFactory taskRegistrationFactory, @Provided ModelPropertyRegistrationFactory propertyRegistrationFactory, @Provided NativeToolChainSelector toolChainSelector) {
+		super(ModelComponentReference.of((Class<Object>) sourceSetTag), ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
 		this.publicType = publicType;
 		this.implementationType = implementationType;
 		this.registry = registry;
@@ -74,8 +70,8 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
+	protected void execute(ModelNode entity, Object sourceSetTag, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+		if (!entity.hasComponent(ModelComponentType.componentOf(NativeSourceSetLegacyTag.class))) {
 			val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), publicType, identifier), implementationType).build());
 			compileTask.configure(publicType, configureDescription("Compiles the %s.", identifier));
 			compileTask.configure(publicType, configureDestinationDirectory(convention(forObjects(identifier))));

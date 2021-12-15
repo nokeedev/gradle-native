@@ -17,19 +17,18 @@ package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.nativebase.internal.*;
-import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
-import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
+import dev.nokee.language.nativebase.internal.AttachHeaderSearchPathsToCompileTaskRule;
+import dev.nokee.language.nativebase.internal.NativeCompileTaskDefaultConfigurationRule;
+import dev.nokee.language.nativebase.internal.NativeHeaderLanguageTag;
+import dev.nokee.language.nativebase.internal.NativeSourceSetLegacyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
 
 public final class ObjectiveCSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
-	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
 
-	public ObjectiveCSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+	public ObjectiveCSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
-		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
@@ -43,7 +42,6 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
 		} else {
 			builder.withComponent(NativeHeaderLanguageTag.INSTANCE)
-				.action(compileTaskRegistrationFactory.create(identifier, ObjectiveCCompile.class, ObjectiveCCompileTask.class))
 				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))
 				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
 			;

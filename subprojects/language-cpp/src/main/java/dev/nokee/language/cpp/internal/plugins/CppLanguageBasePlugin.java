@@ -18,6 +18,8 @@ package dev.nokee.language.cpp.internal.plugins;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
@@ -45,11 +47,11 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_cppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
-			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
+			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
 		));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCppSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCppSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(CppSourceSetTag.class, CppCompile.class, CppCompileTask.class));
 	}
 }
