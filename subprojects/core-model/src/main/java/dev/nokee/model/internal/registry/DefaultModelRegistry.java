@@ -31,6 +31,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final Map<ModelPath, ModelNode> nodes = new LinkedHashMap<>();
 	private final List<ModelAction> configurations = new ArrayList<>();
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
+	private final ModelEntityFactory entityFactory = new DirectInstantiationModelEntityFactory();
 	private final BindManagedProjectionService bindingService;
 	private final ModelNode rootNode;
 
@@ -60,7 +61,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private ModelNode createRootNode() {
 		val path = ModelPath.root();
-		val entity = new ModelNode();
+		val entity = entityFactory.create();
 		entity.addComponent(nodeStateListener);
 		entity.addComponent(path);
 		return entity;
@@ -88,7 +89,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	private ModelNode newNode(ModelRegistration registration) {
-		val entity = new ModelNode();
+		val entity = entityFactory.create();
 		entity.addComponent(nodeStateListener);
 		for (Object component : registration.getComponents()) {
 			if (component instanceof ModelProjection) {
