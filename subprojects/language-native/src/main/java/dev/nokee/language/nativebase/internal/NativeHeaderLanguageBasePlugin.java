@@ -17,9 +17,7 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
