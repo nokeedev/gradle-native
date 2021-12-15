@@ -23,11 +23,9 @@ import lombok.val;
 
 public final class SwiftSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
-	private final ImportModulesConfigurationRegistrationActionFactory importModulesRegistrationFactory;
 
-	public SwiftSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, ImportModulesConfigurationRegistrationActionFactory importModulesRegistrationFactory) {
+	public SwiftSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
-		this.importModulesRegistrationFactory = importModulesRegistrationFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
@@ -42,7 +40,6 @@ public final class SwiftSourceSetRegistrationFactory {
 		} else {
 			builder
 				.action(new AttachImportModulesToCompileTaskRule(identifier))
-				.action(importModulesRegistrationFactory.create(identifier))
 				.action(new SwiftCompileTaskDefaultConfigurationRule(identifier))
 			;
 		}

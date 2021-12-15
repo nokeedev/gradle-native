@@ -15,8 +15,6 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.internal.DependentFrameworkSearchPaths;
 import dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts;
@@ -45,15 +43,12 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-@AutoFactory
 final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
-	private final LanguageSourceSetIdentifier identifier;
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
-	ImportModulesConfigurationRegistrationAction(LanguageSourceSetIdentifier identifier, @Provided ModelRegistry registry, @Provided ResolvableDependencyBucketRegistrationFactory resolvableFactory, @Provided ObjectFactory objects) {
-		this.identifier = identifier;
+	ImportModulesConfigurationRegistrationAction(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
 		this.registry = registry;
 		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
@@ -61,13 +56,11 @@ final class ImportModulesConfigurationRegistrationAction extends ModelActionWith
 
 	@Override
 	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("importModules"), identifier)));
-			importModules.configure(Configuration.class, forSwiftApiUsage());
-			val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));
-			entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
-			entity.addComponent(new DependentImportModules(incomingArtifacts.getAs(frameworks().negate())));
-		}
+		val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("importModules"), identifier)));
+		importModules.configure(Configuration.class, forSwiftApiUsage());
+		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));
+		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
+		entity.addComponent(new DependentImportModules(incomingArtifacts.getAs(frameworks().negate())));
 	}
 
 	private Action<Configuration> forSwiftApiUsage() {

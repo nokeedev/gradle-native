@@ -41,16 +41,12 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		//   but don't depend on this behaviour.
 
 		project.getExtensions().add("__nokee_swiftSourceSetFactory", new SwiftSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
-			new ImportModulesConfigurationRegistrationActionFactory(
-				() -> project.getExtensions().getByType(ModelRegistry.class),
-				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
-				() -> project.getObjects()
-			)
+			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
 		));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterSwiftSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterSwiftSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(SwiftSourceSetTag.class, SwiftCompile.class, SwiftCompileTask.class));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ImportModulesConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects()));
 	}
 }
