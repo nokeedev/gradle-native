@@ -17,6 +17,7 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import org.gradle.api.Plugin;
@@ -27,15 +28,13 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
-		project.getExtensions().add("__nokee_headersPropertyFactory",
-			new HeadersPropertyRegistrationActionFactory(
-				() -> project.getExtensions().getByType(ModelRegistry.class),
-				() -> project.getExtensions().getByType(SourceSetFactory.class)));
 		project.getExtensions().add("__nokee_headerSearchPathsFactory",
 			new HeaderSearchPathsConfigurationRegistrationActionFactory(
 				() -> project.getExtensions().getByType(ModelRegistry.class),
 				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
 				() -> project.getObjects()
 			));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new HeadersPropertyRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(SourceSetFactory.class)));
 	}
 }
