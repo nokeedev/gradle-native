@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
+import dev.nokee.model.internal.core.ModelEntityFactory;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -55,6 +56,11 @@ class ModelBasePluginTest extends AbstractPluginTest {
 	@Test
 	void registersModelConfigurerService() {
 		assertThat(project, hasExtensionOf(ModelConfigurer.class));
+	}
+
+	@Test
+	void registersModelEntityFactoryService() {
+		assertThat(project, hasExtensionOf(ModelEntityFactory.class));
 	}
 
 	private static Matcher<Project> hasExtensionOf(Class<?> extensionType) {

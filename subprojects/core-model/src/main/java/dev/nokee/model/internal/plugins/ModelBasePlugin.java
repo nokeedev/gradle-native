@@ -19,7 +19,9 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.DomainObjectEventPublisherImpl;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.RealizableDomainObjectRealizerImpl;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.DirectInstantiationModelEntityFactory;
+import dev.nokee.model.internal.core.ModelEntityFactory;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -27,11 +29,8 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tasks.ModelReportTask;
 import dev.nokee.utils.TaskUtils;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.internal.logging.text.TreeFormatter;
 
 public class ModelBasePlugin implements Plugin<Project> {
 	@Override
@@ -47,6 +46,8 @@ public class ModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		project.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
 		project.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory(modelRegistry, project.getObjects()));
+
+		project.getExtensions().add(ModelEntityFactory.class, "__NOKEE_modelEntityFactory", new DirectInstantiationModelEntityFactory());
 
 		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
 	}
