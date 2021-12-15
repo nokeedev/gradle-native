@@ -25,12 +25,10 @@ import lombok.val;
 
 public final class CSourceSetRegistrationFactory {
 	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
-	private final HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory;
 	private final NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
 
-	public CSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, HeaderSearchPathsConfigurationRegistrationActionFactory resolvableHeadersRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+	public CSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory, NativeCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
 		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
-		this.resolvableHeadersRegistrationFactory = resolvableHeadersRegistrationFactory;
 		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
 	}
 
@@ -46,7 +44,6 @@ public final class CSourceSetRegistrationFactory {
 		} else {
 			builder.withComponent(NativeHeaderLanguageTag.INSTANCE)
 				.action(compileTaskRegistrationFactory.create(identifier, CCompile.class, CCompileTask.class))
-				.action(resolvableHeadersRegistrationFactory.create(identifier))
 				.action(new AttachHeaderSearchPathsToCompileTaskRule(identifier))
 				.action(new NativeCompileTaskDefaultConfigurationRule(identifier))
 			;

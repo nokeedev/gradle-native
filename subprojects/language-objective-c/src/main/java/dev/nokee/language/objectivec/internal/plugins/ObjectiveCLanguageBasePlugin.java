@@ -19,7 +19,6 @@ import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationRegistrationActionFactory;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
@@ -48,7 +47,6 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_objectiveCHeaderSetFactory", new CHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
 		project.getExtensions().add("__nokee_objectiveCSourceSetFactory", new ObjectiveCSourceSetRegistrationFactory(
 			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class),
-			project.getExtensions().getByType(HeaderSearchPathsConfigurationRegistrationActionFactory.class),
 			project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class)
 		));
 
