@@ -15,8 +15,7 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
@@ -35,23 +34,21 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
+		project.getPluginManager().apply(CHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(NativeHeaderSet.class)
-			.defaultImport(CHeaderSet.class)
 			.defaultImport(CSourceSet.class);
 
 		// No need to register anything as CHeaderSet and CSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		project.getExtensions().add("__nokee_cHeaderSetFactory", new CHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
-		project.getExtensions().add("__nokee_cSourceSetFactory", new CSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
-		));
+		project.getExtensions().add("__nokee_cSourceSetFactory", new CSourceSetRegistrationFactory());
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCSourceSetProjectionRule.LegacyCSourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCSourceSetProjectionRule.DefaultCSourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(CSourceSetTag.class, CCompile.class, CCompileTask.class));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(CSourceSetTag.class));
 	}
 }

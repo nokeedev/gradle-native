@@ -15,9 +15,8 @@
  */
 package dev.nokee.language.objectivecpp.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.cpp.CppHeaderSet;
-import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
+import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
+import dev.nokee.language.cpp.internal.plugins.CppHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
@@ -36,23 +35,21 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
+		project.getPluginManager().apply(CppHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCppSourceSet.class)
-			.defaultImport(CppHeaderSet.class)
 			.defaultImport(NativeHeaderSet.class);
 
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		project.getExtensions().add("__nokee_objectiveCppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
-		project.getExtensions().add("__nokee_objectiveCppSourceSetFactory", new ObjectiveCppSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
-		));
+		project.getExtensions().add("__nokee_objectiveCppSourceSetFactory", new ObjectiveCppSourceSetRegistrationFactory());
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCppSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCppSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(ObjectiveCppSourceSetTag.class, ObjectiveCppCompile.class, ObjectiveCppCompileTask.class));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(ObjectiveCppSourceSetTag.class));
 	}
 }

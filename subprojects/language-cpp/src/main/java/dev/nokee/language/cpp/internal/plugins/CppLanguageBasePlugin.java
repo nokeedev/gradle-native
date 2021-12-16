@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
@@ -35,23 +35,21 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
+		project.getPluginManager().apply(CppHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(NativeHeaderSet.class)
-			.defaultImport(CppHeaderSet.class)
 			.defaultImport(CppSourceSet.class);
 
 		// No need to register anything as CppHeaderSet and CppSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		project.getExtensions().add("__nokee_cppHeaderSetFactory", new CppHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
-		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
-		));
+		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory());
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCppSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCppSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(CppSourceSetTag.class, CppCompile.class, CppCompileTask.class));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(CppSourceSetTag.class));
 	}
 }

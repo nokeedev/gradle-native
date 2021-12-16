@@ -17,11 +17,13 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.language.cpp.CppSourceSet;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	@Override

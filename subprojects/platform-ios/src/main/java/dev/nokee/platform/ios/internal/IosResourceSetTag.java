@@ -15,19 +15,6 @@
  */
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.model.internal.core.ModelRegistration;
-
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
-
-public final class IosResourceSetRegistrationFactory {
-	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return ModelRegistration.builder()
-			.withComponent(identifier)
-			.withComponent(toPath(identifier))
-			.withComponent(IsLanguageSourceSet.tag())
-			.withComponent(IosResourceSetTag.INSTANCE)
-			.build();
-	}
+public enum IosResourceSetTag {
+	INSTANCE
 }

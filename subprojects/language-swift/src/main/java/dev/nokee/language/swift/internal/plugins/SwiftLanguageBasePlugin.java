@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -40,9 +40,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		project.getExtensions().add("__nokee_swiftSourceSetFactory", new SwiftSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
-		));
+		project.getExtensions().add("__nokee_swiftSourceSetFactory", new SwiftSourceSetRegistrationFactory());
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterSwiftSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterSwiftSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
@@ -50,5 +48,6 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ImportModulesConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachImportModulesToCompileTaskRule());
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new SwiftCompileTaskDefaultConfigurationRule());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(SwiftSourceSetTag.class));
 	}
 }

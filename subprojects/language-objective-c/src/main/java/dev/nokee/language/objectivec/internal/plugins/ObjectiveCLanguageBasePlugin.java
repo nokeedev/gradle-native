@@ -15,9 +15,8 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
+import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
+import dev.nokee.language.c.internal.plugins.CHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
@@ -36,23 +35,21 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
+		project.getPluginManager().apply(CHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		DefaultImporter.forProject(project)
 			.defaultImport(ObjectiveCSourceSet.class)
-			.defaultImport(CHeaderSet.class)
 			.defaultImport(NativeHeaderSet.class);
 
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		project.getExtensions().add("__nokee_objectiveCHeaderSetFactory", new CHeaderSetRegistrationFactory(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)));
-		project.getExtensions().add("__nokee_objectiveCSourceSetFactory", new ObjectiveCSourceSetRegistrationFactory(
-			project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
-		));
+		project.getExtensions().add("__nokee_objectiveCSourceSetFactory", new ObjectiveCSourceSetRegistrationFactory());
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterObjectiveCSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(ObjectiveCSourceSetTag.class, ObjectiveCCompile.class, ObjectiveCCompileTask.class));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(ObjectiveCSourceSetTag.class));
 	}
 }
