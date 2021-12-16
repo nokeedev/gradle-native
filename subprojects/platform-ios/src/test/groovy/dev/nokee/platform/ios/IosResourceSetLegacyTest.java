@@ -17,33 +17,32 @@ package dev.nokee.platform.ios;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.base.internal.SourcePropertyRegistrationActionFactory;
-import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.testers.LanguageSourceSetLegacyTester;
-import dev.nokee.model.internal.registry.DefaultModelRegistry;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
+import dev.nokee.platform.ios.internal.plugins.IosResourcePlugin;
 import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 
 class IosResourceSetLegacyTest extends LanguageSourceSetLegacyTester<IosResourceSet> {
 	@Override
 	public IosResourceSet createSubject() {
-		val objects = objectFactory();
-		val registry = new DefaultModelRegistry(objects::newInstance);
-		val factory = new IosResourceSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, new SourceSetFactory(objects), new SourcePropertyRegistrationActionFactory(() -> registry)));
+		val project = ProjectTestUtils.rootProject();
+		project.getPluginManager().apply(IosResourcePlugin.class);
+		val registry = project.getExtensions().getByType(ModelRegistry.class);
+		val factory = project.getExtensions().getByType(IosResourceSetRegistrationFactory.class);
 		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(IosResourceSet.class).get();
 	}
 
 	@Override
 	public IosResourceSet createSubject(File temporaryDirectory) {
-		val objects = ProjectTestUtils.createRootProject(temporaryDirectory).getObjects();
-		val registry = new DefaultModelRegistry(objects::newInstance);
-		val factory = new IosResourceSetRegistrationFactory(new LanguageSourceSetRegistrationFactory(objects, new SourceSetFactory(objects), new SourcePropertyRegistrationActionFactory(() -> registry)));
+		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
+		project.getPluginManager().apply(IosResourcePlugin.class);
+		val registry = project.getExtensions().getByType(ModelRegistry.class);
+		val factory = project.getExtensions().getByType(IosResourceSetRegistrationFactory.class);
 		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"))).as(IosResourceSet.class).get();
 	}
 }

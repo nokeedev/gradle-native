@@ -15,27 +15,26 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageTag;
 import dev.nokee.language.nativebase.internal.NativeSourceSetLegacyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
+
 public final class CSourceSetRegistrationFactory {
-	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
-
-	public CSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory) {
-		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
-	}
-
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		return create(identifier, false);
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
-		val builder = sourceSetRegistrationFactory.create(identifier);
-		builder.withComponent(CSourceSetTag.INSTANCE);
+		val builder = ModelRegistration.builder()
+			.withComponent(identifier)
+			.withComponent(toPath(identifier))
+			.withComponent(IsLanguageSourceSet.tag())
+			.withComponent(CSourceSetTag.INSTANCE);
 		if (isLegacy) {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
 		} else {

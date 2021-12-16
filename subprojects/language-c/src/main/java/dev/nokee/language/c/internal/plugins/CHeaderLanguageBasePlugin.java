@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.ios.internal.plugins;
+package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
-import dev.nokee.platform.ios.internal.IosResourceSetTag;
-import dev.nokee.platform.ios.internal.RegisterIosResourceSetProjectionRule;
+import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-public class IosResourcePlugin implements Plugin<Project> {
+public class CHeaderLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply("dev.nokee.language-base");
-		project.getExtensions().add("__nokee_iosResourceSetFactory", new IosResourceSetRegistrationFactory());
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterIosResourceSetProjectionRule(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(IosResourceSetTag.class));
+		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
+
+		DefaultImporter.forProject(project).defaultImport(CHeaderSet.class);
+
+		project.getExtensions().add("__nokee_cHeaderSetFactory", new CHeaderSetRegistrationFactory());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCHeaderSetProjectionRule(project.getObjects()));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(CHeaderSetTag.class));
 	}
 }

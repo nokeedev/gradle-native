@@ -15,25 +15,25 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeSourceSetLegacyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
+
 public final class SwiftSourceSetRegistrationFactory {
-	private final LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory;
-
-	public SwiftSourceSetRegistrationFactory(LanguageSourceSetRegistrationFactory sourceSetRegistrationFactory) {
-		this.sourceSetRegistrationFactory = sourceSetRegistrationFactory;
-	}
-
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		return create(identifier, false);
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
-		val builder = sourceSetRegistrationFactory.create(identifier);
+		val builder = ModelRegistration.builder()
+			.withComponent(identifier)
+			.withComponent(toPath(identifier))
+			.withComponent(IsLanguageSourceSet.tag())
+			.withComponent(SwiftSourceSetTag.INSTANCE);
 		builder.withComponent(SwiftSourceSetTag.INSTANCE);
 		if (isLegacy) {
 			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
