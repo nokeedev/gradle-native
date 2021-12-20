@@ -19,7 +19,9 @@ import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.nokee.language.cpp.CppTaskNames
 import dev.nokee.platform.jni.fixtures.JavaJniCppGreeterLib
 import org.junit.Assume
+import spock.lang.Ignore
 
+@Ignore('https://github.com/nokeedev/gradle-native/issues/489')
 class VisualStudioIdeJavaNativeInterfaceLibraryFunctionalTest extends AbstractVisualStudioIdeNativeComponentPluginFunctionalTest implements CppTaskNames {
 	@Override
 	protected void makeSingleProject() {
