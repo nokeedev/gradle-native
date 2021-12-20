@@ -11,6 +11,7 @@ dependencies {
 
 	testImplementation project(':languageC')
 	testImplementation project(':runtimeNative')
+	testImplementation project(':platformBase')
 	testImplementation testFixtures(project(':coreModel'))
 	testImplementation testFixtures(project(':coreScript'))
 
