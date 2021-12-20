@@ -75,7 +75,8 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			),
 			new AttachAttributesToConfigurationRuleFactory(
 				() -> project.getObjects()
-			)
+			),
+			project.getObjects()
 		));
 	}
 
