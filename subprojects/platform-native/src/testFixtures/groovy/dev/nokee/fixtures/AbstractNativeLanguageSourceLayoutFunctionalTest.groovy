@@ -71,7 +71,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 		and:
 		buildFile << configureSourcesAsConvention()
-		file('library', buildFileName) << configureSourcesAsConvention('library')
+		file('library', buildFileName) << configureSourcesAsConvention('library', true)
 
 		expect:
 		succeeds ':assemble'
@@ -232,12 +232,16 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		return true
 	}
 
-	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl) {
+	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl, boolean legacy = isLegacy()) {
 		return """
 			import ${LanguageSourceSet.canonicalName}
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
 				${dsl}.sources.java { filter.include('**/*.java') }
+				${dsl}.sources.configureEach(CSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+				${dsl}.sources.configureEach(CppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+				${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+				${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
 			}
 			pluginManager.withPlugin('groovy') {
 				sourceSets.main.groovy.setSrcDirs([])
@@ -288,6 +292,10 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			pluginManager.withPlugin('java-base') {
 				sourceSets.main.java.setSrcDirs([])
 				${componentUnderTestDsl}.sources.java { filter.include('**/*.java') }
+				${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+				${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+				${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+				${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
 			}
 			pluginManager.withPlugin('groovy-base') {
 				sourceSets.main.groovy.setSrcDirs([])
