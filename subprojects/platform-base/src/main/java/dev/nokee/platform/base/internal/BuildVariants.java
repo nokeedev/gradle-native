@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.core.DescendantNodes;
 import dev.nokee.model.internal.core.ModelComponentType;
@@ -60,7 +61,7 @@ public final class BuildVariants {
 			return buildVariants.stream().filter(buildVariant -> {
 				return allFilters.stream()
 					.noneMatch(it -> it.test(buildVariant));
-			}).collect(Collectors.toSet());
+			}).collect(ImmutableSet.toImmutableSet());
 		}));
 		buildVariants.finalizeValueOnRead();
 		buildVariants.disallowChanges();
