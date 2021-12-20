@@ -122,7 +122,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), (entity, id, sourceSet) -> {
 				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && sourceSet instanceof HasHeaders) {
 					((HasHeaders) sourceSet).getHeaders().convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");
 				}
