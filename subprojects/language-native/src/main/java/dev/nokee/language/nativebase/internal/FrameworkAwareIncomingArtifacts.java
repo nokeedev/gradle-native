@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import dev.nokee.runtime.darwin.internal.DarwinLibraryElements;
 import dev.nokee.utils.SpecUtils;
@@ -57,7 +58,7 @@ public final class FrameworkAwareIncomingArtifacts {
 	}
 
 	private static Transformer<Set<Path>, Object> filterArtifacts(Provider<ArtifactCollection> artifacts, Spec<? super ResolvedArtifactResult> spec) {
-		return ignored -> Streams.stream(artifacts.get()).filter(spec::isSatisfiedBy).map(toPath()).collect(Collectors.toSet());
+		return ignored -> Streams.stream(artifacts.get()).filter(spec::isSatisfiedBy).map(toPath()).collect(ImmutableSet.toImmutableSet());
 	}
 
 	private static Function<ResolvedArtifactResult, Path> toPath() {

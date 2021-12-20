@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import dev.nokee.runtime.core.*;
 import lombok.EqualsAndHashCode;
@@ -49,7 +50,7 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 	}
 
 	public static List<DefaultBuildVariant> fromSpace(CoordinateSpace space) {
-		val visibleAxis = Coordinates.standardBasis(space).collect(Collectors.toSet());
+		val visibleAxis = Coordinates.standardBasis(space).collect(ImmutableSet.toImmutableSet());
 		return stream(space).map(it -> {
 			val allDimensions = Dimensions.of(stream(it).flatMap(Coordinates::flatten).map(named()).collect(toList()));
 			val dimensions = Dimensions.of(stream(it).flatMap(Coordinates::flatten).filter(onlyAxis(visibleAxis)).map(named()).collect(toList()));
