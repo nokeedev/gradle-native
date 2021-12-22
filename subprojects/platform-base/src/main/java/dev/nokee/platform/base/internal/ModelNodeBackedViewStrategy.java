@@ -72,7 +72,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 
 	@Override
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
-		return providerFactory.provider(() -> {
+		return objects.setProperty(elementType).value(providerFactory.provider(() -> {
 			realize.run();
 			if (Task.class.isAssignableFrom(elementType)) {
 				return ModelProperties.getProperties(entity).filter(it -> it.instanceOf(elementType))
@@ -91,7 +91,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 				}
 			}
 			return result;
-		});
+		}));
 	}
 
 	@Override
