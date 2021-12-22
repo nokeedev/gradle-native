@@ -428,9 +428,9 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 		@Test
 		void hasCrossCompileBuildableJarAsTaskDependency() {
-			subject.getTargetMachines().set(ImmutableSet.of(of("linux-aarch64"), host()));
-			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("linuxaarch64"));
-			assertThat(subject(), dependsOn(hasItem(allOf(named("quzuLinuxAarch64JniJar"), isA(JniJarBinary.class)))));
+			subject.getTargetMachines().set(ImmutableSet.of(of("munix-aarch64"), host()));
+			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("munixaarch64"));
+			assertThat(subject(), dependsOn(hasItem(allOf(named("quzuMunixAarch64JniJar"), isA(JniJarBinary.class)))));
 		}
 	}
 
@@ -512,9 +512,9 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 		@Test
 		void hasCrossCompileBuildableJarAsOutgoingArtifacts() {
-			subject.getTargetMachines().set(ImmutableSet.of(of("linux-aarch64"), host()));
-			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("linuxaarch64"));
-			assertThat(subject(), hasPublishArtifact(ofFile(aFileBaseNamed("quzu-linux-aarch64"))));
+			subject.getTargetMachines().set(ImmutableSet.of(of("munix-aarch64"), host()));
+			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("munixaarch64"));
+			assertThat(subject(), hasPublishArtifact(ofFile(aFileBaseNamed("quzu-munix-aarch64"))));
 		}
 	}
 
