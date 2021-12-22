@@ -26,8 +26,10 @@ import org.hamcrest.io.FileMatchers;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
+import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesPattern;
 
 public final class FileSystemMatchers {
 	/**
@@ -111,5 +113,9 @@ public final class FileSystemMatchers {
 				return FilenameUtils.removeExtension(actual);
 			}
 		};
+	}
+
+	public static Matcher<String> containsPath(String path) {
+		return matchesPattern(Pattern.compile(".*" + path.replace("/", "[/\\\\]") + ".*"));
 	}
 }

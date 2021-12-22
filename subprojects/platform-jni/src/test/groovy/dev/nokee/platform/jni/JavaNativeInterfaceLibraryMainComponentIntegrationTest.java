@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.internal.testing.FileSystemMatchers.containsPath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
@@ -123,7 +124,7 @@ class JavaNativeInterfaceLibraryMainComponentIntegrationTest extends AbstractPlu
 
 			@Test
 			void hasDevelopmentVariantNativeRuntimeFilesParentDirectoryInJavaLibraryPathSystemProperty() {
-				assertThat(subject().getAllJvmArgs(), hasItem(allOf(startsWith("-Djava.library.path="), containsString("/build/libs/main"))));
+				assertThat(subject().getAllJvmArgs(), hasItem(allOf(startsWith("-Djava.library.path="), containsPath("/build/libs/main"))));
 			}
 		}
 	}
