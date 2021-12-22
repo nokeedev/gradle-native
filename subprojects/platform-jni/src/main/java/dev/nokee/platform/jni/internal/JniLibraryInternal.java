@@ -89,6 +89,10 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 		return ModelProperties.getProperty(this, "javaNativeInterfaceJar").as(JniJarBinary.class).get();
 	}
 
+	public JniJarBinary getJar() {
+		return ModelProperties.getProperty(this, "javaNativeInterfaceJar").as(JniJarBinary.class).get();
+	}
+
 	public SharedLibraryBinary getSharedLibrary() {
 		return ModelProperties.getProperty(this, "sharedLibrary").as(SharedLibraryBinary.class).get();
 	}
