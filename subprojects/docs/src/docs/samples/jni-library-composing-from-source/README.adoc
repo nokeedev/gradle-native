@@ -182,7 +182,7 @@ $ ./gradlew outgoingVariants
 --------------------------------------------------
 Variant apiElements
 --------------------------------------------------
-Description = API elements for component ':main'.
+Description = API elements for JNI library ':main'.
 
 Capabilities
     - :jni-library-composing-from-source:unspecified (default capability)
@@ -193,7 +193,7 @@ Attributes
 --------------------------------------------------
 Variant runtimeElements
 --------------------------------------------------
-Description = Runtime elements for component ':main'.
+Description = Runtime elements for JNI library ':main'.
 
 Capabilities
     - :jni-library-composing-from-source:unspecified (default capability)
