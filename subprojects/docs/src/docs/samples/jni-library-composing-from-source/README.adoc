@@ -190,6 +190,8 @@ Attributes
     - org.gradle.libraryelements = jar
     - org.gradle.usage           = java-api
 
+Artifacts
+
 --------------------------------------------------
 Variant runtimeElements
 --------------------------------------------------
