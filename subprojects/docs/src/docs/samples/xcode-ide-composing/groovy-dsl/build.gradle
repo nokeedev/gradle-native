@@ -17,11 +17,11 @@ library.variants.configureEach {
 
 //region Helper methods
 Provider<JvmJarBinary> getJvmBinary() {
-	return library.binaries.withType(JvmJarBinary).elements.map({ it.first() } as Transformer)
+	return library.binaries.withType(JvmJarBinary).elements.map { it.first() }
 }
 
 Provider<SharedLibraryBinary> getSharedLibraryBinary() {
-	return library.binaries.withType(SharedLibraryBinary).elements.map({ it.first() } as Transformer)
+	return library.binaries.withType(SharedLibraryBinary).elements.map { it.first() }
 }
 
 Transformer<String, SharedLibraryBinary> asHeaderSearchPaths() {
