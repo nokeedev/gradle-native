@@ -19,7 +19,6 @@ import dev.gradleplugins.integtests.fixtures.AbstractGradleSpecification
 import dev.nokee.platform.jni.JvmJarBinary
 import dev.nokee.platform.jni.fixtures.JavaJniObjectiveCGreeterLib
 import dev.nokee.platform.nativebase.SharedLibraryBinary
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal
 import org.gradle.internal.os.OperatingSystem
 
 class JniLibraryComposingXcodeFunctionalTest extends AbstractGradleSpecification implements JavaObjectiveCJniLibraryXcodeIdeFixture, XcodeIdeFixture {
@@ -35,7 +34,6 @@ class JniLibraryComposingXcodeFunctionalTest extends AbstractGradleSpecification
 
 			import ${JvmJarBinary.canonicalName}
 			import ${SharedLibraryBinary.canonicalName}
-			import ${SharedLibraryBinaryInternal.canonicalName} // TODO: Remove this requirement
 
 			library {
 				binaries.configureEach(${SharedLibraryBinary.simpleName}) {
