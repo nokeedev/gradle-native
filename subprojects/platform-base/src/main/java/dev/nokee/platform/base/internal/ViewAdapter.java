@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
 import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
 import lombok.val;
