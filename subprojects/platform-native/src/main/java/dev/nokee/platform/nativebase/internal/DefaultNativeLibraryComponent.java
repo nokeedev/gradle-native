@@ -101,11 +101,6 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
-	@Override
-	public VariantCollection<DefaultNativeLibraryVariant> getVariantCollection() {
-		throw new UnsupportedOperationException("Use 'variants' property instead.");
-	}
-
 	public void finalizeExtension(Project project) {
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeLibrary.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
 			new CreateNativeBinaryLifecycleTaskRule(taskRegistry).accept(knownVariant);

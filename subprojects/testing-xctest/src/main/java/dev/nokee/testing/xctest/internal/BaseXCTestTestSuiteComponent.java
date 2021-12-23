@@ -107,11 +107,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
-	@Override
-	public VariantCollection<DefaultXCTestTestSuiteVariant> getVariantCollection() {
-		throw new UnsupportedOperationException("Use 'variants' property instead.");
-	}
-
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		variant.configure(testSuite -> {
 			testSuite.getBinaries().configureEach(BundleBinary.class, binary -> {

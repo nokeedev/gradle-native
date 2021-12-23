@@ -73,11 +73,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> imple
 	}
 
 	@Override
-	public VariantCollection<JniLibrary> getVariantCollection() {
-		throw new UnsupportedOperationException("Use 'variants' property instead.");
-	}
-
-	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelBackedVariantAwareComponentMixIn.super.getBuildVariants();
 	}

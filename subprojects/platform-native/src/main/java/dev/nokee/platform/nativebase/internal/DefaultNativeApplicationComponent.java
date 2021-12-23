@@ -90,11 +90,6 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	}
 
 	@Override
-	public VariantCollection<DefaultNativeApplicationVariant> getVariantCollection() {
-		throw new UnsupportedOperationException("Use 'variants' property instead.");
-	}
-
-	@Override
 	public VariantView<DefaultNativeApplicationVariant> getVariants() {
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}

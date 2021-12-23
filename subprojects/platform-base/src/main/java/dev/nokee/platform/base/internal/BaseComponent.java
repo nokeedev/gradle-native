@@ -42,8 +42,6 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 
 	public abstract VariantView<T> getVariants();
 
-	public abstract VariantCollection<T> getVariantCollection();
-
 //	public abstract LanguageSourceSetViewInternal<LanguageSourceSet> getSources();
 
 	// TODO: We may want to model this as a BuildVariantRegistry for more richness than a plain set
