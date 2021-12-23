@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model;
+package dev.nokee.model.internal;
 
-import static dev.nokee.utils.TransformerUtils.noOpTransformer;
+import org.gradle.api.Action;
 
-final class KnownDomainObjectTestUtils {
-	public static void realize(KnownDomainObject<?> knownObject) {
-		knownObject.map(noOpTransformer()).get();
-	}
+public interface ConfigurableStrategy {
+	<T> void configure(Class<T> type, Action<? super T> action);
 }

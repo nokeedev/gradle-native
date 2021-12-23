@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.testing.EqualsTester;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
+import dev.nokee.model.internal.DefaultKnownDomainObject;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.internal.Cast;
@@ -55,7 +55,7 @@ class ModelActions_ExecuteAsKnownProjectionTest {
 		Action<KnownDomainObject<MyType>> action = Cast.uncheckedCast(mock(Action.class));
 		val node = node(projectionOf(MyType.class));
 		assertDoesNotThrow(() -> executeAsKnownProjection(of(MyType.class), action).execute(node));
-		verify(action, times(1)).execute(new ModelNodeBackedKnownDomainObject<>(of(MyType.class), node));
+		verify(action, times(1)).execute(DefaultKnownDomainObject.of(of(MyType.class), node));
 	}
 
 	@Test

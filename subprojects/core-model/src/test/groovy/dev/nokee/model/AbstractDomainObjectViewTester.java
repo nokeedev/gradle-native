@@ -15,12 +15,11 @@
  */
 package dev.nokee.model;
 
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.DefaultKnownDomainObject;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
 import groovy.lang.Closure;
 import lombok.val;
 
@@ -89,11 +88,11 @@ public abstract class AbstractDomainObjectViewTester<T> {
 	}
 
 	protected final KnownDomainObject<T> known(String name) {
-		return new ModelNodeBackedKnownDomainObject<>(of(getElementType()), node(name));
+		return DefaultKnownDomainObject.of(of(getElementType()), node(name));
 	}
 
 	protected final <S extends T> KnownDomainObject<S> known(String name, Class<S> type) {
-		return new ModelNodeBackedKnownDomainObject<>(of(type), node(name));
+		return DefaultKnownDomainObject.of(of(type), node(name));
 	}
 
 	protected final ModelNode node(String name) {
@@ -111,13 +110,21 @@ public abstract class AbstractDomainObjectViewTester<T> {
 	}
 
 	protected final <S> DomainObjectProvider<S> element(String name, Class<S> type) {
-		val result = getModelRegistry().register(ModelRegistration.of("myTypes." + name, type)).as(type);
-		return result;
+		return getModelRegistry().register(ModelRegistration.builder()
+			.withComponent(ModelPath.path("myTypes." + name))
+			.withComponent(ModelProjections.managed(ModelType.of(type)))
+			.withComponent(ModelIdentifier.of("myTypes." + name, type))
+			.build()
+		).as(type);
 	}
 
 	protected final <S> DomainObjectProvider<S> register(String path, Class<S> type) {
-		val result = getModelRegistry().register(ModelRegistration.of(path, type)).as(type);
-		return result;
+		return getModelRegistry().register(ModelRegistration.builder()
+			.withComponent(ModelPath.path(path))
+			.withComponent(ModelProjections.managed(ModelType.of(type)))
+			.withComponent(ModelIdentifier.of(path, type))
+			.build()
+		).as(type);
 	}
 	//endregion
 

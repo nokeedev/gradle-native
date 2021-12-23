@@ -21,7 +21,6 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -51,8 +50,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-
 public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
@@ -76,7 +73,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 	@Override
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		super.onEachVariant(variant);
-		val variantIdentifier = ModelNodes.of(variant).getComponent(componentOf(VariantIdentifier.class));
+		val variantIdentifier = (VariantIdentifier<?>) variant.getIdentifier();
 
 		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
 		TaskNamer namer = TaskNamer.INSTANCE;

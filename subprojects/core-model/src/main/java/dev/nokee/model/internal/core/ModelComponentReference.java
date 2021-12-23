@@ -16,7 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
+import dev.nokee.model.internal.DefaultKnownDomainObject;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -167,7 +167,7 @@ public abstract class ModelComponentReference<T> {
 		private final class AsKnownObjectReference extends ModelComponentReference<KnownDomainObject<T>> implements ModelComponentReferenceInternal {
 			@Override
 			public KnownDomainObject<T> get(ModelNode entity) {
-				return new ModelNodeBackedKnownDomainObject<>(ModelType.of(projectionType), entity);
+				return DefaultKnownDomainObject.of(ModelType.of(projectionType), entity);
 			}
 
 			@Override

@@ -16,8 +16,6 @@
 package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.ModelComponentType;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -48,7 +46,7 @@ public class CreateVariantAssembleLifecycleTaskRule implements Action<KnownVaria
 	}
 
 	public void accept(KnownDomainObject<? extends Variant> knownVariant) {
-		doExecute(ModelNodes.of(knownVariant).getComponent(ModelComponentType.componentOf(VariantIdentifier.class)), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
+		doExecute((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
 	}
 
 	private void doExecute(VariantIdentifier<?> variantIdentifier, Provider<Binary> binaryProvider) {

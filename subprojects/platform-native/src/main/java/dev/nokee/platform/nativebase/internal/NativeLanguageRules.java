@@ -30,6 +30,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -67,7 +68,7 @@ public class NativeLanguageRules {
 
 	private <T extends AbstractNativeCompileTask> Function<KnownDomainObject<? extends LanguageSourceSet>, TaskProvider<T>> createNativeCompileTask(Class<T> type) {
 		return knownSourceSet -> {
-			return taskRegistry.register(TaskIdentifier.of(TaskName.of("compile", ((ModelIdentifier<?>)knownSourceSet.getIdentifier()).getPath().getName()), type, ownerIdentifier), task -> {
+			return taskRegistry.register(TaskIdentifier.of(TaskName.of("compile", DomainObjectIdentifierUtils.toPath(knownSourceSet.getIdentifier()).getName()), type, ownerIdentifier),task -> {
 				task.getSource().from(knownSourceSet.map(LanguageSourceSet::getAsFileTree));
 			});
 		};

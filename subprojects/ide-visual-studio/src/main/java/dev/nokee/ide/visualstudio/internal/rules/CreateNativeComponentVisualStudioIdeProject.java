@@ -23,7 +23,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -85,7 +85,7 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 	@Override
 	public void execute(KnownDomainObject<BaseComponent<?>> knownComponent) {
 		// TODO: Do something about the casting of DomainObjectIdentifier
-		extension.getProjects().register(((ModelIdentifier<?>)knownComponent.getIdentifier()).getPath().getName(), configureVisualStudioIdeProject(knownComponent));
+		extension.getProjects().register(DomainObjectIdentifierUtils.toPath(knownComponent.getIdentifier()).getName(), configureVisualStudioIdeProject(knownComponent));
 	}
 
 	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(KnownDomainObject<BaseComponent<?>> knownComponent) {

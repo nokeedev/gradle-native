@@ -17,21 +17,25 @@ package dev.nokee.model;
 
 import com.google.common.reflect.TypeToken;
 import com.google.common.testing.NullPointerTester;
+import dev.nokee.provider.ProviderConvertibleTester;
 import dev.nokee.utils.ActionTestUtils;
+import dev.nokee.utils.TransformerTestUtils;
 import lombok.val;
+import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.model.KnownDomainObjectTestUtils.realize;
 import static dev.nokee.utils.ActionTestUtils.mockAction;
 import static dev.nokee.utils.ClosureTestUtils.mockClosure;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.neverCalled;
 import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-public interface KnownDomainObjectTester<T> {
+public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T> {
 	KnownDomainObject<T> subject();
 
 	@Test
@@ -45,17 +49,31 @@ public interface KnownDomainObjectTester<T> {
 	}
 
 	@Test
-	default void canMapKnownObject() {
+	default void returnsProviderOfKnownObjectMappedUsingTransformer() {
 		assertThat(subject().map(it -> "foo"), providerOf("foo"));
 	}
 
 	@Test
-	default void canFlatMapKnownObject() {
+	default void doesNotTransformKnownObjectOnMap() {
+		val transform = TransformerTestUtils.<Object, T>mockTransformer();
+		subject().map(transform);
+		assertThat(transform, neverCalled());
+	}
+
+	@Test
+	default void returnsProviderOfKnownObjectFlatMapedUsingTransformer() {
 		assertThat(subject().flatMap(it -> fixed("bar")), providerOf("bar"));
 	}
 
 	@Test
-	default void returnsThisKnownObjectWhenConfiguring() {
+	default void doesNotTransformKnownObjectOnFlatMap() {
+		val transform = TransformerTestUtils.<Provider<Object>, T>mockTransformer();
+		subject().flatMap(transform);
+		assertThat(transform, neverCalled());
+	}
+
+	@Test
+	default void returnsThisKnownObjectOnConfigure() {
 		val subject = subject();
 		assertAll(
 			() -> assertThat(subject.configure(mockAction()), is(subject)),
@@ -64,18 +82,15 @@ public interface KnownDomainObjectTester<T> {
 	}
 
 	@Test
-	default void canConfigureKnownObjectUsingAction() {
+	default void doesNotThrowWhenConfigureUsingAction() {
 		val action = ActionTestUtils.mockAction();
-		realize(subject().configure(action));
-		assertThat(action, calledOnceWith(singleArgumentOf(isA(type()))));
+		assertDoesNotThrow(() -> subject().configure(action));
 	}
 
 	@Test
-	default void canConfigureKnownObjectUsingClosure() {
+	default void doesNotThrowWhenConfigureUsingClosure() {
 		val closure = mockClosure(type());
-		realize(subject().configure(closure));
-		assertThat(closure, calledOnceWith(singleArgumentOf(isA(type()))));
-		assertThat(closure, calledOnceWith(allOf(delegateFirstStrategy(), delegateOf(isA(type())))));
+		assertDoesNotThrow(() -> subject().configure(closure));
 	}
 
 	@SuppressWarnings("UnstableApiUsage")

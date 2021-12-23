@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
+import dev.nokee.model.internal.DefaultKnownDomainObject;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -66,12 +66,12 @@ public abstract class ModelInitializerAction implements ModelAction, HasInputs {
 
 		public <T> KnownDomainObject<T> withProjection(TypeCompatibilityModelProjectionSupport<T> projection) {
 			withProjection((ModelProjection) projection);
-			return new ModelNodeBackedKnownDomainObject<>(projection.getType(), node);
+			return DefaultKnownDomainObject.of(projection.getType(), node);
 		}
 
 		public <T> KnownDomainObject<T> projectionOf(ModelType<T> type) {
 			checkArgument(ModelNodeUtils.canBeViewedAs(node, type));
-			return new ModelNodeBackedKnownDomainObject<>(type, node);
+			return DefaultKnownDomainObject.of(type, node);
 		}
 	}
 }
