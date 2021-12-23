@@ -65,7 +65,6 @@ import java.util.List;
 import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
@@ -146,7 +145,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	protected void onEachVariant(KnownDomainObject<DefaultIosApplicationVariant> variant) {
-		val variantIdentifier = ModelNodes.of(variant).getComponent(componentOf(VariantIdentifier.class));
+		val variantIdentifier = (VariantIdentifier<?>) variant.getIdentifier();
 		ConfigurationNamer configurationNamer = ConfigurationNamer.INSTANCE;
 		TaskNamer namer = TaskNamer.INSTANCE;
 		// Create iOS application specific tasks

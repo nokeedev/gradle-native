@@ -18,7 +18,7 @@ package dev.nokee.model.internal.core;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.registry.ModelNodeBackedKnownDomainObject;
+import dev.nokee.model.internal.DefaultKnownDomainObject;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -30,9 +30,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelComponentReference.ofAny;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static java.util.Objects.requireNonNull;
 
 public final class ModelActions {
@@ -243,7 +242,7 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			action.execute(new ModelNodeBackedKnownDomainObject<>(type, node));
+			action.execute(DefaultKnownDomainObject.of(type, node));
 		}
 
 		@Override

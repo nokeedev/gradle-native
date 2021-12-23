@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.registry.*;
 import dev.nokee.model.internal.state.ModelState;
@@ -130,7 +131,16 @@ public final class ModelTestUtils {
 		val nodeProvider = new MutableObject<ModelNode>();
 		val children = new HashMap<ModelPath, ModelNode>();
 		val builder = ModelNode.builder();
-		val actions = new ArrayList<>(providedActions);
+		val actions = new ArrayList<ModelAction>();
+		actions.add(new ModelAction() {
+			@Override
+			public void execute(ModelNode node) {
+				if (node.hasComponent(ModelPath.class) && !node.hasComponent(DomainObjectIdentifier.class)) {
+					node.addComponent(ModelIdentifier.of(ModelNodeUtils.getPath(node), ModelType.untyped()));
+				}
+			}
+		});
+		actions.addAll(providedActions);
 		builder.withPath(ModelNodeUtils.getPath(parent).child(name));
 		builder.withLookup(new ModelLookup() {
 			@Override

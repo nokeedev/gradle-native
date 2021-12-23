@@ -15,6 +15,7 @@
  */
 package dev.nokee.model;
 
+import dev.nokee.provider.ProviderConvertible;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -24,7 +25,7 @@ import org.gradle.util.ConfigureUtil;
 
 import static java.util.Objects.requireNonNull;
 
-public interface KnownDomainObject<T> {
+public interface KnownDomainObject<T> extends ProviderConvertible<T> {
 	DomainObjectIdentifier getIdentifier();
 
 	Class<T> getType();
