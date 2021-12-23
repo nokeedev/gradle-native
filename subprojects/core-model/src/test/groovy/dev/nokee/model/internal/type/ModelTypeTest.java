@@ -25,20 +25,29 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ModelTypeTest {
 	@Test
 	void canAccessRawType() {
-		assertAll(() -> {
-			assertEquals(String.class, of(String.class).getRawType());
-			assertEquals(Integer.class, of(Integer.class).getRawType());
-			assertEquals(MyType.class, of(MyType.class).getRawType());
-		});
+		assertAll(
+			() -> assertEquals(String.class, of(String.class).getRawType()),
+			() -> assertEquals(Integer.class, of(Integer.class).getRawType()),
+			() -> assertEquals(MyType.class, of(MyType.class).getRawType())
+		);
 	}
 
 	@Test
 	void canAccessConcreteType() {
-		assertAll(() -> {
-			assertEquals(String.class, of(String.class).getConcreteType());
-			assertEquals(Integer.class, of(Integer.class).getConcreteType());
-			assertEquals(MyType.class, of(MyType.class).getConcreteType());
-		});
+		assertAll(
+			() -> assertEquals(String.class, of(String.class).getConcreteType()),
+			() -> assertEquals(Integer.class, of(Integer.class).getConcreteType()),
+			() -> assertEquals(MyType.class, of(MyType.class).getConcreteType())
+		);
+	}
+
+	@Test
+	void canAccessType() {
+		assertAll(
+			() -> assertEquals(String.class, of(String.class).getType()),
+			() -> assertEquals(Integer.class, of(Integer.class).getType()),
+			() -> assertEquals(MyType.class, of(MyType.class).getType())
+		);
 	}
 
 	@Test
@@ -50,24 +59,36 @@ public class ModelTypeTest {
 	@Test
 	void canCheckAssignableCompatibility() {
 		val myType = of(MyType.class);
-		assertAll(() -> {
-			assertTrue(myType.isAssignableFrom(myType), "same instance should be assignable");
-			assertTrue(of(MyType.class).isAssignableFrom(of(MyType.class)), "same type should be assignable");
-			assertTrue(of(Object.class).isAssignableFrom(of(MyType.class)), "all types are assignable to Object");
-			assertFalse(of(String.class).isAssignableFrom(of(MyType.class)), "unrelated types should not be assignable");
-		});
+		assertAll(
+			() -> assertTrue(myType.isAssignableFrom(myType), "same instance should be assignable"),
+			() -> assertTrue(of(MyType.class).isAssignableFrom(of(MyType.class)), "same type should be assignable"),
+			() -> assertTrue(of(Object.class).isAssignableFrom(of(MyType.class)), "all types are assignable to Object"),
+			() -> assertFalse(of(String.class).isAssignableFrom(of(MyType.class)), "unrelated types should not be assignable")
+		);
 	}
 
 	@Test
-	void canCheckSubtypeCompatibility() {
+	void canCheckSubtypeCompatibilityJavaType() {
 		val myType = of(MyType.class);
-		assertAll(() -> {
-			assertTrue(myType.isSubtypeOf(myType.getRawType()), "same instance should be subtype");
-			assertTrue(of(MyType.class).isSubtypeOf(MyType.class), "same type should be subtype");
-			assertTrue(of(MyType.class).isSubtypeOf(Object.class), "all types are subtype of Object");
-			assertFalse(of(Object.class).isSubtypeOf(MyType.class), "Object is not subtype of any other type");
-			assertFalse(of(MyType.class).isSubtypeOf(String.class), "unrelated types should not be subtype");
-		});
+		assertAll(
+			() -> assertTrue(myType.isSubtypeOf(myType.getRawType()), "same instance should be subtype"),
+			() -> assertTrue(of(MyType.class).isSubtypeOf(MyType.class), "same type should be subtype"),
+			() -> assertTrue(of(MyType.class).isSubtypeOf(Object.class), "all types are subtype of Object"),
+			() -> assertFalse(of(Object.class).isSubtypeOf(MyType.class), "Object is not subtype of any other type"),
+			() -> assertFalse(of(MyType.class).isSubtypeOf(String.class), "unrelated types should not be subtype")
+		);
+	}
+
+	@Test
+	void canCheckSubtypeCompatibilityUsingModelType() {
+		val myType = of(MyType.class);
+		assertAll(
+			() -> assertTrue(myType.isSubtypeOf(of(myType.getRawType())), "same instance should be subtype"),
+			() -> assertTrue(of(MyType.class).isSubtypeOf(of(MyType.class)), "same type should be subtype"),
+			() -> assertTrue(of(MyType.class).isSubtypeOf((Object.class)), "all types are subtype of Object"),
+			() -> assertFalse(of(Object.class).isSubtypeOf((MyType.class)), "Object is not subtype of any other type"),
+			() -> assertFalse(of(MyType.class).isSubtypeOf((String.class)), "unrelated types should not be subtype")
+		);
 	}
 
 	interface MyType {}

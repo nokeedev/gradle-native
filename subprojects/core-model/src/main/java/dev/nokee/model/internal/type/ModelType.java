@@ -41,6 +41,10 @@ public final class ModelType<T> {
 		this.type = type;
 	}
 
+	public Type getType() {
+		return type.getType();
+	}
+
 	// TODO: It feels strange the method is about types but returns a class
 	public Class<? super T> getRawType() {
 		return type.getRawType();
@@ -58,6 +62,10 @@ public final class ModelType<T> {
 
 	public boolean isSubtypeOf(Type type) {
 		return this.type.isSubtypeOf(type);
+	}
+
+	public boolean isSubtypeOf(ModelType<?> type) {
+		return this.type.isSubtypeOf(type.type);
 	}
 
 	public boolean isParameterized() {
