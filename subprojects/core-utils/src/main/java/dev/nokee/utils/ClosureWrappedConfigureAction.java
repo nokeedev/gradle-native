@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.utils;
 
 import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
