@@ -139,11 +139,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
-	@Override
-	public VariantCollection<DefaultIosApplicationVariant> getVariantCollection() {
-		throw new UnsupportedOperationException("Use 'variants' property instead.");
-	}
-
 	protected void onEachVariant(KnownDomainObject<DefaultIosApplicationVariant> variant) {
 		val variantIdentifier = (VariantIdentifier<?>) variant.getIdentifier();
 		ConfigurationNamer configurationNamer = ConfigurationNamer.INSTANCE;

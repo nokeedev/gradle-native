@@ -147,11 +147,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	public VariantCollection<DefaultNativeTestSuiteVariant> getVariantCollection() {
-		throw new UnsupportedOperationException("Use 'variants' property instead.");
-	}
-
-	@Override
 	public TestSuiteComponent testedComponent(Object component) {
 		if (component instanceof BaseComponent) {
 			getTestedComponent().set((BaseComponent) component);
