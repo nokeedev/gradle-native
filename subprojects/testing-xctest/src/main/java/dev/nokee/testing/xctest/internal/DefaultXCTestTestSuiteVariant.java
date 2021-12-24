@@ -26,7 +26,6 @@ import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
-import dev.nokee.platform.nativebase.internal.dependencies.DefaultNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
@@ -57,8 +56,8 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	}
 
 	@Override
-	public DefaultNativeComponentDependencies getDependencies() {
-		return ModelProperties.getProperty(this, "dependencies").as(DefaultNativeComponentDependencies.class).get();
+	public NativeComponentDependencies getDependencies() {
+		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
 	}
 
 	@Override
