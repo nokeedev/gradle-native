@@ -22,7 +22,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.variants.KnownVariant;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
@@ -33,7 +32,7 @@ import static dev.nokee.utils.TaskUtils.configureGroup;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.BUILD_GROUP;
 
-public class CreateVariantAssembleLifecycleTaskRule implements Action<KnownVariant<? extends Variant>> {
+public class CreateVariantAssembleLifecycleTaskRule implements Action<KnownDomainObject<? extends Variant>> {
 	private final TaskRegistry taskRegistry;
 
 	public CreateVariantAssembleLifecycleTaskRule(TaskRegistry taskRegistry) {
@@ -41,11 +40,7 @@ public class CreateVariantAssembleLifecycleTaskRule implements Action<KnownVaria
 	}
 
 	@Override
-	public void execute(KnownVariant<? extends Variant> knownVariant) {
-		doExecute(knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
-	}
-
-	public void accept(KnownDomainObject<? extends Variant> knownVariant) {
+	public void execute(KnownDomainObject<? extends Variant> knownVariant) {
 		doExecute((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
 	}
 

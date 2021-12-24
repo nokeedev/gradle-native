@@ -63,7 +63,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 		project.getPluginManager().apply(BinaryBasePlugin.class);
 		project.getPluginManager().apply(TaskBasePlugin.class);
-		project.getPluginManager().apply(VariantBasePlugin.class);
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
 		val components = modeRegistry.register(components()).as(DefaultComponentContainer.class).get();

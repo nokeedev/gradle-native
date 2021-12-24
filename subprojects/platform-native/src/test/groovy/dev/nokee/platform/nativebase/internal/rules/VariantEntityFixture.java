@@ -15,33 +15,24 @@
  */
 package dev.nokee.platform.nativebase.internal.rules;
 
+import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ConfigurableStrategy;
+import dev.nokee.model.internal.DefaultKnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.platform.base.Component;
+import dev.nokee.model.internal.ProviderConvertibleStrategy;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.variants.KnownVariant;
-import dev.nokee.platform.base.internal.variants.KnownVariantFactory;
-import dev.nokee.platform.base.internal.variants.VariantConfigurer;
-import dev.nokee.platform.base.internal.variants.VariantRepository;
+import dev.nokee.utils.ProviderUtils;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Provider;
 
 import java.util.Arrays;
 
 public interface VariantEntityFixture extends NokeeEntitiesFixture {
 	Project getProject();
-
-	default VariantConfigurer getVariantConfigurer() {
-		return new VariantConfigurer(getEventPublisher());
-	}
-
-	default VariantRepository getVariantRepository() {
-		return new VariantRepository(getEventPublisher(), getEntityRealizer(), getProject().getProviders());
-	}
-
-	default KnownVariantFactory getKnownVariantFactory() {
-		return new KnownVariantFactory(this::getVariantRepository, this::getVariantConfigurer);
-	}
 
 	static VariantIdentifier<Variant> onlyVariantOfMainComponent() {
 		return onlyVariantOfMainComponent(ProjectIdentifier.of("root"));
@@ -64,7 +55,17 @@ public interface VariantEntityFixture extends NokeeEntitiesFixture {
 		return builder.build();
 	}
 
-	default <S extends Variant> KnownVariant<S> known(VariantIdentifier<S> identifier) {
-		return getKnownVariantFactory().create(identifier);
+	default <S extends Variant> KnownDomainObject<S> known(VariantIdentifier<S> identifier) {
+		return new DefaultKnownDomainObject<S>(identifier, identifier.getType(), new ProviderConvertibleStrategy() {
+			@Override
+			public <T> Provider<T> asProvider(Class<T> type) {
+				return ProviderUtils.notDefined();
+			}
+		}, new ConfigurableStrategy() {
+			@Override
+			public <T> void configure(Class<T> type, Action<? super T> action) {
+				// do nothing
+			}
+		});
 	}
 }

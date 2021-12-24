@@ -24,12 +24,13 @@ import dev.nokee.model.internal.DomainObjectCreated;
 import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -68,14 +69,6 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	}
 
 	public abstract NativeComponentDependencies getDependencies();
-
-	public VariantView<T> getVariants() {
-		return getVariantCollection().getAsView(variantType);
-	}
-
-	protected void createBinaries(KnownVariant<T> knownVariant) {
-		doCreateBinaries(knownVariant.getIdentifier(), knownVariant::configure);
-	}
 
 	protected void createBinaries(KnownDomainObject<T> knownVariant) {
 		doCreateBinaries((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant::configure);

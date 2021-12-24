@@ -47,12 +47,4 @@ class ComponentModelBasePluginTest extends Specification {
 		then:
 		project.plugins.hasPlugin(TaskBasePlugin)
 	}
-
-	def "applies variant base plugin"() {
-		when:
-		project.apply plugin: VariantBasePlugin
-
-		then:
-		project.plugins.hasPlugin(VariantBasePlugin)
-	}
 }

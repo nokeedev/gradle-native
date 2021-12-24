@@ -270,11 +270,11 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			createBinaries(knownVariant);
 		}));
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(knownVariant);
+			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).execute(knownVariant);
 		}));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).execute(knownVariant);
 		}));
 	}
 
