@@ -22,7 +22,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
@@ -31,7 +30,7 @@ import java.util.Set;
 
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
-public class CreateVariantObjectsLifecycleTaskRule implements Action<KnownVariant<? extends Variant>> {
+public class CreateVariantObjectsLifecycleTaskRule implements Action<KnownDomainObject<? extends Variant>> {
 	private final TaskRegistry taskRegistry;
 
 	public CreateVariantObjectsLifecycleTaskRule(TaskRegistry taskRegistry) {
@@ -39,11 +38,7 @@ public class CreateVariantObjectsLifecycleTaskRule implements Action<KnownVarian
 	}
 
 	@Override
-	public void execute(KnownVariant<? extends Variant> knownVariant) {
-		doExecute(knownVariant.getIdentifier(), knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS));
-	}
-
-	public void accept(KnownDomainObject<? extends Variant> knownVariant) {
+	public void execute(KnownDomainObject<? extends Variant> knownVariant) {
 		doExecute((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS));
 	}
 

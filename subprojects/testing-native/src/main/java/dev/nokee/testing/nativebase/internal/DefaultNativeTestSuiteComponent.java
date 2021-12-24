@@ -163,11 +163,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			createBinaries(knownVariant);
 		}));
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultNativeTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(knownVariant);
+			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).execute(knownVariant);
 		}));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultNativeTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).execute(knownVariant);
 		}));
 
 		// HACK: This should really be solve using the variant whenElementKnown API

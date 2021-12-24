@@ -162,11 +162,11 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 			createBinaries(knownVariant);
 		}));
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultXCTestTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).accept(knownVariant);
+			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).execute(knownVariant);
 		}));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultXCTestTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).accept(knownVariant);
+			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).execute(knownVariant);
 		}));
 		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
 	}

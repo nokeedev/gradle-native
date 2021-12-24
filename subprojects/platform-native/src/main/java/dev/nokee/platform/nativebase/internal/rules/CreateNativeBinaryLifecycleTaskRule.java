@@ -23,7 +23,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.variants.KnownVariant;
 import dev.nokee.platform.nativebase.internal.tasks.ExecutableLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask;
 import dev.nokee.platform.nativebase.internal.tasks.StaticLibraryLifecycleTask;
@@ -41,7 +40,7 @@ import static dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTr
 import static dev.nokee.runtime.nativebase.BinaryLinkage.*;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
-public class CreateNativeBinaryLifecycleTaskRule implements Action<KnownVariant<? extends Variant>> {
+public class CreateNativeBinaryLifecycleTaskRule implements Action<KnownDomainObject<? extends Variant>> {
 	private static final Map<BinaryLinkage, LifecycleTaskConfiguration> TASK_CONFIGURATIONS = new HashMap<>();
 
 	static {
@@ -57,11 +56,7 @@ public class CreateNativeBinaryLifecycleTaskRule implements Action<KnownVariant<
 	}
 
 	@Override
-	public void execute(KnownVariant<? extends Variant> knownVariant) {
-		doExecute(knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
-	}
-
-	public void accept(KnownDomainObject<? extends Variant> knownVariant) {
+	public void execute(KnownDomainObject<? extends Variant> knownVariant) {
 		doExecute((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
 	}
 

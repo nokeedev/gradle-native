@@ -15,8 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal.rules
 
+import dev.nokee.model.KnownDomainObject
+import dev.nokee.model.internal.DefaultKnownDomainObject
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.DefaultBuildVariant
@@ -24,7 +25,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskName
 import dev.nokee.platform.base.internal.tasks.TaskRegistry
-import dev.nokee.platform.base.internal.variants.KnownVariant
 import dev.nokee.platform.nativebase.internal.tasks.ExecutableLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.SharedLibraryLifecycleTask
 import dev.nokee.platform.nativebase.internal.tasks.StaticLibraryLifecycleTask
@@ -40,12 +40,12 @@ import static dev.nokee.utils.TaskUtils.configureDependsOn
 
 @Subject(CreateNativeBinaryLifecycleTaskRule)
 class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
-	KnownVariant newSubject(VariantIdentifier identifier) {
-		return new KnownVariant<>(identifier, Stub(Provider), null)
+	KnownDomainObject newSubject(VariantIdentifier identifier) {
+		return new DefaultKnownDomainObject<>(identifier, Variant.class, { Stub(Provider) }, {})
 	}
 
-	KnownVariant newSubject(VariantIdentifier identifier, Provider provider) {
-		return new KnownVariant<>(identifier, provider, null)
+	KnownDomainObject newSubject(VariantIdentifier identifier, Provider provider) {
+		return new DefaultKnownDomainObject<>(identifier, Variant.class, { provider }, {})
 	}
 
 	VariantIdentifier<Variant> newIdentifier() {
