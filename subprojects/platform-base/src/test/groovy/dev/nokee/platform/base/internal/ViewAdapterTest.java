@@ -48,6 +48,11 @@ class ViewAdapterTest {
 	}
 
 	@Test
+	void throwsExceptionIfConfigureEachActionIsNull() {
+		assertThrows(NullPointerException.class, () -> subject.configureEach((Action<MyType>) null));
+	}
+
+	@Test
 	void forwardsConfigureEachClosureToStrategy() {
 		val closure = ClosureTestUtils.doSomething(MyType.class);
 		subject.configureEach(closure);
