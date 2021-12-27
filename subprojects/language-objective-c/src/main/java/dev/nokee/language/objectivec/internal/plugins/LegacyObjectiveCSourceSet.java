@@ -13,8 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.nativebase.internal;
+package dev.nokee.language.objectivec.internal.plugins;
 
-public enum NativeSourceSetLegacyTag {
-	INSTANCE
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+
+public class LegacyObjectiveCSourceSet implements ObjectiveCSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public String toString() {
+		return "Objective-C sources '" + getName() + "'";
+	}
 }

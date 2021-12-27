@@ -15,10 +15,8 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -32,7 +30,5 @@ public class CppHeaderLanguageBasePlugin implements Plugin<Project> {
 		DefaultImporter.forProject(project).defaultImport(CppHeaderSet.class);
 
 		project.getExtensions().add("__nokee_cppHeaderSetFactory", new CppHeaderSetRegistrationFactory());
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCppHeaderSetProjectionRule(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(CppHeaderSetTag.class));
 	}
 }

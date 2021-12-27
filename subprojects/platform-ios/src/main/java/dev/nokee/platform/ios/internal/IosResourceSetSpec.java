@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.c.internal.plugins;
+package dev.nokee.platform.ios.internal;
 
-public enum CSourceSetTag {
-	INSTANCE
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.platform.ios.IosResourceSet;
+
+public class IosResourceSetSpec implements IosResourceSet, ModelBackedLanguageSourceSetLegacyMixIn<IosResourceSet>, HasConfigurableSourceMixIn {
 }

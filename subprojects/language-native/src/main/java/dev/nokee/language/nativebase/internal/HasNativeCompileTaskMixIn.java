@@ -15,6 +15,12 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-public enum NativeHeaderLanguageTag {
-	INSTANCE
+import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.internal.core.ModelProperties;
+import org.gradle.api.tasks.TaskProvider;
+
+public interface HasNativeCompileTaskMixIn<T extends SourceCompile> {
+	default TaskProvider<T> getCompileTask() {
+		return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
+	}
 }

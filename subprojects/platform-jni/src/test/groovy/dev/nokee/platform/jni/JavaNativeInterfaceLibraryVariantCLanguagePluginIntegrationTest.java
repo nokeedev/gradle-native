@@ -20,6 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -137,7 +138,7 @@ class JavaNativeInterfaceLibraryVariantCLanguagePluginIntegrationTest extends Ab
 
 		@Test
 		void usesConventionalHeadersLocation() {
-			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/liho/headers")))));
+			assertThat(((HasHeaders) subject()).getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/liho/headers")))));
 		}
 	}
 }

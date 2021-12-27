@@ -17,20 +17,18 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.language.cpp.CppSourceSet;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new HeadersPropertyRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(SourceSetFactory.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new HasConfigurableHeadersMixInRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(SourceSetFactory.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new HeaderSearchPathsConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachHeaderSearchPathsToCompileTaskRule());
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NativeCompileTaskDefaultConfigurationRule());

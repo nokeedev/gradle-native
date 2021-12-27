@@ -20,6 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.cpp.tasks.CppCompile;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -137,7 +138,7 @@ class JavaNativeInterfaceLibraryVariantCppLanguagePluginIntegrationTest extends 
 
 		@Test
 		void usesConventionalHeadersLocation() {
-			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/difi/headers")))));
+			assertThat(((HasHeaders) subject()).getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/difi/headers")))));
 		}
 	}
 }

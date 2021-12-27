@@ -15,16 +15,11 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
 import dev.nokee.language.c.CSourceSet;
-import dev.nokee.language.c.internal.tasks.CCompileTask;
-import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -45,10 +40,5 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		//   but don't depend on this behaviour.
 
 		project.getExtensions().add("__nokee_cSourceSetFactory", new CSourceSetRegistrationFactory());
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCSourceSetProjectionRule.LegacyCSourceSetRule(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCSourceSetProjectionRule.DefaultCSourceSetRule(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(CSourceSetTag.class, CCompile.class, CCompileTask.class));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(CSourceSetTag.class));
 	}
 }

@@ -15,19 +15,16 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
-import dev.nokee.scripts.DefaultImporter;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
+import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
 
-public class CHeaderLanguageBasePlugin implements Plugin<Project> {
+public class CSourceSetSpec implements CSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<CCompileTask> {
 	@Override
-	public void apply(Project project) {
-		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
-
-		DefaultImporter.forProject(project).defaultImport(CHeaderSet.class);
-
-		project.getExtensions().add("__nokee_cHeaderSetFactory", new CHeaderSetRegistrationFactory());
+	public String toString() {
+		return "C sources '" + getName() + "'";
 	}
 }

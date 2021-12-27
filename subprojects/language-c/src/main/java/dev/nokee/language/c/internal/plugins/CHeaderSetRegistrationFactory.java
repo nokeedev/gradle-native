@@ -19,15 +19,10 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
-
 public final class CHeaderSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return ModelRegistration.builder()
-			.withComponent(identifier)
-			.withComponent(toPath(identifier))
+		return ModelRegistration.managedBuilder(identifier, DefaultCHeaderSet.class)
 			.withComponent(IsLanguageSourceSet.tag())
-			.withComponent(CHeaderSetTag.INSTANCE)
 			.build();
 	}
 }

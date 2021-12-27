@@ -53,7 +53,6 @@ public final class SourcePropertyRegistrationAction extends ModelActionWithInput
 				.withComponent(IsModelProperty.tag())
 				.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory))
 				.build());
-			entity.addComponent(new SourceProperty(ModelNodes.of(element)));
 			entity.addComponent(new SourceFiles(element.as(SourceSet.class).map(SourceSet::getAsFileTree)));
 		}
 	}

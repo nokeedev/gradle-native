@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.nativebase.internal;
+package dev.nokee.language.base.internal;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
+import dev.nokee.internal.Factory;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.SourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.SourceSetFactory;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -30,28 +28,26 @@ import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
-public final class HeadersPropertyRegistrationAction extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeHeaderLanguageTag, ModelState.IsAtLeastRegistered> {
+public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.ModelAction3<KnownDomainObject<HasConfigurableSourceMixIn>, IsLanguageSourceSet, ModelState.IsAtLeastRegistered> {
+	private final Factory<ConfigurableSourceSet> sourceSetFactory;
 	private final ModelRegistry registry;
-	private final SourceSetFactory sourceSetFactory;
 
-	HeadersPropertyRegistrationAction(ModelRegistry registry, SourceSetFactory sourceSetFactory) {
-		this.registry = registry;
+	public HasConfigurableSourceMixInRule(Factory<ConfigurableSourceSet> sourceSetFactory, ModelRegistry registry) {
+		super(ModelComponentReference.ofProjection(HasConfigurableSourceMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
 		this.sourceSetFactory = sourceSetFactory;
+		this.registry = registry;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeHeaderLanguageTag headerTag, ModelState.IsAtLeastRegistered stateTag) {
-		val propertyIdentifier = ModelPropertyIdentifier.of(identifier, "headers");
+	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableSourceMixIn> knownObject, IsLanguageSourceSet ignored, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+		val propertyIdentifier = ModelPropertyIdentifier.of(knownObject.getIdentifier(), "source");
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
 			.withComponent(propertyIdentifier)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory::sourceSet))
+			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory))
 			.build());
-		entity.addComponent(new HeadersProperty(ModelNodes.of(element)));
-		entity.addComponent(new ProjectHeaderSearchPaths(element.as(SourceSet.class).flatMap(elementsOf(SourceSet::getSourceDirectories))));
+		entity.addComponent(new SourceFiles(element.as(SourceSet.class).map(SourceSet::getAsFileTree)));
 	}
-
 }

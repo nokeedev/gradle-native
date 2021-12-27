@@ -17,6 +17,7 @@ package dev.nokee.language.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.HasName;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
@@ -25,7 +26,7 @@ import java.util.Objects;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 
 @EqualsAndHashCode
-public final class LanguageSourceSetIdentifier implements DomainObjectIdentifier {
+public final class LanguageSourceSetIdentifier implements DomainObjectIdentifier, HasName {
 	private final LanguageSourceSetIdentity identity;
 	private final DomainObjectIdentifier ownerIdentifier;
 

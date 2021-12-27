@@ -25,4 +25,4 @@ import dev.nokee.language.nativebase.HasHeaders;
  * @see LanguageSourceSet
  * @since 0.5
  */
-public interface CSourceSet extends SelfAwareLanguageSourceSet<CSourceSet>, HasHeaders {}
+public interface CSourceSet extends SelfAwareLanguageSourceSet<CSourceSet> {}

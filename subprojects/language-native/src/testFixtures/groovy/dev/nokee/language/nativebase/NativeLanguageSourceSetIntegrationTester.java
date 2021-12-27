@@ -23,7 +23,6 @@ import dev.nokee.language.base.testers.ConfigurableSourceSetIntegrationTester;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -31,7 +30,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

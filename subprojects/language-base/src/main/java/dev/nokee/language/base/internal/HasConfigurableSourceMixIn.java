@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.ios.internal;
+package dev.nokee.language.base.internal;
 
-public enum IosResourceSetTag {
-	INSTANCE
+import dev.nokee.language.base.ConfigurableSourceSet;
+import dev.nokee.model.internal.core.ModelProperties;
+
+public interface HasConfigurableSourceMixIn {
+	default ConfigurableSourceSet getSource() {
+		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
+	}
 }

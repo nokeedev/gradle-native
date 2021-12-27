@@ -17,6 +17,8 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
+import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
@@ -42,6 +44,13 @@ public final class ModelRegistration {
 			.withComponent(ModelPath.path(path))
 			.withComponent(ModelProjections.managed(ModelType.of(type)))
 			.build();
+	}
+
+	public static Builder managedBuilder(DomainObjectIdentifier identifier, Class<?> type) {
+		return builder()
+			.withComponent(identifier)
+			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
+			.withComponent(ModelProjections.managed(ModelType.of(type)));
 	}
 
 	public static <T> ModelRegistration bridgedInstance(ModelIdentifier<T> identifier, T instance) {

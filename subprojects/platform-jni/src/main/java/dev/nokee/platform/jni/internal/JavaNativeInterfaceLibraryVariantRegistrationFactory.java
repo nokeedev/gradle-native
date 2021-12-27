@@ -18,6 +18,7 @@ package dev.nokee.platform.jni.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.HasHeaders;
@@ -122,9 +123,9 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), (entity, id, sourceSet) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, sourceSet, ignored) -> {
 				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && sourceSet instanceof HasHeaders) {
-					((HasHeaders) sourceSet).getHeaders().convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");
+					((ConfigurableSourceSet) ((HasHeaders) sourceSet).getHeaders()).convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {

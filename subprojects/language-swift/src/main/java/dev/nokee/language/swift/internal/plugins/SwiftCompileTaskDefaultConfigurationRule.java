@@ -22,9 +22,13 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
+import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.HasName;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
@@ -43,11 +47,15 @@ import java.util.function.Function;
 
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 
-final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction4<SwiftSourceSetTag, LanguageSourceSetIdentifier, NativeCompileTask, SourceFiles> {
+final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<KnownDomainObject<SwiftSourceSetSpec>, NativeCompileTask, SourceFiles> {
+	public SwiftCompileTaskDefaultConfigurationRule() {
+		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class).asKnownObject(), ModelComponentReference.of(NativeCompileTask.class), ModelComponentReference.of(SourceFiles.class));
+	}
+
 	@Override
-	protected void execute(ModelNode entity, SwiftSourceSetTag sourceSetTag, LanguageSourceSetIdentifier identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
-		compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier, asModuleFileOfModuleName()))));
-		compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName(identifier.getName()))));
+	protected void execute(ModelNode entity, KnownDomainObject<SwiftSourceSetSpec> knownSourceSet, NativeCompileTask compileTask, SourceFiles sourceFiles) {
+		compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(knownSourceSet.getIdentifier(), asModuleFileOfModuleName()))));
+		compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName((LanguageSourceSetName) ((HasName) knownSourceSet.getIdentifier()).getName()))));
 		compileTask.configure(SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5)));
 		compileTask.configure(SwiftCompileTask.class, configureSources(from(sourceFiles)));
 		compileTask.configure(SwiftCompileTask.class, configureDebuggable(convention(false)));

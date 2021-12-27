@@ -19,7 +19,7 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.DomainObjectEventPublisherImpl;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.RealizableDomainObjectRealizerImpl;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -27,11 +27,8 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tasks.ModelReportTask;
 import dev.nokee.utils.TaskUtils;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.internal.logging.text.TreeFormatter;
 
 public class ModelBasePlugin implements Plugin<Project> {
 	@Override

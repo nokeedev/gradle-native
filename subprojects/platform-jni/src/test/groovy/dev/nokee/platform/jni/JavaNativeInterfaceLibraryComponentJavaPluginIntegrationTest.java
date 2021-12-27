@@ -23,11 +23,15 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.testers.SourceTester;
 import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.jvm.HasJavaSourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -159,7 +163,7 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 	@PluginRequirement.Require(id = "dev.nokee.c-language")
 	void attachesJniHeaderDirectoryToCHeaders() {
 		subject.getSources().get(); // force realize until named can realize
-		assertThat(subject.getSources().named("c", CSourceSet.class).get().getHeaders().getSourceDirectories(),
+		assertThat(subject.getSources().named("c", CSourceSetSpec.class).get().getHeaders().getSourceDirectories(),
 			hasItem(aFile(withAbsolutePath(endsWith("/generated/jni-headers/qezu")))));
 	}
 
@@ -167,7 +171,7 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 	@PluginRequirement.Require(id = "dev.nokee.cpp-language")
 	void attachesJniHeaderDirectoryToCppHeaders() {
 		subject.getSources().get(); // force realize until named can realize
-		assertThat(subject.getSources().named("cpp", CppSourceSet.class).get().getHeaders().getSourceDirectories(),
+		assertThat(subject.getSources().named("cpp", CppSourceSetSpec.class).get().getHeaders().getSourceDirectories(),
 			hasItem(aFile(withAbsolutePath(endsWith("/generated/jni-headers/qezu")))));
 	}
 
@@ -175,7 +179,7 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 	@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
 	void attachesJniHeaderDirectoryToObjectiveCHeaders() {
 		subject.getSources().get(); // force realize until named can realize
-		assertThat(subject.getSources().named("objectiveC", ObjectiveCSourceSet.class).get().getHeaders().getSourceDirectories(),
+		assertThat(subject.getSources().named("objectiveC", ObjectiveCSourceSetSpec.class).get().getHeaders().getSourceDirectories(),
 			hasItem(aFile(withAbsolutePath(endsWith("/generated/jni-headers/qezu")))));
 	}
 
@@ -183,7 +187,7 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 	@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
 	void attachesJniHeaderDirectoryToObjectiveCppHeaders() {
 		subject.getSources().get(); // force realize until named can realize
-		assertThat(subject.getSources().named("objectiveCpp", ObjectiveCppSourceSet.class).get().getHeaders().getSourceDirectories(),
+		assertThat(subject.getSources().named("objectiveCpp", ObjectiveCppSourceSetSpec.class).get().getHeaders().getSourceDirectories(),
 			hasItem(aFile(withAbsolutePath(endsWith("/generated/jni-headers/qezu")))));
 	}
 
