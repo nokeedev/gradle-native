@@ -13,8 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp.internal.plugins;
+package dev.nokee.language.swift.internal.plugins;
 
-public enum CppSourceSetTag {
-	INSTANCE
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.swift.SwiftSourceSet;
+
+public class LegacySwiftSourceSet implements SwiftSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public String toString() {
+		return "Swift sources '" + getName() + "'";
+	}
 }

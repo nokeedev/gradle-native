@@ -15,12 +15,12 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.language.base.ConfigurableSourceSet;
+import dev.nokee.language.nativebase.HasHeaders;
+import dev.nokee.model.internal.core.ModelProperties;
 
-public final class HeadersProperty {
-	private final ModelNode entity;
-
-	public HeadersProperty(ModelNode entity) {
-		this.entity = entity;
+public interface HasConfigurableHeadersMixIn extends HasHeaders {
+	default ConfigurableSourceSet getHeaders() {
+		return ModelProperties.getProperty(this, "headers").as(ConfigurableSourceSet.class).get();
 	}
 }

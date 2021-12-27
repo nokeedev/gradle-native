@@ -15,17 +15,11 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
-import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.cpp.CppSourceSet;
-import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
-import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -46,10 +40,5 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		//   but don't depend on this behaviour.
 
 		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory());
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCppSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterCppSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(CppSourceSetTag.class, CppCompile.class, CppCompileTask.class));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(CppSourceSetTag.class));
 	}
 }

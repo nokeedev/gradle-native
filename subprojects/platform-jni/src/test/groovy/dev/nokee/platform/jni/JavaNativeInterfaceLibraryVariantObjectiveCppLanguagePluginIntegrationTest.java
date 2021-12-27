@@ -17,6 +17,7 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
@@ -142,7 +143,7 @@ class JavaNativeInterfaceLibraryVariantObjectiveCppLanguagePluginIntegrationTest
 
 		@Test
 		void usesConventionalHeadersLocation() {
-			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/xapi/headers")))));
+			assertThat(((HasHeaders) subject()).getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/xapi/headers")))));
 		}
 	}
 }

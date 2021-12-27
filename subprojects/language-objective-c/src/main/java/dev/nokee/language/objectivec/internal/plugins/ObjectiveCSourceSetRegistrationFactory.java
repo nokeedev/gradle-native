@@ -17,12 +17,7 @@ package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.nativebase.internal.NativeHeaderLanguageTag;
-import dev.nokee.language.nativebase.internal.NativeSourceSetLegacyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
-import lombok.val;
-
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 
 public final class ObjectiveCSourceSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
@@ -30,17 +25,14 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
-		val builder = ModelRegistration.builder()
-			.withComponent(identifier)
-			.withComponent(toPath(identifier))
-			.withComponent(IsLanguageSourceSet.tag())
-			.withComponent(ObjectiveCSourceSetTag.INSTANCE);
-		builder.withComponent(ObjectiveCSourceSetTag.INSTANCE);
 		if (isLegacy) {
-			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
+			return ModelRegistration.managedBuilder(identifier, LegacyObjectiveCSourceSet.class)
+				.withComponent(IsLanguageSourceSet.tag())
+				.build();
 		} else {
-			builder.withComponent(NativeHeaderLanguageTag.INSTANCE);
+			return ModelRegistration.managedBuilder(identifier, ObjectiveCSourceSetSpec.class)
+				.withComponent(IsLanguageSourceSet.tag())
+				.build();
 		}
-		return builder.build();
 	}
 }

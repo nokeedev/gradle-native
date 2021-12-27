@@ -15,12 +15,8 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.RegisterSourcePropertyRuleFactory;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
-import dev.nokee.language.nativebase.internal.NativeCompileTaskRegistrationActionFactory;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.language.swift.tasks.SwiftCompile;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
@@ -42,12 +38,8 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_swiftSourceSetFactory", new SwiftSourceSetRegistrationFactory());
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterSwiftSourceSetProjectionRule.LegacySourceSetRule(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new RegisterSwiftSourceSetProjectionRule.DefaultSourceSetRule(project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(NativeCompileTaskRegistrationActionFactory.class).create(SwiftSourceSetTag.class, SwiftCompile.class, SwiftCompileTask.class));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ImportModulesConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachImportModulesToCompileTaskRule());
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new SwiftCompileTaskDefaultConfigurationRule());
-		project.getExtensions().getByType(ModelConfigurer.class).configure(project.getExtensions().getByType(RegisterSourcePropertyRuleFactory.class).create(SwiftSourceSetTag.class));
 	}
 }

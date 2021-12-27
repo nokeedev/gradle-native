@@ -17,11 +17,13 @@ package dev.nokee.language.nativebase.internal;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.google.common.reflect.TypeToken;
 import dev.nokee.language.base.HasDestinationDirectory;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -41,6 +43,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
+import org.gradle.model.internal.type.ModelType;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 
 import java.util.Objects;
@@ -50,19 +53,14 @@ import java.util.function.Function;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-@AutoFactory
-public final class NativeCompileTaskRegistrationAction extends ModelActionWithInputs.ModelAction3<Object, LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
-	private final Class<? extends SourceCompile> publicType;
-	private final Class<? extends SourceCompile> implementationType;
+public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<KnownDomainObject<HasNativeCompileTaskMixIn>, IsLanguageSourceSet, ModelState.IsAtLeastRegistered> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
-	public <T extends SourceCompile> NativeCompileTaskRegistrationAction(Class<?> sourceSetTag, Class<T> publicType, Class<? extends T> implementationType, @Provided ModelRegistry registry, @Provided TaskRegistrationFactory taskRegistrationFactory, @Provided ModelPropertyRegistrationFactory propertyRegistrationFactory, @Provided NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.of((Class<Object>) sourceSetTag), ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
-		this.publicType = publicType;
-		this.implementationType = implementationType;
+	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, ModelPropertyRegistrationFactory propertyRegistrationFactory, NativeToolChainSelector toolChainSelector) {
+		super(ModelComponentReference.ofProjection(HasNativeCompileTaskMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.propertyRegistrationFactory = propertyRegistrationFactory;
@@ -70,16 +68,16 @@ public final class NativeCompileTaskRegistrationAction extends ModelActionWithIn
 	}
 
 	@Override
-	protected void execute(ModelNode entity, Object sourceSetTag, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (!entity.hasComponent(ModelComponentType.componentOf(NativeSourceSetLegacyTag.class))) {
-			val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), publicType, identifier), implementationType).build());
-			compileTask.configure(publicType, configureDescription("Compiles the %s.", identifier));
-			compileTask.configure(publicType, configureDestinationDirectory(convention(forObjects(identifier))));
-			compileTask.configure(publicType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-			compileTask.configure(publicType, configureObjectFiles(from(objectFilesInDestinationDirectory())));
-			registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTask"), ModelNodes.of(compileTask)));
-			entity.addComponent(new NativeCompileTask(compileTask));
-		}
+	protected void execute(ModelNode entity, KnownDomainObject<HasNativeCompileTaskMixIn> knownObject, IsLanguageSourceSet ignored, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+		val implementationType = (Class<? extends SourceCompile>) TypeToken.of(knownObject.getType()).resolveType(HasNativeCompileTaskMixIn.class.getTypeParameters()[0]).getRawType();
+
+		val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, knownObject.getIdentifier()), implementationType).build());
+		compileTask.configure(implementationType, configureDescription("Compiles the %s.", knownObject.getIdentifier()));
+		compileTask.configure(implementationType, configureDestinationDirectory(convention(forObjects(knownObject.getIdentifier()))));
+		compileTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
+		compileTask.configure(implementationType, configureObjectFiles(from(objectFilesInDestinationDirectory())));
+		registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(knownObject.getIdentifier(), "compileTask"), ModelNodes.of(compileTask)));
+		entity.addComponent(new NativeCompileTask(compileTask));
 	}
 
 	//region Destination directory

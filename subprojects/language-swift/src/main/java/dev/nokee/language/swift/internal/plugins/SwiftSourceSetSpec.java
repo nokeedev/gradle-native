@@ -15,6 +15,15 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-public enum SwiftSourceSetTag {
-	INSTANCE
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+
+public class SwiftSourceSetSpec implements SwiftSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn, HasNativeCompileTaskMixIn<SwiftCompileTask> {
+	@Override
+	public String toString() {
+		return "Swift sources '" + getName() + "'";
+	}
 }

@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.ios.internal.plugins;
+package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.c.CHeaderSet;
+import dev.nokee.language.nativebase.NativeHeaderSet;
+import org.gradle.api.reflect.TypeOf;
 
-public class IosResourcePlugin implements Plugin<Project> {
+public class DefaultCHeaderSet implements CHeaderSet, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet>, HasConfigurableSourceMixIn {
 	@Override
-	public void apply(Project project) {
-		project.getPluginManager().apply("dev.nokee.language-base");
-		project.getExtensions().add("__nokee_iosResourceSetFactory", new IosResourceSetRegistrationFactory(project.getObjects()));
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(CHeaderSet.class);
 	}
 }

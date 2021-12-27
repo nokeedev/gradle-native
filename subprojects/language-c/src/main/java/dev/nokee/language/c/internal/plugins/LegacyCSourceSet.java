@@ -13,8 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.objectivecpp.internal.plugins;
+package dev.nokee.language.c.internal.plugins;
 
-public enum ObjectiveCppSourceSetTag {
-	INSTANCE
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.c.CSourceSet;
+
+public /*final*/ class LegacyCSourceSet implements CSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public String toString() {
+		return "C sources '" + getName() + "'";
+	}
 }

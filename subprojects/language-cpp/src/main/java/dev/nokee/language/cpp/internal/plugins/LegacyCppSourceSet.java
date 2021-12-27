@@ -13,8 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.c.internal.plugins;
+package dev.nokee.language.cpp.internal.plugins;
 
-public enum CHeaderSetTag {
-	INSTANCE
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.cpp.CppSourceSet;
+
+public class LegacyCppSourceSet implements CppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public String toString() {
+		return "C++ sources '" + getName() + "'";
+	}
 }

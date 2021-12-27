@@ -41,7 +41,7 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<LanguageSourceSetIdentifier, NativeHeaderLanguageTag, ModelState.IsAtLeastRegistered> {
+public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
@@ -53,7 +53,7 @@ public final class HeaderSearchPathsConfigurationRegistrationAction extends Mode
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, NativeHeaderLanguageTag headerTag, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
 		val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier)));
 		headerSearchPaths.configure(Configuration.class, forCPlusPlusApiUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));

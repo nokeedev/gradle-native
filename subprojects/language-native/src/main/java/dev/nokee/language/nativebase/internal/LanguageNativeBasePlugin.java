@@ -15,8 +15,10 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -30,12 +32,11 @@ public class LanguageNativeBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class); // TODO: Revisit if this is a good idea
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
-		project.getExtensions().add("__nokee_nativeCompileTaskFactory",
-			new NativeCompileTaskRegistrationActionFactory(
-				() -> project.getExtensions().getByType(ModelRegistry.class),
-				() -> project.getExtensions().getByType(TaskRegistrationFactory.class),
-				() -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
-				() -> new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())
-			));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new HasNativeCompileTaskMixInRule(
+			project.getExtensions().getByType(ModelRegistry.class),
+			project.getExtensions().getByType(TaskRegistrationFactory.class),
+			project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
+			new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())
+		));
 	}
 }

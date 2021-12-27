@@ -13,8 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp.internal.plugins;
+package dev.nokee.language.objectivecpp.internal.plugins;
 
-public enum CppHeaderSetTag {
-	INSTANCE
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+
+public class LegacyObjectiveCppSourceSet implements ObjectiveCppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public String toString() {
+		return "Objective-C++ sources '" + getName() + "'";
+	}
 }

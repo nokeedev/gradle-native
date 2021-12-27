@@ -15,7 +15,7 @@
  */
 package dev.nokee.language.nativebase;
 
-import dev.nokee.language.base.ConfigurableSourceSet;
+import dev.nokee.language.base.SourceSet;
 
 /**
  * Represents an element that carries native headers.
@@ -26,7 +26,7 @@ public interface HasHeaders {
 	/**
 	 * The headers of this source set.
 	 *
-	 * @return a {@link ConfigurableSourceSet}, never null
+	 * @return a {@link SourceSet}, never null
 	 */
-	ConfigurableSourceSet getHeaders();
+	SourceSet getHeaders();
 }

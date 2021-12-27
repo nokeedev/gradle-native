@@ -28,8 +28,6 @@ import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class LanguageSourceSetRegistrationFactory {
 	private final ObjectFactory objectFactory;
@@ -42,12 +40,8 @@ public final class LanguageSourceSetRegistrationFactory {
 		this.sourcePropertyRegistrationFactory = sourcePropertyRegistrationFactory;
 	}
 
-	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, Class<T> publicType) {
-		return create(identifier, sourcePropertyRegistrationFactory.create(identifier, sourceSetFactory::sourceSet), createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(publicType)));
-	}
-
-	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, Class<? super T> publicType, Class<T> implementationType, SourceDirectorySet sourceSet) {
-		return create(identifier, sourcePropertyRegistrationFactory.create(identifier, () -> sourceSetFactory.bridgedSourceSet(sourceSet)), createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(implementationType)));
+	public <T extends LanguageSourceSet> ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, Class<? super T> publicType, Class<T> implementationType, Supplier<SourceDirectorySet> sourceSet) {
+		return create(identifier, sourcePropertyRegistrationFactory.create(identifier, () -> sourceSetFactory.bridgedSourceSet(sourceSet.get())), createdUsing(ModelType.of(publicType), () -> objectFactory.newInstance(implementationType)));
 	}
 
 	private ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, ModelAction sourcePropertyAction, ModelProjection projection) {

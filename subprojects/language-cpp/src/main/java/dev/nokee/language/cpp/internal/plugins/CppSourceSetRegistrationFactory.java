@@ -17,12 +17,7 @@ package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.nativebase.internal.NativeHeaderLanguageTag;
-import dev.nokee.language.nativebase.internal.NativeSourceSetLegacyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
-import lombok.val;
-
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 
 public final class CppSourceSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
@@ -30,17 +25,14 @@ public final class CppSourceSetRegistrationFactory {
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
-		val builder = ModelRegistration.builder()
-			.withComponent(identifier)
-			.withComponent(toPath(identifier))
-			.withComponent(IsLanguageSourceSet.tag())
-			.withComponent(CppSourceSetTag.INSTANCE);
-		builder.withComponent(CppSourceSetTag.INSTANCE);
 		if (isLegacy) {
-			builder.withComponent(NativeSourceSetLegacyTag.INSTANCE);
+			return ModelRegistration.managedBuilder(identifier, LegacyCppSourceSet.class)
+				.withComponent(IsLanguageSourceSet.tag())
+				.build();
 		} else {
-			builder.withComponent(NativeHeaderLanguageTag.INSTANCE);
+			return ModelRegistration.managedBuilder(identifier, CppSourceSetSpec.class)
+				.withComponent(IsLanguageSourceSet.tag())
+				.build();
 		}
-		return builder.build();
 	}
 }

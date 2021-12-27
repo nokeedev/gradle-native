@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.base.internal;
+package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
+import dev.nokee.language.cpp.CppHeaderSet;
+import dev.nokee.language.nativebase.NativeHeaderSet;
+import org.gradle.api.reflect.TypeOf;
 
-public final class SourceProperty {
-	private final ModelNode entity;
-
-	public SourceProperty(ModelNode entity) {
-		this.entity = entity;
+public class DefaultCppHeaderSet implements CppHeaderSet, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet>, HasConfigurableSourceMixIn {
+	@Override
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(CppHeaderSet.class);
 	}
 }

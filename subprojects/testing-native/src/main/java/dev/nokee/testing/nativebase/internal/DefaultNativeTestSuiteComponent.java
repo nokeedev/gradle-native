@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -218,16 +217,16 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				// TODO: should have a way to report the public type of the "main" projection
 				//   The known and provider should use the public type of the projection... instead of the "assumed type"
 				//   BUT should it... seems a bit hacky... check what Software Model did.
-				val sourceSetType = ModelNodeUtils.get(entity, LanguageSourceSet.class).getClass();
+				@SuppressWarnings("unchecked") val sourceSetType = (Class<? extends LanguageSourceSet>) c.getType().getConcreteType();
 				// If source set don't already exists on test suite
 				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(getNode())).and(withType(of(sourceSetType)))))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
 					val identifier = getNode().getComponent(ComponentIdentifier.class);
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						registry.register(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "headers"), sourceSetType).build());
+						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, "headers"), sourceSetType).withComponent(IsLanguageSourceSet.tag()).build());
 					} else {
-						registry.register(project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, entity.getComponent(LanguageSourceSetIdentifier.class).getName().toString()), sourceSetType).build());
+						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, entity.getComponent(LanguageSourceSetIdentifier.class).getName().toString()), sourceSetType).withComponent(IsLanguageSourceSet.tag()).build());
 					}
 				}
 			}));

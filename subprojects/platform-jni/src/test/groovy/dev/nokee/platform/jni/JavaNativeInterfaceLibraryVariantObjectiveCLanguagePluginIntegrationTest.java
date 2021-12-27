@@ -17,6 +17,7 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
@@ -142,7 +143,7 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 
 		@Test
 		void usesConventionalHeadersLocation() {
-			assertThat(subject().getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/headers")))));
+			assertThat(((HasHeaders) subject()).getHeaders().getSourceDirectories(), hasItem(aFile(withAbsolutePath(endsWith("/src/veda/headers")))));
 		}
 	}
 }
