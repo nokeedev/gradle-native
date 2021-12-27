@@ -24,25 +24,24 @@ import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
-public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction3<KnownDomainObject<HasConfigurableHeadersMixIn>, IsLanguageSourceSet, ModelState.IsAtLeastRegistered> {
+public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasConfigurableHeadersMixIn>, IsLanguageSourceSet> {
 	private final ModelRegistry registry;
 	private final SourceSetFactory sourceSetFactory;
 
 	HasConfigurableHeadersMixInRule(ModelRegistry registry, SourceSetFactory sourceSetFactory) {
-		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
+		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.sourceSetFactory = sourceSetFactory;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableHeadersMixIn> knownObject, IsLanguageSourceSet ignored, ModelState.IsAtLeastRegistered stateTag) {
+	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableHeadersMixIn> knownObject, IsLanguageSourceSet ignored) {
 		val propertyIdentifier = ModelPropertyIdentifier.of(knownObject.getIdentifier(), "headers");
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))

@@ -15,8 +15,6 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
@@ -27,7 +25,6 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -43,7 +40,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.gradle.language.swift.tasks.SwiftCompile;
-import org.gradle.model.internal.type.ModelType;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 
 import java.util.Objects;
@@ -53,14 +49,14 @@ import java.util.function.Function;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<KnownDomainObject<HasNativeCompileTaskMixIn>, IsLanguageSourceSet, ModelState.IsAtLeastRegistered> {
+public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasNativeCompileTaskMixIn>, IsLanguageSourceSet> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, ModelPropertyRegistrationFactory propertyRegistrationFactory, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.ofProjection(HasNativeCompileTaskMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
+		super(ModelComponentReference.ofProjection(HasNativeCompileTaskMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.propertyRegistrationFactory = propertyRegistrationFactory;
@@ -68,7 +64,7 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<HasNativeCompileTaskMixIn> knownObject, IsLanguageSourceSet ignored, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+	protected void execute(ModelNode entity, KnownDomainObject<HasNativeCompileTaskMixIn> knownObject, IsLanguageSourceSet ignored) {
 		val implementationType = (Class<? extends SourceCompile>) TypeToken.of(knownObject.getType()).resolveType(HasNativeCompileTaskMixIn.class.getTypeParameters()[0]).getRawType();
 
 		val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, knownObject.getIdentifier()), implementationType).build());
