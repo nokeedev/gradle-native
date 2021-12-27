@@ -28,6 +28,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static dev.nokee.utils.TransformerUtils.*;
@@ -44,6 +45,7 @@ public final class ViewAdapter<T> implements View<T> {
 
 	@Override
 	public void configureEach(Action<? super T> action) {
+		Objects.requireNonNull(action);
 		strategy.configureEach(elementType, action);
 	}
 
