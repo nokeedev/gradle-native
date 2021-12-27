@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -26,17 +25,19 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.project.ProjectInternal;
 
+import static dev.nokee.model.internal.core.ModelElements.whenElementDiscovered;
+
 public class LanguageNativeBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class); // TODO: Revisit if this is a good idea
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new HasNativeCompileTaskMixInRule(
+		project.getExtensions().getByType(ModelConfigurer.class).configure(whenElementDiscovered(new HasNativeCompileTaskMixInRule(
 			project.getExtensions().getByType(ModelRegistry.class),
 			project.getExtensions().getByType(TaskRegistrationFactory.class),
 			project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
 			new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders())
-		));
+		)));
 	}
 }

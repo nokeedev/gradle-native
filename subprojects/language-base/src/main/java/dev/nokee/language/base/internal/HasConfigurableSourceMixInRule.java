@@ -23,24 +23,23 @@ import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 
-public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.ModelAction3<KnownDomainObject<HasConfigurableSourceMixIn>, IsLanguageSourceSet, ModelState.IsAtLeastRegistered> {
+public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasConfigurableSourceMixIn>, IsLanguageSourceSet> {
 	private final Factory<ConfigurableSourceSet> sourceSetFactory;
 	private final ModelRegistry registry;
 
 	public HasConfigurableSourceMixInRule(Factory<ConfigurableSourceSet> sourceSetFactory, ModelRegistry registry) {
-		super(ModelComponentReference.ofProjection(HasConfigurableSourceMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
+		super(ModelComponentReference.ofProjection(HasConfigurableSourceMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.sourceSetFactory = sourceSetFactory;
 		this.registry = registry;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableSourceMixIn> knownObject, IsLanguageSourceSet ignored, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableSourceMixIn> knownObject, IsLanguageSourceSet ignored) {
 		val propertyIdentifier = ModelPropertyIdentifier.of(knownObject.getIdentifier(), "source");
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))

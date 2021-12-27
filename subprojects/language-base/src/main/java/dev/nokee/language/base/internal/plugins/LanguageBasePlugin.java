@@ -24,6 +24,8 @@ import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+import static dev.nokee.model.internal.core.ModelElements.whenElementDiscovered;
+
 public class LanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
@@ -33,6 +35,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_sourceSetFactory", new SourceSetFactory(project.getObjects()));
 		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(SourceSetFactory.class), new SourcePropertyRegistrationActionFactory(() -> project.getExtensions().getByType(ModelRegistry.class))));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(whenElementDiscovered(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class))));
 	}
 }
