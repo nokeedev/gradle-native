@@ -15,8 +15,9 @@
  */
 package dev.nokee.model.internal;
 
+import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
 
 public interface ConfigurableStrategy {
-	<T> void configure(Class<T> type, Action<? super T> action);
+	<T> void configure(ModelType<T> type, Action<? super T> action);
 }

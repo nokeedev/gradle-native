@@ -63,7 +63,7 @@ public interface VariantEntityFixture extends NokeeEntitiesFixture {
 			}
 		}, new ConfigurableStrategy() {
 			@Override
-			public <T> void configure(Class<T> type, Action<? super T> action) {
+			public <T> void configure(ModelType<T> type, Action<? super T> action) {
 				// do nothing
 			}
 		});
