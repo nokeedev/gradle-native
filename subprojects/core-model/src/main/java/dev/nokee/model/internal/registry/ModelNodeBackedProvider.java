@@ -18,6 +18,7 @@ package dev.nokee.model.internal.registry;
 import com.google.common.base.Preconditions;
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
@@ -42,19 +43,19 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 @EqualsAndHashCode
 public final class ModelNodeBackedProvider<T> implements DomainObjectProvider<T>, ModelNodeAware, Callable<Object> {
 	private static final NamedDomainObjectProviderFactory PROVIDER_FACTORY = new NamedDomainObjectProviderFactory();
-	private final ModelIdentifier<T> identifier;
+	private final DomainObjectIdentifier identifier;
 	private final ModelType<T> type;
 	@EqualsAndHashCode.Exclude private final ModelNode node;
 
 	public ModelNodeBackedProvider(ModelType<T> type, ModelNode node) {
 		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(node, type), "node '%s' cannot be viewed as %s", node, type);
-		this.identifier = ModelIdentifier.of(ModelNodeUtils.getPath(node), type);
+		this.identifier = node.findComponent(DomainObjectIdentifier.class).orElseGet(() -> ModelIdentifier.of(ModelNodeUtils.getPath(node), type));
 		this.type = type;
 		this.node = node;
 	}
 
 	@Override
-	public ModelIdentifier<T> getIdentifier() {
+	public DomainObjectIdentifier getIdentifier() {
 		return identifier;
 	}
 
