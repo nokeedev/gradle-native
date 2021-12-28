@@ -18,7 +18,7 @@ package dev.nokee.model.internal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.KnownDomainObjectTester;
-import dev.nokee.model.internal.DefaultKnownDomainObject;
+import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -42,10 +42,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements KnownDomainObjectTester<Object> {
-	private final Object myTypeInstance = new Object();
+	private static final Object myTypeInstance = new Object();
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
-	private final ModelNode node = node("foo", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
+	private final ModelNode node = newEntity(modelConfigurer);
 	private final DefaultKnownDomainObject<Object> subject = DefaultKnownDomainObject.of(of(Object.class), node);
+
+	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
+		val entity = node("laqu", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
+		entity.addComponent(ModelIdentifier.of("laqu", Object.class));
+		return entity;
+	}
 
 	@Override
 	public KnownDomainObject<Object> subject() {
@@ -84,7 +90,7 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 	void throwExceptionWhenCreatingKnownObjectWithWrongProjectionType() {
 		val ex = assertThrows(IllegalArgumentException.class, () -> DefaultKnownDomainObject.of(of(WrongType.class), node));
 		assertThat(ex.getMessage(),
-			equalTo("node 'foo' cannot be viewed as interface dev.nokee.model.internal.DefaultKnownDomainObjectBackedByModelEntityIntegrationTest$WrongType"));
+			equalTo("node 'laqu' cannot be viewed as interface dev.nokee.model.internal.DefaultKnownDomainObjectBackedByModelEntityIntegrationTest$WrongType"));
 	}
 
 	@Test
