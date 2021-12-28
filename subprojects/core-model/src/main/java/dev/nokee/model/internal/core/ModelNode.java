@@ -189,6 +189,8 @@ public final class ModelNode {
 			path.getParent().ifPresent(parentPath -> {
 				entity.addComponent(new ParentNode(lookup.get(parentPath)));
 			});
+			entity.addComponent(new ElementNameComponent(path.getName()));
+			entity.addComponent(new DisplayNameComponent(path.toString()));
 			ModelStates.create(entity);
 			ModelStates.initialize(entity);
 			return entity;

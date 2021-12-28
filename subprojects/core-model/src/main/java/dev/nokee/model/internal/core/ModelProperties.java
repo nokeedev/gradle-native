@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.registry.ModelNodeBackedElement;
 import lombok.val;
 
 import java.util.Optional;
@@ -25,11 +24,11 @@ public final class ModelProperties {
 	private ModelProperties() {}
 
 	public static ModelElement getProperty(Object self, String name) {
-		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(IsModelProperty.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(ModelNodeBackedElement::new).orElseThrow(() -> new IllegalArgumentException("No property of name '" + name + "'"));
+		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(IsModelProperty.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(DefaultModelElement::of).orElseThrow(() -> new IllegalArgumentException("No property of name '" + name + "'"));
 	}
 
 	public static Optional<ModelElement> findProperty(Object self, String name) {
-		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(IsModelProperty.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(ModelNodeBackedElement::new);
+		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(IsModelProperty.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(DefaultModelElement::of);
 	}
 
 	public static boolean hasProperty(Object self, String name) {
@@ -38,6 +37,6 @@ public final class ModelProperties {
 
 	public static Stream<ModelElement> getProperties(Object self) {
 		val result = ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants();
-		return result.stream().filter(it -> it.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))).map(ModelNodeBackedElement::new);
+		return result.stream().filter(it -> it.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))).map(DefaultModelElement::of);
 	}
 }

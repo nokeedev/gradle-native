@@ -51,6 +51,8 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 				path.getParent().ifPresent(parentPath -> {
 					node.addComponent(new ParentNode(this.get(parentPath)));
 				});
+				node.addComponent(new ElementNameComponent(path.getName()));
+				node.addComponent(new DisplayNameComponent(path.toString()));
 			} else if (state.equals(ModelState.Registered)) {
 				assert !entities.contains(node) : "duplicated registered notification";
 				nodes.put(path, node);
@@ -86,7 +88,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	public ModelElement register(ModelRegistration registration) {
 		registration.getActions().forEach(this::configure);
 		val node = ModelStates.register(newNode(registration));
-		return new ModelNodeBackedElement(node);
+		return DefaultModelElement.of(node);
 	}
 
 	private ModelNode newNode(ModelRegistration registration) {

@@ -15,20 +15,26 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.testing.WrongType;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.utils.ActionTestUtils;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.utils.ActionTestUtils.doSomething;
+import static dev.nokee.utils.ActionTestUtils.mockAction;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public interface ModelElementTester {
 	ModelElement subject();
 
+	ModelType<?> aKnownType();
+
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
-	default void checkNulls() {
+	default void checkNullsOnPublicMethods() {
 		new NullPointerTester().setDefault(ModelType.class, ModelType.untyped()).testAllPublicInstanceMethods(subject());
 	}
 
@@ -38,17 +44,42 @@ public interface ModelElementTester {
 	}
 
 	@Test
+	default void isInstanceOfKnownType() {
+		assertTrue(subject().instanceOf(aKnownType()));
+	}
+
+	@Test
 	default void isNotInstanceOfWrongType() {
-		assertFalse(subject().instanceOf(WrongType.class));
+		assertFalse(subject().instanceOf(of(WrongType.class)));
+	}
+
+	@Test
+	default void doesNotThrowWhenConfigureUsingActionOfKnownType() {
+		assertDoesNotThrow(() -> subject().configure(aKnownType(), doSomething()));
+	}
+
+	@Test
+	default void throwsExceptionWhenConfigureUsingActionOfWrongType() {
+		assertThrows(RuntimeException.class, () -> subject().configure(of(WrongType.class), doSomething()));
+	}
+
+	@Test
+	default void returnsThisModelElementOnConfigure() {
+		assertSame(subject(), subject().configure(aKnownType(), mockAction()));
 	}
 
 	@Test
 	default void throwsExceptionWhenConfiguringWrongType() {
-		assertThrows(RuntimeException.class, () -> subject().configure(WrongType.class, ActionTestUtils.doSomething()));
+		assertThrows(RuntimeException.class, () -> subject().configure(WrongType.class, doSomething()));
 	}
 
 	@Test
 	default void throwsCastExceptionWhenCastingIntoWrongType() {
-		assertThrows(ClassCastException.class, () -> subject().as(WrongType.class));
+		val ex = assertThrows(ClassCastException.class, () -> subject().as(WrongType.class));
+		assertThat("starts with meaningful message", ex.getMessage(), startsWith("Could not cast"));
+		assertThat("mention target simple type", ex.getMessage(), containsString(" to WrongType."));
+		assertThat("mention castable types", ex.getMessage(), allOf(containsString("Available instances: "), containsString(aKnownType().getConcreteType().getSimpleName())));
 	}
+
+	interface WrongType {}
 }
