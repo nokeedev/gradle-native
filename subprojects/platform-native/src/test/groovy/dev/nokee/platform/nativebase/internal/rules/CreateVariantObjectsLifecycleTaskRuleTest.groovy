@@ -32,16 +32,17 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import static ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS
+import static com.google.common.base.Suppliers.ofInstance
 import static dev.nokee.utils.TaskUtils.configureDependsOn
 
 @Subject(CreateVariantObjectsLifecycleTaskRule)
 class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 	KnownDomainObject newSubject(VariantIdentifier identifier) {
-		return new DefaultKnownDomainObject<>(identifier, Variant.class, { Stub(Provider) }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), Variant.class, { Stub(Provider) }, {})
 	}
 
 	KnownDomainObject newSubject(VariantIdentifier identifier, Provider provider) {
-		return new DefaultKnownDomainObject<>(identifier, Variant.class, { provider }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), Variant.class, { provider }, {})
 	}
 
 	def "creates an objects task owned by the variant"() {
