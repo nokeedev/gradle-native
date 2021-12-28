@@ -45,11 +45,11 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode
 public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, ProviderConvertibleInternal<T> {
 	private final Supplier<DomainObjectIdentifier> identifierSupplier;
-	private final Class<T> type;
+	private final ModelType<T> type;
 	@EqualsAndHashCode.Exclude private final ProviderConvertibleStrategy providerConvertibleStrategy;
 	@EqualsAndHashCode.Exclude private final ConfigurableStrategy configurableStrategy;
 
-	public DefaultKnownDomainObject(Supplier<DomainObjectIdentifier> identifierSupplier, Class<T> type, ProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy) {
+	public DefaultKnownDomainObject(Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy) {
 		this.identifierSupplier = requireNonNull(identifierSupplier);
 		this.type = requireNonNull(type);
 		this.providerConvertibleStrategy = requireNonNull(providerConvertibleStrategy);
@@ -64,8 +64,8 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 		val delegate = ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelStates.realize(entity), type));
 		val providerStrategy = new ProviderConvertibleStrategy() {
 			@Override
-			public <S> Provider<S> asProvider(Class<S> t) {
-				assert fullType.getType().equals(t);
+			public <S> Provider<S> asProvider(ModelType<S> t) {
+				assert fullType.equals(t);
 				return (Provider<S>) delegate;
 			}
 		};
@@ -77,7 +77,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity);
-		return new DefaultKnownDomainObject<>(identifierSupplier, fullType.getConcreteType(), providerStrategy, configurableStrategy);
+		return new DefaultKnownDomainObject<>(identifierSupplier, fullType, providerStrategy, configurableStrategy);
 	}
 
 	@EqualsAndHashCode
@@ -106,18 +106,18 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 
 	@Override
 	public Class<T> getType() {
-		return type;
+		return type.getConcreteType();
 	}
 
 	@Override
 	public KnownDomainObject<T> configure(Action<? super T> action) {
-		configurableStrategy.configure(ModelType.of(type), requireNonNull(action));
+		configurableStrategy.configure(type, requireNonNull(action));
 		return this;
 	}
 
 	@Override
 	public KnownDomainObject<T> configure(@SuppressWarnings("rawtypes") Closure closure) {
-		configurableStrategy.configure(ModelType.of(type), new ClosureWrappedConfigureAction<>(closure));
+		configurableStrategy.configure(type, new ClosureWrappedConfigureAction<>(closure));
 		return this;
 	}
 

@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal.rules
 import dev.nokee.model.KnownDomainObject
 import dev.nokee.model.internal.DefaultKnownDomainObject
 import dev.nokee.model.internal.ProjectIdentifier
+import dev.nokee.model.internal.type.ModelType
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
@@ -38,11 +39,11 @@ import static dev.nokee.utils.TaskUtils.configureDependsOn
 @Subject(CreateVariantObjectsLifecycleTaskRule)
 class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 	KnownDomainObject newSubject(VariantIdentifier identifier) {
-		return new DefaultKnownDomainObject<>(ofInstance(identifier), Variant.class, { Stub(Provider) }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { Stub(Provider) }, {})
 	}
 
 	KnownDomainObject newSubject(VariantIdentifier identifier, Provider provider) {
-		return new DefaultKnownDomainObject<>(ofInstance(identifier), Variant.class, { provider }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { provider }, {})
 	}
 
 	def "creates an objects task owned by the variant"() {

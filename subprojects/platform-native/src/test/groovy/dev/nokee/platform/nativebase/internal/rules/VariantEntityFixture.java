@@ -32,6 +32,7 @@ import org.gradle.api.provider.Provider;
 import java.util.Arrays;
 
 import static com.google.common.base.Suppliers.ofInstance;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public interface VariantEntityFixture extends NokeeEntitiesFixture {
 	Project getProject();
@@ -58,9 +59,9 @@ public interface VariantEntityFixture extends NokeeEntitiesFixture {
 	}
 
 	default <S extends Variant> KnownDomainObject<S> known(VariantIdentifier<S> identifier) {
-		return new DefaultKnownDomainObject<S>(ofInstance(identifier), identifier.getType(), new ProviderConvertibleStrategy() {
+		return new DefaultKnownDomainObject<S>(ofInstance(identifier), of(identifier.getType()), new ProviderConvertibleStrategy() {
 			@Override
-			public <T> Provider<T> asProvider(Class<T> type) {
+			public <T> Provider<T> asProvider(ModelType<T> type) {
 				return ProviderUtils.notDefined();
 			}
 		}, new ConfigurableStrategy() {

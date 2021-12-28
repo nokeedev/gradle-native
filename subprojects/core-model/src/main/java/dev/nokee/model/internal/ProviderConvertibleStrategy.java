@@ -15,8 +15,9 @@
  */
 package dev.nokee.model.internal;
 
+import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.provider.Provider;
 
 public interface ProviderConvertibleStrategy {
-	<T> Provider<T> asProvider(Class<T> type);
+	<T> Provider<T> asProvider(ModelType<T> type);
 }
