@@ -32,8 +32,7 @@ import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T> {
 	KnownDomainObject<T> subject();

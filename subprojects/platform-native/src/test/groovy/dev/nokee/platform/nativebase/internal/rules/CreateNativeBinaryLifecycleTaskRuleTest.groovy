@@ -36,16 +36,17 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
+import static com.google.common.base.Suppliers.ofInstance
 import static dev.nokee.utils.TaskUtils.configureDependsOn
 
 @Subject(CreateNativeBinaryLifecycleTaskRule)
 class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 	KnownDomainObject newSubject(VariantIdentifier identifier) {
-		return new DefaultKnownDomainObject<>(identifier, Variant.class, { Stub(Provider) }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), Variant.class, { Stub(Provider) }, {})
 	}
 
 	KnownDomainObject newSubject(VariantIdentifier identifier, Provider provider) {
-		return new DefaultKnownDomainObject<>(identifier, Variant.class, { provider }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), Variant.class, { provider }, {})
 	}
 
 	VariantIdentifier<Variant> newIdentifier() {

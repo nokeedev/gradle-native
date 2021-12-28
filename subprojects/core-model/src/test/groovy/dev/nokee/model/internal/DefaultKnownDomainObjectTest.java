@@ -28,21 +28,27 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.function.Supplier;
+
+import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKnownDomainObjectTest.MyType> {
 	private final MyType value = Mockito.mock(MyType.class);
+	@SuppressWarnings("unchecked") private final Supplier<DomainObjectIdentifier> identifierSupplier = Mockito.mock(Supplier.class);
 	private final ConfigurableStrategy configurableStrategy = Mockito.mock(ConfigurableStrategy.class);
 	private final ProviderConvertibleStrategy providerConvertibleStrategy = Mockito.mock(ProviderConvertibleStrategy.class);
 	private final DomainObjectIdentifier identifier = Mockito.mock(DomainObjectIdentifier.class);
-	private final DefaultKnownDomainObject<MyType> subject = new DefaultKnownDomainObject<>(identifier, MyType.class, providerConvertibleStrategy, configurableStrategy);
+	private final DefaultKnownDomainObject<MyType> subject = new DefaultKnownDomainObject<>(identifierSupplier, MyType.class, providerConvertibleStrategy, configurableStrategy);
 
 	@BeforeEach
 	void canConvertToMyType() {
+		when(identifierSupplier.get()).thenReturn(identifier);
 		when(providerConvertibleStrategy.asProvider(MyType.class)).thenReturn(fixed(value));
 	}
 
@@ -55,6 +61,14 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 	@SuppressWarnings("UnstableApiUsage")
 	void checkNullsOnConstructor() {
 		new NullPointerTester().testAllPublicConstructors(DefaultKnownDomainObject.class);
+	}
+
+	@Test
+	void forwardsIdentifierQueryToSupplier() {
+		val expectedIdentifier = Mockito.mock(DomainObjectIdentifier.class);
+		when(identifierSupplier.get()).thenReturn(expectedIdentifier);
+		assertSame(expectedIdentifier, subject.getIdentifier());
+		verify(identifierSupplier).get();
 	}
 
 	@Test
@@ -84,13 +98,13 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 	void checkEquals() {
 		new EqualsTester()
 			.addEqualityGroup(
-				new DefaultKnownDomainObject<>(identifier, MyType.class, providerConvertibleStrategy, configurableStrategy),
-				new DefaultKnownDomainObject<>(identifier, MyType.class, providerConvertibleStrategy, configurableStrategy),
-				new DefaultKnownDomainObject<>(identifier, MyType.class, providerConvertibleStrategy, Mockito.mock(ConfigurableStrategy.class)),
-				new DefaultKnownDomainObject<>(identifier, MyType.class, Mockito.mock(ProviderConvertibleStrategy.class), configurableStrategy)
+				new DefaultKnownDomainObject<>(ofInstance(identifier), MyType.class, providerConvertibleStrategy, configurableStrategy),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), MyType.class, providerConvertibleStrategy, configurableStrategy),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), MyType.class, providerConvertibleStrategy, Mockito.mock(ConfigurableStrategy.class)),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), MyType.class, Mockito.mock(ProviderConvertibleStrategy.class), configurableStrategy)
 			)
-			.addEqualityGroup(new DefaultKnownDomainObject<>(identifier, Object.class, providerConvertibleStrategy, configurableStrategy))
-			.addEqualityGroup(new DefaultKnownDomainObject<>(Mockito.mock(DomainObjectIdentifier.class), Object.class, providerConvertibleStrategy, configurableStrategy))
+			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(identifier), Object.class, providerConvertibleStrategy, configurableStrategy))
+			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(Mockito.mock(DomainObjectIdentifier.class)), Object.class, providerConvertibleStrategy, configurableStrategy))
 			.testEquals();
 	}
 
