@@ -16,9 +16,10 @@
 package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.registry.*;
+import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
@@ -220,7 +221,7 @@ public final class ModelTestUtils {
 				val childNode = childNode(nodeProvider.getValue(), path.getName(), registration.getActions(), builder -> {});
 				registration.getComponents().forEach(childNode::addComponent);
 				children.put(path, childNode);
-				return new ModelNodeBackedElement(childNode);
+				return DefaultModelElement.of(childNode);
 			}
 
 			private Stream<ModelPath> findModelPath(Object component) {

@@ -36,7 +36,7 @@ public abstract class AbstractNamedDomainObjectViewGetByNameTypedTester<T> exten
 	void canGetProviderForKnownElementUsingBaseType() {
 		element("e0", getSubElementType());
 		val provider = get(subject, "e0", getElementType());
-		assertThat(provider.getIdentifier(), equalTo(ModelIdentifier.of("myTypes.e0", getElementType())));
+		assertThat(provider.getIdentifier(), equalTo(ModelIdentifier.of("myTypes.e0", getSubElementType())));
 	}
 
 	@Test
