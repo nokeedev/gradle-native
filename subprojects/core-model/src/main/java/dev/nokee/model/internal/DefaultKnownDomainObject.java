@@ -69,9 +69,9 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 		};
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
-			public <S> void configure(Class<S> t, Action<? super S> action) {
-				assert fullType.getType().equals(t);
-				ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(ModelType.of(t), action))));
+			public <S> void configure(ModelType<S> t, Action<? super S> action) {
+				assert fullType.equals(t);
+				ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(t, action))));
 			}
 		};
 		return new DefaultKnownDomainObject<>(entity.getComponent(DomainObjectIdentifier.class), fullType.getConcreteType(), providerStrategy, configurableStrategy);
@@ -94,13 +94,13 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 
 	@Override
 	public KnownDomainObject<T> configure(Action<? super T> action) {
-		configurableStrategy.configure(type, requireNonNull(action));
+		configurableStrategy.configure(ModelType.of(type), requireNonNull(action));
 		return this;
 	}
 
 	@Override
 	public KnownDomainObject<T> configure(@SuppressWarnings("rawtypes") Closure closure) {
-		configurableStrategy.configure(type, new ClosureWrappedConfigureAction<>(closure));
+		configurableStrategy.configure(ModelType.of(type), new ClosureWrappedConfigureAction<>(closure));
 		return this;
 	}
 

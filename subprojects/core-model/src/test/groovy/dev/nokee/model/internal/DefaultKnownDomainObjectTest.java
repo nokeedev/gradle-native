@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -60,14 +61,14 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 	void forwardsConfigureUsingActionToStrategy() {
 		val action = ActionTestUtils.mockAction(MyType.class);
 		subject().configure(action);
-		verify(configurableStrategy).configure(MyType.class, action);
+		verify(configurableStrategy).configure(of(MyType.class), action);
 	}
 
 	@Test
 	void forwardsConfigureUsingClosureToStrategyAsAction() {
 		val closure = ClosureTestUtils.mockClosure(MyType.class);
 		subject().configure(closure);
-		verify(configurableStrategy).configure(MyType.class, new ClosureWrappedConfigureAction<>(closure));
+		verify(configurableStrategy).configure(of(MyType.class), new ClosureWrappedConfigureAction<>(closure));
 	}
 
 	@Test
