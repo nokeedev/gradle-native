@@ -20,6 +20,7 @@ import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.KnownDomainObjectTester;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
@@ -44,12 +45,12 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 	private final ConfigurableStrategy configurableStrategy = Mockito.mock(ConfigurableStrategy.class);
 	private final ProviderConvertibleStrategy providerConvertibleStrategy = Mockito.mock(ProviderConvertibleStrategy.class);
 	private final DomainObjectIdentifier identifier = Mockito.mock(DomainObjectIdentifier.class);
-	private final DefaultKnownDomainObject<MyType> subject = new DefaultKnownDomainObject<>(identifierSupplier, MyType.class, providerConvertibleStrategy, configurableStrategy);
+	private final DefaultKnownDomainObject<MyType> subject = new DefaultKnownDomainObject<>(identifierSupplier, of(MyType.class), providerConvertibleStrategy, configurableStrategy);
 
 	@BeforeEach
 	void canConvertToMyType() {
 		when(identifierSupplier.get()).thenReturn(identifier);
-		when(providerConvertibleStrategy.asProvider(MyType.class)).thenReturn(fixed(value));
+		when(providerConvertibleStrategy.asProvider(of(MyType.class))).thenReturn(fixed(value));
 	}
 
 	@Override
@@ -60,7 +61,7 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkNullsOnConstructor() {
-		new NullPointerTester().testAllPublicConstructors(DefaultKnownDomainObject.class);
+		new NullPointerTester().setDefault(ModelType.class, ModelType.untyped()).testAllPublicConstructors(DefaultKnownDomainObject.class);
 	}
 
 	@Test
@@ -88,9 +89,9 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 	@Test
 	void forwardsAsProviderToStrategy() {
 		val result = fixed(value);
-		when(providerConvertibleStrategy.asProvider(MyType.class)).thenReturn(result);
+		when(providerConvertibleStrategy.asProvider(of(MyType.class))).thenReturn(result);
 		assertEquals(result, subject().asProvider());
-		verify(providerConvertibleStrategy).asProvider(MyType.class);
+		verify(providerConvertibleStrategy).asProvider(of(MyType.class));
 	}
 
 	@Test
@@ -98,13 +99,13 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 	void checkEquals() {
 		new EqualsTester()
 			.addEqualityGroup(
-				new DefaultKnownDomainObject<>(ofInstance(identifier), MyType.class, providerConvertibleStrategy, configurableStrategy),
-				new DefaultKnownDomainObject<>(ofInstance(identifier), MyType.class, providerConvertibleStrategy, configurableStrategy),
-				new DefaultKnownDomainObject<>(ofInstance(identifier), MyType.class, providerConvertibleStrategy, Mockito.mock(ConfigurableStrategy.class)),
-				new DefaultKnownDomainObject<>(ofInstance(identifier), MyType.class, Mockito.mock(ProviderConvertibleStrategy.class), configurableStrategy)
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, Mockito.mock(ConfigurableStrategy.class)),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), Mockito.mock(ProviderConvertibleStrategy.class), configurableStrategy)
 			)
-			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(identifier), Object.class, providerConvertibleStrategy, configurableStrategy))
-			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(Mockito.mock(DomainObjectIdentifier.class)), Object.class, providerConvertibleStrategy, configurableStrategy))
+			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(identifier), of(Object.class), providerConvertibleStrategy, configurableStrategy))
+			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(Mockito.mock(DomainObjectIdentifier.class)), of(Object.class), providerConvertibleStrategy, configurableStrategy))
 			.testEquals();
 	}
 
