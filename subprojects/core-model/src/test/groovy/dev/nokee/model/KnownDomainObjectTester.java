@@ -73,10 +73,9 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 
 	@Test
 	default void returnsThisKnownObjectOnConfigure() {
-		val subject = subject();
 		assertAll(
-			() -> assertThat(subject.configure(mockAction()), is(subject)),
-			() -> assertThat(subject.configure(mockClosure(type())), is(subject))
+			() -> assertSame(subject(), subject().configure(mockAction())),
+			() -> assertSame(subject(), subject().configure(mockClosure(type())))
 		);
 	}
 
