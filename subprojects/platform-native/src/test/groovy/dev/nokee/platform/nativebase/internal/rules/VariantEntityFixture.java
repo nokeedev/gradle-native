@@ -15,19 +15,19 @@
  */
 package dev.nokee.platform.nativebase.internal.rules;
 
+import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ConfigurableProviderConvertibleStrategy;
 import dev.nokee.model.internal.ConfigurableStrategy;
 import dev.nokee.model.internal.DefaultKnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.ProviderConvertibleStrategy;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.utils.ProviderUtils;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
-import org.gradle.api.provider.Provider;
 
 import java.util.Arrays;
 
@@ -59,10 +59,10 @@ public interface VariantEntityFixture extends NokeeEntitiesFixture {
 	}
 
 	default <S extends Variant> KnownDomainObject<S> known(VariantIdentifier<S> identifier) {
-		return new DefaultKnownDomainObject<S>(ofInstance(identifier), of(identifier.getType()), new ProviderConvertibleStrategy() {
+		return new DefaultKnownDomainObject<S>(ofInstance(identifier), of(identifier.getType()), new ConfigurableProviderConvertibleStrategy() {
 			@Override
-			public <T> Provider<T> asProvider(ModelType<T> type) {
-				return ProviderUtils.notDefined();
+			public <T> NamedDomainObjectProvider<T> asProvider(ModelType<T> type) {
+				return new NamedDomainObjectProviderFactory().notDefined();
 			}
 		}, new ConfigurableStrategy() {
 			@Override

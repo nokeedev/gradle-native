@@ -19,6 +19,7 @@ import dev.nokee.provider.ProviderConvertible;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.util.ConfigureUtil;
@@ -37,4 +38,6 @@ public interface KnownDomainObject<T> extends ProviderConvertible<T> {
 
 	<S> Provider<S> map(Transformer<? extends S, ? super T> transformer);
 	<S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer);
+
+	NamedDomainObjectProvider<T> asProvider();
 }

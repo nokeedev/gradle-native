@@ -25,6 +25,8 @@ import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,21 +38,23 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKnownDomainObjectTest.MyType> {
 	private final MyType value = Mockito.mock(MyType.class);
+	private final NamedDomainObjectProvider<MyType> provider = mockConfigurableProvider(fixed(value));
 	@SuppressWarnings("unchecked") private final Supplier<DomainObjectIdentifier> identifierSupplier = Mockito.mock(Supplier.class);
 	private final ConfigurableStrategy configurableStrategy = Mockito.mock(ConfigurableStrategy.class);
-	private final ProviderConvertibleStrategy providerConvertibleStrategy = Mockito.mock(ProviderConvertibleStrategy.class);
+	private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy = Mockito.mock(ConfigurableProviderConvertibleStrategy.class);
 	private final DomainObjectIdentifier identifier = Mockito.mock(DomainObjectIdentifier.class);
 	private final DefaultKnownDomainObject<MyType> subject = new DefaultKnownDomainObject<>(identifierSupplier, of(MyType.class), providerConvertibleStrategy, configurableStrategy);
 
 	@BeforeEach
 	void canConvertToMyType() {
 		when(identifierSupplier.get()).thenReturn(identifier);
-		when(providerConvertibleStrategy.asProvider(of(MyType.class))).thenReturn(fixed(value));
+		when(providerConvertibleStrategy.asProvider(of(MyType.class))).thenReturn(provider);
 	}
 
 	@Override
@@ -88,7 +92,7 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 
 	@Test
 	void forwardsAsProviderToStrategy() {
-		val result = fixed(value);
+		val result = mockConfigurableProvider(fixed(value));
 		when(providerConvertibleStrategy.asProvider(of(MyType.class))).thenReturn(result);
 		assertEquals(result, subject().asProvider());
 		verify(providerConvertibleStrategy).asProvider(of(MyType.class));
@@ -102,7 +106,7 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy),
 				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy),
 				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, Mockito.mock(ConfigurableStrategy.class)),
-				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), Mockito.mock(ProviderConvertibleStrategy.class), configurableStrategy)
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), Mockito.mock(ConfigurableProviderConvertibleStrategy.class), configurableStrategy)
 			)
 			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(identifier), of(Object.class), providerConvertibleStrategy, configurableStrategy))
 			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(Mockito.mock(DomainObjectIdentifier.class)), of(Object.class), providerConvertibleStrategy, configurableStrategy))
@@ -110,4 +114,15 @@ class DefaultKnownDomainObjectTest implements KnownDomainObjectTester<DefaultKno
 	}
 
 	public interface MyType {}
+
+	private static <T> NamedDomainObjectProvider<T> mockConfigurableProvider(Provider<T> provider) {
+		@SuppressWarnings("unchecked") val result = (NamedDomainObjectProvider<T>) Mockito.mock(NamedDomainObjectProvider.class);
+		Mockito.when(result.isPresent()).thenAnswer(it -> provider.isPresent());
+		Mockito.when(result.get()).thenAnswer(it -> provider.get());
+		Mockito.when(result.getOrNull()).thenAnswer(it -> provider.getOrNull());
+		Mockito.when(result.getOrElse(any())).thenAnswer(it -> provider.getOrElse(it.getArgument(0)));
+		Mockito.when(result.map(any())).thenAnswer(it -> provider.map(it.getArgument(0)));
+		Mockito.when(result.flatMap(any())).thenAnswer(it -> provider.flatMap(it.getArgument(0)));
+		return result;
+	}
 }

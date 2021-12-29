@@ -51,6 +51,7 @@ test {
 	dependencies {
 		implementation testFixtures(project(':platformBase'))
 		implementation testFixtures(project(':coreModel'))
+		implementation project(':gradleApi')
 		implementation gradleTestKit()
 	}
 }
