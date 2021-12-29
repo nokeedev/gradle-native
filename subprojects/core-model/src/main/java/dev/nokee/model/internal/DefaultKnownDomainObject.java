@@ -16,6 +16,8 @@
 package dev.nokee.model.internal;
 
 import com.google.common.base.Preconditions;
+import dev.nokee.gradle.NamedDomainObjectProviderFactory;
+import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.internal.provider.ProviderConvertibleInternal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
@@ -31,6 +33,7 @@ import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 
@@ -46,10 +49,10 @@ import static java.util.Objects.requireNonNull;
 public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, ProviderConvertibleInternal<T> {
 	private final Supplier<DomainObjectIdentifier> identifierSupplier;
 	private final ModelType<T> type;
-	@EqualsAndHashCode.Exclude private final ProviderConvertibleStrategy providerConvertibleStrategy;
+	@EqualsAndHashCode.Exclude private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy;
 	@EqualsAndHashCode.Exclude private final ConfigurableStrategy configurableStrategy;
 
-	public DefaultKnownDomainObject(Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy) {
+	public DefaultKnownDomainObject(Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy) {
 		this.identifierSupplier = requireNonNull(identifierSupplier);
 		this.type = requireNonNull(type);
 		this.providerConvertibleStrategy = requireNonNull(providerConvertibleStrategy);
@@ -61,19 +64,21 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(entity, type), "node '%s' cannot be viewed as %s", entity, type);
 		@SuppressWarnings("unchecked")
 		val fullType = (ModelType<T>) entity.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast).map(ModelProjection::getType).filter(it -> it.isSubtypeOf(type)).findFirst().orElseThrow(RuntimeException::new);
-		val delegate = ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelStates.realize(entity), type));
-		val providerStrategy = new ProviderConvertibleStrategy() {
-			@Override
-			public <S> Provider<S> asProvider(ModelType<S> t) {
-				assert fullType.equals(t);
-				return (Provider<S>) delegate;
-			}
-		};
+		val provider = ProviderUtils.supplied(() -> ModelNodeUtils.get(ModelStates.realize(entity), type));
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
 			public <S> void configure(ModelType<S> t, Action<? super S> action) {
 				assert fullType.equals(t);
 				ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(t, action))));
+			}
+		};
+		val factory = new NamedDomainObjectProviderFactory();
+		val delegate = factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get()).typedAs(fullType.getConcreteType()).delegateTo(provider).configureUsing(action -> configurableStrategy.configure(fullType, action)).build());
+		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
+			@Override
+			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
+				assert fullType.equals(t);
+				return (NamedDomainObjectProvider<S>) delegate;
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity);
@@ -95,7 +100,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 	}
 
 	@Override
-	public Provider<T> asProvider() {
+	public NamedDomainObjectProvider<T> asProvider() {
 		return providerConvertibleStrategy.asProvider(type);
 	}
 

@@ -27,23 +27,26 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskName
 import dev.nokee.platform.base.internal.tasks.TaskRegistry
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask
+import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
+import org.mockito.Mockito
 import spock.lang.Specification
 import spock.lang.Subject
 
 import static ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS
 import static com.google.common.base.Suppliers.ofInstance
 import static dev.nokee.utils.TaskUtils.configureDependsOn
+import static org.mockito.ArgumentMatchers.any
 
 @Subject(CreateVariantObjectsLifecycleTaskRule)
 class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 	KnownDomainObject newSubject(VariantIdentifier identifier) {
-		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { Stub(Provider) }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { Stub(NamedDomainObjectProvider) }, {})
 	}
 
 	KnownDomainObject newSubject(VariantIdentifier identifier, Provider provider) {
-		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { provider }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { mockConfigurableProvider(provider) }, {})
 	}
 
 	def "creates an objects task owned by the variant"() {
@@ -92,5 +95,16 @@ class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 		then:
 		1 * taskProvider.configure(configureDependsOn(valueFlatMapProvider))
 		1 * value.flatMap(TO_DEVELOPMENT_BINARY_COMPILE_TASKS) >> valueFlatMapProvider // because provider don't have equals
+	}
+
+	private static <T> NamedDomainObjectProvider<T> mockConfigurableProvider(Provider<T> provider) {
+		def result = (NamedDomainObjectProvider<T>) Mockito.mock(NamedDomainObjectProvider.class);
+		Mockito.when(result.isPresent()).thenAnswer { provider.isPresent() };
+		Mockito.when(result.get()).thenAnswer {provider.get() };
+		Mockito.when(result.getOrNull()).thenAnswer {provider.getOrNull() };
+		Mockito.when(result.getOrElse(any())).thenAnswer { provider.getOrElse(it.getArgument(0)) };
+		Mockito.when(result.map(any())).thenAnswer { provider.map(it.getArgument(0)) };
+		Mockito.when(result.flatMap(any())).thenAnswer { provider.flatMap(it.getArgument(0)) };
+		return result;
 	}
 }

@@ -50,6 +50,7 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
 		val entity = node("laqu", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
 		entity.addComponent(ModelIdentifier.of("laqu", Object.class));
+		entity.addComponent(new FullyQualifiedNameComponent("testLaqu"));
 		return entity;
 	}
 
@@ -118,6 +119,17 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 	@Test
 	void returnsIdentifierFromEntity() {
 		assertEquals(node.getComponent(DomainObjectIdentifier.class), subject.getIdentifier());
+	}
+
+	@Test
+	void usesFullyQualifiedNamedComponentAsConfigurableProviderName() {
+		assertEquals("testLaqu", subject.asProvider().getName());
+	}
+
+	@Test
+	void forwardsConfigureUsingActionOnConfigurableProviderToModelConfigurer() {
+		subject.asProvider().configure(ActionTestUtils.doSomething());
+		verify(modelConfigurer).configure(any());
 	}
 
 	interface WrongType {}
