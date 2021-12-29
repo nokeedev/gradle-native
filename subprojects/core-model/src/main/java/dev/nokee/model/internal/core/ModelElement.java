@@ -23,10 +23,10 @@ import org.gradle.api.Named;
 import java.lang.reflect.Type;
 
 public interface ModelElement extends Named {
-	default <T> DomainObjectProvider<T> as(Class<T> type) {
+	default <S> DomainObjectProvider<S> as(Class<S> type) {
 		return as(ModelType.of(type));
 	}
-	<T> DomainObjectProvider<T> as(ModelType<T> type);
+	<S> DomainObjectProvider<S> as(ModelType<S> type);
 
 	default boolean instanceOf(Type type) {
 		return instanceOf(ModelType.of(type));
@@ -35,8 +35,8 @@ public interface ModelElement extends Named {
 
 	ModelElement property(String name);
 
-	<T> ModelElement configure(ModelType<T> type, Action<? super T> action);
-	default <T> ModelElement configure(Class<T> type, Action<? super T> action) {
+	<S> ModelElement configure(ModelType<S> type, Action<? super S> action);
+	default <S> ModelElement configure(Class<S> type, Action<? super S> action) {
 		return configure(ModelType.of(type), action);
 	}
 }

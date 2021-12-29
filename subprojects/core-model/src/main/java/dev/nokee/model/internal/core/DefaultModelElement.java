@@ -111,7 +111,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	}
 
 	@Override
-	public <T> DomainObjectProvider<T> as(ModelType<T> type) {
+	public <S> DomainObjectProvider<S> as(ModelType<S> type) {
 		Objects.requireNonNull(type);
 		if (!instanceOf(type)) {
 			throw new ClassCastException(String.format("Could not cast %s to %s. Available instances: %s.", getDisplayName(), type.getConcreteType().getSimpleName(), instanceOfStrategy.getCastableTypes().map(it -> it.getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
@@ -119,7 +119,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 		return typeCastStrategy.castTo(type);
 	}
 
-	public <T> T asType(Class<T> ignored) {
+	public <S> S asType(Class<S> ignored) {
 		throw new UnsupportedOperationException("Use ModelElement#as(ModelType) instead.");
 	}
 
@@ -136,7 +136,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	}
 
 	@Override
-	public <T> ModelElement configure(ModelType<T> type, Action<? super T> action) {
+	public <S> ModelElement configure(ModelType<S> type, Action<? super S> action) {
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(action);
 		if (!instanceOf(type)) {
