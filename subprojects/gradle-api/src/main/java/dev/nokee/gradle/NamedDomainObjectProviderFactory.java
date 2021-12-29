@@ -16,6 +16,7 @@
 package dev.nokee.gradle;
 
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.internal.provider.Providers;
 import org.gradle.util.GradleVersion;
 
 import java.lang.reflect.Constructor;
@@ -40,6 +41,11 @@ public final class NamedDomainObjectProviderFactory {
 
 	public <T> NamedDomainObjectProvider<T> create(NamedDomainObjectProviderSpec<T> spec) {
 		return factory.create(spec);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> NamedDomainObjectProvider<T> notDefined() {
+		return (NamedDomainObjectProvider<T>) factory.create(NamedDomainObjectProviderSpec.builder().named(() -> { throw new UnsupportedOperationException(); }).delegateTo(Providers.notDefined()).configureUsing(action -> { throw new UnsupportedOperationException(); }).build());
 	}
 
 	private static final class ProviderFactory {
