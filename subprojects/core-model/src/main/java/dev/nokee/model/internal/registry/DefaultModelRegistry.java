@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.DefaultModelObject;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
@@ -76,7 +77,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			throw new IllegalStateException(String.format("Expected model node at '%s' but none was found", identifier.getPath()));
 		}
 
-		return new ModelNodeBackedProvider<>(identifier.getType(), get(identifier.getPath()));
+		return DefaultModelObject.of(identifier.getType(), get(identifier.getPath()));
 	}
 
 	@Override

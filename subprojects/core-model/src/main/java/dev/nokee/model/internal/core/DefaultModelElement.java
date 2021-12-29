@@ -18,9 +18,9 @@ package dev.nokee.model.internal.core;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ConfigurableStrategy;
+import dev.nokee.model.internal.DefaultModelObject;
 import dev.nokee.model.internal.InstanceOfOperatorStrategy;
 import dev.nokee.model.internal.TypeCastOperatorStrategy;
-import dev.nokee.model.internal.registry.ModelNodeBackedProvider;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Action;
@@ -77,7 +77,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 				if (!result.isPresent()) {
 					throw new ClassCastException(String.format("Could not cast %s to %s. Available instances: %s.", displayNameSupplier.get(), type.getConcreteType().getSimpleName(), instanceOfStrategy.getCastableTypes().map(it -> it.getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
 				}
-				return new ModelNodeBackedProvider<>((ModelType<T>) result.get().getType(), entity);
+				return DefaultModelObject.of((ModelType<T>) result.get().getType(), entity);
 			}
 		};
 		val configurableStrategy = new ConfigurableStrategy() {

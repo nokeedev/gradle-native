@@ -16,14 +16,14 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.KnownDomainObjectTester;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
 import dev.nokee.utils.ProviderUtils;
@@ -41,22 +41,27 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements KnownDomainObjectTester<Object> {
-	private static final Object myTypeInstance = new Object();
+class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjectTester<DefaultModelObjectBackedByModelEntityIntegrationTest.MyType> {
+	private static final MyType myTypeInstance = Mockito.mock(MyType.class);
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
 	private final ModelNode node = newEntity(modelConfigurer);
-	private final DefaultKnownDomainObject<Object> subject = DefaultKnownDomainObject.of(of(Object.class), node);
+	private final DefaultModelObject<MyType> subject = DefaultModelObject.of(of(MyType.class), node);
 
 	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
-		val entity = node("laqu", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
-		entity.addComponent(ModelIdentifier.of("laqu", Object.class));
-		entity.addComponent(new FullyQualifiedNameComponent("testLaqu"));
+		val entity = node("qibe", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
+		entity.addComponent(ModelIdentifier.of("qibe", Object.class));
+		entity.addComponent(new FullyQualifiedNameComponent("testQibe"));
 		return entity;
 	}
 
 	@Override
-	public KnownDomainObject<Object> subject() {
+	public DomainObjectProvider<MyType> subject() {
 		return subject;
+	}
+
+	@Override
+	public ModelType<?> aKnownType() {
+		return of(MyType.class);
 	}
 
 	private static void assertDoesNotChangeEntityState(ModelNode entity, Executable executable) {
@@ -88,20 +93,26 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 	}
 
 	@Test
+	void realizesEntityWhenObjectQueried() {
+		subject.get();
+		assertThat(ModelStates.getState(node), equalTo(ModelState.Realized));
+	}
+
+	@Test
 	void throwExceptionWhenCreatingKnownObjectWithWrongProjectionType() {
-		val ex = assertThrows(IllegalArgumentException.class, () -> DefaultKnownDomainObject.of(of(WrongType.class), node));
+		val ex = assertThrows(IllegalArgumentException.class, () -> DefaultModelObject.of(of(WrongType.class), node));
 		assertThat(ex.getMessage(),
-			equalTo("node 'laqu' cannot be viewed as interface dev.nokee.model.internal.DefaultKnownDomainObjectBackedByModelEntityIntegrationTest$WrongType"));
+			equalTo("node 'qibe' cannot be viewed as interface dev.nokee.model.internal.DefaultModelObjectBackedByModelEntityIntegrationTest$WrongType"));
 	}
 
 	@Test
 	void throwsNullPointerExceptionWhenProjectionTypeIsNull() {
-		assertThrows(NullPointerException.class, () -> DefaultKnownDomainObject.of(null, node));
+		assertThrows(NullPointerException.class, () -> DefaultModelObject.of(null, node));
 	}
 
 	@Test
 	void throwsNullPointerExceptionWhenEntityIsNull() {
-		assertThrows(NullPointerException.class, () -> DefaultKnownDomainObject.of(of(Object.class), null));
+		assertThrows(NullPointerException.class, () -> DefaultModelObject.of(of(Object.class), null));
 	}
 
 	@Test
@@ -123,7 +134,7 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 
 	@Test
 	void usesFullyQualifiedNamedComponentAsConfigurableProviderName() {
-		assertEquals("testLaqu", subject.asProvider().getName());
+		assertEquals("testQibe", subject.asProvider().getName());
 	}
 
 	@Test
@@ -132,7 +143,13 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 		verify(modelConfigurer).configure(any());
 	}
 
-	// TODO: If projection type is a Task, asProvider should return a TaskProvider instance
+	// TODO: If projection is a Task asProvider should return a TaskProvider instead
 
+	@Override
+	public void isAutoConversionToProviderViaCallable() {
+		// TODO: Provide implementation that returns a stable provider instance
+	}
+
+	interface MyType {}
 	interface WrongType {}
 }

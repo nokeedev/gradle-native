@@ -64,8 +64,8 @@ public interface ModelElementTester {
 	}
 
 	@Test
-	default void returnsThisModelElementOnConfigure() {
-		assertSame(subject(), subject().configure(aKnownType(), mockAction()));
+	default void returnsThisModelElementOnConfigureUsingAction() {
+		assertSame(subject(), subject().configure(aKnownType(), doSomething()));
 	}
 
 	@Test
