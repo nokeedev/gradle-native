@@ -73,6 +73,11 @@ public final class NamedDomainObjectProviderSpec<T> {
 			return this;
 		}
 
+		public Builder<T> named(Supplier<String> nameSupplier) {
+			this.nameSupplier = nameSupplier;
+			return this;
+		}
+
 		@SuppressWarnings("unchecked")
 		public <S> Builder<S> delegateTo(Provider<S> delegate) {
 			((Builder<S>) this).delegate = delegate;
