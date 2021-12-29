@@ -16,8 +16,25 @@
 package dev.nokee.model.internal;
 
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.KnownDomainObjectTester;
+import dev.nokee.model.internal.core.ModelElementTester;
+import org.junit.jupiter.api.Test;
 
-public interface TypeCastOperatorStrategy {
-	<S> DomainObjectProvider<S> castTo(ModelType<S> type);
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+public interface ModelObjectTester<T> extends ModelElementTester, KnownDomainObjectTester<T> {
+	@Override
+	DomainObjectProvider<T> subject();
+
+	@Test
+	default void returnsSameValueFromObjectAndProvider() {
+		assertSame(subject().get(), subject().asProvider().get());
+	}
+
+	@Test
+	default void returnsValueOfObjectType() {
+		assertThat(subject().get(), isA(type()));
+	}
 }

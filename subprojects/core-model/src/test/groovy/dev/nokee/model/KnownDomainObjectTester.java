@@ -17,6 +17,7 @@ package dev.nokee.model;
 
 import com.google.common.reflect.TypeToken;
 import com.google.common.testing.NullPointerTester;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.provider.ProviderConvertibleTester;
 import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.TransformerTestUtils;
@@ -99,6 +100,6 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	default void checkNulls() {
-		new NullPointerTester().testAllPublicInstanceMethods(subject());
+		new NullPointerTester().setDefault(ModelType.class, ModelType.untyped()).testAllPublicInstanceMethods(subject());
 	}
 }

@@ -19,7 +19,6 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectView;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.registry.ModelNodeBackedProvider;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
@@ -46,7 +45,7 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 
 	@Override
 	public <T> DomainObjectProvider<T> get(String name, ModelType<T> type) {
-		return new ModelNodeBackedProvider<>(type, checkType(name, type).apply(ModelNodeUtils.getDescendant(node, name)));
+		return DefaultModelObject.of(type, checkType(name, type).apply(ModelNodeUtils.getDescendant(node, name)));
 	}
 
 	@Override

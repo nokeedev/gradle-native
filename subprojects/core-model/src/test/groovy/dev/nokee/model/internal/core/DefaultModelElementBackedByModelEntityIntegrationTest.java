@@ -16,9 +16,12 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.ModelObjectTester;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -78,6 +81,26 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	void includesDisplayNameInTypeCastException() {
 		val ex = assertThrows(ClassCastException.class, () -> subject.as(of(WrongType.class)));
 		assertEquals("Could not cast entity 'foru.tare' to WrongType. Available instances: MyType.", ex.getMessage());
+	}
+
+	@Nested
+	class CastedModelElementTest implements ModelObjectTester<MyType> {
+		private final DomainObjectProvider<MyType> subject = DefaultModelElementBackedByModelEntityIntegrationTest.this.subject.as(of(MyType.class));
+
+		@Override
+		public DomainObjectProvider<MyType> subject() {
+			return subject;
+		}
+
+		@Override
+		public ModelType<?> aKnownType() {
+			return of(MyType.class);
+		}
+
+		@Override
+		public void isAutoConversionToProviderViaCallable() {
+			// TODO: Provide implementation that returns a stable provider instance
+		}
 	}
 
 	interface MyType {}
