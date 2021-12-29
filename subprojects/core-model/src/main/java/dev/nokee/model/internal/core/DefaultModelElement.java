@@ -34,20 +34,18 @@ import java.util.stream.Stream;
 // TODO: implementing ModelNodeAware is simply for legacy reason, it needs to be removed.
 public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	private final Supplier<String> nameSupplier;
-	private final Supplier<String> displayNameSupplier;
 	private final ConfigurableStrategy configurableStrategy;
 	private final InstanceOfOperatorStrategy instanceOfStrategy;
 	private final TypeCastOperatorStrategy typeCastStrategy;
 	private final ModelPropertyLookupStrategy propertyLookup;
 	private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelElement(Supplier<String> nameSupplier, Supplier<String> displayNameSupplier, ConfigurableStrategy configurableStrategy, InstanceOfOperatorStrategy instanceOfStrategy, TypeCastOperatorStrategy typeCastStrategy, ModelPropertyLookupStrategy propertyLookup) {
-		this(nameSupplier, displayNameSupplier, configurableStrategy, instanceOfStrategy, typeCastStrategy, propertyLookup, () -> { throw new UnsupportedOperationException(); });
+	public DefaultModelElement(Supplier<String> nameSupplier, ConfigurableStrategy configurableStrategy, InstanceOfOperatorStrategy instanceOfStrategy, TypeCastOperatorStrategy typeCastStrategy, ModelPropertyLookupStrategy propertyLookup) {
+		this(nameSupplier, configurableStrategy, instanceOfStrategy, typeCastStrategy, propertyLookup, () -> { throw new UnsupportedOperationException(); });
 	}
 
-	private DefaultModelElement(Supplier<String> nameSupplier, Supplier<String> displayNameSupplier, ConfigurableStrategy configurableStrategy, InstanceOfOperatorStrategy instanceOfStrategy, TypeCastOperatorStrategy typeCastStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
+	private DefaultModelElement(Supplier<String> nameSupplier, ConfigurableStrategy configurableStrategy, InstanceOfOperatorStrategy instanceOfStrategy, TypeCastOperatorStrategy typeCastStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
 		this.nameSupplier = Objects.requireNonNull(nameSupplier);
-		this.displayNameSupplier = Objects.requireNonNull(displayNameSupplier);
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
 		this.instanceOfStrategy = Objects.requireNonNull(instanceOfStrategy);
 		this.typeCastStrategy = Objects.requireNonNull(typeCastStrategy);
@@ -76,7 +74,9 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 			public <T> DomainObjectProvider<T> castTo(ModelType<T> type) {
 				assert type != null;
 				val result = ModelNodeUtils.getProjections(entity).filter(it -> it.canBeViewedAs(type)).collect(MoreCollectors.toOptional());
-				assert result.isPresent();
+				if (!result.isPresent()) {
+					throw new ClassCastException(String.format("Could not cast %s to %s. Available instances: %s.", displayNameSupplier.get(), type.getConcreteType().getSimpleName(), instanceOfStrategy.getCastableTypes().map(it -> it.getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
+				}
 				return new ModelNodeBackedProvider<>((ModelType<T>) result.get().getType(), entity);
 			}
 		};
@@ -85,6 +85,9 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
 				assert type != null;
 				assert action != null;
+				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
+					throw new RuntimeException("...");
+				}
 				if (type.isSubtypeOf(Property.class)) {
 					action.execute(typeCastStrategy.castTo(type).get());
 				} else {
@@ -101,7 +104,6 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 		};
 		return new DefaultModelElement(
 			nameSupplier,
-			displayNameSupplier,
 			configurableStrategy,
 			instanceOfStrategy,
 			typeCastStrategy,
@@ -113,9 +115,6 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	@Override
 	public <S> DomainObjectProvider<S> as(ModelType<S> type) {
 		Objects.requireNonNull(type);
-		if (!instanceOf(type)) {
-			throw new ClassCastException(String.format("Could not cast %s to %s. Available instances: %s.", getDisplayName(), type.getConcreteType().getSimpleName(), instanceOfStrategy.getCastableTypes().map(it -> it.getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
-		}
 		return typeCastStrategy.castTo(type);
 	}
 
@@ -139,9 +138,6 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	public <S> ModelElement configure(ModelType<S> type, Action<? super S> action) {
 		Objects.requireNonNull(type);
 		Objects.requireNonNull(action);
-		if (!instanceOf(type)) {
-			throw new RuntimeException("...");
-		}
 		configurableStrategy.configure(type, action);
 		return this;
 	}
@@ -149,10 +145,6 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	@Override
 	public String getName() {
 		return nameSupplier.get();
-	}
-
-	public String getDisplayName() {
-		return displayNameSupplier.get();
 	}
 
 	@Override

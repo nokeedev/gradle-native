@@ -36,7 +36,7 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	private final DefaultModelElement subject = DefaultModelElement.of(entity);
 
 	static ModelNode newEntity(ModelConfigurer modelConfigurer) {
-		val entity = node("foru", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
+		val entity = node("foru", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
 		entity.addComponent(new ElementNameComponent("tare"));
 		entity.addComponent(Mockito.mock(DomainObjectIdentifier.class));
 		entity.addComponent(new DisplayNameComponent("entity 'foru.tare'"));
@@ -70,13 +70,14 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	}
 
 	@Test
-	void usesDisplayNameComponentAsDisplayName() {
-		assertEquals("entity 'foru.tare'", subject.getDisplayName());
+	void canAccessUnderlyingEntity() {
+		assertSame(entity, ModelNodes.of(subject));
 	}
 
 	@Test
-	void canAccessUnderlyingEntity() {
-		assertSame(entity, ModelNodes.of(subject));
+	void includesDisplayNameInTypeCastException() {
+		val ex = assertThrows(ClassCastException.class, () -> subject.as(of(WrongType.class)));
+		assertEquals("Could not cast entity 'foru.tare' to WrongType. Available instances: MyType.", ex.getMessage());
 	}
 
 	interface MyType {}
