@@ -45,17 +45,17 @@ import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
 // TODO: implementing ModelNodeAware is simply for legacy reason, it needs to be removed.
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class DefaultModelObject<T> implements DomainObjectProvider<T>, ProviderConvertibleInternal<T>, ModelNodeAware {
-	@EqualsAndHashCode.Exclude private final NamedStrategy namedStrategy;
+	private final NamedStrategy namedStrategy;
 	private final Supplier<DomainObjectIdentifier> identifierSupplier;
 	private final ModelType<T> type;
-	@EqualsAndHashCode.Exclude private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy;
-	@EqualsAndHashCode.Exclude private final ConfigurableStrategy configurableStrategy;
-	@EqualsAndHashCode.Exclude private final ModelCastableStrategy castableStrategy;
-	@EqualsAndHashCode.Exclude private final ModelPropertyLookupStrategy propertyLookup;
-	@EqualsAndHashCode.Exclude private final Supplier<? extends T> valueSupplier;
-	@EqualsAndHashCode.Exclude private final Supplier<ModelNode> entitySupplier;
+	private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy;
+	private final ConfigurableStrategy configurableStrategy;
+	private final ModelCastableStrategy castableStrategy;
+	private final ModelPropertyLookupStrategy propertyLookup;
+	private final Supplier<? extends T> valueSupplier;
+	private final Supplier<ModelNode> entitySupplier;
 
 	public DefaultModelObject(NamedStrategy namedStrategy, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
 		this.namedStrategy = Objects.requireNonNull(namedStrategy);
@@ -159,11 +159,13 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	}
 
 	@Override
+	@EqualsAndHashCode.Include(replaces = "identifierSupplier")
 	public DomainObjectIdentifier getIdentifier() {
 		return identifierSupplier.get();
 	}
 
 	@Override
+	@EqualsAndHashCode.Include(replaces = "type")
 	public Class<T> getType() {
 		return type.getConcreteType();
 	}

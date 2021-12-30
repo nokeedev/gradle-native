@@ -21,9 +21,7 @@ import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.internal.provider.ProviderConvertibleInternal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -45,12 +43,12 @@ import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static java.util.Objects.requireNonNull;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, ProviderConvertibleInternal<T> {
 	private final Supplier<DomainObjectIdentifier> identifierSupplier;
 	private final ModelType<T> type;
-	@EqualsAndHashCode.Exclude private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy;
-	@EqualsAndHashCode.Exclude private final ConfigurableStrategy configurableStrategy;
+	private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy;
+	private final ConfigurableStrategy configurableStrategy;
 
 	public DefaultKnownDomainObject(Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy) {
 		this.identifierSupplier = requireNonNull(identifierSupplier);
@@ -81,21 +79,23 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 				return (NamedDomainObjectProvider<S>) delegate;
 			}
 		};
-		val identifierSupplier = new IdentifierSupplier(entity);
+		val identifierSupplier = new IdentifierSupplier(entity, fullType);
 		return new DefaultKnownDomainObject<>(identifierSupplier, fullType, providerStrategy, configurableStrategy);
 	}
 
 	@EqualsAndHashCode
 	private static final class IdentifierSupplier implements Supplier<DomainObjectIdentifier> {
 		private final ModelNode entity;
+		private final ModelType<?> type;
 
-		private IdentifierSupplier(ModelNode entity) {
+		private IdentifierSupplier(ModelNode entity, ModelType<?> type) {
 			this.entity = entity;
+			this.type = type;
 		}
 
 		@Override
 		public DomainObjectIdentifier get() {
-			return entity.getComponent(DomainObjectIdentifier.class);
+			return entity.findComponent(DomainObjectIdentifier.class).orElseGet(() -> ModelIdentifier.of(entity.getComponent(ModelPath.class), type));
 		}
 	}
 
@@ -105,11 +105,13 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 	}
 
 	@Override
+	@EqualsAndHashCode.Include(replaces = "identifierSupplier")
 	public DomainObjectIdentifier getIdentifier() {
 		return identifierSupplier.get();
 	}
 
 	@Override
+	@EqualsAndHashCode.Include(replaces = "type")
 	public Class<T> getType() {
 		return type.getConcreteType();
 	}
