@@ -181,6 +181,15 @@ class DefaultModelObjectTest {
 	//endregion
 
 	@Test
+	void forwardsValueQueryToStrategy() {
+		val expectedValue = mock(MyType.class);
+		when(valueSupplier.get()).thenReturn(expectedValue);
+
+		assertSame(expectedValue, subject.get());
+		verify(valueSupplier).get();
+	}
+
+	@Test
 	void throwsExceptionWhenCastingUsingGroovyTypeCastOperator() {
 		val ex = assertThrows(UnsupportedOperationException.class, () -> subject.asType(MyType.class));
 		assertEquals("Use ModelObject#as(ModelType) instead.", ex.getMessage());
