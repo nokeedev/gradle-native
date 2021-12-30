@@ -16,6 +16,7 @@
 package dev.nokee.model;
 
 import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.type.ModelType;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -36,6 +37,9 @@ public interface DomainObjectProvider<T> extends KnownDomainObject<T>, ModelElem
 	default DomainObjectProvider<T> configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		return configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
 	}
+
+	@Override
+	<S> DomainObjectProvider<T> configure(ModelType<S> type, Action<? super S> action);
 
 	T get();
 
