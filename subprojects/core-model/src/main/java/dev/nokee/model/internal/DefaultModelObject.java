@@ -47,7 +47,7 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 // TODO: implementing ModelNodeAware is simply for legacy reason, it needs to be removed.
 @EqualsAndHashCode
 public final class DefaultModelObject<T> implements DomainObjectProvider<T>, ProviderConvertibleInternal<T>, ModelNodeAware {
-	@EqualsAndHashCode.Exclude private final Supplier<String> nameSupplier;
+	@EqualsAndHashCode.Exclude private final NamedStrategy namedStrategy;
 	private final Supplier<DomainObjectIdentifier> identifierSupplier;
 	private final ModelType<T> type;
 	@EqualsAndHashCode.Exclude private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy;
@@ -57,8 +57,8 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	@EqualsAndHashCode.Exclude private final Supplier<? extends T> valueSupplier;
 	@EqualsAndHashCode.Exclude private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelObject(Supplier<String> nameSupplier, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
-		this.nameSupplier = Objects.requireNonNull(nameSupplier);
+	public DefaultModelObject(NamedStrategy namedStrategy, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
+		this.namedStrategy = Objects.requireNonNull(namedStrategy);
 		this.identifierSupplier = Objects.requireNonNull(identifierSupplier);
 		this.type = Objects.requireNonNull(type);
 		this.providerConvertibleStrategy = Objects.requireNonNull(providerConvertibleStrategy);
@@ -74,7 +74,12 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(entity, type), "node '%s' cannot be viewed as %s", entity, type);
 		@SuppressWarnings("unchecked")
 		val fullType = (ModelType<T>) entity.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(type)).map(ModelProjection::getType).findFirst().orElseThrow(RuntimeException::new);
-		val nameSupplier = entity.getComponent(ElementNameComponent.class);
+		val namedStrategy = new NamedStrategy() {
+			@Override
+			public String getAsString() {
+				return entity.getComponent(ElementNameComponent.class).get();
+			}
+		};
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
@@ -134,7 +139,7 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, fullType);
-		return new DefaultModelObject<>(nameSupplier, identifierSupplier, fullType, providerStrategy, configurableStrategy, castableStrategy, propertyLookup, valueSupplier, () -> entity);
+		return new DefaultModelObject<>(namedStrategy, identifierSupplier, fullType, providerStrategy, configurableStrategy, castableStrategy, propertyLookup, valueSupplier, () -> entity);
 	}
 
 	@EqualsAndHashCode
@@ -236,6 +241,6 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 
 	@Override
 	public String getName() {
-		return nameSupplier.get();
+		return namedStrategy.getAsString();
 	}
 }
