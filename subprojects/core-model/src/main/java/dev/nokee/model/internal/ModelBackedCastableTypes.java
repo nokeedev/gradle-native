@@ -15,8 +15,22 @@
  */
 package dev.nokee.model.internal;
 
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.type.ModelType;
 
-public interface InstanceOfOperatorStrategy {
-	boolean instanceOf(ModelType<?> type);
+import java.util.Iterator;
+
+public final class ModelBackedCastableTypes implements CastableTypes {
+	private final ModelNode entity;
+
+	public ModelBackedCastableTypes(ModelNode entity) {
+		this.entity = entity;
+	}
+
+	@Override
+	public Iterator<ModelType<?>> iterator() {
+		return ModelNodeUtils.getProjections(entity).<ModelType<?>>map(ModelProjection::getType).iterator();
+	}
 }

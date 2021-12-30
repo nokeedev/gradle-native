@@ -17,6 +17,5 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.internal.type.ModelType;
 
-public interface InstanceOfOperatorStrategy {
-	boolean instanceOf(ModelType<?> type);
+public interface CastableTypes extends Iterable<ModelType<?>> {
 }

@@ -16,7 +16,6 @@
 package dev.nokee.model.internal;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.MoreCollectors;
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.internal.provider.ProviderConvertibleInternal;
@@ -34,13 +33,10 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
@@ -81,30 +77,15 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 		@SuppressWarnings("unchecked")
 		val fullType = (ModelType<T>) entity.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(type)).map(ModelProjection::getType).findFirst().orElseThrow(RuntimeException::new);
 		val nameSupplier = entity.getComponent(ElementNameComponent.class);
-		val displayNameSupplier = entity.getComponent(DisplayNameComponent.class);
-		val instanceOfStrategy = new InstanceOfOperatorStrategy() {
+		val displayNameSupplier = new Supplier<DisplayName>() {
 			@Override
-			public boolean instanceOf(ModelType<?> type) {
-				assert type != null;
-				return ModelNodeUtils.canBeViewedAs(entity, type);
-			}
-
-			@Override
-			public Stream<ModelType<?>> getCastableTypes() {
-				return ModelNodeUtils.getProjections(entity).map(it -> it.getType());
+			public DisplayName get() {
+				return new DisplayName(entity.getComponent(DisplayNameComponent.class).get());
 			}
 		};
-		val typeCastStrategy = new TypeCastOperatorStrategy() {
-			@Override
-			public <S> DomainObjectProvider<S> castTo(ModelType<S> type) {
-				assert type != null;
-				val result = ModelNodeUtils.getProjections(entity).filter(it -> it.canBeViewedAs(type)).collect(MoreCollectors.toOptional());
-				if (!result.isPresent()) {
-					throw new ClassCastException(String.format("Could not cast %s to %s. Available instances: %s.", displayNameSupplier.get(), type.getConcreteType().getSimpleName(), instanceOfStrategy.getCastableTypes().map(it -> it.getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
-				}
-				return DefaultModelObject.of((ModelType<S>) result.get().getType(), entity);
-			}
-		};
+		val castableTypes = new ModelBackedCastableTypes(entity);
+		val instanceOfStrategy = new DefaultInstanceOfOperatorStrategy(castableTypes);
+		val typeCastStrategy = new ModelBackedTypeCastOperatorStrategy(displayNameSupplier, entity, castableTypes);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
@@ -130,13 +111,7 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 				}
 			}
 		};
-		val propertyLookup = new ModelPropertyLookupStrategy() {
-			@Override
-			public ModelElement get(String propertyName) {
-				assert propertyName != null;
-				return ModelProperties.getProperty(entity, propertyName);
-			}
-		};
+		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
 
 		val valueSupplier = new Supplier<T>() {
 			@Override
