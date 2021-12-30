@@ -15,8 +15,19 @@
  */
 package dev.nokee.model.internal;
 
+import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.type.ModelType;
 
-public interface InstanceOfOperatorStrategy {
-	boolean instanceOf(ModelType<?> type);
+public final class DefaultInstanceOfOperatorStrategy implements InstanceOfOperatorStrategy {
+	private final CastableTypes castableTypes;
+
+	public DefaultInstanceOfOperatorStrategy(CastableTypes castableTypes) {
+		this.castableTypes = castableTypes;
+	}
+
+	@Override
+	public boolean instanceOf(ModelType<?> type) {
+		assert type != null;
+		return Iterables.any(castableTypes, type::isAssignableFrom);
+	}
 }

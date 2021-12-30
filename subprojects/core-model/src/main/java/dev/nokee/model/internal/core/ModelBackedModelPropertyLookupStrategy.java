@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.type.ModelType;
+public final class ModelBackedModelPropertyLookupStrategy implements ModelPropertyLookupStrategy {
+	private final ModelNode entity;
 
-public interface InstanceOfOperatorStrategy {
-	boolean instanceOf(ModelType<?> type);
+	public ModelBackedModelPropertyLookupStrategy(ModelNode entity) {
+		this.entity = entity;
+	}
+
+	@Override
+	public ModelElement get(String propertyName) {
+		assert propertyName != null;
+		return ModelProperties.getProperty(entity, propertyName);
+	}
 }

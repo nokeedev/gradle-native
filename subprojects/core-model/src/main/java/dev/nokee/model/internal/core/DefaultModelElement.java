@@ -15,12 +15,8 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.MoreCollectors;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ConfigurableStrategy;
-import dev.nokee.model.internal.DefaultModelObject;
-import dev.nokee.model.internal.InstanceOfOperatorStrategy;
-import dev.nokee.model.internal.TypeCastOperatorStrategy;
+import dev.nokee.model.internal.*;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Action;
@@ -28,8 +24,6 @@ import org.gradle.api.provider.Property;
 
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 // TODO: implementing ModelNodeAware is simply for legacy reason, it needs to be removed.
 public final class DefaultModelElement implements ModelElement, ModelNodeAware {
@@ -56,30 +50,15 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	public static DefaultModelElement of(ModelNode entity) {
 		Objects.requireNonNull(entity);
 		val nameSupplier = entity.getComponent(ElementNameComponent.class);
-		val displayNameSupplier = entity.getComponent(DisplayNameComponent.class);
-		val instanceOfStrategy = new InstanceOfOperatorStrategy() {
+		val displayNameSupplier = new Supplier<DisplayName>() {
 			@Override
-			public boolean instanceOf(ModelType<?> type) {
-				assert type != null;
-				return ModelNodeUtils.canBeViewedAs(entity, type);
-			}
-
-			@Override
-			public Stream<ModelType<?>> getCastableTypes() {
-				return ModelNodeUtils.getProjections(entity).map(it -> it.getType());
+			public DisplayName get() {
+				return new DisplayName(entity.getComponent(DisplayNameComponent.class).get());
 			}
 		};
-		val typeCastStrategy = new TypeCastOperatorStrategy() {
-			@Override
-			public <T> DomainObjectProvider<T> castTo(ModelType<T> type) {
-				assert type != null;
-				val result = ModelNodeUtils.getProjections(entity).filter(it -> it.canBeViewedAs(type)).collect(MoreCollectors.toOptional());
-				if (!result.isPresent()) {
-					throw new ClassCastException(String.format("Could not cast %s to %s. Available instances: %s.", displayNameSupplier.get(), type.getConcreteType().getSimpleName(), instanceOfStrategy.getCastableTypes().map(it -> it.getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
-				}
-				return DefaultModelObject.of((ModelType<T>) result.get().getType(), entity);
-			}
-		};
+		val castableTypes = new ModelBackedCastableTypes(entity);
+		val instanceOfStrategy = new DefaultInstanceOfOperatorStrategy(castableTypes);
+		val typeCastStrategy = new ModelBackedTypeCastOperatorStrategy(displayNameSupplier, entity, castableTypes);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
@@ -95,13 +74,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 				}
 			}
 		};
-		val propertyLookup = new ModelPropertyLookupStrategy() {
-			@Override
-			public ModelElement get(String propertyName) {
-				assert propertyName != null;
-				return ModelProperties.getProperty(entity, propertyName);
-			}
-		};
+		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
 		return new DefaultModelElement(
 			nameSupplier,
 			configurableStrategy,

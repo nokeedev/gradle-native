@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.type.ModelType;
+public final class DisplayName {
+	private final String value;
 
-public interface InstanceOfOperatorStrategy {
-	boolean instanceOf(ModelType<?> type);
+	public DisplayName(String value) {
+		this.value = value;
+	}
+
+	@Override
+	public String toString() {
+		return value;
+	}
 }
