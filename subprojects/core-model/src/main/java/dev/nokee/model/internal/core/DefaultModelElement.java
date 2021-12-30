@@ -16,7 +16,7 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.*;
+import dev.nokee.model.internal.ConfigurableStrategy;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Action;
@@ -29,20 +29,18 @@ import java.util.function.Supplier;
 public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	private final Supplier<String> nameSupplier;
 	private final ConfigurableStrategy configurableStrategy;
-	private final InstanceOfOperatorStrategy instanceOfStrategy;
-	private final TypeCastOperatorStrategy typeCastStrategy;
+	private final ModelCastableStrategy castableStrategy;
 	private final ModelPropertyLookupStrategy propertyLookup;
 	private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelElement(Supplier<String> nameSupplier, ConfigurableStrategy configurableStrategy, InstanceOfOperatorStrategy instanceOfStrategy, TypeCastOperatorStrategy typeCastStrategy, ModelPropertyLookupStrategy propertyLookup) {
-		this(nameSupplier, configurableStrategy, instanceOfStrategy, typeCastStrategy, propertyLookup, () -> { throw new UnsupportedOperationException(); });
+	public DefaultModelElement(Supplier<String> nameSupplier, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup) {
+		this(nameSupplier, configurableStrategy, castableStrategy, propertyLookup, () -> { throw new UnsupportedOperationException(); });
 	}
 
-	private DefaultModelElement(Supplier<String> nameSupplier, ConfigurableStrategy configurableStrategy, InstanceOfOperatorStrategy instanceOfStrategy, TypeCastOperatorStrategy typeCastStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
+	private DefaultModelElement(Supplier<String> nameSupplier, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
 		this.nameSupplier = Objects.requireNonNull(nameSupplier);
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
-		this.instanceOfStrategy = Objects.requireNonNull(instanceOfStrategy);
-		this.typeCastStrategy = Objects.requireNonNull(typeCastStrategy);
+		this.castableStrategy = Objects.requireNonNull(castableStrategy);
 		this.propertyLookup = Objects.requireNonNull(propertyLookup);
 		this.entitySupplier = Objects.requireNonNull(entitySupplier);
 	}
@@ -50,15 +48,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	public static DefaultModelElement of(ModelNode entity) {
 		Objects.requireNonNull(entity);
 		val nameSupplier = entity.getComponent(ElementNameComponent.class);
-		val displayNameSupplier = new Supplier<DisplayName>() {
-			@Override
-			public DisplayName get() {
-				return new DisplayName(entity.getComponent(DisplayNameComponent.class).get());
-			}
-		};
-		val castableTypes = new ModelBackedCastableTypes(entity);
-		val instanceOfStrategy = new DefaultInstanceOfOperatorStrategy(castableTypes);
-		val typeCastStrategy = new ModelBackedTypeCastOperatorStrategy(displayNameSupplier, entity, castableTypes);
+		val castableStrategy = new ModelBackedModelCastableStrategy(entity);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
@@ -68,9 +58,9 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 					throw new RuntimeException("...");
 				}
 				if (type.isSubtypeOf(Property.class)) {
-					action.execute(typeCastStrategy.castTo(type).get());
+					action.execute(castableStrategy.castTo(type).get());
 				} else {
-					typeCastStrategy.castTo(type).configure(action);
+					castableStrategy.castTo(type).configure(action);
 				}
 			}
 		};
@@ -78,8 +68,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 		return new DefaultModelElement(
 			nameSupplier,
 			configurableStrategy,
-			instanceOfStrategy,
-			typeCastStrategy,
+			castableStrategy,
 			propertyLookup,
 			() -> entity
 		);
@@ -88,7 +77,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	@Override
 	public <S> DomainObjectProvider<S> as(ModelType<S> type) {
 		Objects.requireNonNull(type);
-		return typeCastStrategy.castTo(type);
+		return castableStrategy.castTo(type);
 	}
 
 	public <S> S asType(Class<S> ignored) {
@@ -98,7 +87,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	@Override
 	public boolean instanceOf(ModelType<?> type) {
 		Objects.requireNonNull(type);
-		return instanceOfStrategy.instanceOf(type);
+		return castableStrategy.instanceOf(type);
 	}
 
 	@Override

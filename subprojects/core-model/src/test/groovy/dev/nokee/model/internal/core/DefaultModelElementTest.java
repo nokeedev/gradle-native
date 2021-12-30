@@ -18,8 +18,6 @@ package dev.nokee.model.internal.core;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ConfigurableStrategy;
-import dev.nokee.model.internal.InstanceOfOperatorStrategy;
-import dev.nokee.model.internal.TypeCastOperatorStrategy;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -37,10 +35,9 @@ import static org.mockito.Mockito.when;
 class DefaultModelElementTest {
 	@SuppressWarnings("unchecked") private final Supplier<String> nameSupplier = Mockito.mock(Supplier.class);
 	private final ConfigurableStrategy configurableStrategy = Mockito.mock(ConfigurableStrategy.class);
-	private final InstanceOfOperatorStrategy instanceOfStrategy = Mockito.mock(InstanceOfOperatorStrategy.class);
-	private final TypeCastOperatorStrategy typeCastOperatorStrategy = Mockito.mock(TypeCastOperatorStrategy.class);
+	private final ModelCastableStrategy castableStrategy = Mockito.mock(ModelCastableStrategy.class);
 	private final ModelPropertyLookupStrategy propertyLookupStrategy = Mockito.mock(ModelPropertyLookupStrategy.class);
-	private final DefaultModelElement subject = new DefaultModelElement(nameSupplier, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy);
+	private final DefaultModelElement subject = new DefaultModelElement(nameSupplier, configurableStrategy, castableStrategy, propertyLookupStrategy);
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -71,16 +68,16 @@ class DefaultModelElementTest {
 
 	@Test
 	void forwardsInstanceOfToStrategy() {
-		when(instanceOfStrategy.instanceOf(of(MyType.class))).thenReturn(Boolean.TRUE);
-		when(instanceOfStrategy.instanceOf(of(WrongType.class))).thenReturn(Boolean.FALSE);
+		when(castableStrategy.instanceOf(of(MyType.class))).thenReturn(Boolean.TRUE);
+		when(castableStrategy.instanceOf(of(WrongType.class))).thenReturn(Boolean.FALSE);
 		assertAll(
 			() -> {
 				assertTrue(subject.instanceOf(of(MyType.class)));
-				verify(instanceOfStrategy).instanceOf(of(MyType.class));
+				verify(castableStrategy).instanceOf(of(MyType.class));
 			},
 			() -> {
 				assertFalse(subject.instanceOf(of(WrongType.class)));
-				verify(instanceOfStrategy).instanceOf(of(WrongType.class));
+				verify(castableStrategy).instanceOf(of(WrongType.class));
 			}
 		);
 	}
@@ -89,10 +86,10 @@ class DefaultModelElementTest {
 	@SuppressWarnings("unchecked")
 	void forwardsTypeCastOperatorUsingModelTypeToStrategy() {
 		val result = Mockito.mock(DomainObjectProvider.class);
-		when(typeCastOperatorStrategy.castTo(any())).thenReturn(result);
+		when(castableStrategy.castTo(any())).thenReturn(result);
 
 		assertSame(result, subject.as(of(MyType.class)));
-		verify(typeCastOperatorStrategy).castTo(of(MyType.class));
+		verify(castableStrategy).castTo(of(MyType.class));
 	}
 
 	@Test
