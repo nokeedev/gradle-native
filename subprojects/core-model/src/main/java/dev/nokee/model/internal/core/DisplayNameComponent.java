@@ -17,20 +17,19 @@ package dev.nokee.model.internal.core;
 
 import java.util.function.Supplier;
 
-public final class DisplayNameComponent implements Supplier<String> {
-	private final String value;
+public final class DisplayNameComponent implements Supplier<DisplayName> {
+	private final DisplayName value;
 
 	public DisplayNameComponent(String value) {
+		this(new DisplayName(value));
+	}
+
+	public DisplayNameComponent(DisplayName value) {
 		this.value = value;
 	}
 
 	@Override
-	public String get() {
-		return value;
-	}
-
-	@Override
-	public String toString() {
+	public DisplayName get() {
 		return value;
 	}
 }

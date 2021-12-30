@@ -45,7 +45,7 @@ public final class ModelBackedModelCastableStrategy implements ModelCastableStra
 	}
 
 	private static DisplayName displayName(ModelNode entity) {
-		return new DisplayName(entity.getComponent(DisplayNameComponent.class).get());
+		return entity.getComponent(DisplayNameComponent.class).get();
 	}
 
 	private static ClassCastException castException(DisplayName displayName, ModelType<?> castType, Iterable<ModelType<?>> castableTypes) {
