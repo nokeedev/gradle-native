@@ -13,43 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.core;
 
 import com.google.common.collect.Streams;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.DisplayName;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.DefaultModelObject;
 import dev.nokee.model.internal.type.ModelType;
 
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public final class ModelBackedTypeCastOperatorStrategy implements TypeCastOperatorStrategy {
-	private final Supplier<DisplayName> displayNameSupplier;
+import static java.util.stream.Collectors.toList;
+
+public final class ModelBackedModelCastableStrategy implements ModelCastableStrategy {
 	private final ModelNode entity;
-	private final CastableTypes castableTypes;
 
-	public ModelBackedTypeCastOperatorStrategy(Supplier<DisplayName> displayNameSupplier, ModelNode entity, CastableTypes castableTypes) {
-		this.displayNameSupplier = Objects.requireNonNull(displayNameSupplier);
-		this.entity = Objects.requireNonNull(entity);
-		this.castableTypes = Objects.requireNonNull(castableTypes);
+	public ModelBackedModelCastableStrategy(ModelNode entity) {
+		this.entity = entity;
 	}
 
 	@Override
 	public <S> DomainObjectProvider<S> castTo(ModelType<S> type) {
 		assert type != null;
-		return DefaultModelObject.of(tryFind(type).orElseThrow(() -> castException(displayNameSupplier.get(), type, castableTypes)), entity);
+		return DefaultModelObject.of(tryFind(type).orElseThrow(() -> castException(displayName(entity), type, castableTypes(entity).collect(toList()))), entity);
 	}
 
 	@SuppressWarnings("unchecked")
 	private <S> Optional<ModelType<S>> tryFind(ModelType<S> type) {
-		return Streams.stream(castableTypes).filter(type::isAssignableFrom).map(it -> (ModelType<S>) it).findFirst();
+		return castableTypes(entity).filter(type::isAssignableFrom).map(it -> (ModelType<S>) it).findFirst();
 	}
 
-	private static ClassCastException castException(DisplayName displayName, ModelType<?> castType, CastableTypes castableTypes) {
+	private static DisplayName displayName(ModelNode entity) {
+		return new DisplayName(entity.getComponent(DisplayNameComponent.class).get());
+	}
+
+	private static ClassCastException castException(DisplayName displayName, ModelType<?> castType, Iterable<ModelType<?>> castableTypes) {
 		assert displayName != null;
 		return new ClassCastException(String.format("Could not cast %s to %s. Available instances: %s.", displayName, castType.getConcreteType().getSimpleName(), Streams.stream(castableTypes).map(it -> it.getConcreteType().getSimpleName()).collect(Collectors.joining(", "))));
+	}
+
+	@Override
+	public boolean instanceOf(ModelType<?> type) {
+		assert type != null;
+		return castableTypes(entity).anyMatch(type::isAssignableFrom);
+	}
+
+	private static Stream<ModelType<?>> castableTypes(ModelNode entity) {
+		return ModelNodeUtils.getProjections(entity).map(ModelProjection::getType);
 	}
 }

@@ -19,6 +19,7 @@ import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.core.ModelCastableStrategy;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPropertyLookupStrategy;
@@ -45,12 +46,11 @@ class DefaultModelObjectTest {
 	@SuppressWarnings("unchecked") private final Supplier<DomainObjectIdentifier> identifierSupplier = mock(Supplier.class);
 	private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy = mock(ConfigurableProviderConvertibleStrategy.class);
 	private final ConfigurableStrategy configurableStrategy = mock(ConfigurableStrategy.class);
-	private final InstanceOfOperatorStrategy instanceOfStrategy = mock(InstanceOfOperatorStrategy.class);
-	private final TypeCastOperatorStrategy typeCastOperatorStrategy = mock(TypeCastOperatorStrategy.class);
+	private final ModelCastableStrategy castableStrategy = mock(ModelCastableStrategy.class);
 	private final ModelPropertyLookupStrategy propertyLookupStrategy = mock(ModelPropertyLookupStrategy.class);
 	@SuppressWarnings("unchecked") private final Supplier<MyType> valueSupplier = mock(Supplier.class);
 	@SuppressWarnings("unchecked") private final Supplier<ModelNode> entitySupplier = mock(Supplier.class);
-	private final DefaultModelObject<MyType> subject = new DefaultModelObject<>(nameSupplier, identifierSupplier, of(MyType.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier);
+	private final DefaultModelObject<MyType> subject = new DefaultModelObject<>(nameSupplier, identifierSupplier, of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier);
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -142,24 +142,24 @@ class DefaultModelObjectTest {
 	@SuppressWarnings("unchecked")
 	void forwardsTypeCastOperatorUsingModelTypeToDelegate() {
 		val expectedObject = mock(DomainObjectProvider.class);
-		when(typeCastOperatorStrategy.castTo(any())).thenReturn(expectedObject);
+		when(castableStrategy.castTo(any())).thenReturn(expectedObject);
 
 		assertSame(expectedObject, subject.as(of(MyType.class)));
-		verify(typeCastOperatorStrategy).castTo(of(MyType.class));
+		verify(castableStrategy).castTo(of(MyType.class));
 	}
 
 	@Test
 	void forwardsInstanceOfOperatorUsingModelTypeToStrategy() {
-		when(instanceOfStrategy.instanceOf(of(MyType.class))).thenReturn(Boolean.TRUE);
-		when(instanceOfStrategy.instanceOf(of(WrongType.class))).thenReturn(Boolean.FALSE);
+		when(castableStrategy.instanceOf(of(MyType.class))).thenReturn(Boolean.TRUE);
+		when(castableStrategy.instanceOf(of(WrongType.class))).thenReturn(Boolean.FALSE);
 		assertAll(
 			() -> {
 				assertTrue(subject.instanceOf(of(MyType.class)));
-				verify(instanceOfStrategy).instanceOf(of(MyType.class));
+				verify(castableStrategy).instanceOf(of(MyType.class));
 			},
 			() -> {
 				assertFalse(subject.instanceOf(of(WrongType.class)));
-				verify(instanceOfStrategy).instanceOf(of(WrongType.class));
+				verify(castableStrategy).instanceOf(of(WrongType.class));
 			}
 		);
 	}
@@ -192,19 +192,18 @@ class DefaultModelObjectTest {
 		val identifier = mock(DomainObjectIdentifier.class);
 		new EqualsTester()
 			.addEqualityGroup(
-				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(mock(Supplier.class), ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), mock(ConfigurableProviderConvertibleStrategy.class), configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, mock(ConfigurableStrategy.class), instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, mock(InstanceOfOperatorStrategy.class), typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, mock(TypeCastOperatorStrategy.class), propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, mock(ModelPropertyLookupStrategy.class), valueSupplier, entitySupplier),
-				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, mock(Supplier.class), entitySupplier),
-				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, mock(Supplier.class))
+				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(mock(Supplier.class), ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), mock(ConfigurableProviderConvertibleStrategy.class), configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, mock(ConfigurableStrategy.class), castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, mock(ModelCastableStrategy.class), propertyLookupStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, mock(ModelPropertyLookupStrategy.class), valueSupplier, entitySupplier),
+				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mock(Supplier.class), entitySupplier),
+				new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, mock(Supplier.class))
 			)
-			.addEqualityGroup(new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(Object.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
-			.addEqualityGroup(new DefaultModelObject<>(nameSupplier, ofInstance(mock(DomainObjectIdentifier.class)), of(MyType.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
-			.addEqualityGroup(new DefaultModelObject<>(nameSupplier, ofInstance(mock(DomainObjectIdentifier.class)), of(Object.class), providerConvertibleStrategy, configurableStrategy, instanceOfStrategy, typeCastOperatorStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
+			.addEqualityGroup(new DefaultModelObject<>(nameSupplier, ofInstance(identifier), of(Object.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
+			.addEqualityGroup(new DefaultModelObject<>(nameSupplier, ofInstance(mock(DomainObjectIdentifier.class)), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
+			.addEqualityGroup(new DefaultModelObject<>(nameSupplier, ofInstance(mock(DomainObjectIdentifier.class)), of(Object.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
 			.testEquals();
 	}
 

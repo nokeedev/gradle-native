@@ -52,20 +52,18 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	private final ModelType<T> type;
 	@EqualsAndHashCode.Exclude private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy;
 	@EqualsAndHashCode.Exclude private final ConfigurableStrategy configurableStrategy;
-	@EqualsAndHashCode.Exclude private final InstanceOfOperatorStrategy instanceOfStrategy;
-	@EqualsAndHashCode.Exclude private final TypeCastOperatorStrategy typeCastStrategy;
+	@EqualsAndHashCode.Exclude private final ModelCastableStrategy castableStrategy;
 	@EqualsAndHashCode.Exclude private final ModelPropertyLookupStrategy propertyLookup;
 	@EqualsAndHashCode.Exclude private final Supplier<? extends T> valueSupplier;
 	@EqualsAndHashCode.Exclude private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelObject(Supplier<String> nameSupplier, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, InstanceOfOperatorStrategy instanceOfStrategy, TypeCastOperatorStrategy typeCastStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
+	public DefaultModelObject(Supplier<String> nameSupplier, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
 		this.nameSupplier = Objects.requireNonNull(nameSupplier);
 		this.identifierSupplier = Objects.requireNonNull(identifierSupplier);
 		this.type = Objects.requireNonNull(type);
 		this.providerConvertibleStrategy = Objects.requireNonNull(providerConvertibleStrategy);
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
-		this.instanceOfStrategy = Objects.requireNonNull(instanceOfStrategy);
-		this.typeCastStrategy = Objects.requireNonNull(typeCastStrategy);
+		this.castableStrategy = Objects.requireNonNull(castableStrategy);
 		this.propertyLookup = Objects.requireNonNull(propertyLookup);
 		this.valueSupplier = Objects.requireNonNull(valueSupplier);
 		this.entitySupplier = Objects.requireNonNull(entitySupplier);
@@ -77,15 +75,7 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 		@SuppressWarnings("unchecked")
 		val fullType = (ModelType<T>) entity.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(type)).map(ModelProjection::getType).findFirst().orElseThrow(RuntimeException::new);
 		val nameSupplier = entity.getComponent(ElementNameComponent.class);
-		val displayNameSupplier = new Supplier<DisplayName>() {
-			@Override
-			public DisplayName get() {
-				return new DisplayName(entity.getComponent(DisplayNameComponent.class).get());
-			}
-		};
-		val castableTypes = new ModelBackedCastableTypes(entity);
-		val instanceOfStrategy = new DefaultInstanceOfOperatorStrategy(castableTypes);
-		val typeCastStrategy = new ModelBackedTypeCastOperatorStrategy(displayNameSupplier, entity, castableTypes);
+		val castableStrategy = new ModelBackedModelCastableStrategy(entity);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
@@ -144,7 +134,7 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, fullType);
-		return new DefaultModelObject<>(nameSupplier, identifierSupplier, fullType, providerStrategy, configurableStrategy, instanceOfStrategy, typeCastStrategy, propertyLookup, valueSupplier, () -> entity);
+		return new DefaultModelObject<>(nameSupplier, identifierSupplier, fullType, providerStrategy, configurableStrategy, castableStrategy, propertyLookup, valueSupplier, () -> entity);
 	}
 
 	@EqualsAndHashCode
@@ -212,7 +202,7 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	@Override
 	public <S> DomainObjectProvider<S> as(ModelType<S> type) {
 		Objects.requireNonNull(type);
-		return typeCastStrategy.castTo(type);
+		return castableStrategy.castTo(type);
 	}
 
 	public <S> S asType(Class<S> ignored) {
@@ -222,7 +212,7 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	@Override
 	public boolean instanceOf(ModelType<?> type) {
 		Objects.requireNonNull(type);
-		return instanceOfStrategy.instanceOf(type);
+		return castableStrategy.instanceOf(type);
 	}
 
 	@Override
