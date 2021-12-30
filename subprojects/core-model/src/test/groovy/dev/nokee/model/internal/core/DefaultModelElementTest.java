@@ -18,12 +18,11 @@ package dev.nokee.model.internal.core;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ConfigurableStrategy;
+import dev.nokee.model.internal.NamedStrategy;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
@@ -33,11 +32,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DefaultModelElementTest {
-	@SuppressWarnings("unchecked") private final Supplier<String> nameSupplier = Mockito.mock(Supplier.class);
+	private final NamedStrategy namedStrategy = Mockito.mock(NamedStrategy.class);
 	private final ConfigurableStrategy configurableStrategy = Mockito.mock(ConfigurableStrategy.class);
 	private final ModelCastableStrategy castableStrategy = Mockito.mock(ModelCastableStrategy.class);
 	private final ModelPropertyLookupStrategy propertyLookupStrategy = Mockito.mock(ModelPropertyLookupStrategy.class);
-	private final DefaultModelElement subject = new DefaultModelElement(nameSupplier, configurableStrategy, castableStrategy, propertyLookupStrategy);
+	private final DefaultModelElement subject = new DefaultModelElement(namedStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy);
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -60,10 +59,10 @@ class DefaultModelElementTest {
 	@Test
 	void forwardsNameQueryToSupplier() {
 		val expectedName = "zalu";
-		when(nameSupplier.get()).thenReturn(expectedName);
+		when(namedStrategy.getAsString()).thenReturn(expectedName);
 
 		assertEquals(expectedName, subject.getName());
-		verify(nameSupplier).get();
+		verify(namedStrategy).getAsString();
 	}
 
 	@Test

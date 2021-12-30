@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ConfigurableStrategy;
+import dev.nokee.model.internal.NamedStrategy;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Action;
@@ -27,18 +28,18 @@ import java.util.function.Supplier;
 
 // TODO: implementing ModelNodeAware is simply for legacy reason, it needs to be removed.
 public final class DefaultModelElement implements ModelElement, ModelNodeAware {
-	private final Supplier<String> nameSupplier;
+	private final NamedStrategy namedStrategy;
 	private final ConfigurableStrategy configurableStrategy;
 	private final ModelCastableStrategy castableStrategy;
 	private final ModelPropertyLookupStrategy propertyLookup;
 	private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelElement(Supplier<String> nameSupplier, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup) {
-		this(nameSupplier, configurableStrategy, castableStrategy, propertyLookup, () -> { throw new UnsupportedOperationException(); });
+	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup) {
+		this(namedStrategy, configurableStrategy, castableStrategy, propertyLookup, () -> { throw new UnsupportedOperationException(); });
 	}
 
-	private DefaultModelElement(Supplier<String> nameSupplier, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
-		this.nameSupplier = Objects.requireNonNull(nameSupplier);
+	private DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
+		this.namedStrategy = Objects.requireNonNull(namedStrategy);
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
 		this.castableStrategy = Objects.requireNonNull(castableStrategy);
 		this.propertyLookup = Objects.requireNonNull(propertyLookup);
@@ -47,7 +48,12 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 
 	public static DefaultModelElement of(ModelNode entity) {
 		Objects.requireNonNull(entity);
-		val nameSupplier = entity.getComponent(ElementNameComponent.class);
+		val namedStrategy = new NamedStrategy() {
+			@Override
+			public String getAsString() {
+				return entity.getComponent(ElementNameComponent.class).get();
+			}
+		};
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
@@ -66,7 +72,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
 		return new DefaultModelElement(
-			nameSupplier,
+			namedStrategy,
 			configurableStrategy,
 			castableStrategy,
 			propertyLookup,
@@ -106,7 +112,7 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 
 	@Override
 	public String getName() {
-		return nameSupplier.get();
+		return namedStrategy.getAsString();
 	}
 
 	@Override
