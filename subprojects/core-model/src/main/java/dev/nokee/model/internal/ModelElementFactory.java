@@ -35,10 +35,12 @@ import org.gradle.api.provider.Provider;
 
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.getProjections;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -78,6 +80,9 @@ public final class ModelElementFactory {
 		val mixInStrategy = new ModelMixInStrategy() {
 			@Override
 			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
+				if (castableTypes(entity).anyMatch(type::equals)) {
+					throw new RuntimeException();
+				}
 				entity.addComponent(createdUsing(type, () -> instantiator.newInstance(type.getConcreteType())));
 				return castableStrategy.castTo(type);
 			}
@@ -133,6 +138,9 @@ public final class ModelElementFactory {
 		val mixInStrategy = new ModelMixInStrategy() {
 			@Override
 			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
+				if (castableTypes(entity).anyMatch(type::equals)) {
+					throw new RuntimeException();
+				}
 				entity.addComponent(createdUsing(type, () -> instantiator.newInstance(type.getConcreteType())));
 				return castableStrategy.castTo(type);
 			}
@@ -186,5 +194,9 @@ public final class ModelElementFactory {
 		public DomainObjectIdentifier get() {
 			return entity.findComponent(DomainObjectIdentifier.class).orElseGet(() -> ModelIdentifier.of(entity.getComponent(ModelPath.class), type));
 		}
+	}
+
+	private static Stream<ModelType<?>> castableTypes(ModelNode entity) {
+		return ModelNodeUtils.getProjections(entity).map(ModelProjection::getType);
 	}
 }
