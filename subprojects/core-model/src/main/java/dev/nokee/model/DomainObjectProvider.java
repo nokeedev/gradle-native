@@ -20,32 +20,30 @@ import dev.nokee.model.internal.type.ModelType;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.Transformer;
-import org.gradle.api.provider.Provider;
 import org.gradle.util.ConfigureUtil;
 
 import static java.util.Objects.requireNonNull;
 
 public interface DomainObjectProvider<T> extends KnownDomainObject<T>, ModelElement {
-	DomainObjectIdentifier getIdentifier();
-
-	Class<T> getType();
-
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	DomainObjectProvider<T> configure(Action<? super T> action);
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	default DomainObjectProvider<T> configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		return configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	<S> DomainObjectProvider<T> configure(ModelType<S> type, Action<? super S> action);
 
 	T get();
-
-	<S> Provider<S> map(Transformer<? extends S, ? super T> transformer);
-
-	<S> Provider<S> flatMap(Transformer<? extends Provider<? extends S>, ? super T> transformer);
-
-	NamedDomainObjectProvider<T> asProvider();
 }
