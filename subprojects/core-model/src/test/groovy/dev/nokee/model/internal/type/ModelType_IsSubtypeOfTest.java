@@ -20,30 +20,50 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ModelType_IsSubtypeOfTest {
 	@Test
-	void canCheckSubtypeCompatibilityJavaType() {
+	void sameTypeInstanceIsSubtypeOfItself() {
 		val myType = of(MyType.class);
 		assertAll(
-			() -> assertTrue(myType.isSubtypeOf(myType.getRawType()), "same instance should be subtype"),
-			() -> assertTrue(of(MyType.class).isSubtypeOf(MyType.class), "same type should be subtype"),
-			() -> assertTrue(of(MyType.class).isSubtypeOf(Object.class), "all types are subtype of Object"),
-			() -> assertFalse(of(Object.class).isSubtypeOf(MyType.class), "Object is not subtype of any other type"),
-			() -> assertFalse(of(MyType.class).isSubtypeOf(String.class), "unrelated types should not be subtype")
+			() -> assertTrue(myType.isSubtypeOf(myType.getRawType())),
+			() -> assertTrue(myType.isSubtypeOf(myType.getType())),
+			() -> assertTrue(myType.isSubtypeOf(myType))
 		);
 	}
 
 	@Test
-	void canCheckSubtypeCompatibilityUsingModelType() {
-		val myType = of(MyType.class);
+	void sameTypeIsSubtypeOfItself() {
 		assertAll(
-			() -> assertTrue(myType.isSubtypeOf(of(myType.getRawType())), "same instance should be subtype"),
-			() -> assertTrue(of(MyType.class).isSubtypeOf(of(MyType.class)), "same type should be subtype"),
-			() -> assertTrue(of(MyType.class).isSubtypeOf((Object.class)), "all types are subtype of Object"),
-			() -> assertFalse(of(Object.class).isSubtypeOf((MyType.class)), "Object is not subtype of any other type"),
-			() -> assertFalse(of(MyType.class).isSubtypeOf((String.class)), "unrelated types should not be subtype")
+			() -> assertTrue(of(MyType.class).isSubtypeOf(MyType.class)),
+			() -> assertTrue(of(MyType.class).isSubtypeOf(of(MyType.class)))
+		);
+	}
+
+	@Test
+	void allTypesAreSubtypeOfObject() {
+		assertAll(
+			() -> assertTrue(of(MyType.class).isSubtypeOf(Object.class)),
+			() -> assertTrue(of(MyType.class).isSubtypeOf(of(Object.class))),
+			() -> assertTrue(of(String.class).isSubtypeOf(Object.class))
+		);
+	}
+
+	@Test
+	void objectIsNotSubtypeOfAnyTypes() {
+		assertAll(
+			() -> assertFalse(of(Object.class).isSubtypeOf(MyType.class)),
+			() -> assertFalse(of(Object.class).isSubtypeOf(of(MyType.class))),
+			() -> assertFalse(of(Object.class).isSubtypeOf(String.class))
+		);
+	}
+
+	@Test
+	void unrelatedTypesAreNotSubtype() {
+		assertAll(
+			() -> assertFalse(of(MyType.class).isSubtypeOf(String.class)),
+			() -> assertFalse(of(MyType.class).isSubtypeOf(of(String.class))),
+			() -> assertFalse(of(String.class).isSubtypeOf(Number.class))
 		);
 	}
 
