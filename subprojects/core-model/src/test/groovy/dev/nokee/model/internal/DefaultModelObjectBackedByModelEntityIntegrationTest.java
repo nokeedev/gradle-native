@@ -45,7 +45,8 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 	private static final MyType myTypeInstance = Mockito.mock(MyType.class);
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
 	private final ModelNode node = newEntity(modelConfigurer);
-	private final DefaultModelObject<MyType> subject = DefaultModelObject.of(of(MyType.class), node);
+	private final ModelElementFactory factory = new ModelElementFactory();
+	private final DomainObjectProvider<MyType> subject = factory.createObject(node, of(MyType.class));
 
 	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
 		val entity = node("qibe", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
@@ -100,19 +101,19 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 
 	@Test
 	void throwExceptionWhenCreatingKnownObjectWithWrongProjectionType() {
-		val ex = assertThrows(IllegalArgumentException.class, () -> DefaultModelObject.of(of(WrongType.class), node));
+		val ex = assertThrows(IllegalArgumentException.class, () -> factory.createObject(node, of(WrongType.class)));
 		assertThat(ex.getMessage(),
 			equalTo("node 'qibe' cannot be viewed as interface dev.nokee.model.internal.DefaultModelObjectBackedByModelEntityIntegrationTest$WrongType"));
 	}
 
 	@Test
 	void throwsNullPointerExceptionWhenProjectionTypeIsNull() {
-		assertThrows(NullPointerException.class, () -> DefaultModelObject.of(null, node));
+		assertThrows(NullPointerException.class, () -> factory.createObject(node, null));
 	}
 
 	@Test
 	void throwsNullPointerExceptionWhenEntityIsNull() {
-		assertThrows(NullPointerException.class, () -> DefaultModelObject.of(of(Object.class), null));
+		assertThrows(NullPointerException.class, () -> factory.createObject(null, of(Object.class)));
 	}
 
 	@Test

@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ModelObjectTester;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.type.ModelType;
@@ -36,7 +37,8 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	private static final MyType myTypeInstance = Mockito.mock(MyType.class);
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
 	private final ModelNode entity = newEntity(modelConfigurer);
-	private final DefaultModelElement subject = DefaultModelElement.of(entity);
+	private final ModelElementFactory factory = new ModelElementFactory();
+	private final ModelElement subject = factory.createElement(entity);
 
 	static ModelNode newEntity(ModelConfigurer modelConfigurer) {
 		val entity = node("foru", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
@@ -58,7 +60,7 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 
 	@Test
 	void throwsExceptionIfEntityIsNull() {
-		assertThrows(NullPointerException.class, () -> DefaultModelElement.of(null));
+		assertThrows(NullPointerException.class, () -> factory.createElement(null));
 	}
 
 	@Test

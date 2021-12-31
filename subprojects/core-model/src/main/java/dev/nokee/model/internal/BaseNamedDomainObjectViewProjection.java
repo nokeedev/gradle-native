@@ -36,16 +36,18 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 
 public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBackedNamedDomainObjectView.Projection {
 	private final ObjectFactory objectFactory;
+	private final ModelElementFactory elementFactory;
 	private final ModelNode node = getCurrentModelNode();
 
 	@Inject
 	public BaseNamedDomainObjectViewProjection(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
+		this.elementFactory = new ModelElementFactory();
 	}
 
 	@Override
 	public <T> DomainObjectProvider<T> get(String name, ModelType<T> type) {
-		return DefaultModelObject.of(type, checkType(name, type).apply(ModelNodeUtils.getDescendant(node, name)));
+		return elementFactory.createObject(checkType(name, type).apply(ModelNodeUtils.getDescendant(node, name)), type);
 	}
 
 	@Override

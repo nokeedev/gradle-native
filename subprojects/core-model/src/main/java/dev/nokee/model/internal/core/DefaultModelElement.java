@@ -19,9 +19,7 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ConfigurableStrategy;
 import dev.nokee.model.internal.NamedStrategy;
 import dev.nokee.model.internal.type.ModelType;
-import lombok.val;
 import org.gradle.api.Action;
-import org.gradle.api.provider.Property;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -38,46 +36,12 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 		this(namedStrategy, configurableStrategy, castableStrategy, propertyLookup, () -> { throw new UnsupportedOperationException(); });
 	}
 
-	private DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
+	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
 		this.namedStrategy = Objects.requireNonNull(namedStrategy);
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
 		this.castableStrategy = Objects.requireNonNull(castableStrategy);
 		this.propertyLookup = Objects.requireNonNull(propertyLookup);
 		this.entitySupplier = Objects.requireNonNull(entitySupplier);
-	}
-
-	public static DefaultModelElement of(ModelNode entity) {
-		Objects.requireNonNull(entity);
-		val namedStrategy = new NamedStrategy() {
-			@Override
-			public String getAsString() {
-				return entity.getComponent(ElementNameComponent.class).get();
-			}
-		};
-		val castableStrategy = new ModelBackedModelCastableStrategy(entity);
-		val configurableStrategy = new ConfigurableStrategy() {
-			@Override
-			public <S> void configure(ModelType<S> type, Action<? super S> action) {
-				assert type != null;
-				assert action != null;
-				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
-					throw new RuntimeException("...");
-				}
-				if (type.isSubtypeOf(Property.class)) {
-					action.execute(castableStrategy.castTo(type).get());
-				} else {
-					castableStrategy.castTo(type).configure(action);
-				}
-			}
-		};
-		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
-		return new DefaultModelElement(
-			namedStrategy,
-			configurableStrategy,
-			castableStrategy,
-			propertyLookup,
-			() -> entity
-		);
 	}
 
 	@Override

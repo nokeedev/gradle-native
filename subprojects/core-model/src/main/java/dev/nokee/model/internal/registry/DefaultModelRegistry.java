@@ -16,10 +16,10 @@
 package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.DefaultModelObject;
+import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
@@ -35,9 +35,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final NodeStateListener nodeStateListener = new NodeStateListener();
 	private final BindManagedProjectionService bindingService;
 	private final ModelNode rootNode;
+	private final ModelElementFactory elementFactory;
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
+		this.elementFactory = new ModelElementFactory();
 		this.bindingService = new BindManagedProjectionService(instantiator);
 		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 			if (state.equals(ModelState.Created)) {
@@ -54,6 +56,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 				});
 				node.addComponent(new ElementNameComponent(path.getName()));
 				node.addComponent(new DisplayNameComponent(path.toString()));
+				node.addComponent(elementFactory);
 			} else if (state.equals(ModelState.Registered)) {
 				assert !entities.contains(node) : "duplicated registered notification";
 				nodes.put(path, node);
@@ -77,7 +80,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			throw new IllegalStateException(String.format("Expected model node at '%s' but none was found", identifier.getPath()));
 		}
 
-		return DefaultModelObject.of(identifier.getType(), get(identifier.getPath()));
+		return elementFactory.createObject(get(identifier.getPath()), identifier.getType());
 	}
 
 	@Override
@@ -89,7 +92,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	public ModelElement register(ModelRegistration registration) {
 		registration.getActions().forEach(this::configure);
 		val node = ModelStates.register(newNode(registration));
-		return DefaultModelElement.of(node);
+		return elementFactory.createElement(node);
 	}
 
 	private ModelNode newNode(ModelRegistration registration) {
