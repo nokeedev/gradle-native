@@ -43,7 +43,7 @@ public final class ModelTestUtils {
 	private static final Consumer<ModelNode.Builder> DO_NOTHING = builder -> {};
 	private static final String DEFAULT_NODE_NAME = "test";
 	private static final ModelNode ROOT = rootNode();
-	private static final ModelElementFactory FACTORY = new ModelElementFactory();
+	private static final ModelElementFactory FACTORY = new ModelElementFactory(objectFactory()::newInstance);
 	private ModelTestUtils() {}
 
 	public static ModelProjection projectionOf(Class<?> projectionType) {

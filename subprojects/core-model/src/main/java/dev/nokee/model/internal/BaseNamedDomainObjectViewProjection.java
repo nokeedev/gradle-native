@@ -42,7 +42,7 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 	@Inject
 	public BaseNamedDomainObjectViewProjection(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
-		this.elementFactory = new ModelElementFactory();
+		this.elementFactory = new ModelElementFactory(objectFactory::newInstance);
 	}
 
 	@Override

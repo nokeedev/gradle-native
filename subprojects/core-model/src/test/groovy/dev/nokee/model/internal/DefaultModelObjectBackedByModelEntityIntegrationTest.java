@@ -28,10 +28,12 @@ import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
@@ -45,7 +47,7 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 	private static final MyType myTypeInstance = Mockito.mock(MyType.class);
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
 	private final ModelNode node = newEntity(modelConfigurer);
-	private final ModelElementFactory factory = new ModelElementFactory();
+	private final ModelElementFactory factory = new ModelElementFactory(objectFactory()::newInstance);
 	private final DomainObjectProvider<MyType> subject = factory.createObject(node, of(MyType.class));
 
 	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
@@ -144,6 +146,37 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 		verify(modelConfigurer).configure(any());
 	}
 
+	@Test
+	void mixinTypeBecomesKnownToTheModelObject() {
+		subject.mixin(of(MyOtherTypeMixIn.class));
+		assertTrue(subject.instanceOf(of(MyOtherTypeMixIn.class)));
+	}
+
+	@Nested
+	class MixedInModelElementTest implements ModelObjectTester<MyOtherTypeMixIn> {
+		private final DomainObjectProvider<MyOtherTypeMixIn> subject = DefaultModelObjectBackedByModelEntityIntegrationTest.this.subject.mixin(of(MyOtherTypeMixIn.class));
+
+		@Override
+		public DomainObjectProvider<MyOtherTypeMixIn> subject() {
+			return subject;
+		}
+
+		@Override
+		public ModelType<?> aKnownType() {
+			return of(MyOtherTypeMixIn.class);
+		}
+
+		@Override
+		public void isAutoConversionToProviderViaCallable() {
+			// TODO: Provide implementation that returns a stable provider instance
+		}
+
+		@Test
+		void isInstanceOfOtherProjection() {
+			assertTrue(subject.instanceOf(of(MyType.class)));
+		}
+	}
+
 	// TODO: If projection is a Task asProvider should return a TaskProvider instead
 
 	@Override
@@ -152,5 +185,6 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 	}
 
 	interface MyType {}
+	interface MyOtherTypeMixIn {}
 	interface WrongType {}
 }
