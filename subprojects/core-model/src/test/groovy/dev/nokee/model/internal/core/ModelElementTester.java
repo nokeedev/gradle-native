@@ -82,9 +82,14 @@ public interface ModelElementTester {
 	}
 
 	@Test
-	default void mixinTypeBecomesKnownToTheModelElement() {
+	default void mixinTypeBecomesKnown() {
 		subject().mixin(of(MixInType.class));
 		assertTrue(subject().instanceOf(of(MixInType.class)));
+	}
+
+	@Test
+	default void throwsExceptionWhenMixInKnownType() {
+		assertThrows(RuntimeException.class, () -> subject().mixin(aKnownType()));
 	}
 
 	interface WrongType {}
