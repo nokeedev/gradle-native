@@ -32,6 +32,7 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
@@ -205,6 +206,103 @@ public final class ModelElementFactory {
 			};
 		} else {
 			return new NamedDomainObjectProviderFactory()::create;
+		}
+	}
+
+	public <T> ModelProperty<T> createProperty(ModelNode entity, ModelType<T> type) {
+		Preconditions.checkArgument(entity.hasComponent(ModelPropertyTag.class));
+		// TODO: Align exception with the one in ModelNode#get(ModelType). It's throwing an illegal state exception...
+		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(entity, type), "node '%s' cannot be viewed as %s", entity, type);
+		@SuppressWarnings("unchecked")
+		val fullType = (ModelType<T>) entity.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(type)).map(ModelProjection::getType).findFirst().orElseThrow(RuntimeException::new);
+		val namedStrategy = new NamedStrategy() {
+			@Override
+			public String getAsString() {
+				return entity.getComponent(ElementNameComponent.class).get();
+			}
+		};
+		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
+		val configurableStrategy = new ConfigurableStrategy() {
+			@Override
+			public <S> void configure(ModelType<S> type, Action<? super S> action) {
+				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
+					throw new RuntimeException("...");
+				}
+				assert fullType.equals(type);
+				val o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
+				if (o.isPresent() && ((Boolean) ProviderUtils.getType(o.get()).map(it -> it.equals(type.getConcreteType())).orElse(Boolean.FALSE))) {
+					o.get().configure(action);
+					return;
+				}
+				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
+					val provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
+					val ttype = ProviderUtils.getType(provider);
+					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
+						provider.configure(action);
+					} else {
+						ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+					}
+				} else {
+					ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+				}
+			}
+		};
+		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
+		val elementLookup = new ModelBackedModelElementLookupStrategy(entity, this);
+		val mixInStrategy = new ModelMixInStrategy() {
+			@Override
+			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
+				if (castableTypes(entity).anyMatch(type::isSupertypeOf)) {
+					throw new RuntimeException();
+				}
+				entity.addComponent(createdUsing(type, () -> instantiator.newInstance(type.getConcreteType())));
+				return castableStrategy.castTo(type);
+			}
+		};
+
+		val valueSupplier = new GradlePropertyBackedValueSupplier<T>(entity);
+		val provider = ProviderUtils.supplied(valueSupplier::get);
+		val p = provider;
+		val factory = new NamedDomainObjectProviderFactory();
+		val propertyStrategy = new ModelBackedGradlePropertyConvertibleStrategy(entity);
+		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
+			@Override
+			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
+				assert fullType.equals(t);
+				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
+					val provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
+					val ttype = ProviderUtils.getType(provider);
+					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
+						return provider;
+					} else {
+						return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+					}
+				} else {
+					return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+				}
+			}
+		};
+		val identifierSupplier = new IdentifierSupplier(entity, fullType);
+		return new DefaultModelProperty<T>(namedStrategy, identifierSupplier, fullType, providerStrategy, propertyStrategy, configurableStrategy, castableStrategy, propertyLookup, elementLookup, mixInStrategy, valueSupplier, () -> entity);
+	}
+
+	private static final class GradlePropertyBackedValueSupplier<T> implements Supplier<T> {
+		private final ModelNode entity;
+
+		private GradlePropertyBackedValueSupplier(ModelNode entity) {
+			this.entity = entity;
+		}
+
+		@Override
+		public T get() {
+			val value = entity.getComponent(GradlePropertyComponent.class).get();
+			if (value instanceof Provider) {
+				return ((Provider<T>) value).get();
+			} else if (value instanceof FileCollection) {
+				return (T) ((FileCollection) value).getFiles(); // FIXME: Value supplier should pass the expected value out
+			} else {
+				throw new UnsupportedOperationException("Cannot get value out of property");
+			}
 		}
 	}
 
