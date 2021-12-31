@@ -81,5 +81,12 @@ public interface ModelElementTester {
 		assertThat("mention castable types", ex.getMessage(), allOf(containsString("Available instances: "), containsString(aKnownType().getConcreteType().getSimpleName())));
 	}
 
+	@Test
+	default void mixinTypeBecomesKnownToTheModelElement() {
+		subject().mixin(of(MixInType.class));
+		assertTrue(subject().instanceOf(of(MixInType.class)));
+	}
+
 	interface WrongType {}
+	interface MixInType {}
 }
