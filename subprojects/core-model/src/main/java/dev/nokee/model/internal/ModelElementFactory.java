@@ -18,6 +18,7 @@ package dev.nokee.model.internal;
 import com.google.common.base.Preconditions;
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
+import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.*;
@@ -39,9 +40,16 @@ import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
 public final class ModelElementFactory {
+	private final Instantiator instantiator;
+
+	public ModelElementFactory(Instantiator instantiator) {
+		this.instantiator = instantiator;
+	}
+
 	public ModelElement createElement(ModelNode entity) {
 		Objects.requireNonNull(entity);
 		val namedStrategy = new NamedStrategy() {
@@ -67,11 +75,19 @@ public final class ModelElementFactory {
 			}
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
+		val mixInStrategy = new ModelMixInStrategy() {
+			@Override
+			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
+				entity.addComponent(createdUsing(type, () -> instantiator.newInstance(type.getConcreteType())));
+				return castableStrategy.castTo(type);
+			}
+		};
 		return new DefaultModelElement(
 			namedStrategy,
 			configurableStrategy,
 			castableStrategy,
 			propertyLookup,
+			mixInStrategy,
 			() -> entity
 		);
 	}
@@ -114,6 +130,13 @@ public final class ModelElementFactory {
 			}
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
+		val mixInStrategy = new ModelMixInStrategy() {
+			@Override
+			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
+				entity.addComponent(createdUsing(type, () -> instantiator.newInstance(type.getConcreteType())));
+				return castableStrategy.castTo(type);
+			}
+		};
 
 		val valueSupplier = new Supplier<T>() {
 			@Override
@@ -146,7 +169,7 @@ public final class ModelElementFactory {
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, fullType);
-		return new DefaultModelObject<>(namedStrategy, identifierSupplier, fullType, providerStrategy, configurableStrategy, castableStrategy, propertyLookup, valueSupplier, () -> entity);
+		return new DefaultModelObject<>(namedStrategy, identifierSupplier, fullType, providerStrategy, configurableStrategy, castableStrategy, propertyLookup, mixInStrategy, valueSupplier, () -> entity);
 	}
 
 	@EqualsAndHashCode

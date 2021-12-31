@@ -19,10 +19,7 @@ import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.ModelCastableStrategy;
-import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPropertyLookupStrategy;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import lombok.val;
@@ -48,9 +45,10 @@ class DefaultModelObjectTest {
 	private final ConfigurableStrategy configurableStrategy = mock(ConfigurableStrategy.class);
 	private final ModelCastableStrategy castableStrategy = mock(ModelCastableStrategy.class);
 	private final ModelPropertyLookupStrategy propertyLookupStrategy = mock(ModelPropertyLookupStrategy.class);
+	private final ModelMixInStrategy mixInStrategy = mock(ModelMixInStrategy.class);
 	@SuppressWarnings("unchecked") private final Supplier<MyType> valueSupplier = mock(Supplier.class);
 	@SuppressWarnings("unchecked") private final Supplier<ModelNode> entitySupplier = mock(Supplier.class);
-	private final DefaultModelObject<MyType> subject = new DefaultModelObject<>(namedStrategy, identifierSupplier, of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier);
+	private final DefaultModelObject<MyType> subject = new DefaultModelObject<>(namedStrategy, identifierSupplier, of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier);
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -196,26 +194,37 @@ class DefaultModelObjectTest {
 	}
 
 	@Test
+	void forwardsMixinToStrategy() {
+		val result = mock(DomainObjectProvider.class);
+		when(mixInStrategy.mixin(any())).thenReturn(result);
+
+		assertSame(result, subject.mixin(of(MyOtherTypeMixIn.class)));
+		verify(mixInStrategy).mixin(of(MyOtherTypeMixIn.class));
+	}
+
+	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		val identifier = mock(DomainObjectIdentifier.class);
 		new EqualsTester()
 			.addEqualityGroup(
-				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(mock(NamedStrategy.class), ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), mock(ConfigurableProviderConvertibleStrategy.class), configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, mock(ConfigurableStrategy.class), castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, mock(ModelCastableStrategy.class), propertyLookupStrategy, valueSupplier, entitySupplier),
-				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, mock(ModelPropertyLookupStrategy.class), valueSupplier, entitySupplier),
-				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mock(Supplier.class), entitySupplier),
-				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, mock(Supplier.class))
+				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(mock(NamedStrategy.class), ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), mock(ConfigurableProviderConvertibleStrategy.class), configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, mock(ConfigurableStrategy.class), castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, mock(ModelCastableStrategy.class), propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, mock(ModelPropertyLookupStrategy.class), mixInStrategy, valueSupplier, entitySupplier),
+				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mock(ModelMixInStrategy.class), valueSupplier, entitySupplier),
+				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, mock(Supplier.class), entitySupplier),
+				new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, mock(Supplier.class))
 			)
-			.addEqualityGroup(new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(Object.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
-			.addEqualityGroup(new DefaultModelObject<>(namedStrategy, ofInstance(mock(DomainObjectIdentifier.class)), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
-			.addEqualityGroup(new DefaultModelObject<>(namedStrategy, ofInstance(mock(DomainObjectIdentifier.class)), of(Object.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, valueSupplier, entitySupplier))
+			.addEqualityGroup(new DefaultModelObject<>(namedStrategy, ofInstance(identifier), of(Object.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier))
+			.addEqualityGroup(new DefaultModelObject<>(namedStrategy, ofInstance(mock(DomainObjectIdentifier.class)), of(MyType.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier))
+			.addEqualityGroup(new DefaultModelObject<>(namedStrategy, ofInstance(mock(DomainObjectIdentifier.class)), of(Object.class), providerConvertibleStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy, valueSupplier, entitySupplier))
 			.testEquals();
 	}
 
 	interface MyType {}
+	interface MyOtherTypeMixIn {}
 	interface WrongType {}
 }

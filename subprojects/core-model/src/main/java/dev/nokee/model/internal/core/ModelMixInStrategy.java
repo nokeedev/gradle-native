@@ -17,28 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.type.ModelType;
-import org.gradle.api.Action;
-import org.gradle.api.Named;
 
-import java.lang.reflect.Type;
-
-public interface ModelElement extends Named {
-	default <S> DomainObjectProvider<S> as(Class<S> type) {
-		return as(ModelType.of(type));
-	}
-	<S> DomainObjectProvider<S> as(ModelType<S> type);
-
-	default boolean instanceOf(Type type) {
-		return instanceOf(ModelType.of(type));
-	}
-	boolean instanceOf(ModelType<?> type);
-
-	ModelElement property(String name);
-
-	<S> ModelElement configure(ModelType<S> type, Action<? super S> action);
-	default <S> ModelElement configure(Class<S> type, Action<? super S> action) {
-		return configure(ModelType.of(type), action);
-	}
-
+public interface ModelMixInStrategy {
 	<S> DomainObjectProvider<S> mixin(ModelType<S> type);
 }

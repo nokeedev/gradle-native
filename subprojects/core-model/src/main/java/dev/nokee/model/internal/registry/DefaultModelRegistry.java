@@ -39,7 +39,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
-		this.elementFactory = new ModelElementFactory();
+		this.elementFactory = new ModelElementFactory(instantiator);
 		this.bindingService = new BindManagedProjectionService(instantiator);
 		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 			if (state.equals(ModelState.Created)) {

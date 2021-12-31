@@ -28,15 +28,15 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class DefaultModelElementTest {
 	private final NamedStrategy namedStrategy = Mockito.mock(NamedStrategy.class);
 	private final ConfigurableStrategy configurableStrategy = Mockito.mock(ConfigurableStrategy.class);
 	private final ModelCastableStrategy castableStrategy = Mockito.mock(ModelCastableStrategy.class);
 	private final ModelPropertyLookupStrategy propertyLookupStrategy = Mockito.mock(ModelPropertyLookupStrategy.class);
-	private final DefaultModelElement subject = new DefaultModelElement(namedStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy);
+	private final ModelMixInStrategy mixInStrategy = Mockito.mock(ModelMixInStrategy.class);
+	private final DefaultModelElement subject = new DefaultModelElement(namedStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy);
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -101,11 +101,21 @@ class DefaultModelElementTest {
 	}
 
 	@Test
+	void forwardsMixinToStrategy() {
+		val result = mock(DomainObjectProvider.class);
+		when(mixInStrategy.mixin(any())).thenReturn(result);
+
+		assertSame(result, subject.mixin(of(MyOtherTypeMixIn.class)));
+		verify(mixInStrategy).mixin(of(MyOtherTypeMixIn.class));
+	}
+
+	@Test
 	void throwsExceptionWhenCastingUsingGroovyTypeCastOperator() {
 		val ex = assertThrows(UnsupportedOperationException.class, () -> subject.asType(MyType.class));
 		assertEquals("Use ModelElement#as(ModelType) instead.", ex.getMessage());
 	}
 
 	public interface MyType {}
+	public interface MyOtherTypeMixIn {}
 	public interface WrongType {}
 }

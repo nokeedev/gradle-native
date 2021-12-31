@@ -30,17 +30,19 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	private final ConfigurableStrategy configurableStrategy;
 	private final ModelCastableStrategy castableStrategy;
 	private final ModelPropertyLookupStrategy propertyLookup;
+	private final ModelMixInStrategy mixInStrategy;
 	private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup) {
-		this(namedStrategy, configurableStrategy, castableStrategy, propertyLookup, () -> { throw new UnsupportedOperationException(); });
+	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelMixInStrategy mixInStrategy) {
+		this(namedStrategy, configurableStrategy, castableStrategy, propertyLookup, mixInStrategy, () -> { throw new UnsupportedOperationException(); });
 	}
 
-	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<ModelNode> entitySupplier) {
+	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelMixInStrategy mixInStrategy, Supplier<ModelNode> entitySupplier) {
 		this.namedStrategy = Objects.requireNonNull(namedStrategy);
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
 		this.castableStrategy = Objects.requireNonNull(castableStrategy);
 		this.propertyLookup = Objects.requireNonNull(propertyLookup);
+		this.mixInStrategy = Objects.requireNonNull(mixInStrategy);
 		this.entitySupplier = Objects.requireNonNull(entitySupplier);
 	}
 
@@ -72,6 +74,12 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 		Objects.requireNonNull(action);
 		configurableStrategy.configure(type, action);
 		return this;
+	}
+
+	@Override
+	public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
+		Objects.requireNonNull(type);
+		return mixInStrategy.mixin(type);
 	}
 
 	@Override

@@ -41,10 +41,11 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	private final ConfigurableStrategy configurableStrategy;
 	private final ModelCastableStrategy castableStrategy;
 	private final ModelPropertyLookupStrategy propertyLookup;
+	private final ModelMixInStrategy mixInStrategy;
 	private final Supplier<? extends T> valueSupplier;
 	private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelObject(NamedStrategy namedStrategy, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
+	public DefaultModelObject(NamedStrategy namedStrategy, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelMixInStrategy mixInStrategy, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
 		this.namedStrategy = Objects.requireNonNull(namedStrategy);
 		this.identifierSupplier = Objects.requireNonNull(identifierSupplier);
 		this.type = Objects.requireNonNull(type);
@@ -52,6 +53,7 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
 		this.castableStrategy = Objects.requireNonNull(castableStrategy);
 		this.propertyLookup = Objects.requireNonNull(propertyLookup);
+		this.mixInStrategy = Objects.requireNonNull(mixInStrategy);
 		this.valueSupplier = Objects.requireNonNull(valueSupplier);
 		this.entitySupplier = Objects.requireNonNull(entitySupplier);
 	}
@@ -132,6 +134,12 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 		Objects.requireNonNull(action);
 		configurableStrategy.configure(type, action);
 		return this;
+	}
+
+	@Override
+	public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
+		Objects.requireNonNull(type);
+		return mixInStrategy.mixin(type);
 	}
 
 	@Override

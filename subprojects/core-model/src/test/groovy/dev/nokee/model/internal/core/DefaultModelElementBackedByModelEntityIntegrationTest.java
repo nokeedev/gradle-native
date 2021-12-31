@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
@@ -37,7 +38,7 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	private static final MyType myTypeInstance = Mockito.mock(MyType.class);
 	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
 	private final ModelNode entity = newEntity(modelConfigurer);
-	private final ModelElementFactory factory = new ModelElementFactory();
+	private final ModelElementFactory factory = new ModelElementFactory(objectFactory()::newInstance);
 	private final ModelElement subject = factory.createElement(entity);
 
 	static ModelNode newEntity(ModelConfigurer modelConfigurer) {
@@ -85,6 +86,37 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 		assertEquals("Could not cast entity 'foru.tare' to WrongType. Available instances: MyType.", ex.getMessage());
 	}
 
+	@Test
+	void mixinTypeBecomesKnownToTheModelElement() {
+		subject.mixin(of(MyOtherTypeMixIn.class));
+		assertTrue(subject.instanceOf(of(MyOtherTypeMixIn.class)));
+	}
+
+	@Nested
+	class MixedInModelElementTest implements ModelObjectTester<MyOtherTypeMixIn> {
+		private final DomainObjectProvider<MyOtherTypeMixIn> subject = DefaultModelElementBackedByModelEntityIntegrationTest.this.subject.mixin(of(MyOtherTypeMixIn.class));
+
+		@Override
+		public DomainObjectProvider<MyOtherTypeMixIn> subject() {
+			return subject;
+		}
+
+		@Override
+		public ModelType<?> aKnownType() {
+			return of(MyOtherTypeMixIn.class);
+		}
+
+		@Override
+		public void isAutoConversionToProviderViaCallable() {
+			// TODO: Provide implementation that returns a stable provider instance
+		}
+
+		@Test
+		void isInstanceOfOtherProjection() {
+			assertTrue(subject.instanceOf(of(MyType.class)));
+		}
+	}
+
 	@Nested
 	class CastedModelElementTest implements ModelObjectTester<MyType> {
 		private final DomainObjectProvider<MyType> subject = DefaultModelElementBackedByModelEntityIntegrationTest.this.subject.as(of(MyType.class));
@@ -106,4 +138,5 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	}
 
 	interface MyType {}
+	interface MyOtherTypeMixIn {}
 }
