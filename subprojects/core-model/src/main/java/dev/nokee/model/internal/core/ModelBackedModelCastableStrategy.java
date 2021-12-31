@@ -18,6 +18,7 @@ package dev.nokee.model.internal.core;
 import com.google.common.collect.Streams;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.DefaultModelObject;
+import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.Optional;
@@ -28,15 +29,17 @@ import static java.util.stream.Collectors.toList;
 
 public final class ModelBackedModelCastableStrategy implements ModelCastableStrategy {
 	private final ModelNode entity;
+	private final ModelElementFactory elementFactory;
 
-	public ModelBackedModelCastableStrategy(ModelNode entity) {
+	public ModelBackedModelCastableStrategy(ModelNode entity, ModelElementFactory elementFactory) {
 		this.entity = entity;
+		this.elementFactory = elementFactory;
 	}
 
 	@Override
 	public <S> DomainObjectProvider<S> castTo(ModelType<S> type) {
 		assert type != null;
-		return DefaultModelObject.of(tryFind(type).orElseThrow(() -> castException(displayName(entity), type, castableTypes(entity).collect(toList()))), entity);
+		return elementFactory.createObject(entity, tryFind(type).orElseThrow(() -> castException(displayName(entity), type, castableTypes(entity).collect(toList()))));
 	}
 
 	@SuppressWarnings("unchecked")
