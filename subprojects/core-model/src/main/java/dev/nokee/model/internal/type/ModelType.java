@@ -68,6 +68,14 @@ public final class ModelType<T> {
 		return this.type.isSubtypeOf(type.type);
 	}
 
+	public boolean isSupertypeOf(Type type) {
+		return this.type.isSupertypeOf(type);
+	}
+
+	public boolean isSupertypeOf(ModelType<?> type) {
+		return this.type.isSupertypeOf(type.type);
+	}
+
 	public boolean isParameterized() {
 		return this.type.getType() instanceof ParameterizedType;
 	}
