@@ -67,29 +67,5 @@ public class ModelTypeTest {
 		);
 	}
 
-	@Test
-	void canCheckSubtypeCompatibilityJavaType() {
-		val myType = of(MyType.class);
-		assertAll(
-			() -> assertTrue(myType.isSubtypeOf(myType.getRawType()), "same instance should be subtype"),
-			() -> assertTrue(of(MyType.class).isSubtypeOf(MyType.class), "same type should be subtype"),
-			() -> assertTrue(of(MyType.class).isSubtypeOf(Object.class), "all types are subtype of Object"),
-			() -> assertFalse(of(Object.class).isSubtypeOf(MyType.class), "Object is not subtype of any other type"),
-			() -> assertFalse(of(MyType.class).isSubtypeOf(String.class), "unrelated types should not be subtype")
-		);
-	}
-
-	@Test
-	void canCheckSubtypeCompatibilityUsingModelType() {
-		val myType = of(MyType.class);
-		assertAll(
-			() -> assertTrue(myType.isSubtypeOf(of(myType.getRawType())), "same instance should be subtype"),
-			() -> assertTrue(of(MyType.class).isSubtypeOf(of(MyType.class)), "same type should be subtype"),
-			() -> assertTrue(of(MyType.class).isSubtypeOf((Object.class)), "all types are subtype of Object"),
-			() -> assertFalse(of(Object.class).isSubtypeOf((MyType.class)), "Object is not subtype of any other type"),
-			() -> assertFalse(of(MyType.class).isSubtypeOf((String.class)), "unrelated types should not be subtype")
-		);
-	}
-
 	interface MyType {}
 }
