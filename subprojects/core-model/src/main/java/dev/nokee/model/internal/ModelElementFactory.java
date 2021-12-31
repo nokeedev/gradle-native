@@ -80,7 +80,7 @@ public final class ModelElementFactory {
 		val mixInStrategy = new ModelMixInStrategy() {
 			@Override
 			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
-				if (castableTypes(entity).anyMatch(type::equals)) {
+				if (castableTypes(entity).anyMatch(type::isSupertypeOf)) {
 					throw new RuntimeException();
 				}
 				entity.addComponent(createdUsing(type, () -> instantiator.newInstance(type.getConcreteType())));
@@ -138,7 +138,7 @@ public final class ModelElementFactory {
 		val mixInStrategy = new ModelMixInStrategy() {
 			@Override
 			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
-				if (castableTypes(entity).anyMatch(type::equals)) {
+				if (castableTypes(entity).anyMatch(type::isSupertypeOf)) {
 					throw new RuntimeException();
 				}
 				entity.addComponent(createdUsing(type, () -> instantiator.newInstance(type.getConcreteType())));

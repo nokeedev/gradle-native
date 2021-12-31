@@ -92,6 +92,13 @@ public interface ModelElementTester {
 		assertThrows(RuntimeException.class, () -> subject().mixin(aKnownType()));
 	}
 
+	@Test
+	default void throwsExceptionWhenMixInSuperTypeOfKnownType() {
+		assertDoesNotThrow(() -> subject().mixin(of(MixInChildType.class)));
+		assertThrows(RuntimeException.class, () -> subject().mixin(of(MixInType.class)));
+	}
+
 	interface WrongType {}
 	interface MixInType {}
+	interface MixInChildType extends MixInType {}
 }
