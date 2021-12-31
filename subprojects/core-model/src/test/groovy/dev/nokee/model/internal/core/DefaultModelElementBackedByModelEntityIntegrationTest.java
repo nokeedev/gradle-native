@@ -86,12 +86,6 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 		assertEquals("Could not cast entity 'foru.tare' to WrongType. Available instances: MyType.", ex.getMessage());
 	}
 
-	@Test
-	void mixinTypeBecomesKnownToTheModelElement() {
-		subject.mixin(of(MyOtherTypeMixIn.class));
-		assertTrue(subject.instanceOf(of(MyOtherTypeMixIn.class)));
-	}
-
 	@Nested
 	class MixedInModelElementTest implements ModelObjectTester<MyOtherTypeMixIn> {
 		private final DomainObjectProvider<MyOtherTypeMixIn> subject = DefaultModelElementBackedByModelEntityIntegrationTest.this.subject.mixin(of(MyOtherTypeMixIn.class));

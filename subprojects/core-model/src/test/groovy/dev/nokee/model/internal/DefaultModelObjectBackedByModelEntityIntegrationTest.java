@@ -146,12 +146,6 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 		verify(modelConfigurer).configure(any());
 	}
 
-	@Test
-	void mixinTypeBecomesKnownToTheModelObject() {
-		subject.mixin(of(MyOtherTypeMixIn.class));
-		assertTrue(subject.instanceOf(of(MyOtherTypeMixIn.class)));
-	}
-
 	@Nested
 	class MixedInModelElementTest implements ModelObjectTester<MyOtherTypeMixIn> {
 		private final DomainObjectProvider<MyOtherTypeMixIn> subject = DefaultModelObjectBackedByModelEntityIntegrationTest.this.subject.mixin(of(MyOtherTypeMixIn.class));
