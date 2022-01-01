@@ -25,7 +25,6 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
-import dev.nokee.platform.base.internal.FullyQualifiedName;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;

@@ -17,7 +17,10 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryNamer;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
