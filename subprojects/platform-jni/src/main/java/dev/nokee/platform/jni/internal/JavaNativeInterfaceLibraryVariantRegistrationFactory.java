@@ -62,7 +62,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDepende
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Action;

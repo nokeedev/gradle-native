@@ -48,8 +48,6 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
-import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -57,7 +55,6 @@ import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTas
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import dev.nokee.platform.objectivec.internal.plugins.ObjectiveCApplicationSourcesAdapter;
 import dev.nokee.runtime.nativebase.*;
-import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;

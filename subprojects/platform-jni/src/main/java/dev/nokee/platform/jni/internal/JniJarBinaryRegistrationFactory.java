@@ -17,7 +17,10 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.*;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryNamer;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.reflect.HasPublicType;
@@ -29,7 +32,6 @@ import org.gradle.api.tasks.bundling.Jar;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public final class JniJarBinaryRegistrationFactory {
 	private final JarTaskRegistrationActionFactory jarTaskFactory;
