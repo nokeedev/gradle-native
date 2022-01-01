@@ -71,7 +71,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 			}
 		};
 		val factory = new NamedDomainObjectProviderFactory();
-		val delegate = factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get()).typedAs(fullType.getConcreteType()).delegateTo(provider).configureUsing(action -> configurableStrategy.configure(fullType, action)).build());
+		val delegate = factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).typedAs(fullType.getConcreteType()).delegateTo(provider).configureUsing(action -> configurableStrategy.configure(fullType, action)).build());
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {

@@ -22,6 +22,6 @@ import org.gradle.api.Named;
 public interface ModelBackedNamedMixIn extends Named {
 	@Override
 	default String getName() {
-		return ModelNodes.of(this).getComponent(FullyQualifiedNameComponent.class).get();
+		return ModelNodes.of(this).getComponent(FullyQualifiedNameComponent.class).get().toString();
 	}
 }

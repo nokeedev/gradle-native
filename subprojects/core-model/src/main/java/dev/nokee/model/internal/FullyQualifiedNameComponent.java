@@ -17,20 +17,19 @@ package dev.nokee.model.internal;
 
 import java.util.function.Supplier;
 
-public final class FullyQualifiedNameComponent implements Supplier<String> {
-	private final String value;
+public final class FullyQualifiedNameComponent implements Supplier<FullyQualifiedName> {
+	private final FullyQualifiedName value;
 
 	public FullyQualifiedNameComponent(String value) {
+		this.value = new FullyQualifiedName(value);
+	}
+
+	public FullyQualifiedNameComponent(FullyQualifiedName value) {
 		this.value = value;
 	}
 
 	@Override
-	public String get() {
-		return value;
-	}
-
-	@Override
-	public String toString() {
+	public FullyQualifiedName get() {
 		return value;
 	}
 }
