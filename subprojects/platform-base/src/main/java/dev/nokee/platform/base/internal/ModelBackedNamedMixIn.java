@@ -15,12 +15,13 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import org.gradle.api.Named;
 
 public interface ModelBackedNamedMixIn extends Named {
 	@Override
 	default String getName() {
-		return ModelNodes.of(this).getComponent(FullyQualifiedName.class).get();
+		return ModelNodes.of(this).getComponent(FullyQualifiedNameComponent.class).get();
 	}
 }

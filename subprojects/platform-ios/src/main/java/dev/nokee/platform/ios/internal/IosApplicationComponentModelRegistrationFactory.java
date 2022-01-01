@@ -24,6 +24,7 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -105,7 +106,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				}
 			}))
 			.withComponent(IsComponent.tag())
-			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(identifier.getName().get(), project)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;
@@ -205,7 +206,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		})
 			.withComponent(identifier)
 			.withComponent(IsVariant.tag())
-			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))
@@ -264,7 +265,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(path.child("executable"))
 					.withComponent(IsBinary.tag())
 					.withComponent(executableIdentifier)
-					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(executableIdentifier)))
+					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(executableIdentifier)))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						return project.getExtensions().getByType(BinaryRepository.class).get(executableIdentifier);
 					}))
@@ -276,7 +277,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(path.child("applicationBundle"))
 					.withComponent(IsBinary.tag())
 					.withComponent(applicationBundleIdentifier)
-					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(applicationBundleIdentifier)))
+					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(applicationBundleIdentifier)))
 					.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> {
 						return project.getExtensions().getByType(BinaryRepository.class).get(applicationBundleIdentifier);
 					}))
@@ -288,7 +289,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 					.withComponent(path.child("signedApplicationBundle"))
 					.withComponent(IsBinary.tag())
 					.withComponent(signedApplicationBundleIdentifier)
-					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(signedApplicationBundleIdentifier)))
+					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(signedApplicationBundleIdentifier)))
 					.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {
 						return project.getExtensions().getByType(BinaryRepository.class).get(signedApplicationBundleIdentifier);
 					}))

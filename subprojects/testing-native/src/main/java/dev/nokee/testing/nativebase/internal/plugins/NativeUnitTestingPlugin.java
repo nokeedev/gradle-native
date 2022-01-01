@@ -27,6 +27,7 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -120,7 +121,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(IsTestComponent.tag())
 			.withComponent(IsComponent.tag())
 			.withComponent(identifier)
-			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
 					withConventionOf(maven(identifier.getName())).accept(sourceSet);
@@ -235,7 +236,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		})
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
-			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))
@@ -248,7 +249,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					.withComponent(path.child("executable"))
 					.withComponent(IsBinary.tag())
 					.withComponent(binaryIdentifier)
-					.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
+					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> binaryRepository.get(binaryIdentifier)))
 					.build());
 				project.getExtensions().getByType(BinaryConfigurer.class)

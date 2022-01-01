@@ -24,10 +24,7 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.*;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.*;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -142,7 +139,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(IsTestComponent.tag())
-			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
 					withConventionOf(maven(identifier.getName())).accept(sourceSet);
@@ -233,7 +230,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.withComponent(DomainObjectIdentifierUtils.toPath(binaryIdentifierXCTestBundle))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierXCTestBundle)
-							.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifierXCTestBundle)))
+							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierXCTestBundle)))
 							.withComponent(createdUsing(of(IosXCTestBundle.class), () -> binaryRepository.get(binaryIdentifierXCTestBundle)))
 							.build());
 						binaryConfigurer.configure(binaryIdentifierXCTestBundle, binary -> ModelStates.realize(ModelNodes.of(xcTestBundleEntity)));
@@ -243,7 +240,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("signedApplicationBundle"))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierApplicationBundle)
-							.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
+							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
 							.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierApplicationBundle)))
 							.build());
 						binaryConfigurer.configure(binaryIdentifierApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(applicationBundleEntity)));
@@ -269,7 +266,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(identifier)
 			.withComponent(IsComponent.tag())
 			.withComponent(IsTestComponent.tag())
-			.withComponent(new FullyQualifiedName(ComponentNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))
@@ -361,7 +358,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("unitTestXCTestBundle"))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierApplicationBundle)
-							.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
+							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
 							.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierApplicationBundle)))
 							.build());
 						binaryConfigurer.configure(binaryIdentifierApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(launcherApplicationBundleEntity)));
@@ -371,7 +368,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("signedLauncherApplicationBundle"))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierSignedApplicationBundle)
-							.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifierSignedApplicationBundle)))
+							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierSignedApplicationBundle)))
 							.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierSignedApplicationBundle)))
 							.build());
 						binaryConfigurer.configure(binaryIdentifierSignedApplicationBundle, binary -> ModelStates.realize(ModelNodes.of(signedLauncherApplicationBundleEntity)));
@@ -398,7 +395,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		})
 			.withComponent(identifier)
 			.withComponent(IsVariant.tag())
-			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))
