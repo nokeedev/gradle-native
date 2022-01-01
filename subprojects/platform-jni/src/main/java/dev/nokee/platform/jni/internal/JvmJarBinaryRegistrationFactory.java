@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.jni.JvmJarBinary;
@@ -43,7 +44,7 @@ public final class JvmJarBinaryRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(toPath(identifier))
 			.withComponent(IsBinary.tag())
-			.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(JvmJarBinary.class), ModelBackedJvmJarBinary::new))
 			.action(jarTaskFactory.create(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(JarTask.class), (entity, id, jarTask) -> {

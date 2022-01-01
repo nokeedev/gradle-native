@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
@@ -69,7 +70,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(toPath(identifier))
 			.withComponent(IsBinary.tag())
-			.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(identifier)))
 			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))
 			.action(linkTaskRegistrationActionFactory.create(identifier, LinkSharedLibrary.class, LinkSharedLibraryTask.class))
 			.action(baseNamePropertyRegistrationActionFactory.create(identifier))

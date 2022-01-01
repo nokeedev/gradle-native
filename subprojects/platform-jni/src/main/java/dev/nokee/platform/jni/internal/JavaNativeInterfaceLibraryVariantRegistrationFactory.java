@@ -31,6 +31,7 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -122,7 +123,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
-			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, sourceSet, ignored) -> {
 				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && sourceSet instanceof HasHeaders) {
 					((ConfigurableSourceSet) ((HasHeaders) sourceSet).getHeaders()).convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");

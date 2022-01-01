@@ -21,6 +21,7 @@ import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.*;
@@ -137,7 +138,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		})
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
-			.withComponent(new FullyQualifiedName(VariantNamer.INSTANCE.determineName(identifier)))
+			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))
@@ -154,7 +155,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 						.withComponent(path.child("sharedLibrary"))
 						.withComponent(IsBinary.tag())
 						.withComponent(binaryIdentifier)
-						.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
+						.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 						.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
 							ModelStates.realize(entity);
 							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
@@ -168,7 +169,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 						.withComponent(path.child("staticLibrary"))
 						.withComponent(IsBinary.tag())
 						.withComponent(binaryIdentifier)
-						.withComponent(new FullyQualifiedName(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
+						.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 						.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
 							ModelStates.realize(entity);
 							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
