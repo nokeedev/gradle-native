@@ -35,6 +35,9 @@ public interface ModelElement extends Named {
 
 	ModelElement property(String name);
 
+	<S> DomainObjectProvider<S> element(String name, Class<S> type);
+	<S> DomainObjectProvider<S> element(String name, ModelType<S> type);
+
 	<S> ModelElement configure(ModelType<S> type, Action<? super S> action);
 	default <S> ModelElement configure(Class<S> type, Action<? super S> action) {
 		return configure(ModelType.of(type), action);

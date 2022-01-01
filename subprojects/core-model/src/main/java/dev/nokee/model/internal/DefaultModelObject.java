@@ -41,11 +41,12 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	private final ConfigurableStrategy configurableStrategy;
 	private final ModelCastableStrategy castableStrategy;
 	private final ModelPropertyLookupStrategy propertyLookup;
+	private final ModelElementLookupStrategy elementLookup;
 	private final ModelMixInStrategy mixInStrategy;
 	private final Supplier<? extends T> valueSupplier;
 	private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelObject(NamedStrategy namedStrategy, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelMixInStrategy mixInStrategy, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
+	public DefaultModelObject(NamedStrategy namedStrategy, Supplier<DomainObjectIdentifier> identifierSupplier, ModelType<T> type, ConfigurableProviderConvertibleStrategy providerConvertibleStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelElementLookupStrategy elementLookup, ModelMixInStrategy mixInStrategy, Supplier<? extends T> valueSupplier, Supplier<ModelNode> entitySupplier) {
 		this.namedStrategy = Objects.requireNonNull(namedStrategy);
 		this.identifierSupplier = Objects.requireNonNull(identifierSupplier);
 		this.type = Objects.requireNonNull(type);
@@ -53,6 +54,7 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
 		this.castableStrategy = Objects.requireNonNull(castableStrategy);
 		this.propertyLookup = Objects.requireNonNull(propertyLookup);
+		this.elementLookup = Objects.requireNonNull(elementLookup);
 		this.mixInStrategy = Objects.requireNonNull(mixInStrategy);
 		this.valueSupplier = Objects.requireNonNull(valueSupplier);
 		this.entitySupplier = Objects.requireNonNull(entitySupplier);
@@ -126,6 +128,20 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	public ModelElement property(String name) {
 		Objects.requireNonNull(name);
 		return propertyLookup.get(name);
+	}
+
+	@Override
+	public <S> DomainObjectProvider<S> element(String name, Class<S> type) {
+		Objects.requireNonNull(name);
+		Objects.requireNonNull(type);
+		return elementLookup.get(name, ModelType.of(type));
+	}
+
+	@Override
+	public <S> DomainObjectProvider<S> element(String name, ModelType<S> type) {
+		Objects.requireNonNull(name);
+		Objects.requireNonNull(type);
+		return elementLookup.get(name, type);
 	}
 
 	@Override

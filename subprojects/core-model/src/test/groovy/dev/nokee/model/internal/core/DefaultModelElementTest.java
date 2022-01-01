@@ -35,8 +35,9 @@ class DefaultModelElementTest {
 	private final ConfigurableStrategy configurableStrategy = Mockito.mock(ConfigurableStrategy.class);
 	private final ModelCastableStrategy castableStrategy = Mockito.mock(ModelCastableStrategy.class);
 	private final ModelPropertyLookupStrategy propertyLookupStrategy = Mockito.mock(ModelPropertyLookupStrategy.class);
+	private final ModelElementLookupStrategy elementLookupStrategy = Mockito.mock(ModelElementLookupStrategy.class);
 	private final ModelMixInStrategy mixInStrategy = Mockito.mock(ModelMixInStrategy.class);
-	private final DefaultModelElement subject = new DefaultModelElement(namedStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, mixInStrategy);
+	private final DefaultModelElement subject = new DefaultModelElement(namedStrategy, configurableStrategy, castableStrategy, propertyLookupStrategy, elementLookupStrategy, mixInStrategy);
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -113,6 +114,25 @@ class DefaultModelElementTest {
 	void throwsExceptionWhenCastingUsingGroovyTypeCastOperator() {
 		val ex = assertThrows(UnsupportedOperationException.class, () -> subject.asType(MyType.class));
 		assertEquals("Use ModelElement#as(ModelType) instead.", ex.getMessage());
+	}
+
+
+	@Test
+	void forwardsElementUsingClassQueryToStrategy() {
+		val result = mock(DomainObjectProvider.class);
+		when(elementLookupStrategy.get(any(), any())).thenReturn(result);
+
+		assertSame(result, subject.element("qufu", MyType.class));
+		verify(elementLookupStrategy).get("qufu", of(MyType.class));
+	}
+
+	@Test
+	void forwardsElementUsingModelTypeQueryToStrategy() {
+		val result = mock(DomainObjectProvider.class);
+		when(elementLookupStrategy.get(any(), any())).thenReturn(result);
+
+		assertSame(result, subject.element("tise", of(MyType.class)));
+		verify(elementLookupStrategy).get("tise", of(MyType.class));
 	}
 
 	public interface MyType {}
