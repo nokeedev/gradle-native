@@ -40,7 +40,6 @@ import java.util.stream.Stream;
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
-import static dev.nokee.model.internal.core.ModelNodeUtils.getProjections;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.self;
@@ -77,6 +76,7 @@ public final class ModelElementFactory {
 			}
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
+		val elementLookup = new ModelBackedModelElementLookupStrategy(entity, this);
 		val mixInStrategy = new ModelMixInStrategy() {
 			@Override
 			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
@@ -92,6 +92,7 @@ public final class ModelElementFactory {
 			configurableStrategy,
 			castableStrategy,
 			propertyLookup,
+			elementLookup,
 			mixInStrategy,
 			() -> entity
 		);
@@ -135,6 +136,7 @@ public final class ModelElementFactory {
 			}
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
+		val elementLookup = new ModelBackedModelElementLookupStrategy(entity, this);
 		val mixInStrategy = new ModelMixInStrategy() {
 			@Override
 			public <S> DomainObjectProvider<S> mixin(ModelType<S> type) {
@@ -177,7 +179,7 @@ public final class ModelElementFactory {
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, fullType);
-		return new DefaultModelObject<>(namedStrategy, identifierSupplier, fullType, providerStrategy, configurableStrategy, castableStrategy, propertyLookup, mixInStrategy, valueSupplier, () -> entity);
+		return new DefaultModelObject<>(namedStrategy, identifierSupplier, fullType, providerStrategy, configurableStrategy, castableStrategy, propertyLookup, elementLookup, mixInStrategy, valueSupplier, () -> entity);
 	}
 
 	@EqualsAndHashCode

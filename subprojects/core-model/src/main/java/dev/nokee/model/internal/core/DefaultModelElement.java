@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ConfigurableStrategy;
+import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.NamedStrategy;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.Action;
@@ -30,18 +31,20 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	private final ConfigurableStrategy configurableStrategy;
 	private final ModelCastableStrategy castableStrategy;
 	private final ModelPropertyLookupStrategy propertyLookup;
+	private final ModelElementLookupStrategy elementLookup;
 	private final ModelMixInStrategy mixInStrategy;
 	private final Supplier<ModelNode> entitySupplier;
 
-	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelMixInStrategy mixInStrategy) {
-		this(namedStrategy, configurableStrategy, castableStrategy, propertyLookup, mixInStrategy, () -> { throw new UnsupportedOperationException(); });
+	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelElementLookupStrategy elementLookup, ModelMixInStrategy mixInStrategy) {
+		this(namedStrategy, configurableStrategy, castableStrategy, propertyLookup, elementLookup, mixInStrategy, () -> { throw new UnsupportedOperationException(); });
 	}
 
-	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelMixInStrategy mixInStrategy, Supplier<ModelNode> entitySupplier) {
+	public DefaultModelElement(NamedStrategy namedStrategy, ConfigurableStrategy configurableStrategy, ModelCastableStrategy castableStrategy, ModelPropertyLookupStrategy propertyLookup, ModelElementLookupStrategy elementLookup, ModelMixInStrategy mixInStrategy, Supplier<ModelNode> entitySupplier) {
 		this.namedStrategy = Objects.requireNonNull(namedStrategy);
 		this.configurableStrategy = Objects.requireNonNull(configurableStrategy);
 		this.castableStrategy = Objects.requireNonNull(castableStrategy);
 		this.propertyLookup = Objects.requireNonNull(propertyLookup);
+		this.elementLookup = Objects.requireNonNull(elementLookup);
 		this.mixInStrategy = Objects.requireNonNull(mixInStrategy);
 		this.entitySupplier = Objects.requireNonNull(entitySupplier);
 	}
@@ -66,6 +69,20 @@ public final class DefaultModelElement implements ModelElement, ModelNodeAware {
 	public ModelElement property(String name) {
 		Objects.requireNonNull(name);
 		return propertyLookup.get(name);
+	}
+
+	@Override
+	public <S> DomainObjectProvider<S> element(String name, Class<S> type) {
+		Objects.requireNonNull(name);
+		Objects.requireNonNull(type);
+		return elementLookup.get(name, ModelType.of(type));
+	}
+
+	@Override
+	public <S> DomainObjectProvider<S> element(String name, ModelType<S> type) {
+		Objects.requireNonNull(name);
+		Objects.requireNonNull(type);
+		return elementLookup.get(name, type);
 	}
 
 	@Override
