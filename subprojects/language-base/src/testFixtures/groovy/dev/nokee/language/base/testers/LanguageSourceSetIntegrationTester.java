@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.base.testers;
 
-import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
@@ -25,7 +24,6 @@ import dev.nokee.model.testers.NamedTester;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.tasks.TaskProvider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +34,6 @@ import java.util.Set;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.mock;
@@ -81,18 +77,6 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 	}
 
 	@Nested
-	class CompileTaskPropertyTest {
-		public TaskProvider<? extends SourceCompile> subject() {
-			return (TaskProvider<? extends SourceCompile>) ModelElements.of(LanguageSourceSetIntegrationTester.this.subject()).element("compile", SourceCompile.class).asProvider();
-		}
-
-		@Test
-		void hasCompileTaskWithProperName() {
-			assertThat(subject(), providerOf(named("compile" + capitalize(variantName()))));
-		}
-	}
-
-	@Nested
 	class SourcePropertyTest extends ConfigurableSourceSetIntegrationTester {
 		@Override
 		public ConfigurableSourceSet subject() {
@@ -109,11 +93,6 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 	class BaseCompileTaskTest {
 		public SourceCompile subject() {
 			return compileTask();
-		}
-
-		@Test
-		void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Compiles the " + displayName() + "."));
 		}
 
 		@Test
