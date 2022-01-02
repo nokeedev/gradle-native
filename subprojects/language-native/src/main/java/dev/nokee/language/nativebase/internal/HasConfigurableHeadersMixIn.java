@@ -16,10 +16,9 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.model.internal.core.ModelProperties;
 
-public interface HasConfigurableHeadersMixIn extends HasHeaders {
+public interface HasConfigurableHeadersMixIn extends HasConfigurableHeaders {
 	default ConfigurableSourceSet getHeaders() {
 		return ModelProperties.getProperty(this, "headers").as(ConfigurableSourceSet.class).get();
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.base.internal;
+package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.language.nativebase.HasHeaders;
 
-public interface HasConfigurableSourceMixIn extends HasConfigurableSource {
-	default ConfigurableSourceSet getSource() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
-	}
+public interface HasConfigurableHeaders extends HasHeaders {
+	ConfigurableSourceSet getHeaders();
 }
