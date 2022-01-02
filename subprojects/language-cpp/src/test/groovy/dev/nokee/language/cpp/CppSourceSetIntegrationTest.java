@@ -91,10 +91,5 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements HasConfi
 		public String variantName() {
 			return "zomi";
 		}
-
-		@Override
-		public String displayName() {
-			return "sources ':zomi'";
-		}
 	}
 }

@@ -45,8 +45,6 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 
 	public abstract String variantName();
 
-	public abstract String displayName();
-
 	private ConfigurableSourceSet source() {
 		return ModelProperties.getProperty(subject(), "source").as(ConfigurableSourceSet.class).get();
 	}

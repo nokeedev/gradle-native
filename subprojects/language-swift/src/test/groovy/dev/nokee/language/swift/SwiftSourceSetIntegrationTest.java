@@ -101,11 +101,6 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements HasCon
 			return "riku";
 		}
 
-		@Override
-		public String displayName() {
-			return "sources ':riku'";
-		}
-
 		public String name() {
 			return "riku";
 		}
