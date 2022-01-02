@@ -18,11 +18,13 @@ package dev.nokee.language.objectivec;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +51,7 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class SourceSetTest extends ObjectiveCSourceSetIntegrationTester {
+	class SourceSetTest extends NativeLanguageSourceSetIntegrationTester<ObjectiveCSourceSet> {
 		@BeforeEach
 		public void configureTargetPlatform() {
 			((ObjectiveCCompileTask) project.getTasks().getByName("compileGote")).getTargetPlatform().set(create(of("macos-x64")));
@@ -78,6 +80,14 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
 		@Override
 		public String displayName() {
 			return "sources ':gote'";
+		}
+
+		@Nested
+		class ObjectiveCCompileTaskTest implements ObjectiveCCompileTester {
+			@Override
+			public ObjectiveCCompileTask subject() {
+				return (ObjectiveCCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+			}
 		}
 	}
 }

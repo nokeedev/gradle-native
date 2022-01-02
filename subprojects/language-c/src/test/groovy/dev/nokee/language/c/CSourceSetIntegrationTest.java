@@ -20,9 +20,11 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +51,7 @@ class CSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class SourceSetTest extends CSourceSetIntegrationTester {
+	class SourceSetTest extends NativeLanguageSourceSetIntegrationTester<CSourceSet> {
 		@BeforeEach
 		public void configureTargetPlatform() {
 			((CCompileTask) project.getTasks().getByName("compileNopu")).getTargetPlatform().set(create(of("macos-x64")));
@@ -78,6 +80,14 @@ class CSourceSetIntegrationTest extends AbstractPluginTest {
 		@Override
 		public String displayName() {
 			return "sources ':nopu'";
+		}
+
+		@Nested
+		class CCompileTaskTest implements CCompileTester {
+			@Override
+			public CCompileTask subject() {
+				return (CCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+			}
 		}
 	}
 }

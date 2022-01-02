@@ -20,9 +20,11 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +51,7 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class SourceSetTest extends CppSourceSetIntegrationTester {
+	class SourceSetTest extends NativeLanguageSourceSetIntegrationTester<CppSourceSet> {
 		@BeforeEach
 		public void configureTargetPlatform() {
 			((CppCompileTask) project.getTasks().getByName("compileZomi")).getTargetPlatform().set(create(of("macos-x64")));
@@ -78,6 +80,14 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest {
 		@Override
 		public String displayName() {
 			return "sources ':zomi'";
+		}
+
+		@Nested
+		class CppCompileTaskTest implements CppCompileTester {
+			@Override
+			public CppCompileTask subject() {
+				return (CppCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+			}
 		}
 	}
 }
