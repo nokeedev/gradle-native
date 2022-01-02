@@ -28,6 +28,7 @@ import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
 import dev.nokee.utils.ProviderUtils;
 import lombok.val;
+import org.gradle.api.tasks.TaskProvider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -38,7 +39,7 @@ import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -171,7 +172,10 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 		}
 	}
 
-	// TODO: If projection is a Task asProvider should return a TaskProvider instead
+	@Test
+	void doesNotReturnTaskProviderForNonTaskEntity() {
+		assertThat(subject.asProvider(), not(isA(TaskProvider.class)));
+	}
 
 	@Override
 	public void isAutoConversionToProviderViaCallable() {

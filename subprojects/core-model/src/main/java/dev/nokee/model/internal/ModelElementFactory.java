@@ -18,6 +18,7 @@ package dev.nokee.model.internal;
 import com.google.common.base.Preconditions;
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
+import dev.nokee.gradle.TaskProviderFactory;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
@@ -30,6 +31,7 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
@@ -160,7 +162,6 @@ public final class ModelElementFactory {
 		};
 		val provider = ProviderUtils.supplied(valueSupplier::get);
 		val p = provider;
-		val factory = new NamedDomainObjectProviderFactory();
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
@@ -171,15 +172,35 @@ public final class ModelElementFactory {
 					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
 						return provider;
 					} else {
-						return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+						return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
 					}
 				} else {
-					return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+					return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
 				}
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, fullType);
 		return new DefaultModelObject<>(namedStrategy, identifierSupplier, fullType, providerStrategy, configurableStrategy, castableStrategy, propertyLookup, elementLookup, mixInStrategy, valueSupplier, () -> entity);
+	}
+
+	interface ConfigurableProviderFactory {
+		<T> NamedDomainObjectProvider<T> create(NamedDomainObjectProviderSpec<T> spec);
+	}
+
+	private static ConfigurableProviderFactory factoryFor(ModelType<?> type) {
+		if (Task.class.isAssignableFrom(type.getRawType())) {
+			return new ConfigurableProviderFactory() {
+				@Override
+				@SuppressWarnings("unchecked")
+				public <T> NamedDomainObjectProvider<T> create(NamedDomainObjectProviderSpec<T> spec) {
+					val t = (NamedDomainObjectProviderSpec<? extends Task>) spec;
+					val factory = new TaskProviderFactory();
+					return (NamedDomainObjectProvider<T>) factory.create(t);
+				}
+			};
+		} else {
+			return new NamedDomainObjectProviderFactory()::create;
+		}
 	}
 
 	@EqualsAndHashCode

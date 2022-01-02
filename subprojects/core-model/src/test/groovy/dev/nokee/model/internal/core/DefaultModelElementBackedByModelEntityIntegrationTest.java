@@ -22,6 +22,7 @@ import dev.nokee.model.internal.ModelObjectTester;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.gradle.api.tasks.TaskProvider;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,6 +31,9 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -123,6 +127,11 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 		@Override
 		public ModelType<?> aKnownType() {
 			return of(MyType.class);
+		}
+
+		@Test
+		void doesNotReturnTaskProviderForNonTaskEntity() {
+			assertThat(subject.asProvider(), not(isA(TaskProvider.class)));
 		}
 
 		@Override
