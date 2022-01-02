@@ -18,8 +18,14 @@ package dev.nokee.language.cpp.internal.plugins;
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.cpp.CppSourceSet;
+import org.gradle.api.tasks.TaskDependency;
 
 public class LegacyCppSourceSet implements CppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return getSource().getBuildDependencies();
+	}
+
 	@Override
 	public String toString() {
 		return "C++ sources '" + getName() + "'";

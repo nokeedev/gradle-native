@@ -20,8 +20,15 @@ import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.tasks.TaskDependency;
 
 public class SwiftSourceSetSpec implements SwiftSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn, HasNativeCompileTaskMixIn<SwiftCompileTask> {
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
+	}
+
 	@Override
 	public String toString() {
 		return "Swift sources '" + getName() + "'";

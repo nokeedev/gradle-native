@@ -26,25 +26,26 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.ComponentIdentity;
 import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Namer;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.GroovyCompile;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static dev.nokee.utils.TaskDependencyUtils.of;
 
 public final class GroovySourceSetRegistrationFactory {
 	private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
@@ -98,6 +99,11 @@ public final class GroovySourceSetRegistrationFactory {
 
 		public TaskProvider<GroovyCompile> getCompileTask() {
 			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
+		}
+
+		@Override
+		public TaskDependency getBuildDependencies() {
+			return TaskDependencyUtils.composite(getSource().getBuildDependencies(), of(getCompileTask()));
 		}
 	}
 }

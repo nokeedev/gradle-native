@@ -18,8 +18,14 @@ package dev.nokee.language.objectivec.internal.plugins;
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import org.gradle.api.tasks.TaskDependency;
 
 public class LegacyObjectiveCSourceSet implements ObjectiveCSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return getSource().getBuildDependencies();
+	}
+
 	@Override
 	public String toString() {
 		return "Objective-C sources '" + getName() + "'";

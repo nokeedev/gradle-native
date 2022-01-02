@@ -18,8 +18,14 @@ package dev.nokee.language.objectivecpp.internal.plugins;
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import org.gradle.api.tasks.TaskDependency;
 
 public class LegacyObjectiveCppSourceSet implements ObjectiveCppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return getSource().getBuildDependencies();
+	}
+
 	@Override
 	public String toString() {
 		return "Objective-C++ sources '" + getName() + "'";

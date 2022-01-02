@@ -21,8 +21,15 @@ import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.tasks.TaskDependency;
 
 public class CppSourceSetSpec implements CppSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<CppCompileTask> {
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
+	}
+
 	@Override
 	public String toString() {
 		return "C++ sources '" + getName() + "'";

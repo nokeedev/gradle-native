@@ -41,6 +41,7 @@ import org.gradle.api.Namer;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskDependency;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
@@ -98,6 +99,11 @@ public final class KotlinSourceSetRegistrationFactory {
 	public static class DefaultKotlinSourceSet implements KotlinSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet> {
 		public ConfigurableSourceSet getSource() {
 			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
+		}
+
+		@Override
+		public TaskDependency getBuildDependencies() {
+			return getSource().getBuildDependencies();
 		}
 	}
 }

@@ -18,6 +18,11 @@ package dev.nokee.platform.ios.internal;
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.platform.ios.IosResourceSet;
+import org.gradle.api.tasks.TaskDependency;
 
 public class IosResourceSetSpec implements IosResourceSet, ModelBackedLanguageSourceSetLegacyMixIn<IosResourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return getSource().getBuildDependencies();
+	}
 }
