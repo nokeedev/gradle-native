@@ -21,6 +21,7 @@ import dev.nokee.model.internal.FullyQualifiedName;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
@@ -51,6 +52,7 @@ public final class TaskRegistrationFactory {
 			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
 			.withComponent(identifier)
 			.withComponent(IsTask.tag())
+			.withComponent(new ModelElementProviderSourceComponent(taskProvider))
 			.withComponent(new FullyQualifiedNameComponent(name))
 			.withComponent(createdUsingNoInject(ModelType.of(type), taskProvider::get))
 			.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider))

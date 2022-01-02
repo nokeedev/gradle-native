@@ -160,7 +160,12 @@ public final class ModelElementFactory {
 				return ModelNodeUtils.get(ModelStates.realize(entity), type);
 			}
 		};
-		val provider = ProviderUtils.supplied(valueSupplier::get);
+		val provider = entity.findComponent(ModelElementProviderSourceComponent.class).map(it -> it.get().map(ignored -> ModelNodeUtils.get(entity, type))).orElseGet(() -> ProviderUtils.supplied(() -> ModelNodeUtils.get(entity, type))).map(it -> {
+			if (!type.isSubtypeOf(Provider.class)) {
+				ModelStates.realize(entity);
+			}
+			return it;
+		});
 		val p = provider;
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
