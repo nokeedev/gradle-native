@@ -131,6 +131,12 @@ public final class DefaultModelObject<T> implements DomainObjectProvider<T>, Pro
 	}
 
 	@Override
+	public ModelElement element(String name) {
+		Objects.requireNonNull(name);
+		return elementLookup.get(name);
+	}
+
+	@Override
 	public <S> DomainObjectProvider<S> element(String name, Class<S> type) {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(type);
