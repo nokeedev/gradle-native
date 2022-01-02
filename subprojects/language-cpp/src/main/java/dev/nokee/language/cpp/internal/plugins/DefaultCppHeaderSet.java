@@ -20,10 +20,16 @@ import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.cpp.CppHeaderSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.api.tasks.TaskDependency;
 
 public class DefaultCppHeaderSet implements CppHeaderSet, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TypeOf<?> getPublicType() {
 		return TypeOf.typeOf(CppHeaderSet.class);
+	}
+
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return getSource().getBuildDependencies();
 	}
 }

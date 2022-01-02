@@ -18,8 +18,14 @@ package dev.nokee.language.c.internal.plugins;
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CSourceSet;
+import org.gradle.api.tasks.TaskDependency;
 
 public /*final*/ class LegacyCSourceSet implements CSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>, HasConfigurableSourceMixIn {
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return getSource().getBuildDependencies();
+	}
+
 	@Override
 	public String toString() {
 		return "C sources '" + getName() + "'";

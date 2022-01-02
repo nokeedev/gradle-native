@@ -21,8 +21,15 @@ import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.utils.TaskDependencyUtils;
+import org.gradle.api.tasks.TaskDependency;
 
 public class CSourceSetSpec implements CSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<CCompileTask> {
+	@Override
+	public TaskDependency getBuildDependencies() {
+		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
+	}
+
 	@Override
 	public String toString() {
 		return "C sources '" + getName() + "'";
