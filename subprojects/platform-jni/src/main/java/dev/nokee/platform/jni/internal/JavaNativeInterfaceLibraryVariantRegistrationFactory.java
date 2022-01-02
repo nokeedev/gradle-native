@@ -102,7 +102,6 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.*;
-import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
@@ -177,7 +176,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 
 					val jniJar = registry.register(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"))));
 					val developmentBinaryProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentBinary"), Binary.class));
-					developmentBinaryProperty.configure(Property.class, prop -> prop.convention(jniJar.as(JniJarBinary.class).map(noOpTransformer())));
+					developmentBinaryProperty.configure(Property.class, prop -> prop.convention(jniJar.as(JniJarBinary.class).asProvider()));
 
 					project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 						private ModelElement compileOnly = null;
@@ -227,7 +226,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 
 					val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
 					baseNameProperty.configure(Property.class, prop -> prop.convention(identifier.getUnambiguousName()));
-					ModelProperties.getProperty(sharedLibrary, "baseName").configure(Property.class, prop -> prop.convention(baseNameProperty.as(String.class).map(noOpTransformer())));
+					ModelProperties.getProperty(sharedLibrary, "baseName").configure(Property.class, prop -> prop.convention(baseNameProperty.as(String.class).asProvider()));
 
 					val resourcePathProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "resourcePath"), String.class));
 					resourcePathProperty.configure(Property.class, prop -> prop.convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse("")));
@@ -239,7 +238,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					});
 					entity.addComponent(new JniJarArtifact(ModelNodes.of(jniJar)));
 
-					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).map(noOpTransformer())));
+					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).asProvider()));
 
 					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
 
