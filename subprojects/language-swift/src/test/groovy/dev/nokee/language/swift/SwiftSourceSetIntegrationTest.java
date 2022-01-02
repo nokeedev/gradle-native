@@ -19,10 +19,13 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.testers.HasConfigurableSourceTester;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
+import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -32,19 +35,16 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
-import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -56,17 +56,27 @@ import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
 @PluginRequirement.Require(type = SwiftCompilerPlugin.class)
-class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
-	private SwiftSourceSet subject;
+class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements HasConfigurableSourceTester {
+	private SwiftSourceSetSpec subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSet.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSetSpec.class).get();
+	}
+
+	@Override
+	public SwiftSourceSetSpec subject() {
+		return subject;
 	}
 
 	@Test
 	void hasToString() {
 		assertThat(subject, Matchers.hasToString("Swift sources 'riku'"));
+	}
+
+	@Test
+	void hasSwiftCompileTask() {
+		assertThat(subject.getCompileTask(), providerOf(isA(SwiftCompile.class)));
 	}
 
 	@Nested

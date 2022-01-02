@@ -18,8 +18,12 @@ package dev.nokee.language.cpp;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.testers.HasConfigurableSourceTester;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
+import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.cpp.tasks.CppCompile;
+import dev.nokee.language.nativebase.HasConfigurableHeadersTester;
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -30,23 +34,35 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.cpp-language-base")
 @PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-class CppSourceSetIntegrationTest extends AbstractPluginTest {
-	private CppSourceSet subject;
+class CppSourceSetIntegrationTest extends AbstractPluginTest implements HasConfigurableSourceTester, HasConfigurableHeadersTester {
+	private CppSourceSetSpec subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "zomi"))).as(CppSourceSet.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "zomi"))).as(CppSourceSetSpec.class).get();
+	}
+
+	@Override
+	public CppSourceSetSpec subject() {
+		return subject;
 	}
 
 	@Test
 	void hasToString() {
 		assertThat(subject, Matchers.hasToString("C++ sources 'zomi'"));
+	}
+
+	@Test
+	void hasCppCompileTask() {
+		assertThat(subject.getCompileTask(), providerOf(isA(CppCompile.class)));
 	}
 
 	@Nested

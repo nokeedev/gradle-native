@@ -18,8 +18,12 @@ package dev.nokee.language.c;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.testers.HasConfigurableSourceTester;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
+import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.c.tasks.CCompile;
+import dev.nokee.language.nativebase.HasConfigurableHeadersTester;
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -30,23 +34,35 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.c-language-base")
 @PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-class CSourceSetIntegrationTest extends AbstractPluginTest {
-	private CSourceSet subject;
+class CSourceSetIntegrationTest extends AbstractPluginTest implements HasConfigurableSourceTester, HasConfigurableHeadersTester {
+	private CSourceSetSpec subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"))).as(CSourceSet.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"))).as(CSourceSetSpec.class).get();
+	}
+
+	@Override
+	public CSourceSetSpec subject() {
+		return subject;
 	}
 
 	@Test
 	void hasToString() {
 		assertThat(subject, Matchers.hasToString("C sources 'nopu'"));
+	}
+
+	@Test
+	void hasCCompileTask() {
+		assertThat(subject.getCompileTask(), providerOf(isA(CCompile.class)));
 	}
 
 	@Nested
