@@ -56,7 +56,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 				});
 				node.addComponent(new ElementNameComponent(path.getName()));
 				node.addComponent(new DisplayNameComponent(path.toString()));
-				node.addComponent(elementFactory);
 			} else if (state.equals(ModelState.Registered)) {
 				assert !entities.contains(node) : "duplicated registered notification";
 				nodes.put(path, node);
@@ -97,6 +96,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private ModelNode newNode(ModelRegistration registration) {
 		val entity = new ModelNode();
+		entity.addComponent(elementFactory);
 		entity.addComponent(nodeStateListener);
 		for (Object component : registration.getComponents()) {
 			if (component instanceof ModelProjection) {
