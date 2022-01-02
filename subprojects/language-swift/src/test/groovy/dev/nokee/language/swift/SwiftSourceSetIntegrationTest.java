@@ -16,7 +16,6 @@
 package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
-import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
@@ -46,7 +45,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.*;
-import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -104,28 +102,6 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 
 		private Configuration importModules() {
 			return project().getConfigurations().getByName(variantName() + "ImportModules");
-		}
-
-		@Nested
-		class ImportModulesConfigurationTest {
-			public Configuration subject() {
-				return importModules();
-			}
-
-			@Test
-			void isResolvable() {
-				assertThat(subject(), ConfigurationMatchers.resolvable());
-			}
-
-			@Test
-			void hasSwiftApiUsage() {
-				assertThat(subject(), ConfigurationMatchers.attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("swift-api"))));
-			}
-
-			@Test
-			void hasDescription() {
-				assertThat(subject(), ConfigurationMatchers.description("Import modules for " + displayName() + "."));
-			}
 		}
 
 		@Nested

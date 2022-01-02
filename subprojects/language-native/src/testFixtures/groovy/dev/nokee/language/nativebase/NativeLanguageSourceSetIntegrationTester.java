@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.nativebase;
 
-import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
@@ -40,7 +39,6 @@ import java.nio.file.Files;
 import java.util.Set;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
-import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -143,28 +141,6 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 		@Override
 		public File getTemporaryDirectory() throws IOException {
 			return Files.createDirectories(project().getProjectDir().toPath()).toFile();
-		}
-	}
-
-	@Nested
-	class HeaderSearchPathsConfigurationTest {
-		public Configuration subject() {
-			return headerSearchPaths();
-		}
-
-		@Test
-		void isResolvable() {
-			assertThat(subject(), ConfigurationMatchers.resolvable());
-		}
-
-		@Test
-		void hasCPlusPlusApiUsage() {
-			assertThat(subject(), ConfigurationMatchers.attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("cplusplus-api"))));
-		}
-
-		@Test
-		void hasDescription() {
-			assertThat(subject(), ConfigurationMatchers.description("Header search paths for " + displayName() + "."));
 		}
 	}
 }
