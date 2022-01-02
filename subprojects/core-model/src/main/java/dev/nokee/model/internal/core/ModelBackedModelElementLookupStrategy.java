@@ -30,6 +30,12 @@ public final class ModelBackedModelElementLookupStrategy implements ModelElement
 	}
 
 	@Override
+	public ModelElement get(String name) {
+		assert name != null;
+		return elementFactory.createElement(ModelNodeUtils.getDirectDescendants(entity).stream().filter(it -> it.getComponent(ElementNameComponent.class).get().equals(name)).collect(MoreCollectors.onlyElement()));
+	}
+
+	@Override
 	public <S> DomainObjectProvider<S> get(String name, ModelType<S> type) {
 		assert name != null;
 		assert type != null;

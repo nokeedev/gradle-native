@@ -19,5 +19,6 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.type.ModelType;
 
 public interface ModelElementLookupStrategy {
+	ModelElement get(String name);
 	<T> DomainObjectProvider<T> get(String name, ModelType<T> type);
 }

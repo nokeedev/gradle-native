@@ -116,6 +116,14 @@ class DefaultModelElementTest {
 		assertEquals("Use ModelElement#as(ModelType) instead.", ex.getMessage());
 	}
 
+	@Test
+	void forwardsElementUsingNameOnlyQueryToStrategy() {
+		val result = mock(ModelElement.class);
+		when(elementLookupStrategy.get(any())).thenReturn(result);
+
+		assertSame(result, subject.element("wosa"));
+		verify(elementLookupStrategy).get("wosa");
+	}
 
 	@Test
 	void forwardsElementUsingClassQueryToStrategy() {

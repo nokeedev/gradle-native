@@ -38,6 +38,7 @@ import static org.mockito.Mockito.mock;
 class DefaultModelObjectElementQueryIntegrationTest extends AbstractPluginTest {
 	private final DomainObjectIdentifier i0 = mock(DomainObjectIdentifier.class);
 	private final DomainObjectIdentifier i1 = mock(DomainObjectIdentifier.class);
+	private final DomainObjectIdentifier i2 = mock(DomainObjectIdentifier.class);
 	private DomainObjectProvider<Object> object;
 
 	@BeforeEach
@@ -46,8 +47,8 @@ class DefaultModelObjectElementQueryIntegrationTest extends AbstractPluginTest {
 		object = registry.register(builder().withComponent(path("a")).withComponent(ofInstance(new Object())).build()).as(Object.class);
 		registry.register(builder().withComponent(path("a.b")).withComponent(i0).withComponent(ofInstance("peda")).build());
 		registry.register(builder().withComponent(path("a.b")).withComponent(i1).withComponent(createdUsing(of(MyType.class), () -> objectFactory().newInstance(MyType.class))).build());
+		registry.register(builder().withComponent(path("a.c")).withComponent(i2).withComponent(ofInstance(Boolean.TRUE)).build());
 	}
-
 
 	@Nested
 	class FirstElementTest {
@@ -90,6 +91,26 @@ class DefaultModelObjectElementQueryIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
+	class ThirdElementTest {
+		private DomainObjectProvider<Boolean> subject;
+
+		@BeforeEach
+		void createSubject() {
+			subject = object.element("c").as(Boolean.class);
+		}
+
+		@Test
+		void returnsThirdElementType() {
+			assertEquals(Boolean.class, subject.getType());
+		}
+
+		@Test
+		void returnsThirdElementIdentifier() {
+			assertEquals(i2, subject.getIdentifier());
+		}
+	}
+
+	@Nested
 	class MultipleElementWithSameTypeTest {
 		@BeforeEach
 		void createConflictingElement() {
@@ -105,6 +126,16 @@ class DefaultModelObjectElementQueryIntegrationTest extends AbstractPluginTest {
 		@Test
 		void doesNotThrowExceptionIfOnlyOneElementHaveTheSpecifiedType() {
 			assertDoesNotThrow(() -> object.element("b", MyType.class));
+		}
+
+		@Test
+		void throwsExceptionIfMultipleElementHaveTheSameName() {
+			assertThrows(RuntimeException.class, () -> object.element("b"));
+		}
+
+		@Test
+		void doesNotThrowExceptionIfOnlyOneElementHaveTheSpecifiedName() {
+			assertDoesNotThrow(() -> object.element("c"));
 		}
 	}
 

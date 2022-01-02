@@ -35,6 +35,7 @@ public interface ModelElement extends Named {
 
 	ModelElement property(String name);
 
+	ModelElement element(String name);
 	<S> DomainObjectProvider<S> element(String name, Class<S> type);
 	<S> DomainObjectProvider<S> element(String name, ModelType<S> type);
 

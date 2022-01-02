@@ -179,6 +179,15 @@ class DefaultModelObjectTest {
 	}
 
 	@Test
+	void forwardsElementUsingNameOnlyQueryToStrategy() {
+		val result = mock(ModelElement.class);
+		when(elementLookupStrategy.get(any())).thenReturn(result);
+
+		assertSame(result, subject.element("hiji"));
+		verify(elementLookupStrategy).get("hiji");
+	}
+
+	@Test
 	void forwardsElementUsingClassQueryToStrategy() {
 		val result = mock(DomainObjectProvider.class);
 		when(elementLookupStrategy.get(any(), any())).thenReturn(result);
