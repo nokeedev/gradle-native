@@ -298,13 +298,15 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					val values = project.getObjects().listProperty(PublishArtifact.class);
 					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine())));
 					Provider<Iterable<JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
-					Provider<List<PublishArtifact>> allArtifacts = allJniJars.flatMap(binaries -> {
+					val allArtifacts = project.getObjects().listProperty(PublishArtifact.class);
+					allArtifacts.set(allJniJars.flatMap(binaries -> {
 						val result = project.getObjects().listProperty(PublishArtifact.class);
 						for (JniJarBinary binary : binaries) {
 							result.add(new LazyPublishArtifact(binary.getJarTask()));
 						}
 						return result;
-					});
+					}));
+					allArtifacts.finalizeValueOnRead();
 					values.addAll(allArtifacts);
 					runtimeElements.addAll(values);
 				}
