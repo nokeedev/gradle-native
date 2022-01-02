@@ -17,6 +17,8 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.internal.FullyQualifiedName;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -43,11 +45,13 @@ public final class TaskRegistrationFactory {
 	}
 
 	public <T extends Task> ModelRegistration.Builder create(TaskIdentifier<?> identifier, Class<T> type) {
-		val taskProvider = (TaskProvider<T>) taskRegistry.registerIfAbsent(taskNamer.determineName(identifier), type);
+		val name = new FullyQualifiedName(taskNamer.determineName(identifier));
+		val taskProvider = (TaskProvider<T>) taskRegistry.registerIfAbsent(name.toString(), type);
 		return ModelRegistration.builder()
 			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
 			.withComponent(identifier)
 			.withComponent(IsTask.tag())
+			.withComponent(new FullyQualifiedNameComponent(name))
 			.withComponent(createdUsingNoInject(ModelType.of(type), taskProvider::get))
 			.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(TaskIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, id, ignored) -> {
