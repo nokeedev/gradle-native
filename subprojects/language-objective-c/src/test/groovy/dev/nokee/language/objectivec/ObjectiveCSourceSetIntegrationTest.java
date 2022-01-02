@@ -18,10 +18,14 @@ package dev.nokee.language.objectivec;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.testers.HasConfigurableSourceTester;
+import dev.nokee.language.nativebase.HasConfigurableHeadersTester;
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
@@ -30,23 +34,35 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.objective-c-language-base")
 @PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
-	private ObjectiveCSourceSet subject;
+class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements HasConfigurableSourceTester, HasConfigurableHeadersTester {
+	private ObjectiveCSourceSetSpec subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gote"))).as(ObjectiveCSourceSet.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gote"))).as(ObjectiveCSourceSetSpec.class).get();
+	}
+
+	@Override
+	public ObjectiveCSourceSetSpec subject() {
+		return subject;
 	}
 
 	@Test
 	void hasToString() {
 		assertThat(subject, Matchers.hasToString("Objective-C sources 'gote'"));
+	}
+
+	@Test
+	void hasObjectiveCCompileTask() {
+		assertThat(subject.getCompileTask(), providerOf(isA(ObjectiveCCompile.class)));
 	}
 
 	@Nested
