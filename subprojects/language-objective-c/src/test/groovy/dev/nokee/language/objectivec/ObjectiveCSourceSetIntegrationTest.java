@@ -91,10 +91,5 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements H
 		public String variantName() {
 			return "gote";
 		}
-
-		@Override
-		public String displayName() {
-			return "sources ':gote'";
-		}
 	}
 }

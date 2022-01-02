@@ -56,8 +56,6 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 
 	public abstract String variantName();
 
-	public abstract String displayName();
-
 	private Configuration headerSearchPaths() {
 		return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
 	}

@@ -91,10 +91,5 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest implements
 		public String variantName() {
 			return "suhu";
 		}
-
-		@Override
-		public String displayName() {
-			return "sources ':suhu'";
-		}
 	}
 }

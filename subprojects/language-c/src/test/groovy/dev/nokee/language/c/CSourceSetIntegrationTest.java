@@ -91,10 +91,5 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements HasConfigu
 		public String variantName() {
 			return "nopu";
 		}
-
-		@Override
-		public String displayName() {
-			return "sources ':nopu'";
-		}
 	}
 }
