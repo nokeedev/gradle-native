@@ -18,11 +18,13 @@ package dev.nokee.language.objectivecpp;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetRegistrationFactory;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +51,7 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest {
 	}
 
 	@Nested
-	class SourceSetTest extends ObjectiveCppSourceSetIntegrationTester {
+	class SourceSetTest extends NativeLanguageSourceSetIntegrationTester<ObjectiveCppSourceSet> {
 		@BeforeEach
 		public void configureTargetPlatform() {
 			((ObjectiveCppCompileTask) project.getTasks().getByName("compileSuhu")).getTargetPlatform().set(create(of("macos-x64")));
@@ -78,6 +80,14 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest {
 		@Override
 		public String displayName() {
 			return "sources ':suhu'";
+		}
+
+		@Nested
+		class ObjectiveCppCompileTaskTest implements ObjectiveCppCompileTester {
+			@Override
+			public ObjectiveCppCompileTask subject() {
+				return (ObjectiveCppCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
+			}
 		}
 	}
 }
