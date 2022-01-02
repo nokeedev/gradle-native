@@ -23,22 +23,35 @@ import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFacto
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import org.gradle.api.artifacts.Configuration;
+import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
+import static dev.nokee.internal.testing.FileSystemMatchers.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
-class SwiftCompileTaskIntegrationTest extends AbstractPluginTest {
+class SwiftCompileTaskIntegrationTest extends AbstractPluginTest implements SwiftCompileTester {
 	private SwiftCompileTask subject;
+
+	@Override
+	public SwiftCompileTask subject() {
+		return subject;
+	}
 
 	@BeforeEach
 	void createSubject() {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "rubi"))).element("compile", SwiftCompileTask.class).get();
+		subject.getTargetPlatform().set(create(of("macos-x64")));
 	}
 
 	@Test
@@ -49,5 +62,33 @@ class SwiftCompileTaskIntegrationTest extends AbstractPluginTest {
 	@Test
 	void hasDescription() {
 		assertThat(subject, TaskMatchers.description("Compiles the sources ':rubi'."));
+	}
+
+	@Test
+	void defaultsModuleNameToSourceSetName() {
+		assertThat(subject().getModuleName(), providerOf("Rubi"));
+	}
+
+	@Test
+	void defaultsSourceCompatibilityToSwift5() {
+		assertThat(subject().getSourceCompatibility(), providerOf(SwiftVersion.SWIFT5));
+	}
+
+	@Test
+	void hasModuleFileUnderModulesInsideBuildDirectory() {
+		assertThat(subject().getModuleFile(),
+			providerOf(aFile(withAbsolutePath(containsString("/build/modules/")))));
+	}
+
+	@Test
+	void includesTargetNameInModuleFile() {
+		assertThat(subject().getModuleFile(), providerOf(aFile(parentFile(withAbsolutePath(endsWith("/rubi"))))));
+	}
+
+	@Test
+	@EnabledOnOs(OS.MAC)
+	void addsMacOsSdkPathToCompilerArguments() {
+		subject().getTargetPlatform().set(create(of("macos-x64")));
+		assertThat(subject().getCompilerArgs(), providerOf(hasItem("-sdk")));
 	}
 }

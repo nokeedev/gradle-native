@@ -24,7 +24,6 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistr
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,14 +79,6 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
 		@Override
 		public String displayName() {
 			return "sources ':gote'";
-		}
-
-		@Nested
-		class ObjectiveCCompileTaskTest implements ObjectiveCCompileTester {
-			@Override
-			public ObjectiveCCompileTask subject() {
-				return (ObjectiveCCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
-			}
 		}
 	}
 }

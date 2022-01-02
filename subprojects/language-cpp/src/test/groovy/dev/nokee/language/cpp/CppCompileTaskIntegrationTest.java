@@ -28,16 +28,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(id = "dev.nokee.cpp-language-base")
-class CppCompileTaskIntegrationTest extends AbstractPluginTest {
+class CppCompileTaskIntegrationTest extends AbstractPluginTest implements CppCompileTester {
 	private CppCompileTask subject;
+
+	@Override
+	public CppCompileTask subject() {
+		return subject;
+	}
 
 	@BeforeEach
 	void createSubject() {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gali"))).element("compile", CppCompileTask.class).get();
+		subject.getTargetPlatform().set(create(of("macos-x64")));
 	}
 
 	@Test
