@@ -24,7 +24,6 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetReg
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,14 +79,6 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest {
 		@Override
 		public String displayName() {
 			return "sources ':suhu'";
-		}
-
-		@Nested
-		class ObjectiveCppCompileTaskTest implements ObjectiveCppCompileTester {
-			@Override
-			public ObjectiveCppCompileTask subject() {
-				return (ObjectiveCppCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
-			}
 		}
 	}
 }

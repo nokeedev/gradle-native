@@ -48,9 +48,4 @@ public interface SourceCompileTester extends HasDestinationDirectoryTester {
 	default void hasSource() {
 		assertThat("not null as per contract", subject().getSource(), notNullValue(ConfigurableFileCollection.class));
 	}
-
-	@Test
-	default void hasDescription() {
-		assertThat(subject().getDescription(), not(blankOrNullString()));
-	}
 }

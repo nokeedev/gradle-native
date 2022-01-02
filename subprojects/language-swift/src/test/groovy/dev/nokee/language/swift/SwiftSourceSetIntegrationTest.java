@@ -105,7 +105,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 		}
 
 		@Nested
-		class SwiftCompileTaskTest implements SwiftCompileTester, NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<SwiftCompileTask> {
+		class SwiftCompileTaskTest implements NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<SwiftCompileTask> {
 			public SwiftCompileTask subject() {
 				return (SwiftCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
 			}
@@ -150,46 +150,6 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 					"-F", artifact.getParentFile().getAbsolutePath()
 				)));
 			}
-		}
-	}
-
-	@Nested
-	class CompileTaskTest {
-		@BeforeEach
-		void configureTargetPlatform() {
-			subject().getTargetPlatform().set(create(of("macos-x64")));
-		}
-
-		public SwiftCompileTask subject() {
-			return (SwiftCompileTask) project.getTasks().getByName("compileRiku");
-		}
-
-		@Test
-		void defaultsModuleNameToSourceSetName() {
-			assertThat(subject().getModuleName(), providerOf("Riku"));
-		}
-
-		@Test
-		void defaultsSourceCompatibilityToSwift5() {
-			assertThat(subject().getSourceCompatibility(), providerOf(SwiftVersion.SWIFT5));
-		}
-
-		@Test
-		void hasModuleFileUnderModulesInsideBuildDirectory() {
-			assertThat(subject().getModuleFile(),
-				providerOf(aFile(withAbsolutePath(containsString("/build/modules/")))));
-		}
-
-		@Test
-		void includesTargetNameInModuleFile() {
-			assertThat(subject().getModuleFile(), providerOf(aFile(parentFile(withAbsolutePath(endsWith("/riku"))))));
-		}
-
-		@Test
-		@EnabledOnOs(OS.MAC)
-		void addsMacOsSdkPathToCompilerArguments() {
-			subject().getTargetPlatform().set(create(of("macos-x64")));
-			assertThat(subject().getCompilerArgs(), providerOf(hasItem("-sdk")));
 		}
 	}
 }
