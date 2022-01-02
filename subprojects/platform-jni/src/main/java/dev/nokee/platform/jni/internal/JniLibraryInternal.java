@@ -16,10 +16,7 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.SourceView;
@@ -86,15 +83,15 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	@Override
 	public JniJarBinary getJavaNativeInterfaceJar() {
-		return ModelProperties.getProperty(this, "javaNativeInterfaceJar").as(JniJarBinary.class).get();
+		return ModelElements.of(this).element("jniJar", JniJarBinary.class).get();
 	}
 
 	public JniJarBinary getJar() {
-		return ModelProperties.getProperty(this, "javaNativeInterfaceJar").as(JniJarBinary.class).get();
+		return ModelElements.of(this).element("jniJar", JniJarBinary.class).get();
 	}
 
 	public SharedLibraryBinary getSharedLibrary() {
-		return ModelProperties.getProperty(this, "sharedLibrary").as(SharedLibraryBinary.class).get();
+		return ModelElements.of(this).element("sharedLibrary", SharedLibraryBinary.class).get();
 	}
 
 	@Override
@@ -112,7 +109,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public TaskProvider<Task> getAssembleTask() {
-		return ModelProperties.getProperty(this, "assembleTask").as(TaskProvider.class).get();
+		return (TaskProvider<Task>) ModelElements.of(this).element("assemble", Task.class).asProvider();
 	}
 
 	@Override

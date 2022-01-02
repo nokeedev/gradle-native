@@ -66,7 +66,7 @@ public final class JniJarBinaryRegistrationFactory {
 
 		@Override
 		public TaskProvider<Jar> getJarTask() {
-			return ModelProperties.getProperty(this, "jarTask").as(TaskProvider.class).get();
+			return (TaskProvider<Jar>) ModelElements.of(this).element("jar", Jar.class).asProvider();
 		}
 
 		@Override

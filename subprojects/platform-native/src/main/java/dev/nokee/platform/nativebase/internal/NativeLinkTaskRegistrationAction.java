@@ -24,10 +24,8 @@ import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -92,7 +90,6 @@ public final class NativeLinkTaskRegistrationAction extends ModelActionWithInput
 			linkTask.configure(publicType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 			linkTask.configure(publicType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
 			linkTask.configure(publicType, configureDestinationDirectory(convention(forLibrary(identifier))));
-			registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "linkTask"), ModelNodes.of(linkTask)));
 			entity.addComponent(new NativeLinkTask(linkTask));
 		}
 	}

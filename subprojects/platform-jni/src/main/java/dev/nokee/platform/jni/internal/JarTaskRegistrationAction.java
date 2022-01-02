@@ -17,15 +17,12 @@ package dev.nokee.platform.jni.internal;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -55,7 +52,6 @@ public final class JarTaskRegistrationAction extends ModelActionWithInputs.Model
 			val jarTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("jar"), identifier), Jar.class).build());
 			jarTask.configure(Task.class, configureBuildGroup());
 			jarTask.configure(Jar.class, task -> task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs")));
-			registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "jarTask"), ModelNodes.of(jarTask)));
 			entity.addComponent(new JarTask(jarTask));
 		}
 	}

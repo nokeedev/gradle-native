@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.testers.NamedTester;
 import lombok.val;
@@ -55,7 +56,7 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 	}
 
 	private SourceCompile compileTask() {
-		return ModelProperties.getProperty(subject(), "compileTask").as(SourceCompile.class).get();
+		return ModelElements.of(subject()).element("compile", SourceCompile.class).get();
 	}
 
 	@Test
@@ -82,8 +83,7 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 	@Nested
 	class CompileTaskPropertyTest {
 		public TaskProvider<? extends SourceCompile> subject() {
-			return ModelProperties.getProperty(LanguageSourceSetIntegrationTester.this.subject(), "compileTask")
-				.as(TaskProvider.class).get();
+			return (TaskProvider<? extends SourceCompile>) ModelElements.of(LanguageSourceSetIntegrationTester.this.subject()).element("compile", SourceCompile.class).asProvider();
 		}
 
 		@Test
