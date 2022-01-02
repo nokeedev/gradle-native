@@ -22,6 +22,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.testers.ConfigurableSourceSetIntegrationTester;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelProperties;
 import lombok.val;
 import org.gradle.api.Project;
@@ -80,8 +81,7 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 	@Nested
 	class NativeCompileTaskTest implements NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<NativeSourceCompile> {
 		public NativeSourceCompile subject() {
-			return ModelProperties.getProperty(NativeLanguageSourceSetIntegrationTester.this.subject(), "compileTask")
-				.as(NativeSourceCompile.class).get();
+			return ModelElements.of(NativeLanguageSourceSetIntegrationTester.this.subject()).element("compile", NativeSourceCompile.class).get();
 		}
 
 		@Override

@@ -16,11 +16,11 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelElements;
 import org.gradle.api.tasks.TaskProvider;
 
 public interface HasNativeCompileTaskMixIn<T extends SourceCompile> {
 	default TaskProvider<T> getCompileTask() {
-		return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
+		return (TaskProvider<T>) ModelElements.of(this).element("compile", SourceCompile.class).asProvider();
 	}
 }

@@ -96,7 +96,7 @@ public final class JavaSourceSetRegistrationFactory {
 		}
 
 		public TaskProvider<JavaCompile> getCompileTask() {
-			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
+			return (TaskProvider<JavaCompile>) ModelElements.of(this).element("compile", JavaCompile.class).asProvider();
 		}
 
 		@Override

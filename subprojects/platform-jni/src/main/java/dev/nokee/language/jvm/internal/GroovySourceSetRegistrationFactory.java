@@ -98,7 +98,7 @@ public final class GroovySourceSetRegistrationFactory {
 		}
 
 		public TaskProvider<GroovyCompile> getCompileTask() {
-			return ModelProperties.getProperty(this, "compileTask").as(TaskProvider.class).get();
+			return (TaskProvider<GroovyCompile>) ModelElements.of(this).element("compile", GroovyCompile.class).asProvider();
 		}
 
 		@Override

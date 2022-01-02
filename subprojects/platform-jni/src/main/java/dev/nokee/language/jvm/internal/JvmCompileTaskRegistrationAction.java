@@ -19,17 +19,14 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import lombok.val;
 import org.gradle.api.Task;
 
 @AutoFactory
@@ -51,8 +48,7 @@ public final class JvmCompileTaskRegistrationAction extends ModelActionWithInput
 	@Override
 	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
 		if (identifier.equals(this.identifier)) {
-			val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), compileTaskType, identifier), compileTaskType).build());
-			registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTask"), ModelNodes.of(compileTask)));
+			registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), compileTaskType, identifier), compileTaskType).build());
 		}
 	}
 }

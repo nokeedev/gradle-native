@@ -108,7 +108,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 
 		@Override
 		public TaskProvider<LinkSharedLibrary> getLinkTask() {
-			return ModelProperties.getProperty(this, "linkTask").as(TaskProvider.class).get();
+			return (TaskProvider<LinkSharedLibrary>) ModelElements.of(this).element("link", LinkSharedLibrary.class).asProvider();
 		}
 
 		@Override

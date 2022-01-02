@@ -170,7 +170,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 							runtimeLibraries.configure(configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class)));
 						}
 					}));
-					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sharedLibrary"), ModelNodes.of(sharedLibrary)));
 					val sharedLibraryTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(identifier, "sharedLibrary"), Task.class).build());
 					sharedLibraryTask.configure(Task.class, configureBuildGroup());
 					sharedLibraryTask.configure(Task.class, configureDescription("Assembles the shared library binary of %s.", identifier.getDisplayName()));
@@ -221,7 +220,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 						}
 					});
 					entity.addComponent(new AssembleTask(ModelNodes.of(assembleTask)));
-					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "assembleTask"), ModelNodes.of(assembleTask)));
 
 					val nativeRuntimeFiles = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createFileCollectionProperty(ModelPropertyIdentifier.of(identifier, "nativeRuntimeFiles")));
 					nativeRuntimeFiles.configure(ConfigurableFileCollection.class, files -> files.from(sharedLibrary.as(SharedLibraryBinary.class).flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile)));
@@ -240,8 +238,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 						});
 					});
 					entity.addComponent(new JniJarArtifact(ModelNodes.of(jniJar)));
-
-					registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "javaNativeInterfaceJar"), ModelNodes.of(jniJar)));
 
 					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).map(noOpTransformer())));
 

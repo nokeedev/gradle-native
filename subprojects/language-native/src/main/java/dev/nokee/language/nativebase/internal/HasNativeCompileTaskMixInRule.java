@@ -22,8 +22,10 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -72,7 +74,6 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 		compileTask.configure(implementationType, configureDestinationDirectory(convention(forObjects(knownObject.getIdentifier()))));
 		compileTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
 		compileTask.configure(implementationType, configureObjectFiles(from(objectFilesInDestinationDirectory())));
-		registry.register(propertyRegistrationFactory.create(ModelPropertyIdentifier.of(knownObject.getIdentifier(), "compileTask"), ModelNodes.of(compileTask)));
 		entity.addComponent(new NativeCompileTask(compileTask));
 	}
 
