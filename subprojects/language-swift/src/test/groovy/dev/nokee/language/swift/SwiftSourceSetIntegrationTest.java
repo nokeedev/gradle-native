@@ -19,11 +19,7 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.testers.HasConfigurableSourceTester;
-import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableSourceIntegrationTester;
-import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
-import dev.nokee.language.base.testers.LanguageSourceSetTester;
-import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableCompileTaskIntegrationTester;
+import dev.nokee.language.base.testers.*;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
@@ -63,6 +59,7 @@ import static org.hamcrest.Matchers.*;
 class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester
 	, HasPublicTypeTester<SwiftSourceSet>
 	, HasConfigurableSourceTester
+	, HasCompileTaskTester
 	, LanguageSourceSetHasBuildableSourceIntegrationTester<SwiftSourceSetSpec>
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<SwiftSourceSetSpec>
 {
@@ -89,7 +86,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	}
 
 	@Test
-	void hasSwiftCompileTask() {
+	public void hasCompileTask() {
 		assertThat(subject.getCompileTask(), providerOf(isA(SwiftCompile.class)));
 	}
 
