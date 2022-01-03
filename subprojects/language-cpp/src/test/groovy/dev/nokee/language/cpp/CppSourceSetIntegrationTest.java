@@ -25,6 +25,7 @@ import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.*;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
@@ -55,31 +56,31 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<CppSourceSetSpec>
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<CppSourceSetSpec>
 {
-	private CppSourceSetSpec subject;
+	private DomainObjectProvider<CppSourceSetSpec> subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "zomi"))).as(CppSourceSetSpec.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "zomi"))).as(CppSourceSetSpec.class);
 	}
 
 	@Override
 	public CppSourceSetSpec subject() {
-		return subject;
+		return subject.get();
 	}
 
 	@Test
 	public void hasName() {
-		assertThat(subject, named("zomi"));
+		assertThat(subject(), named("zomi"));
 	}
 
 	@Test
 	void hasToString() {
-		assertThat(subject, Matchers.hasToString("C++ sources 'zomi'"));
+		assertThat(subject(), Matchers.hasToString("C++ sources 'zomi'"));
 	}
 
 	@Test
 	public void hasCompileTask() {
-		assertThat(subject.getCompileTask(), providerOf(isA(CppCompile.class)));
+		assertThat(subject().getCompileTask(), providerOf(isA(CppCompile.class)));
 	}
 
 	@Nested
@@ -91,7 +92,7 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 
 		@Override
 		public CppSourceSet subject() {
-			return subject;
+			return subject.get();
 		}
 
 		@Override

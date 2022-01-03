@@ -25,6 +25,7 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistr
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
@@ -55,31 +56,31 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<ObjectiveCSourceSetSpec>
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<ObjectiveCSourceSetSpec>
 {
-	private ObjectiveCSourceSetSpec subject;
+	private DomainObjectProvider<ObjectiveCSourceSetSpec> subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gote"))).as(ObjectiveCSourceSetSpec.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gote"))).as(ObjectiveCSourceSetSpec.class);
 	}
 
 	@Override
 	public ObjectiveCSourceSetSpec subject() {
-		return subject;
+		return subject.get();
 	}
 
 	@Test
 	public void hasName() {
-		assertThat(subject, named("gote"));
+		assertThat(subject(), named("gote"));
 	}
 
 	@Test
 	void hasToString() {
-		assertThat(subject, Matchers.hasToString("Objective-C sources 'gote'"));
+		assertThat(subject(), Matchers.hasToString("Objective-C sources 'gote'"));
 	}
 
 	@Test
 	public void hasCompileTask() {
-		assertThat(subject.getCompileTask(), providerOf(isA(ObjectiveCCompile.class)));
+		assertThat(subject().getCompileTask(), providerOf(isA(ObjectiveCCompile.class)));
 	}
 
 	@Nested
@@ -91,7 +92,7 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 
 		@Override
 		public ObjectiveCSourceSet subject() {
-			return subject;
+			return subject.get();
 		}
 
 		@Override

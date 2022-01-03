@@ -20,14 +20,13 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.*;
-import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
-import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
-import dev.nokee.language.nativebase.NativeCompileTaskTester;
+import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
@@ -67,31 +66,31 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<SwiftSourceSetSpec>
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<SwiftSourceSetSpec>
 {
-	private SwiftSourceSetSpec subject;
+	private DomainObjectProvider<SwiftSourceSetSpec> subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSetSpec.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSetSpec.class);
 	}
 
 	@Override
 	public SwiftSourceSetSpec subject() {
-		return subject;
+		return subject.get();
 	}
 
 	@Test
 	public void hasName() {
-		assertThat(subject, named("riku"));
+		assertThat(subject(), named("riku"));
 	}
 
 	@Test
 	void hasToString() {
-		assertThat(subject, Matchers.hasToString("Swift sources 'riku'"));
+		assertThat(subject(), Matchers.hasToString("Swift sources 'riku'"));
 	}
 
 	@Test
 	public void hasCompileTask() {
-		assertThat(subject.getCompileTask(), providerOf(isA(SwiftCompile.class)));
+		assertThat(subject().getCompileTask(), providerOf(isA(SwiftCompile.class)));
 	}
 
 	@Nested

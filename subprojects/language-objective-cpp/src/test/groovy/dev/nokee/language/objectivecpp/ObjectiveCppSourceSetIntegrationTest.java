@@ -25,6 +25,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetReg
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
@@ -55,31 +56,31 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest implements
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<ObjectiveCppSourceSetSpec>
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<ObjectiveCppSourceSetSpec>
 {
-	private ObjectiveCppSourceSetSpec subject;
+	private DomainObjectProvider<ObjectiveCppSourceSetSpec> subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "suhu"))).as(ObjectiveCppSourceSetSpec.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "suhu"))).as(ObjectiveCppSourceSetSpec.class);
 	}
 
 	@Override
 	public ObjectiveCppSourceSetSpec subject() {
-		return subject;
+		return subject.get();
 	}
 
 	@Test
 	public void hasName() {
-		assertThat(subject, named("suhu"));
+		assertThat(subject(), named("suhu"));
 	}
 
 	@Test
 	void hasToString() {
-		assertThat(subject, Matchers.hasToString("Objective-C++ sources 'suhu'"));
+		assertThat(subject(), Matchers.hasToString("Objective-C++ sources 'suhu'"));
 	}
 
 	@Test
 	public void hasCompileTask() {
-		assertThat(subject.getCompileTask(), providerOf(isA(ObjectiveCppCompile.class)));
+		assertThat(subject().getCompileTask(), providerOf(isA(ObjectiveCppCompile.class)));
 	}
 
 	@Nested
@@ -91,7 +92,7 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest implements
 
 		@Override
 		public ObjectiveCppSourceSet subject() {
-			return subject;
+			return subject.get();
 		}
 
 		@Override
