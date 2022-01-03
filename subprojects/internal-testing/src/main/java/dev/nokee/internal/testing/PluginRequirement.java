@@ -15,25 +15,15 @@
  */
 package dev.nokee.internal.testing;
 
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.platform.commons.util.AnnotationUtils;
-import org.junit.platform.commons.util.ReflectionUtils;
 
 import java.lang.annotation.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.stream.Stream;
 
 public final class PluginRequirement {
 	@Target({ElementType.TYPE, ElementType.METHOD})
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
-	@ExtendWith(Extension.class)
 	@Repeatable(Requires.class)
 	public @interface Require {
 		Class<? extends Plugin<? extends Project>> type() default NONE.class;
@@ -47,36 +37,5 @@ public final class PluginRequirement {
 	@Inherited
 	public @interface Requires {
 		Require[] value();
-	}
-
-	static final class Extension implements BeforeEachCallback {
-		@Override
-		public void beforeEach(ExtensionContext context) throws Exception {
-			AnnotationUtils.findRepeatableAnnotations(context.getElement(), PluginRequirement.Require.class).forEach(it -> applyPlugin(context, it));
-			val allInstances = new ArrayList<>(context.getRequiredTestInstances().getAllInstances());
-			Collections.reverse(allInstances);
-			for (Object testInstance : allInstances) {
-				AnnotationUtils.findRepeatableAnnotations(testInstance.getClass(), PluginRequirement.Require.class).forEach(it -> applyPlugin(context, it));
-			}
-		}
-
-		private void applyPlugin(ExtensionContext context, Require require) {
-			val project = (Project) context.getRequiredTestInstances().getAllInstances().stream().flatMap(it -> {
-				val method = ReflectionUtils.findMethod(it.getClass(), "project");
-				if (method.isPresent()) {
-					return Stream.of(ReflectionUtils.invokeMethod(method.get(), it));
-				} else {
-					return Stream.empty();
-				}
-			}).findFirst().orElseThrow(RuntimeException::new);
-
-			if (!require.id().isEmpty()) {
-				System.out.println("Applying plugin " + require.id());
-				project.getPluginManager().apply(require.id());
-			} else {
-				System.out.println("Applying plugin " + require.type());
-				project.getPluginManager().apply(require.type());
-			}
-		}
 	}
 }
