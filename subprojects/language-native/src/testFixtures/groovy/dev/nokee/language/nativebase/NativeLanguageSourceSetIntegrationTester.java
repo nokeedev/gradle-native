@@ -91,11 +91,6 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 		}
 
 		@Test
-		void enablesPositionIndependentCodeByDefault() {
-			assertThat(((AbstractNativeCompileTask) subject()).isPositionIndependentCode(), is(true));
-		}
-
-		@Test
 		void linksHeaderSourcePathsConfigurationToCompileTaskIncludes() throws IOException {
 			val hdrs = Files.createTempDirectory("hdrs").toFile();
 			headerSearchPaths().getDependencies().add(createDependency(objectFactory().fileCollection().from(hdrs)));

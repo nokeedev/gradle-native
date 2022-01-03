@@ -31,6 +31,7 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.objective-c-language-base")
 class ObjectiveCCompileTaskIntegrationTest extends AbstractPluginTest implements ObjectiveCCompileTester {
@@ -56,5 +57,10 @@ class ObjectiveCCompileTaskIntegrationTest extends AbstractPluginTest implements
 	@Test
 	void hasDescription() {
 		assertThat(subject, TaskMatchers.description("Compiles the sources ':gugo'."));
+	}
+
+	@Test
+	void enablesPositionIndependentCodeByDefault() {
+		assertThat(subject.isPositionIndependentCode(), is(true));
 	}
 }
