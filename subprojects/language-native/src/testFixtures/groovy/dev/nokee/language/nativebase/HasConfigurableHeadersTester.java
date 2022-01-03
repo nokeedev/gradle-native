@@ -27,6 +27,6 @@ public interface HasConfigurableHeadersTester {
 
 	@Test
 	default void hasHeaders() {
-		assertThat(subject(), isA(ConfigurableSourceSet.class));
+		assertThat(subject().getHeaders(), isA(ConfigurableSourceSet.class));
 	}
 }
