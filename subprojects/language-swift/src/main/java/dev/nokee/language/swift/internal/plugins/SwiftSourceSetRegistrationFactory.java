@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 
@@ -26,13 +25,9 @@ public final class SwiftSourceSetRegistrationFactory {
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
 		if (isLegacy) {
-			return ModelRegistration.managedBuilder(identifier, LegacySwiftSourceSet.class)
-				.withComponent(IsLanguageSourceSet.tag())
-				.build();
+			return ModelRegistration.managedBuilder(identifier, LegacySwiftSourceSet.class).build();
 		} else {
-			return ModelRegistration.managedBuilder(identifier, SwiftSourceSetSpec.class)
-				.withComponent(IsLanguageSourceSet.tag())
-				.build();
+			return ModelRegistration.managedBuilder(identifier, SwiftSourceSetSpec.class).build();
 		}
 	}
 }
