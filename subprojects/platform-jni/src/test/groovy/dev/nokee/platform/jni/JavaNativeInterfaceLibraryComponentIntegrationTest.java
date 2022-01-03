@@ -71,6 +71,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
+@PluginRequirement.Require(type = CLanguageBasePlugin.class)
+@PluginRequirement.Require(type = JvmLanguageBasePlugin.class)
 class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginTest implements ComponentTester<JavaNativeInterfaceLibrary>
 	, DependencyAwareComponentTester<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
@@ -84,8 +86,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 	@BeforeEach
 	void createSubject() {
-		project.getPluginManager().apply(CLanguageBasePlugin.class);
-		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of("quzu")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("JNI library component").build();
 		this.subject = project.getExtensions().getByType(ModelRegistry.class).register(factory.create(identifier)).as(JavaNativeInterfaceLibrary.class).get();

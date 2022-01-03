@@ -34,12 +34,12 @@ import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(id = "dev.nokee.c-language-base")
+@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 class CSourceSetIntegrationTest extends AbstractPluginTest {
 	private CSourceSet subject;
 
 	@BeforeEach
 	void createSubject() {
-		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"))).as(CSourceSet.class).get();
 	}
 

@@ -60,12 +60,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
+@PluginRequirement.Require(id = "java")
 class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends AbstractPluginTest {
 	private JavaNativeInterfaceLibrary subject;
 
 	@BeforeEach
 	void createSubject() {
-		project.getPluginManager().apply("java");
 		val identifier = ComponentIdentifier.of("qezu", ProjectIdentifier.ofRootProject());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);

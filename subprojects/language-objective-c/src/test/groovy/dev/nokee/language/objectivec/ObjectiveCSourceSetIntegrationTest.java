@@ -34,12 +34,12 @@ import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(id = "dev.nokee.objective-c-language-base")
+@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest {
 	private ObjectiveCSourceSet subject;
 
 	@BeforeEach
 	void createSubject() {
-		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gote"))).as(ObjectiveCSourceSet.class).get();
 	}
 
