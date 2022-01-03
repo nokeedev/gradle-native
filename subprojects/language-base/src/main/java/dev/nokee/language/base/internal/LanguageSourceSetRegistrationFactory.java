@@ -54,7 +54,6 @@ public final class LanguageSourceSetRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(toPath(identifier))
-			.withComponent(IsLanguageSourceSet.tag())
 			.action(sourcePropertyAction);
 	}
 }

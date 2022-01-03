@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.objectivecpp.internal.plugins;
 
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 
@@ -26,13 +25,9 @@ public final class ObjectiveCppSourceSetRegistrationFactory {
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
 		if (isLegacy) {
-			return ModelRegistration.managedBuilder(identifier, LegacyObjectiveCppSourceSet.class)
-				.withComponent(IsLanguageSourceSet.tag())
-				.build();
+			return ModelRegistration.managedBuilder(identifier, LegacyObjectiveCppSourceSet.class).build();
 		} else {
-			return ModelRegistration.managedBuilder(identifier, ObjectiveCppSourceSetSpec.class)
-				.withComponent(IsLanguageSourceSet.tag())
-				.build();
+			return ModelRegistration.managedBuilder(identifier, ObjectiveCppSourceSetSpec.class).build();
 		}
 	}
 }

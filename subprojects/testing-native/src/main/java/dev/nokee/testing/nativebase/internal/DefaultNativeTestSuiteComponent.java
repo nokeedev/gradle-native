@@ -224,9 +224,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					val identifier = getNode().getComponent(ComponentIdentifier.class);
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, "headers"), sourceSetType).withComponent(IsLanguageSourceSet.tag()).build());
+						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, "headers"), sourceSetType).build());
 					} else {
-						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, entity.getComponent(LanguageSourceSetIdentifier.class).getName().toString()), sourceSetType).withComponent(IsLanguageSourceSet.tag()).build());
+						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, entity.getComponent(LanguageSourceSetIdentifier.class).getName().toString()), sourceSetType).build());
 					}
 				}
 			}));

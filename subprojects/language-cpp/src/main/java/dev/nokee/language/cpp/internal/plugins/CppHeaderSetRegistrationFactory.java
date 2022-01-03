@@ -15,14 +15,11 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 
 public final class CppHeaderSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return ModelRegistration.managedBuilder(identifier, DefaultCppHeaderSet.class)
-			.withComponent(IsLanguageSourceSet.tag())
-			.build();
+		return ModelRegistration.managedBuilder(identifier, DefaultCppHeaderSet.class).build();
 	}
 }
