@@ -25,6 +25,7 @@ import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.HasConfigurableHeadersTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasBuildableHeadersIntegrationTester;
+import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -53,6 +54,7 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 	, LanguageSourceSetHasBuildableSourceIntegrationTester<CSourceSetSpec>
 	, LanguageSourceSetHasBuildableHeadersIntegrationTester<CSourceSetSpec>
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<CSourceSetSpec>
+	, LanguageSourceSetHasCompiledSourceIntegrationTester<CSourceSetSpec>
 {
 	private CSourceSetSpec subject;
 

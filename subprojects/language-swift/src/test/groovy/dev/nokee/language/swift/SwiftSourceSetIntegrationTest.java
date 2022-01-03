@@ -20,6 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.*;
+import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
@@ -62,6 +63,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	, HasCompileTaskTester
 	, LanguageSourceSetHasBuildableSourceIntegrationTester<SwiftSourceSetSpec>
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<SwiftSourceSetSpec>
+	, LanguageSourceSetHasCompiledSourceIntegrationTester<SwiftSourceSetSpec>
 {
 	private SwiftSourceSetSpec subject;
 
@@ -91,15 +93,10 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	}
 
 	@Nested
-	class SourceSetTest extends LanguageSourceSetIntegrationTester<SwiftSourceSet> {
+	class SourceSetTest {
 		@BeforeEach
 		public void configureTargetPlatform() {
 			((SwiftCompileTask) project.getTasks().getByName("compileRiku")).getTargetPlatform().set(create(of("macos-x64")));
-		}
-
-		@Override
-		public SwiftSourceSet subject() {
-			return subject;
 		}
 
 		public String variantName() {
