@@ -17,11 +17,11 @@ package dev.nokee.language.cpp;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.*;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
-import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.*;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -29,17 +29,12 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
@@ -58,11 +53,10 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<CppSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<CppSourceSetSpec>
 {
-	private DomainObjectProvider<CppSourceSetSpec> subject;
+	@Subject DomainObjectProvider<CppSourceSetSpec> subject;
 
-	@BeforeEach
-	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "zomi"))).as(CppSourceSetSpec.class);
+	DomainObjectProvider<CppSourceSetSpec> createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "zomi"))).as(CppSourceSetSpec.class);
 	}
 
 	@Override
@@ -88,28 +82,5 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 	@Test
 	public void hasCompileTask() {
 		assertThat(subject().getCompileTask(), providerOf(isA(CppCompile.class)));
-	}
-
-	@Nested
-	class SourceSetTest extends NativeLanguageSourceSetIntegrationTester<CppSourceSet> {
-		@BeforeEach
-		public void configureTargetPlatform() {
-			((CppCompileTask) project.getTasks().getByName("compileZomi")).getTargetPlatform().set(create(of("macos-x64")));
-		}
-
-		@Override
-		public CppSourceSet subject() {
-			return subject.get();
-		}
-
-		@Override
-		public Project project() {
-			return project;
-		}
-
-		@Override
-		public String variantName() {
-			return "zomi";
-		}
 	}
 }

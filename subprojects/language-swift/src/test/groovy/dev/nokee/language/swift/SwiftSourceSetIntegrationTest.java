@@ -17,6 +17,7 @@ package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.*;
@@ -25,20 +26,17 @@ import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrati
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.SwiftCompile;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -66,11 +64,15 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<SwiftSourceSetSpec>
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<SwiftSourceSetSpec>
 {
-	private DomainObjectProvider<SwiftSourceSetSpec> subject;
+	@Subject DomainObjectProvider<SwiftSourceSetSpec> subject;
+
+	DomainObjectProvider<SwiftSourceSetSpec> createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSetSpec.class);
+	}
 
 	@BeforeEach
-	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSetSpec.class);
+	public void configureTargetPlatform() {
+		subject().getCompileTask().get().getTargetPlatform().set(create(of("macos-x64")));
 	}
 
 	@Override
@@ -97,22 +99,6 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 		assertThat(subject().getCompileTask(), providerOf(isA(SwiftCompile.class)));
 	}
 
-	@Nested
-	class SourceSetTest {
-		@BeforeEach
-		public void configureTargetPlatform() {
-			((SwiftCompileTask) project.getTasks().getByName("compileRiku")).getTargetPlatform().set(create(of("macos-x64")));
-		}
-
-		public String variantName() {
-			return "riku";
-		}
-
-		public String name() {
-			return "riku";
-		}
-	}
-
 	@Test
 	void linksImportModulesConfigurationToCompileTaskModules() throws IOException {
 		val module = Files.createTempDirectory("Foo.swiftmodule").toFile();
@@ -121,7 +107,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	}
 
 	@Test
-	void linksHeaderSourcePathsConfigurationToCompileTaskAsFrameworkCompileArguments() throws IOException {
+	void linksImportModulesConfigurationToCompileTaskAsFrameworkCompileArguments() throws IOException {
 		val artifact = Files.createTempDirectory("Sifo.framework").toFile();
 		val frameworkProducer = ProjectTestUtils.createChildProject(project());
 		frameworkProducer.getConfigurations().create("apiElements",

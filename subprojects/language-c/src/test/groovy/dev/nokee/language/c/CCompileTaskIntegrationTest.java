@@ -18,6 +18,7 @@ package dev.nokee.language.c;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
@@ -36,21 +37,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.c-language-base")
+@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 class CCompileTaskIntegrationTest extends AbstractPluginTest implements CCompileTester
 	, NativeCompileTaskTester
 	, NativeCompileTaskObjectFilesTester<CCompileTask>
 {
-	private CCompileTask subject;
+	@Subject CCompileTask subject;
 
 	@Override
 	public CCompileTask subject() {
 		return subject;
 	}
 
+	CCompileTask createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "mufa"))).element("compile", CCompileTask.class).get();
+	}
+
 	@BeforeEach
-	void createSubject() {
-		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "mufa"))).element("compile", CCompileTask.class).get();
+	void configureTargetPlatform() {
 		subject.getTargetPlatform().set(create(of("macos-x64")));
 	}
 

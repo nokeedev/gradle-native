@@ -18,6 +18,7 @@ package dev.nokee.language.swift;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
@@ -45,17 +46,20 @@ class SwiftCompileTaskIntegrationTest extends AbstractPluginTest implements Swif
 	, NativeCompileTaskTester
 	, NativeCompileTaskObjectFilesTester<SwiftCompileTask>
 {
-	private SwiftCompileTask subject;
+	@Subject SwiftCompileTask subject;
 
 	@Override
 	public SwiftCompileTask subject() {
 		return subject;
 	}
 
-	@BeforeEach
-	void createSubject() {
+	SwiftCompileTask createSubject() {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "rubi"))).element("compile", SwiftCompileTask.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "rubi"))).element("compile", SwiftCompileTask.class).get();
+	}
+
+	@BeforeEach
+	void configureTargetPlatform() {
 		subject.getTargetPlatform().set(create(of("macos-x64")));
 	}
 

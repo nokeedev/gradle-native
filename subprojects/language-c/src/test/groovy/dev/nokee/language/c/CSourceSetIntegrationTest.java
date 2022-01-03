@@ -17,11 +17,11 @@ package dev.nokee.language.c;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.*;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
-import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.*;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -29,17 +29,12 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
@@ -58,11 +53,10 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<CSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<CSourceSetSpec>
 {
-	private DomainObjectProvider<CSourceSetSpec> subject;
+	@Subject DomainObjectProvider<CSourceSetSpec> subject;
 
-	@BeforeEach
-	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"))).as(CSourceSetSpec.class);
+	DomainObjectProvider<CSourceSetSpec> createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"))).as(CSourceSetSpec.class);
 	}
 
 	@Override
@@ -88,28 +82,5 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 	@Test
 	public void hasCompileTask() {
 		assertThat(subject().getCompileTask(), providerOf(isA(CCompile.class)));
-	}
-
-	@Nested
-	class SourceSetTest extends NativeLanguageSourceSetIntegrationTester<CSourceSet> {
-		@BeforeEach
-		public void configureTargetPlatform() {
-			((CCompileTask) project.getTasks().getByName("compileNopu")).getTargetPlatform().set(create(of("macos-x64")));
-		}
-
-		@Override
-		public CSourceSet subject() {
-			return subject.get();
-		}
-
-		@Override
-		public Project project() {
-			return project;
-		}
-
-		@Override
-		public String variantName() {
-			return "nopu";
-		}
 	}
 }
