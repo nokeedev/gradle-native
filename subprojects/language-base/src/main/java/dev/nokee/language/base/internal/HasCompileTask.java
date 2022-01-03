@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.nativebase.internal;
+package dev.nokee.language.base.internal;
 
-import dev.nokee.language.base.internal.HasCompileTask;
-import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.model.internal.core.ModelElements;
+import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-public interface HasNativeCompileTaskMixIn<T extends SourceCompile> extends HasCompileTask {
-	default TaskProvider<T> getCompileTask() {
-		return (TaskProvider<T>) ModelElements.of(this).element("compile", SourceCompile.class).asProvider();
-	}
+public interface HasCompileTask {
+	TaskProvider<? extends Task> getCompileTask();
 }
