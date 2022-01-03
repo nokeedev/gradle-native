@@ -18,7 +18,6 @@ package dev.nokee.language.nativebase;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.testers.ConfigurableSourceSetIntegrationTester;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelElements;
@@ -29,11 +28,9 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
-import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Set;
@@ -121,19 +118,6 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 			assertThat(subject().getCompilerArgs(), providerOf(containsInRelativeOrder(
 				"-F", artifact.getParentFile().getAbsolutePath()
 				)));
-		}
-	}
-
-	@Nested
-	class HeadersPropertyTest extends ConfigurableSourceSetIntegrationTester {
-		@Override
-		public ConfigurableSourceSet subject() {
-			return headers();
-		}
-
-		@Override
-		public File getTemporaryDirectory() throws IOException {
-			return Files.createDirectories(project().getProjectDir().toPath()).toFile();
 		}
 	}
 }

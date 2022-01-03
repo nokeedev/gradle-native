@@ -27,7 +27,6 @@ import org.gradle.api.Task;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Set;
@@ -72,19 +71,6 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 		val buildTask = project().getTasks().create("buildSomeSources");
 		source().from(project().getObjects().fileCollection().from("foo.txt").builtBy(buildTask));
 		assertThat((Set<Task>) subject().getBuildDependencies().getDependencies(anyTask), hasItem(buildTask));
-	}
-
-	@Nested
-	class SourcePropertyTest extends ConfigurableSourceSetIntegrationTester {
-		@Override
-		public ConfigurableSourceSet subject() {
-			return source();
-		}
-
-		@Override
-		public File getTemporaryDirectory() throws IOException {
-			return Files.createDirectories(project().getProjectDir().toPath()).toFile();
-		}
 	}
 
 	@Nested
