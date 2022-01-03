@@ -132,16 +132,6 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 			}
 
 			@Test
-			void disablesDebuggableByDefault() {
-				assertThat(subject().getDebuggable().value((Boolean) null), providerOf(false));
-			}
-
-			@Test
-			void disablesOptimizationByDefault() {
-				assertThat(subject().getOptimized().value((Boolean) null), providerOf(false));
-			}
-
-			@Test
 			void linksImportModulesConfigurationToCompileTaskModules() throws IOException {
 				val module = Files.createTempDirectory("Foo.swiftmodule").toFile();
 				importModules().getDependencies().add(createDependency(objectFactory().fileCollection().from(module)));

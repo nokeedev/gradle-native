@@ -65,6 +65,16 @@ class SwiftCompileTaskIntegrationTest extends AbstractPluginTest implements Swif
 	}
 
 	@Test
+	void disablesDebuggableByDefault() {
+		assertThat(subject().getDebuggable().value((Boolean) null), providerOf(false));
+	}
+
+	@Test
+	void disablesOptimizationByDefault() {
+		assertThat(subject().getOptimized().value((Boolean) null), providerOf(false));
+	}
+
+	@Test
 	void defaultsModuleNameToSourceSetName() {
 		assertThat(subject().getModuleName(), providerOf("Rubi"));
 	}
