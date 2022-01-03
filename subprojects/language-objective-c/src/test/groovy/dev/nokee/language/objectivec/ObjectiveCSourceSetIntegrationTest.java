@@ -29,6 +29,7 @@ import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.testers.HasPublicTypeTester;
 import org.gradle.api.Project;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,11 @@ import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.objective-c-language-base")
 @PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester, HasConfigurableSourceTester, HasConfigurableHeadersTester {
+class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester
+	, HasPublicTypeTester<ObjectiveCSourceSet>
+	, HasConfigurableSourceTester
+	, HasConfigurableHeadersTester
+{
 	private ObjectiveCSourceSetSpec subject;
 
 	@BeforeEach

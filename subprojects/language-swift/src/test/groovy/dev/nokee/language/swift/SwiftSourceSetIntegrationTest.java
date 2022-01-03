@@ -30,6 +30,7 @@ import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.testers.HasPublicTypeTester;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
@@ -58,7 +59,10 @@ import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
 @PluginRequirement.Require(type = SwiftCompilerPlugin.class)
-class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester, HasConfigurableSourceTester {
+class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester
+	, HasPublicTypeTester<SwiftSourceSet>
+	, HasConfigurableSourceTester
+{
 	private SwiftSourceSetSpec subject;
 
 	@BeforeEach

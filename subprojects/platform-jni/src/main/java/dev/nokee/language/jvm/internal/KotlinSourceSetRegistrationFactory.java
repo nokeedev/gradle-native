@@ -21,7 +21,6 @@ import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
-import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
@@ -40,6 +39,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Namer;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 
@@ -96,7 +97,7 @@ public final class KotlinSourceSetRegistrationFactory {
 		}
 	}
 
-	public static class DefaultKotlinSourceSet implements KotlinSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet> {
+	public static class DefaultKotlinSourceSet implements KotlinSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet> {
 		public ConfigurableSourceSet getSource() {
 			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
 		}
@@ -104,6 +105,11 @@ public final class KotlinSourceSetRegistrationFactory {
 		@Override
 		public TaskDependency getBuildDependencies() {
 			return getSource().getBuildDependencies();
+		}
+
+		@Override
+		public TypeOf<?> getPublicType() {
+			return TypeOf.typeOf(KotlinSourceSet.class);
 		}
 	}
 }

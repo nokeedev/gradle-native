@@ -18,12 +18,19 @@ package dev.nokee.language.swift.internal.plugins;
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
-public class LegacySwiftSourceSet implements SwiftSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn {
+public class LegacySwiftSourceSet implements SwiftSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();
+	}
+
+	@Override
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(SwiftSourceSet.class);
 	}
 
 	@Override

@@ -21,7 +21,6 @@ import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
-import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
@@ -37,6 +36,8 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Namer;
 import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
@@ -90,7 +91,7 @@ public final class JavaSourceSetRegistrationFactory {
 		return sourceSet.getJava();
 	}
 
-	public static class DefaultJavaSourceSet implements JavaSourceSet, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet> {
+	public static class DefaultJavaSourceSet implements JavaSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet> {
 		public ConfigurableSourceSet getSource() {
 			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
 		}
@@ -102,6 +103,11 @@ public final class JavaSourceSetRegistrationFactory {
 		@Override
 		public TaskDependency getBuildDependencies() {
 			return TaskDependencyUtils.composite(getSource().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
+		}
+
+		@Override
+		public TypeOf<?> getPublicType() {
+			return TypeOf.typeOf(JavaSourceSet.class);
 		}
 	}
 }
