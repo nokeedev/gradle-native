@@ -36,6 +36,7 @@ import static dev.nokee.testing.xctest.internal.plugins.ObjectiveCXCTestTestSuit
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
+@PluginRequirement.Require(type = ObjectiveCLanguageBasePlugin.class)
 class UnitTestXCTestTestSuiteComponentTest extends AbstractPluginTest implements ComponentTester<DefaultUnitTestXCTestTestSuiteComponent>
 	, DependencyAwareComponentTester<NativeComponentDependencies>
 {
@@ -43,7 +44,6 @@ class UnitTestXCTestTestSuiteComponentTest extends AbstractPluginTest implements
 
 	@BeforeEach
 	void createSubject() {
-		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(unitTestXCTestTestSuite("vodo", project)).as(DefaultUnitTestXCTestTestSuiteComponent.class).get();
 	}
 

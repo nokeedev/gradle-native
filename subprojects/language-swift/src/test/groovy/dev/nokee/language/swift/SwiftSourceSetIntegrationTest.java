@@ -40,12 +40,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
+@PluginRequirement.Require(type = SwiftCompilerPlugin.class)
 class SwiftSourceSetIntegrationTest extends AbstractPluginTest {
 	private SwiftSourceSet subject;
 
 	@BeforeEach
 	void createSubject() {
-		project.getPluginManager().apply(SwiftCompilerPlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSet.class).get();
 	}
 

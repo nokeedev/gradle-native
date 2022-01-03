@@ -48,12 +48,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
+@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
 class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest extends AbstractPluginTest {
 	private JniLibrary subject;
 
 	@BeforeEach
 	void createSubject() {
-		project.getPluginManager().apply("dev.nokee.objective-c-language");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("veda", ProjectIdentifier.of(project));
 		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).withComponent(toPath(componentIdentifier)).build());

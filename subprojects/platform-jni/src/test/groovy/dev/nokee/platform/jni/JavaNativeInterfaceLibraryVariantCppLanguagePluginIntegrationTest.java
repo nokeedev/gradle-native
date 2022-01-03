@@ -48,12 +48,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
+@PluginRequirement.Require(id = "dev.nokee.cpp-language")
 class JavaNativeInterfaceLibraryVariantCppLanguagePluginIntegrationTest extends AbstractPluginTest {
 	private JniLibrary subject;
 
 	@BeforeEach
 	void createSubject() {
-		project.getPluginManager().apply("dev.nokee.cpp-language");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("difi", ProjectIdentifier.of(project));
 		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).withComponent(toPath(componentIdentifier)).build());

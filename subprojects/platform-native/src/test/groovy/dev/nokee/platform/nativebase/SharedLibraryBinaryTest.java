@@ -147,22 +147,22 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		@NativeServicesInitializedOnWindows
 		class BuildableTest {
 			@Test
+			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 			void isBuildableIfLinkTaskBuildable() {
-				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				linkTask().getTargetPlatform().set(create(host()));
 				assertThat(subject().isBuildable(), is(true));
 			}
 
 			@Test
+			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 			void isNotBuildableIfLinkTaskNotBuildable() {
-				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				linkTask().getTargetPlatform().set(create(of("unknown-unknown")));
 				assertThat(subject().isBuildable(), is(false));
 			}
 
 			@Test
+			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 			void isBuildableIfAllCompileTasksAreBuildable() {
-				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
 
 				linkTask().getTargetPlatform().set(create(host()));
@@ -186,8 +186,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 			@Test
 			@DisabledOnOs(OS.WINDOWS)
+			@PluginRequirement.Require(type = SwiftCompilerPlugin.class)
 			void isBuildableIfSwiftCompileTasksAreBuildable() {
-				project.getPluginManager().apply(SwiftCompilerPlugin.class);
 				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
 
 				linkTask().getTargetPlatform().set(create(host()));
@@ -210,8 +210,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			}
 
 			@Test
+			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 			void isNotBuildableIfAnyCompileTasksAreNotBuildable() {
-				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
 				project.getExtensions().getByType(NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolchain -> {
 					// Ensure toolchain is known but not buildable
@@ -347,16 +347,16 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 			@Test
 			@NativeServicesInitializedOnWindows
+			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 			void hasImportLibraryOnWindows() {
-				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				subject().getTargetPlatform().set(windowsPlatform());
 				assertThat(subject().getImportLibrary(), presentProvider());
 			}
 
 			@Test
 			@NativeServicesInitializedOnWindows
+			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 			void usesDestinationDirectoryAsImportLibraryFileParentDirectory() {
-				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				subject().getTargetPlatform().set(windowsPlatform());
 				val newDestinationDirectory = project().file("some-new-destination-directory");
 				subject().getDestinationDirectory().set(newDestinationDirectory);
@@ -365,16 +365,16 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 
 			@Test
 			@NativeServicesInitializedOnWindows
+			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 			void doesNotHaveImportLibraryOnNonWindows() {
-				project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 				subject().getTargetPlatform().set(nixPlatform());
 				assertThat(subject().getImportLibrary(), absentProvider());
 			}
 
 			@Test
 			@EnabledOnOs(OS.MAC)
+			@PluginRequirement.Require(type = SwiftCompilerPlugin.class) // only for Swiftc, at the moment
 			void addsMacOsSdkPathToLinkerArguments() {
-				project().getPluginManager().apply(SwiftCompilerPlugin.class); // only for Swiftc, at the moment
 				subject().getTargetPlatform().set(macosPlatform());
 				assertThat(subject().getLinkerArgs(), providerOf(hasItem("-sdk")));
 			}
