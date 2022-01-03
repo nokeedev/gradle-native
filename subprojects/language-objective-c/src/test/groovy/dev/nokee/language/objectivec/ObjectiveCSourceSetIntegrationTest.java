@@ -53,6 +53,7 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<ObjectiveCSourceSetSpec>
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<ObjectiveCSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<ObjectiveCSourceSetSpec>
+	, LanguageSourceSetNativeCompileTaskIntegrationTester<ObjectiveCSourceSetSpec>
 {
 	private ObjectiveCSourceSetSpec subject;
 
@@ -96,11 +97,6 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 		@Override
 		public Project project() {
 			return project;
-		}
-
-		@Override
-		public String name() {
-			return "gote";
 		}
 
 		@Override

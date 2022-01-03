@@ -53,6 +53,7 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest implements
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<ObjectiveCppSourceSetSpec>
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<ObjectiveCppSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<ObjectiveCppSourceSetSpec>
+	, LanguageSourceSetNativeCompileTaskIntegrationTester<ObjectiveCppSourceSetSpec>
 {
 	private ObjectiveCppSourceSetSpec subject;
 
@@ -96,11 +97,6 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest implements
 		@Override
 		public Project project() {
 			return project;
-		}
-
-		@Override
-		public String name() {
-			return "suhu";
 		}
 
 		@Override

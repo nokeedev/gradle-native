@@ -16,11 +16,9 @@
 package dev.nokee.language.nativebase;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.core.ModelProperties;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -45,28 +43,16 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 
 	public abstract Project project();
 
-	public abstract String name();
-
 	public abstract String variantName();
 
 	private Configuration headerSearchPaths() {
 		return project().getConfigurations().getByName(variantName() + "HeaderSearchPaths");
 	}
 
-	private ConfigurableSourceSet headers() {
-		return ModelProperties.getProperty(subject(), "headers")
-			.as(ConfigurableSourceSet.class).get();
-	}
-
 	@Nested
-	class NativeCompileTaskTest implements NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<NativeSourceCompile> {
+	class NativeCompileTaskTest {
 		public NativeSourceCompile subject() {
 			return ModelElements.of(NativeLanguageSourceSetIntegrationTester.this.subject()).element("compile", NativeSourceCompile.class).get();
-		}
-
-		@Override
-		public String languageSourceSetName() {
-			return name();
 		}
 
 		@Test

@@ -53,6 +53,7 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<CSourceSetSpec>
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<CSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<CSourceSetSpec>
+	, LanguageSourceSetNativeCompileTaskIntegrationTester<CSourceSetSpec>
 {
 	private CSourceSetSpec subject;
 
@@ -96,11 +97,6 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 		@Override
 		public Project project() {
 			return project;
-		}
-
-		@Override
-		public String name() {
-			return "nopu";
 		}
 
 		@Override

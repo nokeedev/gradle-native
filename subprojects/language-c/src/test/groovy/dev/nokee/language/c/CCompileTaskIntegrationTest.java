@@ -21,6 +21,8 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
+import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -34,7 +36,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.c-language-base")
-class CCompileTaskIntegrationTest extends AbstractPluginTest implements CCompileTester {
+class CCompileTaskIntegrationTest extends AbstractPluginTest implements CCompileTester
+	, NativeCompileTaskTester
+	, NativeCompileTaskObjectFilesTester<CCompileTask>
+{
 	private CCompileTask subject;
 
 	@Override
