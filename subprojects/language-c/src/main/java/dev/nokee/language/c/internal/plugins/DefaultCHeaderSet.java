@@ -19,10 +19,11 @@ import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CHeaderSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
-public class DefaultCHeaderSet implements CHeaderSet, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet>, HasConfigurableSourceMixIn {
+public class DefaultCHeaderSet implements CHeaderSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TypeOf<?> getPublicType() {
 		return TypeOf.typeOf(CHeaderSet.class);
