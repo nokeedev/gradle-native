@@ -77,13 +77,6 @@ public abstract class NativeLanguageSourceSetIntegrationTester<T extends Languag
 		}
 
 		@Test
-		void includesSourceSetHeaderFilesInCompileTaskHeaders() throws IOException {
-			val path = Files.createTempDirectory("headers").toFile();
-			headers().from(path);
-			assertThat(subject().getHeaderSearchPaths(), providerOf(hasItem(aFile(path))));
-		}
-
-		@Test
 		void linksHeaderSourcePathsConfigurationToCompileTaskAsFrameworkCompileArguments() throws IOException {
 			val artifact = Files.createTempDirectory("Kuqo.framework").toFile();
 			val frameworkProducer = ProjectTestUtils.createChildProject(project());

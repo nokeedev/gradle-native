@@ -23,10 +23,7 @@ import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.cpp.tasks.CppCompile;
-import dev.nokee.language.nativebase.HasConfigurableHeadersTester;
-import dev.nokee.language.nativebase.LanguageSourceSetHasBuildableHeadersIntegrationTester;
-import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
-import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
+import dev.nokee.language.nativebase.*;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -55,6 +52,7 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 	, LanguageSourceSetHasBuildableHeadersIntegrationTester<CppSourceSetSpec>
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<CppSourceSetSpec>
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<CppSourceSetSpec>
+	, LanguageSourceSetHasCompiledHeadersIntegrationTester<CppSourceSetSpec>
 {
 	private CppSourceSetSpec subject;
 
