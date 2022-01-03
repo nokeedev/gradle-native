@@ -21,7 +21,6 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelProperties;
 import lombok.val;
-import org.gradle.api.Project;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +33,6 @@ import static org.hamcrest.Matchers.hasItem;
 
 public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourceSet> {
 	public abstract T subject();
-
-	public abstract Project project();
 
 	private ConfigurableSourceSet source() {
 		return ModelProperties.getProperty(subject(), "source").as(ConfigurableSourceSet.class).get();

@@ -33,7 +33,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
@@ -102,12 +101,6 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 			return subject;
 		}
 
-		@Override
-		public Project project() {
-			return project;
-		}
-
-		@Override
 		public String variantName() {
 			return "riku";
 		}
