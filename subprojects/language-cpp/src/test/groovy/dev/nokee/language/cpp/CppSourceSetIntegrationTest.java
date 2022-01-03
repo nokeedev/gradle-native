@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.HasConfigurableSourceTester;
+import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
@@ -42,7 +43,7 @@ import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.cpp-language-base")
 @PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-class CppSourceSetIntegrationTest extends AbstractPluginTest implements HasConfigurableSourceTester, HasConfigurableHeadersTester {
+class CppSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester, HasConfigurableSourceTester, HasConfigurableHeadersTester {
 	private CppSourceSetSpec subject;
 
 	@BeforeEach

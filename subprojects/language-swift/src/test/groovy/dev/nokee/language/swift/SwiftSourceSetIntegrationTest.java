@@ -21,6 +21,7 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.HasConfigurableSourceTester;
 import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
+import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
@@ -56,7 +57,7 @@ import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
 @PluginRequirement.Require(type = SwiftCompilerPlugin.class)
-class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements HasConfigurableSourceTester {
+class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester, HasConfigurableSourceTester {
 	private SwiftSourceSetSpec subject;
 
 	@BeforeEach
