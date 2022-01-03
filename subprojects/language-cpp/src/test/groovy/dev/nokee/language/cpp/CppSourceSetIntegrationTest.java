@@ -35,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
@@ -54,6 +55,11 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 	@Override
 	public CppSourceSetSpec subject() {
 		return subject;
+	}
+
+	@Test
+	public void hasName() {
+		assertThat(subject, named("zomi"));
 	}
 
 	@Test

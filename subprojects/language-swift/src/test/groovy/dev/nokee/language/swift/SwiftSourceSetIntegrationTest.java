@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -68,6 +69,11 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	@Override
 	public SwiftSourceSetSpec subject() {
 		return subject;
+	}
+
+	@Test
+	public void hasName() {
+		assertThat(subject, named("riku"));
 	}
 
 	@Test
