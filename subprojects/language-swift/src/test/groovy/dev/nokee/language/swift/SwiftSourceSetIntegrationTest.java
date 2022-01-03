@@ -20,6 +20,7 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.*;
+import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
@@ -64,6 +65,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	, LanguageSourceSetHasBuildableSourceIntegrationTester<SwiftSourceSetSpec>
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<SwiftSourceSetSpec>
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<SwiftSourceSetSpec>
+	, LanguageSourceSetNativeCompileTaskIntegrationTester<SwiftSourceSetSpec>
 {
 	private SwiftSourceSetSpec subject;
 
@@ -112,14 +114,9 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 		}
 
 		@Nested
-		class SwiftCompileTaskTest implements NativeCompileTaskTester, NativeCompileTaskObjectFilesTester<SwiftCompileTask> {
+		class SwiftCompileTaskTest {
 			public SwiftCompileTask subject() {
 				return (SwiftCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
-			}
-
-			@Override
-			public String languageSourceSetName() {
-				return name();
 			}
 
 			@Test

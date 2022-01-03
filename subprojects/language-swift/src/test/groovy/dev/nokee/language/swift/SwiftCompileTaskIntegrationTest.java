@@ -19,6 +19,8 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
+import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -39,7 +41,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
-class SwiftCompileTaskIntegrationTest extends AbstractPluginTest implements SwiftCompileTester {
+class SwiftCompileTaskIntegrationTest extends AbstractPluginTest implements SwiftCompileTester
+	, NativeCompileTaskTester
+	, NativeCompileTaskObjectFilesTester<SwiftCompileTask>
+{
 	private SwiftCompileTask subject;
 
 	@Override

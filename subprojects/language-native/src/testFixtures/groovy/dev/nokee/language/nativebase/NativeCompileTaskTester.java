@@ -18,7 +18,8 @@ package dev.nokee.language.nativebase;
 import dev.nokee.language.base.tasks.SourceCompile;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -26,16 +27,9 @@ import static org.hamcrest.Matchers.containsString;
 public interface NativeCompileTaskTester {
 	SourceCompile subject();
 
-	String languageSourceSetName();
-
 	@Test
 	default void hasDestinationDirectoryUnderObjsInsideBuildDirectory() {
 		assertThat(subject().getDestinationDirectory(),
 			providerOf(aFile(withAbsolutePath(containsString("/build/objs/")))));
-	}
-
-	@Test
-	default void includesLanguageSourceSetNameInDestinationDirectory() {
-		assertThat(subject().getDestinationDirectory(), providerOf(aFileNamed(languageSourceSetName())));
 	}
 }

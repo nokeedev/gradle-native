@@ -53,6 +53,7 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<CppSourceSetSpec>
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<CppSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<CppSourceSetSpec>
+	, LanguageSourceSetNativeCompileTaskIntegrationTester<CppSourceSetSpec>
 {
 	private CppSourceSetSpec subject;
 
@@ -96,11 +97,6 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 		@Override
 		public Project project() {
 			return project;
-		}
-
-		@Override
-		public String name() {
-			return "zomi";
 		}
 
 		@Override

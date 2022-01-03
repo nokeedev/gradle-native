@@ -19,6 +19,8 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
+import dev.nokee.language.nativebase.NativeCompileTaskTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
@@ -34,7 +36,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.objective-c-language-base")
-class ObjectiveCCompileTaskIntegrationTest extends AbstractPluginTest implements ObjectiveCCompileTester {
+class ObjectiveCCompileTaskIntegrationTest extends AbstractPluginTest implements ObjectiveCCompileTester
+	, NativeCompileTaskTester
+	, NativeCompileTaskObjectFilesTester<ObjectiveCCompileTask>
+{
 	private ObjectiveCCompileTask subject;
 
 	@Override
