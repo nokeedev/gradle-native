@@ -29,6 +29,7 @@ import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.testers.HasPublicTypeTester;
 import org.gradle.api.Project;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,11 @@ import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.cpp-language-base")
 @PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-class CppSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester, HasConfigurableSourceTester, HasConfigurableHeadersTester {
+class CppSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester
+	, HasPublicTypeTester<CppSourceSet>
+	, HasConfigurableSourceTester
+	, HasConfigurableHeadersTester
+{
 	private CppSourceSetSpec subject;
 
 	@BeforeEach

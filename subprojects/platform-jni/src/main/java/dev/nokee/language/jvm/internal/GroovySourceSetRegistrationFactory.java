@@ -37,6 +37,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Namer;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
@@ -92,7 +94,7 @@ public final class GroovySourceSetRegistrationFactory {
 		return ((org.gradle.api.tasks.GroovySourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("groovy")).getGroovy();
 	}
 
-	public static class DefaultGroovySourceSet implements GroovySourceSet, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet> {
+	public static class DefaultGroovySourceSet implements GroovySourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet> {
 		public ConfigurableSourceSet getSource() {
 			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
 		}
@@ -104,6 +106,11 @@ public final class GroovySourceSetRegistrationFactory {
 		@Override
 		public TaskDependency getBuildDependencies() {
 			return TaskDependencyUtils.composite(getSource().getBuildDependencies(), of(getCompileTask()));
+		}
+
+		@Override
+		public TypeOf<?> getPublicType() {
+			return TypeOf.typeOf(GroovySourceSet.class);
 		}
 	}
 }
