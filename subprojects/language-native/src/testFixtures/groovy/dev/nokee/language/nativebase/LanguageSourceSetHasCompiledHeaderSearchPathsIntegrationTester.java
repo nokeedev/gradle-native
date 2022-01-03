@@ -15,11 +15,11 @@
  */
 package dev.nokee.language.nativebase;
 
-import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import lombok.val;
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
@@ -33,7 +33,6 @@ import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.*;
 import static dev.nokee.utils.ConfigurationUtils.*;
-import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -41,6 +40,8 @@ public interface LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<
 	T subject();
 
 	Configuration headerSearchPaths();
+
+	Project project();
 
 	@BeforeEach
 	default void hasNativeSourceCompileTaskForHeaderSearchPaths() {
@@ -58,12 +59,12 @@ public interface LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<
 	@Test
 	default void linksHeaderSourcePathsConfigurationToCompileTaskAsFrameworkCompileArguments() throws IOException {
 		val artifact = Files.createTempDirectory("Kuqo.framework").toFile();
-		val frameworkProducer = rootProject();
+		val frameworkProducer = createChildProject(project());
 		frameworkProducer.getConfigurations().create("apiElements",
 			configureAsConsumable()
-				.andThen(configureAttributes(forUsage(objectFactory().named(Usage.class, Usage.C_PLUS_PLUS_API))))
+				.andThen(configureAttributes(forUsage(project().getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
 				.andThen(configureAttributes(it -> it.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-					objectFactory().named(LibraryElements.class, "framework-bundle"))))
+					project().getObjects().named(LibraryElements.class, "framework-bundle"))))
 				.andThen(it -> it.getOutgoing().artifact(artifact, t -> t.setType("framework")))
 		);
 
