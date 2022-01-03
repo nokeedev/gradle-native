@@ -18,12 +18,9 @@ package dev.nokee.language.objectivec;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.testers.HasConfigurableSourceTester;
-import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableSourceIntegrationTester;
-import dev.nokee.language.base.testers.LanguageSourceSetTester;
+import dev.nokee.language.base.testers.*;
 import dev.nokee.language.nativebase.HasConfigurableHeadersTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasBuildableHeadersIntegrationTester;
-import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableCompileTaskIntegrationTester;
 import dev.nokee.language.nativebase.NativeLanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
@@ -52,6 +49,7 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 	, HasPublicTypeTester<ObjectiveCSourceSet>
 	, HasConfigurableSourceTester
 	, HasConfigurableHeadersTester
+	, HasCompileTaskTester
 	, LanguageSourceSetHasBuildableSourceIntegrationTester<ObjectiveCSourceSetSpec>
 	, LanguageSourceSetHasBuildableHeadersIntegrationTester<ObjectiveCSourceSetSpec>
 	, LanguageSourceSetHasBuildableCompileTaskIntegrationTester<ObjectiveCSourceSetSpec>
@@ -79,7 +77,7 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 	}
 
 	@Test
-	void hasObjectiveCCompileTask() {
+	public void hasCompileTask() {
 		assertThat(subject.getCompileTask(), providerOf(isA(ObjectiveCCompile.class)));
 	}
 
