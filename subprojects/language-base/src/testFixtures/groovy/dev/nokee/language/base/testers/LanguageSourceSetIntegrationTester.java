@@ -22,18 +22,15 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelProperties;
 import lombok.val;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Set;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.mock;
 
 public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourceSet> {
 	public abstract T subject();
@@ -46,22 +43,6 @@ public abstract class LanguageSourceSetIntegrationTester<T extends LanguageSourc
 
 	private SourceCompile compileTask() {
 		return ModelElements.of(subject()).element("compile", SourceCompile.class).get();
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	void includesCompileTaskInBuildDependencies() {
-		val anyTask = mock(Task.class);
-		assertThat((Set<Task>) subject().getBuildDependencies().getDependencies(anyTask), hasItem(compileTask()));
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	void includesSourceBuildDependenciesInSourceSetBuildDependencies() {
-		val anyTask = mock(Task.class);
-		val buildTask = project().getTasks().create("buildSomeSources");
-		source().from(project().getObjects().fileCollection().from("foo.txt").builtBy(buildTask));
-		assertThat((Set<Task>) subject().getBuildDependencies().getDependencies(anyTask), hasItem(buildTask));
 	}
 
 	@Nested
