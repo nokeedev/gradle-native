@@ -54,6 +54,7 @@ class DefaultModelPropertyGradleConfigurableFileCollectionIntegrationTest {
 		val entity = node("jeja", builder -> builder.withConfigurer(modelConfigurer));
 		entity.addComponent(ModelPropertyTag.instance());
 		entity.addComponent(new GradlePropertyComponent(property));
+		entity.addComponent(new ModelPropertyTypeComponent(set(of(File.class))));
 		entity.addComponent(ModelIdentifier.of("jeja", Object.class));
 		return entity;
 	}

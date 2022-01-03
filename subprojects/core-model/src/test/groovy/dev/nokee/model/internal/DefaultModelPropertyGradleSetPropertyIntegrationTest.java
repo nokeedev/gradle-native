@@ -52,6 +52,7 @@ class DefaultModelPropertyGradleSetPropertyIntegrationTest {
 		val entity = node("zimu", builder -> builder.withConfigurer(modelConfigurer));
 		entity.addComponent(ModelPropertyTag.instance());
 		entity.addComponent(new GradlePropertyComponent(property));
+		entity.addComponent(new ModelPropertyTypeComponent(set(of(MyType.class))));
 		entity.addComponent(ModelIdentifier.of("zimu", Object.class));
 		return entity;
 	}
