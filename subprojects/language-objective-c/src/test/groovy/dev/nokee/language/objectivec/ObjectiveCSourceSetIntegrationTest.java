@@ -30,6 +30,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -55,6 +56,7 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 	, LanguageSourceSetHasCompiledSourceIntegrationTester<ObjectiveCSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<ObjectiveCSourceSetSpec>
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<ObjectiveCSourceSetSpec>
+	, LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<ObjectiveCSourceSetSpec>
 {
 	private DomainObjectProvider<ObjectiveCSourceSetSpec> subject;
 
@@ -66,6 +68,11 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 	@Override
 	public ObjectiveCSourceSetSpec subject() {
 		return subject.get();
+	}
+
+	@Override
+	public Configuration headerSearchPaths() {
+		return subject.element("headerSearchPaths", Configuration.class).get();
 	}
 
 	@Test

@@ -44,6 +44,7 @@ public interface LanguageSourceSetHasCompiledHeadersIntegrationTester<T extends 
 	default void includesSourceSetHeaderFilesInCompileTaskHeaders() throws IOException {
 		val path = Files.createTempDirectory("headers").toFile();
 		subject().getHeaders().from(path);
-		assertThat(((NativeSourceCompile) subject()).getHeaderSearchPaths(), providerOf(hasItem(aFile(path))));
+		assertThat(((NativeSourceCompile) subject().getCompileTask().get()).getHeaderSearchPaths(),
+			providerOf(hasItem(aFile(path))));
 	}
 }
