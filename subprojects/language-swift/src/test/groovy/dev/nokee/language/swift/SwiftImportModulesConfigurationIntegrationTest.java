@@ -18,6 +18,7 @@ package dev.nokee.language.swift;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -25,7 +26,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
@@ -34,13 +34,12 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
+@PluginRequirement.Require(type = SwiftCompilerPlugin.class)
 class SwiftImportModulesConfigurationIntegrationTest extends AbstractPluginTest {
-	private Configuration subject;
+	@Subject Configuration subject;
 
-	@BeforeEach
-	void createSubject() {
-		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "cavu"))).element("importModules", Configuration.class).get();
+	Configuration createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "cavu"))).element("importModules", Configuration.class).get();
 	}
 
 	@Test

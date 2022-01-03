@@ -17,29 +17,24 @@ package dev.nokee.language.objectivecpp;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.*;
 import dev.nokee.language.nativebase.*;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetRegistrationFactory;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
-import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
@@ -58,11 +53,10 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest implements
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<ObjectiveCppSourceSetSpec>
 	, LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester<ObjectiveCppSourceSetSpec>
 {
-	private DomainObjectProvider<ObjectiveCppSourceSetSpec> subject;
+	@Subject DomainObjectProvider<ObjectiveCppSourceSetSpec> subject;
 
-	@BeforeEach
-	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "suhu"))).as(ObjectiveCppSourceSetSpec.class);
+	DomainObjectProvider<ObjectiveCppSourceSetSpec> createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "suhu"))).as(ObjectiveCppSourceSetSpec.class);
 	}
 
 	@Override
@@ -88,28 +82,5 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest implements
 	@Test
 	public void hasCompileTask() {
 		assertThat(subject().getCompileTask(), providerOf(isA(ObjectiveCppCompile.class)));
-	}
-
-	@Nested
-	class SourceSetTest extends NativeLanguageSourceSetIntegrationTester<ObjectiveCppSourceSet> {
-		@BeforeEach
-		public void configureTargetPlatform() {
-			((ObjectiveCppCompileTask) project.getTasks().getByName("compileSuhu")).getTargetPlatform().set(create(of("macos-x64")));
-		}
-
-		@Override
-		public ObjectiveCppSourceSet subject() {
-			return subject.get();
-		}
-
-		@Override
-		public Project project() {
-			return project;
-		}
-
-		@Override
-		public String variantName() {
-			return "suhu";
-		}
 	}
 }

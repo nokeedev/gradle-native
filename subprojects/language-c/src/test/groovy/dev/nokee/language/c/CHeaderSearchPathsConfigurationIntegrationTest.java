@@ -18,6 +18,7 @@ package dev.nokee.language.c;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -34,13 +35,12 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.c-language-base")
+@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 class CHeaderSearchPathsConfigurationIntegrationTest extends AbstractPluginTest {
-	private Configuration subject;
+	@Subject Configuration subject;
 
-	@BeforeEach
-	void createSubject() {
-		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "xawa"))).element("headerSearchPaths", Configuration.class).get();
+	Configuration createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "xawa"))).element("headerSearchPaths", Configuration.class).get();
 	}
 
 	@Test

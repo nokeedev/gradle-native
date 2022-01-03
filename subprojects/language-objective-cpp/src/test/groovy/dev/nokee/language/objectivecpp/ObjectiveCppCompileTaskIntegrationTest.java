@@ -18,6 +18,7 @@ package dev.nokee.language.objectivecpp;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
@@ -36,21 +37,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.objective-cpp-language-base")
+@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 class ObjectiveCppCompileTaskIntegrationTest extends AbstractPluginTest implements ObjectiveCppCompileTester
 	, NativeCompileTaskTester
 	, NativeCompileTaskObjectFilesTester<ObjectiveCppCompileTask>
 {
-	private ObjectiveCppCompileTask subject;
+	@Subject ObjectiveCppCompileTask subject;
 
 	@Override
 	public ObjectiveCppCompileTask subject() {
 		return subject;
 	}
 
+	ObjectiveCppCompileTask createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "jobu"))).element("compile", ObjectiveCppCompileTask.class).get();
+	}
+
 	@BeforeEach
-	void createSubject() {
-		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "jobu"))).element("compile", ObjectiveCppCompileTask.class).get();
+	void configureTargetPlatform() {
 		subject.getTargetPlatform().set(create(of("macos-x64")));
 	}
 

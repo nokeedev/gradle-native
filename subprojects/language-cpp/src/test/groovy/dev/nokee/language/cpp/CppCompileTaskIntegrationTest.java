@@ -18,6 +18,7 @@ package dev.nokee.language.cpp;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
@@ -36,21 +37,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.cpp-language-base")
+@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
 class CppCompileTaskIntegrationTest extends AbstractPluginTest implements CppCompileTester
 	, NativeCompileTaskTester
 	, NativeCompileTaskObjectFilesTester<CppCompileTask>
 {
-	private CppCompileTask subject;
+	@Subject CppCompileTask subject;
 
 	@Override
 	public CppCompileTask subject() {
 		return subject;
 	}
 
+	CppCompileTask createSubject() {
+		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gali"))).element("compile", CppCompileTask.class).get();
+	}
+
 	@BeforeEach
-	void createSubject() {
-		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "gali"))).element("compile", CppCompileTask.class).get();
+	void configureTargetPlatform() {
 		subject.getTargetPlatform().set(create(of("macos-x64")));
 	}
 

@@ -17,11 +17,12 @@ package dev.nokee.internal.testing;
 
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
+import dev.nokee.internal.testing.junit.jupiter.TestSubjectsExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(GradleTestExtension.class)
+@ExtendWith({GradleTestExtension.class, TestSubjectsExtension.class})
 public class AbstractPluginTest {
 	@GradleProject
 	protected Project project;
