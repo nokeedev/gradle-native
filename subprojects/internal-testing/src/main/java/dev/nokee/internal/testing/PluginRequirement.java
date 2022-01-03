@@ -34,6 +34,7 @@ public final class PluginRequirement {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
 	@ExtendWith(Extension.class)
+	@Repeatable(Requires.class)
 	public @interface Require {
 		Class<? extends Plugin<? extends Project>> type() default NONE.class;
 		String id() default "";
@@ -41,16 +42,21 @@ public final class PluginRequirement {
 		interface NONE extends Plugin<Project> {}
 	}
 
+	@Target({ElementType.TYPE, ElementType.METHOD})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	public @interface Requires {
+		Require[] value();
+	}
+
 	static final class Extension implements BeforeEachCallback {
 		@Override
 		public void beforeEach(ExtensionContext context) throws Exception {
-			AnnotationUtils.findAnnotation(context.getElement(), PluginRequirement.Require.class).ifPresent(it -> applyPlugin(context, it));
+			AnnotationUtils.findRepeatableAnnotations(context.getElement(), PluginRequirement.Require.class).forEach(it -> applyPlugin(context, it));
 			val allInstances = new ArrayList<>(context.getRequiredTestInstances().getAllInstances());
 			Collections.reverse(allInstances);
 			for (Object testInstance : allInstances) {
-				for (Require require : testInstance.getClass().getAnnotationsByType(Require.class)) {
-					applyPlugin(context, require);
-				}
+				AnnotationUtils.findRepeatableAnnotations(testInstance.getClass(), PluginRequirement.Require.class).forEach(it -> applyPlugin(context, it));
 			}
 		}
 
