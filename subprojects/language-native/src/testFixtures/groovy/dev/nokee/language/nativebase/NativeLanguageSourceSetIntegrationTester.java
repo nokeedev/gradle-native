@@ -18,7 +18,6 @@ package dev.nokee.language.nativebase;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.testers.LanguageSourceSetIntegrationTester;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -41,7 +40,7 @@ import static dev.nokee.utils.ConfigurationUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public abstract class NativeLanguageSourceSetIntegrationTester<T extends LanguageSourceSet> extends LanguageSourceSetIntegrationTester<T> {
+public abstract class NativeLanguageSourceSetIntegrationTester<T extends LanguageSourceSet> {
 	public abstract T subject();
 
 	public abstract Project project();
