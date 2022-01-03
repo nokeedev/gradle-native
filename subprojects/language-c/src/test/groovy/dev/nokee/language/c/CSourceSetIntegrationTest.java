@@ -25,6 +25,7 @@ import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.c.tasks.CCompile;
 import dev.nokee.language.nativebase.*;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
@@ -55,31 +56,31 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 	, LanguageSourceSetHasCompiledHeadersIntegrationTester<CSourceSetSpec>
 	, LanguageSourceSetNativeCompileTaskIntegrationTester<CSourceSetSpec>
 {
-	private CSourceSetSpec subject;
+	private DomainObjectProvider<CSourceSetSpec> subject;
 
 	@BeforeEach
 	void createSubject() {
-		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"))).as(CSourceSetSpec.class).get();
+		subject = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "nopu"))).as(CSourceSetSpec.class);
 	}
 
 	@Override
 	public CSourceSetSpec subject() {
-		return subject;
+		return subject.get();
 	}
 
 	@Test
 	public void hasName() {
-		assertThat(subject, named("nopu"));
+		assertThat(subject(), named("nopu"));
 	}
 
 	@Test
 	void hasToString() {
-		assertThat(subject, Matchers.hasToString("C sources 'nopu'"));
+		assertThat(subject(), Matchers.hasToString("C sources 'nopu'"));
 	}
 
 	@Test
 	public void hasCompileTask() {
-		assertThat(subject.getCompileTask(), providerOf(isA(CCompile.class)));
+		assertThat(subject().getCompileTask(), providerOf(isA(CCompile.class)));
 	}
 
 	@Nested
@@ -91,7 +92,7 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 
 		@Override
 		public CSourceSet subject() {
-			return subject;
+			return subject.get();
 		}
 
 		@Override
