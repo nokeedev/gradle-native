@@ -44,6 +44,7 @@ public interface LanguageSourceSetHasCompiledSourceIntegrationTester<T extends L
 	default void includesSourceSetFilesInCompileTaskSources() throws IOException {
 		val path = Files.createTempFile("source", ".file").toFile();
 		subject().getSource().from(path);
-		assertThat(((SourceCompile) subject()).getSource(), hasItem(aFile(path)));
+		assertThat(((SourceCompile) subject().getCompileTask().get()).getSource(),
+			hasItem(aFile(path)));
 	}
 }

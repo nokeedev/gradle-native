@@ -78,6 +78,10 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 		return subject.get();
 	}
 
+	private Configuration importModules() {
+		return subject.element("importModules", Configuration.class).get();
+	}
+
 	@Test
 	public void hasName() {
 		assertThat(subject(), named("riku"));
@@ -107,42 +111,31 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 		public String name() {
 			return "riku";
 		}
+	}
 
-		private Configuration importModules() {
-			return project().getConfigurations().getByName(variantName() + "ImportModules");
-		}
+	@Test
+	void linksImportModulesConfigurationToCompileTaskModules() throws IOException {
+		val module = Files.createTempDirectory("Foo.swiftmodule").toFile();
+		importModules().getDependencies().add(createDependency(objectFactory().fileCollection().from(module)));
+		assertThat(subject().getCompileTask().get().getModules(), hasItem(aFile(module)));
+	}
 
-		@Nested
-		class SwiftCompileTaskTest {
-			public SwiftCompileTask subject() {
-				return (SwiftCompileTask) project().getTasks().getByName("compile" + StringUtils.capitalize(variantName()));
-			}
+	@Test
+	void linksHeaderSourcePathsConfigurationToCompileTaskAsFrameworkCompileArguments() throws IOException {
+		val artifact = Files.createTempDirectory("Sifo.framework").toFile();
+		val frameworkProducer = ProjectTestUtils.createChildProject(project());
+		frameworkProducer.getConfigurations().create("apiElements",
+			configureAsConsumable()
+				.andThen(configureAttributes(forUsage(project().getObjects().named(Usage.class, Usage.SWIFT_API))))
+				.andThen(configureAttributes(it -> it.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+					project().getObjects().named(LibraryElements.class, "framework-bundle"))))
+				.andThen(it -> it.getOutgoing().artifact(artifact, t -> t.setType("framework")))
+		);
 
-			@Test
-			void linksImportModulesConfigurationToCompileTaskModules() throws IOException {
-				val module = Files.createTempDirectory("Foo.swiftmodule").toFile();
-				importModules().getDependencies().add(createDependency(objectFactory().fileCollection().from(module)));
-				assertThat(subject().getModules(), hasItem(aFile(module)));
-			}
-
-			@Test
-			void linksHeaderSourcePathsConfigurationToCompileTaskAsFrameworkCompileArguments() throws IOException {
-				val artifact = Files.createTempDirectory("Sifo.framework").toFile();
-				val frameworkProducer = ProjectTestUtils.createChildProject(project());
-				frameworkProducer.getConfigurations().create("apiElements",
-					configureAsConsumable()
-						.andThen(configureAttributes(forUsage(project().getObjects().named(Usage.class, Usage.SWIFT_API))))
-						.andThen(configureAttributes(it -> it.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-							project().getObjects().named(LibraryElements.class, "framework-bundle"))))
-						.andThen(it -> it.getOutgoing().artifact(artifact, t -> t.setType("framework")))
-				);
-
-				importModules().getDependencies().add(createDependency(frameworkProducer));
-				assertThat(subject().getModules(), not(hasItem(aFile(artifact))));
-				assertThat(subject().getCompilerArgs(), providerOf(containsInRelativeOrder(
-					"-F", artifact.getParentFile().getAbsolutePath()
-				)));
-			}
-		}
+		importModules().getDependencies().add(createDependency(frameworkProducer));
+		assertThat(subject().getCompileTask().get().getModules(),
+			not(hasItem(aFile(artifact))));
+		assertThat(subject().getCompileTask().get().getCompilerArgs(),
+			providerOf(containsInRelativeOrder("-F", artifact.getParentFile().getAbsolutePath())));
 	}
 }
