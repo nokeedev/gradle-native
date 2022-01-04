@@ -262,6 +262,10 @@ public final class ModelElementFactory {
 				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
 					throw new RuntimeException("...");
 				}
+				if (type.isSubtypeOf(Property.class)) {
+					action.execute(ModelNodeUtils.get(entity, type));
+					return;
+				}
 				val o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
 				if (o.isPresent() && ((Boolean) ProviderUtils.getType(o.get()).map(it -> it.equals(type.getConcreteType())).orElse(Boolean.FALSE))) {
 					o.get().configure(action);
