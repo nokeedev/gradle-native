@@ -128,7 +128,7 @@ public final class ModelType<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> ModelType<T> typeOf(T instance) {
-		return new ModelType<>(TypeToken.of((Class<T>) instance.getClass()));
+		return new ModelType<>(TypeToken.of((Class<T>) ModelTypeUtils.toUndecoratedType(instance.getClass())));
 	}
 
 	/**
