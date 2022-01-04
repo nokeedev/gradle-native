@@ -17,6 +17,7 @@ package dev.nokee.model.internal.type;
 
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelType.typeOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,5 +28,10 @@ class ModelType_TypeOfTest {
 		assertEquals(of(MyType.class), typeOf(new MyType()), "type of MyType instance is expected to be MyType");
 	}
 
-	static final class MyType {}
+	@Test
+	void usesUndecoratedInstanceType() {
+		assertEquals(of(MyType.class), typeOf(objectFactory().newInstance(MyType.class)));
+	}
+
+	static class MyType {}
 }
