@@ -129,7 +129,7 @@ public final class ModelNode {
 
 	@Override
 	public String toString() {
-		return getComponent(ModelPath.class).toString();
+		return findComponent(ModelPath.class).map(Objects::toString).orElseGet(() -> "entity '" + id + "'");
 	}
 
 	/**
