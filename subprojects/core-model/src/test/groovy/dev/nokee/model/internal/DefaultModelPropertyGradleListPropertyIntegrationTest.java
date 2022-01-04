@@ -101,5 +101,16 @@ class DefaultModelPropertyGradleListPropertyIntegrationTest {
 		assertEquals(expectedState, ModelStates.getState(entity));
 	}
 
+	@Test
+	void hasModelPropertyTypeAsUntypedModelProperty() {
+		assertEquals(list(of(MyType.class)).getConcreteType(), factory.createProperty(node).getType());
+	}
+
+	@Test
+	void hasModelPropertyTypeAsModelElement() {
+		assertTrue(factory.createElement(node) instanceof ModelProperty);
+		assertEquals(list(of(MyType.class)).getConcreteType(), ((ModelProperty<?>) factory.createElement(node)).getType());
+	}
+
 	interface MyType {}
 }
