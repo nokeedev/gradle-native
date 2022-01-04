@@ -40,6 +40,7 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -72,7 +73,6 @@ import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.reflect.TypeOf;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -86,6 +86,7 @@ import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
@@ -124,10 +125,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup), project.getObjects())))
-			.withComponent(createdUsing(of(new dev.nokee.model.internal.type.TypeOf<Provider<JavaNativeInterfaceLibrary>>() {}), () -> {
-				val entity = ModelNodeContext.getCurrentModelNode();
-				return project.getProviders().provider(() -> ModelNodeUtils.get(entity, JavaNativeInterfaceLibrary.class));
-			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;
 
@@ -143,7 +140,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 //						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "headers")));
 
 						val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
-						baseNameProperty.configure(Property.class, prop -> prop.convention(identifier.getName().get()));
+						((ModelProperty<String>) baseNameProperty).asProperty(property(of(String.class))).convention(identifier.getName().get());
 
 						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), JavaNativeInterfaceLibrarySources.class, JavaNativeInterfaceSourcesViewAdapter::new));
 
@@ -202,7 +199,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						val variants = registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), JniLibrary.class));
 
 						val developmentVariantProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), JniLibrary.class));
-						developmentVariantProperty.configure(Property.class, prop -> prop.convention(project.provider(new BuildableDevelopmentVariantConvention(variants.as(VariantView.class).flatMap(VariantView::getElements)::get))));
+						((ModelProperty<JniLibrary>) developmentVariantProperty).asProperty(property(of(JniLibrary.class))).convention(project.provider(new BuildableDevelopmentVariantConvention(variants.as(VariantView.class).flatMap(VariantView::getElements)::get)));
 
 						registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "tasks")));
 
@@ -235,7 +232,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						// TODO: This is an external dependency meaning we should go through the component dependencies.
 						//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 						//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-						binaries.configure(new TypeOf<BinaryView<Binary>>() {}.getConcreteClass(), binaryView -> {
+						binaries.configure(of(new TypeOf<BinaryView<Binary>>() {}), binaryView -> {
 							binaryView.configureEach(SharedLibraryBinary.class, binary -> {
 								binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, includeRoots(from(jvmIncludes())));
 							});

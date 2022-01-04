@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
-import static dev.nokee.utils.ActionTestUtils.mockAction;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
