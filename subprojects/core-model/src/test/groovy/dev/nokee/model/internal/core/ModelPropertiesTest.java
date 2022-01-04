@@ -35,14 +35,12 @@ class ModelPropertiesTest {
 	private final DefaultModelRegistry registry = new DefaultModelRegistry(objectFactory()::newInstance);
 	private final ModelNode subject = registry.get(ModelPath.root());
 	private final ModelNode propertyA = ModelNodes.of(registry.register(ModelRegistration.builder()
-		.withComponent(IsModelProperty.tag())
 		.withComponent(ModelPropertyTag.instance())
 		.withComponent(new ModelPropertyTypeComponent(of(MyType.class)))
 		.withComponent(new GradlePropertyComponent(objectFactory().property(MyType.class).value(new MyType("valueA"))))
 		.withComponent(ModelPath.path("propA"))
 		.build()));
 	private final ModelNode propertyB = ModelNodes.of(registry.register(ModelRegistration.builder()
-		.withComponent(IsModelProperty.tag())
 		.withComponent(ModelPropertyTag.instance())
 		.withComponent(new ModelPropertyTypeComponent(of(MyType.class)))
 		.withComponent(new GradlePropertyComponent(objectFactory().property(MyType.class).value(new MyType("valueB"))))

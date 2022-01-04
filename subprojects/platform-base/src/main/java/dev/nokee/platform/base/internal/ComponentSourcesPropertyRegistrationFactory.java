@@ -68,7 +68,6 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(path)
 			.withComponent(identifier)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(createdUsing(of(SourceView.class), () -> new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
@@ -98,7 +97,6 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(path)
 			.withComponent(identifier)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(managed(of(sourceViewType)))
@@ -127,7 +125,6 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(path)
 			.withComponent(identifier)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(createdUsing(of(sourceViewType), () -> factory.apply(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {

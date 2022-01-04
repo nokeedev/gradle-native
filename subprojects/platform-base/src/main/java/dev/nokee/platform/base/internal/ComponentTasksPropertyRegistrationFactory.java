@@ -62,7 +62,6 @@ public final class ComponentTasksPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(path)
 			.withComponent(identifier)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Task.class))))
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
@@ -92,7 +91,6 @@ public final class ComponentTasksPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(path)
 			.withComponent(identifier)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, objects, () -> {
