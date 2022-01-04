@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DefaultKnownDomainObject;
+import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -116,7 +117,7 @@ public abstract class ModelComponentReference<T> {
 		private final class AsConfigurableProvider extends ModelComponentReference<NamedDomainObjectProvider<T>> implements ModelComponentReferenceInternal {
 			@Override
 			public NamedDomainObjectProvider<T> get(ModelNode entity) {
-				return ModelNodeUtils.get(entity, NamedDomainObjectProvider.class);
+				return entity.getComponent(ModelElementFactory.class).createObject(entity, ModelType.of(projectionType)).asProvider();
 			}
 
 			@Override
@@ -150,7 +151,7 @@ public abstract class ModelComponentReference<T> {
 		private final class AsProviderReference extends ModelComponentReference<Provider<T>> implements ModelComponentReferenceInternal {
 			@Override
 			public Provider<T> get(ModelNode entity) {
-				return ModelNodeUtils.get(entity, Provider.class);
+				return entity.getComponent(ModelElementFactory.class).createObject(entity, ModelType.of(projectionType)).asProvider();
 			}
 
 			@Override
