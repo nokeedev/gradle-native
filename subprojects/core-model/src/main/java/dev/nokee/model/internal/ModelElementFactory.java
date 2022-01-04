@@ -142,7 +142,7 @@ public final class ModelElementFactory {
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
-				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
+				if (!ModelNodeUtils.canBeViewedAs(entity, type) && !type.isSupertypeOf(entity.getComponent(ModelPropertyTypeComponent.class).get())) {
 					throw new RuntimeException("...");
 				}
 				assert fullType.equals(type);
