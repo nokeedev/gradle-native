@@ -20,16 +20,21 @@ import com.google.auto.factory.Provided;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.SourceSet;
+import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.ModelTypes;
 import lombok.val;
+
+import java.io.File;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.set;
 
 @AutoFactory
 public final class SourcePropertyRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
@@ -51,6 +56,8 @@ public final class SourcePropertyRegistrationAction extends ModelActionWithInput
 				.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
 				.withComponent(propertyIdentifier)
 				.withComponent(IsModelProperty.tag())
+				.withComponent(ModelPropertyTag.instance())
+				.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 				.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory))
 				.build());
 			entity.addComponent(new SourceFiles(element.as(SourceSet.class).map(SourceSet::getAsFileTree)));

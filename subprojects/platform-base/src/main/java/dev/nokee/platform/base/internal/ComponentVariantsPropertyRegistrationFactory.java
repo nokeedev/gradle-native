@@ -30,6 +30,7 @@ import org.gradle.api.provider.ProviderFactory;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentVariantsPropertyRegistrationFactory {
 	private final ModelRegistry registry;
@@ -54,6 +55,8 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
 			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, objects, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofProjection(elementType), (e, p, ignored1, ignored2, projection) -> {
 				if (ownerPath.isDirectDescendant(p)) {

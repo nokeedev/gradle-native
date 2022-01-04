@@ -27,8 +27,12 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 
+import java.io.File;
+
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public final class ModelPropertyRegistrationFactory {
 	private final ModelLookup lookup;
@@ -71,6 +75,8 @@ public final class ModelPropertyRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, id, ignored) -> {
 				if (id.equals(identifier)) {
 					e.addComponent(IsModelProperty.tag());
+					e.addComponent(ModelPropertyTag.instance());
+					e.addComponent(new ModelPropertyTypeComponent(ModelType.untyped()));
 					e.addComponent(new DelegatedModelProjection(entity));
 				}
 			}))
@@ -84,18 +90,25 @@ public final class ModelPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(path)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(ModelType.of(type), property::getOrNull))
-			.withComponent(createdUsing(ModelType.of(Property.class), () -> property))
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(of(type)))
+			.withComponent(new GradlePropertyComponent(property))
+			.withComponent(createdUsing(of(type), property::getOrNull))
+			.withComponent(createdUsing(of(Property.class), () -> property))
 			.build();
 	}
 
 	public <T> ModelRegistration createFileCollectionProperty(ModelPropertyIdentifier identifier) {
 		val path = toPath(identifier);
+		val property = objects.fileCollection();
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(path)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(ModelType.of(ConfigurableFileCollection.class), () -> objects.fileCollection()))
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
+			.withComponent(new GradlePropertyComponent(property))
+			.withComponent(createdUsing(of(ConfigurableFileCollection.class), () -> property))
 			.build();
 	}
 }

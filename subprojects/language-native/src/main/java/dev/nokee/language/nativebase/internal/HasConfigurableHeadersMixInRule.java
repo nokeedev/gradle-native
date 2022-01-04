@@ -27,7 +27,10 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
+import java.io.File;
+
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
 public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasConfigurableHeadersMixIn>, IsLanguageSourceSet> {
@@ -47,6 +50,8 @@ public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs
 			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
 			.withComponent(propertyIdentifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory::sourceSet))
 			.build());
 		entity.addComponent(new ProjectHeaderSearchPaths(element.as(SourceSet.class).flatMap(elementsOf(SourceSet::getSourceDirectories))));

@@ -47,6 +47,7 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
@@ -162,6 +163,8 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
 							.withComponent(IsModelProperty.tag())
+							.withComponent(ModelPropertyTag.instance())
+							.withComponent(new ModelPropertyTypeComponent(of(NativeTestSuiteVariant.class)))
 							.withComponent(createdUsing(of(new TypeOf<Property<NativeTestSuiteVariant>>() {}), () -> project.getObjects().property(NativeTestSuiteVariant.class)))
 							.build());
 

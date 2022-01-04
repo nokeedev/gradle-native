@@ -34,9 +34,9 @@ import org.gradle.api.provider.ProviderFactory;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentTasksPropertyRegistrationFactory {
 	private final ModelRegistry registry;
@@ -63,6 +63,8 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Task.class))))
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
@@ -91,6 +93,8 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));

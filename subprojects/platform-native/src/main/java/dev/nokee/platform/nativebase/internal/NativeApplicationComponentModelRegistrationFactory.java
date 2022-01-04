@@ -112,6 +112,8 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
 							.withComponent(IsModelProperty.tag())
+							.withComponent(ModelPropertyTag.instance())
+							.withComponent(new ModelPropertyTypeComponent(of(NativeApplication.class)))
 							.withComponent(createdUsing(of(new TypeOf<Property<NativeApplication>>() {}), () -> project.getObjects().property(NativeApplication.class)))
 							.build());
 

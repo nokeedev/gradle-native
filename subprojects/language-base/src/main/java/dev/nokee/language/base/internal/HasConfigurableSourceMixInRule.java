@@ -26,7 +26,10 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
+import java.io.File;
+
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasConfigurableSourceMixIn>, IsLanguageSourceSet> {
 	private final Factory<ConfigurableSourceSet> sourceSetFactory;
@@ -45,6 +48,8 @@ public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.
 			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
 			.withComponent(propertyIdentifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory))
 			.build());
 		entity.addComponent(new SourceFiles(element.as(SourceSet.class).map(SourceSet::getAsFileTree)));

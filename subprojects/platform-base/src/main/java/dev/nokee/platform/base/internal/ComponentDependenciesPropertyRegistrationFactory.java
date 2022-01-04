@@ -24,6 +24,7 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentDependencies;
+import dev.nokee.platform.base.DependencyBucket;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
@@ -32,9 +33,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentDependenciesPropertyRegistrationFactory {
 	private final ModelRegistry registry;
@@ -57,6 +58,8 @@ public final class ComponentDependenciesPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(DependencyBucket.class))))
 			.withComponent(createdUsing(of(type), instance::get))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
 				if (id.equals(identifier)) {

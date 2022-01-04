@@ -45,6 +45,7 @@ import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
@@ -177,6 +178,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
 							.withComponent(IsModelProperty.tag())
+							.withComponent(ModelPropertyTag.instance())
+							.withComponent(new ModelPropertyTypeComponent(of(DefaultXCTestTestSuiteVariant.class)))
 							.withComponent(createdUsing(of(new TypeOf<Property<DefaultXCTestTestSuiteVariant>>() {}), () -> project.getObjects().property(DefaultXCTestTestSuiteVariant.class)))
 							.build());
 
@@ -306,6 +309,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
 							.withComponent(IsModelProperty.tag())
+							.withComponent(ModelPropertyTag.instance())
+							.withComponent(new ModelPropertyTypeComponent(of(DefaultXCTestTestSuiteVariant.class)))
 							.withComponent(createdUsing(of(new TypeOf<Property<DefaultXCTestTestSuiteVariant>>() {}), () -> project.getObjects().property(DefaultXCTestTestSuiteVariant.class)))
 							.build());
 
