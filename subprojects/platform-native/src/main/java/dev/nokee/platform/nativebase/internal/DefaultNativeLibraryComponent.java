@@ -36,18 +36,18 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
-
 import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
@@ -88,7 +88,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Override
 	public Property<DefaultNativeLibraryVariant> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
+		return ModelProperties.getProperty(this, "developmentVariant").asProperty(property(of(DefaultNativeLibraryVariant.class)));
 	}
 
 	@Override

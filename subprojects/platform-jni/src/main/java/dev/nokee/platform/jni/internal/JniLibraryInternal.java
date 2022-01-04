@@ -42,6 +42,8 @@ import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 public class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware, HasPublicType
@@ -60,7 +62,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	@Override
 	public Property<String> getResourcePath() {
-		return ModelProperties.getProperty(this, "resourcePath").as(Property.class).get();
+		return ModelProperties.getProperty(this, "resourcePath").asProperty(property(of(String.class)));
 	}
 
 	@Override
@@ -69,12 +71,12 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public ConfigurableFileCollection getNativeRuntimeFiles() {
-		return ModelProperties.getProperty(this, "nativeRuntimeFiles").as(ConfigurableFileCollection.class).get();
+		return ModelProperties.getProperty(this, "nativeRuntimeFiles").asProperty(of(ConfigurableFileCollection.class));
 	}
 
 	@Override
 	public Property<Binary> getDevelopmentBinary() {
-		return ModelProperties.getProperty(this, "developmentBinary").as(Property.class).get();
+		return ModelProperties.getProperty(this, "developmentBinary").asProperty(property(of(Binary.class)));
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {

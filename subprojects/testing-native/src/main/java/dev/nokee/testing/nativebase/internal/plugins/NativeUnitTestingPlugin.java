@@ -35,7 +35,6 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
@@ -47,7 +46,6 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
@@ -72,10 +70,9 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.provider.Property;
-import org.gradle.api.provider.SetProperty;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
@@ -160,13 +157,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), NativeTestSuiteVariant.class));
 
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("developmentVariant"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(ModelPropertyTag.instance())
-							.withComponent(new ModelPropertyTypeComponent(of(NativeTestSuiteVariant.class)))
-							.withComponent(createdUsing(of(new TypeOf<Property<NativeTestSuiteVariant>>() {}), () -> project.getObjects().property(NativeTestSuiteVariant.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeTestSuiteVariant.class));
 
 						val testedComponentProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "testedComponent"), Component.class));
 
@@ -184,7 +175,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 							.defaultValues(testedComponentProperty.as(Component.class).flatMap(component -> {
 								val property = ModelProperties.findProperty(component, "targetBuildTypes");
 								if (property.isPresent()) {
-									return property.get().as(SetProperty.class).get();
+									return ((ModelProperty<Set<TargetBuildType>>) property.get()).asProvider();
 								} else {
 									return ProviderUtils.notDefined();
 								}
@@ -195,7 +186,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 							.defaultValues(testedComponentProperty.as(Component.class).flatMap(component -> {
 								val property = ModelProperties.findProperty(component, "targetMachines");
 								if (property.isPresent()) {
-									return property.get().as(SetProperty.class).get();
+									return ((ModelProperty<Set<TargetMachine>>) property.get()).asProvider();
 								} else {
 									return ProviderUtils.notDefined();
 								}

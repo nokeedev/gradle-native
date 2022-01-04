@@ -20,9 +20,12 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import org.gradle.api.provider.SetProperty;
 
+import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
+import static dev.nokee.model.internal.type.ModelType.of;
+
 public interface ModelBackedTargetMachineAwareComponentMixIn extends TargetMachineAwareComponent {
 	@Override
 	default SetProperty<TargetMachine> getTargetMachines() {
-		return ModelProperties.getProperty(this, "targetMachines").as(SetProperty.class).get();
+		return ModelProperties.getProperty(this, "targetMachines").asProperty(setProperty(of(TargetMachine.class)));
 	}
 }

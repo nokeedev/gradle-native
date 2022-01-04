@@ -32,7 +32,6 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
@@ -44,7 +43,6 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.*;
@@ -59,7 +57,6 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.provider.Property;
 import org.gradle.internal.Cast;
 
 import java.util.Optional;
@@ -127,13 +124,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("developmentVariant"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(ModelPropertyTag.instance())
-							.withComponent(new ModelPropertyTypeComponent(of(IosApplication.class)))
-							.withComponent(createdUsing(of(new TypeOf<Property<IosApplication>>() {}), () -> project.getObjects().property(IosApplication.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultIosApplicationVariant.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));

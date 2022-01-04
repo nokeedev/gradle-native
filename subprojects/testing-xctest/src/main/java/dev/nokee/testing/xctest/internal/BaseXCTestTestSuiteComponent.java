@@ -43,7 +43,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
@@ -54,6 +53,8 @@ import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 import static dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent.getSdkPlatformPath;
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
@@ -94,7 +95,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 
 	@Override
 	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
+		return ModelProperties.getProperty(this, "developmentVariant").asProperty(property(of(DefaultXCTestTestSuiteVariant.class)));
 	}
 
 	@Override

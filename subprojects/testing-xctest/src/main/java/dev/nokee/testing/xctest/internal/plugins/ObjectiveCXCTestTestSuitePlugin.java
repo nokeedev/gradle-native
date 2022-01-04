@@ -30,7 +30,6 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
@@ -45,7 +44,6 @@ import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
@@ -68,7 +66,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
@@ -175,13 +172,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("developmentVariant"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(ModelPropertyTag.instance())
-							.withComponent(new ModelPropertyTypeComponent(of(DefaultXCTestTestSuiteVariant.class)))
-							.withComponent(createdUsing(of(new TypeOf<Property<DefaultXCTestTestSuiteVariant>>() {}), () -> project.getObjects().property(DefaultXCTestTestSuiteVariant.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultXCTestTestSuiteVariant.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
@@ -306,13 +297,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("developmentVariant"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(ModelPropertyTag.instance())
-							.withComponent(new ModelPropertyTypeComponent(of(DefaultXCTestTestSuiteVariant.class)))
-							.withComponent(createdUsing(of(new TypeOf<Property<DefaultXCTestTestSuiteVariant>>() {}), () -> project.getObjects().property(DefaultXCTestTestSuiteVariant.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultXCTestTestSuiteVariant.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));

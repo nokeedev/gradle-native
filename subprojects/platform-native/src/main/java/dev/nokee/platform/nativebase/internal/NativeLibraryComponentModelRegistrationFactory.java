@@ -32,14 +32,12 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -55,7 +53,6 @@ import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.file.RegularFile;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.util.Iterator;
@@ -123,13 +120,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
 						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
 
-						registry.register(ModelRegistration.builder()
-							.withComponent(path.child("developmentVariant"))
-							.withComponent(IsModelProperty.tag())
-							.withComponent(ModelPropertyTag.instance())
-							.withComponent(new ModelPropertyTypeComponent(of(NativeLibrary.class)))
-							.withComponent(createdUsing(of(new TypeOf<Property<NativeLibrary>>() {}), () -> project.getObjects().property(NativeLibrary.class)))
-							.build());
+						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeLibraryVariant.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
