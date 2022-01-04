@@ -20,9 +20,12 @@ import dev.nokee.platform.nativebase.TargetBuildTypeAwareComponent;
 import dev.nokee.runtime.nativebase.TargetBuildType;
 import org.gradle.api.provider.SetProperty;
 
+import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
+import static dev.nokee.model.internal.type.ModelType.of;
+
 public interface ModelBackedTargetBuildTypeAwareComponentMixIn extends TargetBuildTypeAwareComponent {
 	@Override
 	default SetProperty<TargetBuildType> getTargetBuildTypes() {
-		return ModelProperties.getProperty(this, "targetBuildTypes").as(SetProperty.class).get();
+		return ModelProperties.getProperty(this, "targetBuildTypes").asProperty(setProperty(of(TargetBuildType.class)));
 	}
 }

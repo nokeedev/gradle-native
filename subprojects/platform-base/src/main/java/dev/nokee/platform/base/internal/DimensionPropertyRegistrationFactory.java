@@ -128,21 +128,21 @@ public final class DimensionPropertyRegistrationFactory {
 				elementType = axis.getType();
 			}
 
+			val gradleProperty = objectFactory.setProperty(elementType);
+			if (defaultValues instanceof Provider) {
+				gradleProperty.convention((Provider<? extends Iterable<?>>) defaultValues);
+			} else {
+				gradleProperty.convention((Iterable<?>) defaultValues);
+			}
+
 			return ModelRegistration.builder()
 				.withComponent(path)
 				.withComponent(identifier)
 				.withComponent(IsModelProperty.tag())
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
-				.withComponent(createdUsing(of(new TypeOf<SetProperty<?>>() {}), () -> {
-					val result = objectFactory.setProperty(elementType);
-					if (defaultValues instanceof Provider) {
-						result.convention((Provider<? extends Iterable<?>>) defaultValues);
-					} else {
-						result.convention((Iterable<?>) defaultValues);
-					}
-					return result;
-				}))
+				.withComponent(new GradlePropertyComponent(gradleProperty))
+				.withComponent(createdUsing(of(new TypeOf<SetProperty<?>>() {}), () -> gradleProperty))
 				.withComponent(new Dimension(axis, () -> {
 					val property = ModelNodeUtils.get(modelLookup.get(path), SetProperty.class);
 					property.finalizeValueOnRead();

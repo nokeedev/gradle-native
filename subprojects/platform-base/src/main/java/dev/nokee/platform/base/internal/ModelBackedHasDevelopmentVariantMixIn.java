@@ -20,9 +20,11 @@ import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
 import org.gradle.api.provider.Property;
 
+import static dev.nokee.model.internal.type.ModelType.of;
+
 public interface ModelBackedHasDevelopmentVariantMixIn<T extends Variant> extends HasDevelopmentVariant<T> {
 	@Override
 	default Property<T> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
+		return (Property<T>) ModelProperties.getProperty(this, "developmentVariant").asProperty(of(Property.class));
 	}
 }

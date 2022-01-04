@@ -19,8 +19,11 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.HasBaseName;
 import org.gradle.api.provider.Property;
 
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
+import static dev.nokee.model.internal.type.ModelType.of;
+
 public interface ModelBackedHasBaseNameMixIn extends HasBaseName {
 	default Property<String> getBaseName() {
-		return ModelProperties.getProperty(this, "baseName").as(Property.class).get();
+		return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
 	}
 }

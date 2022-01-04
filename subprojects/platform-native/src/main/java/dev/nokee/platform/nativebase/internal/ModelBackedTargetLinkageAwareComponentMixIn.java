@@ -20,9 +20,12 @@ import dev.nokee.platform.nativebase.TargetLinkageAwareComponent;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import org.gradle.api.provider.SetProperty;
 
+import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
+import static dev.nokee.model.internal.type.ModelType.of;
+
 public interface ModelBackedTargetLinkageAwareComponentMixIn extends TargetLinkageAwareComponent {
 	@Override
 	default SetProperty<TargetLinkage> getTargetLinkages() {
-		return ModelProperties.getProperty(this, "targetLinkages").as(SetProperty.class).get();
+		return ModelProperties.getProperty(this, "targetLinkages").asProperty(setProperty(of(TargetLinkage.class)));
 	}
 }

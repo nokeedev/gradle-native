@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.VariantDimensionBuilder;
 import dev.nokee.platform.base.VariantDimensions;
@@ -32,6 +33,8 @@ import org.gradle.util.ConfigureUtil;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.core.Coordinates.isAbsentCoordinate;
 
 public final class ModelBackedVariantDimensions implements VariantDimensions {
@@ -48,7 +51,7 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 	@Override
 	public <T> SetProperty<T> newAxis(Class<T> axisType) {
 		val result = registry.register(dimensionsPropertyFactory.newAxisProperty(ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName())), CoordinateAxis.of(axisType)));
-		return result.as(SetProperty.class).get();
+		return ((ModelProperty<?>) result).asProperty(setProperty(of(axisType)));
 	}
 
 	@Override
@@ -61,7 +64,7 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 		action.execute(new VariantDimensionBuilderAdapter(CoordinateAxis.of(axisType), builder));
 
 		val result = registry.register(builder.build());
-		return result.as(SetProperty.class).get();
+		return ((ModelProperty<?>) result).asProperty(setProperty(of(axisType)));
 	}
 
 	@Override

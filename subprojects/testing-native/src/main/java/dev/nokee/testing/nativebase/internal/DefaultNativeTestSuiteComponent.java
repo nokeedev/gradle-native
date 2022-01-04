@@ -75,6 +75,7 @@ import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.*;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
@@ -107,7 +108,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	public Property<Component> getTestedComponent() {
-		return ModelProperties.getProperty(this, "testedComponent").as(Property.class).get();
+		return ModelProperties.getProperty(this, "testedComponent").asProperty(property(of(Component.class)));
 	}
 
 	@Override
@@ -132,7 +133,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Override
 	public Property<DefaultNativeTestSuiteVariant> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
+		return ModelProperties.getProperty(this, "developmentVariant").asProperty(property(of(DefaultNativeTestSuiteVariant.class)));
 	}
 
 	@Override

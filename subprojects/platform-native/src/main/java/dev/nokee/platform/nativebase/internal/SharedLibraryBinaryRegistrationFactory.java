@@ -20,7 +20,6 @@ import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryNamer;
@@ -45,6 +44,8 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class SharedLibraryBinaryRegistrationFactory {
@@ -86,7 +87,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
-					entity.addComponent(createdUsing(ModelType.of(SharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)));
+					entity.addComponent(createdUsing(of(SharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)));
 				}
 			}))
 			.build();
@@ -133,7 +134,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 
 		@Override
 		public Property<String> getBaseName() {
-			return ModelProperties.getProperty(this, "baseName").as(Property.class).get();
+			return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
 		}
 
 		@Override

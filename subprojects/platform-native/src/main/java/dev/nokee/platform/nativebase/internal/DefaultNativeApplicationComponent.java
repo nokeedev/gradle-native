@@ -46,6 +46,8 @@ import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
@@ -81,7 +83,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public Property<DefaultNativeApplicationVariant> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").as(Property.class).get();
+		return ModelProperties.getProperty(this, "developmentVariant").asProperty(property(of(DefaultNativeApplicationVariant.class)));
 	}
 
 	@Override
