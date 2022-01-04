@@ -22,7 +22,6 @@ import com.google.common.collect.Streams;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.core.CoordinateSet;
@@ -44,7 +43,6 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Predicates.not;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static java.util.stream.Collectors.joining;
@@ -128,11 +126,11 @@ public final class DimensionPropertyRegistrationFactory {
 				elementType = axis.getType();
 			}
 
-			val gradleProperty = objectFactory.setProperty(elementType);
+			val property = objectFactory.setProperty(elementType);
 			if (defaultValues instanceof Provider) {
-				gradleProperty.convention((Provider<? extends Iterable<?>>) defaultValues);
+				property.convention((Provider<? extends Iterable<?>>) defaultValues);
 			} else {
-				gradleProperty.convention((Iterable<?>) defaultValues);
+				property.convention((Iterable<?>) defaultValues);
 			}
 
 			return ModelRegistration.builder()
@@ -140,10 +138,8 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(identifier)
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
-				.withComponent(new GradlePropertyComponent(gradleProperty))
-				.withComponent(createdUsing(of(new TypeOf<SetProperty<?>>() {}), () -> gradleProperty))
+				.withComponent(new GradlePropertyComponent(property))
 				.withComponent(new Dimension(axis, () -> {
-					val property = ModelNodeUtils.get(modelLookup.get(path), SetProperty.class);
 					property.finalizeValueOnRead();
 					Provider<Iterable<Object>> valueProvider = property
 						.map(assertNonEmpty(axis.getDisplayName(), path.getParent().get().getName()));
@@ -174,17 +170,15 @@ public final class DimensionPropertyRegistrationFactory {
 
 	// TODO: We register build variant
 	public ModelRegistration buildVariants(ModelPropertyIdentifier identifier, Provider<Set<BuildVariant>> buildVariantProvider) {
+		val property = objectFactory.setProperty(BuildVariant.class).convention(buildVariantProvider);
+		property.finalizeValueOnRead();
+		property.disallowChanges();
 		return ModelRegistration.builder()
 			.withComponent(toPath(identifier))
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))
-			.withComponent(createdUsing(of(new TypeOf<SetProperty<BuildVariant>>() {}), () -> {
-				val result = objectFactory.setProperty(BuildVariant.class).convention(buildVariantProvider);
-				result.finalizeValueOnRead();
-				result.disallowChanges();
-				return result;
-			}))
+			.withComponent(new GradlePropertyComponent(property))
 			.build();
 	}
 

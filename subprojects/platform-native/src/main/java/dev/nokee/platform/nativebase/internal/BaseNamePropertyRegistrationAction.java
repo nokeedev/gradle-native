@@ -20,12 +20,15 @@ import com.google.auto.factory.Provided;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import lombok.val;
-import org.gradle.api.provider.Property;
+
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 
 @AutoFactory
 public final class BaseNamePropertyRegistrationAction extends ModelActionWithInputs.ModelAction2<BinaryIdentifier<?>, ModelState.IsAtLeastRegistered> {
@@ -43,7 +46,7 @@ public final class BaseNamePropertyRegistrationAction extends ModelActionWithInp
 	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ModelState.IsAtLeastRegistered ignored) {
 		if (identifier.equals(this.identifier)) {
 			val baseNameProperty = registry.register(propertyRegistrationFactory.createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
-			baseNameProperty.configure(Property.class, it -> it.convention(identifier.getName().get()));
+			((ModelProperty<String>) baseNameProperty).asProperty(property(ModelType.of(String.class))).convention(identifier.getName().get());
 			entity.addComponent(new BaseName(baseNameProperty.as(String.class)));
 		}
 	}

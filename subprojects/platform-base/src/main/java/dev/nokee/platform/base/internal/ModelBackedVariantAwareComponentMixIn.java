@@ -25,6 +25,9 @@ import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
+import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.set;
+
 public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extends VariantAwareComponent<T> {
 	@Override
 	@SuppressWarnings("unchecked")
@@ -51,6 +54,6 @@ public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extend
 
 	@Override
 	default Provider<Set<BuildVariant>> getBuildVariants() {
-		return ModelProperties.getProperty(this, "buildVariants").as(Provider.class).get();
+		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
 	}
 }

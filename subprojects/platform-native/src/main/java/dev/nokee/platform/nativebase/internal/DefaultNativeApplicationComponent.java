@@ -48,6 +48,7 @@ import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
@@ -98,7 +99,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
-		return ModelProperties.getProperty(this, "buildVariants").as(Provider.class).get();
+		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
 	}
 
 	public void finalizeExtension(Project project) {

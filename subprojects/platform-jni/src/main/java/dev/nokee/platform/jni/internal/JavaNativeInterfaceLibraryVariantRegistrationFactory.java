@@ -37,7 +37,6 @@ import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.registry.ProvidedModelProjection;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
@@ -84,6 +83,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -94,6 +94,7 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
@@ -176,7 +177,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 
 					val jniJar = registry.register(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"))));
 					val developmentBinaryProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentBinary"), Binary.class));
-					developmentBinaryProperty.configure(Property.class, prop -> prop.convention(jniJar.as(JniJarBinary.class).asProvider()));
+					((ModelProperty<Binary>) developmentBinaryProperty).asProperty(property(of(Binary.class))).convention(jniJar.as(JniJarBinary.class).asProvider());
 
 					project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 						private ModelElement compileOnly = null;
@@ -221,15 +222,15 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					entity.addComponent(new AssembleTask(ModelNodes.of(assembleTask)));
 
 					val nativeRuntimeFiles = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createFileCollectionProperty(ModelPropertyIdentifier.of(identifier, "nativeRuntimeFiles")));
-					nativeRuntimeFiles.configure(ConfigurableFileCollection.class, files -> files.from(sharedLibrary.as(SharedLibraryBinary.class).flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile)));
-					nativeRuntimeFiles.configure(ConfigurableFileCollection.class, files -> files.from((Callable<Object>) () -> ModelNodes.of(sharedLibrary).getComponent(DependentRuntimeLibraries.class)));
+					((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from(sharedLibrary.as(SharedLibraryBinary.class).flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile));
+					((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from((Callable<Object>) () -> ModelNodes.of(sharedLibrary).getComponent(DependentRuntimeLibraries.class));
 
 					val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
-					baseNameProperty.configure(Property.class, prop -> prop.convention(identifier.getUnambiguousName()));
-					ModelProperties.getProperty(sharedLibrary, "baseName").configure(Property.class, prop -> prop.convention(baseNameProperty.as(String.class).asProvider()));
+					((ModelProperty<String>) baseNameProperty).asProperty(property(of(String.class))).convention(identifier.getUnambiguousName());
+					ModelProperties.getProperty(sharedLibrary, "baseName").asProperty(property(of(String.class))).convention(baseNameProperty.as(String.class).asProvider());
 
 					val resourcePathProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "resourcePath"), String.class));
-					resourcePathProperty.configure(Property.class, prop -> prop.convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse("")));
+					((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
 
 					jniJar.configure(JniJarBinary.class, binary -> {
 						binary.getJarTask().configure(task -> {
@@ -242,7 +243,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 
 					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
 
-					entity.addComponent(new ProvidedModelProjection<>(createdUsing(of(JniLibrary.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class))), project.getProviders(), entity));
+					entity.addComponent(createdUsing(of(JniLibrary.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class))));
 
 
 					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (e, i, s, p, library) -> {

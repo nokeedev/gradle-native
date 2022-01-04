@@ -91,8 +91,6 @@ public final class ModelPropertyRegistrationFactory {
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(of(type)))
 			.withComponent(new GradlePropertyComponent(property))
-			.withComponent(createdUsing(of(type), property::getOrNull))
-			.withComponent(createdUsing(of(Property.class), () -> property))
 			.build();
 	}
 
@@ -105,7 +103,6 @@ public final class ModelPropertyRegistrationFactory {
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.withComponent(new GradlePropertyComponent(property))
-			.withComponent(createdUsing(of(ConfigurableFileCollection.class), () -> property))
 			.build();
 	}
 }
