@@ -333,7 +333,7 @@ public final class ModelElementFactory {
 		public T get() {
 			val value = entity.getComponent(GradlePropertyComponent.class).get();
 			if (value instanceof Provider) {
-				return ((Provider<T>) value).get();
+				return ((Provider<T>) value).getOrNull();
 			} else if (value instanceof FileCollection) {
 				return (T) ((FileCollection) value).getFiles(); // FIXME: Value supplier should pass the expected value out
 			} else {
