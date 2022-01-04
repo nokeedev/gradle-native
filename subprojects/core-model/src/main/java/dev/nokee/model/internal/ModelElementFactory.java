@@ -51,10 +51,19 @@ public final class ModelElementFactory {
 	private final Instantiator instantiator;
 
 	public ModelElementFactory(Instantiator instantiator) {
-		this.instantiator = instantiator;
+		this.instantiator = Objects.requireNonNull(instantiator);
 	}
 
 	public ModelElement createElement(ModelNode entity) {
+		Objects.requireNonNull(entity);
+		if (entity.hasComponent(ModelPropertyTag.class)) {
+			return createPropertyInternal(entity, entity.getComponent(ModelPropertyTypeComponent.class).get());
+		} else {
+			return createElementInternal(entity);
+		}
+	}
+
+	private ModelElement createElementInternal(ModelNode entity) {
 		Objects.requireNonNull(entity);
 		val namedStrategy = new NamedStrategy() {
 			@Override
@@ -102,6 +111,22 @@ public final class ModelElementFactory {
 	}
 
 	public <T> DomainObjectProvider<T> createObject(ModelNode entity, ModelType<T> type) {
+		Objects.requireNonNull(entity);
+		Objects.requireNonNull(type);
+		if (entity.hasComponent(ModelPropertyTag.class) && type.isSupertypeOf(propertyType(entity))) {
+			return createPropertyInternal(entity, propertyType(entity));
+		} else {
+			Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(entity, type), "node '%s' cannot be viewed as %s", entity, type);
+			return createObjectInternal(entity, type);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> ModelType<T> propertyType(ModelNode entity) {
+		return (ModelType<T>) entity.getComponent(ModelPropertyTypeComponent.class).get();
+	}
+
+	private <T> DomainObjectProvider<T> createObjectInternal(ModelNode entity, ModelType<T> type) {
 		// TODO: Align exception with the one in ModelNode#get(ModelType). It's throwing an illegal state exception...
 		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(entity, type), "node '%s' cannot be viewed as %s", entity, type);
 		@SuppressWarnings("unchecked")
@@ -209,12 +234,21 @@ public final class ModelElementFactory {
 		}
 	}
 
-	public <T> ModelProperty<T> createProperty(ModelNode entity, ModelType<T> type) {
+	public ModelProperty<?> createProperty(ModelNode entity) {
+		Objects.requireNonNull(entity);
 		Preconditions.checkArgument(entity.hasComponent(ModelPropertyTag.class));
-		// TODO: Align exception with the one in ModelNode#get(ModelType). It's throwing an illegal state exception...
-		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(entity, type), "node '%s' cannot be viewed as %s", entity, type);
-		@SuppressWarnings("unchecked")
-		val fullType = (ModelType<T>) entity.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(type)).map(ModelProjection::getType).findFirst().orElseThrow(RuntimeException::new);
+		return createPropertyInternal(entity, entity.getComponent(ModelPropertyTypeComponent.class).get());
+	}
+
+	public <T> ModelProperty<T> createProperty(ModelNode entity, ModelType<T> type) {
+		Objects.requireNonNull(entity);
+		Objects.requireNonNull(type);
+		Preconditions.checkArgument(entity.hasComponent(ModelPropertyTag.class));
+		Preconditions.checkArgument(type.isSupertypeOf(propertyType(entity)));
+		return createPropertyInternal(entity, propertyType(entity));
+	}
+
+	private <T> ModelProperty<T> createPropertyInternal(ModelNode entity, ModelType<T> type) {
 		val namedStrategy = new NamedStrategy() {
 			@Override
 			public String getAsString() {
@@ -228,7 +262,6 @@ public final class ModelElementFactory {
 				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
 					throw new RuntimeException("...");
 				}
-				assert fullType.equals(type);
 				val o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
 				if (o.isPresent() && ((Boolean) ProviderUtils.getType(o.get()).map(it -> it.equals(type.getConcreteType())).orElse(Boolean.FALSE))) {
 					o.get().configure(action);
@@ -268,7 +301,6 @@ public final class ModelElementFactory {
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
-				assert fullType.equals(t);
 				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
 					val provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
 					val ttype = ProviderUtils.getType(provider);
@@ -282,8 +314,8 @@ public final class ModelElementFactory {
 				}
 			}
 		};
-		val identifierSupplier = new IdentifierSupplier(entity, fullType);
-		return new DefaultModelProperty<T>(namedStrategy, identifierSupplier, fullType, providerStrategy, propertyStrategy, configurableStrategy, castableStrategy, propertyLookup, elementLookup, mixInStrategy, valueSupplier, () -> entity);
+		val identifierSupplier = new IdentifierSupplier(entity, type);
+		return new DefaultModelProperty<T>(namedStrategy, identifierSupplier, type, providerStrategy, propertyStrategy, configurableStrategy, castableStrategy, propertyLookup, elementLookup, mixInStrategy, valueSupplier, () -> entity);
 	}
 
 	private static final class GradlePropertyBackedValueSupplier<T> implements Supplier<T> {
