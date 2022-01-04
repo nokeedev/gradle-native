@@ -24,11 +24,11 @@ import java.util.stream.Stream;
 public final class ModelProperties {
 	private ModelProperties() {}
 
-	public static ModelElement getProperty(Object self, String name) {
+	public static ModelProperty<?> getProperty(Object self, String name) {
 		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(IsModelProperty.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(ModelProperties::newElement).orElseThrow(() -> new IllegalArgumentException("No property of name '" + name + "'"));
 	}
 
-	public static Optional<ModelElement> findProperty(Object self, String name) {
+	public static Optional<ModelProperty<?>> findProperty(Object self, String name) {
 		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(IsModelProperty.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(ModelProperties::newElement);
 	}
 
@@ -36,12 +36,12 @@ public final class ModelProperties {
 		return findProperty(self, name).isPresent();
 	}
 
-	public static Stream<ModelElement> getProperties(Object self) {
+	public static Stream<ModelProperty<?>> getProperties(Object self) {
 		val result = ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants();
 		return result.stream().filter(it -> it.hasComponent(ModelComponentType.componentOf(IsModelProperty.class))).map(ModelProperties::newElement);
 	}
 
-	private static ModelElement newElement(ModelNode entity) {
-		return entity.getComponent(ModelElementFactory.class).createElement(entity);
+	private static ModelProperty<?> newElement(ModelNode entity) {
+		return entity.getComponent(ModelElementFactory.class).createProperty(entity);
 	}
 }
