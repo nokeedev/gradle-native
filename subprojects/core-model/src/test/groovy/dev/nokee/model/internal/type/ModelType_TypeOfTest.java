@@ -33,5 +33,5 @@ class ModelType_TypeOfTest {
 		assertEquals(of(MyType.class), typeOf(objectFactory().newInstance(MyType.class)));
 	}
 
-	static class MyType {}
+	public static class MyType {}
 }
