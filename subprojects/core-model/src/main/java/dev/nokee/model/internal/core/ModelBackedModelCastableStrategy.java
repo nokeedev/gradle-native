@@ -22,6 +22,7 @@ import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.type.ModelType;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,6 +64,13 @@ public final class ModelBackedModelCastableStrategy implements ModelCastableStra
 	}
 
 	private static Stream<ModelType<?>> castableTypes(ModelNode entity) {
-		return ModelNodeUtils.getProjections(entity).map(ModelProjection::getType);
+		return Stream.concat(
+			propertyType(entity).map(Stream::of).orElse(Stream.empty()),
+			ModelNodeUtils.getProjections(entity).map(ModelProjection::getType)
+		);
+	}
+
+	private static Optional<ModelType<?>> propertyType(ModelNode entity) {
+		return entity.findComponent(ModelPropertyTypeComponent.class).map(ModelPropertyTypeComponent::get);
 	}
 }
