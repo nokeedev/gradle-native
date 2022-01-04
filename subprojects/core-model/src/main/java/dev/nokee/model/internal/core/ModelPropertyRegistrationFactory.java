@@ -74,7 +74,6 @@ public final class ModelPropertyRegistrationFactory {
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, id, ignored) -> {
 				if (id.equals(identifier)) {
-					e.addComponent(IsModelProperty.tag());
 					e.addComponent(ModelPropertyTag.instance());
 					e.addComponent(new ModelPropertyTypeComponent(ModelType.untyped()));
 					e.addComponent(new DelegatedModelProjection(entity));
@@ -89,7 +88,6 @@ public final class ModelPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(path)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(of(type)))
 			.withComponent(new GradlePropertyComponent(property))
@@ -104,7 +102,6 @@ public final class ModelPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(path)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.withComponent(new GradlePropertyComponent(property))

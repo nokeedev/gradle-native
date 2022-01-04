@@ -49,7 +49,6 @@ public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
 			.withComponent(propertyIdentifier)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory::sourceSet))

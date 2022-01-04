@@ -138,7 +138,6 @@ public final class DimensionPropertyRegistrationFactory {
 			return ModelRegistration.builder()
 				.withComponent(path)
 				.withComponent(identifier)
-				.withComponent(IsModelProperty.tag())
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
 				.withComponent(new GradlePropertyComponent(gradleProperty))
@@ -178,7 +177,6 @@ public final class DimensionPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(toPath(identifier))
 			.withComponent(identifier)
-			.withComponent(IsModelProperty.tag())
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))
 			.withComponent(createdUsing(of(new TypeOf<SetProperty<BuildVariant>>() {}), () -> {
