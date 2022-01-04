@@ -32,6 +32,7 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -262,7 +263,7 @@ public final class ModelElementFactory {
 				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
 					throw new RuntimeException("...");
 				}
-				if (type.isSubtypeOf(Property.class)) {
+				if (type.isSubtypeOf(Property.class) || type.isSubtypeOf(ConfigurableFileCollection.class)) {
 					action.execute(ModelNodeUtils.get(entity, type));
 					return;
 				}
