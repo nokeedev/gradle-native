@@ -39,6 +39,7 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
+import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -125,6 +126,8 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
 							.withComponent(IsModelProperty.tag())
+							.withComponent(ModelPropertyTag.instance())
+							.withComponent(new ModelPropertyTypeComponent(of(NativeLibrary.class)))
 							.withComponent(createdUsing(of(new TypeOf<Property<NativeLibrary>>() {}), () -> project.getObjects().property(NativeLibrary.class)))
 							.build());
 

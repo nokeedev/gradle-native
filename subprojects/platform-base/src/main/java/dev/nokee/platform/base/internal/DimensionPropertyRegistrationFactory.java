@@ -20,12 +20,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.IsModelProperty;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.CoordinateAxis;
@@ -49,6 +45,8 @@ import java.util.stream.Stream;
 import static com.google.common.base.Predicates.not;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.set;
 import static java.util.stream.Collectors.joining;
 
 public final class DimensionPropertyRegistrationFactory {
@@ -134,7 +132,9 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(path)
 				.withComponent(identifier)
 				.withComponent(IsModelProperty.tag())
-				.withComponent(createdUsing(ModelType.of(new TypeOf<SetProperty<?>>() {}), () -> {
+				.withComponent(ModelPropertyTag.instance())
+				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
+				.withComponent(createdUsing(of(new TypeOf<SetProperty<?>>() {}), () -> {
 					val result = objectFactory.setProperty(elementType);
 					if (defaultValues instanceof Provider) {
 						result.convention((Provider<? extends Iterable<?>>) defaultValues);
@@ -179,7 +179,9 @@ public final class DimensionPropertyRegistrationFactory {
 			.withComponent(toPath(identifier))
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
-			.withComponent(createdUsing(ModelType.of(new TypeOf<SetProperty<BuildVariant>>() {}), () -> {
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))
+			.withComponent(createdUsing(of(new TypeOf<SetProperty<BuildVariant>>() {}), () -> {
 				val result = objectFactory.setProperty(BuildVariant.class).convention(buildVariantProvider);
 				result.finalizeValueOnRead();
 				result.disallowChanges();

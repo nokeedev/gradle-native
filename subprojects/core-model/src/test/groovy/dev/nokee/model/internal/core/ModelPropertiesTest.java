@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -35,13 +36,17 @@ class ModelPropertiesTest {
 	private final ModelNode subject = registry.get(ModelPath.root());
 	private final ModelNode propertyA = ModelNodes.of(registry.register(ModelRegistration.builder()
 		.withComponent(IsModelProperty.tag())
+		.withComponent(ModelPropertyTag.instance())
+		.withComponent(new ModelPropertyTypeComponent(of(MyType.class)))
+		.withComponent(new GradlePropertyComponent(objectFactory().property(MyType.class).value(new MyType("valueA"))))
 		.withComponent(ModelPath.path("propA"))
-		.withComponent(ofInstance(new MyType("valueA")))
 		.build()));
 	private final ModelNode propertyB = ModelNodes.of(registry.register(ModelRegistration.builder()
 		.withComponent(IsModelProperty.tag())
+		.withComponent(ModelPropertyTag.instance())
+		.withComponent(new ModelPropertyTypeComponent(of(MyType.class)))
+		.withComponent(new GradlePropertyComponent(objectFactory().property(MyType.class).value(new MyType("valueB"))))
 		.withComponent(ModelPath.path("propB"))
-		.withComponent(ofInstance(new MyType("valueB")))
 		.build()));
 	private final ModelNode notProperty = ModelNodes.of(registry.register(ModelRegistration.builder()
 		.withComponent(ModelPath.path("propC"))

@@ -29,10 +29,7 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IsModelProperty;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Variant;
@@ -177,6 +174,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
+					.withComponent(ModelPropertyTag.instance())
+					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
 					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 					.build());
@@ -202,6 +201,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
+					.withComponent(ModelPropertyTag.instance())
+					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
 					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 					.build());
@@ -238,6 +239,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
+					.withComponent(ModelPropertyTag.instance())
+					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
 					.build());
 
@@ -254,6 +257,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				.withComponent(newPropertyIdentifier)
 				.withComponent(toPath(newPropertyIdentifier))
 				.withComponent(IsModelProperty.tag())
+				.withComponent(ModelPropertyTag.instance())
+				.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 				.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
 				.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 				.build());
@@ -302,6 +307,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
+					.withComponent(ModelPropertyTag.instance())
+					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
 					.withComponent(createdUsing(ModelType.of(NativeSourceCompile.class), compileTask::get))
 					.build());
@@ -324,6 +331,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
+					.withComponent(ModelPropertyTag.instance())
+					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
 					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 					.build());
@@ -339,6 +348,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					.withComponent(newPropertyIdentifier)
 					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(IsModelProperty.tag())
+					.withComponent(ModelPropertyTag.instance())
+					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
 					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
 					.build());

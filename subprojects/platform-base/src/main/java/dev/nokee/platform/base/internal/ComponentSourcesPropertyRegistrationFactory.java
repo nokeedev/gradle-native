@@ -42,6 +42,7 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentSourcesPropertyRegistrationFactory {
 	private final ModelRegistry registry;
@@ -68,6 +69,8 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(createdUsing(of(SourceView.class), () -> new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
@@ -96,6 +99,8 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(managed(of(sourceViewType)))
 			.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 			.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
@@ -123,6 +128,8 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(IsModelProperty.tag())
+			.withComponent(ModelPropertyTag.instance())
+			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(createdUsing(of(sourceViewType), () -> factory.apply(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));

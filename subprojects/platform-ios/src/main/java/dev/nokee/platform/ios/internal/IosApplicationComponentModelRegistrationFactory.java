@@ -130,6 +130,8 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						registry.register(ModelRegistration.builder()
 							.withComponent(path.child("developmentVariant"))
 							.withComponent(IsModelProperty.tag())
+							.withComponent(ModelPropertyTag.instance())
+							.withComponent(new ModelPropertyTypeComponent(of(IosApplication.class)))
 							.withComponent(createdUsing(of(new TypeOf<Property<IosApplication>>() {}), () -> project.getObjects().property(IosApplication.class)))
 							.build());
 
