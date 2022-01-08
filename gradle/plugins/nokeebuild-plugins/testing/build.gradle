@@ -1,0 +1,24 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+repositories {
+	mavenLocal()
+}
+
+dependencies {
+	compileOnly 'dev.gradleplugins:gradle-plugin-development:1.5.1'
+}
+
+gradlePlugin {
+	plugins {
+		unitTesting {
+			id = 'nokeebuild.gradle-plugin-unit-test'
+			implementationClass = 'nokeebuild.GradlePluginDevelopmentUnitTestingPlugin'
+		}
+		functionalTesting {
+			id = 'nokeebuild.gradle-plugin-functional-test'
+			implementationClass = 'nokeebuild.GradlePluginDevelopmentFunctionalTestingPlugin'
+		}
+	}
+}
