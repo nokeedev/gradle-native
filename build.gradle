@@ -124,38 +124,6 @@ subprojects {
 	}
 }
 
-// Configure functionalTest
-subprojects {
-	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
-		apply plugin: 'dev.gradleplugins.gradle-plugin-functional-test'
-		functionalTest {
-			testingStrategies = [strategies.coverageForMinimumVersion, strategies.coverageForLatestGlobalAvailableVersion, strategies.coverageForLatestNightlyVersion]
-			dependencies {
-				implementation project(':internalTesting')
-				implementation spockFramework()
-				implementation gradleFixtures()
-			}
-			testTasks.configureEach { Test task ->
-				task.systemProperty('org.gradle.testkit.dir', layout.buildDirectory.dir('gradle-runner-kit').get().asFile.absolutePath)
-			}
-		}
-	}
-}
-
-// Configure test for java-gradle-plugin
-subprojects {
-	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
-		apply plugin: 'dev.gradleplugins.gradle-plugin-unit-test'
-		test {
-			dependencies {
-				implementation project(':internalTesting')
-				implementation spockFramework()
-				implementation groovy()
-			}
-		}
-	}
-}
-
 // Configure test for java-library
 subprojects {
 	pluginManager.withPlugin('java-library') {
