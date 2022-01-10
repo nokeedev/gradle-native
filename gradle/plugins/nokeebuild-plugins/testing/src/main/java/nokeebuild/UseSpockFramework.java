@@ -22,26 +22,22 @@ import org.gradle.api.Project;
 
 import java.util.Objects;
 
-final class UseJUnitJupiter implements Action<GradlePluginDevelopmentTestSuite> {
+final class UseSpockFramework implements Action<GradlePluginDevelopmentTestSuite> {
 	private final String version;
 
-	public UseJUnitJupiter(String version) {
+	public UseSpockFramework(String version) {
 		this.version = version;
 	}
 
 	@Override
 	public void execute(GradlePluginDevelopmentTestSuite testSuite) {
 		testSuite.dependencies(it -> {
-			it.implementation(it.platform("org.junit:junit-bom:" + version));
-			it.implementation("org.junit.jupiter:junit-jupiter");
-			it.runtimeOnly("org.junit.vintage:junit-vintage-engine:" + version);
-		});
-		testSuite.getTestTasks().configureEach(task -> {
-			task.useJUnitPlatform();
+			it.implementation(it.platform("org.spockframework:spock-bom:" + version));
+			it.implementation("org.spockframework:spock-core");
 		});
 	}
 
-	public static String junitVersion(Project project) {
-		return Objects.toString(project.property("junitVersion"), null);
+	public static String spockVersion(Project project) {
+		return Objects.toString(project.property("spockVersion"), null);
 	}
 }

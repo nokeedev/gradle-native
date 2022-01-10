@@ -24,6 +24,7 @@ import javax.inject.Inject;
 
 import static java.util.Arrays.asList;
 import static nokeebuild.UseJUnitJupiter.junitVersion;
+import static nokeebuild.UseSpockFramework.spockVersion;
 
 abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implements Plugin<Project> {
 	@Inject
@@ -40,7 +41,6 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 			));
 			testSuite.dependencies(it -> {
 				it.implementation(project.project(":internalTesting"));
-				it.implementation(it.spockFramework());
 				it.implementation(it.gradleFixtures());
 			});
 			testSuite.getTestTasks().configureEach(task -> {
@@ -48,6 +48,7 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 			});
 		});
 		functionalTest(project, new UseJUnitJupiter(junitVersion(project)));
+		functionalTest(project, new UseSpockFramework(spockVersion(project)));
 	}
 
 	private static void functionalTest(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {

@@ -23,6 +23,7 @@ import org.gradle.api.Project;
 import javax.inject.Inject;
 
 import static nokeebuild.UseJUnitJupiter.junitVersion;
+import static nokeebuild.UseSpockFramework.spockVersion;
 
 abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plugin<Project> {
 	@Inject
@@ -34,11 +35,11 @@ abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plu
 		test(project, testSuite -> {
 			testSuite.dependencies(it -> {
 				it.implementation(project.project(":internalTesting"));
-				it.implementation(it.spockFramework());
 				it.implementation(it.groovy());
 			});
 		});
 		test(project, new UseJUnitJupiter(junitVersion(project)));
+		test(project, new UseSpockFramework(spockVersion(project)));
 	}
 
 	private static void test(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
