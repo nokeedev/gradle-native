@@ -23,6 +23,7 @@ import org.gradle.api.Project;
 import javax.inject.Inject;
 
 import static java.util.Arrays.asList;
+import static nokeebuild.UseJUnitJupiter.junitVersion;
 
 abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implements Plugin<Project> {
 	@Inject
@@ -46,6 +47,7 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 				task.systemProperty("org.gradle.testkit.dir", project.getLayout().getBuildDirectory().dir("gradle-runner-kit").get().getAsFile().getAbsolutePath());
 			});
 		});
+		functionalTest(project, new UseJUnitJupiter(junitVersion(project)));
 	}
 
 	private static void functionalTest(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
