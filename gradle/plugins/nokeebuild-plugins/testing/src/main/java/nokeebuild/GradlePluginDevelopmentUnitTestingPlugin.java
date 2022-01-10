@@ -22,6 +22,8 @@ import org.gradle.api.Project;
 
 import javax.inject.Inject;
 
+import static nokeebuild.UseJUnitJupiter.junitVersion;
+
 abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plugin<Project> {
 	@Inject
 	public GradlePluginDevelopmentUnitTestingPlugin() {}
@@ -36,6 +38,7 @@ abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plu
 				it.implementation(it.groovy());
 			});
 		});
+		test(project, new UseJUnitJupiter(junitVersion(project)));
 	}
 
 	private static void test(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
