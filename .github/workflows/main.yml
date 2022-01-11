@@ -27,155 +27,32 @@ jobs:
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
-    windows:
-        needs: assemble
-        runs-on: windows-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                checkTask: [
-                    ':buildAdapterCmake:check',
-                    ':coreExec:check',
-                    ':coreModel:check',
-                    ':coreScript:check',
-                    ':coreUtils:check',
-                    ':docs:exemplarKit:check',
-                    ':gradleApi:check',
-                    ':ideBase:check',
-                    ':ideVisualStudio:check',
-                    ':ideXcode:check',
-                    ':internalSmokeTest:check',
-                    ':internalTesting:check',
-                    ':languageBase:check',
-                    ':languageC:check',
-                    ':languageCpp:check',
-                    ':languageNative:check',
-                    ':languageObjectiveC:check',
-                    ':languageObjectiveCpp:check',
-                    ':languageSwift:check',
-                    ':platformBase:check',
-                    ':platformC:check',
-                    ':platformCpp:check',
-                    ':platformObjectiveC:check',
-                    ':platformObjectiveCpp:check',
-                    ':platformSwift:check',
-                    ':platformIos:check',
-                    ':platformJni:check',
-                    ':platformNative:check',
-                    ':publishingCore:check',
-                    ':runtimeBase:check',
-                    ':runtimeDarwin:check',
-                    ':runtimeNative:check',
-                    ':runtimeWindows:check',
-                    ':testingBase:check',
-                    ':testingNative:check',
-                    ':testingXctest:check']
-        steps:
-            -   uses: actions/checkout@v2
-            -   name: Run all tests
-                uses: ./.github/actions/gradle
-                with:
-                    arguments: ${{ matrix.checkTask }}
-                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
-                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{ secrets.GITHUB_TOKEN }}
-
-    macos:
-        needs: assemble
-        runs-on: macos-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                checkTask: [
-                    ':buildAdapterCmake:check',
-                    ':coreExec:check',
-                    ':coreModel:check',
-                    ':coreScript:check',
-                    ':coreUtils:check',
-                    ':docs:exemplarKit:check',
-                    ':gradleApi:check',
-                    ':ideBase:check',
-                    ':ideVisualStudio:check',
-                    ':ideXcode:check',
-                    ':internalSmokeTest:check',
-                    ':internalTesting:check',
-                    ':languageBase:check',
-                    ':languageC:check',
-                    ':languageCpp:check',
-                    ':languageNative:check',
-                    ':languageObjectiveC:check',
-                    ':languageObjectiveCpp:check',
-                    ':languageSwift:check',
-                    ':platformBase:check',
-                    ':platformC:check',
-                    ':platformCpp:check',
-                    ':platformObjectiveC:check',
-                    ':platformObjectiveCpp:check',
-                    ':platformSwift:check',
-                    ':platformIos:check',
-                    ':platformJni:check',
-                    ':platformNative:check',
-                    ':publishingCore:check',
-                    ':runtimeBase:check',
-                    ':runtimeDarwin:check',
-                    ':runtimeNative:check',
-                    ':runtimeWindows:check',
-                    ':testingBase:check',
-                    ':testingNative:check',
-                    ':testingXctest:check']
-        steps:
-            -   uses: actions/checkout@v2
-            -   name: Run all tests
-                uses: ./.github/actions/gradle
-                with:
-                    arguments: ${{ matrix.checkTask }}
-                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
-                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{ secrets.GITHUB_TOKEN }}
-
-    linux:
+    integration-tests:
         needs: assemble
         runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: ./.github/actions/install-build-dependencies
+            -   name: Run all tests
+                uses: ./.github/actions/gradle
+                with:
+                    arguments: integrationTest
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    functional-tests:
+        needs: assemble
+        runs-on: ${{ matrix.os }}
         strategy:
             fail-fast: false
             matrix:
                 checkTask: [
-                    ':buildAdapterCmake:check',
-                    ':coreExec:check',
-                    ':coreModel:check',
-                    ':coreScript:check',
-                    ':coreUtils:check',
-                    ':docs:exemplarKit:check',
-                    ':gradleApi:check',
-                    ':ideBase:check',
-                    ':ideVisualStudio:check',
-                    ':ideXcode:check',
-                    ':internalSmokeTest:check',
-                    ':internalTesting:check',
-                    ':languageBase:check',
-                    ':languageC:check',
-                    ':languageCpp:check',
-                    ':languageNative:check',
-                    ':languageObjectiveC:check',
-                    ':languageObjectiveCpp:check',
-                    ':languageSwift:check',
-                    ':platformBase:check',
-                    ':platformC:check',
-                    ':platformCpp:check',
-                    ':platformObjectiveC:check',
-                    ':platformObjectiveCpp:check',
-                    ':platformSwift:check',
-                    ':platformIos:check',
-                    ':platformJni:check',
-                    ':platformNative:check',
-                    ':publishingCore:check',
-                    ':runtimeBase:check',
-                    ':runtimeDarwin:check',
-                    ':runtimeNative:check',
-                    ':runtimeWindows:check',
-                    ':testingBase:check',
-                    ':testingNative:check',
-                    ':testingXctest:check']
+                        'functionalTestMinimumGradle',
+                        'functionalTestLatestGlobalAvailable',
+                        'functionalTestLatestNightly'
+                ]
+                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         steps:
             -   uses: actions/checkout@v2
             -   uses: ./.github/actions/install-build-dependencies
@@ -183,6 +60,24 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: ${{ matrix.checkTask }}
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    unit-tests:
+        needs: assemble
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: ./.github/actions/install-build-dependencies
+            -   name: Run all tests
+                uses: ./.github/actions/gradle
+                with:
+                    arguments: test
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -218,7 +113,7 @@ jobs:
                     github-token: ${{ secrets.GITHUB_TOKEN }}
     publish-head-milestone:
         if: github.ref == 'refs/heads/master'
-        needs: [linux, macos, windows, check-documentations, check-baked-documentation]
+        needs: [unit-tests, integration-tests, functional-tests, check-documentations, check-baked-documentation]
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v2
