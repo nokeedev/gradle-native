@@ -1,6 +1,7 @@
 plugins {
 	id 'nokeebuild.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-unit-test'
+	id 'nokeebuild.gradle-plugin-integration-test'
 	id 'nokeebuild.gradle-plugin-functional-test'
 	id 'java-test-fixtures'
 	id 'maven-publish'
@@ -16,7 +17,6 @@ dependencies {
 	testImplementation project(':runtimeNative')
 	testImplementation project(':platformBase')
 	testImplementation testFixtures(project(':coreModel'))
-	testImplementation testFixtures(project(':coreScript'))
 
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
@@ -32,6 +32,14 @@ gradlePlugin {
 			id = 'dev.nokee.c-language'
 			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguagePlugin'
 		}
+	}
+}
+
+integrationTest {
+	dependencies {
+		implementation project(':platformBase')
+		implementation testFixtures(project)
+		implementation testFixtures(project(':coreScript'))
 	}
 }
 

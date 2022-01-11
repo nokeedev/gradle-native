@@ -1,6 +1,7 @@
 plugins {
 	id 'nokeebuild.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-unit-test'
+	id 'nokeebuild.gradle-plugin-integration-test'
 	id 'nokeebuild.gradle-plugin-functional-test'
 	id 'java-test-fixtures'
 	id 'maven-publish'
@@ -13,6 +14,7 @@ dependencies {
 	implementation project(':languageNative')
 	implementation project(':platformBase')
 	implementation project(':coreExec')
+	implementation project(':runtimeNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
 	annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
@@ -32,6 +34,14 @@ gradlePlugin {
 			id = "dev.nokee.swift-language-base"
 			implementationClass = "dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin"
 		}
+	}
+}
+
+integrationTest {
+	dependencies {
+		implementation project(':platformBase')
+		implementation testFixtures(project)
+		implementation testFixtures(project(':coreScript'))
 	}
 }
 

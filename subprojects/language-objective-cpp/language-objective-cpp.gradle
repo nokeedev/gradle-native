@@ -1,6 +1,7 @@
 plugins {
 	id 'nokeebuild.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-unit-test'
+	id 'nokeebuild.gradle-plugin-integration-test'
 	id 'nokeebuild.gradle-plugin-functional-test'
 	id 'java-test-fixtures'
 	id 'maven-publish'
@@ -10,6 +11,7 @@ dependencies {
 	api project(':languageCpp')
 	implementation project(':coreScript')
 	implementation project(':coreUtils')
+	implementation project(':runtimeNative')
 	implementation "com.google.guava:guava:${guavaVersion}"
 
 	testImplementation project(':languageCpp') // TODO: Maybe?
@@ -32,6 +34,14 @@ gradlePlugin {
 			id = 'dev.nokee.objective-cpp-language'
 			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
 		}
+	}
+}
+
+integrationTest {
+	dependencies {
+		implementation project(':platformBase')
+		implementation testFixtures(project)
+		implementation testFixtures(project(':coreScript'))
 	}
 }
 
