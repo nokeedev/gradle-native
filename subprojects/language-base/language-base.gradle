@@ -1,6 +1,7 @@
 plugins {
 	id 'nokeebuild.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-unit-test'
+	id 'nokeebuild.gradle-plugin-integration-test'
 	id 'nokeebuild.gradle-plugin-functional-test'
 	id 'java-test-fixtures'
 	id 'maven-publish'
@@ -18,7 +19,6 @@ dependencies {
 
 	testCompileOnly project(':platformBase')
 	testImplementation testFixtures(project(':coreModel'))
-	testImplementation testFixtures(project(':coreScript'))
 
 	testFixturesApi project(':internalTesting')
 	testFixturesImplementation testFixtures(project(':coreModel'))
@@ -31,6 +31,12 @@ gradlePlugin {
 			id = "dev.nokee.language-base"
 			implementationClass = "dev.nokee.language.base.internal.plugins.LanguageBasePlugin"
 		}
+	}
+}
+
+integrationTest {
+	dependencies {
+		implementation testFixtures(project(':coreScript'))
 	}
 }
 
