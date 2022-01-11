@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package nokeebuild;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.tasks.SourceSetContainer;
 
 import javax.inject.Inject;
 
-import static nokeebuild.UseLombok.lombokVersion;
+import static dev.gradleplugins.GradlePluginDevelopmentRepositoryExtension.from;
 
-abstract /*final*/ class JvmBasePlugin implements Plugin<Project> {
+abstract /*final*/ class RepositoriesPlugin implements Plugin<Project> {
 	@Inject
-	public JvmBasePlugin() {}
+	public RepositoriesPlugin() {}
 
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().withPlugin("java-base", ignored -> {
-			project.getPluginManager().apply("nokeebuild.repositories");
-			sourceSets(project).configureEach(new UseLombok(project, lombokVersion(project)));
-		});
-	}
-
-	private static SourceSetContainer sourceSets(Project project) {
-		return project.getExtensions().getByType(SourceSetContainer.class);
+		project.getRepositories().mavenCentral();
+		from(project.getRepositories()).gradlePluginDevelopment();
+		project.getRepositories().mavenLocal();
 	}
 }

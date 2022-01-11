@@ -26,6 +26,7 @@ buildscript {
 }
 
 plugins {
+	id 'nokeebuild.repositories'
 	id 'dev.nokeebuild.documentation'
 	id 'maven-publish'
 }

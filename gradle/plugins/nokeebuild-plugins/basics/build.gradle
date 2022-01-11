@@ -1,0 +1,16 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+dependencies {
+	compileOnly 'dev.gradleplugins:gradle-plugin-development:1.6.1'
+}
+
+gradlePlugin {
+	plugins {
+		base {
+			id = 'nokeebuild.repositories'
+			implementationClass = 'nokeebuild.RepositoriesPlugin'
+		}
+	}
+}
