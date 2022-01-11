@@ -6,3 +6,10 @@ rootProject.name = 'nokeebuild-plugins'
 
 include 'jvm-basics'
 include 'testing'
+
+gradle.allprojects {
+	repositories {
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
