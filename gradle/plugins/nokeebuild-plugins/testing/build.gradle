@@ -12,6 +12,10 @@ gradlePlugin {
 			id = 'nokeebuild.gradle-plugin-unit-test'
 			implementationClass = 'nokeebuild.GradlePluginDevelopmentUnitTestingPlugin'
 		}
+		integrationTesting {
+			id = 'nokeebuild.gradle-plugin-integration-test'
+			implementationClass = 'nokeebuild.GradlePluginDevelopmentIntegrationTestingPlugin'
+		}
 		functionalTesting {
 			id = 'nokeebuild.gradle-plugin-functional-test'
 			implementationClass = 'nokeebuild.GradlePluginDevelopmentFunctionalTestingPlugin'
