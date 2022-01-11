@@ -1,4 +1,5 @@
 plugins {
+	id 'nokeebuild.jvm-base'
 	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-unit-test'
 	id 'nokeebuild.gradle-plugin-functional-test'
