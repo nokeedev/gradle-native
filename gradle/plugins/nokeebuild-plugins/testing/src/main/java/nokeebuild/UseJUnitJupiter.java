@@ -34,7 +34,7 @@ final class UseJUnitJupiter implements Action<GradlePluginDevelopmentTestSuite> 
 		testSuite.dependencies(it -> {
 			it.implementation(it.platform("org.junit:junit-bom:" + version));
 			it.implementation("org.junit.jupiter:junit-jupiter");
-			it.runtimeOnly("org.junit.vintage:junit-vintage-engine:" + version);
+			it.runtimeOnly("org.junit.vintage:junit-vintage-engine");
 		});
 		testSuite.getTestTasks().configureEach(task -> {
 			task.useJUnitPlatform();
