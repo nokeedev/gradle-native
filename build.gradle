@@ -138,15 +138,6 @@ subprojects {
 	tasks.withType(Test).configureEach { it.useJUnitPlatform() }
 }
 
-// Configure general artifact repositories
-subprojects {
-	repositories {
-		mavenCentral()
-		gradlePluginDevelopment()
-		mavenLocal()
-	}
-}
-
 // Configure Documentation
 subprojects { prj ->
 	if (prj.name == 'internalTesting') {

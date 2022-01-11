@@ -2,6 +2,10 @@ plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
 }
 
+dependencies {
+	runtimeOnly project(':basics')
+}
+
 gradlePlugin {
 	plugins {
 		base {
