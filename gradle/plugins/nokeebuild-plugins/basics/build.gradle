@@ -9,7 +9,7 @@ dependencies {
 
 gradlePlugin {
 	plugins {
-		base {
+		repositories {
 			id = 'nokeebuild.repositories'
 			implementationClass = 'nokeebuild.RepositoriesPlugin'
 		}
