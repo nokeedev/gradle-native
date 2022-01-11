@@ -31,6 +31,7 @@ abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plu
 
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply("groovy-base");
 		project.getPluginManager().apply("dev.gradleplugins.gradle-plugin-unit-test");
 		test(project, testSuite -> {
 			testSuite.dependencies(it -> {
