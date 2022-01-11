@@ -3,11 +3,11 @@ plugins {
 }
 
 repositories {
-	mavenLocal()
+	gradlePluginPortal()
 }
 
 dependencies {
-	compileOnly 'dev.gradleplugins:gradle-plugin-development:1.5.1'
+	compileOnly 'dev.gradleplugins:gradle-plugin-development:1.6.1'
 }
 
 gradlePlugin {
