@@ -34,8 +34,6 @@ import org.gradle.util.VersionNumber
 
 import java.text.SimpleDateFormat
 
-import static dev.gradleplugins.GradleRuntimeCompatibility.*
-
 class Version {
 	private VersionNumber delegate = null
 	private final ProjectLayout projectLayout
@@ -99,27 +97,6 @@ subprojects {
 
 		tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
 			dependsOn cleanTestFiles
-		}
-	}
-}
-
-// Configure gradlePlugin
-subprojects {
-	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
-		gradlePlugin {
-			compatibility {
-				minimumGradleVersion = project.minimumGradleVersion
-			}
-			java {
-				withJavadocJar()
-				withSourcesJar()
-			}
-		}
-	}
-	pluginManager.withPlugin('java-library') {
-		java {
-			sourceCompatibility = minimumJavaVersionFor(minimumGradleVersion)
-			targetCompatibility = minimumJavaVersionFor(minimumGradleVersion)
 		}
 	}
 }

@@ -1,0 +1,21 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+dependencies {
+	runtimeOnly project(':jvm-basics')
+	compileOnly 'dev.gradleplugins:gradle-plugin-development:1.6.1'
+}
+
+gradlePlugin {
+	plugins {
+		javaGradlePlugin {
+			id = 'nokeebuild.java-gradle-plugin'
+			implementationClass = 'nokeebuild.JavaGradlePluginDevelopmentPlugin'
+		}
+		javaGradleLibrary {
+			id = 'nokeebuild.java-gradle-library'
+			implementationClass = 'nokeebuild.JavaGradleLibraryDevelopmentPlugin'
+		}
+	}
+}

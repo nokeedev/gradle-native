@@ -1,6 +1,5 @@
 plugins {
-	id 'nokeebuild.jvm-base'
-	id 'java-library'
+	id 'nokeebuild.java-gradle-library'
 }
 
 description = 'Includes annotation from future Gradle distribution to ensure forward compatibility. Please only use `compileOnly` dependencies to this project'

@@ -1,6 +1,5 @@
 plugins {
-	id 'nokeebuild.jvm-base'
-	id 'java-library'
+	id 'nokeebuild.java-gradle-library'
 	id 'maven-publish'
 }
 
@@ -76,10 +75,6 @@ sourceSets {
 	'v6.5' {}
 	'v6.6' {}
 	'v7.0' {}
-}
-
-dependencies {
-	compileOnly gradleApi(minimumGradleVersion)
 }
 
 publishing {
