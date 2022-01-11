@@ -9,6 +9,10 @@ dependencies {
 
 gradlePlugin {
 	plugins {
+		lifecycleBase {
+			id = 'nokeebuild.lifecycle-base'
+			implementationClass = 'nokeebuild.LifecycleBasePlugin'
+		}
 		repositories {
 			id = 'nokeebuild.repositories'
 			implementationClass = 'nokeebuild.RepositoriesPlugin'

@@ -17,26 +17,16 @@ package nokeebuild;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.tasks.SourceSetContainer;
 
 import javax.inject.Inject;
 
-import static nokeebuild.UseLombok.lombokVersion;
-
-abstract /*final*/ class JvmBasePlugin implements Plugin<Project> {
+abstract /*final*/ class LifecycleBasePlugin implements Plugin<Project> {
 	@Inject
-	public JvmBasePlugin() {}
+	public LifecycleBasePlugin() {}
 
 	@Override
 	public void apply(Project project) {
-		project.getPluginManager().apply("nokeebuild.lifecycle-base");
-		project.getPluginManager().withPlugin("java-base", ignored -> {
-			project.getPluginManager().apply("nokeebuild.repositories");
-			sourceSets(project).configureEach(new UseLombok(project, lombokVersion(project)));
-		});
-	}
+		project.getPluginManager().apply("lifecycle-base");
 
-	private static SourceSetContainer sourceSets(Project project) {
-		return project.getExtensions().getByType(SourceSetContainer.class);
 	}
 }
