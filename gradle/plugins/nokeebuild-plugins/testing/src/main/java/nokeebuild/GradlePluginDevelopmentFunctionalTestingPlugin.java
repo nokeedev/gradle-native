@@ -32,6 +32,7 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply(TestingBasePlugin.class);
 		project.getPluginManager().apply("groovy-base");
 		project.getPluginManager().apply("dev.gradleplugins.gradle-plugin-functional-test");
 		functionalTest(project, testSuite -> {
