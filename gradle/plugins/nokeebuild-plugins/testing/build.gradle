@@ -2,10 +2,6 @@ plugins {
 	id 'dev.gradleplugins.java-gradle-plugin'
 }
 
-repositories {
-	gradlePluginPortal()
-}
-
 dependencies {
 	compileOnly 'dev.gradleplugins:gradle-plugin-development:1.6.1'
 }
