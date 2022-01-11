@@ -1,14 +1,11 @@
 plugins {
-	id 'nokeebuild.jvm-base'
-	id 'java-library'
+	id 'nokeebuild.java-gradle-library'
 	id 'maven-publish'
 	id 'groovy-base'
 	id 'java-test-fixtures'
 }
 
 dependencies {
-	compileOnly gradleApi(minimumGradleVersion)
-
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "com.google.guava:guava:${guavaVersion}"

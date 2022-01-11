@@ -1,11 +1,9 @@
 plugins {
-	id 'nokeebuild.jvm-base'
-	id 'java-library'
+	id 'nokeebuild.java-gradle-library'
 	id 'maven-publish'
 }
 
 dependencies {
-	compileOnly gradleApi(minimumGradleVersion)
 	implementation 'com.google.code.gson:gson:2.8.6'
 }
 

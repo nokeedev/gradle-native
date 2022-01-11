@@ -1,9 +1,7 @@
 plugins {
-	id 'nokeebuild.jvm-base'
-	id 'java-library'
+	id 'nokeebuild.java-gradle-library'
 	id 'maven-publish'
 	id 'groovy-base'
-	id 'dev.gradleplugins.java-gradle-plugin' // Only for wiring the plugin under test metadata
 	id 'nokeebuild.gradle-plugin-unit-test'
 }
 
@@ -23,7 +21,6 @@ tasks.named('jar', Jar) { task ->
 dependencies {
 	shaded 'net.rubygrapefruit:ansi-control-sequence-util:0.2'
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
-	compileOnly gradleApi(minimumGradleVersion)
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
