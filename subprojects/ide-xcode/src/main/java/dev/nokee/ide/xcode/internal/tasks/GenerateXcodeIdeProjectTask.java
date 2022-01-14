@@ -428,6 +428,11 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		// If you are a user of the Nokee plugins reading this, feel free to open an feature request with your use cases.
 		target.setPassBuildSettingsInEnvironment(false);
 
+		// For now, we want to pass the build settings in environment **only** so SDKROOT is picked up by clang.
+		// Note that we keep the previous setting as this override is a simple workaround.
+		//   See https://github.com/nokeedev/gradle-native/issues/334
+		target.setPassBuildSettingsInEnvironment(true);
+
 		xcodeTarget.getBuildConfigurations().forEach(buildConfiguration -> {
 			NSDictionary settings = target.getBuildConfigurationList().getBuildConfigurationsByName().getUnchecked(buildConfiguration.getName()).getBuildSettings();
 			settings.put("__DO_NOT_CHANGE_ANY_VALUE_HERE__", "Instead, use the build.gradle[.kts] files.");
@@ -440,6 +445,11 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			// With PBXLegacyTarget Xcode ignores the product reference on the target for the path.
 			// Instead, it uses the PRODUCT_NAME settings to infer the path inside the BUILT_PRODUCT_DIR.
 			settings.put("PRODUCT_NAME", xcodeTarget.getProductReference().get());
+
+			// For now, lets always assume macosx as SDKROOT.
+			// Later, Gradle should handle the sdk and sysroot properly.
+			//   See https://github.com/nokeedev/gradle-native/issues/334
+			settings.put("SDKROOT", "macosx");
 		});
 
 		return target;
