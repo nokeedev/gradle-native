@@ -403,7 +403,7 @@ class XcodeIdeProjectFixture implements IdeProjectFixture {
 					assert it.contains('-Pdev.nokee.internal.xcode.bridge.TARGET_NAME="${TARGET_NAME}"')
 					assert it.contains(':_xcode__${ACTION}_${PROJECT_NAME}_${TARGET_NAME}_${CONFIGURATION}')
 				}
-				assert getObject('passBuildSettingsInEnvironment').toString() == '0'
+				assert getObject('passBuildSettingsInEnvironment').toString() == '1' // true only as a work around for passing SDKROOT
 				return this
 			}
 		}
