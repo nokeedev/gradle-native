@@ -1,0 +1,172 @@
+= Building {C Applications}
+:summary: Building {C application}s.
+:type: guide-chapter
+:tags: guide, {application}, sources, native, {C}, gradle
+:category: {C}
+:description: Learn how to build {an application} implemented in {C} using the Gradle Nokee plugins.
+
+This guide demonstrates how to create a {C application} using the Nokee plugins for Gradle.
+You can follow the guide step-by-step to create a new project from scratch or download the complete project using the links above.
+
+== What we'll build
+
+We’ll generate a {C application} that follows Nokee and Gradle’s conventions.
+
+== What we’ll need
+
+* A text editor or IDE - for example https://www.jetbrains.com/idea/download/[IntelliJ IDEA]
+* A Java Development Kit (JDK), version 8 or higher - for example https://adoptopenjdk.net/[AdoptOpenJDK]
+* The latest https://gradle.org/install[Gradle distribution]
+* An installed C compiler.
+ See which link:TODO[C toolchains] are supported by Nokee.
+
+== 1. Create a project folder
+
+First, let's create an empty folder for our project and use the build-in `wrapper` task to create a Gradle wrapper script, e.g. `gradlew`.
+
+[source,terminal]
+----
+$ mkdir demo
+$ cd demo
+$ gradle wrapper
+
+BUILD SUCCESSFUL
+1 actionable tasks: 1 executed
+$ tree .
+├── gradle       // <1>
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew      // <2>
+└── gradlew.bat  // <2>
+
+2 directories, 4 files
+$ touch settings.gradle // <3>
+
+----
+
+<1> Generated folder for wrapper files
+
+<2> Gradle wrapper start scripts
+
+<3> Create an empty Gradle workspace buildscript
+
+We now have a Gradle project setup.
+Let's configure {C application} capability to the project.
+
+== 2. Configure {C application} capability
+
+First, create the project buildscript, e.g. `build.gradle`.
+
+build.gradle
+
+[source,groovy]
+----
+plugins {  // <1>
+	id 'dev.nokee.c-application' // <2>
+}
+----
+
+<1> We use the plugin block to apply plugins that extends the project capability.
+We can apply any Gradle project plugin here.
+Learn more about the link:TODO[plugins block in Gradle's documentation].
+Refer to each plugin's reference chapter to learn more about each individual plugins.
+
+<2> We apply Nokee's {C application} plugin.
+Learn more about link:TODO[this plugin at its reference chapter].
+
+NOTE: Gradle support two domain specific language (DSL): Groovy DSL and Kotlin DSL.
+For this guide, we will use Groovy DSL which is closer in syntax to {C} language.
+Learn more about Gradle DSL language in the link:TODO[Getting started chapter].
+
+== 3. Add {C} code
+
+By default, Nokee uses link:TODO[Gradle's conventional source layout].
+All {C} application code is located at `src/main/c` and its private headers are located at `src/main/headers`.
+
+Let's add a very simple hello world:
+
+.src/main/c/main.c
+[source,c]
+----
+#include <stdio>
+#include <my_string.h>
+
+int main(int argc, char** argv) {
+	printf("%s\n", kHelloWorld);
+	return 0;
+}
+----
+
+.src/main/headers/my_string.h
+[source,c]
+----
+static const char* kHelloWorld = "Hello, World!";
+----
+
+Next, let's build the application.
+
+== 3. Build the {application}
+
+[source,terminal]
+----
+$ ./gradlew build
+
+BUILD SUCCESSFUL
+7 actionable tasks: 7 executed
+----
+
+NOTE: The first time you run the wrapper script, e.g. `gradlew[.bat]`, there may be a delay while that version of gradle is downloaded and stored locally in your `~/.gradle/wrapper/dists` folder.
+Learn link:TODO[why Gradle download distribution when using wrapper].
+
+The build task compiles the {C} sources, links the object files, and runs the tests, if any.
+The following shows the content of the `build` folder:
+
+[source,terminal]
+----
+$ tree ./build
+./build
+|- exe
+  |- main
+    |- app // <1>
+|- objs  // <2>
+  |- main
+    |- <hash>
+      |- main.o
+|- tmp // <3>
+  |- compileC
+    |- options.txt
+  |- link
+    |- options.txt
+----
+<1> The built executable
+<2> All object files are built here
+<3> The `tmp` folder is a temporary workspace for all Gradle tasks.
+You can find `options.txt` file containing all flags for both compile and link tasks.
+
+NOTE: Dependencies on other projects isn’t covered in this guide.
+To learn more about this subject, have a look at the transitive dependency sample for a demonstration.
+
+NOTE: Nokee integrates with several IDEs: [Visual Studio], [Xcode] and [Clion].
+To learn more, have a look at their respective linked documentation to configure those IDEs integration in your project.
+
+== 4. Run the application
+
+Look inside the `build` folder, and you will notice the appearance of an exe folder.
+By convention, Gradle will place all {applications} in subfolders named according to the component name.
+In this case, you will find your assembled executable in `build/exe/main` and it will be called `app` (or `app.exe` under Windows).
+
+Now run your newly built executable.
+
+[source,terminal]
+----
+$ ./build/exe/main/app
+Hello, World!
+----
+
+== Next steps
+
+To learn more about how you can further customize {C application} projects, check out the user manual chapter on link:TODO[Building native projects].
+Check out other guides and samples around common configuration:
+
+TODO: Link to other guides and samples…
