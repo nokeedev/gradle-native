@@ -1,0 +1,54 @@
+= {C Application} Custom Source Layout Configuration
+:summary: Configure custom source layout for a {C application}.
+:type: sample-chapter
+:tags: sample, {application}, sources, native, {C}, gradle
+:category: {C}
+:description: See how to customize the source layout of {an application} implemented in {C} using the Gradle Nokee plugins.
+
+NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
+
+This sample shows how to configure the source layout of a {C application}.
+The library has no dependencies, and the build has a minimal configuration.
+
+In this sample, we are configuring source layout of {an application} implemented in {C}; however, this applies to other native components and languages as well.
+
+[source,groovy]
+----
+plugins {
+	id 'dev.nokee.c-application'
+}
+
+application {
+	cSources.setFrom('srcs')        // <1>
+	privateHeaders.setFrom('incs')  // <2>
+}
+
+----
+<1> Configure C sources to include everything under `srcs` directory.
+<2> Configure private headers to include everything under `incs` directory.
+
+To build the application:
+
+[source,terminal]
+----
+$ ./gradlew assemble
+
+BUILD SUCCESSFUL
+4 actionable tasks: 4 executed
+----
+
+If we create invalid source code at the conventional location and rebuild the application, as expected, the build succeeds.
+
+[source,terminal]
+----
+$ mkdir -p src/main/cpp
+$ echo "broken!" > src/main/cpp/broken.cpp
+$ mkdir -p src/main/headers
+$ echo "broken!" > src/main/headers/greeter.h
+$ ./gradlew clean assemble
+
+BUILD SUCCESSFUL
+5 actionable tasks: 5 executed
+----
+
+For more information, see link:working-with-source-files.adoc[working with source files chapter].
