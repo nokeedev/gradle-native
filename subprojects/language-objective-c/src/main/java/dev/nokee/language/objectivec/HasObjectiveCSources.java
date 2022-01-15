@@ -43,7 +43,5 @@ public interface HasObjectiveCSources {
 	 * @see #getObjectiveCSources()
 	 */
 	void objectiveCSources(Action<? super ObjectiveCSourceSet> action);
-
-	/** @see #objectiveCSources(Action) */
 	void objectiveCSources(@DelegatesTo(value = ObjectiveCSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

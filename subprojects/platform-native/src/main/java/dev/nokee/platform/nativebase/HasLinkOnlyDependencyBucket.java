@@ -53,8 +53,6 @@ public interface HasLinkOnlyDependencyBucket {
 	default void linkOnly(Object notation, Action<? super ModuleDependency> action) {
 		getLinkOnly().addDependency(notation, action);
 	}
-
-	/** @see #linkOnly(Object, Action) */
 	default void linkOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		linkOnly(notation, ConfigureUtil.configureUsing(closure));
 	}

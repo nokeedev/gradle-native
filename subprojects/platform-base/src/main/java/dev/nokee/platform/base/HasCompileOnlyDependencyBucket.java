@@ -52,8 +52,6 @@ public interface HasCompileOnlyDependencyBucket {
 	default void compileOnly(Object notation, Action<? super ModuleDependency> action) {
 		getCompileOnly().addDependency(notation, action);
 	}
-
-	/** @see #compileOnly(Object, Action) */
 	default void compileOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		compileOnly(notation, ConfigureUtil.configureUsing(closure));
 	}

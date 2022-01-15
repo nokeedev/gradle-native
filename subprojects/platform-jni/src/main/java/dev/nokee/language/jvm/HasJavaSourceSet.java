@@ -45,7 +45,5 @@ public interface HasJavaSourceSet {
 	 * @see #getJava()
 	 */
 	void java(Action<? super JavaSourceSet> action);
-
-	/** @see #java(Action) */
 	void java(@ClosureParams(value = SimpleType.class, options = "dev.nokee.language.jvm.JavaSourceSet") @DelegatesTo(value = JavaSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

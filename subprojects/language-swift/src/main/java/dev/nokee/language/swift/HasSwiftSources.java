@@ -42,7 +42,5 @@ public interface HasSwiftSources {
 	 * @see #getSwiftSources()
 	 */
 	void swiftSources(Action<? super SwiftSourceSet> action);
-
-	/** @see #swiftSources(Action) */
 	void swiftSources(@DelegatesTo(value = SwiftSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

@@ -46,8 +46,6 @@ public interface ConfigurableSourceSet extends SourceSet {
 	 * @return this language source set, never null
 	 */
 	ConfigurableSourceSet filter(Action<? super PatternFilterable> action);
-
-	/** @see #filter(Action) */
 	default ConfigurableSourceSet filter(@ClosureParams(value = SimpleType.class, options = "org.gradle.api.tasks.util.PatternFilterable") @DelegatesTo(value = PatternFilterable.class, strategy = Closure.DELEGATE_FIRST) Closure<?> closure) {
 		return filter(ConfigureUtil.configureUsing(closure));
 	}

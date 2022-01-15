@@ -39,7 +39,5 @@ public interface SourceAwareComponent<T extends ComponentSources> {
 	 * @param action  the configuration action, must not be null
 	 */
 	void sources(Action<? super T> action);
-
-	/** @see #sources(Action) */
 	void sources(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }
