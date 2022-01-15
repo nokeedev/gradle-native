@@ -30,7 +30,6 @@ void subproject(String path, Closure closure = {}) {
 
 subproject('build-adapter-cmake')
 subproject('core-exec')
-subproject('core-gradle')
 subproject('core-model')
 subproject('core-model')
 subproject('core-script')
