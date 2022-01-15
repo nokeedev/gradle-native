@@ -44,8 +44,6 @@ public interface VariantAwareComponent<T extends Variant> {
 	 * @param action  the configuration action, must not be null
 	 */
 	void variants(Action<? super VariantView<T>> action);
-
-	/** @see #variants(Action) */
 	void variants(@ClosureParams(value = SimpleType.class, options = "dev.nokee.platform.base.VariantView") @DelegatesTo(value = VariantView.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 
 	/**

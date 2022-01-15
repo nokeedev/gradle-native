@@ -58,7 +58,5 @@ public interface VariantDimensions {
 	 * @return a set property to configure the axis values, never null
 	 */
 	<T> SetProperty<T> newAxis(Class<T> axisType, Action<? super VariantDimensionBuilder> action);
-
-	/** @see #newAxis(Class, Action) */
 	<T> SetProperty<T> newAxis(Class<T> axisType, @ClosureParams(value = SimpleType.class, options = "dev.nokee.platform.base.VariantDimensionBuilder") @DelegatesTo(value = VariantDimensionBuilder.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

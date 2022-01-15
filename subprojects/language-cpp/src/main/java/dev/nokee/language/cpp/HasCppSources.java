@@ -42,7 +42,5 @@ public interface HasCppSources {
 	 * @see #getCppSources()
 	 */
 	void cppSources(Action<? super CppSourceSet> action);
-
-	/** @see #cppSources(Action) */
 	void cppSources(@DelegatesTo(value = CppSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

@@ -39,8 +39,6 @@ public interface DependencyAwareComponent<T extends ComponentDependencies> {
 	 * @param action configuration action for {@link ComponentDependencies}.
 	 */
 	void dependencies(Action<? super T> action);
-
-	/** @see #dependencies(Action) */
 	void dependencies(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }
 

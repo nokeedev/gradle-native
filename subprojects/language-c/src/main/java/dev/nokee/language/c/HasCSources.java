@@ -42,7 +42,5 @@ public interface HasCSources {
 	 * @see #getCSources()
 	 */
 	void cSources(Action<? super CSourceSet> action);
-
-	/** @see #cSources(Action) */
 	void cSources(@DelegatesTo(value = CSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

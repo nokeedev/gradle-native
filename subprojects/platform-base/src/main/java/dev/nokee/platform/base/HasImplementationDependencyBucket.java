@@ -52,8 +52,6 @@ public interface HasImplementationDependencyBucket {
 	default void implementation(Object notation, Action<? super ModuleDependency> action) {
 		getImplementation().addDependency(notation, action);
 	}
-
-	/** @see #implementation(Object, Action) */
 	default void implementation(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		implementation(notation, ConfigureUtil.configureUsing(closure));
 	}

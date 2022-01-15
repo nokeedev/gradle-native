@@ -45,7 +45,5 @@ public interface HasGroovySourceSet {
 	 * @see #getGroovy()
 	 */
 	void groovy(Action<? super GroovySourceSet> action);
-
-	/** @see #groovy(Action) */
 	void groovy(@ClosureParams(value = SimpleType.class, options = "dev.nokee.language.jvm.GroovySourceSet") @DelegatesTo(value = GroovySourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

@@ -45,7 +45,5 @@ public interface HasKotlinSourceSet {
 	 * @see #getKotlin()
 	 */
 	void kotlin(Action<? super KotlinSourceSet> action);
-
-	/** @see #kotlin(Action) */
 	void kotlin(@ClosureParams(value = SimpleType.class, options = "dev.nokee.language.jvm.KotlinSourceSet") @DelegatesTo(value = KotlinSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

@@ -52,8 +52,6 @@ public interface HasRuntimeOnlyDependencyBucket {
 	default void runtimeOnly(Object notation, Action<? super ModuleDependency> action) {
 		getRuntimeOnly().addDependency(notation, action);
 	}
-
-	/** @see #runtimeOnly(Object, Action) */
 	default void runtimeOnly(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		runtimeOnly(notation, ConfigureUtil.configureUsing(closure));
 	}

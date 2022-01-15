@@ -42,7 +42,5 @@ public interface HasObjectiveCppSources {
 	 * @see #getObjectiveCppSources()
 	 */
 	void objectiveCppSources(Action<? super ObjectiveCppSourceSet> action);
-
-	/** @see #objectiveCppSources(Action) */
 	void objectiveCppSources(@DelegatesTo(value = ObjectiveCppSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

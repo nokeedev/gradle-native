@@ -42,7 +42,5 @@ public interface HasPrivateHeaders {
 	 * @see #getPrivateHeaders()
 	 */
 	void privateHeaders(Action<? super NativeHeaderSet> action);
-
-	/** @see #privateHeaders(Action) */
 	void privateHeaders(@DelegatesTo(value = NativeHeaderSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

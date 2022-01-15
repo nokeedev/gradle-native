@@ -50,8 +50,6 @@ public interface HasApiDependencyBucket {
 	default void api(Object notation, Action<? super ModuleDependency> action) {
 		getApi().addDependency(notation, action);
 	}
-
-	/** @see #api(Object, Action) */
 	default void api(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
 		api(notation, ConfigureUtil.configureUsing(closure));
 	}
