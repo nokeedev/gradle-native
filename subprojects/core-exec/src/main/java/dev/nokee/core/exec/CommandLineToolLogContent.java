@@ -106,6 +106,7 @@ public interface CommandLineToolLogContent {
 	/**
 	 * Visit each lines.
 	 *
+	 * @param visitor  log content line visitor, must not be null
 	 * @return a new {@link CommandLineToolLogContent} instance of the result following the visit, never null.
 	 * @since 0.5
 	 */
