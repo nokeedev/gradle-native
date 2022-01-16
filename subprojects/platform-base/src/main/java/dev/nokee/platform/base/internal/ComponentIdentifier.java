@@ -57,22 +57,22 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 		return identity.getName();
 	}
 
-	@Deprecated
+	// FIXME: Remove this API
 	public Path getPath() {
 		return getProjectIdentifier().getPath().child(getName().get());
 	}
 
-	@Deprecated
+	// FIXME: Remove this API
 	public Optional<ProjectIdentifier> getParentIdentifier() {
 		return Optional.of(projectIdentifier);
 	}
 
-	@Deprecated
+	// FIXME: Remove this API
 	public ProjectIdentifier getProjectIdentifier() {
 		return projectIdentifier;
 	}
 
-	@Deprecated
+	// FIXME: Remove this API
 	public String getDisplayName() {
 		return displayName;
 	}
