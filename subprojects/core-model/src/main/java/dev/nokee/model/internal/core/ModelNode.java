@@ -23,7 +23,10 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -80,7 +83,6 @@ public final class ModelNode {
 		return new ModelComponentTypes(components.keySet());
 	}
 
-	@Deprecated
 	public <T> T getComponent(Class<T> type) {
 		return findComponent(type).orElseThrow(() -> new RuntimeException(String.format("No components of type '%s'. Available: %s", type.getSimpleName(), components.keySet())));
 	}
@@ -89,7 +91,6 @@ public final class ModelNode {
 		return findComponent(componentType).orElseThrow(RuntimeException::new);
 	}
 
-	@Deprecated
 	public <T> Optional<T> findComponent(Class<T> type) {
 		return components.values().stream().filter(type::isInstance).map(type::cast).findFirst();
 	}
@@ -100,7 +101,6 @@ public final class ModelNode {
 		return Optional.ofNullable(result);
 	}
 
-	@Deprecated
 	public boolean hasComponent(Class<?> type) {
 		return components.values().stream().anyMatch(type::isInstance);
 	}
@@ -109,7 +109,6 @@ public final class ModelNode {
 		return components.containsKey(componentType);
 	}
 
-	@Deprecated
 	public <T> void setComponent(Class<T> componentTypez, T component) {
 		setComponent(component);
 	}
