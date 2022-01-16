@@ -86,6 +86,8 @@ public interface ModelLookup {
 		/**
 		 * Returns the result mapped using the specified mapper function.
 		 *
+		 * @param mapper  mapper function to apply on each entity, must not be null
+		 * @param <R> mapped type
 		 * @return a list of the matching nodes mapped using the mapper function, never null.
 		 */
 		<R> List<R> map(Function<? super ModelNode, R> mapper);

@@ -133,7 +133,8 @@ public final class PropertyUtils {
 	/**
 	 * Adds the specified values to a collection property.
 	 *
-	 * @param values  values to add to the property
+	 * @param value  value to add to the property, must not be null
+	 * @param values  values to add to the property, must not be null
 	 * @param <SELF>  property owner
 	 * @param <T>  property type
 	 * @return a composable action that add the specified values to the input property, never null

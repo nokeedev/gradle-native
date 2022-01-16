@@ -151,6 +151,7 @@ public final class ModelNodeUtils {
 	/**
 	 * Returns a model provider of the relative registration.
 	 *
+	 * @param self  the node apply the registration, must not be null
 	 * @param registration  registration request relative to this model node
 	 * @return a provider to the default projection of this registration.
 	 */
@@ -169,6 +170,7 @@ public final class ModelNodeUtils {
 	/**
 	 * Returns the path of this model node.
 	 *
+	 * @param self  the entity to return the path
 	 * @return a {@link ModelPath} representing this model node, never null.
 	 */
 	public static ModelPath getPath(ModelNode self) {
