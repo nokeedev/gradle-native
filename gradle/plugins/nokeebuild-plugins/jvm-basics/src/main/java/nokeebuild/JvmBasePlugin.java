@@ -15,11 +15,15 @@
  */
 package nokeebuild;
 
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.compile.JavaCompile;
 
 import javax.inject.Inject;
+import java.util.function.Function;
 
 import static nokeebuild.UseLombok.lombokVersion;
 
@@ -34,9 +38,16 @@ abstract /*final*/ class JvmBasePlugin implements Plugin<Project> {
 			project.getPluginManager().apply("nokeebuild.repositories");
 			sourceSets(project).configureEach(new UseLombok(project, lombokVersion(project)));
 		});
+		project.getTasks().withType(JavaCompile.class).configureEach(registerExtension("strictCompile", StrictJavaCompileExtension::new));
 	}
 
 	private static SourceSetContainer sourceSets(Project project) {
 		return project.getExtensions().getByType(SourceSetContainer.class);
+	}
+
+	private static <SELF, T> Action<SELF> registerExtension(String name, Function<? super SELF, ? extends T> instanceMapper) {
+		return self -> {
+			((ExtensionAware) self).getExtensions().add(name, instanceMapper.apply(self));
+		};
 	}
 }
