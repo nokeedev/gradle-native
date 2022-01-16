@@ -130,7 +130,7 @@ public final class ViewAdapter<T> implements View<T> {
 		return result;
 	}
 
-	public NamedDomainObjectProvider<T> named(String name, Closure closure) {
+	public NamedDomainObjectProvider<T> named(String name, @SuppressWarnings("rawtypes") Closure closure) {
 		val result = strategy.named(name, elementType);
 		result.configure(new ClosureWrappedConfigureAction<>(closure));
 		return result;
@@ -146,7 +146,7 @@ public final class ViewAdapter<T> implements View<T> {
 		return result;
 	}
 
-	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type, Closure closure) {
+	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		val result = strategy.named(name, type);
 		result.configure(new ClosureWrappedConfigureAction<>(closure));
 		return result;
