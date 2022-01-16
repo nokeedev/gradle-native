@@ -110,7 +110,7 @@ public final class SwiftIosApplicationSourcesAdapter implements SwiftIosApplicat
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> void whenElementKnownEx(Class<S> type, Closure closure) {
+	public <S extends LanguageSourceSet> void whenElementKnownEx(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		delegate.whenElementKnown(type, closure);
 	}
 
@@ -120,7 +120,7 @@ public final class SwiftIosApplicationSourcesAdapter implements SwiftIosApplicat
 	}
 
 	@Override
-	public void configure(String name, Closure closure) {
+	public void configure(String name, @SuppressWarnings("rawtypes") Closure closure) {
 		delegate.named(name, closure);
 	}
 
@@ -130,7 +130,7 @@ public final class SwiftIosApplicationSourcesAdapter implements SwiftIosApplicat
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> void configure(String name, Class<S> type, Closure closure) {
+	public <S extends LanguageSourceSet> void configure(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		delegate.named(name, type, closure);
 	}
 
