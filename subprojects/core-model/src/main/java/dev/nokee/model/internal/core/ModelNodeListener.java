@@ -37,7 +37,7 @@ public interface ModelNodeListener {
 	 * When the model node has new projection.
 	 *
 	 * @param node  the model node that has a new projection
-	 * @param newComponent
+	 * @param newComponent  the new added component to the entity
 	 */
 	void projectionAdded(ModelNode node, Object newComponent);
 }

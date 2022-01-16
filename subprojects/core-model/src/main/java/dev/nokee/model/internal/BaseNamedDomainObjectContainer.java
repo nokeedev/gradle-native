@@ -28,7 +28,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 /**
  * Base implementation for domain object container with Groovy support.
  *
- * @param <T>
+ * @param <T> element type
  */
 public class BaseNamedDomainObjectContainer<T> extends AbstractModelNodeBackedNamedDomainObjectContainer<T> implements DomainObjectContainer<T> {
 	protected BaseNamedDomainObjectContainer() {

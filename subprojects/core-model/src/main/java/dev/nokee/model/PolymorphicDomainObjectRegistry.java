@@ -38,6 +38,7 @@ public interface PolymorphicDomainObjectRegistry<T> {
 	 *
 	 * @param name  the name of the object, must not be null
 	 * @param type  the object type, must not be null
+	 * @param <S>  type of domain object
 	 * @return a {@link Provider} that whose value will be the object, when queried, never null
 	 * @throws InvalidUserDataException If a object with the given name already exists in this project.
 	 */
@@ -50,6 +51,7 @@ public interface PolymorphicDomainObjectRegistry<T> {
 	 *
 	 * @param name  the name of the object, must not be null
 	 * @param type  the object type, must not be null
+	 * @param <S>  type of domain object
 	 * @return a {@link Provider} that whose value will be the object, when queried, never null
 	 */
 	<S extends T> NamedDomainObjectProvider<S> registerIfAbsent(String name, Class<S> type);
