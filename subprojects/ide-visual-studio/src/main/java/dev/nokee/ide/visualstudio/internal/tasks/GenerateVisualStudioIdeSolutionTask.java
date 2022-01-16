@@ -16,13 +16,12 @@
 package dev.nokee.ide.visualstudio.internal.tasks;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectConfiguration;
 import dev.nokee.ide.visualstudio.VisualStudioIdeProjectReference;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeGuid;
 import lombok.val;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFileProperty;
@@ -71,40 +70,31 @@ public abstract class GenerateVisualStudioIdeSolutionTask extends DefaultTask {
 			out.println("Global");
 			out.println("	GlobalSection(SolutionConfigurationPlatforms) = preSolution");
 			getProjectReferences().get().stream().flatMap(it -> it.getProjectConfigurations().get().stream()).distinct().forEach(projectConfiguration -> {
-				out.println(
-					StrSubstitutor
-						.replace("		${configurationName}|${platformName} = ${configurationName}|${platformName}",
-							ImmutableMap.<String, Object>builder()
-								.put("configurationName", projectConfiguration.getConfiguration().getIdentifier())
-								.put("platformName", projectConfiguration.getPlatform().getIdentifier())
-								.build())
-				);
+				val valuesMap = ImmutableMap.<String, Object>builder()
+					.put("configurationName", projectConfiguration.getConfiguration().getIdentifier())
+					.put("platformName", projectConfiguration.getPlatform().getIdentifier())
+					.build();
+				out.println(new StringSubstitutor(valuesMap).replace("		${configurationName}|${platformName} = ${configurationName}|${platformName}"));
 			});
 			out.println("	EndGlobalSection");
 			out.println("	GlobalSection(ProjectConfigurationPlatforms) = postSolution");
 			getProjectReferences().get().forEach(info -> {
 				val firstProjectConfiguration = info.getProjectConfigurations().get().iterator().next();
-				out.println(
-					StrSubstitutor
-						.replace("		${uuid}.${configurationName}|${platformName}.ActiveCfg = ${configurationName}|${platformName}",
-							ImmutableMap.<String, Object>builder()
-								.put("uuid", info.getProjectGuid().get().toString())
-								.put("configurationName", firstProjectConfiguration.getConfiguration().getIdentifier())
-								.put("platformName", firstProjectConfiguration.getPlatform().getIdentifier())
-								.build())
-				);
+				val valuesMap = ImmutableMap.<String, Object>builder()
+					.put("uuid", info.getProjectGuid().get().toString())
+					.put("configurationName", firstProjectConfiguration.getConfiguration().getIdentifier())
+					.put("platformName", firstProjectConfiguration.getPlatform().getIdentifier())
+					.build();
+				out.println(new StringSubstitutor(valuesMap).replace("		${uuid}.${configurationName}|${platformName}.ActiveCfg = ${configurationName}|${platformName}"));
 				int index = 0;
 				for (VisualStudioIdeProjectConfiguration projectConfiguration : info.getProjectConfigurations().get()) {
-					out.println(
-						StrSubstitutor
-							.replace("		${uuid}.${configurationName}|${platformName}.Build.${index} = ${configurationName}|${platformName}",
-								ImmutableMap.<String, Object>builder()
-									.put("uuid", info.getProjectGuid().get().toString())
-									.put("configurationName", projectConfiguration.getConfiguration().getIdentifier())
-									.put("platformName", projectConfiguration.getPlatform().getIdentifier())
-									.put("index", index++)
-									.build())
-					);
+					val values = ImmutableMap.<String, Object>builder()
+						.put("uuid", info.getProjectGuid().get().toString())
+						.put("configurationName", projectConfiguration.getConfiguration().getIdentifier())
+						.put("platformName", projectConfiguration.getPlatform().getIdentifier())
+						.put("index", index++)
+						.build();
+					out.println(new StringSubstitutor(values).replace("		${uuid}.${configurationName}|${platformName}.Build.${index} = ${configurationName}|${platformName}"));
 				}
 			});
 			out.println("	EndGlobalSection");

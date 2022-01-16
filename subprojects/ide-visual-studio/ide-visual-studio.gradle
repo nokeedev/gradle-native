@@ -15,6 +15,7 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	implementation "org.apache.commons:commons-text:${commonsTextVersion}"
 
 	implementation project(':platformBase')
 	implementation project(':platformNative') // for NativeBinary
