@@ -93,15 +93,18 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public VariantView<DefaultNativeLibraryVariant> getVariants() {
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
+	@SuppressWarnings("unchecked")
 	public void finalizeExtension(Project project) {
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeLibrary.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
 			new CreateNativeBinaryLifecycleTaskRule(taskRegistry).execute(knownVariant);

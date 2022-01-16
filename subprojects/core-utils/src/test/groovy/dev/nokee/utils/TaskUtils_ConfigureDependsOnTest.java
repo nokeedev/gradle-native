@@ -44,7 +44,7 @@ class TaskUtils_ConfigureDependsOnTest {
 	@Test
 	void throwsExceptionWhenPathIsNull() {
 		assertThrows(NullPointerException.class, () -> configureDependsOn(null));
-		assertThrows(NullPointerException.class, () -> configureDependsOn(":foo", null));
+		assertThrows(NullPointerException.class, () -> configureDependsOn(":foo", (Object[]) null));
 		assertThrows(NullPointerException.class, () -> configureDependsOn(":foo", ":bar", null));
 	}
 

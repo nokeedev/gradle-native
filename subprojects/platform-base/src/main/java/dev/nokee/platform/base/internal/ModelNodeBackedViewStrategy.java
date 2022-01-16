@@ -71,6 +71,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
 		return objects.setProperty(elementType).value(providerFactory.provider(() -> {
 			realize.run();

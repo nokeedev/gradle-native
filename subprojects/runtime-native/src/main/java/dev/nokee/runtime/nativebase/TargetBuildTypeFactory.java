@@ -20,6 +20,7 @@ package dev.nokee.runtime.nativebase;
  *
  * @since 0.5
  */
+@SuppressWarnings("deprecation")
 public interface TargetBuildTypeFactory extends dev.nokee.platform.nativebase.TargetBuildTypeFactory {
 
 	/**

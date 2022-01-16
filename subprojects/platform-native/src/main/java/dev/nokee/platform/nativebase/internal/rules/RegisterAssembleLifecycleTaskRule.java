@@ -27,7 +27,6 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.utils.DeferUtils;
 import lombok.val;
 import org.gradle.api.Task;
@@ -66,7 +65,8 @@ public final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInpu
 		// The "component" assemble task was most likely added by the 'lifecycle-base' plugin
 		//   then we configure the dependency.
 		//   Note that the dependency may already exists for single variant component but it's not a big deal.
-		val component = providers.provider(() -> ModelNodeUtils.get(entity, HasDevelopmentVariant.class));
+		@SuppressWarnings("unchecked")
+		final Provider<HasDevelopmentVariant<?>> component = providers.provider(() -> ModelNodeUtils.get(entity, HasDevelopmentVariant.class));
 		Provider<? extends Variant> developmentVariant = component.flatMap(HasDevelopmentVariant::getDevelopmentVariant);
 		val logger = new WarnUnbuildableLogger(identifier);
 		val taskIdentifier = TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier);

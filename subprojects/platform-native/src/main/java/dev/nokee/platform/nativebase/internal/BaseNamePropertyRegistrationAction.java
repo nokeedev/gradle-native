@@ -43,6 +43,7 @@ public final class BaseNamePropertyRegistrationAction extends ModelActionWithInp
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ModelState.IsAtLeastRegistered ignored) {
 		if (identifier.equals(this.identifier)) {
 			val baseNameProperty = registry.register(propertyRegistrationFactory.createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));

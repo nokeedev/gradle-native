@@ -52,7 +52,7 @@ public final class NamedDomainObjectConfigurer<T> {
 		return new UnknownDomainObjectException(String.format("%s with name '%s' and directly owned by %s not found.", entityType.getSimpleName(), name, owner.toString()));
 	}
 
-	private InvalidUserDataException createWrongTypeException(DomainObjectIdentifier owner, String name, Class expected, Class actual, RuntimeException ex) {
+	private InvalidUserDataException createWrongTypeException(DomainObjectIdentifier owner, String name, Class<?> expected, Class<?> actual, RuntimeException ex) {
 		return new InvalidUserDataException(String.format("The domain object '%s' (%s) directly owned by %s is not a subclass of the given type (%s).", name, actual.getCanonicalName(), owner.toString(), expected.getCanonicalName()), ex);
 	}
 }

@@ -20,6 +20,7 @@ package dev.nokee.runtime.nativebase;
  *
  * @since 0.1
  */
+@SuppressWarnings("deprecation")
 public interface TargetMachineBuilder extends TargetMachine, dev.nokee.platform.nativebase.TargetMachineBuilder {
 	/**
 	 * Creates a {@link TargetMachine} for the operating system of this instance and the x86 32-bit architecture.

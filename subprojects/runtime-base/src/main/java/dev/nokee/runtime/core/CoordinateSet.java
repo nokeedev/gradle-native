@@ -30,6 +30,7 @@ public interface CoordinateSet<T> extends Iterable<Coordinate<T>> {
 	}
 
 	@SafeVarargs
+	@SuppressWarnings("varargs")
 	static <T> CoordinateSet<T> of(CoordinateAxis<T> axis, T... values) {
 		return stream(values).collect(Coordinates.toCoordinateSet(axis));
 	}
@@ -39,6 +40,7 @@ public interface CoordinateSet<T> extends Iterable<Coordinate<T>> {
 	}
 
 	@SafeVarargs
+	@SuppressWarnings("varargs")
 	static <T> CoordinateSet<T> of(Coordinate<T>... coordinates) {
 		return stream(coordinates).collect(Coordinates.toCoordinateSet());
 	}

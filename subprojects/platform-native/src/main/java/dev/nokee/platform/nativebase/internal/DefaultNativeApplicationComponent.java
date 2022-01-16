@@ -88,11 +88,13 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public VariantView<DefaultNativeApplicationVariant> getVariants() {
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
@@ -102,6 +104,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
 	}
 
+	@SuppressWarnings("unchecked")
 	public void finalizeExtension(Project project) {
 		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
 			new CreateNativeBinaryLifecycleTaskRule(taskRegistry).execute(knownVariant);

@@ -28,6 +28,7 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.5
  */
+@SuppressWarnings("deprecation")
 public interface ObjectiveCLibrary extends ObjectiveCLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>

@@ -199,6 +199,7 @@ public class FrameworkRouteHandler extends AbstractRouteHandler {
 
 	private static final String FRAMEWORK_USAGE = Usage.C_PLUS_PLUS_API + "+" + Usage.NATIVE_LINK;
 
+	@SuppressWarnings("deprecation")
 	private static Consumer<GradleModuleMetadata.LocalVariant.Builder> framework(String name, Path frameworkPath, List<GradleModuleMetadata.Capability> capabilities, Map<String, Object> platformAttributes) {
 		return builder -> {
 			builder.name(name);

@@ -25,6 +25,7 @@ import org.gradle.util.ConfigureUtil;
 
 public interface ModelBackedDependencyAwareComponentMixIn<T extends ComponentDependencies> extends DependencyAwareComponent<T> {
 	@Override
+	@SuppressWarnings("unchecked")
 	default T getDependencies() {
 		return ModelProperties.getProperty(this, "dependencies").as((Class<T>) new TypeToken<T>(getClass()) {}.getRawType()).get();
 	}

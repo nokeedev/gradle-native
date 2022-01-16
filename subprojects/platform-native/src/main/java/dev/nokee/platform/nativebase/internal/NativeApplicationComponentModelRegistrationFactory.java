@@ -65,6 +65,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 	private final BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration;
 	private final Project project;
 
+	@SuppressWarnings("unchecked")
 	public <T extends Component> NativeApplicationComponentModelRegistrationFactory(Class<? super T> componentType, Class<T> implementationComponentType, Project project, BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration) {
 		this.componentType = (Class<Component>) componentType;
 		this.implementationComponentType = implementationComponentType;
@@ -140,6 +141,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;
 				@Override
+				@SuppressWarnings("unchecked")
 				public void execute(ModelNode entity, ModelPath path, ModelState state) {
 					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;

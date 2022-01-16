@@ -38,6 +38,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -141,19 +142,22 @@ public final class ModelElementFactory {
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
 				if (!ModelNodeUtils.canBeViewedAs(entity, type) && !type.isSupertypeOf(entity.getComponent(ModelPropertyTypeComponent.class).get())) {
 					throw new RuntimeException("...");
 				}
 				assert fullType.equals(type);
-				val o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
+				@SuppressWarnings("rawtypes")
+				final Optional<NamedDomainObjectProvider> o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
 				if (o.isPresent() && ((Boolean) ProviderUtils.getType(o.get()).map(it -> it.equals(type.getConcreteType())).orElse(Boolean.FALSE))) {
 					o.get().configure(action);
 					return;
 				}
 				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
-					val provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
-					val ttype = ProviderUtils.getType(provider);
+					@SuppressWarnings("rawtypes")
+					final NamedDomainObjectProvider provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
+					final Optional<Class<?>> ttype = ProviderUtils.getType(provider);
 					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
 						provider.configure(action);
 					} else {
@@ -196,12 +200,14 @@ public final class ModelElementFactory {
 		val p = provider;
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
 				assert fullType.equals(t);
 				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
-					val provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
-					val ttype = ProviderUtils.getType(provider);
-					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
+					@SuppressWarnings("rawtypes")
+					final NamedDomainObjectProvider provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
+					final Optional<Class<?>> ttype = ProviderUtils.getType(provider);
+					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
 						return provider;
 					} else {
 						return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
@@ -259,6 +265,7 @@ public final class ModelElementFactory {
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
 				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
 					throw new RuntimeException("...");
@@ -267,15 +274,17 @@ public final class ModelElementFactory {
 					action.execute(ModelNodeUtils.get(entity, type));
 					return;
 				}
-				val o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
+				@SuppressWarnings("rawtypes")
+				final Optional<NamedDomainObjectProvider> o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
 				if (o.isPresent() && ((Boolean) ProviderUtils.getType(o.get()).map(it -> it.equals(type.getConcreteType())).orElse(Boolean.FALSE))) {
 					o.get().configure(action);
 					return;
 				}
 				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
-					val provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
-					val ttype = ProviderUtils.getType(provider);
-					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
+					@SuppressWarnings("rawtypes")
+					final NamedDomainObjectProvider provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
+					final Optional<Class<?>> ttype = ProviderUtils.getType(provider);
+					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
 						provider.configure(action);
 					} else {
 						ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
@@ -305,11 +314,13 @@ public final class ModelElementFactory {
 		val propertyStrategy = new ModelBackedGradlePropertyConvertibleStrategy(entity);
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
 				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
-					val provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
-					val ttype = ProviderUtils.getType(provider);
-					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
+					@SuppressWarnings("rawtypes")
+					final NamedDomainObjectProvider provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
+					final Optional<Class<?>> ttype = ProviderUtils.getType(provider);
+					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
 						return provider;
 					} else {
 						return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
@@ -320,7 +331,7 @@ public final class ModelElementFactory {
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, type);
-		return new DefaultModelProperty<T>(namedStrategy, identifierSupplier, type, providerStrategy, propertyStrategy, configurableStrategy, castableStrategy, propertyLookup, elementLookup, mixInStrategy, valueSupplier, () -> entity);
+		return new DefaultModelProperty<>(namedStrategy, identifierSupplier, type, providerStrategy, propertyStrategy, configurableStrategy, castableStrategy, propertyLookup, elementLookup, mixInStrategy, valueSupplier, () -> entity);
 	}
 
 	private static final class GradlePropertyBackedValueSupplier<T> implements Supplier<T> {
@@ -331,6 +342,7 @@ public final class ModelElementFactory {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public T get() {
 			val value = entity.getComponent(GradlePropertyComponent.class).get();
 			if (value instanceof Provider) {

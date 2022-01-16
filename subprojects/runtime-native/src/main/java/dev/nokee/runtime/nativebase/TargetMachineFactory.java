@@ -20,6 +20,7 @@ package dev.nokee.runtime.nativebase;
  *
  * @since 0.1
  */
+@SuppressWarnings("deprecation")
 public interface TargetMachineFactory extends dev.nokee.platform.nativebase.TargetMachineFactory {
 	/**
 	 * Creates a {@link TargetMachineBuilder} for the Windows operating system family and the architecture of the current host.

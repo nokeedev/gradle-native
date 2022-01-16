@@ -20,6 +20,7 @@ import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 
+@SuppressWarnings("deprecation")
 public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtension, Component
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, VariantAwareComponent<IosApplication>

@@ -32,6 +32,7 @@ public final class TransformerTestUtils {
 	@EqualsAndHashCode
 	private static final class ATransformer<OUT, IN> implements TransformerUtils.Transformer<OUT, IN> {
 		@Override
+		@SuppressWarnings("unchecked")
 		public OUT transform(IN t) {
 			// do not depend on the result of this transformer
 			try {

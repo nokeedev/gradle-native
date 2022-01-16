@@ -28,11 +28,13 @@ public final class NamedDomainObjectCollectionUtils {
 	private NamedDomainObjectCollectionUtils() {}
 
 	//region createIfAbsent
+	@SuppressWarnings("unchecked")
 	public static <T> T createIfAbsent(NamedDomainObjectContainer<T> self, String name, Action<? super T> action) {
 		// TODO: Should assert the type base type
 		return (T) findElement(self, name).map(byName(self, action)).orElseGet(createUsing(self, name, action));
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <U extends T, T> T createIfAbsent(PolymorphicDomainObjectContainer<T> self, String name, Class<U> type, Action<? super U> action) {
 		return (U) findElement(self, name).map(assertNoMismatch(self, type)).map(byName(self, action)).orElseGet(createUsing(self, name, type, action));
 	}
@@ -56,8 +58,9 @@ public final class NamedDomainObjectCollectionUtils {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	private static <U extends T, T> Function<NamedDomainObjectCollectionSchema.NamedDomainObjectSchema, U> byName(NamedDomainObjectCollection<T> self, Action<? super U> action) {
-		return element -> (U) self.withType((Class<U>) element.getPublicType().getConcreteClass()).getByName(element.getName(), action);
+		return element -> self.withType((Class<U>) element.getPublicType().getConcreteClass()).getByName(element.getName(), action);
 	}
 
 	//region registerIfAbsent

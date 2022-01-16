@@ -107,6 +107,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
 	public static ModelRegistration nativeTestSuite(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("native test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		val entityPath = ModelPath.path(identifier.getName().get());

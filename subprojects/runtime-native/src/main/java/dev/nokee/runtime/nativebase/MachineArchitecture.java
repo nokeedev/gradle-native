@@ -29,6 +29,7 @@ import java.util.Objects;
  *
  * @since 0.1
  */
+@SuppressWarnings("deprecation")
 public abstract class MachineArchitecture implements Named, dev.nokee.platform.nativebase.MachineArchitecture {
 	/**
 	 * The architecture attribute for dependency resolution.

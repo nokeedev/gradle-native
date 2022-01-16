@@ -115,6 +115,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}

@@ -21,6 +21,7 @@ import dev.nokee.platform.base.HasBaseName;
 import org.gradle.api.provider.Property;
 
 public interface ModelBackedHasBaseNameLegacyMixIn extends HasBaseName {
+	@SuppressWarnings("unchecked")
 	default Property<String> getBaseName() {
 		return ModelNodeUtils.get(ModelNodes.of(this), BaseComponent.class).getBaseName();
 	}

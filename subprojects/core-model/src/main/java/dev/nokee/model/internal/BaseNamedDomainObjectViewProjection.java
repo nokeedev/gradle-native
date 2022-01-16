@@ -59,7 +59,7 @@ public class BaseNamedDomainObjectViewProjection implements AbstractModelNodeBac
 //		return getType().getSimpleName();
 //	}
 
-	protected static InvalidUserDataException createWrongTypeException(String name, Class expected, String actual) {
+	protected static InvalidUserDataException createWrongTypeException(String name, Class<?> expected, String actual) {
 		return new InvalidUserDataException(String.format("The domain object '%s' (%s) is not a subclass of the given type (%s).", name, actual, expected.getCanonicalName()));
 	}
 

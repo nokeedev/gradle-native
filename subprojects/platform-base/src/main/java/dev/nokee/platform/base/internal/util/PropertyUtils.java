@@ -204,6 +204,7 @@ public final class PropertyUtils {
 	public static <T> Property<T> wrap(org.gradle.api.provider.Property<T> target) {
 		return new Property<T>() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void convention(Object value) {
 				if (value instanceof Provider) {
 					target.convention((Provider<? extends T>) value);
@@ -238,6 +239,7 @@ public final class PropertyUtils {
 	public static <T> CollectionProperty<T> wrap(org.gradle.api.provider.HasMultipleValues<T> target) {
 		return new CollectionProperty<T>() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void add(Object value) {
 				if (value instanceof Provider) {
 					target.add((Provider<? extends T>) value);
@@ -247,6 +249,7 @@ public final class PropertyUtils {
 			}
 
 			@Override
+			@SuppressWarnings("unchecked")
 			public void addAll(Iterable<?> values) {
 				values.forEach(value -> {
 					if (value instanceof Provider) {
@@ -260,6 +263,7 @@ public final class PropertyUtils {
 			}
 
 			@Override
+			@SuppressWarnings("unchecked")
 			public void convention(Object value) {
 				if (value instanceof Provider) {
 					target.convention((Provider<Iterable<T>>) value);
@@ -337,6 +341,7 @@ public final class PropertyUtils {
 	public static <T> SetAwareProperty<T> wrap(Consumer<? super T> target) {
 		return new SetAwareProperty<T>() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void set(Object value) {
 				target.accept((T) value);
 			}

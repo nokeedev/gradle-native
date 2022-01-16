@@ -100,11 +100,13 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public VariantView<DefaultXCTestTestSuiteVariant> getVariants() {
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}

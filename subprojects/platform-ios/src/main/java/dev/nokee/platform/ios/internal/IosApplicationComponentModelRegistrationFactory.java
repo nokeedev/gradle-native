@@ -84,6 +84,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 	private final BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration;
 	private final Project project;
 
+	@SuppressWarnings("unchecked")
 	public <T extends Component> IosApplicationComponentModelRegistrationFactory(Class<? super T> componentType, Class<T> implementationComponentType, Project project, BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration) {
 		this.componentType = (Class<Component>) componentType;
 		this.implementationComponentType = implementationComponentType;
@@ -157,6 +158,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;
 				@Override
+				@SuppressWarnings("unchecked")
 				public void execute(ModelNode entity, ModelPath path, ModelState state) {
 					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
@@ -189,6 +191,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 	}
 
+	@SuppressWarnings("unchecked")
 	private static NodeRegistration iosApplicationVariant(VariantIdentifier<DefaultIosApplicationVariant> identifier, DefaultIosApplicationComponent component, Project project) {
 		val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));

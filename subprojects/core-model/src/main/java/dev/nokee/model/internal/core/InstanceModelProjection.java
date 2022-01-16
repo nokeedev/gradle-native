@@ -26,6 +26,7 @@ public final class InstanceModelProjection<M> extends TypeCompatibilityModelProj
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> T get(ModelType<T> type) {
 		return (T) instance;
 	}

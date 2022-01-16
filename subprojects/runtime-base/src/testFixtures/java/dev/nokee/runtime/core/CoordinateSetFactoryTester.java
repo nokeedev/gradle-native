@@ -16,8 +16,6 @@
 package dev.nokee.runtime.core;
 
 import lombok.val;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 
@@ -25,9 +23,9 @@ import static dev.nokee.runtime.core.CoordinateTestUtils.xAxis;
 import static dev.nokee.runtime.core.CoordinateTestUtils.yAxis;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SuppressWarnings("unchecked")
 public interface CoordinateSetFactoryTester {
 	<T extends Enum<T>> CoordinateSet<T> createSubject(Class<T> type);
 
@@ -72,6 +70,7 @@ public interface CoordinateSetFactoryTester {
 	}
 
 	@Test
+	@SuppressWarnings("rawtypes")
 	default void throwsExceptionWhenNoCoordinates() {
 		try {
 			createSubject(new Coordinate[0]);

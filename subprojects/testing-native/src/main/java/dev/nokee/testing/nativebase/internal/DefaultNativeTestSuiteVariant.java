@@ -28,6 +28,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
+import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import org.gradle.api.Task;
@@ -42,7 +43,7 @@ import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
-	, ModelBackedSourceAwareComponentMixIn
+	, ModelBackedSourceAwareComponentMixIn<ObjectiveCApplicationSources>
 	, ModelBackedNamedMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -59,6 +60,7 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}

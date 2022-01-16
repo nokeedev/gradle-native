@@ -193,6 +193,7 @@ public final class ConfigurationMatchers {
 	 * @param <T>  the attribute type
 	 * @return an attribute container matcher for the specified key/value matchers, never null
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> Matcher<AttributeContainer> hasAttribute(Matcher<? super Attribute<T>> keyMatcher, Matcher<? super T> valueMatcher) {
 		return new FeatureMatcher<AttributeContainer, Map<? extends Attribute<?>, ?>>(hasEntry((Matcher<? super Attribute<?>>) keyMatcher, (Matcher<? super Object>) valueMatcher), "an attribute", "the attribute") {
 			@Override

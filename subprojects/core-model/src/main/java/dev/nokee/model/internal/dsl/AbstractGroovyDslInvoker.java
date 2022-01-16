@@ -58,6 +58,7 @@ public abstract class AbstractGroovyDslInvoker<TYPE, T extends TYPE> {
 		}
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private Object invokeMethod(String methodName, Object[] arguments) {
 		if (arguments.length == 1 && arguments[0] instanceof Class) {
 			return register(methodName, (Class) arguments[0]);

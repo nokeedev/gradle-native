@@ -129,6 +129,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 				private boolean alreadyExecuted = false;
 
 				@Override
+				@SuppressWarnings({"unchecked", "rawtypes"})
 				public void execute(ModelNode entity, ModelPath path, ModelState state) {
 					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;

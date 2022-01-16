@@ -121,6 +121,7 @@ public final class FunctionalInterfaceMatchers {
 		};
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static Matcher<ClosureExecutionDelegate> delegateFirstStrategy() {
 		return new FeatureMatcher<ClosureExecutionDelegate, Integer>(equalTo(Closure.DELEGATE_FIRST), "", "") {
 			@Override

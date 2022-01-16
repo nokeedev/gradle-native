@@ -40,6 +40,7 @@ public interface CoordinateAxis<T> {
 	 * @param value  the coordinate value, must not be null
 	 * @return the coordinate, never null
 	 */
+	@SuppressWarnings("unchecked")
 	default Coordinate<T> create(T value) {
 		if (value instanceof Coordinate && ((Coordinate<?>) value).getAxis().equals(this)) {
 			return (Coordinate<T>) value;

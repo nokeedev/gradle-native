@@ -30,6 +30,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  *
  * @since 0.5
  */
+@SuppressWarnings("deprecation")
 public interface CApplication extends CApplicationExtension, Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
 	, VariantAwareComponent<NativeApplication>, HasDevelopmentVariant<NativeApplication>

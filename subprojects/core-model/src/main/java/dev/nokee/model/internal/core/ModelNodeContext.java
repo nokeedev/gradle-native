@@ -35,6 +35,7 @@ public final class ModelNodeContext {
 		return new ModelNodeContext(node);
 	}
 
+	@SuppressWarnings("overloads")
 	public <T> T execute(Function<? super ModelNode, ? extends T> action) {
 		val previousNode = MODEL_NODE_INFO.get();
 		MODEL_NODE_INFO.set(node);
@@ -55,6 +56,7 @@ public final class ModelNodeContext {
 		}
 	}
 
+	@SuppressWarnings("overloads")
 	public void execute(Consumer<? super ModelNode> action) {
 		val previousNode = MODEL_NODE_INFO.get();
 		MODEL_NODE_INFO.set(node);

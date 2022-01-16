@@ -82,17 +82,19 @@ public final class Coordinates {
 			.map(Map.Entry::getKey);
 	}
 
+	@SuppressWarnings("unchecked")
 	static <T> CoordinateAxis<T> inferCoordinateAxisFromCoordinateImplementation(Coordinate<T> self) {
 		try {
 			val getAxisMethod = self.getClass().getMethod("getValue");
 			val returnType = getAxisMethod.getGenericReturnType();
 			val resolvedReturnType = TypeToken.of(self.getClass()).resolveType(returnType);
-			return CoordinateAxis.of((Class<T>)resolvedReturnType.getRawType());
+			return CoordinateAxis.of((Class<T>) resolvedReturnType.getRawType());
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	static <T> T inferCoordinateValueFromCoordinateImplementation(Coordinate<T> self) {
 		try {
 			val getAxisMethod = self.getClass().getMethod("getValue");
@@ -238,6 +240,7 @@ public final class Coordinates {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> Coordinate<T> of(T obj) {
 		if (obj instanceof Coordinate) {
 			return (Coordinate<T>) obj;

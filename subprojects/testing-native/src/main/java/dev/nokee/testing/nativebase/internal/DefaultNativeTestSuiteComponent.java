@@ -138,11 +138,13 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public VariantView<DefaultNativeTestSuiteVariant> getVariants() {
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
@@ -251,7 +253,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 							result.addAll(testedBinary.getCompileTasks().withType(SwiftCompileTask.class).getElements().map(t -> {
 								return t.stream().map(a -> {
-									return ((SwiftCompileTask) a).getObjectFileDir().getAsFileTree().matching(pattern -> pattern.include("**/*.o", "**/*.obj"));
+									return a.getObjectFileDir().getAsFileTree().matching(pattern -> pattern.include("**/*.o", "**/*.obj"));
 								}).collect(toList());
 							}).get());
 						});

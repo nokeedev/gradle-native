@@ -45,6 +45,7 @@ public final class DomainObjectEventPublisherImpl implements DomainObjectEventPu
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends DomainObjectEvent> void subscribe(DomainObjectEventSubscriber<T> subscriber) {
 		val subscribedEventType = subscriber.subscribedToEventType();
 		for (int i = 0 ; i < events.size(); ++i) {

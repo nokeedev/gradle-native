@@ -98,10 +98,18 @@ public abstract class NokeeServerService implements BuildService<NokeeServerServ
 	// TODO: Maybe registerIfAbsent(Class...)
 
 	@Override
-	public void close() throws Exception {
+	public void close() {
 		synchronized (lock) {
-			server.stop();
-			server.join(); // TODO Timeout
+			try {
+				server.stop();
+			} catch (Exception e) {
+				// ignore, try our best to clean up
+			}
+			try {
+				server.join(); // TODO Timeout
+			} catch (InterruptedException e) {
+				// do nothing...
+			}
 			server.destroy();
 			LOGGER.info("Nokee server stopped");
 		}
