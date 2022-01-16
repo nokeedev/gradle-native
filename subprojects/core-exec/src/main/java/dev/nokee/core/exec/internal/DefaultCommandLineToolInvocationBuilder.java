@@ -66,7 +66,7 @@ public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolI
 	}
 
 	@Override
-	public CommandLineToolExecutionHandle buildAndSubmit(CommandLineToolExecutionEngine engine) {
+	public <T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine) {
 		return engine.submit(build());
 	}
 }
