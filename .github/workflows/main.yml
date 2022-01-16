@@ -43,7 +43,6 @@ jobs:
                 checkTask: [
                     ':buildAdapterCmake:check',
                     ':coreExec:check',
-                    ':coreGradle:check',
                     ':coreModel:check',
                     ':coreScript:check',
                     ':coreUtils:check',
@@ -100,7 +99,6 @@ jobs:
                 checkTask: [
                     ':buildAdapterCmake:check',
                     ':coreExec:check',
-                    ':coreGradle:check',
                     ':coreModel:check',
                     ':coreScript:check',
                     ':coreUtils:check',
@@ -157,7 +155,6 @@ jobs:
                 checkTask: [
                     ':buildAdapterCmake:check',
                     ':coreExec:check',
-                    ':coreGradle:check',
                     ':coreModel:check',
                     ':coreScript:check',
                     ':coreUtils:check',
