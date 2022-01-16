@@ -33,7 +33,7 @@ abstract /*final*/ class NokeeAutoVersionPlugin implements Plugin<Project> {
 		}
 		project.getPluginManager().apply("org.shipkit.shipkit-auto-version");
 
-		project.allprojects(proj -> project.setVersion(toStringObjectProvider(NokeeVersion.forProject(project))));
+		project.allprojects(proj -> proj.setVersion(toStringObjectProvider(NokeeVersion.forProject(proj))));
 
 		System.out.println("Version overridden to " + project.getVersion());
 	}
