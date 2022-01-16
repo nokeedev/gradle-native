@@ -52,7 +52,8 @@ public class ClassDocMethodsBuilder {
 			for (MethodMetaData method : methods) {
 				DocComment docComment = javadocConverter.parse(method, listener);
 				MethodDoc methodDoc = new MethodDoc(classMetaData, method, docComment);
-				if (methodDoc.getDescription() == null) {
+				// Closure specific type should be invisible (weaved into the bytecode).
+				if (methodDoc.getDescription() == null && methodDoc.getMetaData().getParameters().stream().noneMatch(it -> it.getType().equals(new TypeMetaData("groovy.lang.Closure")))) {
 					throw new RuntimeException(String.format("Docbook content for '%s %s' does not contain a description paragraph.", classMetaData.getClassName(), method.getSignature()));
 				}
 				PropertyMetaData property = classMetaData.findProperty(methodName);
