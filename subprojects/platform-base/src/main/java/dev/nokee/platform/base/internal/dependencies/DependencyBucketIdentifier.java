@@ -58,7 +58,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return identity.getName();
 	}
 
-	@Deprecated
+	// FIXME: Remove this API
 	public Class<?> getType() {
 		return type;
 	}
@@ -88,7 +88,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return Optional.empty();
 	}
 
-	@Deprecated
+	// FIXME: Remove this API
 	@Override
 	public String getDisplayName() {
 		return DependencyBuckets.toDescription(this);
@@ -102,7 +102,7 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return Path.path(getName().get());
 	}
 
-	@Deprecated
+	// FIXME: Remove this API
 	public static DependencyBucketIdentifier of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
 		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), type, ownerIdentifier);
 	}
