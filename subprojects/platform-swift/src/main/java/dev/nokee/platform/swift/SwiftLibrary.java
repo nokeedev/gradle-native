@@ -26,6 +26,7 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.5
  */
+@SuppressWarnings("deprecation")
 public interface SwiftLibrary extends SwiftLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>

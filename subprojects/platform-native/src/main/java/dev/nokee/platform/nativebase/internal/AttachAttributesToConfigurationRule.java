@@ -34,6 +34,7 @@ public final class AttachAttributesToConfigurationRule extends ModelActionWithIn
 	private final DomainObjectIdentifier identifier;
 	private final ObjectFactory objects;
 
+	@SuppressWarnings("unchecked")
 	public AttachAttributesToConfigurationRule(DomainObjectIdentifier identifier, Class<? extends Configurable<Configuration>> configurationType, @Provided ObjectFactory objects) {
 		super(ModelComponentReference.of((Class<DomainObjectIdentifier>) identifier.getClass()), ModelComponentReference.of((Class<Configurable<Configuration>>) configurationType), ModelComponentReference.ofAny(ModelComponentType.componentOf(BuildVariant.class)));
 		this.identifier = identifier;

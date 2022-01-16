@@ -24,6 +24,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 
 public interface ModelBackedHasDevelopmentVariantMixIn<T extends Variant> extends HasDevelopmentVariant<T> {
 	@Override
+	@SuppressWarnings("unchecked")
 	default Property<T> getDevelopmentVariant() {
 		return (Property<T>) ModelProperties.getProperty(this, "developmentVariant").asProperty(of(Property.class));
 	}

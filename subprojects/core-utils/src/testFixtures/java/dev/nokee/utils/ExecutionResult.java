@@ -30,6 +30,7 @@ final class ExecutionResult<T extends ExecutionArguments> {
 		return arguments.stream();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T extends ExecutionArguments> ExecutionResult<T> from(HasExecutionResult<T> object) {
 		try {
 			return (ExecutionResult<T>) object.getClass().getDeclaredField("result").get(object);

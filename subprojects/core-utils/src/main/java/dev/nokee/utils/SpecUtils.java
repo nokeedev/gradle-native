@@ -94,6 +94,7 @@ public final class SpecUtils {
 		return new InstanceOfSpec(clazz);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> Spec<Object> instanceOf(Class<T> clazz, org.gradle.api.specs.Spec<? super T> andSpec) {
 		requireNonNull(andSpec);
 		if (Object.class.equals(clazz)) {

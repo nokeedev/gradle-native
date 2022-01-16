@@ -81,11 +81,13 @@ public final class DimensionPropertyRegistrationFactory {
 			this.path = toPath(identifier);
 		}
 
+		@SuppressWarnings("unchecked")
 		public Builder axis(CoordinateAxis<?> axis) {
 			this.axis = (CoordinateAxis<Object>) axis;
 			return this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public Builder elementType(Class<?> elementType) {
 			this.elementType = (Class<Object>) elementType;
 			return this;
@@ -96,6 +98,7 @@ public final class DimensionPropertyRegistrationFactory {
 			return this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public <T> Builder validateUsing(Consumer<? super Iterable<T>> axisValidator) {
 			this.axisValidator = (Consumer<? super Iterable<?>>) axisValidator;
 			return this;
@@ -121,6 +124,7 @@ public final class DimensionPropertyRegistrationFactory {
 			return this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public ModelRegistration build() {
 			if (elementType == null) {
 				elementType = axis.getType();
@@ -139,7 +143,7 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
 				.withComponent(new GradlePropertyComponent(property))
-				.withComponent(new Dimension(axis, () -> {
+				.withComponent(new Dimension<Object>(axis, () -> {
 					property.finalizeValueOnRead();
 					Provider<Iterable<Object>> valueProvider = property
 						.map(assertNonEmpty(axis.getDisplayName(), path.getParent().get().getName()));
@@ -204,9 +208,9 @@ public final class DimensionPropertyRegistrationFactory {
 	public static final class Dimension<T> {
 		private final CoordinateAxis<T> axis;
 		private final Supplier<CoordinateSet<T>> values;
-		private final List<Predicate<BuildVariantInternal>> filters;
+		private final List<Predicate<? super BuildVariantInternal>> filters;
 
-		public Dimension(CoordinateAxis<T> axis, Supplier<CoordinateSet<T>> values, List<Predicate<BuildVariantInternal>> filters) {
+		public Dimension(CoordinateAxis<T> axis, Supplier<CoordinateSet<T>> values, List<Predicate<? super BuildVariantInternal>> filters) {
 			this.axis = axis;
 			this.values = values;
 			this.filters = ImmutableList.copyOf(filters);
@@ -220,7 +224,7 @@ public final class DimensionPropertyRegistrationFactory {
 			return values.get();
 		}
 
-		public List<Predicate<BuildVariantInternal>> getFilters() {
+		public List<Predicate<? super BuildVariantInternal>> getFilters() {
 			return filters;
 		}
 	}

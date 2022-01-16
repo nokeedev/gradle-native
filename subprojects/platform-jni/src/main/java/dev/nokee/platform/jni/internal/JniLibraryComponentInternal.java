@@ -68,6 +68,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> imple
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}

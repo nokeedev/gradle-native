@@ -84,6 +84,7 @@ public final class NamedDomainObjectProviderSpec<T> {
 			return (Builder<S>) this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public <S> Builder<S> typedAs(Class<S> type) {
 			((Builder<S>) this).typeSupplier = () -> type;
 			return (Builder<S>) this;

@@ -54,6 +54,7 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BinaryView<Binary> getBinaries() {
 		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}

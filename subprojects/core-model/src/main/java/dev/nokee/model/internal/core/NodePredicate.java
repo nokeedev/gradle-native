@@ -109,6 +109,7 @@ public abstract class NodePredicate {
 		};
 	}
 
+	@SuppressWarnings("overloads")
 	public static NodePredicate self(Predicate<? super ModelNode> predicate) {
 		return new NodePredicate(predicate, NodePredicateScopeStrategy.SELF) {
 			@Override
@@ -121,6 +122,7 @@ public abstract class NodePredicate {
 		};
 	}
 
+	@SuppressWarnings("overloads")
 	public static NodeAction self(ModelAction action) {
 		return new SelfNodeAction(action);
 	}

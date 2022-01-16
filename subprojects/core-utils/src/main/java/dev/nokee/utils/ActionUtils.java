@@ -86,10 +86,11 @@ public final class ActionUtils {
 		}
 	}
 
-    @SafeVarargs
-    public static <T> Action<T> composite(org.gradle.api.Action<? super T>... actions) {
-        return composite(Arrays.stream(actions).filter(ActionUtils::doesSomething).collect(Collectors.toList()));
-    }
+	@SafeVarargs
+	@SuppressWarnings("varargs")
+	public static <T> Action<T> composite(org.gradle.api.Action<? super T>... actions) {
+		return composite(Arrays.stream(actions).filter(ActionUtils::doesSomething).collect(Collectors.toList()));
+	}
 
 	public static <T> Action<T> composite(Iterable<? extends org.gradle.api.Action<? super T>> actions) {
 		val filtered = StreamSupport.stream(actions.spliterator(), false).filter(ActionUtils::doesSomething).collect(Collectors.toList());

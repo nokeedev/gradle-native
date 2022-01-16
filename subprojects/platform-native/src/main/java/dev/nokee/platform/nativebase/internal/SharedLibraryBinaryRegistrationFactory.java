@@ -103,6 +103,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public TaskView<SourceCompile> getCompileTasks() {
 			return ModelProperties.getProperty(this, "compileTasks").as(TaskView.class).get();
 		}

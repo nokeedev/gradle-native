@@ -18,6 +18,7 @@ package dev.nokee.utils;
 import groovy.lang.Closure;
 
 interface ClosureExecutionDelegate<T> extends ExecutionArguments {
+	@SuppressWarnings("unchecked")
 	default T getDelegate() {
 		return (T) ((Closure<?>) getMock()).getDelegate();
 	}

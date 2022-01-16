@@ -30,6 +30,7 @@ import org.gradle.api.invocation.Gradle;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.Delete;
@@ -118,11 +119,13 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		});
 
 		workspaceExtension.ifPresent(extension -> {
-			Provider<List<IdeProjectReference>> ideProjectReferenceProvider = getProviders().provider(() -> {
+			Provider<Iterable<? extends IdeProjectReference>> ideProjectReferenceProvider = getProviders().provider(() -> {
 				List<IdeProjectReference> result = getArtifactRegistry().getIdeProjects(getIdeProjectReferenceType()).stream().map(IdeArtifactRegistry.Reference::get).collect(Collectors.toList());
 				return result;
 			});
-			extension.getWorkspace().getProjects().convention(Cast.cast(Provider.class, ideProjectReferenceProvider));
+			@SuppressWarnings("unchecked")
+			SetProperty<IdeProjectReference> projects = (SetProperty<IdeProjectReference>) extension.getWorkspace().getProjects();
+			projects.convention(ideProjectReferenceProvider);
 
 			// Open configuration
 			getTasks().register(getTaskName("open"), task -> {
@@ -190,6 +193,7 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private IdeProjectExtension<T> getProjectExtension() {
 		return (IdeProjectExtension<T>) getProject().getExtensions().getByName(getExtensionName());
 	}

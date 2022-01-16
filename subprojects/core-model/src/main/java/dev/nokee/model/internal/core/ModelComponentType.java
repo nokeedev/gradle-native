@@ -25,6 +25,7 @@ import static dev.nokee.model.internal.type.ModelTypeUtils.toUndecoratedType;
 public abstract class ModelComponentType<T> {
 	public abstract boolean isSupertypeOf(ModelComponentType<?> componentType);
 
+	@SuppressWarnings("unchecked")
 	public static <T> ModelComponentType<? super T> ofInstance(T component) {
 		Objects.requireNonNull(component);
 		if (component instanceof ModelProjection) {

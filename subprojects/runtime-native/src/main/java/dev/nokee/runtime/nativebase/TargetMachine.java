@@ -26,6 +26,7 @@ import dev.nokee.runtime.core.CoordinateAxis;
  *
  * @since 0.1
  */
+@SuppressWarnings("deprecation")
 public interface TargetMachine extends dev.nokee.platform.nativebase.TargetMachine {
 	/**
 	 * The target machine coordinate axis for variant calculation.

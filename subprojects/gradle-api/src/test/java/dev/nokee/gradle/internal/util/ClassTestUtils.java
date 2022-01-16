@@ -20,7 +20,6 @@ import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.stream.Stream;
@@ -53,9 +52,9 @@ public final class ClassTestUtils {
 	public static Object createInstance(Class<?> type) {
 		if (type.isInterface()) {
 			if (type.equals(Provider.class)) {
-				return Proxy.newProxyInstance(ClassTestUtils.class.getClassLoader(), new Class[]{ProviderInternal.class}, AlwaysThrowingInvocationHandler.INSTANCE);
+				return Proxy.newProxyInstance(ClassTestUtils.class.getClassLoader(), new Class<?>[]{ProviderInternal.class}, AlwaysThrowingInvocationHandler.INSTANCE);
 			} else {
-				return Proxy.newProxyInstance(ClassTestUtils.class.getClassLoader(), new Class[]{type}, AlwaysThrowingInvocationHandler.INSTANCE);
+				return Proxy.newProxyInstance(ClassTestUtils.class.getClassLoader(), new Class<?>[]{type}, AlwaysThrowingInvocationHandler.INSTANCE);
 			}
 		} else if (type.equals(String.class)) {
 			return "42";

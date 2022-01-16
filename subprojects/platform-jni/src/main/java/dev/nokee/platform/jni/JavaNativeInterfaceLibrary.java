@@ -28,6 +28,7 @@ import org.gradle.api.provider.SetProperty;
  *
  * @since 0.1
  */
+@SuppressWarnings("deprecation")
 public interface JavaNativeInterfaceLibrary extends JniLibraryExtension, Component
 	, DependencyAwareComponent<JavaNativeInterfaceLibraryComponentDependencies>
 	, VariantAwareComponent<JniLibrary>

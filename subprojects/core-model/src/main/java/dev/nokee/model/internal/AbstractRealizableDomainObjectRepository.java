@@ -36,6 +36,7 @@ public abstract class AbstractRealizableDomainObjectRepository<T> implements Rea
 		this.knownObjects = new KnownDomainObjects<>(entityType, eventPublisher);
 		eventPublisher.subscribe(new DomainObjectEventSubscriber<DomainObjectCreated<T>>() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void handle(DomainObjectCreated<T> event) {
 				if (entityType.isInstance(event.getObject())) {
 					assert knownObjects.isKnown((TypeAwareDomainObjectIdentifier<T>) event.getIdentifier()) : "Entity created without being discovered.";

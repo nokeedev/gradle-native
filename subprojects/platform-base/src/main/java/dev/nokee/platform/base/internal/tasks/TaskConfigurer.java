@@ -54,6 +54,7 @@ public final class TaskConfigurer implements DomainObjectConfigurer<Task> {
 		nameAwareConfigurer.configure(owner, name, type, action);
 	}
 
+	@SuppressWarnings("unchecked")
 	private static <S extends Task> Predicate<? super TypeAwareDomainObjectIdentifier<? extends S>> identifierForTask(String taskName) {
 		return identifier -> {
 			return ((TaskIdentifier<S>)identifier).getTaskName().equals(taskName);

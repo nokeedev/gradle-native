@@ -39,6 +39,7 @@ public final class KnownDomainObjectActions<T> implements Consumer<TypeAwareDoma
 	public static <T> Consumer<? super TypeAwareDomainObjectIdentifier<?>> onlyIf(DomainObjectIdentifier owner, Class<T> type, Action<? super TypeAwareDomainObjectIdentifier<T>> action) {
 		return new Consumer<TypeAwareDomainObjectIdentifier<?>>() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void accept(TypeAwareDomainObjectIdentifier<?> knownDomainObjectIdentifier) {
 				if (isDescendent(knownDomainObjectIdentifier, owner) && type.isAssignableFrom(knownDomainObjectIdentifier.getType())) {
 					action.execute((TypeAwareDomainObjectIdentifier<T>)knownDomainObjectIdentifier);

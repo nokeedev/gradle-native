@@ -28,6 +28,7 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.5
  */
+@SuppressWarnings("deprecation")
 public interface CppLibrary extends CppLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>

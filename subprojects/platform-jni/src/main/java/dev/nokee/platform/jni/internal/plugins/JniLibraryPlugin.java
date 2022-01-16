@@ -92,6 +92,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		IncompatiblePluginUsage.forProject(project)
 			.assertPluginIds(SOFTWARE_MODEL_PLUGIN_IDS, IncompatiblePluginsAdvice::forSoftwareModelNativePlugins)

@@ -51,6 +51,7 @@ public final class ConfigureMethodTester<T, U> {
 		return this;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public ConfigureMethodTester<T, U> testClosure(BiConsumer<? super T, ? super Closure> methodUnderTest) {
 		val closure = ClosureTestUtils.mockClosure(Object.class);
 		methodUnderTest.accept(subject, closure);

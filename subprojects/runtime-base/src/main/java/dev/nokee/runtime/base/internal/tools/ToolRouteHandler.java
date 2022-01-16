@@ -66,6 +66,7 @@ public class ToolRouteHandler extends AbstractRouteHandler {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public GradleModuleMetadata getResourceMetadata(String moduleName, String version) {
 		CommandLineToolDescriptor descriptor = toolRepository.findAll(moduleName).stream().filter(it -> it.getPath().getName().equals(moduleName) && it.getVersion().equals(version)).findFirst().get();
 

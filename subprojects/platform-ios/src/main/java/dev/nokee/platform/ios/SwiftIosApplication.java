@@ -19,6 +19,7 @@ import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 
+@SuppressWarnings("deprecation")
 public interface SwiftIosApplication extends SwiftIosApplicationExtension, Component
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, VariantAwareComponent<IosApplication>

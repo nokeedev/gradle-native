@@ -37,6 +37,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	public static <I0> ModelAction of(ModelComponentReference<I0> i0, A1<? super I0> action) {
 		return new ModelActionWithInputs() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void execute(ModelNode node, List<?> inputs) {
 				action.execute(node, (I0) inputs.get(0));
 			}
@@ -52,6 +53,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction1<I0> extends ModelActionWithInputs {
 		private final ModelComponentReference<I0> i0;
 
@@ -79,6 +81,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	public static <I0, I1> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, A2<? super I0, ? super I1> action) {
 		return new ModelActionWithInputs() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void execute(ModelNode node, List<?> inputs) {
 				action.execute(node, (I0) inputs.get(0), (I1) inputs.get(1));
 			}
@@ -94,6 +97,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction2<I0, I1> extends ModelActionWithInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
@@ -124,6 +128,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	public static <I0, I1, I2> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, A3<? super I0, ? super I1, ? super I2> action) {
 		return new ModelActionWithInputs() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void execute(ModelNode node, List<?> inputs) {
 				action.execute(node, (I0) inputs.get(0), (I1) inputs.get(1), (I2) inputs.get(2));
 			}
@@ -139,6 +144,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1, I2 i2);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction3<I0, I1, I2> extends ModelActionWithInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
@@ -172,6 +178,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	public static <I0, I1, I2, I3> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, ModelComponentReference<I3> i3, A4<? super I0, ? super I1, ? super I2, ? super I3> action) {
 		return new ModelActionWithInputs() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void execute(ModelNode node, List<?> inputs) {
 				action.execute(node, (I0) inputs.get(0), (I1) inputs.get(1), (I2) inputs.get(2), (I3) inputs.get(3));
 			}
@@ -187,6 +194,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1, I2 i2, I3 i3);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction4<I0, I1, I2, I3> extends ModelActionWithInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
@@ -223,6 +231,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	public static <I0, I1, I2, I3, I4> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, ModelComponentReference<I3> i3, ModelComponentReference<I4> i4, A5<? super I0, ? super I1, ? super I2, ? super I3, ? super I4> action) {
 		return new ModelActionWithInputs() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public void execute(ModelNode node, List<?> inputs) {
 				action.execute(node, (I0) inputs.get(0), (I1) inputs.get(1), (I2) inputs.get(2), (I3) inputs.get(3), (I4) inputs.get(4));
 			}
@@ -238,6 +247,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1, I2 i2, I3 i3, I4 i4);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction5<I0, I1, I2, I3, I4> extends ModelActionWithInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;

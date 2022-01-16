@@ -36,6 +36,7 @@ public class ContentHashingHandler implements RouteHandler {
 		return delegate.handle(target);
 	}
 
+	@SuppressWarnings("deprecation")
 	private static Response sha1(Response content) {
 		return new StringResponse(Hashing.sha1().hashString(content.getContent(), Charset.defaultCharset()).toString());
 	}

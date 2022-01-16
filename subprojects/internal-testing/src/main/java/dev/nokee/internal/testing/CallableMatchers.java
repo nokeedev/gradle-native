@@ -27,6 +27,7 @@ public final class CallableMatchers {
 	public static <T> Matcher<Object> callableOf(Matcher<? super T> matcher) {
 		return new FeatureMatcher<Object, T>(matcher, "", "") {
 			@Override
+			@SuppressWarnings("unchecked")
 			protected T featureValueOf(Object actual) {
 				return assertDoesNotThrow(((Callable<T>) actual)::call);
 			}

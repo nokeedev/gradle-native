@@ -80,6 +80,7 @@ public abstract class ModelComponentReference<T> {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public T get(ModelNode entity) {
 			return (T) entity.getComponents().filter(it -> componentType.isSupertypeOf(ModelComponentType.ofInstance(it))).findFirst().orElseThrow(RuntimeException::new);
 		}
@@ -87,6 +88,10 @@ public abstract class ModelComponentReference<T> {
 
 	public static <T> ModelProjectionReference<T> ofProjection(Class<T> projectionType) {
 		return new OfProjectionReference<>(projectionType);
+	}
+
+	public static <T> ModelProjectionReference<T> ofProjection(ModelType<T> projectionType) {
+		return new OfProjectionReference<>(projectionType.getConcreteType());
 	}
 
 	public static abstract class ModelProjectionReference<T> extends ModelComponentReference<ModelProjection> {

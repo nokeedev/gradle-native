@@ -28,6 +28,7 @@ import dev.nokee.platform.nativebase.*;
  *
  * @since 0.5
  */
+@SuppressWarnings("deprecation")
 public interface CLibrary extends CLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>

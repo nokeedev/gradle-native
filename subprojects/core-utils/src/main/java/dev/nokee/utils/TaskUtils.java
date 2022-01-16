@@ -200,6 +200,7 @@ public final class TaskUtils {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public void execute(T task) {
 			if (action instanceof Named) {
 				task.doFirst(((Named) action).getName(), (Action<? super Task>) action);

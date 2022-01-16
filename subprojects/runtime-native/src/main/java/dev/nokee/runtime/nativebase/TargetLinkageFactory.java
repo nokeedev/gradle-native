@@ -20,6 +20,7 @@ package dev.nokee.runtime.nativebase;
  *
  * @since 0.5
  */
+@SuppressWarnings("deprecation")
 public interface TargetLinkageFactory extends dev.nokee.platform.nativebase.TargetLinkageFactory {
 	/**
 	 * Creates a shared linkage for building shared libraries.

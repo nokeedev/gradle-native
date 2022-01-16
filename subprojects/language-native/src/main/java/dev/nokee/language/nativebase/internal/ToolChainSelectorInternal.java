@@ -45,7 +45,6 @@ import static java.util.Arrays.asList;
 public class ToolChainSelectorInternal {
 	private static final Map<TargetMachine, Boolean> KNOWN_TOOLCHAINS = new ConcurrentHashMap<>();
 	private final ModelRegistry modelRegistry;
-	private final NativePlatformFactory nativePlatformFactory = new NativePlatformFactory();
 
 	@Inject
 	public ToolChainSelectorInternal(ModelRegistry modelRegistry) {
@@ -70,7 +69,7 @@ public class ToolChainSelectorInternal {
 
 	@Nullable
 	public NativeToolChainInternal select(TargetMachine targetMachine) {
-		NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
+		NativePlatformInternal targetPlatform = NativePlatformFactory.create(targetMachine);
 		return select(targetPlatform);
 	}
 
@@ -87,7 +86,7 @@ public class ToolChainSelectorInternal {
 	}
 
 	public NativeToolChainInternal selectSwift(TargetMachine targetMachine) {
-		NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
+		NativePlatformInternal targetPlatform = NativePlatformFactory.create(targetMachine);
 		// HACK(daniel): Supa hacka! The way native platform match with the toolchain for Swift is a bit special.
 		//  By using the "host" platform we can have the Swift toolchain selection happen. ;-)
 		if (targetMachine.getOperatingSystemFamily().getCanonicalName().equals(OperatingSystemFamily.IOS)) {
@@ -126,7 +125,7 @@ public class ToolChainSelectorInternal {
 
 		@Override
 		public boolean knows(TargetMachine targetMachine) {
-			NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
+			NativePlatformInternal targetPlatform = NativePlatformFactory.create(targetMachine);
 
 			if (delegate instanceof KnownAwareToolChain) {
 				return ((KnownAwareToolChain) delegate).isKnown(targetPlatform);
@@ -153,7 +152,7 @@ public class ToolChainSelectorInternal {
 		@Override
 		public boolean canBuild(TargetMachine targetMachine) {
 			try {
-				NativePlatformInternal targetPlatform = nativePlatformFactory.create(targetMachine);
+				NativePlatformInternal targetPlatform = NativePlatformFactory.create(targetMachine);
 
 				NativeLanguage nativeLanguage = NativeLanguage.CPP;
 				if (delegate instanceof SwiftcToolChain) {

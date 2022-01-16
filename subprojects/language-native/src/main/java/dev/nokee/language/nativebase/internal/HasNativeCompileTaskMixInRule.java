@@ -27,6 +27,8 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -51,14 +53,14 @@ import java.util.function.Function;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasNativeCompileTaskMixIn>, IsLanguageSourceSet> {
+public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasNativeCompileTaskMixIn<? extends SourceCompile>>, IsLanguageSourceSet> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, ModelPropertyRegistrationFactory propertyRegistrationFactory, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.ofProjection(HasNativeCompileTaskMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class));
+		super(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<HasNativeCompileTaskMixIn<? extends SourceCompile>>() {})).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.propertyRegistrationFactory = propertyRegistrationFactory;
@@ -66,7 +68,8 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<HasNativeCompileTaskMixIn> knownObject, IsLanguageSourceSet ignored) {
+	protected void execute(ModelNode entity, KnownDomainObject<HasNativeCompileTaskMixIn<? extends SourceCompile>> knownObject, IsLanguageSourceSet ignored) {
+		@SuppressWarnings("unchecked")
 		val implementationType = (Class<? extends SourceCompile>) TypeToken.of(knownObject.getType()).resolveType(HasNativeCompileTaskMixIn.class.getTypeParameters()[0]).getRawType();
 
 		val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, knownObject.getIdentifier()), implementationType).build());

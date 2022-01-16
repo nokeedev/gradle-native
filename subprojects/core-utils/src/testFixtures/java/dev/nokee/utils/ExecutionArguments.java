@@ -20,6 +20,7 @@ interface ExecutionArguments {
 
 	Object getMock();
 
+	@SuppressWarnings("unchecked")
 	default <T> T getArgument(int index) {
 		return (T) getArguments()[index];
 	}

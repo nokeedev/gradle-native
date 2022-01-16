@@ -114,6 +114,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 		this.project = project;
 	}
 
+	@SuppressWarnings("unchecked")
 	public ModelRegistration create(VariantIdentifier<?> identifier) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));

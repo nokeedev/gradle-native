@@ -74,6 +74,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 		val delegate = factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).typedAs(fullType.getConcreteType()).delegateTo(provider).configureUsing(action -> configurableStrategy.configure(fullType, action)).build());
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
+			@SuppressWarnings("unchecked")
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
 				assert fullType.equals(t);
 				return (NamedDomainObjectProvider<S>) delegate;

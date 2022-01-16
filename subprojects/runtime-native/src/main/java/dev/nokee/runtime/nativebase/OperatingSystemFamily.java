@@ -29,6 +29,7 @@ import java.util.Objects;
  *
  * @since 0.1
  */
+@SuppressWarnings("deprecation")
 public abstract class OperatingSystemFamily implements Named, dev.nokee.platform.nativebase.OperatingSystemFamily {
 	/**
 	 * The operating system attribute for dependency resolution.

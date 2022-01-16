@@ -60,6 +60,7 @@ abstract class AbstractModelNodeBackedDomainObjectView<T> implements MethodMixIn
 		this.projection = ModelNodeUtils.get(node, Projection.class);
 	}
 
+	@SuppressWarnings("unchecked")
 	private static <V, E> ModelType<E> inferElementType(ModelType<V> viewType) {
 		val result = new ArrayList<ModelType<?>>();
 		viewType.walkTypeHierarchy(new ModelType.Visitor<V>() {
