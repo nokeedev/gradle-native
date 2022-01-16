@@ -6,7 +6,7 @@ buildscript {
 		maven { url = 'https://repo.nokee.dev/release' }
 	}
 	dependencies {
-		classpath 'dev.gradleplugins:documentation-kit:latest.integration'
+		classpath 'dev.gradleplugins:documentation-kit:1.0.6'
 		classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.15.1'
 		classpath 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1'
 		classpath 'dev.nokeebuild:license-gradle-plugin:latest.integration'
