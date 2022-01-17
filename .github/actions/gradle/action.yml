@@ -1,0 +1,23 @@
+description: Run Gradle with Nokee cache
+name: Gradle
+inputs:
+    arguments:
+        description: 'Gradle arguments'
+        required: true
+    fetch-depth:
+        description: 'Number of commits to fetch.'
+        required: false
+        default: '1'
+runs:
+    using: composite
+    steps:
+        -   uses: actions/checkout@v2
+            with:
+                fetch-depth: ${{ inputs.fetch-depth }}
+        -   uses: actions/setup-java@v2
+            with:
+                java-version: 8
+        -   uses: gradle/gradle-build-action@v2
+            with:
+                arguments: ${{ inputs.arguments }} --continue "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                gradle-version: wrapper
