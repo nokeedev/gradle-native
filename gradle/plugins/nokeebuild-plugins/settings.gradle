@@ -16,4 +16,10 @@ gradle.allprojects {
 		mavenCentral()
 		gradlePluginPortal()
 	}
+
+	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
+		dependencies {
+			api platform(project(":build-platform"))
+		}
+	}
 }
