@@ -6,6 +6,7 @@ dependencies {
 	implementation project(':jvm-basics')
 	implementation 'org.apache.commons:commons-lang3'
 	runtimeOnly project(':jvm-basics')
+	runtimeOnly project(':continuous-integration')
 	compileOnly 'dev.gradleplugins:gradle-plugin-development'
 }
 

@@ -7,6 +7,7 @@ rootProject.name = 'nokeebuild-plugins'
 include 'build-platform'
 
 include 'basics'
+include 'continuous-integration'
 include 'jvm-basics'
 include 'testing'
 include 'uber-plugins'

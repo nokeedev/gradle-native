@@ -32,6 +32,7 @@ abstract /*final*/ class JavaGradlePluginDevelopmentPlugin implements Plugin<Pro
 
 	@Override
 	public void apply(Project project) {
+		project.getPluginManager().apply("nokeebuild.continuous-integration");
 		project.getPluginManager().apply("nokeebuild.jvm-base");
 		project.getPluginManager().apply("dev.gradleplugins.java-gradle-plugin");
 		gradlePlugin(project, new ConfigureMinimumSupportedGradle(minimumGradleVersion(project)));
