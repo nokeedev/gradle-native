@@ -4,6 +4,12 @@ inputs:
     arguments:
         description: 'Gradle arguments'
         required: true
+    build-cache-username:
+        description: 'Build cache username'
+        required: true
+    build-cache-password:
+        description: 'Build cache password'
+        required: true
 runs:
     using: composite
     steps:
@@ -12,5 +18,5 @@ runs:
                 java-version: 8
         -   uses: gradle/gradle-build-action@v2
             with:
-                arguments: ${{ inputs.arguments }} --continue "-DnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-DnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                arguments: ${{ inputs.arguments }} --continue "-DnokeeBuildCacheUsername=${{ inputs.build-cache-username }}" "-DnokeeBuildCachePassword=${{ inputs.build-cache-password }}"
                 gradle-version: wrapper

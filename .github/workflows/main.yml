@@ -13,6 +13,8 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: assemble --no-daemon -PskipAllAsciinemaTasks
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
     deploy:
         needs: assemble
         runs-on: ubuntu-latest
@@ -22,6 +24,8 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: publishAllPublicationsToNokeeSnapshotRepository -Dintegration --no-daemon "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
     windows:
         needs: assemble
         runs-on: windows-latest
@@ -71,6 +75,8 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: ${{ matrix.checkTask }} --no-daemon
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
 
     macos:
         needs: assemble
@@ -121,6 +127,8 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: ${{ matrix.checkTask }} --no-daemon
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
 
     linux:
         needs: assemble
@@ -173,6 +181,8 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: ${{ matrix.checkTask }} --no-daemon
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
     check-baked-documentation:
         runs-on: ubuntu-latest
         steps:
@@ -185,6 +195,8 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: :docs:bakedDocsTest --no-daemon --no-build-cache -PskipAllAsciinemaTasks
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
     check-documentations:
         runs-on: ${{ matrix.os }}
         strategy:
@@ -206,6 +218,8 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: :docs:docsTest --no-daemon --no-build-cache -PskipAllAsciinemaTasks
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
     publish-head-milestone:
         if: github.ref == 'refs/heads/master'
         needs: [linux, macos, windows, check-documentations, check-baked-documentation]
@@ -220,3 +234,5 @@ jobs:
                 uses: ./.github/actions/gradle
                 with:
                     arguments: ublishAllPublicationsToNokeeReleaseRepository :docs:publishBakedPublicationToDocsNokeeDevRepository -Dmilestone --continue --no-daemon --no-build-cache -PskipAllAsciinemaTasks "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
