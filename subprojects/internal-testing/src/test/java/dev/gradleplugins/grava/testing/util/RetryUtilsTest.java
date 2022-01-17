@@ -33,7 +33,8 @@ class RetryUtilsTest {
 	@ParameterizedTest(name = "exceed retry count of {0} throws last exception")
 	@ValueSource(ints = {1, 2, 3, 10})
     void exceedRetryCountThrowsLastException(int retryCount) throws Throwable {
-		val closure = mock(FailableRunnable.class);
+		@SuppressWarnings("unchecked")
+		val closure = (FailableRunnable<Throwable>) mock(FailableRunnable.class);
 		for (int retryIndex = 0; retryIndex < retryCount; ++retryIndex) {
 			doThrow(new RuntimeException("Exception for retry #" + retryIndex)).when(closure).run();
 		}
@@ -49,7 +50,8 @@ class RetryUtilsTest {
 
     @Test
     void closureSucceedOnSecondTryReturnsRetryCountOfTwo() throws Throwable {
-		val closure = mock(FailableRunnable.class);
+		@SuppressWarnings("unchecked")
+		val closure = (FailableRunnable<Throwable>) mock(FailableRunnable.class);
 		doThrow(new RuntimeException()).doNothing().when(closure).run();
         assertThat(RetryUtils.retry(2, closure), is(2));
     }
