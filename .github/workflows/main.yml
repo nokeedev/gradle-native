@@ -16,7 +16,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: assemble --scan --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
+                    arguments: assemble --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
     deploy:
@@ -31,7 +31,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: publishAllPublicationsToNokeeSnapshotRepository -Dintegration --scan --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
+                    arguments: publishAllPublicationsToNokeeSnapshotRepository -Dintegration --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
     windows:
@@ -86,7 +86,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    arguments: ${{ matrix.checkTask }} --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
 
@@ -142,7 +142,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    arguments: ${{ matrix.checkTask }} --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
 
@@ -200,7 +200,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: ${{ matrix.checkTask }} --scan --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
+                    arguments: ${{ matrix.checkTask }} --continue --no-daemon "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
     check-baked-documentation:
@@ -218,7 +218,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: :docs:bakedDocsTest --scan --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
+                    arguments: :docs:bakedDocsTest --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
     check-documentations:
@@ -245,7 +245,7 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: :docs:docsTest --scan --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
+                    arguments: :docs:docsTest --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true
     publish-head-milestone:
@@ -265,6 +265,6 @@ jobs:
                 id: gradle
                 uses: eskatos/gradle-command-action@v1
                 with:
-                    arguments: publishAllPublicationsToNokeeReleaseRepository :docs:publishBakedPublicationToDocsNokeeDevRepository -Dmilestone --scan --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
+                    arguments: publishAllPublicationsToNokeeReleaseRepository :docs:publishBakedPublicationToDocsNokeeDevRepository -Dmilestone --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" -PskipAllAsciinemaTasks "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
                     wrapper-cache-enabled: true
                     dependencies-cache-enabled: true

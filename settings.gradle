@@ -93,6 +93,7 @@ plugins.withId('com.gradle.enterprise') {
 			termsOfServiceAgree = "yes"
 
 			if (System.getenv('CI')) {
+				publishAlways()
 				tag 'CI'
 			} else {
 				tag 'LOCAL'
