@@ -4,6 +4,8 @@ plugins {
 
 rootProject.name = 'nokeebuild-plugins'
 
+include 'build-platform'
+
 include 'basics'
 include 'jvm-basics'
 include 'testing'
