@@ -1,0 +1,16 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+dependencies {
+	compileOnly 'dev.gradleplugins:gradle-plugin-development'
+}
+
+gradlePlugin {
+	plugins {
+		continuousIntegration {
+			id = 'nokeebuild.continuous-integration'
+			implementationClass = 'nokeebuild.ci.ContinuousIntegrationPlugin'
+		}
+	}
+}

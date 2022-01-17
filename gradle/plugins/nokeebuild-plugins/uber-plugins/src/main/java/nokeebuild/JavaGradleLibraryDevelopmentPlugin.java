@@ -34,8 +34,7 @@ abstract /*final*/ class JavaGradleLibraryDevelopmentPlugin implements Plugin<Pr
 
 	@Override
 	public void apply(Project project) {
-//		project.getPluginManager().apply("dev.gradleplugins.gradle-plugin-base");
-//		project.getPluginManager().apply("java-gradle-plugin");
+		project.getPluginManager().apply("nokeebuild.continuous-integration");
 		project.getPluginManager().apply("nokeebuild.jvm-base");
 		project.getPluginManager().apply("dev.gradleplugins.java-gradle-plugin");
 		gradlePlugin(project, disallowPluginsRegistration());
