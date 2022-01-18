@@ -18,6 +18,7 @@ package nokeebuild;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginExtension;
+import org.gradle.api.tasks.javadoc.Javadoc;
 
 import javax.inject.Inject;
 
@@ -36,5 +37,6 @@ abstract /*final*/ class JavaGradlePluginDevelopmentPlugin implements Plugin<Pro
 		gradlePlugin(project, new ConfigureMinimumSupportedGradle(minimumGradleVersion(project)));
 		java(project, JavaPluginExtension::withJavadocJar);
 		java(project, JavaPluginExtension::withSourcesJar);
+		project.getTasks().named("javadoc", Javadoc.class, new JavadocGradleDevelopmentConvention(project));
 	}
 }

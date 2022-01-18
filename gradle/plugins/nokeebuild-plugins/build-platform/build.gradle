@@ -11,5 +11,6 @@ dependencies {
 		api 'org.shipkit:shipkit-auto-version:1.1.19'
 
 		// Java libraries
+		api 'org.apache.commons:commons-lang3:3.12.0'
 	}
 }
