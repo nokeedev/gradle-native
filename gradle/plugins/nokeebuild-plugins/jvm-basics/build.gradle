@@ -8,9 +8,13 @@ dependencies {
 
 gradlePlugin {
 	plugins {
-		base {
+		jvmBase {
 			id = 'nokeebuild.jvm-base'
 			implementationClass = 'nokeebuild.JvmBasePlugin'
+		}
+		javadocBase {
+			id = 'nokeebuild.javadoc-base'
+			implementationClass = 'nokeebuild.javadoc.JavadocBasePlugin'
 		}
 	}
 }
