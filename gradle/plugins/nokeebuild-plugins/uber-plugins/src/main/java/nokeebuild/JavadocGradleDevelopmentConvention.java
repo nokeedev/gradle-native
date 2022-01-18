@@ -100,6 +100,7 @@ final class JavadocGradleDevelopmentConvention implements Action<Javadoc> {
 						//   Ideally, we should peek into the source files to identify their package.
 						if (details.getRelativePath().getSegments().length > 1 && stream(details.getRelativePath().getSegments()).noneMatch("internal"::equals)) {
 							hasSources.setTrue();
+							details.stopVisiting();
 						}
 					}
 				});
