@@ -240,7 +240,7 @@ jobs:
             -   name: Publish
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: ublishAllPublicationsToNokeeReleaseRepository :docs:publishBakedPublicationToDocsNokeeDevRepository -Dmilestone --continue --no-daemon --no-build-cache -PskipAllAsciinemaTasks "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
+                    arguments: publishAllPublicationsToNokeeReleaseRepository :docs:publishBakedPublicationToDocsNokeeDevRepository -Dmilestone --continue --no-daemon --no-build-cache -PskipAllAsciinemaTasks "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
