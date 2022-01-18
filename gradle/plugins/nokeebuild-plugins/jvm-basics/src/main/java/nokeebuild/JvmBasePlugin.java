@@ -21,6 +21,7 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
+import org.gradle.api.tasks.javadoc.Javadoc;
 
 import javax.inject.Inject;
 import java.util.function.Function;
@@ -40,6 +41,7 @@ abstract /*final*/ class JvmBasePlugin implements Plugin<Project> {
 			sourceSets(project).configureEach(new UseLombok(project, lombokVersion(project)));
 		});
 		project.getTasks().withType(JavaCompile.class).configureEach(registerExtension("strictCompile", StrictJavaCompileExtension::new));
+		project.getTasks().withType(Javadoc.class).configureEach(new UseUtf8Encoding());
 	}
 
 	private static SourceSetContainer sourceSets(Project project) {
