@@ -149,6 +149,7 @@ public final class TaskUtils {
 	 *
 	 * @param format  string format, must not be null
 	 * @param args  string format arguments, must not be null
+	 * @param <T> task type to configure
 	 * @return an action that configures the {@link Task}'s description, never null
 	 */
 	// We use a generic task type to help with chaining

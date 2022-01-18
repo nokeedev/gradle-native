@@ -461,7 +461,11 @@ public final class ConfigurationUtils {
 		}
 	}
 
-	/** @see #configureDependencies(BiConsumer) */
+	/**
+	 * @param mapper  a transform function of {@link Configuration} to {@link Dependency}, must not be null
+	 * @return an action adds the transformed {@link Dependency} from {@link Configuration}, never null
+	 * @see #configureDependencies(BiConsumer)
+	 */
 	public static BiConsumer<Configuration, DependencySet> add(Function<? super Configuration, ? extends Dependency> mapper) {
 		requireNonNull(mapper);
 		return (configuration, dependencies) -> dependencies.add(mapper.apply(configuration));
