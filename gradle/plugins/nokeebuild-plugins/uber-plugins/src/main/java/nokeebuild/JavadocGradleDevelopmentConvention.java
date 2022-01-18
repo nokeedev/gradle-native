@@ -16,6 +16,7 @@
 package nokeebuild;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.*;
@@ -32,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dev.gradleplugins.GradlePluginDevelopmentCompatibilityExtension.compatibility;
@@ -41,6 +41,7 @@ import static java.lang.String.join;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static nokeebuild.javadoc.JavadocExcludeOption.exclude;
 import static nokeebuild.javadoc.JavadocLinksOption.links;
@@ -86,17 +87,35 @@ final class JavadocGradleDevelopmentConvention implements Action<Javadoc> {
 			if (sources(task).isEmpty()) {
 				return Collections.emptyList();
 			} else {
-				try {
-					return Files.write(task.getTemporaryDir().toPath().resolve("Dummy.java"), Arrays.asList("package internal;", "class Dummy {}"), UTF_8, CREATE, TRUNCATE_EXISTING);
-				} catch (IOException e) {
-					throw new UncheckedIOException(e);
+				final MutableBoolean hasSources = new MutableBoolean(false);
+				sources(task).getAsFileTree().visit(new FileVisitor() {
+					@Override
+					public void visitDir(FileVisitDetails dirDetails) {
+						// ignores
+					}
+
+					@Override
+					public void visitFile(FileVisitDetails details) {
+						if (stream(details.getRelativePath().getSegments()).noneMatch("internal"::equals)) {
+							hasSources.setTrue();
+						}
+					}
+				});
+				if (hasSources.booleanValue()) {
+					try {
+						return Files.write(task.getTemporaryDir().toPath().resolve("Dummy.java"), Arrays.asList("package internal;", "class Dummy {}"), UTF_8, CREATE, TRUNCATE_EXISTING);
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
+				} else {
+					return Collections.emptyList();
 				}
 			}
 		};
 	}
 
 	private static Stream<String> toWords(String s) {
-		return Arrays.stream(GUtil.toWords(s, '+').split("\\+"));
+		return stream(GUtil.toWords(s, '+').split("\\+"));
 	}
 
 	private FileTree pluginSourceFiles() {
