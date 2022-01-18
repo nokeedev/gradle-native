@@ -96,7 +96,9 @@ final class JavadocGradleDevelopmentConvention implements Action<Javadoc> {
 
 					@Override
 					public void visitFile(FileVisitDetails details) {
-						if (stream(details.getRelativePath().getSegments()).noneMatch("internal"::equals)) {
+						// Antlr, for example, generates files in a root source directory despite not being in the default package.
+						//   Ideally, we should peek into the source files to identify their package.
+						if (details.getRelativePath().getSegments().length > 1 && stream(details.getRelativePath().getSegments()).noneMatch("internal"::equals)) {
 							hasSources.setTrue();
 						}
 					}
