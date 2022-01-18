@@ -15,7 +15,7 @@ jobs:
                     arguments: assemble --no-daemon -PskipAllAsciinemaTasks
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
     deploy:
         needs: assemble
         runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
                     arguments: publishAllPublicationsToNokeeSnapshotRepository -Dintegration --no-daemon "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
     windows:
         needs: assemble
         runs-on: windows-latest
@@ -79,7 +79,7 @@ jobs:
                     arguments: ${{ matrix.checkTask }} --no-daemon
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
 
     macos:
         needs: assemble
@@ -132,7 +132,7 @@ jobs:
                     arguments: ${{ matrix.checkTask }} --no-daemon
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
 
     linux:
         needs: assemble
@@ -187,7 +187,7 @@ jobs:
                     arguments: ${{ matrix.checkTask }} --no-daemon
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
     check-baked-documentation:
         runs-on: ubuntu-latest
         steps:
@@ -202,7 +202,7 @@ jobs:
                     arguments: :docs:bakedDocsTest --no-daemon --no-build-cache -PskipAllAsciinemaTasks
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
     check-documentations:
         runs-on: ${{ matrix.os }}
         strategy:
@@ -226,7 +226,7 @@ jobs:
                     arguments: :docs:docsTest --no-daemon --no-build-cache -PskipAllAsciinemaTasks
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
     publish-head-milestone:
         if: github.ref == 'refs/heads/master'
         needs: [linux, macos, windows, check-documentations, check-baked-documentation]
@@ -243,4 +243,4 @@ jobs:
                     arguments: ublishAllPublicationsToNokeeReleaseRepository :docs:publishBakedPublicationToDocsNokeeDevRepository -Dmilestone --continue --no-daemon --no-build-cache -PskipAllAsciinemaTasks "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
