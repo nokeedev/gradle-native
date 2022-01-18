@@ -10,6 +10,9 @@ inputs:
     build-cache-password:
         description: 'Build cache password'
         required: true
+    github-token:
+        description: 'GitHub token'
+        required: true
 runs:
     using: composite
     steps:
@@ -18,6 +21,21 @@ runs:
                 distribution: temurin
                 java-version: 8
         -   uses: gradle/gradle-build-action@v2
+            id: gradle
             with:
                 arguments: ${{ inputs.arguments }} --continue "-DnokeeBuildCacheUsername=${{ inputs.build-cache-username }}" "-DnokeeBuildCachePassword=${{ inputs.build-cache-password }}"
                 gradle-version: wrapper
+        - name: "Tag build scan url"
+          uses: actions/github-script@v5
+          if: failure()
+          with:
+              github-token: ${{ inputs.github-token }}
+              script: |
+                  github.rest.repos.createCommitStatus({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    sha: ${{ github.sha }},
+                    state: ${{ steps.gradle.outcome }},
+                    target_url: ${{ steps.gradle.outputs.build-scan-url }},
+                    context: '❌ SCAN / ${{ github.workflow }} / ${{ github.job_id }}'
+                  })
