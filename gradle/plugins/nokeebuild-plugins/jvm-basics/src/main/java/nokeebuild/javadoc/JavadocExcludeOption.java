@@ -15,6 +15,7 @@
  */
 package nokeebuild.javadoc;
 
+import com.google.common.collect.Iterables;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Transformer;
@@ -25,6 +26,7 @@ import org.gradle.api.tasks.javadoc.Javadoc;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static java.lang.String.join;
 import static java.util.Collections.emptyList;
@@ -53,9 +55,14 @@ public final class JavadocExcludeOption implements Action<Javadoc> {
 		args.value(exclude.map(asExcludeFlags()).orElse(emptyList())).disallowChanges();
 	}
 
-	// TODO: ignore emptyt list
 	private static Transformer<Iterable<String>, Iterable<String>> asExcludeFlags() {
-		return values -> Arrays.asList("-exclude", join(File.pathSeparator, values));
+		return values -> {
+			if (Iterables.isEmpty(values)) {
+				return Collections.emptyList();
+			} else {
+				return Arrays.asList("-exclude", join(File.pathSeparator, values));
+			}
+		};
 	}
 
 	@SuppressWarnings("unchecked")

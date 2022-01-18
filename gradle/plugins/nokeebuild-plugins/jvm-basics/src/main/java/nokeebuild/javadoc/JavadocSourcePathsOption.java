@@ -15,6 +15,7 @@
  */
 package nokeebuild.javadoc;
 
+import com.google.common.collect.Iterables;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Transformer;
@@ -24,6 +25,7 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.javadoc.Javadoc;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,9 +55,14 @@ public final class JavadocSourcePathsOption implements Action<Javadoc> {
 		args.value(sourcePaths.getElements().map(asSourcePathFlags()).orElse(emptyList())).disallowChanges();
 	}
 
-	// TODO: Ignore empty iterable
 	private static Transformer<Iterable<String>, Iterable<FileSystemLocation>> asSourcePathFlags() {
-		return values -> asList("-sourcepath", stream(values.spliterator(), false).map(it -> it.getAsFile().getAbsolutePath()).collect(Collectors.joining(File.pathSeparator)));
+		return values -> {
+			if (Iterables.isEmpty(values)) {
+				return Collections.emptyList();
+			} else {
+				return asList("-sourcepath", stream(values.spliterator(), false).map(it -> it.getAsFile().getAbsolutePath()).collect(Collectors.joining(File.pathSeparator)));
+			}
+		};
 	}
 
 	public static ConfigurableFileCollection sourcePaths(Javadoc self) {
