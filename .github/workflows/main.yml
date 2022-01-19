@@ -179,8 +179,7 @@ jobs:
                     ':testingXctest:check']
         steps:
             -   uses: actions/checkout@v2
-            -   name: Install gcc dependencies
-                run: sudo apt-get update && sudo apt-get -y install gobjc-8-multilib gobjc++-8-multilib gcc-8-multilib g++-8-multilib gobjc-9-multilib gobjc++-9-multilib gcc-9-multilib g++-9-multilib libpthread-stubs0-dev
+            -   uses: ./.github/actions/install-build-dependencies
             -   name: Run all tests
                 uses: ./.github/actions/gradle
                 with:
@@ -194,8 +193,7 @@ jobs:
             -   uses: actions/checkout@v2
             -   name: (linux) Install documentation dependencies
                 run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
-            -   name: (linux) Install gcc dependencies
-                run: sudo apt-get update && sudo apt-get -y install gobjc-8-multilib gobjc++-8-multilib gcc-8-multilib g++-8-multilib gobjc-9-multilib gobjc++-9-multilib gcc-9-multilib g++-9-multilib libpthread-stubs0-dev
+            -   uses: ./.github/actions/install-build-dependencies
             -   name: Run all tests
                 uses: ./.github/actions/gradle
                 with:
@@ -214,9 +212,7 @@ jobs:
             -   name: (linux) Install documentation dependencies
                 if: matrix.os == 'ubuntu-latest'
                 run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
-            -   name: (linux) Install gcc dependencies
-                if: matrix.os == 'ubuntu-latest'
-                run: sudo apt-get update && sudo apt-get -y install gobjc-8-multilib gobjc++-8-multilib gcc-8-multilib g++-8-multilib gobjc-9-multilib gobjc++-9-multilib gcc-9-multilib g++-9-multilib libpthread-stubs0-dev
+            -   uses: ./.github/actions/install-build-dependencies
             -   name: (macos) Install documentation dependencies
                 if: matrix.os == 'macos-latest'
                 run: brew install tree
