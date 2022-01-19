@@ -1,0 +1,13 @@
+description: Install documentation dependencies
+name: Install Documentation Dependencies
+runs:
+    using: composite
+    steps:
+        -   name: (linux) Install documentation dependencies
+            shell: bash
+            if: runner.os == 'Linux'
+            run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
+        -   name: (macos) Install documentation dependencies
+            shell: bash
+            if: runner.os == 'macOS'
+            run: brew install tree
