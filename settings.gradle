@@ -86,6 +86,9 @@ buildCache {
 	}
 }
 
+// We prefer using `--scan` flag because...
+//   We would be left playing a cat & mouse game with the enterprise plugin
+//   to figure out which version should match our build.
 plugins.withId('com.gradle.enterprise') {
 	gradleEnterprise {
 		buildScan {
