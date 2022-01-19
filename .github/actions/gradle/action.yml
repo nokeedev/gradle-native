@@ -23,7 +23,7 @@ runs:
         -   uses: gradle/gradle-build-action@v2
             id: gradle
             with:
-                arguments: ${{ inputs.arguments }} --continue --scan "-DnokeeBuildCacheUsername=${{ inputs.build-cache-username }}" "-DnokeeBuildCachePassword=${{ inputs.build-cache-password }}"
+                arguments: ${{ inputs.arguments }} --no-daemon --continue --scan "-DnokeeBuildCacheUsername=${{ inputs.build-cache-username }}" "-DnokeeBuildCachePassword=${{ inputs.build-cache-password }}"
                 gradle-version: wrapper
         - name: "Tag build scan url"
           uses: actions/github-script@v5

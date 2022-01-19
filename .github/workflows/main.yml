@@ -12,7 +12,7 @@ jobs:
             -   name: Build all code
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: assemble --no-daemon -PskipAllAsciinemaTasks
+                    arguments: assemble -PskipAllAsciinemaTasks
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -24,7 +24,7 @@ jobs:
             -   name: Deploy to snapshot
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: publishAllPublicationsToNokeeSnapshotRepository -Dintegration --no-daemon "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
+                    arguments: publishAllPublicationsToNokeeSnapshotRepository -Dintegration "-PnokeeSnapshotAccessKey=${{ secrets.NOKEE_SNAPSHOT_ACCESS_KEY }}" "-PnokeeSnapshotSecretKey=${{ secrets.NOKEE_SNAPSHOT_SECRET_KEY }}" "-PnokeeSnapshotUrl=${{ secrets.NOKEE_SNAPSHOT_URL }}"
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -76,7 +76,7 @@ jobs:
             -   name: Run all tests
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: ${{ matrix.checkTask }} --no-daemon
+                    arguments: ${{ matrix.checkTask }}
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -129,7 +129,7 @@ jobs:
             -   name: Run all tests
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: ${{ matrix.checkTask }} --no-daemon
+                    arguments: ${{ matrix.checkTask }}
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -184,7 +184,7 @@ jobs:
             -   name: Run all tests
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: ${{ matrix.checkTask }} --no-daemon
+                    arguments: ${{ matrix.checkTask }}
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -199,7 +199,7 @@ jobs:
             -   name: Run all tests
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: :docs:bakedDocsTest --no-daemon --no-build-cache -PskipAllAsciinemaTasks
+                    arguments: :docs:bakedDocsTest --no-build-cache -PskipAllAsciinemaTasks
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -223,7 +223,7 @@ jobs:
             -   name: Run all tests
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: :docs:docsTest --no-daemon --no-build-cache -PskipAllAsciinemaTasks
+                    arguments: :docs:docsTest --no-build-cache -PskipAllAsciinemaTasks
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -240,7 +240,7 @@ jobs:
             -   name: Publish
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: publishAllPublicationsToNokeeReleaseRepository :docs:publishBakedPublicationToDocsNokeeDevRepository -Dmilestone --continue --no-daemon --no-build-cache -PskipAllAsciinemaTasks "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
+                    arguments: publishAllPublicationsToNokeeReleaseRepository :docs:publishBakedPublicationToDocsNokeeDevRepository -Dmilestone --continue --no-build-cache -PskipAllAsciinemaTasks "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
