@@ -1,0 +1,9 @@
+description: Install build dependencies
+name: Install Build Dependencies
+runs:
+    using: composite
+    steps:
+        -   name: (linux) Install gcc dependencies
+            shell: bash
+            if: runner.os == 'Linux'
+            run: sudo apt-get update && sudo apt-get -y install gobjc-8-multilib gobjc++-8-multilib gcc-8-multilib g++-8-multilib gobjc-9-multilib gobjc++-9-multilib gcc-9-multilib g++-9-multilib libpthread-stubs0-dev
