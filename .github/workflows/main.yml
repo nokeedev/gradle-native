@@ -27,45 +27,10 @@ jobs:
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
-    integration-tests:
-        needs: sanity-check
-        runs-on: ubuntu-latest
-        steps:
-            -   uses: actions/checkout@v2
-            -   uses: ./.github/actions/install-build-dependencies
-            -   name: Run all tests
-                uses: ./.github/actions/gradle
-                with:
-                    arguments: integrationTest
-                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
-                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    functional-tests:
+    quick-test:
         needs: sanity-check
-        runs-on: ${{ matrix.os }}
-        strategy:
-            fail-fast: false
-            matrix:
-                checkTask: [
-                        'functionalTestMinimumGradle',
-                        'functionalTestLatestGlobalAvailable',
-                        'functionalTestLatestNightly'
-                ]
-                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        steps:
-            -   uses: actions/checkout@v2
-            -   uses: ./.github/actions/install-build-dependencies
-            -   name: Run all tests
-                uses: ./.github/actions/gradle
-                with:
-                    arguments: ${{ matrix.checkTask }}
-                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
-                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-                    github-token: ${{ secrets.GITHUB_TOKEN }}
-
-    unit-tests:
-        needs: sanity-check
+        if: github.ref != 'refs/heads/master'
         runs-on: ${{ matrix.os }}
         strategy:
             fail-fast: false
@@ -77,10 +42,29 @@ jobs:
             -   name: Run all tests
                 uses: ./.github/actions/gradle
                 with:
-                    arguments: test
+                    arguments: quickTest
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
+    full-test:
+        needs: sanity-check
+        if: github.ref == 'refs/heads/master'
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: ./.github/actions/install-build-dependencies
+            -   name: Run all tests
+                uses: ./.github/actions/gradle
+                with:
+                    arguments: fullTest
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
+
     check-baked-documentation:
         runs-on: ubuntu-latest
         steps:
