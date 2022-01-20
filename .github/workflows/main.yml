@@ -97,7 +97,7 @@ jobs:
                     github-token: ${{ secrets.GITHUB_TOKEN }}
     publish-head-milestone:
         if: github.ref == 'refs/heads/master'
-        needs: [unit-tests, integration-tests, functional-tests, check-documentations, check-baked-documentation]
+        needs: [quick-test, full-test, check-documentations, check-baked-documentation]
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v2
