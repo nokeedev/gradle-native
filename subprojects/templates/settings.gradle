@@ -1,5 +1,5 @@
 plugins {
-	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.2'
+	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.3'
 }
 
 gradle.rootProject {
