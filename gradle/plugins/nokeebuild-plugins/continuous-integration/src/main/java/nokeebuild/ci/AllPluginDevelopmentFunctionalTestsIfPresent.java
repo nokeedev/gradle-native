@@ -23,23 +23,23 @@ import org.gradle.api.provider.Provider;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
-final class AllPluginDevelopmentIntegrationTestsIfPresent implements Callable<Object> {
+final class AllPluginDevelopmentFunctionalTestsIfPresent implements Callable<Object> {
 	private final Project project;
 
-	public AllPluginDevelopmentIntegrationTestsIfPresent(Project project) {
+	public AllPluginDevelopmentFunctionalTestsIfPresent(Project project) {
 		this.project = project;
 	}
 
 	@Override
 	public Object call() throws Exception {
-		if (project.getPluginManager().hasPlugin("nokeebuild.gradle-plugin-integration-test")) {
-			return integrationTest(project).flatMap(new GradlePluginDevelopmentTestSuiteTestTasksTransformer(new OperatingSystemFamilyTestTasksMapper()));
+		if (project.getPluginManager().hasPlugin("nokeebuild.gradle-plugin-functional-test")) {
+			return functionalTest(project).flatMap(new GradlePluginDevelopmentTestSuiteTestTasksTransformer(new OperatingSystemFamilyTestTasksMapper()));
 		} else {
 			return Collections.emptySet();
 		}
 	}
 
-	private static Provider<GradlePluginDevelopmentTestSuite> integrationTest(Project project) {
-		return project.provider(() -> (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("integrationTest"));
+	private static Provider<GradlePluginDevelopmentTestSuite> functionalTest(Project project) {
+		return project.provider(() -> (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("functionalTest"));
 	}
 }

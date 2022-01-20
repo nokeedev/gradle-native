@@ -17,18 +17,12 @@
 package nokeebuild.ci;
 
 import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
-import dev.gradleplugins.GradlePluginTestingStrategy;
 import org.gradle.api.Project;
-import org.gradle.api.Transformer;
-import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.testing.Test;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import java.util.function.Predicate;
-import java.util.stream.StreamSupport;
-
-import static java.util.stream.Collectors.toList;
 
 final class LatestGlobalAvailablePluginDevelopmentFunctionalTestsIfPresent implements Callable<Object> {
 	private final Project project;
@@ -40,26 +34,13 @@ final class LatestGlobalAvailablePluginDevelopmentFunctionalTestsIfPresent imple
 	@Override
 	public Object call() throws Exception {
 		if (project.getPluginManager().hasPlugin("nokeebuild.gradle-plugin-functional-test")) {
-			return functionalTest(project).getTestTasks().getElements().map(matching(latestGlobalAvailableTestingStrategy()));
+			return functionalTest(project).flatMap(new GradlePluginDevelopmentTestSuiteTestTasksTransformer(new OperatingSystemFamilyTestTasksMapper().andThen(new LatestGlobalAvailableTestTasksMapper())));
 		} else {
 			return Collections.emptySet();
 		}
 	}
 
-	private Predicate<Test> latestGlobalAvailableTestingStrategy() {
-		return task -> testingStrategy(task).get().equals(functionalTest(project).getStrategies().getCoverageForLatestGlobalAvailableVersion());
-	}
-
-	private static GradlePluginDevelopmentTestSuite functionalTest(Project project) {
-		return (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("functionalTest");
-	}
-
-	@SuppressWarnings("unchecked")
-	private static Property<GradlePluginTestingStrategy> testingStrategy(Test task) {
-		return (Property<GradlePluginTestingStrategy>) task.getExtensions().getByName("testingStrategy");
-	}
-
-	private static <T> Transformer<Iterable<T>, Iterable<T>> matching(Predicate<? super T> predicate) {
-		return it -> StreamSupport.stream(it.spliterator(), false).filter(predicate).collect(toList());
+	private static Provider<GradlePluginDevelopmentTestSuite> functionalTest(Project project) {
+		return project.provider(() -> (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("functionalTest"));
 	}
 }

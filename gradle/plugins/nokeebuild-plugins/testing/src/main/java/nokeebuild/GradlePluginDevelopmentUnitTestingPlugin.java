@@ -16,14 +16,22 @@
 package nokeebuild;
 
 import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
+import dev.gradleplugins.GradlePluginTestingStrategy;
+import nokeebuild.testing.strategies.DevelopmentTestingStrategy;
+import nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategy;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import javax.inject.Inject;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import static nokeebuild.UseJUnitJupiter.junitVersion;
 import static nokeebuild.UseSpockFramework.spockVersion;
+import static nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategies.*;
 
 abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plugin<Project> {
 	@Inject
@@ -34,6 +42,9 @@ abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plu
 		project.getPluginManager().apply(TestingBasePlugin.class);
 		project.getPluginManager().apply("groovy-base");
 		project.getPluginManager().apply("dev.gradleplugins.gradle-plugin-unit-test");
+		test(project, new RegisterOperatingSystemFamilyTestingStrategy());
+		test(project, new TestingStrategiesConvention());
+		test(project, new DisableNonDevelopmentTestTaskOnIdeaSync(project));
 		test(project, testSuite -> {
 			testSuite.dependencies(it -> {
 				it.implementation(project.project(":internalTesting"));
@@ -47,5 +58,19 @@ abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plu
 	private static void test(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
 		final GradlePluginDevelopmentTestSuite extension = (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("test");
 		action.execute(extension);
+	}
+
+	private static final class TestingStrategiesConvention implements Action<GradlePluginDevelopmentTestSuite> {
+		@Override
+		public void execute(GradlePluginDevelopmentTestSuite testSuite) {
+			final Set<GradlePluginTestingStrategy> strategies = new LinkedHashSet<>();
+			majorOperatingSystemFamilies().forEach(strategies::add);
+			strategies.add(new DevelopmentTestingStrategy());
+			testSuite.getTestingStrategies().convention(strategies);
+		}
+
+		private static Stream<OperatingSystemFamilyTestingStrategy> majorOperatingSystemFamilies() {
+			return Stream.of(WINDOWS, LINUX, MACOS);
+		}
 	}
 }

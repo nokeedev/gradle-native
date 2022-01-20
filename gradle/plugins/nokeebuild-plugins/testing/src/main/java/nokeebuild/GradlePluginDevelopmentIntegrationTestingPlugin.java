@@ -18,15 +18,20 @@ package nokeebuild;
 
 import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
 import dev.gradleplugins.GradlePluginDevelopmentTestSuiteFactory;
+import dev.gradleplugins.GradlePluginTestingStrategy;
+import nokeebuild.testing.strategies.DevelopmentTestingStrategy;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.SourceSetContainer;
 
 import javax.inject.Inject;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static dev.gradleplugins.GradlePluginDevelopmentTestSuiteFactory.forProject;
 import static nokeebuild.UseJUnitJupiter.junitVersion;
+import static nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategyFactory.osFamilies;
 
 abstract /*final*/ class GradlePluginDevelopmentIntegrationTestingPlugin implements Plugin<Project> {
 	@Inject
@@ -44,10 +49,13 @@ abstract /*final*/ class GradlePluginDevelopmentIntegrationTestingPlugin impleme
 
 		project.afterEvaluate(proj -> integrationTest.finalizeComponent());
 
+		integrationTest(project, new RegisterOperatingSystemFamilyTestingStrategy());
+		integrationTest(project, new DisableNonDevelopmentTestTaskOnIdeaSync(project));
 		integrationTest(project, testSuite -> {
 			project.getTasks().named("check", task -> task.dependsOn(testSuite.getTestTasks().getElements()));
 		});
 		integrationTest(project, new ExtendsFrom(project, sourceSets(project).getByName("main")));
+		integrationTest(project, new TestingStrategiesConvention());
 		integrationTest(project, testSuite -> {
 			testSuite.dependencies(it -> {
 				it.implementation(project);
@@ -65,5 +73,14 @@ abstract /*final*/ class GradlePluginDevelopmentIntegrationTestingPlugin impleme
 
 	private static SourceSetContainer sourceSets(Project project) {
 		return project.getExtensions().getByType(SourceSetContainer.class);
+	}
+
+	private static final class TestingStrategiesConvention implements Action<GradlePluginDevelopmentTestSuite> {
+		@Override
+		public void execute(GradlePluginDevelopmentTestSuite testSuite) {
+			final Set<GradlePluginTestingStrategy> strategies = new LinkedHashSet<>();
+			strategies.add(testSuite.getStrategies().composite(new DevelopmentTestingStrategy(), osFamilies(testSuite).getAgnostic()));
+			testSuite.getTestingStrategies().convention(strategies);
+		}
 	}
 }

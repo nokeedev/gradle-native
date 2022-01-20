@@ -13,18 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nokeebuild.testing.strategies;
 
-package nokeebuild.ci;
+import dev.gradleplugins.GradlePluginTestingStrategy;
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import java.util.Objects;
 
-/*final*/ class ContinuousIntegrationPlugin implements Plugin<Project> {
+public final class DevelopmentTestingStrategy implements GradlePluginTestingStrategy {
 	@Override
-	public void apply(Project project) {
-		project.getPluginManager().apply(QuickTestPlugin.class);
-		project.getPluginManager().apply(CompileAllTaskPlugin.class);
-		project.getPluginManager().apply(SanityCheckPlugin.class);
-		project.getPluginManager().apply(FullTestPlugin.class);
+	public String getName() {
+		return ""; // this testing strategy act as a tag
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		return o instanceof DevelopmentTestingStrategy;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash();
 	}
 }

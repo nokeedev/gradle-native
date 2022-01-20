@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nokeebuild;
 
-package nokeebuild.ci;
+import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
+import nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategyFactory;
+import org.gradle.api.Action;
+import org.gradle.api.plugins.ExtensionAware;
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-
-/*final*/ class ContinuousIntegrationPlugin implements Plugin<Project> {
+final class RegisterOperatingSystemFamilyTestingStrategy implements Action<GradlePluginDevelopmentTestSuite> {
 	@Override
-	public void apply(Project project) {
-		project.getPluginManager().apply(QuickTestPlugin.class);
-		project.getPluginManager().apply(CompileAllTaskPlugin.class);
-		project.getPluginManager().apply(SanityCheckPlugin.class);
-		project.getPluginManager().apply(FullTestPlugin.class);
+	public void execute(GradlePluginDevelopmentTestSuite testSuite) {
+		((ExtensionAware) testSuite).getExtensions().add("osFamilies", new OperatingSystemFamilyTestingStrategyFactory());
 	}
 }

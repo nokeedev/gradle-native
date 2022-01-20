@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package nokeebuild.ci;
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.testing.Test;
 
-/*final*/ class ContinuousIntegrationPlugin implements Plugin<Project> {
-	@Override
-	public void apply(Project project) {
-		project.getPluginManager().apply(QuickTestPlugin.class);
-		project.getPluginManager().apply(CompileAllTaskPlugin.class);
-		project.getPluginManager().apply(SanityCheckPlugin.class);
-		project.getPluginManager().apply(FullTestPlugin.class);
+import java.util.Objects;
+
+interface GradlePluginDevelopmentTestSuiteTestTasksMapper {
+	Provider<Iterable<Test>> apply(GradlePluginDevelopmentTestSuite testSuite, Provider<? extends Iterable<Test>> testTasks);
+
+	default GradlePluginDevelopmentTestSuiteTestTasksMapper andThen(GradlePluginDevelopmentTestSuiteTestTasksMapper after) {
+		Objects.requireNonNull(after);
+		return (testSuite, testTasks) -> after.apply(testSuite, apply(testSuite, testTasks));
 	}
 }
