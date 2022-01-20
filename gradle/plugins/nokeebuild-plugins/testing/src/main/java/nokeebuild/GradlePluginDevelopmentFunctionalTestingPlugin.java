@@ -15,16 +15,22 @@
  */
 package nokeebuild;
 
-import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
+import dev.gradleplugins.*;
+import nokeebuild.testing.strategies.DevelopmentTestingStrategy;
+import nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategy;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import javax.inject.Inject;
 
-import static java.util.Arrays.asList;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import static nokeebuild.UseJUnitJupiter.junitVersion;
 import static nokeebuild.UseSpockFramework.spockVersion;
+import static nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategies.*;
 
 abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implements Plugin<Project> {
 	@Inject
@@ -35,12 +41,10 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 		project.getPluginManager().apply(TestingBasePlugin.class);
 		project.getPluginManager().apply("groovy-base");
 		project.getPluginManager().apply("dev.gradleplugins.gradle-plugin-functional-test");
+		functionalTest(project, new RegisterOperatingSystemFamilyTestingStrategy());
+		functionalTest(project, new TestingStrategiesConvention());
+		functionalTest(project, new DisableNonDevelopmentTestTaskOnIdeaSync(project));
 		functionalTest(project, testSuite -> {
-			testSuite.getTestingStrategies().convention(asList(
-				testSuite.getStrategies().getCoverageForMinimumVersion(),
-				testSuite.getStrategies().getCoverageForLatestGlobalAvailableVersion(),
-				testSuite.getStrategies().getCoverageForLatestNightlyVersion()
-			));
 			testSuite.dependencies(it -> {
 				it.implementation(project.project(":internalTesting"));
 				it.implementation(it.gradleFixtures());
@@ -56,5 +60,28 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 	private static void functionalTest(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
 		final GradlePluginDevelopmentTestSuite extension = (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("functionalTest");
 		action.execute(extension);
+	}
+
+	private static final class TestingStrategiesConvention implements Action<GradlePluginDevelopmentTestSuite> {
+		@Override
+		public void execute(GradlePluginDevelopmentTestSuite testSuite) {
+			final Set<GradlePluginTestingStrategy> strategies = new LinkedHashSet<>();
+			final GradlePluginTestingStrategyFactory strategyFactory = testSuite.getStrategies();
+			majorOperatingSystemFamilies().forEach(osFamily -> {
+				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForMinimumVersion()));
+				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForLatestGlobalAvailableVersion()));
+				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForLatestNightlyVersion()));
+			});
+
+			final DevelopmentTestingStrategy developmentStrategy = new DevelopmentTestingStrategy();
+			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForMinimumVersion()));
+			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForLatestGlobalAvailableVersion()));
+			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForLatestNightlyVersion()));
+			testSuite.getTestingStrategies().convention(strategies);
+		}
+
+		private static Stream<OperatingSystemFamilyTestingStrategy> majorOperatingSystemFamilies() {
+			return Stream.of(WINDOWS, LINUX, MACOS);
+		}
 	}
 }

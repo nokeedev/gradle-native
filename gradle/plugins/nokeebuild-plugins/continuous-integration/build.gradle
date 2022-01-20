@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+	implementation project(':testing')
+	implementation 'org.apache.commons:commons-lang3'
 	compileOnly 'dev.gradleplugins:gradle-plugin-development'
 }
 

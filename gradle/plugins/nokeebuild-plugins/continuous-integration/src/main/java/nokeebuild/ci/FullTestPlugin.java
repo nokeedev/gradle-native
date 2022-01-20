@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package nokeebuild.ci;
 
 import org.gradle.api.Plugin;
@@ -24,14 +23,19 @@ import org.gradle.api.tasks.TaskProvider;
 import static nokeebuild.ci.TaskUtils.dependsOn;
 import static nokeebuild.ci.TaskUtils.useCiLifecycleGroup;
 
-/*final*/ class QuickTestPlugin implements Plugin<Project> {
+/*final*/ class FullTestPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		final TaskProvider<Task> quickTest = project.getTasks().register("quickTest");
-		quickTest.configure(useCiLifecycleGroup());
-		quickTest.configure(task -> task.setDescription("Run all unit, integration and functional (against latest release) tests."));
-		quickTest.configure(dependsOn(new AllPluginDevelopmentUnitTestsIfPresent(project)));
-		quickTest.configure(dependsOn(new AllPluginDevelopmentIntegrationTestsIfPresent(project)));
-		quickTest.configure(dependsOn(new LatestGlobalAvailablePluginDevelopmentFunctionalTestsIfPresent(project)));
+		final TaskProvider<Task> fullTest = project.getTasks().register("fullTest", Task.class);
+		fullTest.configure(useCiLifecycleGroup());
+		fullTest.configure(task -> task.setDescription("Run all unit, integration and functional (against all versions) tests."));
+
+		fullTest.configure(dependsOn(new AllPluginDevelopmentUnitTestsIfPresent(project)));
+		fullTest.configure(dependsOn(new AllPluginDevelopmentIntegrationTestsIfPresent(project)));
+		fullTest.configure(dependsOn(new AllPluginDevelopmentFunctionalTestsIfPresent(project)));
+
+		// full test
+		// on local -> all available versions
+		// on ci -> all versions
 	}
 }

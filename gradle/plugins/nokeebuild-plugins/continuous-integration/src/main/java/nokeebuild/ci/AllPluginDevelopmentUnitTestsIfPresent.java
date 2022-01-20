@@ -18,6 +18,7 @@ package nokeebuild.ci;
 
 import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Provider;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -32,13 +33,13 @@ final class AllPluginDevelopmentUnitTestsIfPresent implements Callable<Object> {
 	@Override
 	public Object call() throws Exception {
 		if (project.getPluginManager().hasPlugin("nokeebuild.gradle-plugin-unit-test")) {
-			return test(project).getTestTasks().getElements();
+			return test(project).flatMap(new GradlePluginDevelopmentTestSuiteTestTasksTransformer(new OperatingSystemFamilyTestTasksMapper()));
 		} else {
 			return Collections.emptySet();
 		}
 	}
 
-	private static GradlePluginDevelopmentTestSuite test(Project project) {
-		return (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("test");
+	private static Provider<GradlePluginDevelopmentTestSuite> test(Project project) {
+		return project.provider(() -> (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("test"));
 	}
 }
