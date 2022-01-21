@@ -21,7 +21,7 @@ buildscript {
 	}
 	dependencies {
 		classpath 'dev.nokee:templates:latest.integration'
-		classpath testFixtures("dev.gradleplugins:gradle-plugin-development:${toolboxVersion}")
+		classpath "dev.gradleplugins:gradle-plugin-development-test-fixtures:${toolboxVersion}"
 	}
 }
 
