@@ -1,0 +1,16 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+dependencies {
+	runtimeOnly 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext'
+}
+
+gradlePlugin {
+	plugins {
+		ideaIde {
+			id = 'nokeebuild.intellij-ide'
+			implementationClass = 'nokeebuild.ide.IntelliJIdePlugin'
+		}
+	}
+}

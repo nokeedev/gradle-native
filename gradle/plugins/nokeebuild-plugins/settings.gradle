@@ -8,6 +8,7 @@ include 'build-platform'
 
 include 'basics'
 include 'continuous-integration'
+include 'ide-idea'
 include 'jvm-basics'
 include 'testing'
 include 'uber-plugins'
