@@ -1,5 +1,6 @@
 os: freebsd
 language: java
+jdk: openjdk8
 env:
     - JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
 script: ./gradlew quickTest --scan --continue --no-daemon
