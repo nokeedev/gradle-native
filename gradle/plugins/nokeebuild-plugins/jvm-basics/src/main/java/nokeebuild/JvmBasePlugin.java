@@ -15,18 +15,17 @@
  */
 package nokeebuild;
 
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
 
 import javax.inject.Inject;
-import java.util.function.Function;
 
 import static nokeebuild.UseLombok.lombokVersion;
+import static nokeebuild.jvm.StrictJavaCompileExtension.strictCompile;
+import static nokeebuild.jvm.XlintWarning.named;
 
 abstract /*final*/ class JvmBasePlugin implements Plugin<Project> {
 	@Inject
@@ -36,21 +35,19 @@ abstract /*final*/ class JvmBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply("nokeebuild.lifecycle-base");
 		project.getPluginManager().apply("nokeebuild.javadoc-base");
+		project.getPluginManager().apply("nokeebuild.jvm-strict-compile");
 		project.getPluginManager().withPlugin("java-base", ignored -> {
 			project.getPluginManager().apply("nokeebuild.repositories");
 			sourceSets(project).configureEach(new UseLombok(project, lombokVersion(project)));
 		});
-		project.getTasks().withType(JavaCompile.class).configureEach(registerExtension("strictCompile", StrictJavaCompileExtension::new));
+		project.getTasks().withType(JavaCompile.class).configureEach(task -> {
+			strictCompile(task).ignore(named("processing"));
+			strictCompile(task).ignore(named("serial"));
+		});
 		project.getTasks().withType(Javadoc.class).configureEach(new UseUtf8Encoding());
 	}
 
 	private static SourceSetContainer sourceSets(Project project) {
 		return project.getExtensions().getByType(SourceSetContainer.class);
-	}
-
-	private static <SELF, T> Action<SELF> registerExtension(String name, Function<? super SELF, ? extends T> instanceMapper) {
-		return self -> {
-			((ExtensionAware) self).getExtensions().add(name, instanceMapper.apply(self));
-		};
 	}
 }
