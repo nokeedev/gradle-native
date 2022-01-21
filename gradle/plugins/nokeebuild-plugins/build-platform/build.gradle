@@ -9,6 +9,7 @@ dependencies {
 		// Gradle plugins
 		api 'dev.gradleplugins:gradle-plugin-development:1.6.4'
 		api 'org.shipkit:shipkit-auto-version:1.1.19'
+		api 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1'
 
 		// Java libraries
 		api 'com.google.guava:guava:31.0.1-jre'
