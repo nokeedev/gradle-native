@@ -10,6 +10,7 @@ include 'basics'
 include 'continuous-integration'
 include 'ide-idea'
 include 'jvm-basics'
+include 'jvm-strict-compile'
 include 'testing'
 include 'uber-plugins'
 
