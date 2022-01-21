@@ -1,2 +1,3 @@
 os: freebsd
+language: java
 script: ./gradlew quickTest --scan --continue --no-daemon
