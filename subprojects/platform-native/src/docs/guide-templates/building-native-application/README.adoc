@@ -22,34 +22,16 @@ We’ll generate a {C application} that follows Nokee and Gradle’s conventions
 
 == 1. Create a project folder
 
-First, let's create an empty folder for our project and use the build-in `wrapper` task to create a Gradle wrapper script, e.g. `gradlew`.
+First, let's create an empty folder for our project and create an empty `settings.gradle` file while mark the root of your project in Gradle.
 
 [source,terminal]
 ----
 $ mkdir demo
 $ cd demo
-$ gradle wrapper
-
-BUILD SUCCESSFUL
-1 actionable tasks: 1 executed
-$ tree .
-├── gradle       // <1>
-│   └── wrapper
-│       ├── gradle-wrapper.jar
-│       └── gradle-wrapper.properties
-├── gradlew      // <2>
-└── gradlew.bat  // <2>
-
-2 directories, 4 files
-$ touch settings.gradle // <3>
-
+$ touch settings.gradle // <1>
 ----
 
-<1> Generated folder for wrapper files
-
-<2> Gradle wrapper start scripts
-
-<3> Create an empty Gradle workspace buildscript
+<1> Create an empty Gradle workspace buildscript
 
 We now have a Gradle project setup.
 Let's configure {C application} capability to the project.
@@ -110,14 +92,11 @@ Next, let's build the application.
 
 [source,terminal]
 ----
-$ ./gradlew build
+$ gradle build
 
 BUILD SUCCESSFUL
 7 actionable tasks: 7 executed
 ----
-
-NOTE: The first time you run the wrapper script, e.g. `gradlew[.bat]`, there may be a delay while that version of gradle is downloaded and stored locally in your `~/.gradle/wrapper/dists` folder.
-Learn link:TODO[why Gradle download distribution when using wrapper].
 
 The build task compiles the {C} sources, links the object files, and runs the tests, if any.
 The following shows the content of the `build` folder:
