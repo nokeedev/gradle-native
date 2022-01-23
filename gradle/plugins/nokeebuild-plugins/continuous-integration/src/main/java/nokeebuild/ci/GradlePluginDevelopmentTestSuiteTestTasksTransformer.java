@@ -30,5 +30,5 @@ class GradlePluginDevelopmentTestSuiteTestTasksTransformer implements Transforme
 	@Override
 	public Provider<? extends Iterable<Test>> transform(GradlePluginDevelopmentTestSuite testSuite) {
 		return mapper.apply(testSuite, testSuite.getTestTasks().getElements());
-    }
+	}
 }
