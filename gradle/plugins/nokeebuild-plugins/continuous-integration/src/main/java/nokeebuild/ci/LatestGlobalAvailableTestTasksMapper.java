@@ -36,7 +36,7 @@ class LatestGlobalAvailableTestTasksMapper implements GradlePluginDevelopmentTes
 		return testTasks.map(filtered(task -> matches(latestGA::equals).isSatisfiedBy(testingStrategy(task).get()))).flatMap(Providers::of);
 	}
 
-    private static <IN> Transformer<Iterable<IN>, Iterable<? extends IN>> filtered(Predicate<? super IN> predicate) {
-        return values -> StreamSupport.stream(values.spliterator(), false).filter(predicate).collect(Collectors.toList());
-    }
+	private static <IN> Transformer<Iterable<IN>, Iterable<? extends IN>> filtered(Predicate<? super IN> predicate) {
+		return values -> StreamSupport.stream(values.spliterator(), false).filter(predicate).collect(Collectors.toList());
+	}
 }
