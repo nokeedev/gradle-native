@@ -86,7 +86,9 @@ class OperatingSystemFamilyTestTasksMapper implements GradlePluginDevelopmentTes
             } else if (SystemUtils.IS_OS_LINUX) {
                 return OperatingSystemFamilyTestingStrategies.LINUX::equals;
             } else if (SystemUtils.IS_OS_MAC_OSX) {
-                return OperatingSystemFamilyTestingStrategies.MACOS::equals;
+				return OperatingSystemFamilyTestingStrategies.MACOS::equals;
+			} else if (SystemUtils.IS_OS_FREE_BSD) {
+				return OperatingSystemFamilyTestingStrategies.FREEBSD::equals;
             } else {
                 throw new UnsupportedOperationException("Unknown current OS family");
             }
