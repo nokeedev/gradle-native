@@ -15,6 +15,8 @@ String getLibraryFileNameFor(OperatingSystemFamily osFamily) {
 		return "lib${project.name}.so"
 	} else if (osFamily.macOS) {
 		return "lib${project.name}.dylib"
+	} else if (osFamily.freeBSD) {
+		return "lib${project.name}.so"
 	}
 	throw new GradleException("Unknown operating system family '${osFamily}'.")
 }

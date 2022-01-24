@@ -13,6 +13,8 @@ fun getLibraryFileNameFor(osFamily: dev.nokee.runtime.nativebase.OperatingSystem
 		return "lib${project.name}.so"
 	} else if (osFamily.isMacOs) {
 		return "lib${project.name}.dylib"
+	} else if (osFamily.isFreeBSD) {
+		return "lib${project.name}.so"
 	}
 	throw GradleException("Unknown operating system family '${osFamily}'.")
 }
