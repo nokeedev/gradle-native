@@ -209,10 +209,24 @@ public class ToolChainSelectorInternal {
 		public boolean canBuild(TargetMachine targetMachine) {
 			// Shortcut, we need to model target host for the tool chain and their target platform
 			//    We assume the same host should always be buildable and supported
-			if (DefaultNativePlatform.getCurrentOperatingSystem().toFamilyName().equals(targetMachine.getOperatingSystemFamily().getCanonicalName())) {
+			if (toFamilyName(DefaultNativePlatform.getCurrentOperatingSystem()).equals(targetMachine.getOperatingSystemFamily().getCanonicalName())) {
 				return true;
 			}
 			return false;
+		}
+
+		private static String toFamilyName(org.gradle.nativeplatform.platform.OperatingSystem operatingSystem) {
+			if (operatingSystem.isWindows()) {
+				return OperatingSystemFamily.WINDOWS;
+			} else if (operatingSystem.isLinux()) {
+				return OperatingSystemFamily.LINUX;
+			} else if (operatingSystem.isMacOsX()) {
+				return OperatingSystemFamily.MACOS;
+			} else if (operatingSystem.isFreeBSD()) {
+				return OperatingSystemFamily.FREE_BSD;
+			} else {
+				throw new UnsupportedOperationException(String.format("Unsupported operating system family of name '%s'", operatingSystem.getName()));
+			}
 		}
 	}
 }
