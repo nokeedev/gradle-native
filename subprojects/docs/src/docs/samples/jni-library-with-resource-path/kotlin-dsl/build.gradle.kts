@@ -16,6 +16,7 @@ if (project.hasProperty("configureViaDsl")) {
 				targetMachine.operatingSystemFamily.isWindows -> "windows"
 				targetMachine.operatingSystemFamily.isLinux -> "linux"
 				targetMachine.operatingSystemFamily.isMacOs -> "macos"
+				targetMachine.operatingSystemFamily.isFreeBSD -> "freebsd"
 				else -> throw GradleException("Unknown operating system family")
 			}
 			val architectureName = when {

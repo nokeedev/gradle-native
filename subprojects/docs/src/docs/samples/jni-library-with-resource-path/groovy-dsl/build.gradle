@@ -19,6 +19,8 @@ if (project.hasProperty('configureViaDsl')) {
 				osName = 'linux'
 			} else if (targetMachine.operatingSystemFamily.macOs) {
 				osName = 'macos'
+			} else if (targetMachine.operatingSystemFamily.freeBSD) {
+				osName = 'freebsd';
 			} else {
 				throw new GradleException('Unknown operating system family')
 			}
