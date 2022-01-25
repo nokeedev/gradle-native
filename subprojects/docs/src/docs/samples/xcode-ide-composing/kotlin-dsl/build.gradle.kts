@@ -10,8 +10,20 @@ plugins {
 }
 
 library.variants.configureEach {
-	sharedLibrary.linkTask.configure {
-		linkerArgs.add("-lobjc")
+	sharedLibrary {
+		// Some compiler on FreeBSD does not use local base
+		compileTasks.configureEach({ it is AbstractNativeCompileTask }) {
+			val compileTask = this as AbstractNativeCompileTask;
+			compileTask.includes.from(compileTask.targetPlatform.map {
+				when {
+					it.operatingSystem.isFreeBSD -> listOf(File("/usr/local/include"))
+					else -> emptyList()
+				}
+			})
+		}
+		linkTask.configure {
+			linkerArgs.add("-lobjc")
+		}
 	}
 }
 

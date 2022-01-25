@@ -7,6 +7,13 @@ import dev.nokee.platform.nativebase.ExecutableBinary
 
 application.variants.configureEach {
 	binaries.configureEach(ExecutableBinary) {
+		// Some compiler on FreeBSD does not use local base
+		compileTasks.configureEach({ it instanceof AbstractNativeCompileTask }) {
+			def compileTask = it as AbstractNativeCompileTask
+			compileTask.includes.from(compileTask.targetPlatform.map {
+				it.operatingSystem.freeBSD ? ['/usr/local/include'] : []
+			})
+		}
 		linkTask.configure {
 			linkerArgs.add('-lobjc')
 		}
