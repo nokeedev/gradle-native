@@ -10,7 +10,7 @@ import dev.nokee.platform.jni.JniJarBinary
 import dev.nokee.platform.nativebase.TargetMachine
 
 library {
-	targetMachines.set(listOf(machines.macOS, machines.linux, machines.windows))
+	targetMachines.set(listOf(machines.macOS, machines.linux, machines.windows, machines.freeBSD))
 }
 
 /**
@@ -33,6 +33,8 @@ fun isHostTargeted(targetMachine: TargetMachine): Boolean {
 	} else if (osFamily.isLinux && osName.contains("linux")) {
 		return true
 	} else if (osFamily.isMacOs && osName.contains("macos")) {
+		return true
+	} else if (osFamily.isFreeBSD && osName.contains("freebsd")) {
 		return true
 	}
 	return false
