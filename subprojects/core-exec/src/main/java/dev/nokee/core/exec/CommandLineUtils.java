@@ -18,6 +18,7 @@ package dev.nokee.core.exec;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.apache.commons.lang3.SystemUtils.IS_OS_FREE_BSD;
 import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 final class CommandLineUtils {
@@ -26,6 +27,8 @@ final class CommandLineUtils {
 	public static List<Object> getScriptCommandLine() {
 		if (IS_OS_WINDOWS) {
 			return Arrays.asList("cmd", "/c");
+		} else if (IS_OS_FREE_BSD) {
+			return Arrays.asList("/bin/sh", "-c");
 		}
 		return Arrays.asList("/bin/bash", "-c");
 	}
