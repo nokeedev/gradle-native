@@ -7,7 +7,7 @@ plugins {
 library.variants.configureEach {
 	sharedLibrary {
 		// Some compiler on FreeBSD does not use local base
-		compileTasks.configureEach({ it instanceof AbstractNativeCompileTask }) {
+		compileTasks.configureEach({ it is AbstractNativeCompileTask }) {
 			val compileTask = this as AbstractNativeCompileTask;
 			compileTask.includes.from(compileTask.targetPlatform.map {
 				when {
