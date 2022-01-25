@@ -13,7 +13,8 @@ library {
 	targetMachines.set(listOf(
 		machines.windows.x86_64,
 		machines.macOS.x86_64,
-		machines.linux.x86_64
+		machines.linux.x86_64,
+		machines.freeBSD.x86_64
 	))
 }
 
@@ -36,6 +37,10 @@ afterEvaluate {
 			create<MavenPublication>("jniLibraryWindows") {
 				from(components.getByName("jniWindows"))
 				artifactId = "${project.name}-windows"
+			}
+			create<MavenPublication>("jniLibraryFreebsd") {
+				from(components.getByName("jniFreebsd"))
+				artifactId = "${project.name}-freebsd"
 			}
 		}
 		repositories {
