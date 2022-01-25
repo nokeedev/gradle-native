@@ -99,6 +99,8 @@ abstract class JniLibraryPublishPlugin implements Plugin<Project> {
 			return "macos";
 		} else if (targetMachine.operatingSystemFamily.windows) {
 			return "windows";
+		} else if (tragetMachine.operatingSystemFamily.freeBSD) {
+			return "freebsd";
 		} else {
 			throw new UnsupportedOperationException()
 		}
@@ -111,6 +113,8 @@ abstract class JniLibraryPublishPlugin implements Plugin<Project> {
 			return OperatingSystemFamily.MACOS;
 		} else if (targetMachine.operatingSystemFamily.windows) {
 			return OperatingSystemFamily.WINDOWS;
+		} else if (targetMachine.operatingSystemFamily.freeBSD) {
+			return "freebsd";
 		} else {
 			throw new UnsupportedOperationException()
 		}
