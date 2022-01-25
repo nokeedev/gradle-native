@@ -15,8 +15,9 @@ library {
 	}
 
 	binaries.configureEach(NativeBinary::class.java) {
-		compileTasks.configureEach {
-			includes.from(compileTask.get().targetPlatform.map {
+		compileTasks.configureEach({ it is AbstractNativeCompileTask }) {
+			val compileTask = this as AbstractNativeCompileTask
+			compileTask.includes.from(compileTask.targetPlatform.map {
 				listOf(File("${Jvm.current().javaHome.canonicalPath}/include")) + when {
 					it.operatingSystem.isMacOsX -> listOf(File("${Jvm.current().javaHome.absolutePath}/include/darwin"))
 					it.operatingSystem.isLinux -> listOf(File("${Jvm.current().javaHome.absolutePath}/include/linux"))
@@ -25,7 +26,7 @@ library {
 					else -> emptyList()
 				}
 			})
-			((AbstractNativeCompileTask) this).isPositionIndependentCode = true
+			compileTask.isPositionIndependentCode = true
 		}
 	}
 }

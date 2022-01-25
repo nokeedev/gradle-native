@@ -11,6 +11,8 @@ library {
 	//     However you will need to write a loader aware of the multiple shared libraries.
 	targetLinkages = [linkages.static]
 	binaries.configureEach(NativeBinary) {
-		compileTasks.configureEach { positionIndependentCode = true }
+		compileTasks.configureEach({ it instanceof AbstractNativeCompileTask}) {
+			positionIndependentCode = true
+		}
 	}
 }
