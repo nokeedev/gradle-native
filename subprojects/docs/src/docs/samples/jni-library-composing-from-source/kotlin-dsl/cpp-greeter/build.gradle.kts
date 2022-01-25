@@ -1,5 +1,7 @@
+import dev.nokee.platform.nativebase.NativeBinary
+
 plugins {
-	id("cpp-library")
+	id("dev.nokee.cpp-library")
 }
 
 description = "The C++ implementation, has no knowledge of the JVM."
@@ -7,9 +9,11 @@ description = "The C++ implementation, has no knowledge of the JVM."
 library {
 	// Note: it is possible to use a shared library.
 	//     However you will need to write a loader aware of the multiple shared libraries.
-	linkage.set(listOf(Linkage.STATIC))
+	targetLinkages.set(listOf(linkages.static))
 
-	binaries.configureEach {
-		compileTask.get().setPositionIndependentCode(true)
+	binaries.configureEach(NativeBinary::class.java) {
+		compileTasks.configureEach(AbstractNativeCompileTask::class.java) {
+			isPositionIndependentCode = true
+		}
 	}
 }

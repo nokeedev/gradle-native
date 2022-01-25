@@ -1,31 +1,36 @@
 plugins {
-	id 'cpp-library'
+	id 'dev.nokee.cpp-library'
 }
 
 description = 'The JNI shared library, also known as the native bindings.'
 
 import org.gradle.internal.jvm.Jvm
+import dev.nokee.platform.nativebase.NativeBinary
 
 library {
 	// The native component of the JNI library needs to be a shared library.
-	linkage = [Linkage.SHARED]
+	targetLinkages = [linkages.shared]
 	dependencies {
 		implementation project(':cpp-greeter')
 	}
 
-	binaries.configureEach {
-		compileTask.get().getIncludes().from(compileTask.get().targetPlatform.map {
-			def result = [new File("${Jvm.current().javaHome.absolutePath}/include")]
+	binaries.configureEach(NativeBinary) {
+		compileTasks.configureEach {
+			includes.from(targetPlatform.map {
+				def result = [new File("${Jvm.current().javaHome.absolutePath}/include")]
 
-			if (it.operatingSystem.macOsX) {
-				result.add(new File("${Jvm.current().javaHome.absolutePath}/include/darwin"))
-			} else if (it.operatingSystem.linux) {
-				result.add(new File("${Jvm.current().javaHome.absolutePath}/include/linux"))
-			} else if (it.operatingSystem.windows) {
-				result.add(new File("${Jvm.current().javaHome.absolutePath}/include/win32"))
-			}
-			return result
-		})
-		compileTask.get().positionIndependentCode = true
+				if (it.operatingSystem.macOsX) {
+					result.add(new File("${Jvm.current().javaHome.absolutePath}/include/darwin"))
+				} else if (it.operatingSystem.linux) {
+					result.add(new File("${Jvm.current().javaHome.absolutePath}/include/linux"))
+				} else if (it.operatingSystem.windows) {
+					result.add(new File("${Jvm.current().javaHome.absolutePath}/include/win32"))
+				} else if (it.operatingSystem.freeBSD) {
+					result.add(new File("${Jvm.current().javaHome.absolutePath}/include/freebsd"))
+				}
+				return result
+			})
+			positionIndependentCode = true
+		}
 	}
 }
