@@ -15,6 +15,9 @@ library.variants.configureEach {
 		}
 		linkTask.configure {
 			linkerArgs.add('-lobjc')
+			linkerArgs.addAll((it as LinkSharedLibrary).targetPlatform.map {
+				it.operatingSystem.freeBSD ? ['/usr/local/lib'] : []
+			})
 		}
 	}
 }

@@ -19,6 +19,12 @@ application.variants.configureEach {
 		}
 		linkTask.configure {
 			linkerArgs.add("-lobjc")
+			linkerArgs.addAll((this as LinkExecutable).targetPlatform.map {
+				when {
+					it.operatingSystem.isFreeBSD -> listOf(File("/usr/local/lib"))
+					else -> emptyList()
+				}
+			})
 		}
 	}
 }
