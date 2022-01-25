@@ -12,8 +12,8 @@ library {
 	targetLinkages.set(listOf(linkages.static))
 
 	binaries.configureEach(NativeBinary::class.java) {
-		compileTasks.configureEach(AbstractNativeCompileTask::class.java) {
-			isPositionIndependentCode = true
+		compileTasks.configureEach({ it is AbstractNativeCompileTask }) {
+			(this as AbstractNativeCompileTask).isPositionIndependentCode = true
 		}
 	}
 }
