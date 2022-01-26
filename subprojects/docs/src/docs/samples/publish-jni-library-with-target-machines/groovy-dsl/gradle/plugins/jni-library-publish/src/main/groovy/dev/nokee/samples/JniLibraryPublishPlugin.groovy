@@ -99,7 +99,7 @@ abstract class JniLibraryPublishPlugin implements Plugin<Project> {
 			return "macos";
 		} else if (targetMachine.operatingSystemFamily.windows) {
 			return "windows";
-		} else if (tragetMachine.operatingSystemFamily.freeBSD) {
+		} else if (targetMachine.operatingSystemFamily.freeBSD) {
 			return "freebsd";
 		} else {
 			throw new UnsupportedOperationException()
