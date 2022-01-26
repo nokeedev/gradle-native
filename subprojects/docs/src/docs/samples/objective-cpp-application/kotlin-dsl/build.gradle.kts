@@ -21,7 +21,7 @@ application.variants.configureEach {
 			linkerArgs.add("-lobjc")
 			linkerArgs.addAll((this as LinkExecutable).targetPlatform.map {
 				when {
-					it.operatingSystem.isFreeBSD -> listOf(File("/usr/local/lib"))
+					it.operatingSystem.isFreeBSD -> listOf("-L/usr/local/lib")
 					else -> emptyList()
 				}
 			})
