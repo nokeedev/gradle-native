@@ -16,6 +16,7 @@
 package dev.gradleplugins.exemplarkit.output;
 
 import dev.gradleplugins.exemplarkit.output.UnzipCommandOutputParser.CreateActionContext;
+import dev.gradleplugins.exemplarkit.output.UnzipCommandOutputParser.ExtractActionContext;
 import dev.gradleplugins.exemplarkit.output.UnzipCommandOutputParser.InflateActionContext;
 import dev.gradleplugins.exemplarkit.output.UnzipCommandOutputParser.UnzipHeaderContext;
 import lombok.*;
@@ -75,6 +76,11 @@ public final class UnzipCommandOutput {
 
 		@Override
 		public void exitInflateAction(InflateActionContext ctx) {
+			actions.add(new ArchiveAction(ArchiveOperation.INFLATING, ctx.Path().getText()));
+		}
+
+		@Override
+		public void exitExtractAction(ExtractActionContext ctx) {
 			actions.add(new ArchiveAction(ArchiveOperation.INFLATING, ctx.Path().getText()));
 		}
 	}

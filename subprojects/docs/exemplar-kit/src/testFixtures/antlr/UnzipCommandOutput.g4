@@ -12,7 +12,8 @@ action
 
 actionType
 	: createAction
-  	| inflateAction
+	| inflateAction
+	| extractAction
   	;
 
 createAction
@@ -21,6 +22,10 @@ createAction
 
 inflateAction
 	: 'inflating' ':' Space Path
+	;
+
+extractAction
+	: 'extracting' ':' Space Path
 	;
 
 Path
