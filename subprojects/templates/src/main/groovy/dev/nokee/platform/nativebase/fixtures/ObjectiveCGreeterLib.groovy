@@ -37,8 +37,13 @@ class ObjectiveCGreeterLib extends GreeterImplementationAwareSourceElement<Objec
 
 		ObjectiveCGreetUsesGreeter() {
 			header = ofFile(sourceFile('headers', 'greet_alice.h', """
-@interface GreetAlice
-+ (id)alloc;
+#ifdef __has_attribute
+#if __has_attribute(objc_root_class)
+__attribute__((objc_root_class))
+#endif
+#endif
+@interface GreetAlice { id isa; }
++ (id)new;
 - (void)sayHelloToAlice;
 @end
 """))
@@ -52,12 +57,12 @@ class ObjectiveCGreeterLib extends GreeterImplementationAwareSourceElement<Objec
 
 @implementation GreetAlice
 
-+(id)alloc {
++(id)new {
     return class_createInstance(self, 0);
 }
 
 - (void)sayHelloToAlice {
-	Greeter* greeter = [Greeter alloc];
+	Greeter* greeter = [Greeter new];
 	printf("%s\\n", [greeter sayHello:"Alice"]);
 }
 @end
