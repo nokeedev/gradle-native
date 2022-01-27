@@ -30,7 +30,7 @@ class ObjectiveCppGreeterApp extends GreeterImplementationAwareSourceElement<Obj
 #include "greeter.h"
 
 int main(int argc, const char * argv[]) {
-	Greeter* greeter = [Greeter alloc];
+	Greeter* greeter = [Greeter new];
 	std::cout << [greeter sayHello:"Alice"] << std::endl;
 	return 0;
 }

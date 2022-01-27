@@ -28,7 +28,7 @@ class ObjectiveCGreeterTest extends NativeSourceElement {
 			#include "greeter.h"
 
 			int main(int argc, const char ** argv) {
-				Greeter* greeter = [Greeter alloc];
+				Greeter* greeter = [Greeter new];
 				if ([greeter sayHello:"Alice"] == "Bonjour, Alice!") {
 					return PASS;
 				}

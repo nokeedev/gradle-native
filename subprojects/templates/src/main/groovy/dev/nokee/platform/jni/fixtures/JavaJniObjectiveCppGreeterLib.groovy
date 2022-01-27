@@ -88,7 +88,7 @@ JNIEXPORT jstring JNICALL ${javaPackage.jniMethodName('Greeter', 'sayHello')}(JN
 
     // Convert jstring to std::string
     const char *name_as_c_str = env->GetStringUTFChars(name_from_java, nullptr);
-    Greeter * greeter = [Greeter alloc];
+    Greeter * greeter = [Greeter new];
     auto result_from_cpp = [greeter sayHello:name_as_c_str];  // Call native library
     env->ReleaseStringUTFChars(name_from_java, name_as_c_str);
 

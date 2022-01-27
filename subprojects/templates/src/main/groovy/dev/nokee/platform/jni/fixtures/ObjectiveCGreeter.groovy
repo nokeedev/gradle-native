@@ -21,8 +21,13 @@ class ObjectiveCGreeter extends NativeLibraryElement {
 
 	ObjectiveCGreeter() {
 		header = ofFile(sourceFile('headers', 'greeter.h', """
-@interface Greeter
-+ (id)alloc;
+#ifdef __has_attribute
+#if __has_attribute(objc_root_class)
+__attribute__((objc_root_class))
+#endif
+#endif
+@interface Greeter { id isa; }
++ (id)new;
 - (char *)sayHello:(const char *)name;
 @end
 """))
@@ -35,7 +40,7 @@ class ObjectiveCGreeter extends NativeLibraryElement {
 
 @implementation Greeter
 
-+(id)alloc {
++(id)new {
     return class_createInstance(self, 0);
 }
 
@@ -73,7 +78,7 @@ class ObjectiveCGreeter extends NativeLibraryElement {
 
 @implementation Greeter
 
-+(id)alloc {
++(id)new {
     return class_createInstance(self, 0);
 }
 
@@ -107,7 +112,7 @@ class ObjectiveCGreeter extends NativeLibraryElement {
 
 @implementation Greeter
 
-+(id)alloc {
++(id)new {
     return class_createInstance(self, 0);
 }
 
