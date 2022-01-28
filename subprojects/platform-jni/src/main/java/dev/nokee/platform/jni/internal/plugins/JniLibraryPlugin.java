@@ -44,10 +44,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.testing.Test;
@@ -57,13 +55,13 @@ import org.gradle.process.CommandLineArgumentProvider;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
+import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferHostMachineArchitecture;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
@@ -180,7 +178,6 @@ public class JniLibraryPlugin implements Plugin<Project> {
 
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {
 		project.getTasks().named("test", Test.class, task -> {
-			Provider<List<FileCollection>> files = library.getVariants().map(JniLibrary::getNativeRuntimeFiles);
 			task.dependsOn((Callable<Iterable<File>>)() -> {
 				val variant = library.getDevelopmentVariant().getOrNull();
 				if (variant == null) {
@@ -193,7 +190,12 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			task.getJvmArgumentProviders().add(new CommandLineArgumentProvider() {
 				@Override
 				public Iterable<String> asArguments() {
-					String path = files.get().stream().flatMap(it -> it.getFiles().stream()).map(it -> it.getParentFile().getAbsolutePath()).collect(joining(File.pathSeparator));
+					String path = library.getVariants().get().stream()
+						.sorted(preferHostMachineArchitecture().thenComparing(preferHostMachineArchitecture()))
+						.map(JniLibrary::getNativeRuntimeFiles)
+						.flatMap(it -> it.getFiles().stream())
+						.map(it -> it.getParentFile().getAbsolutePath())
+						.collect(joining(File.pathSeparator));
 					return ImmutableList.of("-Djava.library.path=" + path);
 				}
 			});
