@@ -7,13 +7,13 @@ import dev.nokee.runtime.nativebase.OperatingSystemFamily
 
 String getLibraryFilePathFor(OperatingSystemFamily osFamily) {
 	if (osFamily.windows) {
-		return "pre-built-libraries/windows/jni-greeter.dll"
+		return 'pre-built-libraries/windows/jni-greeter.dll'
 	} else if (osFamily.linux) {
-		return "pre-built-libraries/linux/libjni-greeter.so"
+		return 'pre-built-libraries/linux/libjni-greeter.so'
 	} else if (osFamily.macOS) {
-		return "pre-built-libraries/macos/libjni-greeter.dylib"
+		return 'pre-built-libraries/macos/libjni-greeter.dylib'
 	} else if (osFamily.freeBSD) {
-		return "pre-built-libraries/freebsd/libjni-greeter.so"
+		return 'pre-built-libraries/freebsd/libjni-greeter.so'
 	}
 	throw new GradleException("Unknown operating system family '${osFamily}'.")
 }
