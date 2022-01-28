@@ -38,7 +38,7 @@ afterEvaluate {
 				artifactId = "${project.name}-windows"
 			}
 			jniLibraryFreebsd(MavenPublication) {
-				from component.jniFreebsd
+				from components.jniFreebsd
 				artifactId = "${project.name}-freebsd"
 			}
 		}
