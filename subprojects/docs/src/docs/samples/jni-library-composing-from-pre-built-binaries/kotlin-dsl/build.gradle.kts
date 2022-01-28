@@ -14,7 +14,7 @@ fun getLibraryFilePathFor(osFamily: OperatingSystemFamily): String {
 	} else if (osFamily.isMacOs) {
 		return "pre-built-libraries/macos/libjni-greeter.dylib"
 	} else if (osFamily.isFreeBSD) {
-		return "pre-built-libraries/linux/libjni-greeter.so"
+		return "pre-built-libraries/freebsd/libjni-greeter.so"
 	}
 	throw GradleException("Unknown operating system family '${osFamily}'.")
 }
