@@ -62,6 +62,7 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
 import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferHostMachineArchitecture;
+import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferHostOperatingSystemFamily;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
@@ -191,7 +192,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				@Override
 				public Iterable<String> asArguments() {
 					String path = library.getVariants().get().stream()
-						.sorted(preferHostMachineArchitecture().thenComparing(preferHostMachineArchitecture()))
+						.sorted(preferHostOperatingSystemFamily().thenComparing(preferHostMachineArchitecture()))
 						.map(JniLibrary::getNativeRuntimeFiles)
 						.flatMap(it -> it.getFiles().stream())
 						.map(it -> it.getParentFile().getAbsolutePath())
