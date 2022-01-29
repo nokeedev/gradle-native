@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 $script = <<-SCRIPT
-pkg install -y openjdk8 llvm90 gcc9 bash tree git
+pkg install -y openjdk8 llvm90 gcc9 bash tree git libobjc2
 SCRIPT
 
 Vagrant.configure("2") do |config|
