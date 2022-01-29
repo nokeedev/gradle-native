@@ -225,7 +225,7 @@ public class ToolChainSelectorInternal {
 			} else if (operatingSystem.isFreeBSD()) {
 				return OperatingSystemFamily.FREE_BSD;
 			} else {
-				throw new UnsupportedOperationException(String.format("Unsupported operating system family of name '%s'", operatingSystem.getName()));
+				return OperatingSystemFamily.forName(operatingSystem.getName()).getCanonicalName();
 			}
 		}
 	}
