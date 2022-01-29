@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<-SCRIPT
+pkg install -y openjdk8 llvm90 gcc9 bash tree git
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "freebsd/FreeBSD-12.3-STABLE"
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "4096"]
+    vb.customize ["modifyvm", :id, "--cpus", "2"]
+  end
+  config.vm.provision "shell", inline: $script
+  config.vm.network "private_network", type: "dhcp"
+  config.disksize.size = "20GB"
+
+  config.ssh.shell = "sh"
+
+  # Sync repository to box
+#   config.vm.synced_folder "../../../", "/vagrant", type: "rsync"
+end

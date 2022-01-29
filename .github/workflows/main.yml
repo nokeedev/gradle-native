@@ -95,6 +95,24 @@ jobs:
                     build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
                     build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
                     github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    check-documentations-freebsd:
+        runs-on: macos-10.15
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: nokeedev/actions/setup-vagrant@main
+                with:
+                    install-vagrant-if: 'false'
+                    install-virtualbox-if: 'false'
+            -   uses: nokeedev/actions/vagrant-provision@main
+                with:
+                    mem: 4096
+                    name: freebsd-12.3
+            -   uses: nokeedev/actions/vagrant-ssh@main
+                with:
+                    name: freebsd-12.3
+                    run: ./gradlew --scan --continue --no-daemon :docs:docsTest --no-build-cache -PskipAllAsciinemaTasks
+
     publish-head-milestone:
         if: github.ref == 'refs/heads/master'
         needs: [quick-test, full-test, check-documentations, check-baked-documentation]
