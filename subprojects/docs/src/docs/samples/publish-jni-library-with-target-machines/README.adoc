@@ -18,7 +18,7 @@ In this sample, we are publishing a JNI library with multiple machines implement
 .build.gradle
 [source,groovy]
 ----
-include::{includedir}/groovy-dsl/build.gradle[]
+include::groovy-dsl/build.gradle[]
 ----
 =====
 [.multi-language-sample]
@@ -26,7 +26,7 @@ include::{includedir}/groovy-dsl/build.gradle[]
 .build.gradle.kts
 [source,kotlin]
 ----
-include::{includedir}/kotlin-dsl/build.gradle.kts[]
+include::kotlin-dsl/build.gradle.kts[]
 ----
 =====
 ====

@@ -22,7 +22,7 @@ Given the following build script:
 .build.gradle
 [source,groovy]
 ----
-include::{includedir}/groovy-dsl/build.gradle[tag=configureViaGroup]
+include::groovy-dsl/build.gradle[tag=configureViaGroup]
 ----
 =====
 [.multi-language-sample]
@@ -30,7 +30,7 @@ include::{includedir}/groovy-dsl/build.gradle[tag=configureViaGroup]
 .build.gradle.kts
 [source,kotlin]
 ----
-include::{includedir}/kotlin-dsl/build.gradle.kts[tag=configureViaGroup]
+include::kotlin-dsl/build.gradle.kts[tag=configureViaGroup]
 ----
 =====
 ====
