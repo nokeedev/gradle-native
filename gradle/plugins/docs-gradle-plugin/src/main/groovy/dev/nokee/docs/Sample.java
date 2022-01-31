@@ -133,7 +133,6 @@ public abstract class Sample implements Named {
 			task.dependsOn(settingsTemplateFile);
 			task.getInputs().file(settingsTemplateFile).withPathSensitivity(PathSensitivity.RELATIVE);
 			task.getInputs().file(oldSettingsFile).withPathSensitivity(PathSensitivity.RELATIVE);
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.getOutputs().dir(outputDirectory);
 			task.doLast(new Action<Task>() {
 				@Override
@@ -157,7 +156,6 @@ public abstract class Sample implements Named {
 		TaskProvider<Task> generateKotlinDslNightlySettingsTask = getTasks().register(taskName, task -> {
 			task.getInputs().property("version", projectVersion);
 			task.getInputs().property("content", getPluginManagementBlock().map(it -> it.asKotlinDsl().toString()));
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.getOutputs().file(outputFile);
 			task.doLast(new Action<Task>() {
 				@Override
@@ -180,7 +178,6 @@ public abstract class Sample implements Named {
 			task.getInputs().property("blockClass", getPluginManagementBlock().get().getClass().getCanonicalName());
 			task.getInputs().property("version", projectVersion);
 			task.getInputs().property("content", getPluginManagementBlock().map(it -> it.asGroovyDsl().toString()));
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.getOutputs().file(outputFile);
 			task.doLast(new Action<Task>() {
 				@Override
@@ -254,7 +251,6 @@ public abstract class Sample implements Named {
 
 	private Provider<RegularFile> zipSample(FileCollection source, Dsl dsl) {
 		TaskProvider<Zip> zipDslSampleTask = getTasks().register(getTaskName("zip", dsl.getNameAsCamelCase()), Zip.class, task -> {
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			Provider<Directory> outputDirectory = getLayout().getBuildDirectory().dir("tmp/" + task.getName());
 			task.doFirst(new Action<Task>() {
 				@Override
@@ -280,7 +276,6 @@ public abstract class Sample implements Named {
 	private Provider<Directory> generateGradleWrapper() {
 		TaskProvider<Wrapper> gradleWrapperTask = getTasks().register("generate" + getNameAsCamelCase() + "SampleGradleWrapper", Wrapper.class, task -> {
 			Provider<Directory> outputDirectory = getLayout().getBuildDirectory().dir("tmp/" + task.getName());
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.setGradleVersion(getMinimumGradleVersion().get());
 			task.setScriptFile(outputDirectory.get().file("gradlew"));
 			task.setJarFile(outputDirectory.get().file("gradle/wrapper/gradle-wrapper.jar"));
