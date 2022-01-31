@@ -86,7 +86,6 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 		// Staging for all documentation
 		TaskProvider<Sync> stageDocumentationTask = tasks.register("stageDocumentation", Sync.class, task -> {
 			task.dependsOn("bake");
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.setDestinationDir(getLayout().getBuildDirectory().dir("generated/baked").get().getAsFile());
 			task.setIncludeEmptyDirs(false);
 
@@ -111,14 +110,12 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 		// Staging for JBake
 		Provider<Directory> stageBakeDirectory = getLayout().getBuildDirectory().dir("staging");
 		TaskProvider<Sync> stageBakeTask = tasks.register("stageBake", Sync.class, task -> {
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.setDestinationDir(stageBakeDirectory.get().getAsFile());
 			task.setIncludeEmptyDirs(false);
 		});
 		JBakeExtension jBakeExtension = project.getExtensions().getByType(JBakeExtension.class);
 		jBakeExtension.setSrcDirName("build/staging");
 		tasks.named("bake", task -> {
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.getInputs().files(stageBakeDirectory);
 			task.dependsOn(stageBakeTask);
 		});
@@ -136,12 +133,10 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 		/////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////
 		TaskProvider<Sync> assembleSampleZipsTask = tasks.register("assembleSampleZips", Sync.class, task -> {
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.setDestinationDir(getLayout().getBuildDirectory().dir("generated/zips").get().getAsFile());
 		});
 
 		TaskProvider<Sync> stageSamplesTask = tasks.register("stageSamples", Sync.class, task -> {
-			task.getOutputs().cacheIf(Specs.satisfyAll());
 			task.setDestinationDir(getLayout().getBuildDirectory().dir("generated/samples").get().getAsFile());
 			task.setIncludeEmptyDirs(false);
 		});
