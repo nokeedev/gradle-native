@@ -32,10 +32,12 @@ public abstract class ModelDiscoverAction implements ModelAction, HasInputs {
 
 	@Override
 	public final void execute(ModelNode node) {
-		// TODO: Should be discovered
-		if (ModelStates.getState(node).equals(ModelState.Registered)) {
-			// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
-			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
+		if (node.getComponentBits().containsAll(inputBits)) {
+			// TODO: Should be discovered
+			if (ModelStates.getState(node).equals(ModelState.Registered)) {
+				// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
+				ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
+			}
 		}
 	}
 

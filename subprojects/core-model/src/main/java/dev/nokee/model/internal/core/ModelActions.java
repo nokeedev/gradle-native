@@ -75,7 +75,9 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			action.execute(ModelNodeUtils.get(node, type));
+			if (node.getComponentBits().containsAll(inputBits)) {
+				action.execute(ModelNodeUtils.get(node, type));
+			}
 		}
 
 		@Override
@@ -124,8 +126,10 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			if (alreadyExecuted.add(ModelNodeUtils.getPath(node))) {
-				action.execute(node);
+			if (node.getComponentBits().containsAll(inputBits)) {
+				if (alreadyExecuted.add(ModelNodeUtils.getPath(node))) {
+					action.execute(node);
+				}
 			}
 		}
 
@@ -179,7 +183,9 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			ModelNodeUtils.register(node, registration.get());
+			if (node.getComponentBits().containsAll(inputBits)) {
+				ModelNodeUtils.register(node, registration.get());
+			}
 		}
 
 		@Override
@@ -233,8 +239,10 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			if (spec.isSatisfiedBy(node)) {
-				action.execute(node);
+			if (node.getComponentBits().containsAll(inputBits)) {
+				if (spec.isSatisfiedBy(node)) {
+					action.execute(node);
+				}
 			}
 		}
 
@@ -283,7 +291,9 @@ public final class ModelActions {
 
 		@Override
 		public void execute(ModelNode node) {
-			action.execute(DefaultKnownDomainObject.of(type, node));
+			if (node.getComponentBits().containsAll(inputBits)) {
+				action.execute(DefaultKnownDomainObject.of(type, node));
+			}
 		}
 
 		@Override

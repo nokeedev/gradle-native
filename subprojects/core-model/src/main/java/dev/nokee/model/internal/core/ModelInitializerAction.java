@@ -32,9 +32,11 @@ public abstract class ModelInitializerAction implements ModelAction, HasInputs {
 
 	@Override
 	public final void execute(ModelNode node) {
-		if (ModelStates.getState(node).equals(ModelState.Created)) {
-			// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
-			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
+		if (node.getComponentBits().containsAll(inputBits)) {
+			if (ModelStates.getState(node).equals(ModelState.Created)) {
+				// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
+				ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
+			}
 		}
 	}
 

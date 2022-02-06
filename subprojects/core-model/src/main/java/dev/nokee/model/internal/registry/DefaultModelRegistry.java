@@ -146,15 +146,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val size = entities.size();
 		for (int i = 0; i < size; i++) {
 			val node = entities.get(i);
-			if (configuration instanceof HasInputs) {
-				if (node.getComponentBits().containsAll(((HasInputs) configuration).getInputBits())) {
-					configuration.execute(node);
-				} else if (((HasInputs) configuration).getInputBits().isEmpty()) {
-					configuration.execute(node);
-				}
-			} else {
-				configuration.execute(node);
-			}
+			configuration.execute(node);
 		}
 	}
 
@@ -165,9 +157,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
 				if (configuration instanceof HasInputs) {
-					if (newComponentBits.intersects(((HasInputs) configuration).getInputBits()) && node.getComponentBits().containsAll(((HasInputs) configuration).getInputBits())) {
-						configuration.execute(node);
-					} else if (((HasInputs) configuration).getInputBits().isEmpty()) {
+					if (newComponentBits.intersects(((HasInputs) configuration).getInputBits())) {
 						configuration.execute(node);
 					}
 				} else {

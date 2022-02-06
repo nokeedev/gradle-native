@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
 public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	@Override
 	public final void execute(ModelNode node) {
-		execute(node, getInputs().stream().map(it -> it.get(node)).collect(Collectors.toList()));
+		if (node.getComponentBits().containsAll(getInputBits())) {
+			execute(node, getInputs().stream().map(it -> it.get(node)).collect(Collectors.toList()));
+		}
 	}
 
 	public abstract void execute(ModelNode node, List<?> inputs);
@@ -46,7 +48,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction1<I0> extends ModelActionWithInputs {
+	public static abstract class ModelAction1<I0> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final List<ModelComponentReference<I0>> inputs;
 		private final Bits inputBits;
@@ -64,8 +66,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		}
 
 		@Override
-		public final void execute(ModelNode node, List<?> inputs) {
-			execute(node, (I0) inputs.get(0));
+		public final void execute(ModelNode node) {
+			if (node.getComponentBits().containsAll(inputBits)) {
+				execute(node, i0.get(node));
+			}
 		}
 
 		protected abstract void execute(ModelNode entity, I0 i0);
@@ -95,7 +99,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction2<I0, I1> extends ModelActionWithInputs {
+	public static abstract class ModelAction2<I0, I1> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
 		private final List<ModelComponentReference<?>> inputs;
@@ -116,8 +120,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		}
 
 		@Override
-		public final void execute(ModelNode node, List<?> inputs) {
-			execute(node, (I0) inputs.get(0), (I1) inputs.get(1));
+		public final void execute(ModelNode node) {
+			if (node.getComponentBits().containsAll(inputBits)) {
+				execute(node, i0.get(node), i1.get(node));
+			}
 		}
 
 		protected abstract void execute(ModelNode entity, I0 i0, I1 i1);
@@ -147,7 +153,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction3<I0, I1, I2> extends ModelActionWithInputs {
+	public static abstract class ModelAction3<I0, I1, I2> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
 		private final ModelComponentReference<I2> i2;
@@ -171,8 +177,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		}
 
 		@Override
-		public final void execute(ModelNode node, List<?> inputs) {
-			execute(node, (I0) inputs.get(0), (I1) inputs.get(1), (I2) inputs.get(2));
+		public final void execute(ModelNode node) {
+			if (node.getComponentBits().containsAll(inputBits)) {
+				execute(node, i0.get(node), i1.get(node), i2.get(node));
+			}
 		}
 
 		protected abstract void execute(ModelNode entity, I0 i0, I1 i1, I2 i2);
@@ -202,7 +210,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction4<I0, I1, I2, I3> extends ModelActionWithInputs {
+	public static abstract class ModelAction4<I0, I1, I2, I3> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
 		private final ModelComponentReference<I2> i2;
@@ -229,8 +237,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		}
 
 		@Override
-		public final void execute(ModelNode node, List<?> inputs) {
-			execute(node, (I0) inputs.get(0), (I1) inputs.get(1), (I2) inputs.get(2), (I3) inputs.get(3));
+		public final void execute(ModelNode node) {
+			if (node.getComponentBits().containsAll(inputBits)) {
+				execute(node, i0.get(node), i1.get(node), i2.get(node), i3.get(node));
+			}
 		}
 
 		protected abstract void execute(ModelNode entity, I0 i0, I1 i1, I2 i2, I3 i3);
@@ -260,7 +270,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction5<I0, I1, I2, I3, I4> extends ModelActionWithInputs {
+	public static abstract class ModelAction5<I0, I1, I2, I3, I4> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
 		private final ModelComponentReference<I2> i2;
@@ -289,8 +299,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 			this.inputBits = i0.componentBits().or(i1.componentBits()).or(i2.componentBits()).or(i3.componentBits()).or(i4.componentBits());
 		}
 		@Override
-		public final void execute(ModelNode node, List<?> inputs) {
-			execute(node, (I0) inputs.get(0), (I1) inputs.get(1), (I2) inputs.get(2), (I3) inputs.get(3), (I4) inputs.get(4));
+		public final void execute(ModelNode node) {
+			if (node.getComponentBits().containsAll(inputBits)) {
+				execute(node, i0.get(node), i1.get(node), i2.get(node), i3.get(node), i4.get(node));
+			}
 		}
 
 		protected abstract void execute(ModelNode entity, I0 i0, I1 i1, I2 i2, I3 i3, I4 i4);
