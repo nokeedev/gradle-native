@@ -24,9 +24,7 @@ import java.util.stream.Collectors;
 public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	@Override
 	public final void execute(ModelNode node) {
-		if (getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
-			execute(node, getInputs().stream().map(it -> it.get(node)).collect(Collectors.toList()));
-		}
+		execute(node, getInputs().stream().map(it -> it.get(node)).collect(Collectors.toList()));
 	}
 
 	public abstract void execute(ModelNode node, List<?> inputs);

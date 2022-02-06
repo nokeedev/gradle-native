@@ -146,8 +146,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val size = entities.size();
 		for (int i = 0; i < size; i++) {
 			val node = entities.get(i);
-			if (configuration instanceof HasInputs && node.getComponentBits().containsAll(((HasInputs) configuration).getInputBits())) {
-				configuration.execute(node);
+			if (configuration instanceof HasInputs) {
+				if (node.getComponentBits().containsAll(((HasInputs) configuration).getInputBits())) {
+					configuration.execute(node);
+				} else if (((HasInputs) configuration).getInputBits().isEmpty()) {
+					configuration.execute(node);
+				}
 			} else {
 				configuration.execute(node);
 			}
@@ -157,8 +161,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final class NodeStateListener implements ModelNodeListener {
 		@Override
 		public void projectionAdded(ModelNode node, Object newComponent) {
-			Bits newComponentBits = ModelComponentType.assignedComponentTypeFamilies
-				.getUnchecked(ModelType.typeOf(newComponent).getType());
+			Bits newComponentBits = ModelComponentType.ofInstance(newComponent).familyBits();
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
 				if (configuration instanceof HasInputs) {
