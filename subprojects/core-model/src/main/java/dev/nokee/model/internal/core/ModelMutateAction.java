@@ -25,6 +25,8 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class ModelMutateAction implements ModelAction, HasInputs {
+	private final List<ModelComponentReference<?>> inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class));
+
 	@Override
 	public void execute(ModelNode node) {
 		if (ModelStates.getState(node).equals(ModelState.Realized)) {
@@ -34,7 +36,7 @@ public abstract class ModelMutateAction implements ModelAction, HasInputs {
 
 	@Override
 	public List<? extends ModelComponentReference<?>> getInputs() {
-		return ImmutableList.of(ModelComponentReference.of(ModelState.class));
+		return inputs;
 	}
 
 	public abstract void execute(Context context);

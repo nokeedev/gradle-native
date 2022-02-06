@@ -202,6 +202,7 @@ public abstract class NodePredicate {
 		private final ModelPath ancestor;
 		private final Predicate<? super ModelNode> matcher;
 		@EqualsAndHashCode.Exclude private final Predicate<? super ModelNode> predicate;
+		private final List<ModelComponentReference<?>> inputs;
 
 		public BasicPredicateSpec(@Nullable ModelPath path, @Nullable ModelPath parent, @Nullable ModelPath ancestor, Predicate<? super ModelNode> matcher) {
 			this.path = path;
@@ -209,15 +210,16 @@ public abstract class NodePredicate {
 			this.ancestor = ancestor;
 			this.matcher = matcher;
 			this.predicate = matcher;
+			if (matcher instanceof HasInputs) {
+				this.inputs = ImmutableList.copyOf(((HasInputs) matcher).getInputs());
+			} else {
+				this.inputs = ImmutableList.of();
+			}
 		}
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
-			if (matcher instanceof HasInputs) {
-				return ((HasInputs) matcher).getInputs();
-			} else {
-				return ImmutableList.of();
-			}
+			return inputs;
 		}
 
 		@Override

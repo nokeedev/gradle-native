@@ -63,10 +63,12 @@ public final class ModelActions {
 	private static final class ExecuteUsingProjectionModelAction<T> implements ModelAction, HasInputs {
 		private final ModelType<T> type;
 		private final Action<? super T> action;
+		private final List<ModelComponentReference<?>> inputs;
 
 		private ExecuteUsingProjectionModelAction(ModelType<T> type, Action<? super T> action) {
 			this.type = requireNonNull(type);
 			this.action = requireNonNull(action);
+			this.inputs = ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
 		}
 
 		@Override
@@ -76,7 +78,7 @@ public final class ModelActions {
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
-			return ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
+			return inputs;
 		}
 
 		@Override
@@ -99,9 +101,16 @@ public final class ModelActions {
 	private static final class OnceModelAction implements ModelAction, HasInputs {
 		private final ModelAction action;
 		@EqualsAndHashCode.Exclude private final Set<ModelPath> alreadyExecuted = new HashSet<>();
+		private final List<ModelComponentReference<?>> inputs;
 
 		public OnceModelAction(ModelAction action) {
 			this.action = requireNonNull(action);
+			val builder = ImmutableList.<ModelComponentReference<?>>builder();
+			builder.add(ModelComponentReference.of(ModelPath.class));
+			if (action instanceof HasInputs) {
+				builder.addAll(((HasInputs) action).getInputs());
+			}
+			this.inputs = builder.build();
 		}
 
 		@Override
@@ -113,12 +122,7 @@ public final class ModelActions {
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
-			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			builder.add(ModelComponentReference.of(ModelPath.class));
-			if (action instanceof HasInputs) {
-				builder.addAll(((HasInputs) action).getInputs());
-			}
-			return builder.build();
+			return inputs;
 		}
 
 		@Override
@@ -150,9 +154,11 @@ public final class ModelActions {
 	@EqualsAndHashCode
 	private static final class RegisterModelAction implements ModelAction, HasInputs {
 		private final Supplier<NodeRegistration> registration;
+		private final List<ModelComponentReference<?>> inputs;
 
 		public RegisterModelAction(Supplier<NodeRegistration> registration) {
 			this.registration = requireNonNull(registration);
+			this.inputs = ImmutableList.of(ModelComponentReference.of(RelativeRegistrationService.class));
 		}
 
 		@Override
@@ -162,7 +168,7 @@ public final class ModelActions {
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
-			return ImmutableList.of(ModelComponentReference.of(RelativeRegistrationService.class));
+			return inputs;
 		}
 
 		@Override
@@ -186,10 +192,20 @@ public final class ModelActions {
 	private static final class MatchingModelAction implements ModelAction, HasInputs {
 		private final ModelSpec spec;
 		private final ModelAction action;
+		private final List<ModelComponentReference<?>> inputs;
 
 		public MatchingModelAction(ModelSpec spec, ModelAction action) {
 			this.spec = requireNonNull(spec);
 			this.action = requireNonNull(action);
+
+			val builder = ImmutableList.<ModelComponentReference<?>>builder();
+			if (spec instanceof HasInputs) {
+				builder.addAll(((HasInputs) spec).getInputs());
+			}
+			if (action instanceof HasInputs) {
+				builder.addAll(((HasInputs) action).getInputs());
+			}
+			this.inputs = builder.build();
 		}
 
 		@Override
@@ -201,14 +217,7 @@ public final class ModelActions {
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
-			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			if (spec instanceof HasInputs) {
-				builder.addAll(((HasInputs) spec).getInputs());
-			}
-			if (action instanceof HasInputs) {
-				builder.addAll(((HasInputs) action).getInputs());
-			}
-			return builder.build();
+			return inputs;
 		}
 
 		@Override
@@ -234,10 +243,12 @@ public final class ModelActions {
 	private static class ExecuteAsKnownProjectionModelAction<T> implements ModelAction, HasInputs {
 		private final ModelType<T> type;
 		private final Action<? super KnownDomainObject<T>> action;
+		private final List<ModelComponentReference<?>> inputs;
 
 		public ExecuteAsKnownProjectionModelAction(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
 			this.type = requireNonNull(type);
 			this.action = requireNonNull(action);
+			this.inputs = ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
 		}
 
 		@Override
@@ -247,7 +258,7 @@ public final class ModelActions {
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
-			return ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
+			return inputs;
 		}
 
 		@Override

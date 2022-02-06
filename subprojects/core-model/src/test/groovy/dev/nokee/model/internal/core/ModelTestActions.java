@@ -117,6 +117,11 @@ public final class ModelTestActions {
 
 	public static class CaptureNodeTransitionAction extends ModelActionWithInputs {
 		private final List<NodeStateTransition> values = new ArrayList<>();
+		private final List<ModelComponentReference<?>> inputs;
+
+		public CaptureNodeTransitionAction() {
+			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class));
+		}
 
 		public List<NodeStateTransition> getAllTransitions() {
 			return values;
@@ -129,7 +134,7 @@ public final class ModelTestActions {
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
-			return ImmutableList.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class));
+			return inputs;
 		}
 
 		public static CaptureNodeTransitionAction.NodeStateTransition realized(Object path) {

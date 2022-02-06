@@ -80,9 +80,15 @@ public final class ModelSpecs {
 	@EqualsAndHashCode
 	private static final class OfPredicateModelSpec implements ModelSpec, HasInputs {
 		private final Predicate<? super ModelNode> predicate;
+		private final List<ModelComponentReference<?>> inputs;
 
 		public OfPredicateModelSpec(Predicate<? super ModelNode> predicate) {
 			this.predicate = predicate;
+			if (predicate instanceof HasInputs) {
+				this.inputs = ImmutableList.copyOf(((HasInputs) predicate).getInputs());
+			} else {
+				this.inputs = ImmutableList.of();
+			}
 		}
 
 		@Override
@@ -92,11 +98,7 @@ public final class ModelSpecs {
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
-			if (predicate instanceof HasInputs) {
-				return ((HasInputs) predicate).getInputs();
-			} else {
-				return ImmutableList.of();
-			}
+			return inputs;
 		}
 
 		@Override

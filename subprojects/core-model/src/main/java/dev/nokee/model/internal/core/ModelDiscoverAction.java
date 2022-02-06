@@ -27,6 +27,8 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class ModelDiscoverAction implements ModelAction, HasInputs {
+	private final List<ModelComponentReference<?>> inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class));
+
 	@Override
 	public final void execute(ModelNode node) {
 		// TODO: Should be discovered
@@ -38,7 +40,7 @@ public abstract class ModelDiscoverAction implements ModelAction, HasInputs {
 
 	@Override
 	public List<? extends ModelComponentReference<?>> getInputs() {
-		return ImmutableList.of(ModelComponentReference.of(ModelState.class));
+		return inputs;
 	}
 
 	protected abstract void execute(Context context);
