@@ -28,9 +28,12 @@ import static dev.nokee.utils.ActionUtils.doNothing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 class ModelActions_ExecuteUsingProjectionTest {
 	@Test
@@ -56,9 +59,9 @@ class ModelActions_ExecuteUsingProjectionTest {
 	}
 
 	@Test
-	void throwExceptionWhenProjectionIsUnavailable() {
+	void doesNotExecuteActionWhenProjectionIsUnavailable() {
 		Action<WrongType> action = Cast.uncheckedCast(mock(Action.class));
-		assertThrows(IllegalStateException.class, () -> executeUsingProjection(of(WrongType.class), action).execute(node(projectionOf(MyType.class))));
+		assertDoesNotThrow(() -> executeUsingProjection(of(WrongType.class), action).execute(node(projectionOf(MyType.class))));
 		verify(action, never()).execute(any());
 	}
 
