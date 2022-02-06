@@ -27,9 +27,7 @@ import org.gradle.api.specs.Spec;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
-import static dev.nokee.model.internal.core.ModelComponentReference.ofInstance;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.model.internal.state.ModelState.Registered;
 import static java.util.Objects.requireNonNull;
