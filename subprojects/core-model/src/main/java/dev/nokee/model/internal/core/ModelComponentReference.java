@@ -69,6 +69,7 @@ public abstract class ModelComponentReference<T> {
 		return new OfAnyReference<>(componentType);
 	}
 
+	@EqualsAndHashCode(callSuper = false)
 	private static final class OfAnyReference<T> extends ModelComponentReference<T> implements ModelComponentReferenceInternal {
 		private final ModelComponentType<T> componentType;
 
@@ -106,6 +107,7 @@ public abstract class ModelComponentReference<T> {
 		return new OfProjectionReference<>(projectionType.getConcreteType());
 	}
 
+	@EqualsAndHashCode(callSuper = false)
 	public static abstract class ModelProjectionReference<T> extends ModelComponentReference<ModelProjection> {
 		protected final ModelComponentReference<ModelProjection> delegate;
 		private final Class<T> projectionType;
