@@ -81,6 +81,7 @@ public final class ModelSpecs {
 	private static final class OfPredicateModelSpec implements ModelSpec, HasInputs {
 		private final Predicate<? super ModelNode> predicate;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public OfPredicateModelSpec(Predicate<? super ModelNode> predicate) {
 			this.predicate = predicate;
@@ -89,6 +90,7 @@ public final class ModelSpecs {
 			} else {
 				this.inputs = ImmutableList.of();
 			}
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -99,6 +101,11 @@ public final class ModelSpecs {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override

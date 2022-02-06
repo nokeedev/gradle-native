@@ -56,6 +56,7 @@ public final class ModelNodes {
 	private static final class AndPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final Predicate<? super ModelNode> first;
 		private final Predicate<? super ModelNode> second;
+		private final Bits inputBits;
 		private final List<ModelComponentReference<?>> inputs;
 
 		public AndPredicate(Predicate<? super ModelNode> first, Predicate<? super ModelNode> second) {
@@ -69,6 +70,7 @@ public final class ModelNodes {
 				builder.addAll(((HasInputs) second).getInputs());
 			}
 			this.inputs = builder.build();
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -79,6 +81,11 @@ public final class ModelNodes {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -151,10 +158,12 @@ public final class ModelNodes {
 	private static final class WithTypePredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelType<?> type;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		private WithTypePredicate(ModelType<?> type) {
 			this.type = requireNonNull(type);
 			this.inputs = ImmutableList.of(ModelComponentReference.ofAny(projectionOf(type.getConcreteType())));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -165,6 +174,11 @@ public final class ModelNodes {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -187,10 +201,12 @@ public final class ModelNodes {
 	private static final class StateAtLeastPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelState state;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		private StateAtLeastPredicate(ModelState state) {
 			this.state = requireNonNull(state);
 			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -207,6 +223,11 @@ public final class ModelNodes {
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
 		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
+		}
 	}
 
 	public static Predicate<ModelNode> stateOf(ModelState state) {
@@ -217,10 +238,12 @@ public final class ModelNodes {
 	private static final class StateOfPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelState state;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		private StateOfPredicate(ModelState state) {
 			this.state = requireNonNull(state);
 			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -231,6 +254,11 @@ public final class ModelNodes {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -255,6 +283,7 @@ public final class ModelNodes {
 		private final ModelType<T> type;
 		private final Spec<? super T> spec;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		private SatisfiedByProjectionSpecAdapter(ModelType<T> type, Spec<? super T> spec) {
 			this.type = requireNonNull(type);
@@ -265,6 +294,7 @@ public final class ModelNodes {
 				builder.addAll(((HasInputs) spec).getInputs());
 			}
 			this.inputs = builder.build();
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -275,6 +305,11 @@ public final class ModelNodes {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -298,10 +333,12 @@ public final class ModelNodes {
 	private static final class WithParentPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelPath parentPath;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public WithParentPredicate(ModelPath parentPath) {
 			this.parentPath = requireNonNull(parentPath);
 			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPath.class));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -313,6 +350,11 @@ public final class ModelNodes {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -329,10 +371,12 @@ public final class ModelNodes {
 	private static final class DescendantOfPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelPath ancestorPath;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public DescendantOfPredicate(ModelPath ancestorPath) {
 			this.ancestorPath = requireNonNull(ancestorPath);
 			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPath.class));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -343,6 +387,11 @@ public final class ModelNodes {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -378,10 +427,12 @@ public final class ModelNodes {
 	private static final class WithPathPredicate extends AbstractModelNodePredicate implements HasInputs {
 		private final ModelPath path;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public WithPathPredicate(ModelPath path) {
 			this.path = requireNonNull(path);
 			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPath.class));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -392,6 +443,11 @@ public final class ModelNodes {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override

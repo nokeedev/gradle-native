@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class ModelDiscoverAction implements ModelAction, HasInputs {
 	private final List<ModelComponentReference<?>> inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class));
+	private final Bits inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 
 	@Override
 	public final void execute(ModelNode node) {
@@ -41,6 +42,11 @@ public abstract class ModelDiscoverAction implements ModelAction, HasInputs {
 	@Override
 	public List<? extends ModelComponentReference<?>> getInputs() {
 		return inputs;
+	}
+
+	@Override
+	public Bits getInputBits() {
+		return inputBits;
 	}
 
 	protected abstract void execute(Context context);

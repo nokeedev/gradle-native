@@ -64,11 +64,13 @@ public final class ModelActions {
 		private final ModelType<T> type;
 		private final Action<? super T> action;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		private ExecuteUsingProjectionModelAction(ModelType<T> type, Action<? super T> action) {
 			this.type = requireNonNull(type);
 			this.action = requireNonNull(action);
 			this.inputs = ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -79,6 +81,11 @@ public final class ModelActions {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -102,6 +109,7 @@ public final class ModelActions {
 		private final ModelAction action;
 		@EqualsAndHashCode.Exclude private final Set<ModelPath> alreadyExecuted = new HashSet<>();
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public OnceModelAction(ModelAction action) {
 			this.action = requireNonNull(action);
@@ -111,6 +119,7 @@ public final class ModelActions {
 				builder.addAll(((HasInputs) action).getInputs());
 			}
 			this.inputs = builder.build();
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -123,6 +132,11 @@ public final class ModelActions {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -155,10 +169,12 @@ public final class ModelActions {
 	private static final class RegisterModelAction implements ModelAction, HasInputs {
 		private final Supplier<NodeRegistration> registration;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public RegisterModelAction(Supplier<NodeRegistration> registration) {
 			this.registration = requireNonNull(registration);
 			this.inputs = ImmutableList.of(ModelComponentReference.of(RelativeRegistrationService.class));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -169,6 +185,11 @@ public final class ModelActions {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -193,6 +214,7 @@ public final class ModelActions {
 		private final ModelSpec spec;
 		private final ModelAction action;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public MatchingModelAction(ModelSpec spec, ModelAction action) {
 			this.spec = requireNonNull(spec);
@@ -206,6 +228,7 @@ public final class ModelActions {
 				builder.addAll(((HasInputs) action).getInputs());
 			}
 			this.inputs = builder.build();
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -218,6 +241,11 @@ public final class ModelActions {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
@@ -244,11 +272,13 @@ public final class ModelActions {
 		private final ModelType<T> type;
 		private final Action<? super KnownDomainObject<T>> action;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public ExecuteAsKnownProjectionModelAction(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
 			this.type = requireNonNull(type);
 			this.action = requireNonNull(action);
 			this.inputs = ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
@@ -259,6 +289,11 @@ public final class ModelActions {
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
