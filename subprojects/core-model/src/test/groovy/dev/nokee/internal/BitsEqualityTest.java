@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.model.internal.core.Bits.empty;
 import static dev.nokee.model.internal.core.Bits.nthBit;
 import static dev.nokee.model.internal.core.Bits.ofBits;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BitsEqualityTest {
 	@Test

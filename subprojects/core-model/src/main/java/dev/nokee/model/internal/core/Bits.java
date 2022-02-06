@@ -250,8 +250,8 @@ public final class Bits implements Iterable<Bit> {
 	public int hashCode() {
 		final int word = length() / bitsPerSegment;
 		int hash = 0;
-		for (int i = 0; word >= i && word != 0; i++) {
-			hash = 127 * hash + (int)(bits[i] ^ (bits[i] >>> 32));
+		for (int i = 0; i < word && word != 0; i++) {
+			hash = 127 * hash + (int) (bits[i] ^ (bits[i] >>> 32));
 		}
 		return hash;
 	}
@@ -371,14 +371,14 @@ public final class Bits implements Iterable<Bit> {
 			// allocate bitset
 			long[] bitset = new long[count];
 			int offset = 0;
-			int i = others.length;
+			int i = others.length - 1;
 			while (offset < count) {
-				if (i >= 2) {
+				if (i >= 1) {
 					bitset[offset++] = toUnsignedLong(others[i--]) | (toUnsignedLong(others[i--]) << 32);
-				} else if (i == 1) {
+				} else if (i == 0) {
 					bitset[offset++] = toUnsignedLong(others[i--]) | (toUnsignedLong(leastSignificant) << 32);
 					bitset[offset++] = toUnsignedLong(to) | (toUnsignedLong(mostSignificant) << 32);
-				} else if (i == 0) {
+				} else if (i == -1) {
 					bitset[offset++] = toUnsignedLong(leastSignificant) | (toUnsignedLong(to) << 32);
 					bitset[offset++] = toUnsignedLong(mostSignificant);
 				}
