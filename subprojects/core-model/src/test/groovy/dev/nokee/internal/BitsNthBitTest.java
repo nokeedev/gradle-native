@@ -107,6 +107,6 @@ class BitsNthBitTest implements BitsTester {
 
 	@Test
 	void returnsMeaningfulToStringRepresentation() {
-		assertEquals("bits '10000000'", nthBit(7).toString());
+		assertEquals("single bit '1 << 7'", nthBit(7).toString());
 	}
 }

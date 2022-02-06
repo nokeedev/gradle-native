@@ -271,6 +271,9 @@ public final class Bits implements Iterable<Bit> {
 	public String toString() {
 		if (isEmpty()) {
 			return "empty bits";
+		} else if (hasSingleBitSet(this)) {
+			// Easier to read
+			return "single bit '" + "1 << " + (length() - 1) + "'";
 		} else {
 			val builder = new StringBuilder();
 			builder.append("bits '");
@@ -278,6 +281,16 @@ public final class Bits implements Iterable<Bit> {
 			builder.append("'");
 			return builder.toString();
 		}
+	}
+
+	private static boolean hasSingleBitSet(Bits self) {
+		for (int i = 0; i < self.bits.length - 2; ++i) {
+			if (self.bits[i] != 0) {
+				return false;
+			}
+		}
+		final int bitIndexInLastSegment = (self.length() - 1) % bitsPerSegment;
+		return self.bits[self.bits.length - 1] == (1L << bitIndexInLastSegment);
 	}
 
 	/**
