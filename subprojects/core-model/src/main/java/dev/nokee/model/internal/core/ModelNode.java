@@ -55,6 +55,9 @@ public final class ModelNode {
 	private final long id = nextId++;
 	private final Map<ModelComponentType<?>, Object> components = new LinkedHashMap<>();
 
+	// Represent all components this entity has.
+	private Bits componentBits = Bits.empty();
+
 	public ModelNode() {}
 
 	private ModelNode(ModelNodeListener listener) {
@@ -65,11 +68,20 @@ public final class ModelNode {
 		return id;
 	}
 
+	public Bits getComponentBits() {
+		return componentBits;
+	}
+
 	public <T> T addComponent(T component) {
 		ModelComponentType<? super Object> componentType = ModelComponentType.ofInstance(component);
 		val oldComponent = components.get(componentType);
 		if (oldComponent == null || !oldComponent.equals(component)) {
 			components.put(componentType, component);
+			if (oldComponent == null) {
+				componentBits = componentBits.or(componentType.familyBits());
+			} else {
+				componentBits = components.keySet().stream().map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
+			}
 			notifyComponentAdded(component);
 		}
 		return component;
@@ -119,6 +131,7 @@ public final class ModelNode {
 			throw new RuntimeException();
 		}
 		components.put(componentType, component);
+		componentBits = components.keySet().stream().map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
 		notifyComponentAdded(component);
 	}
 
