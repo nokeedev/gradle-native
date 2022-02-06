@@ -15,8 +15,16 @@
  */
 package dev.nokee.model.internal.type;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public final class ModelTypeUtils {
+	private static final ConcurrentHashMap<Class<?>, Class<?>> undecoratedTypes = new ConcurrentHashMap<>();
+
 	public static Class<?> toUndecoratedType(Class<?> type) {
+		return undecoratedTypes.computeIfAbsent(type, ModelTypeUtils::computeUndecoratedType);
+	}
+
+	private static Class<?> computeUndecoratedType(Class<?> type) {
 		if (type.getSimpleName().endsWith("_Decorated")) {
 			if (type.getSuperclass().equals(Object.class)) {
 				return type.getInterfaces()[0];
