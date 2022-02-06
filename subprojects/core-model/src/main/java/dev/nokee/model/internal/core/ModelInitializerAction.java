@@ -27,6 +27,8 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class ModelInitializerAction implements ModelAction, HasInputs {
+	private final List<ModelComponentReference<?>> inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class), ModelComponentReference.of(BindManagedProjectionService.class));
+
 	@Override
 	public final void execute(ModelNode node) {
 		if (ModelStates.getState(node).equals(ModelState.Created)) {
@@ -37,7 +39,7 @@ public abstract class ModelInitializerAction implements ModelAction, HasInputs {
 
 	@Override
 	public List<? extends ModelComponentReference<?>> getInputs() {
-		return ImmutableList.of(ModelComponentReference.of(ModelState.class), ModelComponentReference.of(BindManagedProjectionService.class));
+		return inputs;
 	}
 
 	public abstract void execute(Context context);

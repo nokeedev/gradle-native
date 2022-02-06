@@ -34,19 +34,21 @@ public final class ModelElements {
 
 	private static final class WhenElementDiscoveredAction implements ModelAction, HasInputs {
 		private final ModelAction delegate;
+		private final List<ModelComponentReference<?>> inputs;
 
 		private WhenElementDiscoveredAction(ModelAction delegate) {
 			this.delegate = delegate;
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
 			val builder = ImmutableList.<ModelComponentReference<?>>builder();
 			builder.add(ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
 			if (delegate instanceof HasInputs) {
 				builder.addAll(((HasInputs) delegate).getInputs());
 			}
-			return builder.build();
+			this.inputs = builder.build();
+		}
+
+		@Override
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return inputs;
 		}
 
 		@Override
