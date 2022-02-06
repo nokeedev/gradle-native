@@ -60,7 +60,9 @@ public final class ModelElements {
 
 		@Override
 		public void execute(ModelNode node) {
-			delegate.execute(node);
+			if (node.getComponentBits().containsAll(inputBits)) {
+				delegate.execute(node);
+			}
 		}
 	}
 }

@@ -30,8 +30,10 @@ public abstract class ModelMutateAction implements ModelAction, HasInputs {
 
 	@Override
 	public void execute(ModelNode node) {
-		if (ModelStates.getState(node).equals(ModelState.Realized)) {
-			ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
+		if (node.getComponentBits().containsAll(inputBits)) {
+			if (ModelStates.getState(node).equals(ModelState.Realized)) {
+				ModelNodeContext.of(node).execute(() -> execute(new Context(node)));
+			}
 		}
 	}
 
