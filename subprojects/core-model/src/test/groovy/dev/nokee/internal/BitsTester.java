@@ -288,11 +288,6 @@ public interface BitsTester {
 	}
 
 	@Test
-	default void returnsTrueOnContainsAllWithEmptyBits() {
-		assertTrue(subject().containsAll(empty()));
-	}
-
-	@Test
 	default void returnsFalseOnContainsAllWithNonOverlappingBits() {
 		assertFalse(subject().containsAll(unsetBits()));
 	}
