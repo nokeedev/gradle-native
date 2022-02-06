@@ -15,15 +15,49 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import lombok.val;
 
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 import static dev.nokee.model.internal.type.ModelTypeUtils.toUndecoratedType;
 
+@SuppressWarnings("unchecked")
 public abstract class ModelComponentType<T> {
+	public static final LoadingCache<Type, Bits> assignedComponentTypes = CacheBuilder.newBuilder()
+		.build(new CacheLoader<Type, Bits>() {
+			public Bits load(Type key) {
+				return Bits.nthBit(typeIndex++);
+			}
+		});
+	public static final LoadingCache<Type, Bits> assignedComponentTypeFamilies = CacheBuilder.newBuilder()
+		.build(new CacheLoader<Type, Bits>() {
+			public Bits load(Type key) {
+				val visitor = new TypeVisitor();
+				((ModelType<Object>) ModelType.of(key)).walkTypeHierarchy(visitor);
+				return visitor.result;
+			}
+		});
+	private static int typeIndex = 0;
+
+	private static final class TypeVisitor implements ModelType.Visitor<Object> {
+		private Bits result = Bits.empty();
+
+		@Override
+		public void visitType(ModelType<? super Object> type) {
+			result = result.or(assignedComponentTypes.getUnchecked(type.getType()));
+		}
+	}
+
 	public abstract boolean isSupertypeOf(ModelComponentType<?> componentType);
+
+	public abstract Bits familyBits();
 
 	@SuppressWarnings("unchecked")
 	public static <T> ModelComponentType<? super T> ofInstance(T component) {
@@ -57,6 +91,11 @@ public abstract class ModelComponentType<T> {
 			}
 			return false;
 		}
+
+		@Override
+		public Bits familyBits() {
+			return assignedComponentTypeFamilies.getUnchecked(value);
+		}
 	}
 
 	@Value
@@ -70,6 +109,11 @@ public abstract class ModelComponentType<T> {
 				return value.isAssignableFrom(((ProjectionType<?>) componentType).getValue());
 			}
 			return false;
+		}
+
+		@Override
+		public Bits familyBits() {
+			return assignedComponentTypeFamilies.getUnchecked(value).or(assignedComponentTypes.getUnchecked(ModelProjection.class));
 		}
 	}
 }
