@@ -26,6 +26,8 @@ import org.gradle.api.provider.Provider;
 public abstract class ModelComponentReference<T> {
 	public abstract T get(ModelNode entity);
 
+	public abstract Bits componentBits();
+
 	public static <T> ModelComponentReference<T> of(Class<T> componentType) {
 		return ofInstance(ModelComponentType.componentOf(componentType));
 	}
@@ -56,6 +58,11 @@ public abstract class ModelComponentReference<T> {
 		public T get(ModelNode entity) {
 			return entity.getComponent(componentType);
 		}
+
+		@Override
+		public Bits componentBits() {
+			return componentType.bits();
+		}
 	}
 
 	public static <T> ModelComponentReference<T> ofAny(ModelComponentType<T> componentType) {
@@ -83,6 +90,11 @@ public abstract class ModelComponentReference<T> {
 		@SuppressWarnings("unchecked")
 		public T get(ModelNode entity) {
 			return (T) entity.getComponents().filter(it -> componentType.isSupertypeOf(ModelComponentType.ofInstance(it))).findFirst().orElseThrow(RuntimeException::new);
+		}
+
+		@Override
+		public Bits componentBits() {
+			return componentType.bits();
 		}
 	}
 
@@ -126,6 +138,11 @@ public abstract class ModelComponentReference<T> {
 			}
 
 			@Override
+			public Bits componentBits() {
+				return delegate.componentBits();
+			}
+
+			@Override
 			public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
 				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(componentTypes);
 			}
@@ -140,6 +157,11 @@ public abstract class ModelComponentReference<T> {
 			@Override
 			public T get(ModelNode entity) {
 				return ModelNodeUtils.get(entity, projectionType);
+			}
+
+			@Override
+			public Bits componentBits() {
+				return delegate.componentBits();
 			}
 
 			@Override
@@ -160,6 +182,11 @@ public abstract class ModelComponentReference<T> {
 			}
 
 			@Override
+			public Bits componentBits() {
+				return delegate.componentBits();
+			}
+
+			@Override
 			public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
 				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(componentTypes);
 			}
@@ -174,6 +201,11 @@ public abstract class ModelComponentReference<T> {
 			@Override
 			public KnownDomainObject<T> get(ModelNode entity) {
 				return DefaultKnownDomainObject.of(ModelType.of(projectionType), entity);
+			}
+
+			@Override
+			public Bits componentBits() {
+				return delegate.componentBits();
 			}
 
 			@Override
@@ -196,6 +228,11 @@ public abstract class ModelComponentReference<T> {
 		@Override
 		public ModelProjection get(ModelNode entity) {
 			return delegate.get(entity);
+		}
+
+		@Override
+		public Bits componentBits() {
+			return delegate.componentBits();
 		}
 
 		@Override

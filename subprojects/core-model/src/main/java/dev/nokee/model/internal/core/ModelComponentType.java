@@ -59,6 +59,8 @@ public abstract class ModelComponentType<T> {
 
 	public abstract Bits familyBits();
 
+	public abstract Bits bits();
+
 	@SuppressWarnings("unchecked")
 	public static <T> ModelComponentType<? super T> ofInstance(T component) {
 		Objects.requireNonNull(component);
@@ -96,6 +98,11 @@ public abstract class ModelComponentType<T> {
 		public Bits familyBits() {
 			return assignedComponentTypeFamilies.getUnchecked(value);
 		}
+
+		@Override
+		public Bits bits() {
+			return assignedComponentTypes.getUnchecked(value);
+		}
 	}
 
 	@Value
@@ -114,6 +121,11 @@ public abstract class ModelComponentType<T> {
 		@Override
 		public Bits familyBits() {
 			return assignedComponentTypeFamilies.getUnchecked(value).or(assignedComponentTypes.getUnchecked(ModelProjection.class));
+		}
+
+		@Override
+		public Bits bits() {
+			return assignedComponentTypes.getUnchecked(value).or(assignedComponentTypes.getUnchecked(ModelProjection.class));
 		}
 	}
 }
