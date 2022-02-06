@@ -121,7 +121,7 @@ public final class ModelNode {
 		return components.containsKey(componentType);
 	}
 
-	public <T> void setComponent(Class<T> componentTypez, T component) {
+	public <T> void setComponent(Class<T> componentType, T component) {
 		setComponent(component);
 	}
 
