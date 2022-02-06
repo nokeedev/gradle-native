@@ -19,4 +19,5 @@ import java.util.List;
 
 public interface HasInputs {
 	List<? extends ModelComponentReference<?>> getInputs();
+	Bits getInputBits();
 }

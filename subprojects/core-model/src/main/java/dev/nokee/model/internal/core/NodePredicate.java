@@ -203,6 +203,7 @@ public abstract class NodePredicate {
 		private final Predicate<? super ModelNode> matcher;
 		@EqualsAndHashCode.Exclude private final Predicate<? super ModelNode> predicate;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		public BasicPredicateSpec(@Nullable ModelPath path, @Nullable ModelPath parent, @Nullable ModelPath ancestor, Predicate<? super ModelNode> matcher) {
 			this.path = path;
@@ -215,11 +216,17 @@ public abstract class NodePredicate {
 			} else {
 				this.inputs = ImmutableList.of();
 			}
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override

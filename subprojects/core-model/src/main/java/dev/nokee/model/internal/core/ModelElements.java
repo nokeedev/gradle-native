@@ -35,6 +35,7 @@ public final class ModelElements {
 	private static final class WhenElementDiscoveredAction implements ModelAction, HasInputs {
 		private final ModelAction delegate;
 		private final List<ModelComponentReference<?>> inputs;
+		private final Bits inputBits;
 
 		private WhenElementDiscoveredAction(ModelAction delegate) {
 			this.delegate = delegate;
@@ -44,11 +45,17 @@ public final class ModelElements {
 				builder.addAll(((HasInputs) delegate).getInputs());
 			}
 			this.inputs = builder.build();
+			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
 		public List<? extends ModelComponentReference<?>> getInputs() {
 			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
 		}
 
 		@Override
