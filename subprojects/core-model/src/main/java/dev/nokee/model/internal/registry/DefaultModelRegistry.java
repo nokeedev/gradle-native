@@ -23,6 +23,7 @@ import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
 import java.util.*;
@@ -145,7 +146,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val size = entities.size();
 		for (int i = 0; i < size; i++) {
 			val node = entities.get(i);
-			if (configuration instanceof HasInputs && ((HasInputs) configuration).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
+			if (configuration instanceof HasInputs && node.getComponentBits().containsAll(((HasInputs) configuration).getInputBits())) {
 				configuration.execute(node);
 			} else {
 				configuration.execute(node);
@@ -156,12 +157,14 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final class NodeStateListener implements ModelNodeListener {
 		@Override
 		public void projectionAdded(ModelNode node, Object newComponent) {
+			Bits newComponentBits = ModelComponentType.assignedComponentTypeFamilies
+				.getUnchecked(ModelType.typeOf(newComponent).getType());
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
 				if (configuration instanceof HasInputs) {
-					if (((HasInputs) configuration).getInputs().stream().anyMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(ModelComponentType.ofInstance(newComponent))) && ((HasInputs) configuration).getInputs().stream().allMatch(it -> ((ModelComponentReferenceInternal) it).isSatisfiedBy(node.getComponentTypes()))) {
+					if (newComponentBits.intersects(((HasInputs) configuration).getInputBits()) && node.getComponentBits().containsAll(((HasInputs) configuration).getInputBits())) {
 						configuration.execute(node);
-					} else if (((HasInputs) configuration).getInputs().isEmpty()) {
+					} else if (((HasInputs) configuration).getInputBits().isEmpty()) {
 						configuration.execute(node);
 					}
 				} else {
