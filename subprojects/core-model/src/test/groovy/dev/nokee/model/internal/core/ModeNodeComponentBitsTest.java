@@ -31,14 +31,14 @@ class ModeNodeComponentBitsTest {
 	@Test
 	void hasBitsOfAddedComponent() {
 		subject.addComponent(objectFactory().newInstance(MyBaseComponent.class));
-		assertEquals(ModelComponentType.assignedComponentTypes.getUnchecked(MyBaseComponent.class),
+		assertEquals(ModelComponentType.componentBits(MyBaseComponent.class),
 			subject.getComponentBits());
 	}
 
 	@Test
 	void hasBitsOfAddedComponentFamily() {
 		subject.addComponent(objectFactory().newInstance(MyComponent.class));
-		assertEquals(ModelComponentType.assignedComponentTypeFamilies.getUnchecked(MyComponent.class),
+		assertEquals(ModelComponentType.componentFamilyBits(MyComponent.class),
 			subject.getComponentBits());
 	}
 
@@ -46,8 +46,8 @@ class ModeNodeComponentBitsTest {
 	void hasBitsOfAllComponentFamilies() {
 		subject.addComponent(objectFactory().newInstance(MyComponent.class));
 		subject.addComponent(objectFactory().newInstance(MyOtherComponent.class));
-		assertEquals(ModelComponentType.assignedComponentTypeFamilies.getUnchecked(MyComponent.class)
-				.or(ModelComponentType.assignedComponentTypeFamilies.getUnchecked(MyOtherComponent.class)),
+		assertEquals(ModelComponentType.componentFamilyBits(MyComponent.class)
+				.or(ModelComponentType.componentFamilyBits(MyOtherComponent.class)),
 			subject.getComponentBits());
 	}
 
