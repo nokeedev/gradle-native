@@ -52,6 +52,11 @@ public abstract class ModelComponentType<T> {
 		@Override
 		public void visitType(ModelType<? super Object> type) {
 			result = result.or(assignedComponentTypes.getUnchecked(type.getType()));
+			if (type.isParameterized()) {
+				// This account for HasNativeCompileTask<CppCompileTask> && HasNativeCompileTask.
+				//    However, it won't account for HasNativeCompileTask<? extends SourceCompile> matching HasNativeCompileTask<CppCompileTask>
+				result = result.or(assignedComponentTypes.getUnchecked(type.getRawType()));
+			}
 		}
 	}
 
