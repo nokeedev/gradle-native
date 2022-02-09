@@ -20,14 +20,14 @@ package dev.nokee.platform.base;
  *
  * @since 0.5
  */
-public interface VariantDimensionBuilder {
+public interface VariantDimensionBuilder<T> {
 	/**
 	 * Includes this new variant dimension values only on the specified other axis value.
 	 *
 	 * @param otherAxisValue  the other axis value to include the values of this dimension, must not be null
 	 * @return this builder, never null
 	 */
-	VariantDimensionBuilder onlyOn(Object otherAxisValue);
+	VariantDimensionBuilder<T> onlyOn(Object otherAxisValue);
 
 	/**
 	 * Excludes this new variant dimension values for the specified other axis value.
@@ -35,5 +35,5 @@ public interface VariantDimensionBuilder {
 	 * @param otherAxisValue  the other axis value to exclude the values of this dimension, must not be null
 	 * @return this builder, never null
 	 */
-	VariantDimensionBuilder exceptOn(Object otherAxisValue);
+	VariantDimensionBuilder<T> exceptOn(Object otherAxisValue);
 }
