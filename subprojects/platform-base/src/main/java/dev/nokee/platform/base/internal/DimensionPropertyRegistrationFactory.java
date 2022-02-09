@@ -136,6 +136,7 @@ public final class DimensionPropertyRegistrationFactory {
 			}
 
 			val property = objectFactory.setProperty(elementType);
+			property.finalizeValueOnRead();
 			if (defaultValues instanceof Provider) {
 				property.convention((Provider<? extends Iterable<?>>) defaultValues);
 			} else {
@@ -149,10 +150,7 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
 				.withComponent(new GradlePropertyComponent(property))
 				.withComponent(VariantDimensionTag.tag())
-				.withComponent(new Dimension<Object>(axis, () -> {
-					property.finalizeValueOnRead();
-					return property.map(toCoordinateSet()).get();
-				}, filters))
+				.withComponent(new Dimension<Object>(axis, () -> property.map(toCoordinateSet()).get(), filters))
 				.build();
 		}
 
