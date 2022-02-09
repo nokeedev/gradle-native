@@ -55,13 +55,13 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 	}
 
 	@Override
-	public <T> SetProperty<T> newAxis(Class<T> axisType, Action<? super VariantDimensionBuilder> action) {
+	public <T> SetProperty<T> newAxis(Class<T> axisType, Action<? super VariantDimensionBuilder<T>> action) {
 		Objects.requireNonNull(axisType);
 		Objects.requireNonNull(action);
 		val builder = dimensionsPropertyFactory.newAxisProperty(ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName())));
 		builder.axis(CoordinateAxis.of(axisType));
 
-		action.execute(new VariantDimensionBuilderAdapter(CoordinateAxis.of(axisType), builder));
+		action.execute(new VariantDimensionBuilderAdapter<>(CoordinateAxis.of(axisType), builder));
 
 		val result = registry.register(builder.build());
 		return ((ModelProperty<?>) result).asProperty(setProperty(of(axisType)));
@@ -73,24 +73,24 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 		return newAxis(axisType, ConfigureUtil.configureUsing(closure));
 	}
 
-	private static final class VariantDimensionBuilderAdapter implements VariantDimensionBuilder {
-		private final CoordinateAxis<?> axis;
+	private static final class VariantDimensionBuilderAdapter<T> implements VariantDimensionBuilder<T> {
+		private final CoordinateAxis<T> axis;
 		private final DimensionPropertyRegistrationFactory.Builder delegate;
 
-		public <T> VariantDimensionBuilderAdapter(CoordinateAxis<T> axis, DimensionPropertyRegistrationFactory.Builder delegate) {
+		public VariantDimensionBuilderAdapter(CoordinateAxis<T> axis, DimensionPropertyRegistrationFactory.Builder delegate) {
 			this.axis = axis;
 			this.delegate = delegate;
 		}
 
 		@Override
-		public VariantDimensionBuilder onlyOn(Object otherAxisValue) {
+		public VariantDimensionBuilder<T> onlyOn(Object otherAxisValue) {
 			delegate.includeEmptyCoordinate();
 			delegate.filterVariant(new OnlyOnPredicate(axis, otherAxisValue));
 			return this;
 		}
 
 		@Override
-		public VariantDimensionBuilder exceptOn(Object otherAxisValue) {
+		public VariantDimensionBuilder<T> exceptOn(Object otherAxisValue) {
 			delegate.includeEmptyCoordinate();
 			delegate.filterVariant(new OnlyOnPredicate(axis, otherAxisValue).negate());
 			return this;
