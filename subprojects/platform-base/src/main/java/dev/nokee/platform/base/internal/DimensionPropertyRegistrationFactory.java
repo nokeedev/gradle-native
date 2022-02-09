@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Predicates.not;
@@ -153,7 +152,6 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(new VariantDimensionAxisComponent(axis))
 				.withComponent(new VariantDimensionAxisFilterComponent(filters))
 				.withComponent(new VariantDimensionValuesComponent(property.map(toCoordinateSet())))
-				.withComponent(new Dimension<Object>(axis, () -> property.map(toCoordinateSet()).get(), filters))
 				.build();
 		}
 
@@ -249,30 +247,6 @@ public final class DimensionPropertyRegistrationFactory {
 			if (!unsupportedValues.isEmpty()) {
 				throw new IllegalArgumentException("The following values are not supported:\n" + unsupportedValues.stream().map(it -> " * " + it).collect(joining("\n")));
 			}
-		}
-	}
-
-	public static final class Dimension<T> {
-		private final CoordinateAxis<T> axis;
-		private final Supplier<CoordinateSet<T>> values;
-		private final List<Predicate<? super BuildVariantInternal>> filters;
-
-		public Dimension(CoordinateAxis<T> axis, Supplier<CoordinateSet<T>> values, List<Predicate<? super BuildVariantInternal>> filters) {
-			this.axis = axis;
-			this.values = values;
-			this.filters = ImmutableList.copyOf(filters);
-		}
-
-		public CoordinateAxis<T> getAxis() {
-			return axis;
-		}
-
-		public CoordinateSet<T> get() {
-			return values.get();
-		}
-
-		public List<Predicate<? super BuildVariantInternal>> getFilters() {
-			return filters;
 		}
 	}
 }
