@@ -53,11 +53,9 @@ import static java.util.stream.Collectors.joining;
 
 public final class DimensionPropertyRegistrationFactory {
 	private final ObjectFactory objectFactory;
-	private final ModelLookup modelLookup;
 
-	public DimensionPropertyRegistrationFactory(ObjectFactory objectFactory, ModelLookup modelLookup) {
+	public DimensionPropertyRegistrationFactory(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
-		this.modelLookup = modelLookup;
 	}
 
 	// TODO: Can select default value?
