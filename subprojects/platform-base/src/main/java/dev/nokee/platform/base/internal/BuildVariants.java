@@ -16,64 +16,77 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.core.DescendantNodes;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.CoordinateSpace;
-import dev.nokee.utils.Cast;
-import dev.nokee.utils.TransformerUtils;
 import lombok.val;
+import org.gradle.api.Transformer;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.*;
+import org.gradle.api.provider.HasMultipleValues;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static dev.nokee.utils.TransformerUtils.toListTransformer;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.utils.Cast.uncheckedCastBecauseOfTypeErasure;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class BuildVariants {
-	private final Provider<List<CoordinateSet<?>>> dimensions;
+	private final Provider<Iterable<CoordinateSet<?>>> dimensions;
 	private final Provider<CoordinateSpace> finalSpace;
 	private final SetProperty<BuildVariant> buildVariants;
 
 	public BuildVariants(ModelNode entity, ProviderFactory providers, ObjectFactory objects) {
-		Provider<List<DimensionPropertyRegistrationFactory.Dimension<?>>> dimensions = providers.provider(() -> {
-			val nodes = entity.getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream();
-			val dimensionNodes = nodes.filter(it -> it.hasComponent(ModelComponentType.componentOf(VariantDimensionTag.class)));
-			return dimensionNodes.map(it -> it.getComponent(ModelComponentType.componentOf(DimensionPropertyRegistrationFactory.Dimension.class))).map(it -> (DimensionPropertyRegistrationFactory.Dimension<?>) it).collect(Collectors.toList());
+		Provider<List<ModelNode>> dimensions = providers.provider(() -> {
+			val nodes = entity.getComponent(componentOf(DescendantNodes.class)).getDirectDescendants().stream();
+			val dimensionNodes = nodes.filter(it -> it.hasComponent(componentOf(VariantDimensionTag.class)));
+			return dimensionNodes.collect(Collectors.toList());
 		});
-		this.dimensions = dimensions.map(transformEach(it -> it.get())).map(toListTransformer());
+		this.dimensions = dimensions
+			.map(transformEach(it -> it.getComponent(componentOf(VariantDimensionValuesComponent.class)).asProvider()))
+			.flatMap(new ToProviderOfIterableTransformer<>(() -> uncheckedCastBecauseOfTypeErasure(objects.listProperty(CoordinateSet.class))));
 		this.finalSpace = this.dimensions.map(CoordinateSpace::cartesianProduct);
 		this.buildVariants = objects.setProperty(BuildVariant.class);
 
 		buildVariants.convention(finalSpace.map(DefaultBuildVariant::fromSpace).map(buildVariants -> {
 			val allFilters = dimensions.get().stream()
-				.flatMap(it -> it.getFilters().stream())
+				.map(it -> it.getComponent(componentOf(VariantDimensionAxisFilterComponent.class)).get())
 				.collect(Collectors.toList());
 			return buildVariants.stream().filter(buildVariant -> {
-				return allFilters.stream()
-					.noneMatch(it -> it.test(buildVariant));
+				return allFilters.stream().noneMatch(it -> it.test(buildVariant));
 			}).collect(ImmutableSet.toImmutableSet());
 		}));
 		buildVariants.finalizeValueOnRead();
 		buildVariants.disallowChanges();
 	}
 
-
-
-	public Provider<List<CoordinateSet<?>>> dimensions() {
+	public Provider<Iterable<CoordinateSet<?>>> dimensions() {
 		return dimensions;
 	}
 
 	public Provider<Set<BuildVariant>> get() {
 		return buildVariants;
+	}
+
+	private static final class ToProviderOfIterableTransformer<T, C extends Provider<? extends Iterable<T>> & HasMultipleValues<T>> implements Transformer<Provider<? extends Iterable<T>>, Iterable<Provider<T>>> {
+		private final Supplier<C> containerSupplier;
+
+		public ToProviderOfIterableTransformer(Supplier<C> containerSupplier) {
+			this.containerSupplier = containerSupplier;
+		}
+
+		@Override
+		public Provider<? extends Iterable<T>> transform(Iterable<Provider<T>> providers) {
+			final C container = containerSupplier.get();
+			providers.forEach(((HasMultipleValues<T>) container)::add);
+			return container;
+		}
 	}
 }

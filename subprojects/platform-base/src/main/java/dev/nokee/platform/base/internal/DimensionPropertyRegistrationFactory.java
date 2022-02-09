@@ -150,6 +150,9 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
 				.withComponent(new GradlePropertyComponent(property))
 				.withComponent(VariantDimensionTag.tag())
+				.withComponent(new VariantDimensionAxisComponent(axis))
+				.withComponent(new VariantDimensionAxisFilterComponent(filters))
+				.withComponent(new VariantDimensionValuesComponent(property.map(toCoordinateSet())))
 				.withComponent(new Dimension<Object>(axis, () -> property.map(toCoordinateSet()).get(), filters))
 				.build();
 		}
