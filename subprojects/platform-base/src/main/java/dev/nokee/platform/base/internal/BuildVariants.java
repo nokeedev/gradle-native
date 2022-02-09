@@ -47,7 +47,7 @@ public final class BuildVariants {
 	public BuildVariants(ModelNode entity, ProviderFactory providers, ObjectFactory objects) {
 		Provider<List<DimensionPropertyRegistrationFactory.Dimension<?>>> dimensions = providers.provider(() -> {
 			val nodes = entity.getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream();
-			val dimensionNodes = nodes.filter(it -> it.hasComponent(ModelComponentType.componentOf(DimensionPropertyRegistrationFactory.Dimension.class)));
+			val dimensionNodes = nodes.filter(it -> it.hasComponent(ModelComponentType.componentOf(VariantDimensionTag.class)));
 			return dimensionNodes.map(it -> it.getComponent(ModelComponentType.componentOf(DimensionPropertyRegistrationFactory.Dimension.class))).map(it -> (DimensionPropertyRegistrationFactory.Dimension<?>) it).collect(Collectors.toList());
 		});
 		this.dimensions = dimensions.map(transformEach(it -> it.get())).map(toListTransformer());
