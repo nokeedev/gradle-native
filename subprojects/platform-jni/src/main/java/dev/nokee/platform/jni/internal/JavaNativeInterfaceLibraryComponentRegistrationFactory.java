@@ -197,7 +197,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 						entity.addComponent(new RuntimeElementsConfiguration(ModelNodes.of(runtimeElements)));
 
-						val variants = registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), JniLibrary.class));
+						val variants = ModelElements.of(entity).element("variants", of(VariantView.class));
 
 						val developmentVariantProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), JniLibrary.class));
 						((ModelProperty<JniLibrary>) developmentVariantProperty).asProperty(property(of(JniLibrary.class))).convention(project.provider(new BuildableDevelopmentVariantConvention(variants.as(VariantView.class).flatMap(VariantView::getElements)::get)));
@@ -240,8 +240,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						});
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-						entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
 						val toolChainSelectorInternal = project.getObjects().newInstance(ToolChainSelectorInternal.class);
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
 							.axis(TARGET_MACHINE_COORDINATE_AXIS)
@@ -253,7 +251,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
 							.defaultValue(TargetLinkages.SHARED)
 							.build());
-						registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
 					}
 				}
 			}))

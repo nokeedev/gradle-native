@@ -15,10 +15,12 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
+import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.DependencyFactory;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
@@ -30,9 +32,12 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSources;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.components.DefaultComponentContainer;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
@@ -42,7 +47,10 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketR
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Provider;
+import org.gradle.model.Model;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
@@ -57,6 +65,7 @@ import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSuppli
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	@Override
+	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		project.getPluginManager().apply("lifecycle-base");
@@ -87,6 +96,31 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory(PolymorphicDomainObjectRegistry.of(project.getTasks()), TaskNamer.INSTANCE));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, ignored, component, identifier) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+			val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+			entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
+
+			val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
+			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
+
+			registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType())));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
+			// TODO: Each plugins should just map the build variants into the variants.
+			((Provider<?>) buildVariants.get().getComponent(GradlePropertyComponent.class).get()).get();
+		}));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Class<? extends Variant> variantType(ModelType<? extends VariantAwareComponent<? extends Variant>> type) {
+		try {
+			return (Class<? extends Variant>) ((ParameterizedType) TypeToken.of(type.getType()).resolveType(VariantAwareComponent.class.getMethod("getVariants").getGenericReturnType()).getType()).getActualTypeArguments()[0];
+		} catch (NoSuchMethodException e) {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	private static NodeRegistration components() {

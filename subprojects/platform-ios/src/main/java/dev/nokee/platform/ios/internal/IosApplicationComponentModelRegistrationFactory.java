@@ -128,8 +128,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultIosApplicationVariant.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-						entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
 							.elementType(TargetLinkage.class)
 							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
@@ -144,11 +142,8 @@ public final class IosApplicationComponentModelRegistrationFactory {
 							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
 							.build());
-						registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
 
 						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
-
-						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), DefaultIosApplicationVariant.class));
 
 						registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "tasks")));
 					}

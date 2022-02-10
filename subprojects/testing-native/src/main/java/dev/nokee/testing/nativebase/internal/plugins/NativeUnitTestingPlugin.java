@@ -163,8 +163,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 						val testedComponentProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "testedComponent"), Component.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-						entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
 							.elementType(TargetLinkage.class)
 							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
@@ -193,7 +191,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 								}
 							}).orElse(ImmutableSet.of(TargetMachines.host())))
 							.build());
-						registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
 					}
 				}
 			}))
