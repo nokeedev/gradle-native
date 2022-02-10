@@ -244,7 +244,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 
 					registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(id, "tasks")));
 
-					entity.addComponent(createdUsing(of(JniLibrary.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class))));
+					entity.addComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects(), project.getExtensions().getByType(BinaryViewFactory.class))));
 
 
 					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (e, i, s, p, library) -> {

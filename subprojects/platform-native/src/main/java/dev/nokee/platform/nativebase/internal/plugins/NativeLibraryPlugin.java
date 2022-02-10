@@ -128,7 +128,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static NodeRegistration nativeLibraryVariant(VariantIdentifier<DefaultNativeLibraryVariant> identifier, DefaultNativeLibraryComponent component, Project project) {
-		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(NativeLibrary.class), () -> {
+		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(DefaultNativeLibraryVariant.class), () -> {
 			val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 
