@@ -23,13 +23,34 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.BuildVariants;
+import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.ComponentNamer;
+import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentVariantsPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
+import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
@@ -40,7 +61,11 @@ import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeAppl
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
-import dev.nokee.runtime.nativebase.*;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
+import dev.nokee.runtime.nativebase.BuildType;
+import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
@@ -111,8 +136,6 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeApplicationVariant.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-						val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-						entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
 							.elementType(TargetLinkage.class)
 							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
@@ -127,9 +150,6 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(TargetMachines.host())
 							.build());
-						registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
-
-						registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), NativeApplication.class));
 
 						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 
