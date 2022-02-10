@@ -69,13 +69,12 @@ public final class ConfigureUtils {
 	 * Configures the property display name with the specified value.
 	 *
 	 * @param self the property to configure.
-	 * @param propertyName the property name to use in the display name.
+	 * @param displayName  the display name to use, must not be null
 	 * @param <T> the type of the property.
 	 * @return self
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T> Property<T> configureDisplayName(Property<T> self, String propertyName) {
-		attachDisplayName(self, Describables.of("property '" + propertyName + "'"));
+	public static <T> Property<T> configureDisplayName(Property<T> self, String displayName) {
+		attachDisplayName(self, Describables.of(displayName));
 		return self;
 	}
 
@@ -83,11 +82,11 @@ public final class ConfigureUtils {
 	 * Configures the property display name with the specified value.
 	 *
 	 * @param self the property to configure.
-	 * @param propertyName the property name to use in the display name.
+	 * @param displayName  the display name to use, must not be null
 	 * @return self
 	 */
-	public static RegularFileProperty configureDisplayName(RegularFileProperty self, String propertyName) {
-		attachDisplayName(self, Describables.of("property '" + propertyName + "'"));
+	public static RegularFileProperty configureDisplayName(RegularFileProperty self, String displayName) {
+		attachDisplayName(self, Describables.of(displayName));
 		return self;
 	}
 
@@ -95,11 +94,11 @@ public final class ConfigureUtils {
 	 * Configures the property display name with the specified value.
 	 *
 	 * @param self the property to configure.
-	 * @param propertyName the property name to use in the display name.
+	 * @param displayName  the display name to use, must not be null
 	 * @return self
 	 */
-	public static DirectoryProperty configureDisplayName(DirectoryProperty self, String propertyName) {
-		attachDisplayName(self, Describables.of("property '" + propertyName + "'"));
+	public static DirectoryProperty configureDisplayName(DirectoryProperty self, String displayName) {
+		attachDisplayName(self, Describables.of(displayName));
 		return self;
 	}
 
@@ -107,27 +106,35 @@ public final class ConfigureUtils {
 	 * Configures the property display name with the specified value.
 	 *
 	 * @param self the property to configure.
-	 * @param propertyName the property name to use in the display name.
+	 * @param displayName the display name to use, must not be null
 	 * @param <T> the type of the property.
 	 * @return self
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T> SetProperty<T> configureDisplayName(SetProperty<T> self, String propertyName) {
-		attachDisplayName(self, Describables.of("property '" + propertyName + "'"));
+	public static <T> SetProperty<T> configureDisplayName(SetProperty<T> self, String displayName) {
+		attachDisplayName(self, Describables.of(displayName));
 		return self;
+	}
+
+	/**
+	 * Returns the default display name for the specified property name.
+	 *
+	 * @param propertyName  the property name for the display name, must not be null
+	 * @return the default display name for the specified property name, never null
+	 */
+	public static String property(String propertyName) {
+		return "property '" + propertyName + "'";
 	}
 
 	/**
 	 * Configures the property display name with the specified value.
 	 *
 	 * @param self the property to configure.
-	 * @param propertyName the property name to use in the display name.
+	 * @param displayName  the display name to use, must not be null
 	 * @param <T> the type of the property.
 	 * @return self
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T> ListProperty<T> configureDisplayName(ListProperty<T> self, String propertyName) {
-		attachDisplayName(self, Describables.of("property '" + propertyName + "'"));
+	public static <T> ListProperty<T> configureDisplayName(ListProperty<T> self, String displayName) {
+		attachDisplayName(self, Describables.of(displayName));
 		return self;
 	}
 
