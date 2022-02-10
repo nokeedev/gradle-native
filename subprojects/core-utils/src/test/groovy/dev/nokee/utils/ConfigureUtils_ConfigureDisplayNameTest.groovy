@@ -29,7 +29,7 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.property(String)
 
 		when:
-		configureDisplayName(property, 'foo')
+		configureDisplayName(property, ConfigureUtils.property('foo'))
 
 		then:
 		property.declaredDisplayName.displayName == "property 'foo'"
@@ -40,7 +40,7 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.setProperty(String)
 
 		when:
-		configureDisplayName(property, 'foo')
+		configureDisplayName(property, ConfigureUtils.property('foo'))
 
 		then:
 		property.declaredDisplayName.displayName == "property 'foo'"
@@ -51,7 +51,7 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.listProperty(String)
 
 		when:
-		configureDisplayName(property, 'foo')
+		configureDisplayName(property, ConfigureUtils.property('foo'))
 
 		then:
 		property.declaredDisplayName.displayName == "property 'foo'"
@@ -62,7 +62,7 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.fileProperty()
 
 		when:
-		configureDisplayName(property, 'foo')
+		configureDisplayName(property, ConfigureUtils.property('foo'))
 
 		then:
 		property.declaredDisplayName.displayName == "property 'foo'"
@@ -73,7 +73,7 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.directoryProperty()
 
 		when:
-		configureDisplayName(property, 'foo')
+		configureDisplayName(property, ConfigureUtils.property('foo'))
 
 		then:
 		property.declaredDisplayName.displayName == "property 'foo'"
@@ -84,7 +84,7 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.property(String)
 
 		expect:
-		configureDisplayName(property, 'foo') == property
+		configureDisplayName(property, ConfigureUtils.property('foo')) == property
 	}
 
 	def "returns the set property"() {
@@ -100,7 +100,7 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.listProperty(String)
 
 		expect:
-		configureDisplayName(property, 'foo') == property
+		configureDisplayName(property, ConfigureUtils.property('foo')) == property
 	}
 
 	def "returns the regular file property"() {
@@ -108,7 +108,7 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.fileProperty()
 
 		expect:
-		configureDisplayName(property, 'foo') == property
+		configureDisplayName(property, ConfigureUtils.property('foo')) == property
 	}
 
 	def "returns the directory property"() {
@@ -116,6 +116,6 @@ class ConfigureUtils_ConfigureDisplayNameTest extends Specification {
 		def property = project.objects.directoryProperty()
 
 		expect:
-		configureDisplayName(property, 'foo') == property
+		configureDisplayName(property, ConfigureUtils.property('foo')) == property
 	}
 }
