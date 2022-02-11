@@ -20,12 +20,22 @@ import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.ModelAction;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.core.NodeAction;
+import dev.nokee.model.internal.core.NodePredicate;
+import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.RelativeConfigurationService;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -38,7 +48,21 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BuildVariants;
+import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
+import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentName;
+import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentVariantsPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
+import dev.nokee.platform.base.internal.TaskNamer;
+import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.components.DefaultComponentContainer;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
@@ -48,7 +72,6 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
-import org.gradle.model.Model;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.function.Consumer;
@@ -97,16 +120,18 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory(PolymorphicDomainObjectRegistry.of(project.getTasks()), TaskNamer.INSTANCE));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, ignored, component, identifier) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-			val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-			entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.class), ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(ComponentIdentifier.class), (entity, state, component, identifier) -> {
+			if (state.equals(ModelState.Registered)) {
+				val registry = project.getExtensions().getByType(ModelRegistry.class);
+				val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+				val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+				entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
 
-			val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
-			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
+				val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
+				entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
 
-			registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType())));
+				registry.register(project.getExtensions().getByType(ComponentVariantsPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "variants"), variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType())));
+			}
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
 			// TODO: Each plugins should just map the build variants into the variants.
