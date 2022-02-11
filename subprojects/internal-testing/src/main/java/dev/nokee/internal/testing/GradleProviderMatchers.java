@@ -147,6 +147,65 @@ public final class GradleProviderMatchers {
 		}
 	}
 
+	@SuppressWarnings("UnstableApiUsage")
+	public static Matcher<HasConfigurableValue> changesDisallowed() {
+		return new ProviderChangesDisallowedMatcher();
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	private static final class ProviderChangesDisallowedMatcher extends TypeSafeDiagnosingMatcher<HasConfigurableValue> {
+		// Matches message such as:
+		//   - The value for this property cannot be changed any further.
+		//   - The value for property 'foo' cannot be changed any further.
+		//   - The value for this file collection cannot be changed.
+		// Note that we implicitly check for finalized value as final value imply disallowed changes.
+		// Notice the difference in the exception message for _file collection_.
+		private static final Pattern CHANGES_TO_VALUE_DISALLOWED_EXCEPTION_MESSAGE_PATTERN = Pattern.compile("The value for .+ (is final and )?cannot be changed( any further)?.");
+
+		@Override
+		protected boolean matchesSafely(HasConfigurableValue item, Description mismatchDescription) {
+			try {
+				tryConfigureValue(item);
+				mismatchDescription.appendText("changes was not disallowed");
+				return false; // has value
+			} catch (Throwable ex) {
+				if (isChangesDisallowedException(ex)) {
+					return true;
+				} else {
+					mismatchDescription.appendText("had unexpected exception: ").appendText(ex.getMessage());
+					return false; // wrong finalized exception,
+					// it may be a validation check or changed disallowed but not finalized which is not what this matcher checks
+				}
+			}
+		}
+
+		private static boolean isChangesDisallowedException(Throwable ex) {
+			return ex instanceof IllegalStateException
+				&& CHANGES_TO_VALUE_DISALLOWED_EXCEPTION_MESSAGE_PATTERN.matcher(ex.getMessage()).matches();
+		}
+
+		@SuppressWarnings("unchecked")
+		private static void tryConfigureValue(HasConfigurableValue item) {
+			// We use null or empty value as it's universally accepted by all configurable types.
+			if (item instanceof Property) {
+				((Property<Object>) item).set((Object) null);
+			} else if (item instanceof HasMultipleValues) {
+				((HasMultipleValues<Object>) item).set((Iterable<Object>) null);
+			} else if (item instanceof MapProperty) {
+				((MapProperty<Object, Object>) item).set((Map<Object, Object>) null);
+			} else if (item instanceof ConfigurableFileCollection) {
+				((ConfigurableFileCollection) item).setFrom();
+			} else {
+				throw new UnsupportedOperationException(String.format("Unsupported configurable value: %s", item));
+			}
+		}
+
+		@Override
+		public void describeTo(Description description) {
+			description.appendText("changes disallowed");
+		}
+	}
+
 	public static <T> Matcher<Provider<? extends T>> presentProvider() {
 		return providerState(ProviderState.present);
 	}
