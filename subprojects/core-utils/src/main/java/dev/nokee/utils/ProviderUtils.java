@@ -20,6 +20,7 @@ import lombok.val;
 import org.gradle.api.internal.provider.CollectionProviderInternal;
 import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.internal.provider.Providers;
+import org.gradle.api.provider.HasConfigurableValue;
 import org.gradle.api.provider.Provider;
 import org.gradle.util.GradleVersion;
 
@@ -110,5 +111,18 @@ public final class ProviderUtils {
 			}
 		}
 		return provider;
+	}
+
+	/**
+	 * Allows fluent call to {@link HasConfigurableValue#disallowChanges()}.
+	 *
+	 * @param value  the configurable value, must not be null
+	 * @param <S>  the type of configurable value
+	 * @return the specified configurable value, never null
+	 */
+	@SuppressWarnings("UnstableApiUsage")
+	public static <S extends HasConfigurableValue> S disallowChanges(S value) {
+		value.disallowChanges();
+		return value;
 	}
 }
