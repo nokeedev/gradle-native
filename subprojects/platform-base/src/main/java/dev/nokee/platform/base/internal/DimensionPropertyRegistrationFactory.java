@@ -25,10 +25,10 @@ import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.core.CoordinateSet;
+import dev.nokee.utils.ConfigureUtils;
 import dev.nokee.utils.TransformerUtils;
 import lombok.val;
 import lombok.var;
@@ -133,6 +133,7 @@ public final class DimensionPropertyRegistrationFactory {
 			}
 
 			val property = objectFactory.setProperty(elementType);
+			ConfigureUtils.configureDisplayName(property, identifier.toString());
 			property.finalizeValueOnRead();
 			if (defaultValues instanceof Provider) {
 				property.convention((Provider<? extends Iterable<?>>) defaultValues);
