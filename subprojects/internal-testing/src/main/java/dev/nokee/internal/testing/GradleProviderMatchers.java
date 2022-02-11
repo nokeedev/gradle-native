@@ -15,12 +15,18 @@
  */
 package dev.nokee.internal.testing;
 
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.provider.HasConfigurableValue;
+import org.gradle.api.provider.HasMultipleValues;
+import org.gradle.api.provider.MapProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -80,6 +86,64 @@ public final class GradleProviderMatchers {
 		@Override
 		public void describeTo(Description description) {
 			description.appendText("has no value");
+		}
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	public static Matcher<HasConfigurableValue> finalizedValue() {
+		return new ProviderFinalizedMatcher();
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	private static final class ProviderFinalizedMatcher extends TypeSafeDiagnosingMatcher<HasConfigurableValue> {
+		// Matches message such as:
+		//   - The value for this property is final and cannot be changed any further.
+		//   - The value for property 'foo' is final and cannot be changed any further.
+		//   - The value for this file collection is final and cannot be changed.
+		// Notice the difference in the exception message for _file collection_.
+		private static final Pattern FINALIZED_VALUE_EXCEPTION_MESSAGE_PATTERN = Pattern.compile("The value for .+ is final and cannot be changed( any further)?.");
+
+		@Override
+		protected boolean matchesSafely(HasConfigurableValue item, Description mismatchDescription) {
+			try {
+				tryConfigureValue(item);
+				mismatchDescription.appendText("was not finalized");
+				return false; // has value
+			} catch (Throwable ex) {
+				if (isFinalizedException(ex)) {
+					return true;
+				} else {
+					mismatchDescription.appendText("had unexpected exception: ").appendText(ex.getMessage());
+					return false; // wrong finalized exception,
+					// it may be a validation check or changed disallowed but not finalized which is not what this matcher checks
+				}
+			}
+		}
+
+		private static boolean isFinalizedException(Throwable ex) {
+			return ex instanceof IllegalStateException
+				&& FINALIZED_VALUE_EXCEPTION_MESSAGE_PATTERN.matcher(ex.getMessage()).matches();
+		}
+
+		@SuppressWarnings("unchecked")
+		private static void tryConfigureValue(HasConfigurableValue item) {
+			// We use null or empty value as it's universally accepted by all configurable types.
+			if (item instanceof Property) {
+				((Property<Object>) item).set((Object) null);
+			} else if (item instanceof HasMultipleValues) {
+				((HasMultipleValues<Object>) item).set((Iterable<Object>) null);
+			} else if (item instanceof MapProperty) {
+				((MapProperty<Object, Object>) item).set((Map<Object, Object>) null);
+			} else if (item instanceof ConfigurableFileCollection) {
+				((ConfigurableFileCollection) item).setFrom();
+			} else {
+				throw new UnsupportedOperationException(String.format("Unsupported configurable value: %s", item));
+			}
+		}
+
+		@Override
+		public void describeTo(Description description) {
+			description.appendText("is finalized");
 		}
 	}
 
