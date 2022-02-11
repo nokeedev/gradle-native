@@ -16,8 +16,12 @@
 package dev.nokee.internal.testing;
 
 import org.gradle.api.provider.Provider;
+import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
+
+import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -36,6 +40,47 @@ public final class GradleProviderMatchers {
 				return actual.get();
 			}
 		};
+	}
+
+	public static <T> Matcher<Provider<? extends T>> hasNoValue() {
+		return new ProviderHasNoValueMatcher<>();
+	}
+
+	private static final class ProviderHasNoValueMatcher<T> extends TypeSafeDiagnosingMatcher<Provider<? extends T>> {
+		// Matches message such as:
+		//   - Cannot query the value of this provider because it has no value available.
+		//   - Cannot query the value of this property because it has no value available.
+		//   - Cannot query the value of property 'foo' because it has no value available.
+		// Note that message may include additional lines explaining the provider chain
+		// which we don't care for the purpose of this matcher.
+		private static final Pattern NO_VALUE_EXCEPTION_MESSAGE_PATTERN = Pattern.compile("^Cannot query the value of .+ because it has no value available\\..*", Pattern.DOTALL);
+
+		@Override
+		protected boolean matchesSafely(Provider<? extends T> item, Description mismatchDescription) {
+			try {
+				final T actualValue = item.get();
+				mismatchDescription.appendText("has a value (").appendValue(actualValue).appendText(")");
+				return false; // has value
+			} catch (Throwable ex) {
+				if (isNoValueException(ex)) {
+					return true;
+				} else {
+					mismatchDescription.appendText("had unexpected exception: ").appendText(ex.getMessage());
+					return false; // wrong "no value" exception,
+					// it may be a computing error which is not what this matcher checks
+				}
+			}
+		}
+
+		private static boolean isNoValueException(Throwable ex) {
+			return ex instanceof IllegalStateException
+				&& NO_VALUE_EXCEPTION_MESSAGE_PATTERN.matcher(ex.getMessage()).matches();
+		}
+
+		@Override
+		public void describeTo(Description description) {
+			description.appendText("has no value");
+		}
 	}
 
 	public static <T> Matcher<Provider<? extends T>> presentProvider() {
