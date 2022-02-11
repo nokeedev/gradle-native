@@ -114,6 +114,19 @@ public final class ProviderUtils {
 	}
 
 	/**
+	 * Allows fluent call to {@link HasConfigurableValue#finalizeValue()}.
+	 *
+	 * @param value  the configurable value, must not be null
+	 * @param <S>  the type of configurable value
+	 * @return the specified configurable value, never null
+	 */
+	@SuppressWarnings("UnstableApiUsage")
+	public static <S extends HasConfigurableValue> S finalizeValue(S value) {
+		value.finalizeValue();
+		return value;
+	}
+
+	/**
 	 * Allows fluent call to {@link HasConfigurableValue#disallowChanges()}.
 	 *
 	 * @param value  the configurable value, must not be null
