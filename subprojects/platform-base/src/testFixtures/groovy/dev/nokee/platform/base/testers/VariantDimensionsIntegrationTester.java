@@ -36,8 +36,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.regex.Pattern;
-
+import static dev.nokee.internal.testing.GradleProviderMatchers.finalizedValue;
+import static dev.nokee.internal.testing.GradleProviderMatchers.hasNoValue;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateFirstStrategy;
@@ -122,8 +122,7 @@ public abstract class VariantDimensionsIntegrationTester {
 		void finalizeAxisValuesWhenVariantComputed() {
 			subject().set(ImmutableSet.of(newAxisValue("lid")));
 			component().getVariants().get(); // realize variants
-			val ex = assertThrows(RuntimeException.class, () -> subject().set(ImmutableSet.of(newAxisValue("fic"))));
-			assertThat(ex.getMessage(), matchesRegex("The value for .+ is final and cannot be changed any further."));
+			assertThat(subject(), finalizedValue());
 		}
 
 		@Test
@@ -138,8 +137,7 @@ public abstract class VariantDimensionsIntegrationTester {
 		void throwsExceptionIfAxisPropertyHasNoValues() {
 			subject().value((Iterable<? extends T>) null);
 			subject().convention((Iterable<? extends T>) null);
-			val ex = assertThrows(RuntimeException.class, () -> component().getVariants().get()); // realize variants
-			assertThat(ex.getMessage(), matchesRegex(Pattern.compile("^Cannot query the value of .+ because it has no value available\\..+", Pattern.DOTALL)));
+			assertThat(component().getVariants().getElements(), hasNoValue());
 		}
 
 		@Test
