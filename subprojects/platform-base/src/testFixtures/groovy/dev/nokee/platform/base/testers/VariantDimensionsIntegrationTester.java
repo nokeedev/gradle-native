@@ -28,15 +28,30 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.provider.SetProperty;
-import org.hamcrest.*;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.regex.Pattern;
+
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateFirstStrategy;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateOf;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -108,7 +123,7 @@ public abstract class VariantDimensionsIntegrationTester {
 			subject().set(ImmutableSet.of(newAxisValue("lid")));
 			component().getVariants().get(); // realize variants
 			val ex = assertThrows(RuntimeException.class, () -> subject().set(ImmutableSet.of(newAxisValue("fic"))));
-			assertThat(ex.getMessage(), is("The value for this property is final and cannot be changed any further."));
+			assertThat(ex.getMessage(), matchesRegex("The value for .+ is final and cannot be changed any further."));
 		}
 
 		@Test
@@ -124,7 +139,7 @@ public abstract class VariantDimensionsIntegrationTester {
 			subject().value((Iterable<? extends T>) null);
 			subject().convention((Iterable<? extends T>) null);
 			val ex = assertThrows(RuntimeException.class, () -> component().getVariants().get()); // realize variants
-			assertThat(ex.getMessage(), is("Cannot query the value of this provider because it has no value available."));
+			assertThat(ex.getMessage(), matchesRegex(Pattern.compile("^Cannot query the value of .+ because it has no value available\\..+", Pattern.DOTALL)));
 		}
 
 		@Test
