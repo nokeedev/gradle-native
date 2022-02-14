@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.MoreCollectors;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelProperty;
@@ -31,11 +30,11 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.util.ConfigureUtil;
 
 import java.util.Objects;
-import java.util.function.Predicate;
+import java.util.Optional;
+import java.util.function.BiPredicate;
 
 import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.runtime.core.Coordinates.isAbsentCoordinate;
 
 public final class ModelBackedVariantDimensions implements VariantDimensions {
 	private final DomainObjectIdentifier owner;
@@ -61,7 +60,13 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 		val builder = dimensionsPropertyFactory.newAxisProperty(ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName())));
 		builder.axis(CoordinateAxis.of(axisType));
 
-		action.execute(new VariantDimensionBuilderAdapter<>(CoordinateAxis.of(axisType), builder));
+		action.execute(new VariantDimensionBuilderAdapter<>(new VariantDimensionBuilderAdapter.Callback<T>() {
+			@Override
+			public <S> void accept(Class<S> otherAxisType, BiPredicate<? super Optional<T>, ? super S> predicate) {
+				builder.includeEmptyCoordinate();
+				builder.filterVariant(new VariantDimensionAxisFilter<>(CoordinateAxis.of(axisType), otherAxisType, predicate));
+			}
+		}));
 
 		val result = registry.register(builder.build());
 		return ((ModelProperty<?>) result).asProperty(setProperty(of(axisType)));
@@ -71,45 +76,5 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 	public <T> SetProperty<T> newAxis(Class<T> axisType, @SuppressWarnings("rawtypes") Closure closure) {
 		Objects.requireNonNull(closure);
 		return newAxis(axisType, ConfigureUtil.configureUsing(closure));
-	}
-
-	private static final class VariantDimensionBuilderAdapter<T> implements VariantDimensionBuilder<T> {
-		private final CoordinateAxis<T> axis;
-		private final DimensionPropertyRegistrationFactory.Builder delegate;
-
-		public VariantDimensionBuilderAdapter(CoordinateAxis<T> axis, DimensionPropertyRegistrationFactory.Builder delegate) {
-			this.axis = axis;
-			this.delegate = delegate;
-		}
-
-		@Override
-		public VariantDimensionBuilder<T> onlyOn(Object otherAxisValue) {
-			delegate.includeEmptyCoordinate();
-			delegate.filterVariant(new OnlyOnPredicate(axis, otherAxisValue));
-			return this;
-		}
-
-		@Override
-		public VariantDimensionBuilder<T> exceptOn(Object otherAxisValue) {
-			delegate.includeEmptyCoordinate();
-			delegate.filterVariant(new OnlyOnPredicate(axis, otherAxisValue).negate());
-			return this;
-		}
-	}
-
-	private static final class OnlyOnPredicate implements Predicate<BuildVariantInternal> {
-		private final CoordinateAxis<?> axis;
-		private final Object otherAxisValue;
-
-		private OnlyOnPredicate(CoordinateAxis<?> axis, Object otherAxisValue) {
-			this.axis = axis;
-			this.otherAxisValue = otherAxisValue;
-		}
-
-		@Override
-		public boolean test(BuildVariantInternal buildVariant) {
-			val axisValue = buildVariant.getDimensions().stream().filter(c -> c.getAxis().equals(axis)).collect(MoreCollectors.onlyElement());
-			return (!isAbsentCoordinate(axisValue) && !buildVariant.hasAxisOf(otherAxisValue)) || (isAbsentCoordinate(axisValue) && buildVariant.hasAxisOf(otherAxisValue));
-		}
 	}
 }

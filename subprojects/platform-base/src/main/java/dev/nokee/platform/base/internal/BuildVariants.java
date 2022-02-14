@@ -60,7 +60,7 @@ public final class BuildVariants {
 				.map(it -> it.getComponent(componentOf(VariantDimensionAxisFilterComponent.class)).get())
 				.collect(Collectors.toList());
 			return buildVariants.stream().filter(buildVariant -> {
-				return allFilters.stream().noneMatch(it -> it.test(buildVariant));
+				return allFilters.stream().allMatch(it -> it.test(buildVariant));
 			}).collect(ImmutableSet.toImmutableSet());
 		}));
 		buildVariants.finalizeValueOnRead();

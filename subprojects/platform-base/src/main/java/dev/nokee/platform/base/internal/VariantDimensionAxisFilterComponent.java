@@ -22,7 +22,13 @@ public final class VariantDimensionAxisFilterComponent {
 	private final Predicate<BuildVariantInternal> value;
 
 	public VariantDimensionAxisFilterComponent(List<Predicate<? super BuildVariantInternal>> filters) {
-		this.value = buildVariant -> filters.stream().anyMatch(it -> it.test(buildVariant));
+		this.value = buildVariant -> {
+			if (filters.isEmpty()) {
+				return true;
+			} else {
+				return filters.stream().anyMatch(it -> it.test(buildVariant));
+			}
+		};
 	}
 
     public Predicate<BuildVariantInternal> get() {

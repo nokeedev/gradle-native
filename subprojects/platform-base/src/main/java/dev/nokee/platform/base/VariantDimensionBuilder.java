@@ -15,6 +15,10 @@
  */
 package dev.nokee.platform.base;
 
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+
 /**
  * A builder for configuring the new dimension participating in the variant calculation of a {@link VariantAwareComponent} instance.
  *
@@ -36,4 +40,26 @@ public interface VariantDimensionBuilder<T> {
 	 * @return this builder, never null
 	 */
 	VariantDimensionBuilder<T> exceptOn(Object otherAxisValue);
+
+	/**
+	 * Includes this new variant dimension values only if the specified predicate returns true for other axis values.
+	 * Note that all variants without the other axis are implicitly included.
+	 *
+	 * @param otherAxisType  the other axis type, must not be null
+	 * @param predicate  the only-if predicate, must not be null
+	 * @param <S>  the type of the other axis
+	 * @return this builder, never null
+	 */
+	<S> VariantDimensionBuilder<T> onlyIf(Class<S> otherAxisType, BiPredicate<? super Optional<T>, ? super S> predicate);
+
+	/**
+	 * Exclude this new variant dimension values only if the specified predicate returns true for other axis values.
+	 * Note that all variants without the other axis are implicitly included.
+	 *
+	 * @param otherAxisType  the other axis type, must not be null
+	 * @param predicate  the except-if predicate, must not be null
+	 * @param <S>  the type of the other axis
+	 * @return this builder, never null
+	 */
+	<S> VariantDimensionBuilder<T> exceptIf(Class<S> otherAxisType, BiPredicate<? super Optional<T>, ? super S> predicate);
 }
