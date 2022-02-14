@@ -15,9 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -28,13 +26,9 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
-import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.utils.Cast;
 import dev.nokee.utils.ConfigureUtils;
-import dev.nokee.utils.TransformerUtils;
 import lombok.val;
-import lombok.var;
-import org.gradle.api.Transformer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
@@ -48,8 +42,6 @@ import java.util.stream.Collectors;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
-import static dev.nokee.runtime.core.Coordinates.absentCoordinate;
-import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 
 public final class DimensionPropertyRegistrationFactory {
@@ -149,7 +141,6 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(VariantDimensionTag.tag())
 				.withComponent(new VariantDimensionAxisComponent(axis))
 				.withComponent(new VariantDimensionAxisFilterComponent(filters))
-				.withComponent(new VariantDimensionValuesComponent(property.map(toCoordinateSet())))
 				.withComponent(new VariantDimensionAxisValidatorComponent(axisValidator));
 
 			if (includeEmptyCoordinate) {
@@ -157,43 +148,6 @@ public final class DimensionPropertyRegistrationFactory {
 			}
 
 			return result.build();
-		}
-
-		private Transformer<CoordinateSet<Object>, Iterable<Object>> toCoordinateSet() {
-			var axisValues = assertNonEmpty(axis.getDisplayName(), path.getParent().get().getName());
-
-			var axisCoordinates = axisValues.andThen(transformEach(axis::create));
-
-			if (axisValidator != null) {
-				axisCoordinates = axisCoordinates.andThen(new PeekTransformer<>(it -> axisValidator.accept(it)));
-			}
-
-			if (includeEmptyCoordinate) {
-				axisCoordinates = axisCoordinates.andThen(appended(absentCoordinate(axis)));
-			}
-
-			return axisCoordinates.andThen(CoordinateSet::of);
-		}
-	}
-
-	public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> appended(T element) {
-		return new IterableAppendedAllTransformer<>(ImmutableList.of(element));
-	}
-
-	public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> appendedAll(Iterable<T> suffix) {
-		return new IterableAppendedAllTransformer<>(suffix);
-	}
-
-	public static final class IterableAppendedAllTransformer<T> implements TransformerUtils.Transformer<Iterable<T>, Iterable<T>> {
-		private final Iterable<T> suffixElements;
-
-		public IterableAppendedAllTransformer(Iterable<T> suffixElements) {
-			this.suffixElements = suffixElements;
-		}
-
-		@Override
-		public Iterable<T> transform(Iterable<T> values) {
-			return Iterables.concat(values, suffixElements);
 		}
 	}
 
@@ -209,27 +163,6 @@ public final class DimensionPropertyRegistrationFactory {
 			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))
 			.withComponent(new GradlePropertyComponent(property))
 			.build();
-	}
-
-	public static <I extends Iterable<T>, T> TransformerUtils.Transformer<I, I> assertNonEmpty(String propertyName, String componentName) {
-		return new PeekTransformer<>(new AssertNonEmpty<>(propertyName, componentName));
-	}
-
-	private static final class AssertNonEmpty<T> implements Consumer<Iterable<T>> {
-		private final String propertyName;
-		private final String componentName;
-
-		private AssertNonEmpty(String propertyName, String componentName) {
-			this.propertyName = propertyName;
-			this.componentName = componentName;
-		}
-
-		@Override
-		public void accept(Iterable<T> values) {
-			if (Iterables.isEmpty(values)) {
-				throw new IllegalArgumentException(String.format("A %s needs to be specified for component '%s'.", propertyName, componentName));
-			}
-		}
 	}
 
 	private static final class AssertSupportedValuesConsumer<T> implements Consumer<Iterable<? extends Coordinate<T>>> {
