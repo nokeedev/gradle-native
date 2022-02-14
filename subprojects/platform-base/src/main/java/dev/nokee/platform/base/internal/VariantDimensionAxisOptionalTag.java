@@ -16,11 +16,11 @@
 package dev.nokee.platform.base.internal;
 
 public final class VariantDimensionAxisOptionalTag {
-	private static final VariantDimensionAxisOptionalTag instance = new VariantDimensionAxisOptionalTag();
+	private static final VariantDimensionAxisOptionalTag INSTANCE = new VariantDimensionAxisOptionalTag();
 
 	private VariantDimensionAxisOptionalTag() {}
 
 	public static VariantDimensionAxisOptionalTag tag() {
-		return instance;
+		return INSTANCE;
 	}
 }
