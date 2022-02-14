@@ -99,19 +99,19 @@ public final class BuildVariants {
 		}
 
 		private Transformer<CoordinateSet<Object>, Iterable<Object>> asCoordinateSet(ModelNode entity, String componentName) {
-			val axis = entity.getComponent(VariantDimensionAxisComponent.class).get();
+			val axis = entity.getComponent(componentOf(VariantDimensionAxisComponent.class)).get();
 
 			var axisValues = assertNonEmpty(axis.getDisplayName(), componentName);
 
 			var axisCoordinates = axisValues.andThen(transformEach(axis::create));
 
-			val axisValidator = entity.findComponent(VariantDimensionAxisValidatorComponent.class)
+			val axisValidator = entity.findComponent(componentOf(VariantDimensionAxisValidatorComponent.class))
 				.map(VariantDimensionAxisValidatorComponent::get);
 			if (axisValidator.isPresent()) {
 				axisCoordinates = axisCoordinates.andThen(new PeekTransformer<>(it -> axisValidator.get().accept(it)));
 			}
 
-			if (entity.hasComponent(VariantDimensionAxisOptionalTag.class)) {
+			if (entity.hasComponent(componentOf(VariantDimensionAxisOptionalTag.class))) {
 				axisCoordinates = axisCoordinates.andThen(appended(absentCoordinate(axis)));
 			}
 
