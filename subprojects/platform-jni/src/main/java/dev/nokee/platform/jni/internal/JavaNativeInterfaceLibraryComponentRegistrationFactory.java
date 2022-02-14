@@ -56,6 +56,7 @@ import dev.nokee.platform.jni.*;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
+import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
@@ -244,7 +245,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
 							.axis(TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(TargetMachines.host())
-							.validateUsing((Iterable<TargetMachine> it) -> assertTargetMachinesAreKnown(it, toolChainSelectorInternal))
+							.validateUsing((Iterable<Coordinate<TargetMachine>> it) -> assertTargetMachinesAreKnown(it, toolChainSelectorInternal))
 							.build());
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
 							.elementType(TargetLinkage.class)
@@ -357,8 +358,8 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		applyTo(ModelNodes.of(target), allDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 
-	private static void assertTargetMachinesAreKnown(Iterable<TargetMachine> targetMachines, ToolChainSelectorInternal toolChainSelector) {
-		List<TargetMachine> unknownTargetMachines = Streams.stream(targetMachines).filter(it -> !toolChainSelector.isKnown(it)).collect(Collectors.toList());
+	private static void assertTargetMachinesAreKnown(Iterable<Coordinate<TargetMachine>> targetMachines, ToolChainSelectorInternal toolChainSelector) {
+		List<TargetMachine> unknownTargetMachines = Streams.stream(targetMachines).filter(it -> !toolChainSelector.isKnown(it.getValue())).map(Coordinate::getValue).collect(Collectors.toList());
 		if (!unknownTargetMachines.isEmpty()) {
 			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + it.getOperatingSystemFamily().getCanonicalName() + " " + it.getArchitecture().getCanonicalName()).collect(joining("\n")));
 		}
