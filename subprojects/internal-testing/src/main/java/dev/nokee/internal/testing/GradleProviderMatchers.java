@@ -109,7 +109,7 @@ public final class GradleProviderMatchers {
 			try {
 				tryConfigureValue(item);
 				mismatchDescription.appendText("was not finalized");
-				return false; // has value
+				return false; // mutation was allowed
 			} catch (Throwable ex) {
 				if (isFinalizedException(ex)) {
 					return true;
@@ -168,14 +168,14 @@ public final class GradleProviderMatchers {
 			try {
 				tryConfigureValue(item);
 				mismatchDescription.appendText("changes was not disallowed");
-				return false; // has value
+				return false; // mutation was allowed
 			} catch (Throwable ex) {
 				if (isChangesDisallowedException(ex)) {
 					return true;
 				} else {
 					mismatchDescription.appendText("had unexpected exception: ").appendText(ex.getMessage());
 					return false; // wrong finalized exception,
-					// it may be a validation check or changed disallowed but not finalized which is not what this matcher checks
+					// it may be a validation check which is not what this matcher checks
 				}
 			}
 		}
