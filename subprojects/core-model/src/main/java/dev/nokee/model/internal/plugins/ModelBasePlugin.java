@@ -48,5 +48,6 @@ public class ModelBasePlugin implements Plugin<Project> {
 		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
 
 		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
+		modelRegistry.configure(new UseModelPropertyIdentifierAsDisplayName());
 	}
 }

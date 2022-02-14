@@ -15,6 +15,9 @@
  */
 package dev.nokee.model.internal.core;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public final class DisplayName {
 	private final String value;
 
