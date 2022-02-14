@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class Coordinates_OfTest {
@@ -77,7 +79,7 @@ class Coordinates_OfTest {
 	void throwsExceptionWhenCoordinateAxisIsNotPubliclyAccessible() {
 		val subject = new MyNonPublicAxisValue();
 		val ex = assertThrows(IllegalArgumentException.class, () -> Coordinates.of(subject));
-		assertThat(ex.getMessage(), is("No coordinate axis found in class dev.nokee.runtime.core.Coordinates_OfTest$MyNonPublicAxisValue hierarchy. Verify a CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T)."));
+		assertThat(ex.getMessage(), is("Coordinate axis found in class dev.nokee.runtime.core.Coordinates_OfTest$MyNonPublicAxisValue hierarchy are not public constants. Verify the CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T)."));
 	}
 
 	private static final class MyNonPublicAxisValue {
@@ -88,7 +90,7 @@ class Coordinates_OfTest {
 	void throwsExceptionWhenCoordinateAxisIsNotStaticAccessible() {
 		val subject = new MyNonStaticAxisValue();
 		val ex = assertThrows(IllegalArgumentException.class, () -> Coordinates.of(subject));
-		assertThat(ex.getMessage(), is("No coordinate axis found in class dev.nokee.runtime.core.Coordinates_OfTest$MyNonStaticAxisValue hierarchy. Verify a CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T)."));
+		assertThat(ex.getMessage(), is("Coordinate axis found in class dev.nokee.runtime.core.Coordinates_OfTest$MyNonStaticAxisValue hierarchy are not public constants. Verify the CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T)."));
 	}
 
 	private static final class MyNonStaticAxisValue {
@@ -99,7 +101,7 @@ class Coordinates_OfTest {
 	void throwsExceptionWhenCoordinateAxisIsNotFinalAccessible() {
 		val subject = new MyNonFinalAxisValue();
 		val ex = assertThrows(IllegalArgumentException.class, () -> Coordinates.of(subject));
-		assertThat(ex.getMessage(), is("No coordinate axis found in class dev.nokee.runtime.core.Coordinates_OfTest$MyNonFinalAxisValue hierarchy. Verify a CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T)."));
+		assertThat(ex.getMessage(), is("Coordinate axis found in class dev.nokee.runtime.core.Coordinates_OfTest$MyNonFinalAxisValue hierarchy are not public constants. Verify the CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T)."));
 	}
 
 	private static final class MyNonFinalAxisValue {
@@ -107,13 +109,16 @@ class Coordinates_OfTest {
 	}
 
 	@Test
-	void throwsExceptionWhenCoordinateAxisIsAbsent() {
-		val subject = new MyNonAxisValue();
-		val ex = assertThrows(IllegalArgumentException.class, () -> Coordinates.of(subject));
-		assertThat(ex.getMessage(), is("No coordinate axis found in class dev.nokee.runtime.core.Coordinates_OfTest$MyNonAxisValue hierarchy. Verify a CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T)."));
+	void canCreateCoordinateWhenNoCoordinateAxisConstantFieldAndValueIsNotItselfACoordinate() {
+		val subject = new MyPlainAxisValue();
+		val coordinate = Coordinates.of(subject);
+		assertAll(
+			() -> assertEquals(CoordinateAxis.of(MyPlainAxisValue.class), coordinate.getAxis()),
+			() -> assertSame(subject, coordinate.getValue())
+		);
 	}
 
-	private static final class MyNonAxisValue {}
+	private static final class MyPlainAxisValue {}
 
 	@Test
 	void throwsExceptionWhenMultipleCoordinateAxisDeclared() {
