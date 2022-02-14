@@ -24,7 +24,8 @@ public final class VariantDimensionAxisComponent {
 		this.value = value;
 	}
 
-	public CoordinateAxis<?> get() {
-		return value;
+	@SuppressWarnings("unchecked")
+	public CoordinateAxis<Object> get() {
+		return (CoordinateAxis<Object>) value;
 	}
 }
