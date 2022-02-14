@@ -25,6 +25,7 @@ import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -203,6 +204,65 @@ public final class GradleProviderMatchers {
 		@Override
 		public void describeTo(Description description) {
 			description.appendText("changes disallowed");
+		}
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	public static Matcher<HasConfigurableValue> hasDisplayName(String displayName) {
+		return new ProviderHasDisplayNameMatcher(displayName);
+	}
+
+	@SuppressWarnings("UnstableApiUsage")
+	private static final class ProviderHasDisplayNameMatcher extends TypeSafeDiagnosingMatcher<HasConfigurableValue> {
+		private final Pattern exceptionMessageWithDisplayNamePattern;
+		private final String displayName;
+
+		public ProviderHasDisplayNameMatcher(String displayName) {
+			this.exceptionMessageWithDisplayNamePattern = Pattern.compile("The value for " + displayName + " (is final and )?cannot be changed( any further)?.");
+			this.displayName = displayName;
+		}
+
+		@Override
+		protected boolean matchesSafely(HasConfigurableValue item, Description mismatchDescription) {
+			try {
+				item.disallowChanges();
+				tryConfigureValue(item);
+				return Assertions.fail(); // something went wrong
+			} catch (Throwable ex) {
+				if (hasDisplayNameInException(ex)) {
+					return true;
+				} else {
+					mismatchDescription.appendText("had unexpected exception: ").appendText(ex.getMessage());
+					return false; // wrong exception,
+					// it may be a validation check which is not what this matcher checks
+				}
+			}
+		}
+
+		private boolean hasDisplayNameInException(Throwable ex) {
+			return ex instanceof IllegalStateException
+				&& exceptionMessageWithDisplayNamePattern.matcher(ex.getMessage()).matches();
+		}
+
+		@SuppressWarnings("unchecked")
+		private static void tryConfigureValue(HasConfigurableValue item) {
+			// We use null or empty value as it's universally accepted by all configurable types.
+			if (item instanceof Property) {
+				((Property<Object>) item).set((Object) null);
+			} else if (item instanceof HasMultipleValues) {
+				((HasMultipleValues<Object>) item).set((Iterable<Object>) null);
+			} else if (item instanceof MapProperty) {
+				((MapProperty<Object, Object>) item).set((Map<Object, Object>) null);
+			} else if (item instanceof ConfigurableFileCollection) {
+				((ConfigurableFileCollection) item).setFrom();
+			} else {
+				throw new UnsupportedOperationException(String.format("Unsupported configurable value: %s", item));
+			}
+		}
+
+		@Override
+		public void describeTo(Description description) {
+			description.appendText("has display name (").appendValue(displayName).appendText(")");
 		}
 	}
 
