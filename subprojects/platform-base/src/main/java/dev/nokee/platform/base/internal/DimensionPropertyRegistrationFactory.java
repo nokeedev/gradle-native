@@ -62,7 +62,6 @@ public final class DimensionPropertyRegistrationFactory {
 
 	public final class Builder {
 		private final ModelPropertyIdentifier identifier;
-		private final ModelPath path;
 		private Class<Object> elementType;
 		private CoordinateAxis<Object> axis;
 		private Object defaultValues = ImmutableSet.of();
@@ -72,7 +71,6 @@ public final class DimensionPropertyRegistrationFactory {
 
 		private Builder(ModelPropertyIdentifier identifier) {
 			this.identifier = identifier;
-			this.path = toPath(identifier);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -133,7 +131,7 @@ public final class DimensionPropertyRegistrationFactory {
 			}
 
 			val result = ModelRegistration.builder()
-				.withComponent(path)
+				.withComponent(toPath(identifier))
 				.withComponent(identifier)
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
