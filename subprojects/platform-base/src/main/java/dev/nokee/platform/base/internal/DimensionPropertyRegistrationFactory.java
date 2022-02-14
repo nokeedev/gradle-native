@@ -139,9 +139,15 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
 				.withComponent(new GradlePropertyComponent(property))
 				.withComponent(VariantDimensionTag.tag())
-				.withComponent(new VariantDimensionAxisComponent(axis))
-				.withComponent(new VariantDimensionAxisFilterComponent(filters))
-				.withComponent(new VariantDimensionAxisValidatorComponent(axisValidator));
+				.withComponent(new VariantDimensionAxisComponent(axis));
+
+			if (filters != null && !filters.isEmpty()) {
+				result.withComponent(new VariantDimensionAxisFilterComponent(filters));
+			}
+
+			if (axisValidator != null) {
+				result.withComponent(new VariantDimensionAxisValidatorComponent(axisValidator));
+			}
 
 			if (includeEmptyCoordinate) {
 				result.withComponent(VariantDimensionAxisOptionalTag.tag());

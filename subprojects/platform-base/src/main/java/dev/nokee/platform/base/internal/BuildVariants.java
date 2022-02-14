@@ -36,6 +36,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -65,7 +66,10 @@ public final class BuildVariants {
 
 		buildVariants.convention(finalSpace.map(DefaultBuildVariant::fromSpace).map(buildVariants -> {
 			val allFilters = dimensions.get().stream()
-				.map(it -> it.getComponent(componentOf(VariantDimensionAxisFilterComponent.class)).get())
+				.map(it -> it.findComponent(componentOf(VariantDimensionAxisFilterComponent.class)))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.map(VariantDimensionAxisFilterComponent::get)
 				.collect(Collectors.toList());
 			return buildVariants.stream().filter(buildVariant -> {
 				return allFilters.stream().allMatch(it -> it.test(buildVariant));
