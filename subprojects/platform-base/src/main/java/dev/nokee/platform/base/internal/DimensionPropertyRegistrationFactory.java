@@ -140,7 +140,7 @@ public final class DimensionPropertyRegistrationFactory {
 				property.convention((Iterable<?>) defaultValues);
 			}
 
-			return ModelRegistration.builder()
+			val result = ModelRegistration.builder()
 				.withComponent(path)
 				.withComponent(identifier)
 				.withComponent(ModelPropertyTag.instance())
@@ -150,8 +150,13 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(new VariantDimensionAxisComponent(axis))
 				.withComponent(new VariantDimensionAxisFilterComponent(filters))
 				.withComponent(new VariantDimensionValuesComponent(property.map(toCoordinateSet())))
-				.withComponent(new VariantDimensionAxisValidatorComponent(axisValidator))
-				.build();
+				.withComponent(new VariantDimensionAxisValidatorComponent(axisValidator));
+
+			if (includeEmptyCoordinate) {
+				result.withComponent(VariantDimensionAxisOptionalTag.tag());
+			}
+
+			return result.build();
 		}
 
 		private Transformer<CoordinateSet<Object>, Iterable<Object>> toCoordinateSet() {
