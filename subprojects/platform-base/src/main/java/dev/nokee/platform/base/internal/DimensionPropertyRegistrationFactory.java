@@ -122,7 +122,6 @@ public final class DimensionPropertyRegistrationFactory {
 			}
 
 			val property = objectFactory.setProperty(elementType);
-			ConfigureUtils.configureDisplayName(property, identifier.toString());
 			property.finalizeValueOnRead();
 			if (defaultValues instanceof Provider) {
 				property.convention((Provider<? extends Iterable<?>>) defaultValues);
