@@ -26,8 +26,10 @@ import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.runtime.core.CoordinateSet;
+import dev.nokee.utils.Cast;
 import dev.nokee.utils.ConfigureUtils;
 import dev.nokee.utils.TransformerUtils;
 import lombok.val;
@@ -43,7 +45,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Predicates.not;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
@@ -72,9 +73,8 @@ public final class DimensionPropertyRegistrationFactory {
 		private final ModelPath path;
 		private Class<Object> elementType;
 		private CoordinateAxis<Object> axis;
-		private Set<Object> supportedValues;
 		private Object defaultValues = ImmutableSet.of();
-		private Consumer<? super Iterable<?>> axisValidator;
+		private Consumer<Iterable<? extends Coordinate<Object>>> axisValidator;
 		private boolean includeEmptyCoordinate = false;
 		private List<Predicate<? super BuildVariantInternal>> filters = new ArrayList<>();
 
@@ -96,13 +96,12 @@ public final class DimensionPropertyRegistrationFactory {
 		}
 
 		public Builder validValues(Object... values) {
-			this.supportedValues = ImmutableSet.copyOf(values);
+			this.axisValidator = new AssertSupportedValuesConsumer<>(ImmutableSet.copyOf(values));
 			return this;
 		}
 
-		@SuppressWarnings("unchecked")
-		public <T> Builder validateUsing(Consumer<? super Iterable<T>> axisValidator) {
-			this.axisValidator = (Consumer<? super Iterable<?>>) axisValidator;
+		public <T> Builder validateUsing(Consumer<? super Iterable<Coordinate<T>>> axisValidator) {
+			this.axisValidator = values -> axisValidator.accept(Cast.uncheckedCast("cannot get the type to match", values));
 			return this;
 		}
 
@@ -151,19 +150,18 @@ public final class DimensionPropertyRegistrationFactory {
 				.withComponent(new VariantDimensionAxisComponent(axis))
 				.withComponent(new VariantDimensionAxisFilterComponent(filters))
 				.withComponent(new VariantDimensionValuesComponent(property.map(toCoordinateSet())))
+				.withComponent(new VariantDimensionAxisValidatorComponent(axisValidator))
 				.build();
 		}
 
 		private Transformer<CoordinateSet<Object>, Iterable<Object>> toCoordinateSet() {
 			var axisValues = assertNonEmpty(axis.getDisplayName(), path.getParent().get().getName());
 
-			if (supportedValues != null) {
-				axisValues = axisValues.andThen(assertSupportedValues(supportedValues));
-			} else if (axisValidator != null) {
-				axisValues = axisValues.andThen(new PeekTransformer<>(it -> axisValidator.accept(it)));
-			}
-
 			var axisCoordinates = axisValues.andThen(transformEach(axis::create));
+
+			if (axisValidator != null) {
+				axisCoordinates = axisCoordinates.andThen(new PeekTransformer<>(it -> axisValidator.accept(it)));
+			}
 
 			if (includeEmptyCoordinate) {
 				axisCoordinates = axisCoordinates.andThen(appended(absentCoordinate(axis)));
@@ -229,11 +227,7 @@ public final class DimensionPropertyRegistrationFactory {
 		}
 	}
 
-	private static <I extends Iterable<T>, T> Transformer<I, I> assertSupportedValues(Set<T> supportedValues) {
-		return new PeekTransformer<>(new AssertSupportedValuesConsumer<>(supportedValues));
-	}
-
-	private static final class AssertSupportedValuesConsumer<T> implements Consumer<Iterable<T>> {
+	private static final class AssertSupportedValuesConsumer<T> implements Consumer<Iterable<? extends Coordinate<T>>> {
 		private final Set<T> supportedValues;
 
 		private AssertSupportedValuesConsumer(Set<T> supportedValues) {
@@ -241,8 +235,8 @@ public final class DimensionPropertyRegistrationFactory {
 		}
 
 		@Override
-		public void accept(Iterable<T> values) {
-			val unsupportedValues = Streams.stream(values).filter(not(supportedValues::contains)).collect(Collectors.toList());
+		public void accept(Iterable<? extends Coordinate<T>> values) {
+			val unsupportedValues = Streams.stream(values).filter(it -> !supportedValues.contains(it.getValue())).collect(Collectors.toList());
 			if (!unsupportedValues.isEmpty()) {
 				throw new IllegalArgumentException("The following values are not supported:\n" + unsupportedValues.stream().map(it -> " * " + it).collect(joining("\n")));
 			}
