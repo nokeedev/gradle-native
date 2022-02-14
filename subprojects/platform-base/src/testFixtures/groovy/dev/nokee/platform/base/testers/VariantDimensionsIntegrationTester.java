@@ -49,7 +49,6 @@ import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -70,7 +69,7 @@ public abstract class VariantDimensionsIntegrationTester {
 
 	@Test
 	void throwsExceptionWhenCreatingNewAxisWithNullAction() {
-		assertThrows(NullPointerException.class, () -> subject().getDimensions().newAxis(MyAxis.class, (Action<VariantDimensionBuilder>) null));
+		assertThrows(NullPointerException.class, () -> subject().getDimensions().newAxis(MyAxis.class, (Action<VariantDimensionBuilder<MyAxis>>) null));
 	}
 
 	@Test
