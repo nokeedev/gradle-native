@@ -31,7 +31,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -245,23 +249,28 @@ public final class Coordinates {
 		if (obj instanceof Coordinate) {
 			return (Coordinate<T>) obj;
 		} else {
-			val axisFields = stream(obj.getClass().getFields())
-				.filter(isCoordinateAxisField().and(isConstantField())).collect(toList());
+			val axisFields = stream(obj.getClass().getDeclaredFields())
+				.filter(isCoordinateAxisField()).collect(toList());
 
-			if (axisFields.size() > 1) {
-				throw new IllegalArgumentException(String.format("Multiple coordinate axis found in %s hierarchy. Please use Coordinate.of(CoordinateAxis, T) instead.", obj.getClass()));
-			}
+			if (axisFields.isEmpty()) {
+				return CoordinateAxis.of((Class<T>) obj.getClass()).create(obj);
+			} else {
+				val publicAxisFields = axisFields.stream().filter(isConstantField()).collect(toList());
+				if (publicAxisFields.size() > 1) {
+					throw new IllegalArgumentException(String.format("Multiple coordinate axis found in %s hierarchy. Please use Coordinate.of(CoordinateAxis, T) instead.", obj.getClass()));
+				}
 
-			val it = axisFields.iterator();
-			if (!it.hasNext()) {
-				throw new IllegalArgumentException(String.format("No coordinate axis found in %s hierarchy. Verify a CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T).", obj.getClass()));
-			}
+				val it = publicAxisFields.iterator();
+				if (!it.hasNext()) {
+					throw new IllegalArgumentException(String.format("Coordinate axis found in %s hierarchy are not public constants. Verify the CoordinateAxis constant is accessible in class hierarchy or use Coordinate.of(CoordinateAxis, T).", obj.getClass()));
+				}
 
-			val field = it.next();
-			try {
-				return Coordinate.of((CoordinateAxis<T>) field.get(null), obj);
-			} catch (IllegalAccessException e) {
-				throw new IllegalArgumentException(String.format("Coordinate axis %s is not accessible.", field), e);
+				val field = it.next();
+				try {
+					return Coordinate.of((CoordinateAxis<T>) field.get(null), obj);
+				} catch (IllegalAccessException e) {
+					throw new IllegalArgumentException(String.format("Coordinate axis %s is not accessible.", field), e);
+				}
 			}
 		}
 	}
