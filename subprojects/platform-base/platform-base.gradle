@@ -2,6 +2,7 @@ plugins {
 	id 'nokeebuild.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-unit-test'
 	id 'nokeebuild.gradle-plugin-functional-test'
+	id 'nokeebuild.gradle-plugin-integration-test'
 	id 'groovy-base'
 	id 'maven-publish'
 	id 'java-test-fixtures'
@@ -29,4 +30,10 @@ dependencies {
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
 	testFixturesImplementation testFixtures(project(':coreModel'))
+}
+
+integrationTest {
+	dependencies {
+		implementation testFixtures(project)
+	}
 }
