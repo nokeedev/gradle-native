@@ -18,6 +18,10 @@ package dev.nokee.platform.base.internal
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static org.hamcrest.Matchers.contains
+import static org.hamcrest.Matchers.emptyIterable
+import static spock.util.matcher.HamcrestSupport.that
+
 @Subject(Dimensions)
 class DimensionsTest extends Specification {
 	def "can create empty dimensions"() {
@@ -95,5 +99,20 @@ class DimensionsTest extends Specification {
 		Dimensions.of(['fooBar']).asKebabCase.get() == 'fooBar'
 		Dimensions.of(['foo-bar', 'far']).asKebabCase.get() == 'foo-bar-far'
 		Dimensions.of(['foo_bar', 'far']).asKebabCase.get() == 'foo_bar-far'
+	}
+
+	def "empty dimensions is empty iterable"() {
+		expect:
+		that Dimensions.empty(), emptyIterable()
+		that Dimensions.of([]), emptyIterable()
+	}
+
+	def "non-empty dimensions is iterable of all name segments"() {
+		expect:
+		that Dimensions.of(['foo']), contains('foo')
+		that Dimensions.of(['foo', 'bar']), contains('foo', 'bar')
+		that Dimensions.of(['fooBar']), contains('fooBar')
+		that Dimensions.of(['foo-bar', 'far']), contains('foo-bar', 'far')
+		that Dimensions.of(['foo_bar', 'far']), contains('foo_bar', 'far')
 	}
 }
