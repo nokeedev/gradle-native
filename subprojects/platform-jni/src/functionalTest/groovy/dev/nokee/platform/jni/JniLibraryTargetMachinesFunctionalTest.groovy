@@ -57,7 +57,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 			jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class', sharedLibraryName('jni-greeter'))
 		} else {
 			jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class')
-			jar("build/libs/jni-greeter-${variant}.jar").hasDescendants(sharedLibraryName("${variant}/jni-greeter"))
+			jar("build/libs/main/jni-greeter-${variant}.jar").hasDescendants(sharedLibraryName("${variant}/jni-greeter"))
 		}
 	}
 
@@ -77,7 +77,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		expect:
 		succeeds 'assemble'
 		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class')
-		jar("build/libs/jni-greeter-${currentOsFamilyName}.jar").hasDescendants(sharedLibraryName("com/example/greeter/${currentOsFamilyName}/jni-greeter"))
+		jar("build/libs/main/jni-greeter-${currentOsFamilyName}.jar").hasDescendants(sharedLibraryName("com/example/greeter/${currentOsFamilyName}/jni-greeter"))
 	}
 
 	def "can configure the resource path for each variant from target machine"() {
@@ -119,7 +119,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		expect:
 		succeeds 'assemble'
 		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class')
-		jar("build/libs/jni-greeter-${currentOsFamilyName}.jar").hasDescendants(sharedLibraryName("com/example/foobar/${currentArchitecture}-${currentOsFamilyName}/jni-greeter"))
+		jar("build/libs/main/jni-greeter-${currentOsFamilyName}.jar").hasDescendants(sharedLibraryName("com/example/foobar/${currentArchitecture}-${currentOsFamilyName}/jni-greeter"))
 	}
 
 	def "variants have the right platform type"() {
@@ -173,7 +173,7 @@ class JniLibraryTargetMachinesFunctionalTest extends AbstractTargetMachinesFunct
 		result.assertTasksExecutedAndNotSkipped(':cpp-library:compileDebugX86-64Cpp', ':cpp-library:linkDebugX86-64',
 			":compileX86-64Cpp", ":linkX86-64",
 			':compileJava', ':jarX86-64')
-		jar('build/libs/jni-greeter-x86-64.jar').hasDescendants(sharedLibraryName('x86-64/cpp-library'), sharedLibraryName('x86-64/jni-greeter'))
+		jar('build/libs/main/jni-greeter-x86-64.jar').hasDescendants(sharedLibraryName('x86-64/cpp-library'), sharedLibraryName('x86-64/jni-greeter'))
 
 		when:
 		succeeds(':jar')

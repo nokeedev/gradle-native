@@ -316,6 +316,15 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						val variant = project.getExtensions().getByType(ModelRegistry.class).register(variantFactory.create(variantIdentifier));
 						variant.configure(JniLibrary.class, it -> it.getBaseName().convention(ModelProperties.getProperty(entity, "baseName").as(String.class).asProvider()));
 
+						// See https://github.com/nokeedev/gradle-native/issues/543
+						if (component.getBuildVariants().get().size() > 1) {
+							variant.configure(JniLibrary.class, it -> {
+								it.getJavaNativeInterfaceJar().getJarTask().configure(task -> {
+									task.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir("libs/" + identifier.getName()));
+								});
+							});
+						}
+
 						variants.put(buildVariant, ModelNodes.of(variant));
 					});
 					entity.addComponent(new Variants(variants.build()));

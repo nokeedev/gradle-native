@@ -49,6 +49,7 @@ import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.Provider;
+import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.cpp.CppBinary;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
@@ -59,7 +60,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileBaseNamed;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
@@ -599,6 +602,12 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			assertThat(subject().getBaseName(), providerOf("jaru"));
 		}
 
+		@Test
+		void putsJniJarDirectlyInLibsDirectory() {
+			assertThat(subject().getJavaNativeInterfaceJar().getJarTask().flatMap(Jar::getDestinationDirectory),
+				providerOf(aFile(withAbsolutePath(endsWith("/build/libs")))));
+		}
+
 		abstract class ResolvableConfigurationAttributeTester {
 			public abstract Configuration subject();
 
@@ -793,6 +802,12 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			}
 
 			@Test
+			void putsJniJarInComponentNamedFolderInsideLibsDirectory() {
+				assertThat(subject().getJavaNativeInterfaceJar().getJarTask().flatMap(Jar::getDestinationDirectory),
+					providerOf(aFile(withAbsolutePath(endsWith("/build/libs/quzu")))));
+			}
+
+			@Test
 			void nativeImplementationExtendsFromMatchingParentConfiguration() {
 				assertThat(project().getConfigurations().getByName("quzuWindowsX64NativeImplementation"),
 					extendsFrom(hasItem(named("quzuNativeImplementation"))));
@@ -971,6 +986,12 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				subject.getBaseName().set("cebo");
 				subject().getBaseName().set((String) null);
 				assertThat(subject().getBaseName(), providerOf("cebo"));
+			}
+
+			@Test
+			void putsJniJarInComponentNamedFolderInsideLibsDirectory() {
+				assertThat(subject().getJavaNativeInterfaceJar().getJarTask().flatMap(Jar::getDestinationDirectory),
+					providerOf(aFile(withAbsolutePath(endsWith("/build/libs/quzu")))));
 			}
 
 			@Test
