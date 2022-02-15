@@ -66,7 +66,7 @@ functionalTest {
 		pluginUnderTestMetadata project(':platformJni')
 		pluginUnderTestMetadata project(':testingXctest')
 		implementation project(':platformJni')
-		implementation 'com.googlecode.plist:dd-plist:1.23'
+		implementation "com.googlecode.plist:dd-plist:${ddPlist}"
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':languageC'))
 		implementation testFixtures(project(':languageCpp'))
