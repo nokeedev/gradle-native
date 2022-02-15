@@ -249,8 +249,8 @@ public final class Coordinates {
 		if (obj instanceof Coordinate) {
 			return (Coordinate<T>) obj;
 		} else {
-			val axisFields = stream(obj.getClass().getDeclaredFields())
-				.filter(isCoordinateAxisField()).collect(toList());
+			val axisFields = Streams.concat(stream(obj.getClass().getFields()), stream(obj.getClass().getDeclaredFields()))
+				.distinct().filter(isCoordinateAxisField()).collect(toList());
 
 			if (axisFields.isEmpty()) {
 				return CoordinateAxis.of((Class<T>) obj.getClass()).create(obj);
