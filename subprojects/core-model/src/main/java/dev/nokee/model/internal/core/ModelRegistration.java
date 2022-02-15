@@ -101,6 +101,12 @@ public final class ModelRegistration {
 			return this;
 		}
 
+		public Builder mergeFrom(ModelRegistration other) {
+			components.addAll(other.getComponents());
+			actions.addAll(other.getActions());
+			return this;
+		}
+
 		public ModelRegistration build() {
 			return new ModelRegistration(ImmutableList.copyOf(actions), ImmutableList.copyOf(components));
 		}

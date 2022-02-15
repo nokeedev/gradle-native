@@ -62,6 +62,18 @@ class ModelRegistrationBuilderTest {
 		assertThat(registration.getComponents(), contains(componentA, componentB, componentC));
 	}
 
+	@Test
+	void canIncludeAnotherModelRegistrationInCurrentBuilder() {
+		val componentA = new Object();
+		val componentB = new Object();
+		val componentC = new Object();
+		val action = Mockito.mock(ModelAction.class);
+		val registration = subject.withComponent(componentC)
+			.mergeFrom(builder().withComponent(componentA).withComponent(componentB).build()).action(action).build();
+		assertThat(registration.getComponents(), contains(componentC, componentA, componentB));
+		assertThat(registration.getActions(), contains(action));
+	}
+
 	@Nested
 	class DefaultBuildTest implements ModelRegistrationTester {
 		private final ModelRegistration subject = ModelRegistrationBuilderTest.this.subject.build();
