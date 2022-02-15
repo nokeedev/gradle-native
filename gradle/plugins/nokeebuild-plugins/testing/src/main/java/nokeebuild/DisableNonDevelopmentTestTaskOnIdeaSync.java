@@ -72,7 +72,11 @@ final class DisableNonDevelopmentTestTaskOnIdeaSync implements Action<GradlePlug
 	}
 
 	private static void onIdeaSync(Project project, Runnable action) {
-		project.getPluginManager().withPlugin("idea", ignored -> action.run());
+		boolean activeIdea = project.getProviders().systemProperty("idea.active").forUseAtConfigurationTime()
+			.map(Boolean::valueOf).orElse(Boolean.FALSE).get();
+		if (activeIdea) {
+			action.run();
+		}
 	}
 
 	private static <T> Callable<T> callableOf(Callable<T> callable) {
