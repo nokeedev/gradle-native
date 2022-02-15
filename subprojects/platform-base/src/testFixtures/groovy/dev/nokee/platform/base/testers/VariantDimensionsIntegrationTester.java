@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.testers;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantAwareComponent;
@@ -36,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static com.google.common.collect.ImmutableSet.of;
 import static dev.nokee.internal.testing.GradleProviderMatchers.finalizedValue;
 import static dev.nokee.internal.testing.GradleProviderMatchers.hasNoValue;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -113,13 +113,13 @@ public abstract class VariantDimensionsIntegrationTester {
 		@Test
 		void canMutateAxisProperty() {
 			assertDoesNotThrow(() -> subject().add(newAxisValue("cip")));
-			assertDoesNotThrow(() -> subject().convention(ImmutableSet.of(newAxisValue("xoz"))));
-			assertDoesNotThrow(() -> subject().set(ImmutableSet.of(newAxisValue("hap"))));
+			assertDoesNotThrow(() -> subject().convention(of(newAxisValue("xoz"))));
+			assertDoesNotThrow(() -> subject().set(of(newAxisValue("hap"))));
 		}
 
 		@Test
 		void finalizeAxisValuesWhenVariantComputed() {
-			subject().set(ImmutableSet.of(newAxisValue("lid")));
+			subject().set(of(newAxisValue("lid")));
 			component().getVariants().get(); // realize variants
 			assertThat(subject(), finalizedValue());
 		}
@@ -128,7 +128,7 @@ public abstract class VariantDimensionsIntegrationTester {
 		void participatesToVariantCalculation() {
 			val v0 = newAxisValue("par");
 			val v1 = newAxisValue("buk");
-			subject().set(ImmutableSet.of(v0, v1));
+			subject().set(of(v0, v1));
 			assertThat(component().getBuildVariants(), providerOf(allOf(hasItem(hasAxisOf(v0)), hasItem(hasAxisOf(v1)))));
 		}
 
@@ -141,8 +141,8 @@ public abstract class VariantDimensionsIntegrationTester {
 
 		@Test
 		void throwsExceptionIfAxisPropertyHasEmptyValueSet() {
-			subject().value(ImmutableSet.of());
-			subject().convention(ImmutableSet.of());
+			subject().value(of());
+			subject().convention(of());
 			val ex = assertThrows(RuntimeException.class, () -> component().getVariants().get()); // realize variants
 			assertThat(ex.getMessage(), startsWith("A my axis needs to be specified for"));
 		}
@@ -172,8 +172,8 @@ public abstract class VariantDimensionsIntegrationTester {
 
 		@BeforeEach
 		void createAxis() {
-			component().getDimensions().newAxis(MyOtherAxisA.class).value(ImmutableSet.of(a0, a1));
-			component().getDimensions().newAxis(MyOtherAxisB.class).value(ImmutableSet.of(b0));
+			component().getDimensions().newAxis(MyOtherAxisA.class).value(of(a0, a1));
+			component().getDimensions().newAxis(MyOtherAxisB.class).value(of(b0));
 			subject = component().getDimensions().newAxis(MyAxis.class, builder -> builder.onlyOn(a0));
 		}
 
@@ -185,7 +185,7 @@ public abstract class VariantDimensionsIntegrationTester {
 		@Test
 		void filtersOutAllBuildVariantsForCurrentAxisNotComplementingSpecifiedAxisValue() {
 			val v0 = new MyAxis("drf");
-			subject.set(ImmutableSet.of(v0));
+			subject.set(of(v0));
 			assertThat(component().getBuildVariants(), providerOf(not(hasItem(allOf(hasAxisOf(v0), hasAxisOf(a1))))));
 			assertThat(component().getBuildVariants(), providerOf(hasItem(allOf(hasAxisOf(v0), hasAxisOf(a0)))));
 			assertThat(component().getBuildVariants(), providerOf(everyItem(hasAxisOf(b0))));
@@ -194,15 +194,15 @@ public abstract class VariantDimensionsIntegrationTester {
 
 	@Nested
 	class NewAxisExcludeAnotherAxisTest extends NewAxisTester<MyAxis> {
-		private MyOtherAxisA a0 = new MyOtherAxisA("a0");
-		private MyOtherAxisA a1 = new MyOtherAxisA("a1");
-		private MyOtherAxisB b0 = new MyOtherAxisB("b0");
+		private final MyOtherAxisA a0 = new MyOtherAxisA("a0");
+		private final MyOtherAxisA a1 = new MyOtherAxisA("a1");
+		private final MyOtherAxisB b0 = new MyOtherAxisB("b0");
 		private SetProperty<MyAxis> subject;
 
 		@BeforeEach
 		void createAxis() {
-			component().getDimensions().newAxis(MyOtherAxisA.class).value(ImmutableSet.of(a0, a1));
-			component().getDimensions().newAxis(MyOtherAxisB.class).value(ImmutableSet.of(b0));
+			component().getDimensions().newAxis(MyOtherAxisA.class).value(of(a0, a1));
+			component().getDimensions().newAxis(MyOtherAxisB.class).value(of(b0));
 			subject = component().getDimensions().newAxis(MyAxis.class, builder -> builder.exceptOn(a0));
 		}
 
@@ -214,7 +214,7 @@ public abstract class VariantDimensionsIntegrationTester {
 		@Test
 		void filtersOutAllBuildVariantsWhereCurrentAxisAndSpecifiedAxisValue() {
 			val v0 = new MyAxis("fig");
-			subject.set(ImmutableSet.of(v0));
+			subject.set(of(v0));
 			assertThat(component().getBuildVariants(), providerOf(not(hasItem(allOf(hasAxisOf(v0), hasAxisOf(a0))))));
 			assertThat(component().getBuildVariants(), providerOf(hasItem(allOf(hasAxisOf(v0), hasAxisOf(a1)))));
 			assertThat(component().getBuildVariants(), providerOf(everyItem(hasAxisOf(b0))));
