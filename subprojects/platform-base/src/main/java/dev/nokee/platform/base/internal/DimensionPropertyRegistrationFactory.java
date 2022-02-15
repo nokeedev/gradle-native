@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -27,7 +26,6 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 import dev.nokee.utils.Cast;
-import dev.nokee.utils.ConfigureUtils;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -39,6 +37,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkState;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
@@ -51,13 +50,16 @@ public final class DimensionPropertyRegistrationFactory {
 		this.objectFactory = objectFactory;
 	}
 
-	// TODO: Can select default value?
-	public <T> ModelRegistration newAxisProperty(ModelPropertyIdentifier identifier, CoordinateAxis<T> axis) {
-		return newAxisProperty(identifier).axis(axis).build();
-	}
-
 	public Builder newAxisProperty(ModelPropertyIdentifier identifier) {
 		return new Builder(identifier);
+	}
+
+	public <T> ModelRegistration newAxisProperty(CoordinateAxis<T> axis) {
+		return newAxisProperty().axis(axis).build();
+	}
+
+	public Builder newAxisProperty() {
+		return new Builder();
 	}
 
 	public final class Builder {
@@ -68,6 +70,10 @@ public final class DimensionPropertyRegistrationFactory {
 		private Consumer<Iterable<? extends Coordinate<Object>>> axisValidator;
 		private boolean includeEmptyCoordinate = false;
 		private List<Predicate<? super BuildVariantInternal>> filters = new ArrayList<>();
+
+		private Builder() {
+			this.identifier = null;
+		}
 
 		private Builder(ModelPropertyIdentifier identifier) {
 			this.identifier = identifier;
@@ -117,6 +123,8 @@ public final class DimensionPropertyRegistrationFactory {
 
 		@SuppressWarnings("unchecked")
 		public ModelRegistration build() {
+			checkState(axis != null);
+
 			if (elementType == null) {
 				elementType = axis.getType();
 			}
@@ -129,9 +137,13 @@ public final class DimensionPropertyRegistrationFactory {
 				property.convention((Iterable<?>) defaultValues);
 			}
 
-			val result = ModelRegistration.builder()
-				.withComponent(toPath(identifier))
-				.withComponent(identifier)
+			val result = ModelRegistration.builder();
+
+			if (identifier != null) {
+				result.withComponent(toPath(identifier)).withComponent(identifier);
+			}
+
+			result
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
 				.withComponent(new GradlePropertyComponent(property))
