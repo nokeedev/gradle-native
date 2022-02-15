@@ -70,6 +70,32 @@ class GradleModuleMetadataWriterTest {
 		)));
 	}
 
+	@Test
+	void canSerializeDependenciesWithRequiredVersion() throws IOException {
+		val output = json(variant(builder -> builder.dependency(it -> it.name("dep1").version(GradleModuleMetadata.Version.requires("1.42")))));
+		assertThat(output, equalTo(content(
+			"{",
+			"  \"formatVersion\": \"1.1\",",
+			"  \"variants\": [",
+			"    {",
+			"      \"name\": \"foo\",",
+			"      \"attributes\": {",
+			"        \"org.gradle.usage\": \"usage\"",
+			"      },",
+			"      \"dependencies\": [",
+			"        {",
+			"          \"name\": \"dep1\",",
+			"          \"version\": {",
+			"            \"requires\": \"1.42\"",
+			"          }",
+			"        }",
+			"      ]",
+			"    }",
+			"  ]",
+			"}"
+		)));
+	}
+
 	private static Consumer<GradleModuleMetadata.Builder> variant(Consumer<? super GradleModuleMetadata.LocalVariant.Builder> action) {
 		return builder -> builder.localVariant(
 			((Consumer<GradleModuleMetadata.LocalVariant.Builder>)it -> it.name("foo").attribute(ofAttribute("org.gradle.usage", "usage")))

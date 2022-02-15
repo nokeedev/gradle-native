@@ -34,6 +34,7 @@ public final class GradleModuleMetadataWriter implements Closeable {
 	private static final Type DEPENDENCIES_TYPE = new TypeToken<List<GradleModuleMetadata.Dependency>>() {}.getType();
 	private static final Type DEPENDENCY_CONSTRAINTS_TYPE = new TypeToken<List<GradleModuleMetadata.DependencyConstraint>>() {}.getType();
 	private static final Type FILES_TYPE = new TypeToken<List<GradleModuleMetadata.File>>() {}.getType();
+	private static final Type STRINGS_TYPE = new TypeToken<List<String>>() {}.getType();
 
 	private final Writer writer;
 
@@ -49,6 +50,7 @@ public final class GradleModuleMetadataWriter implements Closeable {
 			.registerTypeAdapter(CAPABILITIES_TYPE, CollectionSerializer.INSTANCE)
 			.registerTypeAdapter(DEPENDENCY_CONSTRAINTS_TYPE, CollectionSerializer.INSTANCE)
 			.registerTypeAdapter(FILES_TYPE, CollectionSerializer.INSTANCE)
+			.registerTypeAdapter(STRINGS_TYPE, CollectionSerializer.INSTANCE)
 			.create();
 		writer.write(gson.toJson(metadata));
 	}
