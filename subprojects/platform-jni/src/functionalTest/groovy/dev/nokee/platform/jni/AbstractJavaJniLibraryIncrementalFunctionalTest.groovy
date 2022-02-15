@@ -76,7 +76,7 @@ abstract class AbstractJavaJniLibraryIncrementalFunctionalTest extends AbstractI
 		result.assertTaskNotSkipped(':jar')
 		result.assertTaskNotSkipped(":jar${currentOsFamilyName.capitalize()}")
 		jar("build/libs/jni-greeter.jar").hasDescendants('com/example/greeter/Greeter.class', 'com/example/greeter/NativeLoader.class')
-		jar("build/libs/jni-greeter-${currentOsFamilyName}.jar").hasDescendants(sharedLibraryName("com/example/greeter/${currentOsFamilyName}/jni-greeter"))
+		jar("build/libs/main/jni-greeter-${currentOsFamilyName}.jar").hasDescendants(sharedLibraryName("com/example/greeter/${currentOsFamilyName}/jni-greeter"))
 	}
 
 	def "skips JAR when dimension does not change (e.g. target machine)"() {
