@@ -144,7 +144,9 @@ public abstract class VariantDimensionsIntegrationTester {
 			subject().value(of());
 			subject().convention(of());
 			val ex = assertThrows(RuntimeException.class, () -> component().getVariants().get()); // realize variants
-			assertThat(ex.getMessage(), startsWith("A my axis needs to be specified for"));
+
+			// if provider has display name, the exception is wrapped
+			assertThat(of(ex.getMessage(), ex.getCause().getMessage()), hasItem(startsWith("A my axis needs to be specified for")));
 		}
 	}
 
