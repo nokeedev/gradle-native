@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelProperty;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.VariantDimensionBuilder;
 import dev.nokee.platform.base.VariantDimensions;
@@ -33,6 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -49,7 +51,12 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 
 	@Override
 	public <T> SetProperty<T> newAxis(Class<T> axisType) {
-		val result = registry.register(dimensionsPropertyFactory.newAxisProperty(ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName())), CoordinateAxis.of(axisType)));
+		val identifier = ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName()));
+		val result = registry.register(ModelRegistration.builder()
+			.withComponent(toPath(identifier))
+			.withComponent(identifier)
+			.mergeFrom(dimensionsPropertyFactory.newAxisProperty(CoordinateAxis.of(axisType)))
+			.build());
 		return ((ModelProperty<?>) result).asProperty(setProperty(of(axisType)));
 	}
 
@@ -57,18 +64,22 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 	public <T> SetProperty<T> newAxis(Class<T> axisType, Action<? super VariantDimensionBuilder<T>> action) {
 		Objects.requireNonNull(axisType);
 		Objects.requireNonNull(action);
-		val builder = dimensionsPropertyFactory.newAxisProperty(ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName())));
-		builder.axis(CoordinateAxis.of(axisType));
+		val identifier = ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName()));
+		val builder = ModelRegistration.builder()
+			.withComponent(toPath(identifier))
+			.withComponent(identifier);
+		val axisBuilder = dimensionsPropertyFactory.newAxisProperty();
+		axisBuilder.axis(CoordinateAxis.of(axisType));
 
 		action.execute(new VariantDimensionBuilderAdapter<>(new VariantDimensionBuilderAdapter.Callback<T>() {
 			@Override
 			public <S> void accept(Class<S> otherAxisType, BiPredicate<? super Optional<T>, ? super S> predicate) {
-				builder.includeEmptyCoordinate();
-				builder.filterVariant(new VariantDimensionAxisFilter<>(CoordinateAxis.of(axisType), otherAxisType, predicate));
+				axisBuilder.includeEmptyCoordinate();
+				axisBuilder.filterVariant(new VariantDimensionAxisFilter<>(CoordinateAxis.of(axisType), otherAxisType, predicate));
 			}
 		}));
 
-		val result = registry.register(builder.build());
+		val result = registry.register(builder.mergeFrom(axisBuilder.build()).build());
 		return ((ModelProperty<?>) result).asProperty(setProperty(of(axisType)));
 	}
 
