@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,7 +29,7 @@ import java.util.stream.Collectors;
  * Represent a collection of dimension values.
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public abstract class Dimensions {
+public abstract class Dimensions implements Iterable<String> {
 	public abstract Dimensions add(String dimension);
 
 	@EqualsAndHashCode.Include
@@ -88,6 +90,11 @@ public abstract class Dimensions {
 		public int size() {
 			return dimensions.size();
 		}
+
+		@Override
+		public Iterator<String> iterator() {
+			return dimensions.iterator();
+		}
 	}
 
 	private static final class NoDimensions extends Dimensions {
@@ -121,6 +128,11 @@ public abstract class Dimensions {
 		@Override
 		public int size() {
 			return 0;
+		}
+
+		@Override
+		public Iterator<String> iterator() {
+			return Collections.emptyIterator();
 		}
 	}
 }

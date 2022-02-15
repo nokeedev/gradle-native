@@ -17,7 +17,11 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
-import dev.nokee.runtime.core.*;
+import dev.nokee.runtime.core.Coordinate;
+import dev.nokee.runtime.core.CoordinateAxis;
+import dev.nokee.runtime.core.CoordinateSpace;
+import dev.nokee.runtime.core.CoordinateTuple;
+import dev.nokee.runtime.core.Coordinates;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.val;
@@ -30,7 +34,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Streams.stream;
 import static dev.nokee.runtime.core.Coordinates.toCoordinateTuple;
@@ -45,17 +48,21 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 
 	public static DefaultBuildVariant of(Coordinate<?>... coordinates) {
 		val tuple = CoordinateTuple.of(coordinates);
-		val allDimensions = Dimensions.of(stream(tuple).flatMap(Coordinates::flatten).map(named()).collect(toList()));
+		val allDimensions = Dimensions.of(stream(tuple).flatMap(Coordinates::flatten).map(named()).filter(nonEmpty()).collect(toList()));
 		return new DefaultBuildVariant(tuple, allDimensions, allDimensions, allDimensions.getAsLowerCamelCase().orElse(""));
 	}
 
 	public static List<DefaultBuildVariant> fromSpace(CoordinateSpace space) {
 		val visibleAxis = Coordinates.standardBasis(space).collect(ImmutableSet.toImmutableSet());
 		return stream(space).map(it -> {
-			val allDimensions = Dimensions.of(stream(it).flatMap(Coordinates::flatten).map(named()).collect(toList()));
-			val dimensions = Dimensions.of(stream(it).flatMap(Coordinates::flatten).filter(onlyAxis(visibleAxis)).map(named()).collect(toList()));
+			val allDimensions = Dimensions.of(stream(it).flatMap(Coordinates::flatten).map(named()).filter(nonEmpty()).collect(toList()));
+			val dimensions = Dimensions.of(stream(it).flatMap(Coordinates::flatten).filter(onlyAxis(visibleAxis)).map(named()).filter(nonEmpty()).collect(toList()));
 			return new DefaultBuildVariant(it, allDimensions, dimensions, dimensions.getAsLowerCamelCase().orElse(""));
 		}).collect(toList());
+	}
+
+	private static Predicate<String> nonEmpty() {
+		return it -> !it.isEmpty();
 	}
 
 	private static Predicate<Coordinate<?>> onlyAxis(Set<CoordinateAxis<?>> visibleAxis) {
