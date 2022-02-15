@@ -56,7 +56,7 @@ class VariantDimensionBuilderAdapterTest implements VariantDimensionBuilderTeste
 		@SuppressWarnings("unchecked")
 		BiPredicate<Optional<MyAxis>, MyOtherAxis> predicate = mock(BiPredicate.class);
 		subject.onlyIf(MyOtherAxis.class, predicate);
-		Mockito.verify(listener).accept(MyOtherAxis.class, notNull());
+		Mockito.verify(listener).accept(eq(MyOtherAxis.class), notNull());
 	}
 
 	@Test
