@@ -209,7 +209,7 @@ public class ToolChainSelectorInternal {
 		public boolean canBuild(TargetMachine targetMachine) {
 			// Shortcut, we need to model target host for the tool chain and their target platform
 			//    We assume the same host should always be buildable and supported
-			if (toFamilyName(DefaultNativePlatform.getCurrentOperatingSystem()).equals(targetMachine.getOperatingSystemFamily().getCanonicalName())) {
+			if (toFamilyName(DefaultNativePlatform.getCurrentOperatingSystem()).equals(targetMachine.getOperatingSystemFamily().getCanonicalName()) && toArchitectureName(DefaultNativePlatform.getCurrentArchitecture()).equals(targetMachine.getArchitecture().getCanonicalName())) {
 				return true;
 			}
 			return false;
@@ -227,6 +227,10 @@ public class ToolChainSelectorInternal {
 			} else {
 				return OperatingSystemFamily.forName(operatingSystem.getName()).getCanonicalName();
 			}
+		}
+
+		private static String toArchitectureName(org.gradle.nativeplatform.platform.Architecture architecture) {
+			return MachineArchitecture.forName(architecture.getName()).getCanonicalName();
 		}
 	}
 }
