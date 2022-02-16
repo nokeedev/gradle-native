@@ -45,9 +45,15 @@ The JNI library JARs produced inside `./build/libs` directory:
 
 [listing.terminal,only-if='macos']
 ----
-$ ls ./build/libs/*.jar
-./build/libs/jni-library-with-target-machines-macos.jar
-./build/libs/jni-library-with-target-machines.jar
+$ tree ./build/libs
+./build/libs
+├── jni-library-with-target-machines.jar
+└── main
+    ├── jni-library-with-target-machines-macos.jar
+    └── macos
+        └── libjni-library-with-target-machines.dylib
+
+2 directories, 3 files
 ----
 
 It's also important to note that when multiple target platform are configured, the native component will be namespaced inside their own variant directory.
@@ -66,7 +72,7 @@ com/example/greeter/Greeter.class
 ----
 [listing.terminal,only-if='macos']
 ----
-$ jar tf ./build/libs/jni-library-with-target-machines-macos.jar
+$ jar tf ./build/libs/main/jni-library-with-target-machines-macos.jar
 META-INF/
 META-INF/MANIFEST.MF
 macos/
