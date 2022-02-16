@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateAxis;
 import org.gradle.api.Named;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,18 +38,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class VariantDimensionAxisFilterTest {
-	private static final CoordinateAxis<MyAxis> currentAxis = CoordinateAxis.of(MyAxis.class);
-	private static final CoordinateAxis<MyOtherAxis> otherAxis = CoordinateAxis.of(MyOtherAxis.class);
-	private static final CoordinateAxis<MyUnrelatedAxis> unrelatedAxis = CoordinateAxis.of(MyUnrelatedAxis.class);
-
 	@SuppressWarnings("unchecked")
 	private final BiPredicate<Optional<MyAxis>, MyOtherAxis> predicate = mock(BiPredicate.class);
-	private final VariantDimensionAxisFilter<MyAxis, MyOtherAxis> subject = new VariantDimensionAxisFilter<>(currentAxis, MyOtherAxis.class, predicate);
+	private final VariantDimensionAxisFilter<MyAxis, MyOtherAxis> subject = new VariantDimensionAxisFilter<>(MyAxis.axis(), MyOtherAxis.class, predicate);
 	@SuppressWarnings("unchecked")
 	private final ArgumentCaptor<Optional<MyAxis>> firstArgument = ArgumentCaptor.forClass(Optional.class);
 
@@ -70,8 +66,7 @@ class VariantDimensionAxisFilterTest {
 
 	@Nested
 	class WhenCurrentCoordinateIsAbsentTest extends ForwardsPredicateResultThroughPredicateTester {
-		private final MyOtherAxis otherValue = spy(MyOtherAxis.class);
-		private final BuildVariantInternal buildVariant = of(absentCoordinate(currentAxis), otherAxis.create(otherValue));
+		private final BuildVariantInternal buildVariant = of(absentCoordinate(MyAxis.axis()), MyOtherAxis.INSTANCE);
 
 		@Override
 		BuildVariantInternal buildVariant() {
@@ -93,15 +88,13 @@ class VariantDimensionAxisFilterTest {
 		@Test
 		void callsActionWithOtherAxisValue() {
 			subject.test(buildVariant);
-			verify(predicate).test(any(), eq(otherValue));
+			verify(predicate).test(any(), eq(MyOtherAxis.INSTANCE));
 		}
 	}
 
 	@Nested
 	class WhenCurrentCoordinateIsPresentTest extends ForwardsPredicateResultThroughPredicateTester {
-		private final MyAxis currentValue = spy(MyAxis.class);
-		private final MyOtherAxis otherValue = spy(MyOtherAxis.class);
-		private final BuildVariantInternal buildVariant = of(currentAxis.create(currentValue), otherAxis.create(otherValue));
+		private final BuildVariantInternal buildVariant = of(MyAxis.INSTANCE, MyOtherAxis.INSTANCE);
 
 		@Override
 		BuildVariantInternal buildVariant() {
@@ -117,19 +110,19 @@ class VariantDimensionAxisFilterTest {
 		void callsActionWithOptionalOfCurrentValue() {
 			subject.test(buildVariant);
 			verify(predicate).test(firstArgument.capture(), any());
-			assertThat(firstArgument.getValue(), optionalWithValue(equalTo(currentValue)));
+			assertThat(firstArgument.getValue(), optionalWithValue(equalTo(MyAxis.INSTANCE)));
 		}
 
 		@Test
 		void callsActionWithOtherAxisValue() {
 			subject.test(buildVariant);
-			verify(predicate).test(any(), eq(otherValue));
+			verify(predicate).test(any(), eq(MyOtherAxis.INSTANCE));
 		}
 	}
 
 	@Nested
 	class WhenOtherCoordinateIsAbsentTest {
-		private final boolean result = subject.test(of(currentAxis.create(spy(MyAxis.class)), absentCoordinate(otherAxis)));
+		private final boolean result = subject.test(of(MyAxis.INSTANCE, absentCoordinate(MyOtherAxis.axis())));
 
 		@Test
 		void doesNotCallAction() {
@@ -144,8 +137,7 @@ class VariantDimensionAxisFilterTest {
 
 	@Nested
 	class WhenOtherCoordinateIsNotBuildVariantCoordinateTest {
-		private final boolean result = subject.test(of(currentAxis.create(spy(MyAxis.class)),
-			unrelatedAxis.create(spy(MyUnrelatedAxis.class))));
+		private final boolean result = subject.test(of(MyAxis.INSTANCE, MyUnrelatedAxis.INSTANCE));
 
 		@Test
 		void doesNotCallAction() {
@@ -158,19 +150,36 @@ class VariantDimensionAxisFilterTest {
 		}
 	}
 
-	interface MyAxis extends Named {
-		default String getName() {
-			return "myAxis";
+	enum MyAxis implements Named, Coordinate<MyAxis> {
+		INSTANCE {
+			@Override
+			public String getName() {
+				return "myAxis";
+			}
+		};
+
+		public static CoordinateAxis<MyAxis> axis() {
+			return INSTANCE.getAxis();
 		}
 	}
-	interface MyOtherAxis extends Named {
-		default String getName() {
-			return "myOtherAxis";
+	enum MyOtherAxis implements Named, Coordinate<MyOtherAxis> {
+		INSTANCE {
+			@Override
+			public String getName() {
+				return "myOtherAxis";
+			}
+		};
+
+		public static CoordinateAxis<MyOtherAxis> axis() {
+			return INSTANCE.getAxis();
 		}
 	}
-	interface MyUnrelatedAxis extends Named {
-		default String getName() {
-			return "myUnrelatedAxis";
+	enum MyUnrelatedAxis implements Named, Coordinate<MyUnrelatedAxis> {
+		INSTANCE {
+			@Override
+			public String getName() {
+				return "myUnrelatedAxis";
+			}
 		}
 	}
 }
