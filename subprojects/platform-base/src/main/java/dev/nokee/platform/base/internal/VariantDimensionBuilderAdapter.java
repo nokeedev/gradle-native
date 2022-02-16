@@ -32,14 +32,14 @@ final class VariantDimensionBuilderAdapter<T> implements VariantDimensionBuilder
 	@Override
 	public VariantDimensionBuilder<T> onlyOn(Object otherAxisValue) {
 		Objects.requireNonNull(otherAxisValue);
-		delegate.accept(Coordinates.of(otherAxisValue).getAxis().getType(), new OnlyOnPredicate<>(otherAxisValue));
+		delegate.accept(Coordinates.of(otherAxisValue).getAxis().getType(), new VariantDimensionAxisOnlyOnPredicate<>(otherAxisValue));
 		return this;
 	}
 
 	@Override
 	public VariantDimensionBuilder<T> exceptOn(Object otherAxisValue) {
 		Objects.requireNonNull(otherAxisValue);
-		delegate.accept(Coordinates.of(otherAxisValue).getAxis().getType(), new OnlyOnPredicate<T, Object>(otherAxisValue).negate());
+		delegate.accept(Coordinates.of(otherAxisValue).getAxis().getType(), new VariantDimensionAxisOnlyOnPredicate<T, Object>(otherAxisValue).negate());
 		return this;
 	}
 
@@ -61,18 +61,5 @@ final class VariantDimensionBuilderAdapter<T> implements VariantDimensionBuilder
 
 	public interface Callback<T> {
 		<S> void accept(Class<S> otherAxisType, BiPredicate<? super Optional<T>, ? super S> predicate);
-	}
-
-	public static final class OnlyOnPredicate<T, S> implements BiPredicate<Optional<T>, S> {
-		private final Object otherAxisValue;
-
-		private OnlyOnPredicate(Object otherAxisValue) {
-			this.otherAxisValue = otherAxisValue;
-		}
-
-		@Override
-		public boolean test(Optional<T> currentValue, S otherValue) {
-			return !currentValue.isPresent() || otherValue.equals(otherAxisValue);
-		}
 	}
 }
