@@ -65,7 +65,7 @@ public interface PolymorphicDomainObjectRegistryTester<T> {
 
 	@Test
 	default void canRegisterIfAbsentWhenElementIsAbsent() {
-		val result = subject().registerIfAbsent("qico", getOtherType());
+		final NamedDomainObjectProvider<?> result = subject().registerIfAbsent("qico", getOtherType());
 		assertNotNull(result);
 		assertEquals("qico", result.getName());
 		assertThat(result, providerOf(isA(getOtherType())));
@@ -78,7 +78,7 @@ public interface PolymorphicDomainObjectRegistryTester<T> {
 
 	@Test
 	default void doesNotThrowExceptionOnRegisterIfAbsentWhenElementIsPresent() {
-		val result = assertDoesNotThrow(() -> subject().registerIfAbsent(e3().getName(), getOtherType()));
+		final NamedDomainObjectProvider<?> result = assertDoesNotThrow(() -> subject().registerIfAbsent(e3().getName(), getOtherType()));
 		assertNotNull(result);
 		assertEquals(e3().getName(), result.getName());
 		assertThat(result, providerOf(e3().get()));
