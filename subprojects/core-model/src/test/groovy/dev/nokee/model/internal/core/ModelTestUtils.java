@@ -213,17 +213,22 @@ public final class ModelTestUtils {
 			}
 
 			@Override
+			public ModelNode instantiate(ModelRegistration registration) {
+				val path = registration.getComponents().stream().flatMap(this::findModelPath).findFirst().get();
+				val childNode = childNode(nodeProvider.getValue(), path.getName(), registration.getActions(), builder -> {});
+				registration.getComponents().forEach(childNode::addComponent);
+				children.put(path, childNode);
+				return childNode;
+			}
+
+			@Override
 			public ModelElement register(NodeRegistration registration) {
 				throw new UnsupportedOperationException();
 			}
 
 			@Override
 			public ModelElement register(ModelRegistration registration) {
-				val path = registration.getComponents().stream().flatMap(this::findModelPath).findFirst().get();
-				val childNode = childNode(nodeProvider.getValue(), path.getName(), registration.getActions(), builder -> {});
-				registration.getComponents().forEach(childNode::addComponent);
-				children.put(path, childNode);
-				return FACTORY.createElement(childNode);
+				return FACTORY.createElement(instantiate(registration));
 			}
 
 			private Stream<ModelPath> findModelPath(Object component) {
