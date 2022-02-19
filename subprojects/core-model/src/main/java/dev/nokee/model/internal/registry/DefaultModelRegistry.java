@@ -83,9 +83,8 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 				node.addComponent(new ElementNameComponent(path.getName()));
 				node.addComponent(new DisplayNameComponent(path.toString()));
 			} else if (state.equals(ModelState.Registered)) {
-				assert !entities.contains(node) : "duplicated registered notification";
+				assert !nodes.values().contains(node) : "duplicated registered notification";
 				nodes.put(path, node);
-				entities.add(node);
 			}
 		}));
 		rootNode = ModelStates.register(createRootNode());
@@ -112,6 +111,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	public ModelNode instantiate(ModelRegistration registration) {
 		registration.getActions().forEach(this::configure);
 		val node = new ModelNode();
+		entities.add(node);
 		return newNode(node, registration);
 	}
 
