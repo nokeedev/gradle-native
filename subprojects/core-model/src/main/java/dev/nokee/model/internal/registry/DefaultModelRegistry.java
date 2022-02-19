@@ -18,15 +18,40 @@ package dev.nokee.model.internal.registry;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.DefaultModelObject;
 import dev.nokee.model.internal.ModelElementFactory;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.BindManagedProjectionService;
+import dev.nokee.model.internal.core.Bits;
+import dev.nokee.model.internal.core.DescendantNodes;
+import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.model.internal.core.ElementNameComponent;
+import dev.nokee.model.internal.core.HasInputs;
+import dev.nokee.model.internal.core.ModelAction;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeListener;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ModelSpec;
+import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.core.RelativeConfigurationService;
+import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final Instantiator instantiator;
@@ -84,19 +109,23 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	@Override
+	public ModelNode instantiate(ModelRegistration registration) {
+		registration.getActions().forEach(this::configure);
+		val node = new ModelNode();
+		return newNode(node, registration);
+	}
+
+	@Override
 	public ModelElement register(NodeRegistration registration) {
 		return ModelNodeUtils.register(rootNode, registration);
 	}
 
 	@Override
 	public ModelElement register(ModelRegistration registration) {
-		registration.getActions().forEach(this::configure);
-		val node = ModelStates.register(newNode(registration));
-		return elementFactory.createElement(node);
+		return elementFactory.createElement(ModelStates.register(instantiate(registration)));
 	}
 
-	private ModelNode newNode(ModelRegistration registration) {
-		val entity = new ModelNode();
+	private ModelNode newNode(ModelNode entity, ModelRegistration registration) {
 		entity.addComponent(elementFactory);
 		entity.addComponent(nodeStateListener);
 		for (Object component : registration.getComponents()) {
