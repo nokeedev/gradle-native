@@ -17,7 +17,6 @@ package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
-import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.CppSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
@@ -41,7 +40,7 @@ public class CppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin 
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
-		modelConfigurer.configure(matching(discoveringInstanceOf(CppSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentNode.class), ModelComponentReference.of(ModelPath.class), (entity, parentEntity, path) -> {
+		modelConfigurer.configure(matching(discoveringInstanceOf(CppSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPath.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "cpp"), true));

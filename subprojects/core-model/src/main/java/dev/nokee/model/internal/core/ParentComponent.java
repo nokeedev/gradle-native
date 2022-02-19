@@ -16,10 +16,10 @@
 package dev.nokee.model.internal.core;
 
 // TODO: Should probably use a non-mutable ModelNode
-public final class ParentNode {
+public final class ParentComponent {
 	private final ModelNode value;
 
-	public ParentNode(ModelNode value) {
+	public ParentComponent(ModelNode value) {
 		this.value = value;
 	}
 

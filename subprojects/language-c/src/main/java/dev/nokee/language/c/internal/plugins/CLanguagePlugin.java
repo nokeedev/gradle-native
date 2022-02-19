@@ -40,7 +40,7 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
-		modelConfigurer.configure(matching(discoveringInstanceOf(CSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentNode.class), ModelComponentReference.of(ModelPath.class), (entity, parentEntity, path) -> {
+		modelConfigurer.configure(matching(discoveringInstanceOf(CSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPath.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "c"), true));
