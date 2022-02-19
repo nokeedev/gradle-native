@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import java.util.function.Supplier;
 
-public final class ElementNameComponent implements Supplier<String> {
+public final class ElementNameComponent implements Supplier<String>, ModelComponent {
 	private final String value;
 
 	public ElementNameComponent(String value) {
