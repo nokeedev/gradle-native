@@ -199,7 +199,7 @@ public final class ModelNode {
 			entity.addComponent(new BindManagedProjectionService(instantiator));
 			entity.addComponent(path);
 			path.getParent().ifPresent(parentPath -> {
-				entity.addComponent(new ParentNode(lookup.get(parentPath)));
+				entity.addComponent(new ParentComponent(lookup.get(parentPath)));
 			});
 			entity.addComponent(new ElementNameComponent(path.getName()));
 			entity.addComponent(new DisplayNameComponent(path.toString()));

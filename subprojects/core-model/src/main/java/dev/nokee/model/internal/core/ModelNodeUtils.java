@@ -33,11 +33,11 @@ public final class ModelNodeUtils {
 	 * @return the parent model node, never null but can be absent
 	 */
 	public static Optional<ModelNode> getParent(ModelNode self) {
-		return self.findComponent(ParentNode.class).map(ParentNode::get);
+		return self.findComponent(ParentComponent.class).map(ParentComponent::get);
 	}
 
 	public static void setParent(ModelNode self, ModelNode parent) {
-		self.addComponent(new ParentNode(parent));
+		self.addComponent(new ParentComponent(parent));
 	}
 
 	/**
