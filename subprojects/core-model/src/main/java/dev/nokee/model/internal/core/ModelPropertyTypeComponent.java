@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.type.ModelType;
 
-public final class ModelPropertyTypeComponent {
+public final class ModelPropertyTypeComponent implements ModelComponent {
 	private final ModelType<?> type;
 
 	public ModelPropertyTypeComponent(ModelType<?> type) {

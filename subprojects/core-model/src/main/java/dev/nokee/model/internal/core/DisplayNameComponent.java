@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import java.util.function.Supplier;
 
-public final class DisplayNameComponent implements Supplier<DisplayName> {
+public final class DisplayNameComponent implements Supplier<DisplayName>, ModelComponent {
 	private final DisplayName value;
 
 	public DisplayNameComponent(String value) {

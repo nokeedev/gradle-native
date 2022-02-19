@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import org.gradle.api.provider.Provider;
 
-public final class ModelElementProviderSourceComponent {
+public final class ModelElementProviderSourceComponent implements ModelComponent {
 	private final Provider<?> provider;
 
 	public ModelElementProviderSourceComponent(Provider<?> provider) {
