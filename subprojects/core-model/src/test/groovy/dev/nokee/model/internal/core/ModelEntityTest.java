@@ -32,6 +32,11 @@ class ModelEntityTest {
 	private final ModelNode subject = new ModelNode();
 
 	@Test
+	void hasId() {
+		assertThat(subject.getId(), notNullValue(ModelEntityId.class));
+	}
+
+	@Test
 	void hasNoComponentsOnNewEntity() {
 		assertThat(subject.getComponents().collect(toList()), emptyIterable());
 	}

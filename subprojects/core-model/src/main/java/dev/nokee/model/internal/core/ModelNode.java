@@ -51,8 +51,7 @@ import java.util.stream.Stream;
 //    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode {
-	private static long nextId = 0;
-	private final long id = nextId++;
+	private final ModelEntityId id = ModelEntityId.nextId();
 	private final Map<ModelComponentType<?>, Object> components = new LinkedHashMap<>();
 
 	// Represent all components this entity has.
@@ -64,7 +63,7 @@ public final class ModelNode {
 		addComponent(listener);
 	}
 
-	public long getId() {
+	public ModelEntityId getId() {
 		return id;
 	}
 
