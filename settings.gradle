@@ -92,6 +92,7 @@ buildCache {
 plugins.withId('com.gradle.enterprise') {
 	gradleEnterprise {
 		buildScan {
+			server = System.getProperty('gradle.enterprise.url', null)
 			termsOfServiceUrl = "https://gradle.com/terms-of-service"
 			termsOfServiceAgree = "yes"
 
