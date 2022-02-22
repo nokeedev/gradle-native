@@ -54,6 +54,7 @@ import org.gradle.language.cpp.CppBinary;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -104,6 +105,44 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	void usesComponentNameAsBaseNameConvention() {
 		subject.getBaseName().set((String) null);
 		assertThat(subject.getBaseName(), providerOf("quzu"));
+	}
+
+	@Test
+	void ignoresUnbuildableVariantDuringDevelopmentVariantSelection() {
+		subject.getTargetMachines().set(ImmutableSet.of(of("unbuildable-unbuildable"), host()));
+		((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> {
+			toolChain.target("unbuildableunbuildable", t -> {
+				// Make the target unbuildable
+				t.getLinker().setExecutable("not-found");
+				t.getAssembler().setExecutable("not-found");
+				t.getcCompiler().setExecutable("not-found");
+				t.getCppCompiler().setExecutable("not-found");
+				t.getObjcCompiler().setExecutable("not-found");
+				t.getObjcppCompiler().setExecutable("not-found");
+				t.getStaticLibArchiver().setExecutable("not-found");
+			});
+		});
+		assertThat("uses host variant", subject.getDevelopmentVariant(), providerOf(named("quzu" + capitalize(host().getOperatingSystemFamily().getName()) + capitalize(host().getArchitecture().getName()))));
+	}
+
+	@Test
+	@Disabled // Cross-build not exactly finished
+	void canUseCrossBuildVariantDuringDevelopmentVariantSelectionIfNoOtherBuildableVariantExists() {
+		subject.getTargetMachines().set(ImmutableSet.of(of("munix-aarch64"), of("unbuildable-unbuildable")));
+		((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> {
+			toolChain.target("unbuildableunbuildable", t -> {
+				// Make the target unbuildable
+				t.getLinker().setExecutable("not-found");
+				t.getAssembler().setExecutable("not-found");
+				t.getcCompiler().setExecutable("not-found");
+				t.getCppCompiler().setExecutable("not-found");
+				t.getObjcCompiler().setExecutable("not-found");
+				t.getObjcppCompiler().setExecutable("not-found");
+				t.getStaticLibArchiver().setExecutable("not-found");
+			});
+		});
+		((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("munixaarch64"));
+		assertThat("uses cross-build variant", subject.getDevelopmentVariant(), providerOf(named("quzuMunixAarch64")));
 	}
 
 	@Nested
@@ -410,7 +449,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		}
 
 		@Test
-		void hasOnlyBuildableJarAsTaskDependency() {
+		void usesDevelopmentVariantAsTaskDependency() {
 			subject.getTargetMachines().set(ImmutableSet.of(of("unbuildable-unbuildable"), host()));
 			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> {
 				toolChain.target("unbuildableunbuildable", t -> {
@@ -425,15 +464,8 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				});
 			});
 			assertThat("has buildable JAR", subject(), dependsOn(hasItem(
-				allOf(named("quzu" + capitalize(host().getOperatingSystemFamily().getName()) + capitalize(host().getArchitecture().getName()) + "JniJar"), isA(JniJarBinary.class)))));
-			assertThat("has no unbuildable JAR", subject(), dependsOn(not(hasItem(named("quzuUnbuildableUnbuildableJniJar")))));
-		}
-
-		@Test
-		void hasCrossCompileBuildableJarAsTaskDependency() {
-			subject.getTargetMachines().set(ImmutableSet.of(of("munix-aarch64"), host()));
-			((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("munixaarch64"));
-			assertThat(subject(), dependsOn(hasItem(allOf(named("quzuMunixAarch64JniJar"), isA(JniJarBinary.class)))));
+				allOf(named("jarQuzu" + capitalize(host().getOperatingSystemFamily().getName()) + capitalize(host().getArchitecture().getName()))))));
+			assertThat("has no unbuildable JAR", subject(), dependsOn(not(hasItem(named("jarQuzuUnbuildableUnbuildable")))));
 		}
 	}
 
