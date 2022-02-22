@@ -273,8 +273,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(AssembleTask.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, assemble, component) -> {
 				if (id.equals(identifier)) {
 					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> v.getSharedLibrary().isBuildable()));
-					Provider<Iterable<JniJarBinary>> allJniJars = allBuildableVariants.map(transformEach(v -> v.getJavaNativeInterfaceJar()));
-					assemble.configure(configureDependsOn(allJniJars));
+					assemble.configure(configureDependsOn(component.flatMap(JavaNativeInterfaceLibrary::getDevelopmentVariant).map(JniLibrary::getJavaNativeInterfaceJar)));
 					assemble.configure(task -> {
 						task.dependsOn((Callable<Object>) () -> {
 							val buildVariants = component.get().getBuildVariants().get();
