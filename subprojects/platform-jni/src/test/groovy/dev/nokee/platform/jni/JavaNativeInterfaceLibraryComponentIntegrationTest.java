@@ -464,7 +464,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				});
 			});
 			assertThat("has buildable JAR", subject(), dependsOn(hasItem(
-				allOf(named("jarQuzu" + capitalize(host().getOperatingSystemFamily().getName()) + capitalize(host().getArchitecture().getName()))))));
+				allOf(named("quzu" + capitalize(host().getOperatingSystemFamily().getName()) + capitalize(host().getArchitecture().getName()) + "JniJar")))));
 			assertThat("has no unbuildable JAR", subject(), dependsOn(not(hasItem(named("jarQuzuUnbuildableUnbuildable")))));
 		}
 	}
