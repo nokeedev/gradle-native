@@ -116,30 +116,30 @@ public final class BuildVariants {
 			}
 
 			if (entity.hasComponent(componentOf(VariantDimensionAxisOptionalTag.class))) {
-				axisCoordinates = axisCoordinates.andThen(appended(absentCoordinate(axis)));
+				axisCoordinates = axisCoordinates.andThen(prepended(absentCoordinate(axis)));
 			}
 
 			return axisCoordinates.andThen(CoordinateSet::of);
 		}
 
-		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> appended(T element) {
-			return new IterableAppendedAllTransformer<>(ImmutableList.of(element));
+		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> prepended(T element) {
+			return new IterablePrependedAllTransformer<>(ImmutableList.of(element));
 		}
 
-		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> appendedAll(Iterable<T> suffix) {
-			return new IterableAppendedAllTransformer<>(suffix);
+		public static <T> TransformerUtils.Transformer<Iterable<T>, Iterable<T>> prependedAll(Iterable<T> prefix) {
+			return new IterablePrependedAllTransformer<>(prefix);
 		}
 
-		public static final class IterableAppendedAllTransformer<T> implements TransformerUtils.Transformer<Iterable<T>, Iterable<T>> {
-			private final Iterable<T> suffixElements;
+		public static final class IterablePrependedAllTransformer<T> implements TransformerUtils.Transformer<Iterable<T>, Iterable<T>> {
+			private final Iterable<T> prependElements;
 
-			public IterableAppendedAllTransformer(Iterable<T> suffixElements) {
-				this.suffixElements = suffixElements;
+			public IterablePrependedAllTransformer(Iterable<T> prependElements) {
+				this.prependElements = prependElements;
 			}
 
 			@Override
 			public Iterable<T> transform(Iterable<T> values) {
-				return Iterables.concat(values, suffixElements);
+				return Iterables.concat(prependElements, values);
 			}
 		}
 
