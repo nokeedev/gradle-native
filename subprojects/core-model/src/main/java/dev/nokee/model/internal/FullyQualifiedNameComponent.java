@@ -21,7 +21,7 @@ public final class FullyQualifiedNameComponent implements Supplier<FullyQualifie
 	private final FullyQualifiedName value;
 
 	public FullyQualifiedNameComponent(String value) {
-		this.value = new FullyQualifiedName(value);
+		this.value = FullyQualifiedName.of(value);
 	}
 
 	public FullyQualifiedNameComponent(FullyQualifiedName value) {

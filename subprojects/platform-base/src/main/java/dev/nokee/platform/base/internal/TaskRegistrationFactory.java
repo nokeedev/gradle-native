@@ -46,7 +46,7 @@ public final class TaskRegistrationFactory {
 	}
 
 	public <T extends Task> ModelRegistration.Builder create(TaskIdentifier<?> identifier, Class<T> type) {
-		val name = new FullyQualifiedName(taskNamer.determineName(identifier));
+		val name = FullyQualifiedName.of(taskNamer.determineName(identifier));
 		val taskProvider = (TaskProvider<T>) taskRegistry.registerIfAbsent(name.toString(), type);
 		return ModelRegistration.builder()
 			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
