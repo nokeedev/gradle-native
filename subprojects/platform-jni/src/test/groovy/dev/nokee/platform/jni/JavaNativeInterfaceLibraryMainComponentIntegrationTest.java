@@ -21,7 +21,11 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
+import lombok.val;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.Provider;
+import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
+import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,12 +33,17 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.internal.testing.ConfigurationMatchers.hasPublishArtifact;
+import static dev.nokee.internal.testing.ConfigurationMatchers.ofFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFileBaseNamed;
 import static dev.nokee.internal.testing.FileSystemMatchers.containsPath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
+import static dev.nokee.runtime.nativebase.internal.TargetMachines.host;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -125,6 +134,26 @@ class JavaNativeInterfaceLibraryMainComponentIntegrationTest extends AbstractPlu
 			@Test
 			void hasDevelopmentVariantNativeRuntimeFilesParentDirectoryInJavaLibraryPathSystemProperty() {
 				assertThat(subject().getAllJvmArgs(), hasItem(allOf(startsWith("-Djava.library.path="), containsPath("/build/libs/main"))));
+			}
+
+			@Test // https://github.com/nokeedev/gradle-native/issues/558
+			void doesNotIncludeUnbuildableVariantInTestTaskLibraryPath() {
+				subject.getTargetMachines().set(ImmutableSet.of(of("unbuildable-unbuildable"), host()));
+				((ProjectInternal) project).getModelRegistry().find("toolChains", NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolChain -> toolChain.target("unbuildableunbuildable", t -> {
+					// Make the target unbuildable
+					t.getLinker().setExecutable("not-found");
+					t.getAssembler().setExecutable("not-found");
+					t.getcCompiler().setExecutable("not-found");
+					t.getCppCompiler().setExecutable("not-found");
+					t.getObjcCompiler().setExecutable("not-found");
+					t.getObjcppCompiler().setExecutable("not-found");
+					t.getStaticLibArchiver().setExecutable("not-found");
+				}));
+
+				assertThat(subject().getAllJvmArgs(), hasItem(allOf(
+					startsWith("-Djava.library.path="),
+					containsPath("/build/libs/main/" + host().getOperatingSystemFamily().getName() + capitalize(host().getArchitecture().getName())),
+					not(containsPath("/build/libs/main/unbuildableUnbuildable")))));
 			}
 		}
 	}
