@@ -15,12 +15,19 @@
  */
 package dev.nokee.model.internal;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
 class FullyQualifiedNameTest {
+	@Test
+	void checkEquals() {
+		EqualsVerifier.forClass(FullyQualifiedName.class)
+			.verify();
+	}
+
 	@Test
 	void canConvertToString() {
 		assertThat(FullyQualifiedName.of("leqe"), hasToString("leqe"));

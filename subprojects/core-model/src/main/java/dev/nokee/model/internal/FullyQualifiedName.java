@@ -15,6 +15,8 @@
  */
 package dev.nokee.model.internal;
 
+import lombok.EqualsAndHashCode;
+
 /**
  * A fully qualified name represent a unique name of a domain object which include the name of the domain object as well as all of its owners.
  * Although the name typically represent the domain object's ownership hierarchy, users should not use it as such.
@@ -27,6 +29,7 @@ package dev.nokee.model.internal;
  * The element name is not unique and represent only the domain object's name, without any ownership.
  * Note that a partially qualified name using the domain object as the base ancestor will be the same as the element name.
  */
+@EqualsAndHashCode
 public final class FullyQualifiedName {
 	private final String name;
 
