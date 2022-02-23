@@ -193,6 +193,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 				public Iterable<String> asArguments() {
 					String path = library.getVariants().get().stream()
 						.sorted(preferHostOperatingSystemFamily().thenComparing(preferHostMachineArchitecture()))
+						.filter(it -> it.getSharedLibrary().isBuildable())
 						.map(JniLibrary::getNativeRuntimeFiles)
 						.flatMap(it -> it.getFiles().stream())
 						.map(it -> it.getParentFile().getAbsolutePath())
