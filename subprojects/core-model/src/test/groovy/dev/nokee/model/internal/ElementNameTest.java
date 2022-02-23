@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal;
 
-import dev.nokee.model.internal.core.ElementName;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
