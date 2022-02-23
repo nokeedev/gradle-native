@@ -15,6 +15,18 @@
  */
 package dev.nokee.model.internal;
 
+/**
+ * A fully qualified name represent a unique name of a domain object which include the name of the domain object as well as all of its owners.
+ * Although the name typically represent the domain object's ownership hierarchy, users should not use it as such.
+ * Typically, Gradle uses the fully qualified name in the {@link org.gradle.api.Named} interface.
+ * The Nokee plugins always return the fully qualified name when implementing the {@link org.gradle.api.Named} interface.
+ *
+ * It's important to make a distinction between the fully qualified name, the partially qualified name, and the element name.
+ * The fully qualified name is unique among domain objects with the same base type.
+ * The partially qualified name is not unique and includes the domain object's ownership hierarchy from an arbitrary ancestor.
+ * The element name is not unique and represent only the domain object's name, without any ownership.
+ * Note that a partially qualified name using the domain object as the base ancestor will be the same as the element name.
+ */
 public final class FullyQualifiedName {
 	private final String name;
 
