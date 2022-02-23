@@ -70,7 +70,7 @@ public final class ModelElementFactory {
 		val namedStrategy = new NamedStrategy() {
 			@Override
 			public String getAsString() {
-				return entity.getComponent(ElementNameComponent.class).get();
+				return entity.getComponent(ElementNameComponent.class).get().toString();
 			}
 		};
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
@@ -136,7 +136,7 @@ public final class ModelElementFactory {
 		val namedStrategy = new NamedStrategy() {
 			@Override
 			public String getAsString() {
-				return entity.getComponent(ElementNameComponent.class).get();
+				return entity.getComponent(ElementNameComponent.class).get().toString();
 			}
 		};
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
@@ -259,7 +259,7 @@ public final class ModelElementFactory {
 		val namedStrategy = new NamedStrategy() {
 			@Override
 			public String getAsString() {
-				return entity.getComponent(ElementNameComponent.class).get();
+				return entity.getComponent(ElementNameComponent.class).get().toString();
 			}
 		};
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
