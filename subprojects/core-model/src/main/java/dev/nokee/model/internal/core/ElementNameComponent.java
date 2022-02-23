@@ -15,22 +15,18 @@
  */
 package dev.nokee.model.internal.core;
 
-import java.util.function.Supplier;
-
-public final class ElementNameComponent implements Supplier<String>, ModelComponent {
-	private final String value;
+public final class ElementNameComponent implements ModelComponent {
+	private final ElementName value;
 
 	public ElementNameComponent(String value) {
+		this.value = ElementName.of(value);
+	}
+
+	public ElementNameComponent(ElementName value) {
 		this.value = value;
 	}
 
-	@Override
-	public String get() {
-		return value;
-	}
-
-	@Override
-	public String toString() {
+	public ElementName get() {
 		return value;
 	}
 }
