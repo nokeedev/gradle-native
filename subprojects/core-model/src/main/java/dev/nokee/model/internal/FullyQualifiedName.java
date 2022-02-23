@@ -34,10 +34,6 @@ public final class FullyQualifiedName {
 		this.name = name;
 	}
 
-	public String get() {
-		return name;
-	}
-
 	@Override
 	public String toString() {
 		return name;
