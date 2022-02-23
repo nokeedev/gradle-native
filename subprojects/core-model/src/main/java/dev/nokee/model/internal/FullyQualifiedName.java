@@ -30,7 +30,7 @@ package dev.nokee.model.internal;
 public final class FullyQualifiedName {
 	private final String name;
 
-	public FullyQualifiedName(String name) {
+	private FullyQualifiedName(String name) {
 		this.name = name;
 	}
 
@@ -41,5 +41,9 @@ public final class FullyQualifiedName {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	public static FullyQualifiedName of(String name) {
+		return new FullyQualifiedName(name);
 	}
 }
