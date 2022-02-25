@@ -171,6 +171,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public void configure(ModelAction configuration) {
+		Objects.requireNonNull(configuration);
 		configurations.add(configuration);
 		val size = entities.size();
 		for (int i = 0; i < size; i++) {
