@@ -19,6 +19,7 @@ import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.DomainObjectEventPublisherImpl;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.RealizableDomainObjectRealizerImpl;
+import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -49,5 +50,6 @@ public class ModelBasePlugin implements Plugin<Project> {
 
 		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
 		modelRegistry.configure(new UseModelPropertyIdentifierAsDisplayName());
+		new ModelActionSystem(modelRegistry).execute(project);
 	}
 }
