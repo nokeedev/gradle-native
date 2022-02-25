@@ -104,12 +104,6 @@ plugins.withId('com.gradle.enterprise') {
 			} else {
 				tag 'LOCAL'
 			}
-
-			obfuscation {
-				username { name -> 'super-human' }
-				hostname { host -> 'somewhere' }
-				ipAddresses { addresses -> addresses.collect { '1.2.3.4' } }
-			}
 		}
 	}
 }
