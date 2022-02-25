@@ -13,6 +13,9 @@ inputs:
     github-token:
         description: 'GitHub token'
         required: true
+    build-scan-access-key:
+        description: 'Build cache access key'
+        required: true
 runs:
     using: composite
     steps:
@@ -25,6 +28,8 @@ runs:
             with:
                 arguments: ${{ inputs.arguments }} --no-daemon --continue --scan "-Dgradle.enterprise.url=https://ge.nokee.dev/" "-Dgradle.cache.remote.url=https://ge.nokee.dev/cache/" "-Dgradle.cache.remote.username=${{ inputs.build-cache-username }}" "-Dgradle.cache.remote.password=${{ inputs.build-cache-password }}"
                 gradle-version: wrapper
+            env:
+                GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.build-scan-access-key }}
         - name: "Tag build scan url"
           uses: actions/github-script@v5
           if: failure()
