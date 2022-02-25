@@ -75,9 +75,10 @@ subproject('testing-base')
 subproject('testing-native')
 subproject('testing-xctest')
 
+import java.util.Optional
 buildCache {
 	remote(HttpBuildCache) {
-		url = System.getProperty('gradle.cache.remote.url')
+		Optional.ofNullable(System.getProperty('gradle.cache.remote.url')).ifPresent { url = it }
 		credentials {
 			username = System.getProperty('gradle.cache.remote.username')
 			password = System.getProperty('gradle.cache.remote.password')
