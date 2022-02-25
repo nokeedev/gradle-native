@@ -16,6 +16,7 @@ dependencies {
 
 	// Mockito
 	api "org.mockito:mockito-core:${mockitoVersion}"
+	api "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
 	// Support libraries
 	api "org.hamcrest:hamcrest:${hamcrestVersion}"
