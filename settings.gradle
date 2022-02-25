@@ -76,10 +76,10 @@ subproject('testing-xctest')
 
 buildCache {
 	remote(HttpBuildCache) {
-		url = 'https://gradle-build-cache.nokee.dev/cache/'
+		url = System.getProperty('gradle.cache.remote.url')
 		credentials {
-			username = System.getProperty('nokeeBuildCacheUsername')
-			password = System.getProperty('nokeeBuildCachePassword')
+			username = System.getProperty('gradle.cache.remote.username')
+			password = System.getProperty('gradle.cache.remote.password')
 		}
 		enabled = credentials.username != null && credentials.password != null
 		push = System.getenv().containsKey('CI')
