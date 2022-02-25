@@ -93,6 +93,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private ModelNode createRootNode() {
 		val path = ModelPath.root();
 		val entity = new ModelNode();
+		entities.add(entity);
 		entity.addComponent(nodeStateListener);
 		entity.addComponent(path);
 		return entity;
