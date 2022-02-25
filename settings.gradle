@@ -1,5 +1,6 @@
 plugins {
 	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.4'
+	id 'com.gradle.enterprise' version '3.8.1'
 }
 
 rootProject.name = 'gradle-native'
@@ -95,6 +96,7 @@ plugins.withId('com.gradle.enterprise') {
 			server = System.getProperty('gradle.enterprise.url', null)
 			termsOfServiceUrl = "https://gradle.com/terms-of-service"
 			termsOfServiceAgree = "yes"
+			publishAlways()
 
 			if (System.getenv('CI')) {
 				tag 'CI'
