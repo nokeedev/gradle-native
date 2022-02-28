@@ -68,7 +68,7 @@ If is also possible to change the resource path value for each variant as follow
 .build.gradle
 [source,groovy,indent=0]
 ----
-include::{includedir}/groovy-dsl/build.gradle[tag=configureViaDsl]
+include::groovy-dsl/build.gradle[tag=configureViaDsl]
 ----
 =====
 [.multi-language-sample]
@@ -76,7 +76,7 @@ include::{includedir}/groovy-dsl/build.gradle[tag=configureViaDsl]
 .build.gradle.kts
 [source,kotlin,indent=0]
 ----
-include::{includedir}/kotlin-dsl/build.gradle.kts[tag=configureViaDsl]
+include::kotlin-dsl/build.gradle.kts[tag=configureViaDsl]
 ----
 =====
 ====
