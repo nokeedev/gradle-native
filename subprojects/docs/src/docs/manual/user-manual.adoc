@@ -1,5 +1,6 @@
 [[chapter:user-manual]]
 = Nokee User Manual
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, nokee, gradle, gradle plugin
 :jbake-description: Learn the concept behind Nokee plugins for Gradle.

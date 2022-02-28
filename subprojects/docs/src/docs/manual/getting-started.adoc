@@ -1,4 +1,5 @@
 = Getting Started with Nokee Plugins
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, getting started, nokee plugin, gradle
 :jbake-description: Learn how to get started with building native projects in Gradle.

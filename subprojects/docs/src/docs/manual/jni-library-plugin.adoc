@@ -1,4 +1,5 @@
 = Java Native Interface Library
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, jni, library, gradle, native, java, jvm
 :imagesdir: ./img

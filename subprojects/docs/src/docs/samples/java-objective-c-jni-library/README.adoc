@@ -1,4 +1,5 @@
 = Java/Objective-C JNI Library
+:jbake-status: published
 :jbake-summary: JNI library implemented in Java and Objective-C.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle

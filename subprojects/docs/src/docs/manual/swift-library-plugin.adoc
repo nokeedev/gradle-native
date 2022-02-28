@@ -1,4 +1,5 @@
 = Swift Library
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, swift, native, gradle, library
 :jbake-description: Learn what the Nokee's Swift library plugin (i.e. dev.nokee.swift-library) has to offer for your Gradle build.

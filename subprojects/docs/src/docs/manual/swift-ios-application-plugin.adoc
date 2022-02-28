@@ -1,4 +1,5 @@
 = Swift iOS Application
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, ios, application, gradle, native, swift
 :imagesdir: ./img

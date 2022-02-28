@@ -1,4 +1,5 @@
 = JNI Library as Uber JAR
+:jbake-status: published
 :jbake-summary: Create an uber JAR containing all the buildable JNI shared library binaries.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, java, jvm, native, c++, testing, gradle, uber jar

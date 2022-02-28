@@ -1,4 +1,5 @@
 = C Language
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, c, native, gradle
 :jbake-description: Learn what the Nokee's C language plugin (i.e. dev.nokee.c-language) has to offer for your Gradle build.

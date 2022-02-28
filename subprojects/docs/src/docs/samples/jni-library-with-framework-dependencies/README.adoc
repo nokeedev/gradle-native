@@ -1,4 +1,5 @@
 = JNI Library with macOS Framework Dependencies
+:jbake-status: published
 :jbake-summary: JNI library implemented in Java and Objective-C with macOS framework dependencies.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle, macos framework, dependency management

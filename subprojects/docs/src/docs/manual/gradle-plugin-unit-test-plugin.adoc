@@ -1,4 +1,5 @@
 = Gradle Plugin Unit Test
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, groovy, gradle plugin, gradle, plugin
 :jbake-description: Learn what the Gradle Plugin Unit Test plugin (i.e. dev.gradleplugins.gradle-plugin-unit-test) has to offer for your Gradle build.

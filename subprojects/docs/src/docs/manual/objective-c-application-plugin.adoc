@@ -1,4 +1,5 @@
 = Objective-C Application
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, objective c, native, gradle, application
 :jbake-description: Learn what the Nokee's Objective-C application plugin (i.e. dev.nokee.objective-c-application) has to offer for your Gradle build.

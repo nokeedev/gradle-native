@@ -1,4 +1,5 @@
 = Compose a JNI Library from the Source
+:jbake-status: published
 :jbake-summary: Compose a JNI librare from the source built by other projects.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, library, native, c++, dependency management, java, gradle

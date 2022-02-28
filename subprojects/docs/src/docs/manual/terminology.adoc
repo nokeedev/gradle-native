@@ -1,4 +1,5 @@
 = Terminology
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, gradle
 :jbake-description: Learn about the Gradle project's entry point, implementation language and runtime.

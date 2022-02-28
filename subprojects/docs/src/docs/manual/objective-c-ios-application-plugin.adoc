@@ -1,4 +1,5 @@
 = Objective-C iOS Application
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, ios, application, gradle, native, objective c
 :imagesdir: ./img

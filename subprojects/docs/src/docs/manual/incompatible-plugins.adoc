@@ -1,4 +1,5 @@
 = Incompatible plugins
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, gradle plugin
 :imagesdir: ./img

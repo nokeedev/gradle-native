@@ -1,5 +1,6 @@
 [[chapter:plugin-reference]]
 = Nokee Plugin Reference
+:jbake-status: published
 :jbake-type: reference_index
 :jbake-tags: user manual, gradle plugin reference, nokee plugin, gradle
 :jbake-description: Learn about all the Gradle plugins offered by Nokee.

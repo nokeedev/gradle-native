@@ -1,5 +1,6 @@
 [[chapter:xcode-ide]]
 = Xcode IDE
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, xcode ide, ide, gradle, native, objective c, objc, ios
 :imagesdir: ./img

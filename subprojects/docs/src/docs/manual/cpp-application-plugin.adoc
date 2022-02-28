@@ -1,4 +1,5 @@
 = {cpp} Application
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, c++, cxx, cpp, native, gradle, application
 :jbake-description: Learn what the Nokee's {cpp} application plugin (i.e. dev.nokee.cpp-application) has to offer for your Gradle build.

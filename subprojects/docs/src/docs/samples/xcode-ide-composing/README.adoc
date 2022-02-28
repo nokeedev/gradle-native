@@ -1,4 +1,5 @@
 = Compose an Xcode IDE Project
+:jbake-status: published
 :jbake-summary: Compose an Xcode IDE project for 3rd party plugins.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle, xcode, ide
