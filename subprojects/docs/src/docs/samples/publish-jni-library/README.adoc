@@ -5,6 +5,8 @@
 :jbake-tags: sample, jni, java, jvm, native, c++, maven, gradle
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to publish a Java Native Interface (JNI) library.
+:jbake-permalink: publish-jni-library
+:jbake-archivebasename: PublishJniLibrary
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 

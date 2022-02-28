@@ -5,6 +5,8 @@
 :jbake-tags: sample, application, objective c, native, gradle
 :jbake-category: Native Development
 :jbake-description: See how the Nokee Gradle plugins are used for building a native application implemented in Objective-C.
+:jbake-permalink: objective-c-application
+:jbake-archivebasename: ObjectiveCApplication
 :plugin-language: Objective-C
 :plugin-language-id: objective-c
 

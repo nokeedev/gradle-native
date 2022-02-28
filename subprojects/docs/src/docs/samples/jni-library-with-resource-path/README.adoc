@@ -5,6 +5,8 @@
 :jbake-tags: sample, jni, library, native, jvm, c++, gradle
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to configure the resource path mapping of the native component in a Java Native Interface (JNI) library using the Gradle Nokee plugins.
+:jbake-permalink: jni-library-with-resource-path
+:jbake-archivebasename: JniLibraryWithResourcePath
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 

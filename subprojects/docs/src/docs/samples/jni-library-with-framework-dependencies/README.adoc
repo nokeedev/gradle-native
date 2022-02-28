@@ -5,6 +5,8 @@
 :jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle, macos framework, dependency management
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how the Nokee Gradle plugins are used for building a Java Native Interface (JNI) library with macOS framework dependencies.
+:jbake-permalink: jni-library-with-framework-dependencies
+:jbake-archivebasename: JniLibraryWithFrmeworkDependencies
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 

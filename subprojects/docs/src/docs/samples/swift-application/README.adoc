@@ -5,6 +5,8 @@
 :jbake-tags: sample, application, swift, native, gradle
 :jbake-category: Native Development
 :jbake-description: See how the Nokee Gradle plugins are used for building a native application implemented in Swift.
+:jbake-permalink: switf-application
+:jbake-archivebasename: SwiftApplication
 :plugin-language: Swift
 :plugin-language-id: swift
 

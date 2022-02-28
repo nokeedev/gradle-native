@@ -5,6 +5,8 @@
 :jbake-tags: sample, jni, java, jvm, native, c++, testing, gradle, uber jar
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to create an uber JAR containing all buildable Java Native Interface (JNI) shared library binaries with the Gradle Nokee plugins.
+:jbake-permalink: jni-library-as-uber-jar
+:jbake-archivebasename: JniLibraryAsUberJar
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 

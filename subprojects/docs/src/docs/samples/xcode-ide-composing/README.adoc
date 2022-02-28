@@ -5,6 +5,8 @@
 :jbake-tags: sample, jni, library, jvm, java, objective c, native, gradle, xcode, ide
 :jbake-category: Integrated Development Environment (IDE)
 :jbake-description: See how to use the Nokee Gradle plugins for composing an Xcode IDE project to keep a vanilla experience for the developers.
+:jbake-permalink: xcode-ide-composing
+:jbake-archivebasename: XcodeIdeComposing
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 

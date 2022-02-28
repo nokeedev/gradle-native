@@ -5,6 +5,8 @@
 :jbake-tags: sample, library, c++, native, gradle
 :jbake-category: Native Development
 :jbake-description: See how the Nokee Gradle plugins are used for building a native library implemented in {cpp}.
+:jbake-permalink: cpp-library
+:jbake-archivebasename: CppLibrary
 :plugin-language: {cpp}
 :plugin-language-id: cpp
 
