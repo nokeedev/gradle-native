@@ -1,4 +1,5 @@
 = Gradle Runtime Compatibilities
+:jbake-status: published
 :jbake-summary: Use the plugin development toolbox to access Gradle runtime compatibility information.
 :jbake-type: sample_chapter
 :jbake-tags: sample, gradle plugin development, gradle

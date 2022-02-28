@@ -1,4 +1,5 @@
 = Gradle plugin development
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, gradle plugin development, gradle plugin, gradle
 :jbake-description: Learn how to improve the development of your Gradle plugins.

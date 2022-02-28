@@ -1,5 +1,6 @@
 [[chapter:xcode-dev]]
 = Developing with Xcode IDE
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, xcode, ide, gradle
 :jbake-description: Learn the concept for integrating Xcode IDE with the Nokee plugins in Gradle.

@@ -1,3 +1,4 @@
+:jbake-status: published
 :jbake-type: redirection
 :jbake-tags: documentation native, gradle, c++, c, jni, nokee
 :jbake-redirecturl: manual/user-manual.html

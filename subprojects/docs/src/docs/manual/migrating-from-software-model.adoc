@@ -1,4 +1,5 @@
 = Migrating from Gradle Software Model Native Plugins
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, gradle plugin, gradle native, gradle software model
 :imagesdir: ./img

@@ -1,5 +1,6 @@
 [[chapter:plugin-anatomy]]
 = Anatomy of Nokee Plugins
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, gradle plugin
 :jbake-description: Discuss the concept of Nokee's plugin convention.

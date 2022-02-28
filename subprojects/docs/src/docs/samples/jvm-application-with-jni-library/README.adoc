@@ -1,4 +1,5 @@
 = Application with JNI Library
+:jbake-status: published
 :jbake-summary: Use a JNI Library in an application.
 :jbake-type: sample_chapter
 :jbake-tags: sample, jni, java, jvm, application, library, native, c++, dependency management, gradle

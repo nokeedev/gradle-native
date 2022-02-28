@@ -1,4 +1,5 @@
 = Java Gradle Plugin Development Plugin
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, java, gradle plugin, gradle, plugin
 :jbake-description: Learn what the Java Gradle Plugin plugin (i.e. dev.gradleplugins.java-gradle-plugin) has to offer for your Gradle build.

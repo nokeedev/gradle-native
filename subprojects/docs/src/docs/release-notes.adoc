@@ -1,4 +1,5 @@
 = Nokee Release Notes
+:jbake-status: published
 :jbake-type: release_notes
 :jbake-tags: {jbake-version}, jvm, jni, objective c, objective cpp, c, swift
 :jbake-description: See what version {jbake-version} of the Gradle Nokee plugins has to offer!

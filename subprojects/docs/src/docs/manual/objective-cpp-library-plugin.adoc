@@ -1,4 +1,5 @@
 = Objective-{cpp} Library
+:jbake-status: published
 :jbake-type: reference_chapter
 :jbake-tags: user manual, gradle plugin reference, objective c++, native, gradle, library
 :jbake-description: Learn what the Nokee's Objective-{cpp} library plugin (i.e. dev.nokee.objective-cpp-library) has to offer for your Gradle build.

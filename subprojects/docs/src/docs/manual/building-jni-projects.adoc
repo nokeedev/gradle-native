@@ -1,5 +1,6 @@
 [[chapter:building-jni]]
 = Building Java Native Interface (JNI) Projects
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, jni, gradle
 :jbake-description: Learn the concept of building a JNI project with Gradle.

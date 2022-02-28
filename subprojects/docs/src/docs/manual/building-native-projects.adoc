@@ -1,5 +1,6 @@
 [[chapter:building-native]]
 = Building Native Projects
+:jbake-status: published
 :jbake-type: manual_chapter
 :jbake-tags: user manual, native, gradle
 :jbake-description: Learn the concept of building a native project with Gradle.

@@ -1,4 +1,5 @@
 = Swift iOS Application
+:jbake-status: published
 :jbake-summary: iOS application implemented in Swift built by Gradle.
 :jbake-type: sample_chapter
 :jbake-tags: sample, swift, native, gradle

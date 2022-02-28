@@ -1,4 +1,5 @@
 = Gradle Plugin Test Suites
+:jbake-status: published
 :jbake-summary: Unit and functional test Gradle plugins.
 :jbake-type: sample_chapter
 :jbake-tags: sample, gradle plugin development, gradle

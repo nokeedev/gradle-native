@@ -1,3 +1,4 @@
+:jbake-status: published
 :jbake-type: redirection
 :jbake-tags: user manual, nokee, gradle, gradle plugin
 :jbake-redirecturl: user-manual.html
