@@ -5,6 +5,8 @@
 :jbake-tags: sample, jni, java, jvm, library, target machines, native, c++, gradle
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to configure the target machines of a Java Native Interface (JNI) library using the Gradle Nokee plugins.
+:jbake-permalink: jni-library-with-target-machines
+:jbake-archivebasename: JniLibraryWithTargetMachines
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 

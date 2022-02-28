@@ -5,6 +5,8 @@
 :jbake-tags: sample, library, objective-cpp, native, gradle
 :jbake-category: Native Development
 :jbake-description: See how the Nokee Gradle plugins are used for building a native library implemented in Objective-{cpp}.
+:jbake-permalink: objective-cpp-library
+:jbake-archivebasename: ObjectiveCppLibrary
 :plugin-language: Objective-{cpp}
 :plugin-language-id: objective-cpp
 

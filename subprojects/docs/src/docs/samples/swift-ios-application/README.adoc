@@ -5,6 +5,8 @@
 :jbake-tags: sample, swift, native, gradle
 :jbake-category: iOS
 :jbake-description: See how to use the Nokee Gradle plugins for building an iOS application implemented in Swift.
+:jbake-permalink: swift-ios-application
+:jbake-archivebasename: SwiftIosApplication
 
 CAUTION: The following sample shows a plugin in very early development.
 Don't hesitate to try it out.

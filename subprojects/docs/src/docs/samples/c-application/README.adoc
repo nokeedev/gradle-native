@@ -5,6 +5,8 @@
 :jbake-tags: sample, application, c, native, gradle
 :jbake-category: Native Development
 :jbake-description: See how the Nokee Gradle plugins are used for building a native application implemented in C.
+:jbake-permalink: c-application
+:jbake-archivebasename: CApplication
 :plugin-language: C
 :plugin-language-id: c
 

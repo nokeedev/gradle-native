@@ -5,6 +5,8 @@
 :jbake-tags: sample, jni, java, jvm, native, target machines, c++, maven, gradle
 :jbake-category: Java Native Interface (JNI)
 :jbake-description: See how to publish a Java Native Interface (JNI) library for multiple machines.
+:jbake-permalink: publish-jni-library-with-target-machines
+:jbake-archivebasename: PublishJniLibraryWithTargetMachines
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 

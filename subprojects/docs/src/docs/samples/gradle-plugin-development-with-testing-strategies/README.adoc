@@ -5,6 +5,8 @@
 :jbake-tags: sample, gradle plugin development, gradle
 :jbake-category: Gradle Plugin Development
 :jbake-description: See how the Nokee team is helping the Gradle community develop better plugin by providing testing strategies.
+:jbake-permalink: gradle-plugin-development-with-testing-strategies
+:jbake-archivebasename: GradlePluginDevelopmentWithTestingStrategies
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
