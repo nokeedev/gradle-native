@@ -51,5 +51,6 @@ public class ModelBasePlugin implements Plugin<Project> {
 		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
 		modelRegistry.configure(new UseModelPropertyIdentifierAsDisplayName());
 		new ModelActionSystem(modelRegistry).execute(project);
+		modelRegistry.configure(new GenerateModelPathFromIdentifier());
 	}
 }

@@ -41,7 +41,6 @@ class VariantAwareComponentDimensionsIntegrationTest extends VariantDimensionsIn
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 			.withComponent(ofMain(ProjectIdentifier.of(project)))
-			.withComponent(DomainObjectIdentifierUtils.toPath(ofMain(ProjectIdentifier.of(project))))
 			.withComponent(ModelProjections.managed(of(MyComponent.class))).build()).as(MyComponent.class).get();
 	}
 

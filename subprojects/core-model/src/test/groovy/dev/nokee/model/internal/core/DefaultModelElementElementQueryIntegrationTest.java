@@ -26,28 +26,29 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.model.internal.core.ModelPath.path;
+import static dev.nokee.model.fixtures.ModelRegistryTestUtils.identifier;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @PluginRequirement.Require(id = "dev.nokee.model-base")
 class DefaultModelElementElementQueryIntegrationTest extends AbstractPluginTest {
-	private final DomainObjectIdentifier i0 = mock(DomainObjectIdentifier.class);
-	private final DomainObjectIdentifier i1 = mock(DomainObjectIdentifier.class);
-	private final DomainObjectIdentifier i2 = mock(DomainObjectIdentifier.class);
+	private final DomainObjectIdentifier i0 = identifier("a.b");
+	private final DomainObjectIdentifier i1 = identifier("a.b");
+	private final DomainObjectIdentifier i2 = identifier("a.c");
 	private ModelElement element;
 
 	@BeforeEach
 	void createObject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		element = registry.register(builder().withComponent(path("a")).withComponent(ofInstance(new Object())).build());
-		registry.register(builder().withComponent(path("a.b")).withComponent(i0).withComponent(createdUsing(of(MyType.class), () -> objectFactory().newInstance(MyType.class))).build());
-		registry.register(builder().withComponent(path("a.b")).withComponent(i1).withComponent(ofInstance("dalo")).build());
-		registry.register(builder().withComponent(path("a.c")).withComponent(i2).withComponent(ofInstance(Boolean.TRUE)).build());
+		element = registry.register(builder().withComponent(identifier("a")).withComponent(ofInstance(new Object())).build());
+		registry.register(builder().withComponent(i0).withComponent(createdUsing(of(MyType.class), () -> objectFactory().newInstance(MyType.class))).build());
+		registry.register(builder().withComponent(i1).withComponent(ofInstance("dalo")).build());
+		registry.register(builder().withComponent(i2).withComponent(ofInstance(Boolean.TRUE)).build());
 	}
 
 	@Nested
@@ -115,7 +116,7 @@ class DefaultModelElementElementQueryIntegrationTest extends AbstractPluginTest 
 		@BeforeEach
 		void createConflictingElement() {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.register(builder().withComponent(path("a.b")).withComponent(mock(DomainObjectIdentifier.class)).withComponent(ofInstance("cere")).build());
+			registry.register(builder().withComponent(identifier("a.b")).withComponent(ofInstance("cere")).build());
 		}
 
 		@Test

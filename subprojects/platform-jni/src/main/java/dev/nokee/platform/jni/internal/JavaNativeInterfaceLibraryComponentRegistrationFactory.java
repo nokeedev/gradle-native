@@ -117,7 +117,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = DomainObjectIdentifierUtils.toPath(identifier);
 		return ModelRegistration.builder()
-			.withComponent(entityPath)
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {

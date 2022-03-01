@@ -47,7 +47,6 @@ public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs
 	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableHeadersMixIn> knownObject, IsLanguageSourceSet ignored) {
 		val propertyIdentifier = ModelPropertyIdentifier.of(knownObject.getIdentifier(), "headers");
 		val element = registry.register(ModelRegistration.builder()
-			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
 			.withComponent(propertyIdentifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))

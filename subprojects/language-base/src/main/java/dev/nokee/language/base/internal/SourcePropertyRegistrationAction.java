@@ -50,7 +50,6 @@ public final class SourcePropertyRegistrationAction extends ModelActionWithInput
 		if (identifier.equals(this.identifier)) {
 			val propertyIdentifier = ModelPropertyIdentifier.of(identifier, "source");
 			val element = registry.register(ModelRegistration.builder()
-				.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
 				.withComponent(propertyIdentifier)
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))

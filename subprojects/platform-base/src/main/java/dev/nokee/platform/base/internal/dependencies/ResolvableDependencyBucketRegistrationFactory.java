@@ -70,7 +70,6 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		});
 		val entityPath = toPath(identifier);
 		return ModelRegistration.builder()
-			.withComponent(entityPath)
 			.withComponent(identifier)
 			.withComponent(IsDependencyBucket.tag())
 			.withComponent(new FullyQualifiedNameComponent(namer.determineName(identifier)))

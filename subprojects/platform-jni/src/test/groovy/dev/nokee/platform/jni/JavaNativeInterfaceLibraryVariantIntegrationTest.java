@@ -75,7 +75,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 	void createSubject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("reqi", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).withComponent(toPath(componentIdentifier)).build());
+		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
 		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("windows-x86")), Variant.class, componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();
