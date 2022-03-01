@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -158,7 +159,7 @@ abstract class ModelActionIntegrationTester {
 		ANCESTOR {
 			@Override
 			public Object g() {
-				val g = new ModelNode();
+				final ModelNode g = new ModelNode();
 				g.addComponent(new ParentComponent(new ModelNode()));
 				return new ParentComponent(g);
 			}
@@ -182,16 +183,16 @@ abstract class ModelActionIntegrationTester {
 
 	@Test
 	void executeSelfMutatingActionAfterCurrentActions() {
-		val secondAction = Mockito.mock(ModelAction.class, "secondAction");
-		val thirdAction = Mockito.mock(ModelAction.class, "thirdAction");
+		final ModelAction secondAction = Mockito.mock(ModelAction.class, "secondAction");
+		final ModelAction thirdAction = Mockito.mock(ModelAction.class, "thirdAction");
 		registry.instantiate(configureMatching(spec(), secondAction));
 		doAnswer(args -> {
 			registry.instantiate(configureMatching(spec(), thirdAction));
 			return null;
 		}).when(firstAction).execute(any());
 
-		val entity = registry.instantiate(newEntityMatchingSpec());
-		val inOrder = Mockito.inOrder(firstAction, secondAction, thirdAction);
+		final ModelNode entity = registry.instantiate(newEntityMatchingSpec());
+		final InOrder inOrder = Mockito.inOrder(firstAction, secondAction, thirdAction);
 		inOrder.verify(firstAction).execute(entity);
 		inOrder.verify(secondAction).execute(entity);
 		inOrder.verify(thirdAction).execute(entity);
