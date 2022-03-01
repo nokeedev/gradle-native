@@ -94,7 +94,9 @@ public abstract class ModelComponentType<T> {
 
 		@Override
 		public boolean isSupertypeOf(ModelComponentType<?> componentType) {
-			if (componentType instanceof ComponentType) {
+			if (value.equals(ModelProjection.class) && componentType instanceof ProjectionType) {
+				return true;
+			} else if (componentType instanceof ComponentType) {
 				return value.isAssignableFrom(((ComponentType<?>) componentType).getValue());
 			}
 			return false;
