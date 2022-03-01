@@ -90,7 +90,11 @@ public abstract class ModelComponentReference<T> {
 		@Override
 		@SuppressWarnings("unchecked")
 		public T get(ModelNode entity) {
-			return (T) entity.getComponents().filter(it -> componentType.isSupertypeOf(ModelComponentType.ofInstance(it))).findFirst().orElseThrow(RuntimeException::new);
+			if (componentType.equals(ModelComponentType.componentOf(ModelProjection.class))) {
+				return (T) entity.getComponents().filter(it -> componentType.isSupertypeOf(ModelComponentType.ofInstance(it))).reduce((a, b) -> b).orElseThrow(RuntimeException::new);
+			} else {
+				return (T) entity.getComponents().filter(it -> componentType.isSupertypeOf(ModelComponentType.ofInstance(it))).findFirst().orElseThrow(RuntimeException::new);
+			}
 		}
 
 		@Override
