@@ -216,7 +216,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val binaryConfigurer = project.getExtensions().getByType(BinaryConfigurer.class);
 						val binaryIdentifierXCTestBundle = BinaryIdentifier.of(BinaryName.of("unitTestXCTestBundle"), IosXCTestBundle.class, variantIdentifier);
 						val xcTestBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(DomainObjectIdentifierUtils.toPath(binaryIdentifierXCTestBundle))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierXCTestBundle)
 							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierXCTestBundle)))
@@ -226,7 +225,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 						val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
 						val applicationBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("signedApplicationBundle"))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierApplicationBundle)
 							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
@@ -335,7 +333,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val binaryConfigurer = project.getExtensions().getByType(BinaryConfigurer.class);
 						val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
 						val launcherApplicationBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("unitTestXCTestBundle"))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierApplicationBundle)
 							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
@@ -345,7 +342,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 						val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
 						val signedLauncherApplicationBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(path.child(variantIdentifier.getUnambiguousName()).child("signedLauncherApplicationBundle"))
 							.withComponent(IsBinary.tag())
 							.withComponent(binaryIdentifierSignedApplicationBundle)
 							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierSignedApplicationBundle)))

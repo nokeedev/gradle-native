@@ -45,7 +45,6 @@ public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.
 	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableSourceMixIn> knownObject, IsLanguageSourceSet ignored) {
 		val propertyIdentifier = ModelPropertyIdentifier.of(knownObject.getIdentifier(), "source");
 		val element = registry.register(ModelRegistration.builder()
-			.withComponent(DomainObjectIdentifierUtils.toPath(propertyIdentifier))
 			.withComponent(propertyIdentifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))

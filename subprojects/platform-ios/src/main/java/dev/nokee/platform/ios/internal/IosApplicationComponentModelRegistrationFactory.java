@@ -253,7 +253,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 				val executableIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, identifier);
 				val executable = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("executable"))
 					.withComponent(IsBinary.tag())
 					.withComponent(executableIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(executableIdentifier)))
@@ -265,7 +264,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 				val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, identifier);
 				val applicationBundle = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("applicationBundle"))
 					.withComponent(IsBinary.tag())
 					.withComponent(applicationBundleIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(applicationBundleIdentifier)))
@@ -277,7 +275,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 				val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, identifier);
 				val signedApplicationBundle = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("signedApplicationBundle"))
 					.withComponent(IsBinary.tag())
 					.withComponent(signedApplicationBundleIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(signedApplicationBundleIdentifier)))

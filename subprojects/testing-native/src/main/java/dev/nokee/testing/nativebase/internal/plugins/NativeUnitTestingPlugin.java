@@ -235,7 +235,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				val binaryRepository = project.getExtensions().getByType(BinaryRepository.class);
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, identifier);
 				val binaryEntity = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("executable"))
 					.withComponent(IsBinary.tag())
 					.withComponent(binaryIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))

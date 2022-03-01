@@ -33,7 +33,6 @@ public final class IosResourceSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(toPath(identifier))
 			.withComponent(createdUsing(ModelType.of(IosResourceSetSpec.class), () -> objectFactory.newInstance(IosResourceSetSpec.class)))
 			.build();
 	}

@@ -52,7 +52,6 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 		assert path.getParent().isPresent();
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
-			.withComponent(path)
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))

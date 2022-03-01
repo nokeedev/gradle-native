@@ -50,7 +50,6 @@ public final class ModelPropertyRegistrationFactory {
 		val path = toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(path)
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, id, ignored) -> {
 				// When property is realized... realize the source entity
 				if (id.equals(identifier)) {
@@ -87,7 +86,6 @@ public final class ModelPropertyRegistrationFactory {
 		val property = objects.property(type);
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(path)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(of(type)))
 			.withComponent(new GradlePropertyComponent(property))
@@ -99,7 +97,6 @@ public final class ModelPropertyRegistrationFactory {
 		val property = objects.fileCollection();
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(path)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.withComponent(new GradlePropertyComponent(property))

@@ -120,7 +120,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 		Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
 
 		return ModelRegistration.builder()
-			.withComponent(DomainObjectIdentifierUtils.toPath(identifier))
 			.withComponent(IsVariant.tag())
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))

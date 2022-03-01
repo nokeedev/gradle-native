@@ -130,7 +130,6 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
 				val binaryEntity = registry.register(ModelRegistration.builder()
-					.withComponent(path.child("executable"))
 					.withComponent(IsBinary.tag())
 					.withComponent(binaryIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))

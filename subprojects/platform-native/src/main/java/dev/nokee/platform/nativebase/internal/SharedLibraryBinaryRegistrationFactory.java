@@ -70,7 +70,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 	public ModelRegistration create(BinaryIdentifier<?> identifier) {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(toPath(identifier))
 			.withComponent(IsBinary.tag())
 			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(identifier)))
 			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))

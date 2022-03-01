@@ -53,7 +53,6 @@ public final class LanguageSourceSetRegistrationFactory {
 	private ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, ModelAction sourcePropertyAction) {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(toPath(identifier))
 			.action(sourcePropertyAction);
 	}
 }

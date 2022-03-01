@@ -140,7 +140,7 @@ public final class DimensionPropertyRegistrationFactory {
 			val result = ModelRegistration.builder();
 
 			if (identifier != null) {
-				result.withComponent(toPath(identifier)).withComponent(identifier);
+				result.withComponent(identifier);
 			}
 
 			result
@@ -172,7 +172,6 @@ public final class DimensionPropertyRegistrationFactory {
 		property.finalizeValueOnRead();
 		property.disallowChanges();
 		return ModelRegistration.builder()
-			.withComponent(toPath(identifier))
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))

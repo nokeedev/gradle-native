@@ -152,7 +152,6 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 				if (identifier.getBuildVariant().hasAxisOf(NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY.getShared())) {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
 					val binaryEntity = registry.register(ModelRegistration.builder()
-						.withComponent(path.child("sharedLibrary"))
 						.withComponent(IsBinary.tag())
 						.withComponent(binaryIdentifier)
 						.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
@@ -166,7 +165,6 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 				} else {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
 					val binaryEntity = registry.register(ModelRegistration.builder()
-						.withComponent(path.child("staticLibrary"))
 						.withComponent(IsBinary.tag())
 						.withComponent(binaryIdentifier)
 						.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))

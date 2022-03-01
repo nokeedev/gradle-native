@@ -43,7 +43,6 @@ public final class JniJarBinaryRegistrationFactory {
 	public ModelRegistration create(BinaryIdentifier<?> identifier) {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(toPath(identifier))
 			.withComponent(IsBinary.tag())
 			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(JniJarBinary.class), ModelBackedJniJarBinary::new))

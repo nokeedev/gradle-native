@@ -87,9 +87,9 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("nuli", projectIdentifier);
-		registry.register(ModelRegistration.builder().withComponent(toPath(componentIdentifier)).build());
+		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).build());
 		val variantIdentifier = VariantIdentifier.of("cuzu", Variant.class, componentIdentifier);
-		registry.register(ModelRegistration.builder().withComponent(toPath(variantIdentifier)).build());
+		registry.register(ModelRegistration.builder().withComponent(variantIdentifier).build());
 		subject = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, "ruca"))).as(SharedLibraryBinary.class).get();
 	}
 
@@ -172,7 +172,6 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "tovi");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
-					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(ModelPropertyTag.instance())
 					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
@@ -198,7 +197,6 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "vavu");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
-					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(ModelPropertyTag.instance())
 					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
@@ -235,7 +233,6 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "qizo");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
-					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(ModelPropertyTag.instance())
 					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
@@ -252,7 +249,6 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "xuvi");
 			project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 				.withComponent(newPropertyIdentifier)
-				.withComponent(toPath(newPropertyIdentifier))
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 				.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
@@ -301,7 +297,6 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "suti");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
-					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(ModelPropertyTag.instance())
 					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
@@ -324,7 +319,6 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "kedi");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
-					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(ModelPropertyTag.instance())
 					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
@@ -340,7 +334,6 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "xuvi");
 				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
 					.withComponent(newPropertyIdentifier)
-					.withComponent(toPath(newPropertyIdentifier))
 					.withComponent(ModelPropertyTag.instance())
 					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
 					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))

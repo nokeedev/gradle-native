@@ -43,7 +43,7 @@ class JavaNativeInterfaceLibraryVariantToStringIntegrationTest extends AbstractP
 	void createSubject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.builder().name(ComponentName.of("zagi")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("my JNI library").build();
-		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).withComponent(toPath(componentIdentifier)).build());
+		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
 		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("macos-x64")), Variant.class, componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();

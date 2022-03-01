@@ -53,7 +53,6 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 	public <T> SetProperty<T> newAxis(Class<T> axisType) {
 		val identifier = ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName()));
 		val result = registry.register(ModelRegistration.builder()
-			.withComponent(toPath(identifier))
 			.withComponent(identifier)
 			.mergeFrom(dimensionsPropertyFactory.newAxisProperty(CoordinateAxis.of(axisType)))
 			.build());
@@ -66,7 +65,6 @@ public final class ModelBackedVariantDimensions implements VariantDimensions {
 		Objects.requireNonNull(action);
 		val identifier = ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName()));
 		val builder = ModelRegistration.builder()
-			.withComponent(toPath(identifier))
 			.withComponent(identifier);
 		val axisBuilder = dimensionsPropertyFactory.newAxisProperty();
 		axisBuilder.axis(CoordinateAxis.of(axisType));

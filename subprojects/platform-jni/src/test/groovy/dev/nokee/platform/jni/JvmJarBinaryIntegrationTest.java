@@ -53,7 +53,7 @@ class JvmJarBinaryIntegrationTest extends AbstractPluginTest {
 	void createSubject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("rina", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).withComponent(toPath(componentIdentifier)).build());
+		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).build());
 		val factory = project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class);
 		subject = registry.register(factory.create(BinaryIdentifier.of(componentIdentifier, BinaryIdentity.of("wuke", "FASI binary")))).as(JvmJarBinary.class).get();
 	}
