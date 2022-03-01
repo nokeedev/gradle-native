@@ -25,7 +25,6 @@ dependencies {
 	api "commons-io:commons-io:${commonsIoVersion}"
 	api "com.google.guava:guava:${guavaVersion}"
 	api "com.google.guava:guava-testlib:${guavaVersion}"
-	api "nl.jqno.equalsverifier:equalsverifier:${equalsverifierVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation testFixtures(gradleRunnerKit())
 	api gradleRunnerKit()
