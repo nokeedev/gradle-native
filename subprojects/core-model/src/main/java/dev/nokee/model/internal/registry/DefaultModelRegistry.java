@@ -53,6 +53,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final Instantiator instantiator;
 	private final List<ModelNode> entities = new ArrayList<>();
@@ -81,7 +83,9 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					node.addComponent(new ParentComponent(this.get(parentPath)));
 				});
 				node.addComponent(new ElementNameComponent(path.getName()));
-				node.addComponent(new DisplayNameComponent(path.toString()));
+				if (!node.hasComponent(componentOf(DisplayNameComponent.class))) {
+					node.addComponent(new DisplayNameComponent(path.toString()));
+				}
 			} else if (state.equals(ModelState.Registered)) {
 				assert !nodes.values().contains(node) : "duplicated registered notification";
 				nodes.put(path, node);
