@@ -37,12 +37,4 @@ class BinaryBasePluginTest extends Specification {
 		then:
 		project.extensions.findByType(BinaryRepository) != null
 	}
-
-	def "registers known binary factory"() {
-		when:
-		project.apply plugin: BinaryBasePlugin
-
-		then:
-		project.extensions.findByType(KnownBinaryFactory) != null
-	}
 }

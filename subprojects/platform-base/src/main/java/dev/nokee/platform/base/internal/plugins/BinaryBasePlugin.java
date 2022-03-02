@@ -20,7 +20,6 @@ import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
-import dev.nokee.platform.base.internal.binaries.KnownBinaryFactory;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -38,8 +37,5 @@ public class BinaryBasePlugin implements Plugin<Project> {
 
 		val binaryConfigurer = new BinaryConfigurer(eventPublisher);
 		project.getExtensions().add(BinaryConfigurer.class, "__NOKEE_binaryConfigurer", binaryConfigurer);
-
-		val knownBinaryFactory = new KnownBinaryFactory(() -> binaryRepository, () -> project.getExtensions().getByType(BinaryConfigurer.class));
-		project.getExtensions().add(KnownBinaryFactory.class, "__NOKEE_knownBinaryFactory", knownBinaryFactory);
 	}
 }
