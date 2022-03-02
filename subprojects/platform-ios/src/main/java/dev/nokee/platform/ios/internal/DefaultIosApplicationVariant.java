@@ -21,8 +21,12 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
+import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
@@ -50,7 +54,7 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
-	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
+	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
 		super(identifier, objects, providers, assembleTask);
 		this.productBundleIdentifier = objects.property(String.class);
 

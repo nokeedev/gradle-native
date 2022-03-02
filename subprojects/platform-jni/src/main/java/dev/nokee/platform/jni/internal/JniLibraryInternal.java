@@ -16,12 +16,23 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.SourceView;
-import dev.nokee.platform.base.internal.*;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
+import dev.nokee.platform.base.internal.BaseVariant;
+import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.VariantNamer;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
@@ -56,7 +67,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, ObjectFactory objects, BinaryViewFactory binaryViewFactory) {
+	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, ObjectFactory objects) {
 		super(identifier, objects);
 	}
 
