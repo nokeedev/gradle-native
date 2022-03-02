@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal.plugins;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
-import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -34,8 +33,5 @@ public class BinaryBasePlugin implements Plugin<Project> {
 
 		val binaryRepository = new BinaryRepository(eventPublisher, realization, project.getProviders());
 		project.getExtensions().add(BinaryRepository.class, "__NOKEE_binaryRepository", binaryRepository);
-
-		val binaryConfigurer = new BinaryConfigurer(eventPublisher);
-		project.getExtensions().add(BinaryConfigurer.class, "__NOKEE_binaryConfigurer", binaryConfigurer);
 	}
 }

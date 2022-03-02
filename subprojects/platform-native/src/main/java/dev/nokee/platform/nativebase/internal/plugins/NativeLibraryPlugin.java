@@ -59,7 +59,6 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantNamer;
-import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
@@ -214,8 +213,6 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
 						}))
 						.build());
-					project.getExtensions().getByType(BinaryConfigurer.class)
-						.configure(binaryIdentifier, binary -> ModelStates.realize(ModelNodes.of(binaryEntity)));
 				} else {
 					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
 					val binaryEntity = registry.register(ModelRegistration.builder()
@@ -227,8 +224,6 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
 						}))
 						.build());
-					project.getExtensions().getByType(BinaryConfigurer.class)
-						.configure(binaryIdentifier, binary -> ModelStates.realize(ModelNodes.of(binaryEntity)));
 				}
 
 				val dependencies = registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), NativeLibraryComponentDependencies.class, ModelBackedNativeLibraryComponentDependencies::new));

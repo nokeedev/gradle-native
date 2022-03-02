@@ -22,14 +22,6 @@ import spock.lang.Specification
 class BinaryBasePluginTest extends Specification {
 	def project = ProjectTestUtils.rootProject()
 
-	def "registers binary configurer service"() {
-		when:
-		project.apply plugin: BinaryBasePlugin
-
-		then:
-		project.extensions.findByType(BinaryConfigurer) != null
-	}
-
 	def "registers binary repository service"() {
 		when:
 		project.apply plugin: BinaryBasePlugin
