@@ -19,12 +19,24 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelAction;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.platform.base.*;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.BundleBinary;
@@ -44,7 +56,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
 
@@ -74,7 +85,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Getter private final Property<String> moduleName;
 	@Getter private final Property<String> productBundleIdentifier;
 
-	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
+	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
 		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, taskRegistry, taskViewFactory, registry);
 		this.providers = providers;
 		this.layout = layout;

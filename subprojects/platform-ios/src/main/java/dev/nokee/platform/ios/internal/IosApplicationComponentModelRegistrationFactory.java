@@ -23,7 +23,6 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -307,7 +306,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 	private static DefaultIosApplicationComponent create(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-		val result = new DefaultIosApplicationComponent(Cast.uncheckedCast(identifier), project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
+		val result = new DefaultIosApplicationComponent(Cast.uncheckedCast(identifier), project.getObjects(), project.getProviders(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
 		result.getDevelopmentVariant().convention(project.getProviders().provider(new DevelopmentVariantConvention<>(() -> result.getVariants().get())));
 		return result;
 	}

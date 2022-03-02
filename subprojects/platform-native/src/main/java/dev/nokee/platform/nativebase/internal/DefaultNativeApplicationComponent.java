@@ -16,7 +16,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -54,7 +53,6 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
@@ -80,7 +78,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public DefaultNativeApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
+	public DefaultNativeApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
 		super(identifier, DefaultNativeApplicationVariant.class, objects, taskRegistry, taskViewFactory, registry);
 		this.taskRegistry = taskRegistry;
 	}

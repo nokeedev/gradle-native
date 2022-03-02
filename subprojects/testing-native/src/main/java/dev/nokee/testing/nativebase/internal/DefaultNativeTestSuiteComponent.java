@@ -23,7 +23,6 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -77,7 +76,6 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
@@ -117,7 +115,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final ModelLookup modelLookup;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup, ModelRegistry registry) {
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup, ModelRegistry registry) {
 		super(identifier, DefaultNativeTestSuiteVariant.class, objects, taskRegistry, taskViewFactory, registry);
 		this.objects = objects;
 		this.tasks = tasks;

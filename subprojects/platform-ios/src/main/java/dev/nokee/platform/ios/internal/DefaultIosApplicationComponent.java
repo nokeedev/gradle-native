@@ -20,7 +20,6 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -86,7 +85,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.ConfigureUtil;
 
@@ -125,7 +123,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
+	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
 		super(identifier, DefaultIosApplicationVariant.class, objects, taskRegistry, taskViewFactory, registry);
 		this.providers = providers;
 		this.layout = layout;

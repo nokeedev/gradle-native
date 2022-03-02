@@ -18,7 +18,6 @@ package dev.nokee.testing.xctest.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -55,7 +54,6 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskContainer;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,8 +76,8 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 	private final ProjectLayout layout;
 	private final ModelRegistry registry;
 
-	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
-		super(identifier, objects, providers, tasks, layout, eventPublisher, taskRegistry, taskViewFactory, registry);
+	public DefaultUnitTestXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
+		super(identifier, objects, providers, layout, taskRegistry, taskViewFactory, registry);
 		this.providers = providers;
 		this.taskRegistry = taskRegistry;
 		this.layout = layout;
