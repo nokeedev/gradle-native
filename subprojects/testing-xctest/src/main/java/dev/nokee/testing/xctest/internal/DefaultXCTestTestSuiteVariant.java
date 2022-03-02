@@ -19,6 +19,8 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
@@ -58,6 +60,12 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	@Override
 	public NativeComponentDependencies getDependencies() {
 		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public BinaryView<Binary> getBinaries() {
+		return ModelProperties.getProperty(this, "binaries").as(BinaryView.class).get();
 	}
 
 	@Override
