@@ -20,20 +20,26 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectCreated;
-import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.platform.base.VariantView;
-import dev.nokee.model.internal.core.ModelComponentType;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryName;
+import dev.nokee.platform.base.internal.BinaryNamer;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
+import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -41,13 +47,12 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
-import java.util.function.Consumer;
-
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
@@ -57,12 +62,14 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final ObjectFactory objects;
 	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
+	private final ModelRegistry registry;
 
-	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
+	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
 		super(identifier, objects);
 		this.objects = objects;
 		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
+		this.registry = registry;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
 		this.taskRegistry = taskRegistry;
@@ -71,73 +78,77 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	public abstract NativeComponentDependencies getDependencies();
 
 	protected void createBinaries(KnownDomainObject<T> knownVariant) {
-		doCreateBinaries((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant::configure);
+		doCreateBinaries((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant);
 	}
 
-	private void doCreateBinaries(VariantIdentifier<?> variantIdentifier, Consumer<? super Action<? super T>> variantConfigure) {
+	private void doCreateBinaries(VariantIdentifier<?> variantIdentifier, KnownDomainObject<T> knownVariant) {
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		final TargetMachine targetMachineInternal = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 
 		if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+			val incomingDependencies = knownVariant.map(VariantInternal::getResolvableDependencies);
+			val objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(sourceViewOf(this));
 			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 			if (linkage.isExecutable()) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, variantIdentifier);
-				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(IsBinary.tag())
+					.withComponent(binaryIdentifier)
+					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
+					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
+						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
+						val binary = objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, linkTask, incomingDependencies.get(), taskViewFactory);
+						binary.getBaseName().convention(getBaseName());
+						return binary;
+					}))
+					.build());
 			} else if (linkage.isShared()) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, variantIdentifier);
-				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(IsBinary.tag())
+					.withComponent(binaryIdentifier)
+					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
+					.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
+						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
+						val binary = objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies.get(), taskViewFactory);
+						binary.getBaseName().convention(getBaseName());
+						return binary;
+					}))
+					.build());
 			} else if (linkage.isBundle()) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("bundle"), BundleBinaryInternal.class, variantIdentifier);
-				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(IsBinary.tag())
+					.withComponent(binaryIdentifier)
+					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
+					.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
+						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
+						val binary = objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies.get(), taskViewFactory);
+						binary.getBaseName().convention(getBaseName());
+						return binary;
+					}))
+					.build());
 			} else if (linkage.isStatic()) {
 				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, variantIdentifier);
-				eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifier));
+
+				registry.register(ModelRegistration.builder()
+					.withComponent(IsBinary.tag())
+					.withComponent(binaryIdentifier)
+					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
+					.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
+						val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
+						val binary = objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, createTask, incomingDependencies.get(), taskViewFactory);
+						binary.getBaseName().convention(getBaseName());
+						return binary;
+					}))
+					.build());
 			}
 		}
 
-		variantConfigure.accept((Action<? super T>) it -> {
-			val incomingDependencies = (NativeIncomingDependencies) it.getResolvableDependencies();
-			val objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(sourceViewOf(this));
-			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
-				if (linkage.isExecutable()) {
-					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, variantIdentifier);
-
-					// Binary factory
-					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
-					val binary = objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, linkTask, incomingDependencies, taskViewFactory);
-					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
-
-					binary.getBaseName().convention(getBaseName());
-				} else if (linkage.isShared()) {
-					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, variantIdentifier);
-
-					// Binary factory
-					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
-					val binary = objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies, taskViewFactory);
-					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
-
-					binary.getBaseName().convention(getBaseName());
-				} else if (linkage.isBundle()) {
-					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("bundle"), BundleBinaryInternal.class, variantIdentifier);
-
-					// Binary factory
-					val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
-					val binary = objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies, taskViewFactory);
-					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
-
-					binary.getBaseName().convention(getBaseName());
-				} else if (linkage.isStatic()) {
-					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, variantIdentifier);
-
-					// Binary factory
-					val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
-					val binary = objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, createTask, incomingDependencies, taskViewFactory);
-					eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifier, binary));
-
-					binary.getBaseName().convention(getBaseName());
-				}
-			}
+		knownVariant.configure(it -> {
 			it.getBinaries().configureEach(NativeBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
 					val taskInternal = (AbstractNativeCompileTask) task;

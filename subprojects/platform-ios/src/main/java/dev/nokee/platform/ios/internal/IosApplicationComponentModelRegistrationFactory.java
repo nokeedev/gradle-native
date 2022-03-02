@@ -45,9 +45,6 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryName;
-import dev.nokee.platform.base.internal.BinaryNamer;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
@@ -56,13 +53,11 @@ import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentNamer;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantNamer;
 import dev.nokee.platform.base.internal.Variants;
-import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
@@ -73,7 +68,6 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
@@ -205,7 +199,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				if (entityPath.equals(path)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
-					component.finalizeValue();
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
@@ -216,6 +209,8 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						onEachVariantDependencies(variant.as(DefaultIosApplicationVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 					});
 					entity.addComponent(new Variants(variants.build()));
+
+					component.finalizeValue();
 				}
 			}))
 			.build()
@@ -291,36 +286,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 				registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "tasks")));
 
-				val executableIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, identifier);
-				val executable = registry.register(ModelRegistration.builder()
-					.withComponent(IsBinary.tag())
-					.withComponent(executableIdentifier)
-					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(executableIdentifier)))
-					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
-						return project.getExtensions().getByType(BinaryRepository.class).get(executableIdentifier);
-					}))
-					.build());
-
-				val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, identifier);
-				val applicationBundle = registry.register(ModelRegistration.builder()
-					.withComponent(IsBinary.tag())
-					.withComponent(applicationBundleIdentifier)
-					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(applicationBundleIdentifier)))
-					.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> {
-						return project.getExtensions().getByType(BinaryRepository.class).get(applicationBundleIdentifier);
-					}))
-					.build());
-
-				val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, identifier);
-				val signedApplicationBundle = registry.register(ModelRegistration.builder()
-					.withComponent(IsBinary.tag())
-					.withComponent(signedApplicationBundleIdentifier)
-					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(signedApplicationBundleIdentifier)))
-					.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {
-						return project.getExtensions().getByType(BinaryRepository.class).get(signedApplicationBundleIdentifier);
-					}))
-					.build());
-
 				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {
 					((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
 						val parentConfigurationResult = project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withPath(path.getParent().get().child(p.getName()))));
@@ -342,7 +307,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 	private static DefaultIosApplicationComponent create(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-		val result = new DefaultIosApplicationComponent(Cast.uncheckedCast(identifier), project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+		val result = new DefaultIosApplicationComponent(Cast.uncheckedCast(identifier), project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getConfigurations(), project.getDependencies(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
 		result.getDevelopmentVariant().convention(project.getProviders().provider(new DevelopmentVariantConvention<>(() -> result.getVariants().get())));
 		return result;
 	}

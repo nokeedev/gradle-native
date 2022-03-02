@@ -29,7 +29,6 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -51,9 +50,6 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryName;
-import dev.nokee.platform.base.internal.BinaryNamer;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
@@ -64,13 +60,11 @@ import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFact
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantNamer;
 import dev.nokee.platform.base.internal.Variants;
-import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
@@ -81,9 +75,7 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
-import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
-import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
@@ -111,7 +103,6 @@ import dev.nokee.testing.xctest.internal.BaseXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultXCTestTestSuiteVariant;
-import dev.nokee.testing.xctest.internal.IosXCTestBundle;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
@@ -258,8 +249,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 					val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
-					component.finalizeExtension(project);
-					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
@@ -268,25 +257,11 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
 						variants.put(buildVariant, ModelNodes.of(variant));
 						onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
-
-						val binaryRepository = project.getExtensions().getByType(BinaryRepository.class);
-						val binaryIdentifierXCTestBundle = BinaryIdentifier.of(BinaryName.of("unitTestXCTestBundle"), IosXCTestBundle.class, variantIdentifier);
-						val xcTestBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(IsBinary.tag())
-							.withComponent(binaryIdentifierXCTestBundle)
-							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierXCTestBundle)))
-							.withComponent(createdUsing(of(IosXCTestBundle.class), () -> binaryRepository.get(binaryIdentifierXCTestBundle)))
-							.build());
-
-						val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
-						val applicationBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(IsBinary.tag())
-							.withComponent(binaryIdentifierApplicationBundle)
-							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
-							.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierApplicationBundle)))
-							.build());
 					});
 					entity.addComponent(new Variants(variants.build()));
+
+					component.finalizeExtension(project);
+					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 				}
 			}))
 			.build()
@@ -295,7 +270,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(Project project) {
 		return identifier -> {
-			return new DefaultUnitTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+			return new DefaultUnitTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
 		};
 	}
 
@@ -371,8 +346,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path)) {
 					val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
-					component.finalizeExtension(project);
-					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
@@ -381,26 +354,12 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
 						variants.put(buildVariant, ModelNodes.of(variant));
 						onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
-
-						val registry = project.getExtensions().getByType(ModelRegistry.class);
-						val binaryRepository = project.getExtensions().getByType(BinaryRepository.class);
-						val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
-						val launcherApplicationBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(IsBinary.tag())
-							.withComponent(binaryIdentifierApplicationBundle)
-							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
-							.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierApplicationBundle)))
-							.build());
-
-						val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
-						val signedLauncherApplicationBundleEntity = registry.register(ModelRegistration.builder()
-							.withComponent(IsBinary.tag())
-							.withComponent(binaryIdentifierSignedApplicationBundle)
-							.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierSignedApplicationBundle)))
-							.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> binaryRepository.get(binaryIdentifierSignedApplicationBundle)))
-							.build());
 					});
 					entity.addComponent(new Variants(variants.build()));
+
+					component.finalizeExtension(project);
+					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
+
 					component.getVariants().get(); // Force realization, for now
 				}
 			}))
@@ -410,7 +369,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(Project project) {
 		return identifier -> {
-			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getTasks(), project.getLayout(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
 		};
 	}
 

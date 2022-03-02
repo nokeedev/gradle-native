@@ -176,8 +176,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		@Override
 		protected void execute(ModelNode entity, ModelPath path) {
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
-			component.finalizeExtension(null);
-			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
@@ -217,6 +215,9 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				}
 			});
 			entity.addComponent(new Variants(variants.build()));
+
+			component.finalizeExtension(null);
+			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
 		}
 	}
 }

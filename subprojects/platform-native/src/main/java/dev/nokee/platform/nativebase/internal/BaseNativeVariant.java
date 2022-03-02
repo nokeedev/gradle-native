@@ -17,7 +17,6 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Task;
