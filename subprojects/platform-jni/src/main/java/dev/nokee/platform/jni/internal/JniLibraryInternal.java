@@ -57,7 +57,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	@Inject
 	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, ObjectFactory objects, BinaryViewFactory binaryViewFactory) {
-		super(identifier, objects, binaryViewFactory);
+		super(identifier, objects);
 	}
 
 	@Override

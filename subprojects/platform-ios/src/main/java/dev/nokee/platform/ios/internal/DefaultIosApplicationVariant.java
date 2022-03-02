@@ -51,7 +51,7 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 
 	@Inject
 	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
-		super(identifier, objects, providers, assembleTask, binaryViewFactory);
+		super(identifier, objects, providers, assembleTask);
 		this.productBundleIdentifier = objects.property(String.class);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
