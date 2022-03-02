@@ -29,7 +29,7 @@ public class BaseVariant {
 	@Getter private final VariantIdentifier<?> identifier;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	private final Property<Binary> developmentBinary;
-	@Getter private final BinaryView<Binary> binaries;
+	private final BinaryView<Binary> binaries;
 
 	protected BaseVariant(VariantIdentifier<?> identifier, ObjectFactory objects, BinaryViewFactory binaryViewFactory) {
 		this.identifier = identifier;
@@ -40,6 +40,10 @@ public class BaseVariant {
 
 	public BuildVariantInternal getBuildVariant() {
 		return (BuildVariantInternal) identifier.getBuildVariant();
+	}
+
+	public BinaryView<Binary> getBinaries() {
+		return binaries;
 	}
 
 	public Property<Binary> getDevelopmentBinary() {
