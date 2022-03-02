@@ -30,7 +30,7 @@ public class BaseNativeVariant extends BaseVariant {
 	private final TaskProvider<Task> assembleTask;
 
 	public BaseNativeVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
-		super(identifier, objects, binaryViewFactory);
+		super(identifier, objects);
 		this.providers = providers;
 		this.assembleTask = assembleTask;
 	}

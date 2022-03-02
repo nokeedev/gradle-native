@@ -48,7 +48,7 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 
 	@Inject
 	public DefaultXCTestTestSuiteVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
-		super(identifier, objects, providers, assembleTask, binaryViewFactory);
+		super(identifier, objects, providers, assembleTask);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}

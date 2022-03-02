@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import dev.nokee.platform.base.internal.binaries.BinaryViewFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
@@ -30,7 +29,7 @@ public class BaseVariant {
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	private final Property<Binary> developmentBinary;
 
-	protected BaseVariant(VariantIdentifier<?> identifier, ObjectFactory objects, BinaryViewFactory binaryViewFactory) {
+	protected BaseVariant(VariantIdentifier<?> identifier, ObjectFactory objects) {
 		this.identifier = identifier;
 		this.objects = objects;
 		this.developmentBinary = configureDisplayName(objects.property(Binary.class), "developmentBinary");

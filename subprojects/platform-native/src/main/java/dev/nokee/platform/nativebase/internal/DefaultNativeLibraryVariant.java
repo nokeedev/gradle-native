@@ -46,7 +46,7 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 
 	@Inject
 	public DefaultNativeLibraryVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask, BinaryViewFactory binaryViewFactory) {
-		super(identifier, objects, providers, assembleTask, binaryViewFactory);
+		super(identifier, objects, providers, assembleTask);
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
