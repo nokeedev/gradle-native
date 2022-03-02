@@ -29,13 +29,11 @@ public class BaseVariant {
 	@Getter private final VariantIdentifier<?> identifier;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	private final Property<Binary> developmentBinary;
-	private final BinaryView<Binary> binaries;
 
 	protected BaseVariant(VariantIdentifier<?> identifier, ObjectFactory objects, BinaryViewFactory binaryViewFactory) {
 		this.identifier = identifier;
 		this.objects = objects;
 		this.developmentBinary = configureDisplayName(objects.property(Binary.class), "developmentBinary");
-		this.binaries = binaryViewFactory.create(identifier);
 	}
 
 	public BuildVariantInternal getBuildVariant() {
@@ -43,7 +41,7 @@ public class BaseVariant {
 	}
 
 	public BinaryView<Binary> getBinaries() {
-		return binaries;
+		throw new UnsupportedOperationException();
 	}
 
 	public Property<Binary> getDevelopmentBinary() {
