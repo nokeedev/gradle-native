@@ -20,7 +20,6 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectEventPublisher;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -48,7 +47,6 @@ import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
@@ -60,14 +58,12 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final Class<T> variantType;
 	private final TaskRegistry taskRegistry;
 	private final ObjectFactory objects;
-	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskViewFactory taskViewFactory;
 	private final ModelRegistry registry;
 
-	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskContainer tasks, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
+	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
 		super(identifier, objects);
 		this.objects = objects;
-		this.eventPublisher = eventPublisher;
 		this.taskViewFactory = taskViewFactory;
 		this.registry = registry;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
