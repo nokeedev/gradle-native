@@ -80,7 +80,6 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;
-	private final DomainObjectEventPublisher eventPublisher;
 	private final ModelRegistry registry;
 
 	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
@@ -88,7 +87,6 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		this.providers = providers;
 		this.taskRegistry = taskRegistry;
 		this.layout = layout;
-		this.eventPublisher = eventPublisher;
 		this.registry = registry;
 	}
 

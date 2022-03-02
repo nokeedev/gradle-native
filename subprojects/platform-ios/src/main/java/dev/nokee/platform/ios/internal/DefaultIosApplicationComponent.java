@@ -117,9 +117,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 {
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
-	private final DomainObjectEventPublisher eventPublisher;
 	private final TaskRegistry taskRegistry;
-	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
 	private final ConfigurationContainer configurations;
@@ -128,13 +126,11 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Inject
 	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
-		super(identifier, DefaultIosApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory, registry);
-		this.objects = objects;
+		super(identifier, DefaultIosApplicationVariant.class, objects, taskRegistry, taskViewFactory, registry);
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
-		this.eventPublisher = eventPublisher;
 		this.groupId = objects.property(GroupId.class);
 		this.taskRegistry = taskRegistry;
 		this.moduleName = objects.property(String.class).convention(getBaseName());
