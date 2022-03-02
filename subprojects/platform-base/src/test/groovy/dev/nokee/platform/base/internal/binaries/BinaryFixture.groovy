@@ -18,8 +18,10 @@ package dev.nokee.platform.base.internal.binaries
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
 import dev.nokee.platform.base.Binary
-import dev.nokee.platform.base.Component
-import dev.nokee.platform.base.internal.*
+import dev.nokee.platform.base.internal.BinaryIdentifier
+import dev.nokee.platform.base.internal.BinaryName
+import dev.nokee.platform.base.internal.ComponentIdentifier
+import dev.nokee.platform.base.internal.ComponentName
 import org.apache.commons.lang3.RandomStringUtils
 
 trait BinaryFixture {
@@ -37,7 +39,7 @@ trait BinaryFixture {
 	}
 
     DomainObjectViewFactory<Binary> newEntityViewFactory() {
-		return new BinaryViewFactory(entityRepository, entityConfigurer)
+		throw new UnsupportedOperationException()
 	}
 
 	DomainObjectProviderFactory<Binary> newEntityProviderFactory() {
