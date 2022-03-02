@@ -35,7 +35,7 @@ trait BinaryFixture {
 	}
 
     KnownDomainObjectFactory<Binary> newEntityFactory() {
-		return new KnownBinaryFactory({ entityRepository }, { entityConfigurer })
+		throw new UnsupportedOperationException()
 	}
 
     DomainObjectViewFactory<Binary> newEntityViewFactory() {
