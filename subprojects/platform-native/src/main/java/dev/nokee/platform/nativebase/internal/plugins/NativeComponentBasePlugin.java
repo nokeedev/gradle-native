@@ -82,12 +82,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-		return () -> new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+		return () -> new DefaultNativeApplicationComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
 	}
 
 	public static Factory<DefaultNativeLibraryComponent> nativeLibraryProjection(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-		return () -> new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class));
+		return () -> new DefaultNativeLibraryComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(DomainObjectEventPublisher.class), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
 	}
 
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {

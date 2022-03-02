@@ -18,11 +18,24 @@ package dev.nokee.testing.xctest.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectCreated;
-import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryName;
+import dev.nokee.platform.base.internal.BinaryNamer;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
+import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskNamer;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -54,6 +67,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.ModelType.of;
+
 public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
@@ -65,13 +81,15 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	private final TaskRegistry taskRegistry;
 	private final ProjectLayout layout;
 	private final DomainObjectEventPublisher eventPublisher;
+	private final ModelRegistry registry;
 
-	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
-		super(identifier, objects, providers, tasks, layout, eventPublisher, taskRegistry, taskViewFactory);
+	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
+		super(identifier, objects, providers, tasks, layout, eventPublisher, taskRegistry, taskViewFactory, registry);
 		this.providers = providers;
 		this.taskRegistry = taskRegistry;
 		this.layout = layout;
 		this.eventPublisher = eventPublisher;
+		this.registry = registry;
 	}
 
 	@Override
@@ -129,9 +147,12 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		});
 
 		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
-		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierApplicationBundle));
-		val launcherApplicationBundle = new IosApplicationBundleInternal(createUiTestApplicationBundleTask);
-		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierApplicationBundle, launcherApplicationBundle));
+		registry.register(ModelRegistration.builder()
+			.withComponent(IsBinary.tag())
+			.withComponent(binaryIdentifierApplicationBundle)
+			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
+			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> new IosApplicationBundleInternal(createUiTestApplicationBundleTask)))
+			.build());
 
 		val signTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, TaskName.of("sign", "launcherApplicationBundle"))), SignIosApplicationBundleTask.class, task -> {
 			task.getUnsignedApplicationBundle().set(createUiTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
@@ -141,9 +162,14 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		});
 
 		val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
-		eventPublisher.publish(new DomainObjectDiscovered<>(binaryIdentifierSignedApplicationBundle));
 		val signedLauncherApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
-		eventPublisher.publish(new DomainObjectCreated<>(binaryIdentifierSignedApplicationBundle, signedLauncherApplicationBundle));
+		registry.register(ModelRegistration.builder()
+			.withComponent(IsBinary.tag())
+			.withComponent(binaryIdentifierSignedApplicationBundle)
+			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierSignedApplicationBundle)))
+			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> signedLauncherApplicationBundle))
+			.build());
+
 		variant.configure(it -> it.getDevelopmentBinary().set(signedLauncherApplicationBundle));
 
 		variant.configure(testSuite -> {

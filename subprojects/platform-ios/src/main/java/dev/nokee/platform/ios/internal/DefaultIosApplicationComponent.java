@@ -20,20 +20,51 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectCreated;
-import dev.nokee.model.internal.DomainObjectDiscovered;
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.core.ModelAction;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.platform.base.*;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.ComponentSources;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryName;
+import dev.nokee.platform.base.internal.BinaryNamer;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ConfigurationNamer;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.TaskNamer;
+import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.ios.IosResourceSet;
-import dev.nokee.platform.ios.tasks.internal.*;
+import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask;
+import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
+import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
+import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
+import dev.nokee.platform.ios.tasks.internal.StoryboardCompileTask;
+import dev.nokee.platform.ios.tasks.internal.StoryboardLinkTask;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
@@ -67,6 +98,7 @@ import java.util.Set;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -92,10 +124,11 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final ProjectLayout layout;
 	private final ConfigurationContainer configurations;
 	@Getter private final Property<String> moduleName;
+	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory) {
-		super(identifier, DefaultIosApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory);
+	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskContainer tasks, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, DomainObjectEventPublisher eventPublisher, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
+		super(identifier, DefaultIosApplicationVariant.class, objects, tasks, eventPublisher, taskRegistry, taskViewFactory, registry);
 		this.objects = objects;
 		this.providers = providers;
 		this.layout = layout;
@@ -105,6 +138,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		this.groupId = objects.property(GroupId.class);
 		this.taskRegistry = taskRegistry;
 		this.moduleName = objects.property(String.class).convention(getBaseName());
+		this.registry = registry;
 	}
 
 	@Override
@@ -213,9 +247,14 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
 		});
 		val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
-		eventPublisher.publish(new DomainObjectDiscovered<>(applicationBundleIdentifier));
-		val applicationBundle = new IosApplicationBundleInternal(createApplicationBundleTask);
-		eventPublisher.publish(new DomainObjectCreated<>(applicationBundleIdentifier, applicationBundle));
+		registry.register(ModelRegistration.builder()
+			.withComponent(IsBinary.tag())
+			.withComponent(applicationBundleIdentifier)
+			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(applicationBundleIdentifier)))
+			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> {
+				return new IosApplicationBundleInternal(createApplicationBundleTask);
+			}))
+			.build());
 
 		val signApplicationBundleTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "signApplicationBundle")), SignIosApplicationBundleTask.class, task -> {
 			task.getUnsignedApplicationBundle().set(createApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
@@ -225,9 +264,14 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 
 		val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
-		eventPublisher.publish(new DomainObjectDiscovered<>(signedApplicationBundleIdentifier));
-		val signedApplicationBundle = new SignedIosApplicationBundleInternal(signApplicationBundleTask);
-		eventPublisher.publish(new DomainObjectCreated<>(signedApplicationBundleIdentifier, signedApplicationBundle));
+		registry.register(ModelRegistration.builder()
+			.withComponent(IsBinary.tag())
+			.withComponent(signedApplicationBundleIdentifier)
+			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(signedApplicationBundleIdentifier)))
+			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {
+				return new SignedIosApplicationBundleInternal(signApplicationBundleTask);
+			}))
+			.build());
 
 		variant.configure(application -> {
 			application.getBinaries().configureEach(ExecutableBinary.class, binary -> {

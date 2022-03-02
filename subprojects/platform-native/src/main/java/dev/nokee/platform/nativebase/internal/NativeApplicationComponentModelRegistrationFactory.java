@@ -188,8 +188,6 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 		@Override
 		protected void execute(ModelNode entity, ModelPath path) {
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeApplicationComponent.class));
-			component.finalizeExtension(null);
-			component.getDevelopmentVariant().set(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get()))); // TODO: VariantView#get should force finalize the component.
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
@@ -207,6 +205,9 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 				}
 			});
 			entity.addComponent(new Variants(variants.build()));
+
+			component.finalizeExtension(null);
+			component.getDevelopmentVariant().set(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get()))); // TODO: VariantView#get should force finalize the component.
 		}
 	}
 }

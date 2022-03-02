@@ -37,10 +37,6 @@ import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryName;
-import dev.nokee.platform.base.internal.BinaryNamer;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
@@ -48,7 +44,6 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
@@ -59,7 +54,6 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantNamer;
-import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
@@ -79,8 +73,6 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareCompo
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeLibrarySourcesAdapter;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
 import dev.nokee.platform.nativebase.internal.TargetLinkageRule;
 import dev.nokee.platform.nativebase.internal.TargetMachineRule;
@@ -94,7 +86,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.SwiftLibraryOutgoingD
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -111,7 +102,6 @@ import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
 import static dev.nokee.model.internal.core.ModelNodes.discover;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -201,30 +191,6 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 
 				registry.register(project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "tasks")));
-
-				if (identifier.getBuildVariant().hasAxisOf(NativeRuntimeBasePlugin.TARGET_LINKAGE_FACTORY.getShared())) {
-					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
-					val binaryEntity = registry.register(ModelRegistration.builder()
-						.withComponent(IsBinary.tag())
-						.withComponent(binaryIdentifier)
-						.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
-						.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
-							ModelStates.realize(entity);
-							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
-						}))
-						.build());
-				} else {
-					val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, identifier); // TODO: Use input to get variant identifier
-					val binaryEntity = registry.register(ModelRegistration.builder()
-						.withComponent(IsBinary.tag())
-						.withComponent(binaryIdentifier)
-						.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
-						.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
-							ModelStates.realize(entity);
-							return project.getExtensions().getByType(BinaryRepository.class).get(binaryIdentifier);
-						}))
-						.build());
-				}
 
 				val dependencies = registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), NativeLibraryComponentDependencies.class, ModelBackedNativeLibraryComponentDependencies::new));
 
