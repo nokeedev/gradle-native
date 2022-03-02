@@ -70,7 +70,6 @@ import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantNamer;
 import dev.nokee.platform.base.internal.Variants;
-import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
@@ -290,8 +289,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> binaryRepository.get(binaryIdentifier)))
 					.build());
-				project.getExtensions().getByType(BinaryConfigurer.class)
-					.configure(binaryIdentifier, binary -> ModelStates.realize(ModelNodes.of(binaryEntity)));
 
 				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 

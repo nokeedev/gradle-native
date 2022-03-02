@@ -31,7 +31,7 @@ trait BinaryFixture {
 	}
 
     DomainObjectConfigurer<Binary> newEntityConfigurer() {
-		return new BinaryConfigurer(eventPublisher)
+		throw new UnsupportedOperationException()
 	}
 
     KnownDomainObjectFactory<Binary> newEntityFactory() {

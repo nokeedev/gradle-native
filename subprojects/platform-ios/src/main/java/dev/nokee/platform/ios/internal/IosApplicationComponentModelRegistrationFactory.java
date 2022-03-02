@@ -42,7 +42,6 @@ import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -63,7 +62,6 @@ import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantNamer;
 import dev.nokee.platform.base.internal.Variants;
-import dev.nokee.platform.base.internal.binaries.BinaryConfigurer;
 import dev.nokee.platform.base.internal.binaries.BinaryRepository;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
@@ -302,7 +300,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						return project.getExtensions().getByType(BinaryRepository.class).get(executableIdentifier);
 					}))
 					.build());
-				project.getExtensions().getByType(BinaryConfigurer.class).configure(executableIdentifier, binary -> ModelStates.realize(ModelNodes.of(executable)));
 
 				val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, identifier);
 				val applicationBundle = registry.register(ModelRegistration.builder()
@@ -313,7 +310,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						return project.getExtensions().getByType(BinaryRepository.class).get(applicationBundleIdentifier);
 					}))
 					.build());
-				project.getExtensions().getByType(BinaryConfigurer.class).configure(applicationBundleIdentifier, binary -> ModelStates.realize(ModelNodes.of(applicationBundle)));
 
 				val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, identifier);
 				val signedApplicationBundle = registry.register(ModelRegistration.builder()
@@ -324,7 +320,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						return project.getExtensions().getByType(BinaryRepository.class).get(signedApplicationBundleIdentifier);
 					}))
 					.build());
-				project.getExtensions().getByType(BinaryConfigurer.class).configure(signedApplicationBundleIdentifier, binary -> ModelStates.realize(ModelNodes.of(signedApplicationBundle)));
 
 				whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.ofAny(projectionOf(Configuration.class)), ModelComponentReference.of(ModelPath.class), (e, ignored, p) -> {
 					((NamedDomainObjectProvider<Configuration>) ModelNodeUtils.get(e, NamedDomainObjectProvider.class)).configure(configuration -> {
