@@ -112,4 +112,14 @@ public interface ModelSpec {
 	static ModelSpec descendantOf(ModelEntityId entityRef) {
 		return new AncestorSpec(Objects.requireNonNull(entityRef));
 	}
+
+	/**
+	 * Creates a specification that match the exact specified entity.
+	 *
+	 * @param entityRef  an exact entity reference to satisfy, must not be null
+	 * @return a new specification matching the specified entity reference, never null
+	 */
+	static ModelSpec self(ModelEntityId entityRef) {
+		return new IdentitySpec(new SelfRef(Objects.requireNonNull(entityRef)));
+	}
 }

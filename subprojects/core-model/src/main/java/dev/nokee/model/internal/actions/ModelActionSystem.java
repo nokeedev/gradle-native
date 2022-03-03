@@ -70,6 +70,7 @@ public final class ModelActionSystem implements Action<Project> {
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), this::updateSelectorForSelf));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), this::updateSelectorForRelativeNames));
 	}
 
@@ -187,6 +188,14 @@ public final class ModelActionSystem implements Action<Project> {
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(new Ancestors(ancestors.build())))
 			.orElseGet(() -> DomainObjectIdentity.of(new Ancestors(ancestors.build())))));
+	}
+
+	// ComponentFromEntity<ActionSelectorComponent> read-write self
+	private void updateSelectorForSelf(ModelNode entity, ConfigurableTag tag) {
+		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+			.map(ActionSelectorComponent::get)
+			.map(it -> it.with(new SelfRef(entity.getId())))
+			.orElseGet(() -> DomainObjectIdentity.of(new SelfRef(entity.getId())))));
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
