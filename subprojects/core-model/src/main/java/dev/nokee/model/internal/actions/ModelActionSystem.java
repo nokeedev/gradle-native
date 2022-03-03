@@ -17,20 +17,24 @@ package dev.nokee.model.internal.actions;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ElementNameComponent;
+import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.specs.Spec;
 
 import java.util.Collections;
@@ -66,6 +70,7 @@ public final class ModelActionSystem implements Action<Project> {
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), this::updateSelectorForRelativeNames));
 	}
 
 	// ComponentFromEntity<MatchingSpecificationComponent> (readonly) all
@@ -182,6 +187,39 @@ public final class ModelActionSystem implements Action<Project> {
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(new Ancestors(ancestors.build())))
 			.orElseGet(() -> DomainObjectIdentity.of(new Ancestors(ancestors.build())))));
+	}
+
+	// ComponentFromEntity<ActionSelectorComponent> read-write self
+	// ComponentFromEntity<ParentComponent> read-only all
+	// ComponentFromEntity<ElementNameComponent> read-only all
+	private void updateSelectorForRelativeNames(ModelNode entity, ConfigurableTag tag, ParentComponent parent, ElementNameComponent elementName) {
+		val names = ImmutableSet.<RelativeName>builder();
+		String variantName = "";
+		Optional<ParentComponent> parentComponent = Optional.of(parent);
+		names.add(RelativeName.of(entity.getId(), elementName.get().toString()));
+		while(parentComponent.isPresent()) {
+			val parentEntity = parentComponent.get().get();
+			val parentElementName = parentEntity.findComponent(componentOf(ElementNameComponent.class));
+			if (parentElementName.isPresent()) {
+				variantName = parentElementName.get().get().toString() + StringUtils.capitalize(variantName);
+				if (ModelNodeUtils.canBeViewedAs(entity, ModelType.of(Task.class))) {
+					names.add(RelativeName.of(parentEntity.getId(), elementName.get().toString() + StringUtils.capitalize(variantName)));
+				} else {
+					names.add(RelativeName.of(parentEntity.getId(), variantName + StringUtils.capitalize(elementName.get().toString())));
+				}
+			} else if (variantName.isEmpty()) {
+				names.add(RelativeName.of(parentEntity.getId(), elementName.get().toString()));
+			} else {
+				names.add(RelativeName.of(parentEntity.getId(), variantName));
+			}
+
+			parentComponent = parentComponent.flatMap(it -> it.get().findComponent(componentOf(ParentComponent.class)));
+		}
+
+		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+			.map(ActionSelectorComponent::get)
+			.map(it -> it.with(new RelativeNames(names.build())))
+			.orElseGet(() -> DomainObjectIdentity.of(new RelativeNames(names.build())))));
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> (readonly) all

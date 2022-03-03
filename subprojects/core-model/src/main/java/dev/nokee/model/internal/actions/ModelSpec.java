@@ -63,6 +63,17 @@ public interface ModelSpec {
 	}
 
 	/**
+	 * Creates a specification that match for the specified relative name.
+	 *
+	 * @param name  the entity name to satisfy, must not be null
+	 * @return a new specification matching the specified name, never null
+	 * @see RelativeName
+	 */
+	static ModelSpec named(RelativeName name) {
+		return new RelativeNameSpec(Objects.requireNonNull(name));
+	}
+
+	/**
 	 * Creates a specification that match for the specified base type.
 	 *
 	 * @param type  a base type to match entity projections, must not be null
