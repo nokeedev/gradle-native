@@ -29,6 +29,7 @@ import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -158,6 +159,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteComponent.class), () -> new DefaultNativeTestSuiteComponent(identifier, project.getObjects(), project.getTasks(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class))))
 			.withComponent(IsTestComponent.tag())
 			.withComponent(IsComponent.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
@@ -267,6 +269,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);
 		})
 			.withComponent(IsVariant.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {

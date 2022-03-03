@@ -21,6 +21,7 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -90,6 +91,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(IsBinary.tag())
+					.withComponent(ConfigurableTag.tag())
 					.withComponent(binaryIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
@@ -104,6 +106,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(IsBinary.tag())
+					.withComponent(ConfigurableTag.tag())
 					.withComponent(binaryIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 					.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
@@ -118,6 +121,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(IsBinary.tag())
+					.withComponent(ConfigurableTag.tag())
 					.withComponent(binaryIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 					.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
@@ -132,6 +136,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(IsBinary.tag())
+					.withComponent(ConfigurableTag.tag())
 					.withComponent(binaryIdentifier)
 					.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifier)))
 					.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {

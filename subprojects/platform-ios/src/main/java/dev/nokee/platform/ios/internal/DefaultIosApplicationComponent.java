@@ -24,6 +24,7 @@ import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -243,6 +244,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(applicationBundleIdentifier)
 			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(applicationBundleIdentifier)))
 			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> {
@@ -260,6 +262,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(signedApplicationBundleIdentifier)
 			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(signedApplicationBundleIdentifier)))
 			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {

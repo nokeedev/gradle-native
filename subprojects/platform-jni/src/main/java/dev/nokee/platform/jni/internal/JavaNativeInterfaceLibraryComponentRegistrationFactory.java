@@ -38,6 +38,7 @@ import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -125,6 +126,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 				}
 			}))
 			.withComponent(IsComponent.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup), project.getObjects())))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;

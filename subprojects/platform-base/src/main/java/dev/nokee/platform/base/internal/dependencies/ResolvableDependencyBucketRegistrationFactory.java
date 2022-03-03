@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPath;
@@ -72,6 +73,7 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(IsDependencyBucket.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(new FullyQualifiedNameComponent(namer.determineName(identifier)))
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
