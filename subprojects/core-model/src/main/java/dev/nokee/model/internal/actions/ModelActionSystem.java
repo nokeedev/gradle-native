@@ -60,12 +60,12 @@ public final class ModelActionSystem implements Action<Project> {
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelSpecComponent.class), ModelComponentReference.of(ModelActionComponent.class), this::onActionAdded));
 
 		// Rules to keep identity up-to-date
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.ofAny(componentOf(ModelProjection.class)), this::updateSelectorForProjection));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ElementNameComponent.class), this::updateSelectorForElementName));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(FullyQualifiedNameComponent.class), this::updateSelectorForFullyQualifiedName));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.ofAny(componentOf(ModelProjection.class)), this::updateSelectorForProjection));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ElementNameComponent.class), this::updateSelectorForElementName));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), this::updateSelectorForFullyQualifiedName));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
 	}
 
 	// ComponentFromEntity<MatchingSpecificationComponent> (readonly) all
@@ -129,7 +129,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForElementName(ModelNode entity, ElementNameComponent elementName) {
+	private void updateSelectorForElementName(ModelNode entity, ConfigurableTag tag, ElementNameComponent elementName) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(elementName.get()))
@@ -137,7 +137,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForFullyQualifiedName(ModelNode entity, FullyQualifiedNameComponent fullyQualifiedName) {
+	private void updateSelectorForFullyQualifiedName(ModelNode entity, ConfigurableTag tag, FullyQualifiedNameComponent fullyQualifiedName) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(fullyQualifiedName.get()))
@@ -145,7 +145,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForState(ModelNode entity, ModelState state) {
+	private void updateSelectorForState(ModelNode entity, ConfigurableTag tag, ModelState state) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(state))
@@ -153,7 +153,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForParent(ModelNode entity, ParentComponent parent) {
+	private void updateSelectorForParent(ModelNode entity, ConfigurableTag tag, ParentComponent parent) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(new ParentRef(parent.get().getId())))
@@ -161,7 +161,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForProjection(ModelNode entity, ModelProjection projection) {
+	private void updateSelectorForProjection(ModelNode entity, ConfigurableTag tag, ModelProjection projection) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(it.get(ProjectionTypes.class).map(t -> t.plus(projection.getType())).orElseGet(() -> ProjectionTypes.of(projection.getType()))))
@@ -170,7 +170,7 @@ public final class ModelActionSystem implements Action<Project> {
 
 	// ComponentFromEntity<ParentComponent> read-only all
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForAncestors(ModelNode entity, ParentComponent parent) {
+	private void updateSelectorForAncestors(ModelNode entity, ConfigurableTag tag, ParentComponent parent) {
 		val ancestors = ImmutableSet.<ModelEntityId>builder();
 		Optional<ParentComponent> parentComponent = Optional.of(parent);
 		while(parentComponent.isPresent()) {
@@ -196,7 +196,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	private static void allEntities(ModelLookup lookup, Consumer<? super Iterable<ModelNode>> action) {
-		action.accept(lookup.query(it -> it.hasComponent(componentOf(ActionSelectorComponent.class))).get());
+		action.accept(lookup.query(it -> it.hasComponent(componentOf(ConfigurableTag.class))).get());
 	}
 
 	private static Predicate<ModelNode> onlyMatching(ModelSpecComponent component) {

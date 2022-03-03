@@ -15,6 +15,7 @@
  */
 package dev.nokee.model;
 
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelRegistration;
 
@@ -31,12 +32,12 @@ class ModelActionByTypeIntegrationTest extends ModelActionIntegrationTester {
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(managed(of(MyType.class))).build();
+		return builder().withComponent(ConfigurableTag.tag()).withComponent(managed(of(MyType.class))).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(managed(of(MyOtherType.class))).build();
+		return builder().withComponent(ConfigurableTag.tag()).withComponent(managed(of(MyOtherType.class))).build();
 	}
 
 	private interface MyType {}

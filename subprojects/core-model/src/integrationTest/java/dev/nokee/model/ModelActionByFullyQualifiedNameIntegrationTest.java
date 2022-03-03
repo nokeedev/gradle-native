@@ -17,6 +17,7 @@ package dev.nokee.model;
 
 import dev.nokee.model.internal.FullyQualifiedName;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelRegistration;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,11 +42,11 @@ class ModelActionByFullyQualifiedNameIntegrationTest extends ModelActionIntegrat
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(new FullyQualifiedNameComponent(NAME)).build();
+		return builder().withComponent(ConfigurableTag.tag()).withComponent(new FullyQualifiedNameComponent(NAME)).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(new FullyQualifiedNameComponent(OTHER_NAME)).build();
+		return builder().withComponent(ConfigurableTag.tag()).withComponent(new FullyQualifiedNameComponent(OTHER_NAME)).build();
 	}
 }
