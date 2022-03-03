@@ -17,6 +17,7 @@ package dev.nokee.model;
 
 import dev.nokee.model.internal.ElementName;
 import dev.nokee.model.internal.ElementNameComponent;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelRegistration;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,11 +42,11 @@ class ModelActionByElementNameIntegrationTest extends ModelActionIntegrationTest
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(new ElementNameComponent(NAME)).build();
+		return builder().withComponent(ConfigurableTag.tag()).withComponent(new ElementNameComponent(NAME)).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(new ElementNameComponent(OTHER_NAME)).build();
+		return builder().withComponent(ConfigurableTag.tag()).withComponent(new ElementNameComponent(OTHER_NAME)).build();
 	}
 }
