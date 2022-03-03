@@ -170,24 +170,24 @@ public final class ModelActionSystem implements Action<Project> {
 	private void updateSelectorForProjection(ModelNode entity, ConfigurableTag tag, ModelProjection projection) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(it.get(ProjectionTypes.class).map(t -> t.plus(projection.getType())).orElseGet(() -> ProjectionTypes.of(projection.getType()))))
-			.orElseGet(() -> DomainObjectIdentity.of(ProjectionTypes.of(projection.getType())))));
+			.map(it -> it.plus(projection.getType()))
+			.orElseGet(() -> DomainObjectIdentity.of(projection.getType()))));
 	}
 
 	// ComponentFromEntity<ParentComponent> read-only all
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
 	private void updateSelectorForAncestors(ModelNode entity, ConfigurableTag tag, ParentComponent parent) {
-		val ancestors = ImmutableSet.<ModelEntityId>builder();
+		val ancestors = ImmutableSet.<AncestorRef>builder();
 		Optional<ParentComponent> parentComponent = Optional.of(parent);
 		while(parentComponent.isPresent()) {
-			ancestors.add(parentComponent.get().get().getId());
+			ancestors.add(new AncestorRef(parentComponent.get().get().getId()));
 			parentComponent = parentComponent.flatMap(it -> it.get().findComponent(componentOf(ParentComponent.class)));
 		}
 
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(new Ancestors(ancestors.build())))
-			.orElseGet(() -> DomainObjectIdentity.of(new Ancestors(ancestors.build())))));
+			.map(it -> it.with(ancestors.build()))
+			.orElseGet(() -> DomainObjectIdentity.of(ancestors.build()))));
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
@@ -227,8 +227,8 @@ public final class ModelActionSystem implements Action<Project> {
 
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(new RelativeNames(names.build())))
-			.orElseGet(() -> DomainObjectIdentity.of(new RelativeNames(names.build())))));
+			.map(it -> it.with(names.build()))
+			.orElseGet(() -> DomainObjectIdentity.of(names.build()))));
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> (readonly) all

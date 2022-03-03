@@ -19,10 +19,10 @@ import lombok.EqualsAndHashCode;
 import org.gradle.api.specs.Spec;
 
 @EqualsAndHashCode
-final class IdentitySpec implements ModelSpec, Spec<DomainObjectIdentity> {
+final class EqualSpec implements ModelSpec, Spec<DomainObjectIdentity> {
 	private final Object value;
 
-	public IdentitySpec(Object value) {
+	public EqualSpec(Object value) {
 		this.value = value;
 	}
 

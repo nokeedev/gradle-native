@@ -15,31 +15,12 @@
  */
 package dev.nokee.model.internal.actions;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
-class ModelSpec_IdentityTest implements ModelSpecTester<IdentitySpec> {
-	private static final Object MATCHING_OBJECT = new Object();
-	private static final Object NOT_MATCHING_OBJECT = new Object();
-
-	@Override
-	public IdentitySpec subject() {
-		return new IdentitySpec(MATCHING_OBJECT);
-	}
-
-	@Override
-	public DomainObjectIdentity satisfyingInput() {
-		return DomainObjectIdentity.of(MATCHING_OBJECT);
-	}
-
-	@Override
-	public DomainObjectIdentity notSatisfyingInput() {
-		return DomainObjectIdentity.of(NOT_MATCHING_OBJECT);
-	}
-
+class ParentRefEqualityTest {
 	@Test
-	void doesNotSatisfyOnEmptyIdentity() {
-		assertFalse(subject().isSatisfiedBy(emptyIdentity()));
+	void checkEquals() {
+		EqualsVerifier.forClass(ParentRef.class).verify();
 	}
 }

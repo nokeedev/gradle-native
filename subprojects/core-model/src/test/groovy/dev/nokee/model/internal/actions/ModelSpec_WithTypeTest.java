@@ -30,12 +30,12 @@ class ModelSpec_WithTypeTest implements ModelSpecTester<WithTypeSpec> {
 
 	@Override
 	public DomainObjectIdentity satisfyingInput() {
-		return DomainObjectIdentity.of(ProjectionTypes.of(of(MyType.class)));
+		return DomainObjectIdentity.of(of(MyType.class));
 	}
 
 	@Override
 	public DomainObjectIdentity notSatisfyingInput() {
-		return DomainObjectIdentity.of(ProjectionTypes.of(of(WrongType.class)));
+		return DomainObjectIdentity.of(of(WrongType.class));
 	}
 
 	@Test

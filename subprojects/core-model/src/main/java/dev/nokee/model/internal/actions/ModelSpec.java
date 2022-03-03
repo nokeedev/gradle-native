@@ -48,7 +48,7 @@ public interface ModelSpec {
 	 * @see FullyQualifiedName
 	 */
 	static ModelSpec named(FullyQualifiedName name) {
-		return new IdentitySpec(Objects.requireNonNull(name));
+		return new EqualSpec(Objects.requireNonNull(name));
 	}
 
 	/**
@@ -59,7 +59,7 @@ public interface ModelSpec {
 	 * @see ElementName
 	 */
 	static ModelSpec named(ElementName name) {
-		return new IdentitySpec(Objects.requireNonNull(name));
+		return new EqualSpec(Objects.requireNonNull(name));
 	}
 
 	/**
@@ -70,7 +70,7 @@ public interface ModelSpec {
 	 * @see RelativeName
 	 */
 	static ModelSpec named(RelativeName name) {
-		return new RelativeNameSpec(Objects.requireNonNull(name));
+		return new ContainSpec(Objects.requireNonNull(name));
 	}
 
 	/**
@@ -100,7 +100,7 @@ public interface ModelSpec {
 	 * @return a new specification matching the specified parent entity, never null
 	 */
 	static ModelSpec ownedBy(ModelEntityId entityRef) {
-		return new IdentitySpec(new ParentRef(Objects.requireNonNull(entityRef)));
+		return new EqualSpec(new ParentRef(Objects.requireNonNull(entityRef)));
 	}
 
 	/**
@@ -110,7 +110,7 @@ public interface ModelSpec {
 	 * @return a new specification matching the specified ancestor entity, never null
 	 */
 	static ModelSpec descendantOf(ModelEntityId entityRef) {
-		return new AncestorSpec(Objects.requireNonNull(entityRef));
+		return new ContainSpec(new AncestorRef(Objects.requireNonNull(entityRef)));
 	}
 
 	/**
@@ -120,6 +120,6 @@ public interface ModelSpec {
 	 * @return a new specification matching the specified entity reference, never null
 	 */
 	static ModelSpec self(ModelEntityId entityRef) {
-		return new IdentitySpec(new SelfRef(Objects.requireNonNull(entityRef)));
+		return new EqualSpec(new SelfRef(Objects.requireNonNull(entityRef)));
 	}
 }

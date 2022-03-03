@@ -18,34 +18,29 @@ package dev.nokee.model.internal.actions;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
-import static dev.nokee.model.internal.core.ModelEntityId.ofId;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class ModelSpec_AncestorTest implements ModelSpecTester<AncestorSpec> {
+class ModelSpec_ContainTest implements ModelSpecTester<ContainSpec> {
+	private static final Object MATCHING_OBJECT = new Object();
+	private static final Object NOT_MATCHING_OBJECT = new Object();
+
 	@Override
-	public AncestorSpec subject() {
-		return new AncestorSpec(ofId(32));
+	public ContainSpec subject() {
+		return new ContainSpec(MATCHING_OBJECT);
 	}
 
 	@Override
 	public DomainObjectIdentity satisfyingInput() {
-		return DomainObjectIdentity.of(new Ancestors(ImmutableSet.of(ofId(12), ofId(32))));
+		return DomainObjectIdentity.of(ImmutableSet.of(MATCHING_OBJECT));
 	}
 
 	@Override
 	public DomainObjectIdentity notSatisfyingInput() {
-		return DomainObjectIdentity.of(new Ancestors(ImmutableSet.of(ofId(12))));
+		return DomainObjectIdentity.of(ImmutableSet.of(NOT_MATCHING_OBJECT));
 	}
 
 	@Test
 	void doesNotSatisfyOnEmptyIdentity() {
 		assertFalse(subject().isSatisfiedBy(emptyIdentity()));
-	}
-
-	@Test
-	void canCreateSpecUsingFactoryMethod() {
-		assertEquals(new AncestorSpec(ofId(987)), descendantOf(ofId(987)));
 	}
 }

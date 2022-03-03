@@ -15,16 +15,19 @@
  */
 package dev.nokee.model.internal.actions;
 
-import java.util.Set;
+import lombok.EqualsAndHashCode;
+import org.gradle.api.specs.Spec;
 
-final class RelativeNames {
-	private final Set<RelativeName> values;
+@EqualsAndHashCode
+final class ContainSpec implements ModelSpec, Spec<DomainObjectIdentity> {
+	private final Object value;
 
-	public RelativeNames(Set<RelativeName> values) {
-		this.values = values;
+	public ContainSpec(Object value) {
+		this.value = value;
 	}
 
-	public boolean has(RelativeName name) {
-		return values.contains(name);
+	@Override
+	public boolean isSatisfiedBy(DomainObjectIdentity identity) {
+		return identity.getAll(value.getClass()).contains(value);
 	}
 }
