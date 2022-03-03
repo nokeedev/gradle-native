@@ -15,6 +15,8 @@
  */
 package dev.nokee.model.internal.actions;
 
+import dev.nokee.model.internal.ElementName;
+import dev.nokee.model.internal.FullyQualifiedName;
 import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
@@ -39,14 +41,24 @@ public interface ModelSpec {
 	}
 
 	/**
-	 * Creates a specification that match for the specified name.
-	 * You can use any name object, e.g. {@link dev.nokee.model.internal.FullyQualifiedName}, {@link dev.nokee.model.internal.ElementName}, etc.
-	 * Although, the method can accept a {@code String} name, it would almost certainly be wrong as names are represented by custom type relative to their function.
+	 * Creates a specification that match for the specified fully qualified name.
 	 *
 	 * @param name  the entity name to satisfy, must not be null
 	 * @return a new specification matching the specified name, never null
+	 * @see FullyQualifiedName
 	 */
-	static ModelSpec named(Object name) {
+	static ModelSpec named(FullyQualifiedName name) {
+		return new NamedSpec(Objects.requireNonNull(name));
+	}
+
+	/**
+	 * Creates a specification that match for the specified element name.
+	 *
+	 * @param name  the entity name to satisfy, must not be null
+	 * @return a new specification matching the specified name, never null
+	 * @see ElementName
+	 */
+	static ModelSpec named(ElementName name) {
 		return new NamedSpec(Objects.requireNonNull(name));
 	}
 
