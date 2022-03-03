@@ -15,20 +15,12 @@
  */
 package dev.nokee.model.internal.actions;
 
-import dev.nokee.model.internal.core.ModelEntityId;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.jupiter.api.Test;
 
-import java.util.Iterator;
-import java.util.Set;
-
-final class Ancestors implements Iterable<ModelEntityId> {
-	private final Set<ModelEntityId> values;
-
-	public Ancestors(Set<ModelEntityId> values) {
-		this.values = values;
-	}
-
-	@Override
-	public Iterator<ModelEntityId> iterator() {
-		return values.iterator();
+class SelfRefEqualityTest {
+	@Test
+	void checkEquals() {
+		EqualsVerifier.forClass(SelfRef.class).verify();
 	}
 }

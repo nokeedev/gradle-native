@@ -15,21 +15,31 @@
  */
 package dev.nokee.model.internal.actions;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.core.ModelEntityId.ofId;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasToString;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class RelativeNameTest {
-	@Test
-	void checkEquals() {
-		EqualsVerifier.forClass(RelativeName.class).verify();
+class ModelSpec_EqualTest implements ModelSpecTester<EqualSpec> {
+	private static final Object MATCHING_OBJECT = new Object();
+	private static final Object NOT_MATCHING_OBJECT = new Object();
+
+	@Override
+	public EqualSpec subject() {
+		return new EqualSpec(MATCHING_OBJECT);
+	}
+
+	@Override
+	public DomainObjectIdentity satisfyingInput() {
+		return DomainObjectIdentity.of(MATCHING_OBJECT);
+	}
+
+	@Override
+	public DomainObjectIdentity notSatisfyingInput() {
+		return DomainObjectIdentity.of(NOT_MATCHING_OBJECT);
 	}
 
 	@Test
-	void checkToString() {
-		assertThat(RelativeName.of(ofId(42), "ldfeKiel"), hasToString("ldfeKiel"));
+	void doesNotSatisfyOnEmptyIdentity() {
+		assertFalse(subject().isSatisfiedBy(emptyIdentity()));
 	}
 }

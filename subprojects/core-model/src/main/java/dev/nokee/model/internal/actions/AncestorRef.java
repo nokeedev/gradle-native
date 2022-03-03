@@ -15,26 +15,14 @@
  */
 package dev.nokee.model.internal.actions;
 
-import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.core.ModelEntityId;
 import lombok.EqualsAndHashCode;
-import org.gradle.api.specs.Spec;
 
-import java.util.Optional;
-
-/**
- * @see ModelSpec#stateAtLeast(ModelState)
- */
 @EqualsAndHashCode
-final class StateAtLeastSpec implements Spec<DomainObjectIdentity>, ModelSpec {
-	private final ModelState state;
+final class AncestorRef {
+	private final ModelEntityId entityRef;
 
-	public StateAtLeastSpec(ModelState state) {
-		this.state = state;
-	}
-
-	@Override
-	public boolean isSatisfiedBy(DomainObjectIdentity identity) {
-		return identity.get(ModelState.class).map(it -> it.isAtLeast(state)).orElse(false);
+	public AncestorRef(ModelEntityId entityRef) {
+		this.entityRef = entityRef;
 	}
 }

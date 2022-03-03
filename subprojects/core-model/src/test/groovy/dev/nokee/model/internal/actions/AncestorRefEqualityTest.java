@@ -15,19 +15,12 @@
  */
 package dev.nokee.model.internal.actions;
 
-import lombok.EqualsAndHashCode;
-import org.gradle.api.specs.Spec;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.jupiter.api.Test;
 
-@EqualsAndHashCode
-final class RelativeNameSpec implements ModelSpec, Spec<DomainObjectIdentity> {
-	private final RelativeName name;
-
-	public RelativeNameSpec(RelativeName name) {
-		this.name = name;
-	}
-
-	@Override
-	public boolean isSatisfiedBy(DomainObjectIdentity identity) {
-		return identity.get(RelativeNames.class).map(it -> it.has(name)).orElse(false);
+class AncestorRefEqualityTest {
+	@Test
+	void checkEquals() {
+		EqualsVerifier.forClass(AncestorRef.class).verify();
 	}
 }

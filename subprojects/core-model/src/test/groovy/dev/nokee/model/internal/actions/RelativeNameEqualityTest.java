@@ -15,24 +15,12 @@
  */
 package dev.nokee.model.internal.actions;
 
-import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.core.ModelEntityId;
-import lombok.EqualsAndHashCode;
-import org.gradle.api.specs.Spec;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.jupiter.api.Test;
 
-/**
- * @see ModelSpec#descendantOf(ModelEntityId)
- */
-@EqualsAndHashCode
-final class AncestorSpec implements Spec<DomainObjectIdentity>, ModelSpec {
-	private final ModelEntityId ancestorRef;
-
-	public AncestorSpec(ModelEntityId ancestorRef) {
-		this.ancestorRef = ancestorRef;
-	}
-
-	@Override
-	public boolean isSatisfiedBy(DomainObjectIdentity identity) {
-		return identity.get(Ancestors.class).map(it -> Iterables.contains(it, ancestorRef)).orElse(false);
+class RelativeNameEqualityTest {
+	@Test
+	void checkEquals() {
+		EqualsVerifier.forClass(RelativeName.class).verify();
 	}
 }

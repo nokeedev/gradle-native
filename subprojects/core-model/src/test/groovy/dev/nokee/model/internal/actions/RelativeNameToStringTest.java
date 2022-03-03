@@ -15,26 +15,15 @@
  */
 package dev.nokee.model.internal.actions;
 
-import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.state.ModelState;
-import lombok.EqualsAndHashCode;
-import org.gradle.api.specs.Spec;
+import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
+import static dev.nokee.model.internal.core.ModelEntityId.ofId;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasToString;
 
-/**
- * @see ModelSpec#stateAtLeast(ModelState)
- */
-@EqualsAndHashCode
-final class StateAtLeastSpec implements Spec<DomainObjectIdentity>, ModelSpec {
-	private final ModelState state;
-
-	public StateAtLeastSpec(ModelState state) {
-		this.state = state;
-	}
-
-	@Override
-	public boolean isSatisfiedBy(DomainObjectIdentity identity) {
-		return identity.get(ModelState.class).map(it -> it.isAtLeast(state)).orElse(false);
+class RelativeNameToStringTest {
+	@Test
+	void checkToString() {
+		assertThat(RelativeName.of(ofId(42), "ldfeKiel"), hasToString("ldfeKiel"));
 	}
 }

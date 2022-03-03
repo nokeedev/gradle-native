@@ -16,13 +16,16 @@
 package dev.nokee.model.internal.actions;
 
 import com.google.common.testing.NullPointerTester;
-import dev.nokee.model.internal.actions.DomainObjectIdentity;
 import org.junit.jupiter.api.Test;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DomainObjectIdentityTest {
 	private static final MyValue VALUE = new MyValue();
@@ -36,8 +39,18 @@ class DomainObjectIdentityTest {
 	}
 
 	@Test
+	void returnsSingleElementSetWhenValueExists() {
+		assertThat(subject.getAll(MyValue.class), containsInAnyOrder(VALUE));
+	}
+
+	@Test
 	void returnsEmptyWhenValueDoesNotExists() {
 		assertThat(subject.get(MyOtherValue.class), emptyOptional());
+	}
+
+	@Test
+	void returnsEmptySetWhenValueDoesNotExists() {
+		assertThat(subject.getAll(MyOtherValue.class), emptyIterable());
 	}
 
 	@Test
@@ -63,9 +76,37 @@ class DomainObjectIdentityTest {
 	}
 
 	@Test
-	void doesNotChangeOriginalSubject() {
+	void doesNotChangeOriginalSubjectWhenReplaceValue() {
 		subject.with(ALTERNATE_VALUE);
 		assertThat(subject.get(MyValue.class), optionalWithValue(equalTo(VALUE)));
+	}
+
+	@Test
+	void canAddMoreValues() {
+		assertThat(subject.plus(ALTERNATE_VALUE).getAll(MyValue.class), containsInAnyOrder(VALUE, ALTERNATE_VALUE));
+	}
+
+	@Test
+	void canAddValueToNonExistentValue() {
+		assertThat(subject.plus(OTHER_VALUE).get(MyOtherValue.class), optionalWithValue(equalTo(OTHER_VALUE)));
+		assertThat(subject.plus(OTHER_VALUE).getAll(MyOtherValue.class), containsInAnyOrder(OTHER_VALUE));
+	}
+
+	@Test
+	void doesNotChangeOriginalSubjectWhenAddMoreValues() {
+		subject.plus(ALTERNATE_VALUE);
+		assertThat(subject.get(MyValue.class), optionalWithValue(equalTo(VALUE)));
+		assertThat(subject.getAll(MyValue.class), containsInAnyOrder(VALUE));
+	}
+
+	@Test
+	void throwsExceptionWhenRequestSingleValueButHasMultipleValues() {
+		assertThrows(IllegalArgumentException.class, () -> subject.plus(ALTERNATE_VALUE).get(MyValue.class));
+	}
+
+	@Test
+	void doesNotDuplicateValues() {
+		assertThat(subject.plus(VALUE).getAll(MyValue.class), containsInAnyOrder(VALUE));
 	}
 
 	private static final class MyValue {}
