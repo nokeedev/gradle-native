@@ -48,7 +48,7 @@ public interface ModelSpec {
 	 * @see FullyQualifiedName
 	 */
 	static ModelSpec named(FullyQualifiedName name) {
-		return new NamedSpec(Objects.requireNonNull(name));
+		return new IdentitySpec(Objects.requireNonNull(name));
 	}
 
 	/**
@@ -59,7 +59,7 @@ public interface ModelSpec {
 	 * @see ElementName
 	 */
 	static ModelSpec named(ElementName name) {
-		return new NamedSpec(Objects.requireNonNull(name));
+		return new IdentitySpec(Objects.requireNonNull(name));
 	}
 
 	/**
@@ -89,7 +89,7 @@ public interface ModelSpec {
 	 * @return a new specification matching the specified parent entity, never null
 	 */
 	static ModelSpec ownedBy(ModelEntityId entityRef) {
-		return new DirectDescendantSpec(Objects.requireNonNull(entityRef));
+		return new IdentitySpec(new ParentRef(Objects.requireNonNull(entityRef)));
 	}
 
 	/**
