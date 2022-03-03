@@ -15,23 +15,19 @@
  */
 package dev.nokee.model.internal.actions;
 
-import dev.nokee.model.internal.core.ModelEntityId;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.specs.Spec;
 
-/**
- * @see ModelSpec#ownedBy(ModelEntityId)
- */
 @EqualsAndHashCode
-final class DirectDescendantSpec implements Spec<DomainObjectIdentity>, ModelSpec {
-	private final ParentRef parentRef;
+final class IdentitySpec implements ModelSpec, Spec<DomainObjectIdentity> {
+	private final Object value;
 
-	public DirectDescendantSpec(ModelEntityId entityId) {
-		this.parentRef = new ParentRef(entityId);
+	public IdentitySpec(Object value) {
+		this.value = value;
 	}
 
 	@Override
-	public boolean isSatisfiedBy(DomainObjectIdentity identity) {
-		return identity.get(ParentRef.class).map(parentRef::equals).orElse(false);
+	public boolean isSatisfiedBy(DomainObjectIdentity element) {
+		return element.get(value.getClass()).map(value::equals).orElse(false);
 	}
 }
