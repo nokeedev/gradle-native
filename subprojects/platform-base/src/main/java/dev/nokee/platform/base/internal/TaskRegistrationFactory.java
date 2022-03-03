@@ -19,6 +19,7 @@ import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.FullyQualifiedName;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
@@ -51,6 +52,7 @@ public final class TaskRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(IsTask.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(new ModelElementProviderSourceComponent(taskProvider))
 			.withComponent(new FullyQualifiedNameComponent(name))
 			.withComponent(createdUsingNoInject(ModelType.of(type), taskProvider::get))

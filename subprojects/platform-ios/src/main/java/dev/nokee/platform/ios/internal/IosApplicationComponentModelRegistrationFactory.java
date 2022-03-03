@@ -26,6 +26,7 @@ import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -137,6 +138,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				}
 			}))
 			.withComponent(IsComponent.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(identifier.getName().get(), project)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
@@ -231,6 +233,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		})
 			.withComponent(identifier)
 			.withComponent(IsVariant.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));

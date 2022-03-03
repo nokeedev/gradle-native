@@ -16,6 +16,7 @@
 package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -75,6 +76,7 @@ public final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInpu
 				.withComponent(ModelPath.path(identifier.getName() + "." + taskIdentifier.getName()))
 				.withComponent(taskIdentifier)
 				.withComponent(IsTask.tag())
+				.withComponent(ConfigurableTag.tag())
 				.withComponent(createdUsing(ModelType.of(Task.class), taskProvider::get))
 				.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider))
 				.build()).as(Task.class);

@@ -24,6 +24,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -161,6 +162,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				return result;
 			})
 			.withComponent(IsVariant.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(identifier)
 			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {

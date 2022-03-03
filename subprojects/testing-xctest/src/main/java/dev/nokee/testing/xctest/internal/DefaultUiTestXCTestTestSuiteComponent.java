@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
@@ -145,6 +146,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(binaryIdentifierApplicationBundle)
 			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
 			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> new IosApplicationBundleInternal(createUiTestApplicationBundleTask)))
@@ -161,6 +163,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		val signedLauncherApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(binaryIdentifierSignedApplicationBundle)
 			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierSignedApplicationBundle)))
 			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> signedLauncherApplicationBundle))
