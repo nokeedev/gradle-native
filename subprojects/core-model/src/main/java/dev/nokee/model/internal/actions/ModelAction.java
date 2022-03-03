@@ -17,12 +17,14 @@ package dev.nokee.model.internal.actions;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.FullyQualifiedName;
+import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.state.ModelState;
 import org.gradle.api.Action;
 
 import static dev.nokee.model.internal.actions.ModelSpec.named;
+import static dev.nokee.model.internal.actions.ModelSpec.self;
 import static dev.nokee.model.internal.actions.ModelSpec.stateAtLeast;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -107,6 +109,21 @@ public interface ModelAction {
 	 */
 	static <T> ModelRegistration configure(String name, Class<T> type, Action<? super T> action) {
 		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Realized)).and(named(FullyQualifiedName.of(name))),
+			new ModelActionAdapter<>(of(type), action));
+	}
+
+	/**
+	 * Creates a registration to configure a specific domain object with the specified projection type.
+	 * The model action assume a state of at least {@link ModelState#Realized}.
+	 *
+	 * @param id  the entity identifier, must not be null
+	 * @param type  the projection type to perform the action, must not be null
+	 * @param action  the action to perform, must not be null
+	 * @param <T>  the projection type
+	 * @return a registration for model action, never null
+	 */
+	static <T> ModelRegistration configure(ModelEntityId id, Class<T> type, Action<? super T> action) {
+		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Realized)).and(self(id)),
 			new ModelActionAdapter<>(of(type), action));
 	}
 
