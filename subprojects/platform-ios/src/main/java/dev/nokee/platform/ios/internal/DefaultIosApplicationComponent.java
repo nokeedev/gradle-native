@@ -21,15 +21,12 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.core.ModelAction;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -94,11 +91,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
+import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
+import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
@@ -309,22 +304,14 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	public void finalizeValue() {
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			onEachVariant(knownVariant);
-		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			createBinaries(knownVariant);
-		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).execute(knownVariant);
-		}));
+		whenElementKnown(this, this::onEachVariant);
+		whenElementKnown(this, this::createBinaries);
+		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultIosApplicationVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).execute(knownVariant);
-		}));
+		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 	}
 
-	private static void whenElementKnown(Object target, ModelAction action) {
-		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
+	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<DefaultIosApplicationVariant>> action) {
+		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), DefaultIosApplicationVariant.class, action));
 	}
 }

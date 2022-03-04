@@ -20,7 +20,7 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ElementNameComponent;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ModelObjectTester;
-import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.tasks.TaskProvider;
@@ -35,19 +35,22 @@ import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElementTester {
 	private static final MyType myTypeInstance = Mockito.mock(MyType.class);
-	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
-	private final ModelNode entity = newEntity(modelConfigurer);
+	private final ModelRegistry modelRegistry = Mockito.mock(ModelRegistry.class);
+	private final ModelNode entity = newEntity(modelRegistry);
 	private final ModelElementFactory factory = new ModelElementFactory(objectFactory()::newInstance);
 	private final ModelElement subject = factory.createElement(entity);
 
-	static ModelNode newEntity(ModelConfigurer modelConfigurer) {
-		val entity = node("foru", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
+	static ModelNode newEntity(ModelRegistry modelRegistry) {
+		val entity = node("foru", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withRegistry(modelRegistry));
 		entity.addComponent(new ElementNameComponent("tare"));
 		entity.addComponent(Mockito.mock(DomainObjectIdentifier.class));
 		entity.addComponent(new DisplayNameComponent("entity 'foru.tare'"));
@@ -75,9 +78,9 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	}
 
 	@Test
-	void forwardsConfigureUsingActionOfKnownTypeToModelConfigurer() {
+	void forwardsConfigureUsingActionOfKnownTypeAsModelActionRegistration() {
 		subject.configure(of(MyType.class), doSomething());
-		verify(modelConfigurer).configure(any());
+		verify(modelRegistry).instantiate(any());
 	}
 
 	@Test

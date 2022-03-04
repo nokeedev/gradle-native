@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.utils.ActionTestUtils;
@@ -43,12 +44,12 @@ import static org.mockito.Mockito.verify;
 
 class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements KnownDomainObjectTester<Object> {
 	private static final Object myTypeInstance = new Object();
-	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
-	private final ModelNode node = newEntity(modelConfigurer);
+	private final ModelRegistry modelRegistry = Mockito.mock(ModelRegistry.class);
+	private final ModelNode node = newEntity(modelRegistry);
 	private final DefaultKnownDomainObject<Object> subject = DefaultKnownDomainObject.of(of(Object.class), node);
 
-	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
-		val entity = node("laqu", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
+	private static ModelNode newEntity(ModelRegistry modelRegistry) {
+		val entity = node("laqu", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withRegistry(modelRegistry));
 		entity.addComponent(ModelIdentifier.of("laqu", Object.class));
 		entity.addComponent(new FullyQualifiedNameComponent("testLaqu"));
 		return entity;
@@ -105,15 +106,15 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 	}
 
 	@Test
-	void forwardsConfigureUsingActionToModelConfigurer() {
+	void forwardsConfigureUsingActionAsModelActionRegistration() {
 		subject.configure(ActionTestUtils.doSomething());
-		verify(modelConfigurer).configure(any());
+		verify(modelRegistry).instantiate(any());
 	}
 
 	@Test
-	void forwardsConfigureUsingClosureToModelConfigurer() {
+	void forwardsConfigureUsingClosureAsModelRegistration() {
 		subject.configure(ClosureTestUtils.doSomething(Object.class));
-		verify(modelConfigurer).configure(any());
+		verify(modelRegistry).instantiate(any());
 	}
 
 	@Test
@@ -127,9 +128,9 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 	}
 
 	@Test
-	void forwardsConfigureUsingActionOnConfigurableProviderToModelConfigurer() {
+	void forwardsConfigureUsingActionOnConfigurableProviderAsModelActionRegistration() {
 		subject.asProvider().configure(ActionTestUtils.doSomething());
-		verify(modelConfigurer).configure(any());
+		verify(modelRegistry).instantiate(any());
 	}
 
 	// TODO: If projection type is a Task, asProvider should return a TaskProvider instance

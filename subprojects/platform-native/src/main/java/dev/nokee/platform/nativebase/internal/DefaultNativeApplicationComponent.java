@@ -16,13 +16,10 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.ModelAction;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -37,16 +34,13 @@ import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
-import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateNativeBinaryLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
-import dev.nokee.utils.Cast;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -58,10 +52,8 @@ import org.gradle.util.ConfigureUtil;
 import javax.inject.Inject;
 import java.util.Set;
 
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
+import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
@@ -120,24 +112,15 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
 	}
 
-	@SuppressWarnings("unchecked")
 	public void finalizeExtension(Project project) {
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateNativeBinaryLifecycleTaskRule(taskRegistry).execute(knownVariant);
-		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			createBinaries((KnownDomainObject<DefaultNativeApplicationVariant>) Cast.uncheckedCast("internal vs public projection", knownVariant));
-		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).execute(knownVariant);
-		}));
+		whenElementKnown(this, new CreateNativeBinaryLifecycleTaskRule(taskRegistry));
+		whenElementKnown(this, this::createBinaries);
+		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(NativeApplication.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).execute(knownVariant);
-		}));
+		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 	}
 
-	private static void whenElementKnown(Object target, ModelAction action) {
-		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
+	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<DefaultNativeApplicationVariant>> action) {
+		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), DefaultNativeApplicationVariant.class, action));
 	}
 }

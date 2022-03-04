@@ -22,7 +22,24 @@ import dev.nokee.gradle.TaskProviderFactory;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.actions.ModelAction;
+import dev.nokee.model.internal.core.DefaultModelElement;
+import dev.nokee.model.internal.core.DefaultModelProperty;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.ModelBackedModelCastableStrategy;
+import dev.nokee.model.internal.core.ModelBackedModelElementLookupStrategy;
+import dev.nokee.model.internal.core.ModelBackedModelPropertyLookupStrategy;
+import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
+import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.core.ModelMixInStrategy;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelProperty;
+import dev.nokee.model.internal.core.ModelPropertyTag;
+import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -51,9 +68,15 @@ import static dev.nokee.model.internal.core.NodePredicate.self;
 
 public final class ModelElementFactory {
 	private final Instantiator instantiator;
+	private final boolean useLegacyModelAction;
 
 	public ModelElementFactory(Instantiator instantiator) {
+		this(instantiator, false);
+	}
+
+	public ModelElementFactory(Instantiator instantiator, boolean useLegacyModelAction) {
 		this.instantiator = Objects.requireNonNull(instantiator);
+		this.useLegacyModelAction = useLegacyModelAction;
 	}
 
 	public ModelElement createElement(ModelNode entity) {
@@ -161,10 +184,18 @@ public final class ModelElementFactory {
 					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
 						provider.configure(action);
 					} else {
-						ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+						if (useLegacyModelAction) {
+							ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+						} else {
+							ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
+						}
 					}
 				} else {
-					ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+					if (useLegacyModelAction) {
+						ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+					} else {
+						ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
+					}
 				}
 			}
 		};
@@ -287,10 +318,18 @@ public final class ModelElementFactory {
 					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
 						provider.configure(action);
 					} else {
-						ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+						if (useLegacyModelAction) {
+							ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+						} else {
+							ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
+						}
 					}
 				} else {
-					ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+					if (useLegacyModelAction) {
+						ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
+					} else {
+						ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
+					}
 				}
 			}
 		};
