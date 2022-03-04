@@ -88,4 +88,9 @@ final class DomainObjectIdentity {
 		result.put(value.getClass(), value);
 		return new DomainObjectIdentity(result);
 	}
+
+	@Override
+	public String toString() {
+		return values.toString();
+	}
 }
