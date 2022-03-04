@@ -50,6 +50,7 @@ public final class ModelPropertyRegistrationFactory {
 		val path = toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(identifier)
+			.withComponent(new OriginalEntityComponent(entity))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, id, ignored) -> {
 				// When property is realized... realize the source entity
 				if (id.equals(identifier)) {
