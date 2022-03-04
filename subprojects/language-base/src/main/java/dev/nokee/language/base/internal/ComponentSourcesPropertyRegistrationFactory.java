@@ -34,6 +34,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
+import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.model.ObjectFactory;
@@ -73,6 +74,7 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(createdUsing(of(SourceView.class), () -> new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
@@ -102,6 +104,7 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(managed(of(sourceViewType)))
 			.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
@@ -130,6 +133,7 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(createdUsing(of(sourceViewType), () -> factory.apply(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
