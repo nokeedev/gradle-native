@@ -64,6 +64,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Task.class))))
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
@@ -93,6 +94,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));

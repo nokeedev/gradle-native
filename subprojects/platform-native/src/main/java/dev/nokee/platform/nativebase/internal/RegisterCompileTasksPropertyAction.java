@@ -22,6 +22,8 @@ import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
@@ -29,6 +31,7 @@ import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import lombok.val;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileCollection;
@@ -58,7 +61,11 @@ public final class RegisterCompileTasksPropertyAction extends ModelActionWithInp
 	@Override
 	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
 		if (identifier.equals(this.identifier)) {
-			val compileTasks = registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class));
+			val compileTasks = registry.register(ModelRegistration.builder()
+				.mergeFrom(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class))
+				.withComponent(new ViewConfigurationBaseComponent(entity.getComponent(ParentComponent.class).get()))
+				.build()
+			);
 			entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
 		}
 	}

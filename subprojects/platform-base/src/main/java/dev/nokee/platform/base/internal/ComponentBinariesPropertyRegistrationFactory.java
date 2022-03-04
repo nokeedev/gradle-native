@@ -64,6 +64,7 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Binary.class))))
 			.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
