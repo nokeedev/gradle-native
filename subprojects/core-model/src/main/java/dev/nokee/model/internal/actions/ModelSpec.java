@@ -122,4 +122,14 @@ public interface ModelSpec {
 	static ModelSpec self(ModelEntityId entityRef) {
 		return new EqualSpec(new SelfRef(Objects.requireNonNull(entityRef)));
 	}
+
+	/**
+	 * Creates a specification that match a single identity entry via equality.
+	 *
+	 * @param o  the expected identity entry, must not be null
+	 * @return a new specification matching the specified identity entry via equality, never null
+	 */
+	static ModelSpec isEqual(Object o) {
+		return new EqualSpec(Objects.requireNonNull(o));
+	}
 }
