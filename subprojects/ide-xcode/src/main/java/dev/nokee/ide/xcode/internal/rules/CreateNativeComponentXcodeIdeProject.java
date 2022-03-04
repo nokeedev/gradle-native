@@ -75,7 +75,7 @@ import java.util.stream.StreamSupport;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 

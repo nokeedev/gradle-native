@@ -62,7 +62,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;

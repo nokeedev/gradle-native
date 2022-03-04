@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.c.internal.plugins;
 
-import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
@@ -23,8 +23,6 @@ import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -44,16 +42,11 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.*;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.specs.Spec;
 
 import javax.inject.Inject;
 
-import java.util.List;
-import java.util.Set;
-
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.*;
 import static org.gradle.util.ConfigureUtil.configureUsing;
 

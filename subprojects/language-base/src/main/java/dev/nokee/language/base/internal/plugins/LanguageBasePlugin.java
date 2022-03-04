@@ -19,9 +19,11 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.*;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.scripts.DefaultImporter;
 import org.gradle.api.Plugin;
@@ -44,5 +46,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 				entity.addComponent(IsLanguageSourceSet.tag());
 			}
 		}));
+		project.getExtensions().add(ComponentSourcesPropertyRegistrationFactory.class, "__nokee_componentSourcesPropertyFactory", new ComponentSourcesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));
 	}
 }

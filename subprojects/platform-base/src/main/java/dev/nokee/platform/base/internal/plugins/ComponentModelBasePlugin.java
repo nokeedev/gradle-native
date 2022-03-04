@@ -16,7 +16,6 @@
 package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.reflect.TypeToken;
-import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
@@ -45,7 +44,6 @@ import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentVariantsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
@@ -75,7 +73,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		project.getPluginManager().apply("lifecycle-base");
-		project.getPluginManager().apply(LanguageBasePlugin.class);
 		project.getPluginManager().apply(TaskBasePlugin.class);
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
@@ -90,7 +87,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		}));
 
 		project.getExtensions().add(ComponentVariantsPropertyRegistrationFactory.class, "__nokee_componentVariantsPropertyFactory", new ComponentVariantsPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));
-		project.getExtensions().add(ComponentSourcesPropertyRegistrationFactory.class, "__nokee_componentSourcesPropertyFactory", new ComponentSourcesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));
 		project.getExtensions().add(ComponentDependenciesPropertyRegistrationFactory.class, "__nokee_componentDependenciesPropertyFactory", new ComponentDependenciesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getExtensions().getByType(ModelLookup.class)));
 		project.getExtensions().add(ComponentBinariesPropertyRegistrationFactory.class, "__nokee_componentBinariesPropertyFactory", new ComponentBinariesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));
 		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));

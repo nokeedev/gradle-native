@@ -8,6 +8,7 @@ plugins {
 }
 
 dependencies {
+	api project(':platformBase')
 	compileOnly project(':gradleAnnotation')
 	api project(':coreModel')
 	implementation project(':coreUtils')

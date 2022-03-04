@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.language.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.platform.base.internal.ComponentName;
 
 import java.util.Arrays;
 import java.util.List;

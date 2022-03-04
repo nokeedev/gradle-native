@@ -24,14 +24,6 @@ import spock.lang.Subject
 class ComponentModelBasePluginTest extends Specification {
 	def project = ProjectTestUtils.rootProject()
 
-	def "applies language base plugin"() {
-		when:
-		project.apply plugin: ComponentModelBasePlugin
-
-		then:
-		project.plugins.hasPlugin(LanguageBasePlugin)
-	}
-
 	def "applies task base plugin"() {
 		when:
 		project.apply plugin: TaskBasePlugin

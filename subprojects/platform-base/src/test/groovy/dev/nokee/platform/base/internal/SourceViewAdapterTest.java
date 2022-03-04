@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.platform.base.View;
 import org.mockito.Mockito;
 

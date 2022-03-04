@@ -101,7 +101,7 @@ import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
-import static dev.nokee.platform.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
 public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements Component
