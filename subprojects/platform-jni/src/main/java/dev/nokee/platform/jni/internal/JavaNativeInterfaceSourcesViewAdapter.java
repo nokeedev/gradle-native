@@ -19,7 +19,6 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.HasName;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -148,22 +147,22 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	@Override
-	public void whenElementKnownEx(Action<? super KnownDomainObject<LanguageSourceSet>> action) {
+	public void whenElementKnown(Action<? super KnownDomainObject<LanguageSourceSet>> action) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void whenElementKnownEx(@SuppressWarnings("rawtypes") Closure closure) {
+	public void whenElementKnown(@SuppressWarnings("rawtypes") Closure closure) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> void whenElementKnownEx(Class<S> type, Action<? super KnownDomainObject<S>> action) {
+	public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> void whenElementKnownEx(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
+	public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -204,20 +203,15 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	@Override
-	public DomainObjectProvider<LanguageSourceSet> get(String name) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public <S extends LanguageSourceSet> DomainObjectProvider<S> get(String name, Class<S> type) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public <S extends LanguageSourceSet> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
 		if (delegate instanceof ViewAdapter) {
 			return ((ViewAdapter<LanguageSourceSet>) delegate).named(name, type);
 		}
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public <S extends LanguageSourceSet> View<S> withType(Class<S> type) {
+		return delegate.withType(type);
 	}
 }

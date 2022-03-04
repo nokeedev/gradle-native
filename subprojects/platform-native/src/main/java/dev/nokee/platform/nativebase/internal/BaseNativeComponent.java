@@ -148,7 +148,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			it.getBinaries().configureEach(NativeBinary.class, binary -> {
 				binary.getCompileTasks().configureEach(NativeSourceCompile.class, task -> {
 					val taskInternal = (AbstractNativeCompileTask) task;
-					sourceViewOf(this).whenElementKnownEx(NativeHeaderSet.class, knownSourceSet -> {
+					sourceViewOf(this).whenElementKnown(NativeHeaderSet.class, knownSourceSet -> {
 						taskInternal.getIncludes().from(knownSourceSet.map(LanguageSourceSet::getSourceDirectories));
 					});
 				});

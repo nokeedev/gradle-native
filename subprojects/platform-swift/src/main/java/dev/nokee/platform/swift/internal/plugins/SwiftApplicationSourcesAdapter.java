@@ -17,8 +17,8 @@ package dev.nokee.platform.swift.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.swift.SwiftApplicationSources;
 import groovy.lang.Closure;
@@ -94,22 +94,22 @@ public final class SwiftApplicationSourcesAdapter implements SwiftApplicationSou
 	}
 
 	@Override
-	public void whenElementKnownEx(Action<? super KnownDomainObject<LanguageSourceSet>> action) {
+	public void whenElementKnown(Action<? super KnownDomainObject<LanguageSourceSet>> action) {
 		delegate.whenElementKnown(action);
 	}
 
 	@Override
-	public void whenElementKnownEx(@SuppressWarnings("rawtypes") Closure closure) {
+	public void whenElementKnown(@SuppressWarnings("rawtypes") Closure closure) {
 		delegate.whenElementKnown(closure);
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> void whenElementKnownEx(Class<S> type, Action<? super KnownDomainObject<S>> action) {
+	public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, Action<? super KnownDomainObject<S>> action) {
 		delegate.whenElementKnown(type, action);
 	}
 
 	@Override
-	public <S extends LanguageSourceSet> void whenElementKnownEx(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
+	public <S extends LanguageSourceSet> void whenElementKnown(Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
 		delegate.whenElementKnown(type, closure);
 	}
 
@@ -134,18 +134,13 @@ public final class SwiftApplicationSourcesAdapter implements SwiftApplicationSou
 	}
 
 	@Override
-	public DomainObjectProvider<LanguageSourceSet> get(String name) {
-		throw new UnsupportedOperationException("Use named(String) instead.");
-	}
-
-	@Override
-	public <S extends LanguageSourceSet> DomainObjectProvider<S> get(String name, Class<S> type) {
-		throw new UnsupportedOperationException("Use named(String, Class) instead.");
-	}
-
-	@Override
 	public <S extends LanguageSourceSet> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
 		return delegate.named(name, type);
+	}
+
+	@Override
+	public <S extends LanguageSourceSet> View<S> withType(Class<S> type) {
+		return delegate.withType(type);
 	}
 
 	@Override
