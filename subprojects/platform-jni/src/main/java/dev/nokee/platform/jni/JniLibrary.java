@@ -15,8 +15,8 @@
  */
 package dev.nokee.platform.jni;
 
-import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;

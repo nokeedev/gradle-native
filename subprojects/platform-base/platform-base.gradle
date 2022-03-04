@@ -11,7 +11,6 @@ plugins {
 dependencies {
 	api project(':coreModel')
 	implementation project(':gradleApi')
-	implementation project(':languageBase')
 	implementation project(':coreUtils')
 	implementation project(':runtimeBase')
 	implementation "com.google.guava:guava:${guavaVersion}"
