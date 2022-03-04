@@ -25,4 +25,9 @@ final class AncestorRef {
 	public AncestorRef(ModelEntityId entityRef) {
 		this.entityRef = entityRef;
 	}
+
+	@Override
+	public String toString() {
+		return entityRef.toString();
+	}
 }

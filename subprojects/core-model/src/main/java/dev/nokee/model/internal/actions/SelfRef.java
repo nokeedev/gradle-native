@@ -29,4 +29,9 @@ final class SelfRef {
 	public ModelEntityId get() {
 		return entityRef;
 	}
+
+	@Override
+	public String toString() {
+		return entityRef.toString();
+	}
 }

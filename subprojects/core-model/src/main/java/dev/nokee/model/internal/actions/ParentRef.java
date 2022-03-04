@@ -29,4 +29,9 @@ final class ParentRef {
 	public ModelEntityId get() {
 		return entityRef;
 	}
+
+	@Override
+	public String toString() {
+		return entityRef.toString();
+	}
 }
