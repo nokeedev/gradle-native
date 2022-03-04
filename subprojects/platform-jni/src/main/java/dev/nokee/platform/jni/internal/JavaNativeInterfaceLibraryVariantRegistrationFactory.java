@@ -55,6 +55,7 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.language.base.internal.ComponentSourcesPropertyRegistrationFactory;
@@ -223,6 +224,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 							}));
 							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(TaskIdentifier.class), ModelComponentReference.ofInstance(projectionOf(TaskProvider.class)), (e, i, p) -> {
 								if (i.getOwnerIdentifier().equals(sourceSetIdentifier)) {
+									e.addComponent(CompileTaskTag.tag());
 									NamedDomainObjectProvider<Task> compileTask = p.get(of(NamedDomainObjectProvider.class));
 									compileTask.configure(configureTargetPlatform(set(fromBuildVariant(identifier.getBuildVariant()))));
 									registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ModelNodes.of(sharedLibrary).getComponent(BinaryIdentifier.class), "compileTasks"), "compile" + capitalize(sourceSetIdentifier.getName().get())), e));

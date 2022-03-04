@@ -20,6 +20,7 @@ import com.google.auto.factory.Provided;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -29,7 +30,9 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.internal.BaseModelSpecComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import lombok.val;
@@ -64,6 +67,7 @@ public final class RegisterCompileTasksPropertyAction extends ModelActionWithInp
 			val compileTasks = registry.register(ModelRegistration.builder()
 				.mergeFrom(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class))
 				.withComponent(new ViewConfigurationBaseComponent(entity.getComponent(ParentComponent.class).get()))
+				.withComponent(new BaseModelSpecComponent(ModelSpec.isEqual(CompileTaskTag.tag())))
 				.build()
 			);
 			entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
