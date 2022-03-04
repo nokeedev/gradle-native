@@ -59,6 +59,7 @@ public final class ComponentDependenciesPropertyRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(ComponentElementsTag.tag())
 			.withComponent(new ViewConfigurationBaseComponent(lookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(DependencyBucket.class))))
 			.withComponent(createdUsing(of(type), instance::get))
