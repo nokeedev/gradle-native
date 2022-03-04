@@ -27,6 +27,7 @@ import org.gradle.api.specs.Spec;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.model.internal.state.ModelState.Registered;
@@ -341,8 +342,10 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			val parentPath = ModelNodeUtils.getPath(node).getParent();
-			return parentPath.isPresent() && parentPath.get().equals(this.parentPath);
+			return node.findComponent(componentOf(ModelPath.class))
+				.flatMap(ModelPath::getParent)
+				.map(parentPath::equals)
+				.orElse(false);
 		}
 
 		@Override
@@ -379,7 +382,9 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return ancestorPath.isDescendant(ModelNodeUtils.getPath(node));
+			return node.findComponent(componentOf(ModelPath.class))
+				.map(ancestorPath::isDescendant)
+				.orElse(false);
 		}
 
 		@Override
@@ -435,7 +440,7 @@ public final class ModelNodes {
 
 		@Override
 		public boolean test(ModelNode node) {
-			return ModelNodeUtils.getPath(node).equals(path);
+			return node.findComponent(componentOf(ModelPath.class)).map(path::equals).orElse(false);
 		}
 
 		@Override
