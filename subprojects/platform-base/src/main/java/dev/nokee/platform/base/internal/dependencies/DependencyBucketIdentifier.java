@@ -16,12 +16,9 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.EqualsAndHashCode;
@@ -44,14 +41,9 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 	private DependencyBucketIdentifier(DependencyBucketIdentity identity, Class<?> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(type != null, "Cannot construct a dependency identifier because the bucket type is null.");
 		checkArgument(ownerIdentifier != null, "Cannot construct a dependency identifier because the owner identifier is null.");
-		checkArgument(isValidOwner(ownerIdentifier), "Cannot construct a dependency identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier, VariantIdentifier, LanguageSourceSetIdentifier and BinaryIdentifier are accepted.");
 		this.identity = identity;
 		this.type = type;
 		this.ownerIdentifier = ownerIdentifier;
-	}
-
-	private static boolean isValidOwner(DomainObjectIdentifier ownerIdentifier) {
-		return ownerIdentifier instanceof ProjectIdentifier || ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier || ownerIdentifier instanceof LanguageSourceSetIdentifier || ownerIdentifier instanceof BinaryIdentifier;
 	}
 
 	public DependencyBucketName getName() {
