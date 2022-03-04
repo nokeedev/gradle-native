@@ -16,8 +16,6 @@
 package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.reflect.TypeToken;
-import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
@@ -25,17 +23,12 @@ import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
-import dev.nokee.model.internal.core.NodeAction;
-import dev.nokee.model.internal.core.NodePredicate;
 import dev.nokee.model.internal.core.NodeRegistration;
-import dev.nokee.model.internal.core.RelativeConfigurationService;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -45,7 +38,6 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
-import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariants;
@@ -53,7 +45,6 @@ import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentVariantsPropertyRegistrationFactory;
@@ -74,17 +65,9 @@ import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.function.Consumer;
 
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
-import static dev.nokee.model.internal.BaseNamedDomainObjectView.namedView;
-import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelNodes.discover;
-import static dev.nokee.model.internal.core.ModelNodes.mutate;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.maven;
-import static dev.nokee.platform.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	@Override
@@ -149,34 +132,5 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 	private static NodeRegistration components() {
 		return namedContainer("components", of(DefaultComponentContainer.class));
-	}
-
-	public static <T extends Component> NodeRegistration component(String name, Class<T> type) {
-		return NodeRegistration.of(name, of(type))
-			.action(configureSourceSetConventionUsingMavenLayout(ComponentName.of(name)));
-	}
-
-	public static <T extends Component> NodeRegistration component(String name, Class<T> type, Factory<T> factory) {
-		return NodeRegistration.unmanaged(name, of(type), factory)
-			.action(configureSourceSetConventionUsingMavenLayout(ComponentName.of(name)));
-	}
-
-	private static NodeAction configureSourceSetConventionUsingMavenLayout(ComponentName componentName) {
-		return whenComponentSourcesDiscovered().apply(configureEachSourceSet(of(LanguageSourceSet.class), withConventionOf(maven(componentName))));
-	}
-
-	public static <T extends LanguageSourceSet> ModelAction configureEachSourceSet(ModelType<T> type, Consumer<? super T> action) {
-		return ModelActionWithInputs.of(ModelComponentReference.of(RelativeConfigurationService.class), (node, configure) -> {
-			assert ModelNodeUtils.canBeViewedAs(node, of(ComponentSources.class)) : "should only apply to ComponentSources";
-			ModelNodeUtils.applyTo(node, allDirectDescendants(mutate(type)).apply(executeUsingProjection(type, action::accept)));
-		});
-	}
-
-	public static NodePredicate whenComponentSourcesDiscovered() {
-		return allDirectDescendants(discover(of(ComponentSources.class)));
-	}
-
-	public static <T extends ComponentSources> NodeRegistration componentSourcesOf(Class<T> sourcesType) {
-		return namedView("sources", of(sourcesType));
 	}
 }
