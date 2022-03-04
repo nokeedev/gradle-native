@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -62,6 +63,7 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Binary.class))))
 			.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));

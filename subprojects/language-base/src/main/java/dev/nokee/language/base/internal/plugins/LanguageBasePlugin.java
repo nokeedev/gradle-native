@@ -16,7 +16,13 @@
 package dev.nokee.language.base.internal.plugins;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.*;
+import dev.nokee.language.base.internal.ComponentSourcesPropertyRegistrationFactory;
+import dev.nokee.language.base.internal.HasConfigurableSourceMixInRule;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourcePropertyRegistrationActionFactory;
+import dev.nokee.language.base.internal.SourceSetFactory;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
@@ -44,6 +50,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(LanguageSourceSet.class).asKnownObject(), (entity, knownSourceSet) -> {
 			if (!entity.hasComponent(ModelPropertyTag.class)) {
 				entity.addComponent(IsLanguageSourceSet.tag());
+				entity.addComponent(ConfigurableTag.tag());
 			}
 		}));
 		project.getExtensions().add(ComponentSourcesPropertyRegistrationFactory.class, "__nokee_componentSourcesPropertyFactory", new ComponentSourcesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));

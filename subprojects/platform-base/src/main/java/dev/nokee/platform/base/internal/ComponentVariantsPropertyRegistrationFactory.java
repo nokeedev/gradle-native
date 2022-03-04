@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -54,6 +55,7 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(ModelPropertyTag.instance())
+			.withComponent(ConfigurableTag.tag())
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
 			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, objects, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofProjection(elementType), (e, p, ignored1, ignored2, projection) -> {
