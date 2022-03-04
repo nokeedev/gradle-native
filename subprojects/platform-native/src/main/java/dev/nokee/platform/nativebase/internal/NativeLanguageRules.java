@@ -58,11 +58,11 @@ public class NativeLanguageRules {
 
 	public DomainObjectSet<ObjectSourceSet> apply(FunctionalSourceSet sourceSets) {
 		val objectSourceSets = objects.domainObjectSet(ObjectSourceSet.class);
-		sourceSets.whenElementKnownEx(CSourceSet.class, it -> createNativeCompileTask(CCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
-		sourceSets.whenElementKnownEx(CppSourceSet.class, it -> createNativeCompileTask(CppCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
-		sourceSets.whenElementKnownEx(ObjectiveCSourceSet.class, it -> createNativeCompileTask(ObjectiveCCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
-		sourceSets.whenElementKnownEx(ObjectiveCppSourceSet.class, it -> createNativeCompileTask(ObjectiveCppCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
-		sourceSets.whenElementKnownEx(SwiftSourceSet.class, it -> ((Function<KnownDomainObject<? extends LanguageSourceSet>, TaskProvider<SwiftCompileTask>>)this::createSwiftCompileTask).andThen(this::newObjectSourceSetFromSwiftCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(CSourceSet.class, it -> createNativeCompileTask(CCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(CppSourceSet.class, it -> createNativeCompileTask(CppCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(ObjectiveCSourceSet.class, it -> createNativeCompileTask(ObjectiveCCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(ObjectiveCppSourceSet.class, it -> createNativeCompileTask(ObjectiveCppCompileTask.class).andThen(this::newObjectSourceSetFromNativeCompileTask).andThen(objectSourceSets::add).apply(it));
+		sourceSets.whenElementKnown(SwiftSourceSet.class, it -> ((Function<KnownDomainObject<? extends LanguageSourceSet>, TaskProvider<SwiftCompileTask>>)this::createSwiftCompileTask).andThen(this::newObjectSourceSetFromSwiftCompileTask).andThen(objectSourceSets::add).apply(it));
 		return objectSourceSets;
 	}
 
