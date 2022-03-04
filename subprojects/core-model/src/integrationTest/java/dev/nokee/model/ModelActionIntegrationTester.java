@@ -27,9 +27,9 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
+import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,6 +62,10 @@ abstract class ModelActionIntegrationTester {
 	public abstract ModelSpec spec();
 	public abstract ModelRegistration newEntityMatchingSpec();
 	public abstract ModelRegistration newEntityNotMatchingSpec();
+
+	public DefaultModelRegistry registry() {
+		return (DefaultModelRegistry) registry;
+	}
 
 	@BeforeEach
 	void setUp() {

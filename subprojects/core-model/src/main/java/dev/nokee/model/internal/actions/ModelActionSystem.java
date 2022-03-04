@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.ElementNameComponent;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelEntityId;
@@ -251,5 +252,15 @@ public final class ModelActionSystem implements Action<Project> {
 			val selector = entity.findComponent(componentOf(ActionSelectorComponent.class));
 			return selector.map(t -> ((Spec<DomainObjectIdentity>) component.get()).isSatisfiedBy(t.get())).orElse(false);
 		};
+	}
+
+	// ComponentFromEntity<ActionSelectorComponent> read-write self
+	public static <T> ModelAction updateSelectorForTag(Class<T> componentType) {
+		return ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(componentType), (entity, tag, component) -> {
+			entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+				.map(ActionSelectorComponent::get)
+				.map(it -> it.with(component))
+				.orElseGet(() -> DomainObjectIdentity.of(component))));
+		});
 	}
 }

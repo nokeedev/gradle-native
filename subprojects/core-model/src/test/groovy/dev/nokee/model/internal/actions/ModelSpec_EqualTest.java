@@ -15,8 +15,11 @@
  */
 package dev.nokee.model.internal.actions;
 
+import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ModelSpec_EqualTest implements ModelSpecTester<EqualSpec> {
@@ -41,5 +44,11 @@ class ModelSpec_EqualTest implements ModelSpecTester<EqualSpec> {
 	@Test
 	void doesNotSatisfyOnEmptyIdentity() {
 		assertFalse(subject().isSatisfiedBy(emptyIdentity()));
+	}
+
+	@Test
+	void canCreateSpecUsingFactoryMethod() {
+		val obj = new Object();
+		assertEquals(new EqualSpec(obj), isEqual(obj));
 	}
 }
