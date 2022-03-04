@@ -16,12 +16,11 @@
 package dev.nokee.platform.base.internal.tasks
 
 import dev.nokee.model.DomainObjectIdentifier
-import dev.nokee.model.internal.DomainObjectIdentifierInternal
+import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import org.gradle.api.Task
 import spock.lang.Specification
@@ -259,15 +258,6 @@ class TaskIdentifierTest extends Specification {
 		then:
 		def ex = thrown(IllegalArgumentException)
 		ex.message == 'Cannot construct a task identifier because the owner identifier is null.'
-	}
-
-	def "throws exception when owner is not a project, component or variant"() {
-		when:
-        TaskIdentifier.of(TaskName.of('create'), TestableTask, Mock(DomainObjectIdentifierInternal))
-
-		then:
-		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a task identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier, VariantIdentifier, LanguageSourceSetIdentifier and BinaryIdentifier are accepted.'
 	}
 
 	def "can compare identifier based on task name"() {

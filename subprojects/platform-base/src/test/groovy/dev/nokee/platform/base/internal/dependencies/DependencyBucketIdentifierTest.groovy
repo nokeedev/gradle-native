@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies
 
-import dev.nokee.model.internal.DomainObjectIdentifierInternal
+
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.DependencyBucket
 import dev.nokee.platform.base.Variant
@@ -24,9 +24,7 @@ import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.*
 
 @Subject(DependencyBucketIdentifier)
 class DependencyBucketIdentifierTest extends Specification {
@@ -104,15 +102,6 @@ class DependencyBucketIdentifierTest extends Specification {
 		then:
 		def ex = thrown(IllegalArgumentException)
 		ex.message == 'Cannot construct a dependency identifier because the owner identifier is null.'
-	}
-
-	def "throws exception when owner is not a project, component or variant"() {
-		when:
-		DependencyBucketIdentifier.of(declarable('implementation'), Mock(DomainObjectIdentifierInternal))
-
-		then:
-		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a dependency identifier because the owner identifier is invalid, only ProjectIdentifier, ComponentIdentifier, VariantIdentifier, LanguageSourceSetIdentifier and BinaryIdentifier are accepted.'
 	}
 
 	def "has to string"() {
