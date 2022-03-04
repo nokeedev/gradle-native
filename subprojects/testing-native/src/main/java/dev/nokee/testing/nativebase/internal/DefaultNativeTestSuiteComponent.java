@@ -17,15 +17,15 @@ package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.internal.core.ModelAction;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.HasName;
+import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.actions.ModelSpec;
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -33,7 +33,6 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -89,12 +88,10 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static com.google.common.base.Predicates.instanceOf;
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
+import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
+import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
@@ -180,16 +177,10 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	public void finalizeExtension(Project project) {
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultNativeTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			createBinaries(knownVariant);
-		}));
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultNativeTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantObjectsLifecycleTaskRule(taskRegistry).execute(knownVariant);
-		}));
+		whenElementKnown(this, this::createBinaries);
+		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.ofProjection(DefaultNativeTestSuiteVariant.class).asKnownObject(), (entity, variantIdentifier, knownVariant) -> {
-			new CreateVariantAssembleLifecycleTaskRule(taskRegistry).execute(knownVariant);
-		}));
+		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
@@ -235,11 +226,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			}));
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			whenElementKnown(component, ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), (entity, a, b, c) -> {
+			instantiate(component.getNode(), ModelAction.whenElementKnown(ModelSpec.descendantOf(component.getNode().getId()), LanguageSourceSet.class, knownSourceSet -> {
 				// TODO: should have a way to report the public type of the "main" projection
 				//   The known and provider should use the public type of the projection... instead of the "assumed type"
 				//   BUT should it... seems a bit hacky... check what Software Model did.
-				@SuppressWarnings("unchecked") val sourceSetType = (Class<? extends LanguageSourceSet>) c.getType().getConcreteType();
+				val sourceSetType = (Class<? extends LanguageSourceSet>) knownSourceSet.getType();
 				// If source set don't already exists on test suite
 				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(getNode())).and(withType(of(sourceSetType)))))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
@@ -248,7 +239,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
 						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, "headers"), sourceSetType).build());
 					} else {
-						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, entity.getComponent(LanguageSourceSetIdentifier.class).getName().toString()), sourceSetType).build());
+						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, ((HasName) knownSourceSet.getIdentifier()).getName().toString()), sourceSetType).build());
 					}
 				}
 			}));
@@ -321,7 +312,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		}
 	}
 
-	private static void whenElementKnown(Object target, ModelAction action) {
-		applyTo(ModelNodes.of(target), allDirectDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
+	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<DefaultNativeTestSuiteVariant>> action) {
+		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), DefaultNativeTestSuiteVariant.class, action));
 	}
 }

@@ -20,7 +20,7 @@ import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
-import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -39,20 +39,25 @@ import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjectTester<DefaultModelObjectBackedByModelEntityIntegrationTest.MyType> {
 	private static final MyType myTypeInstance = Mockito.mock(MyType.class);
-	private final ModelConfigurer modelConfigurer = Mockito.mock(ModelConfigurer.class);
-	private final ModelNode node = newEntity(modelConfigurer);
+	private final ModelRegistry modelRegistry = Mockito.mock(ModelRegistry.class);
+	private final ModelNode node = newEntity(modelRegistry);
 	private final ModelElementFactory factory = new ModelElementFactory(objectFactory()::newInstance);
 	private final DomainObjectProvider<MyType> subject = factory.createObject(node, of(MyType.class));
 
-	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
-		val entity = node("qibe", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withConfigurer(modelConfigurer));
+	private static ModelNode newEntity(ModelRegistry modelRegistry) {
+		val entity = node("qibe", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withRegistry(modelRegistry));
 		entity.addComponent(ModelIdentifier.of("qibe", Object.class));
 		entity.addComponent(new FullyQualifiedNameComponent("testQibe"));
 		return entity;
@@ -120,15 +125,15 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 	}
 
 	@Test
-	void forwardsConfigureUsingActionToModelConfigurer() {
+	void forwardsConfigureUsingActionAsModelActionRegistration() {
 		subject.configure(ActionTestUtils.doSomething());
-		verify(modelConfigurer).configure(any());
+		verify(modelRegistry).instantiate(any());
 	}
 
 	@Test
-	void forwardsConfigureUsingClosureToModelConfigurer() {
+	void forwardsConfigureUsingClosureAsModelActionRegistration() {
 		subject.configure(ClosureTestUtils.doSomething(Object.class));
-		verify(modelConfigurer).configure(any());
+		verify(modelRegistry).instantiate(any());
 	}
 
 	@Test
@@ -142,9 +147,9 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 	}
 
 	@Test
-	void forwardsConfigureUsingActionOnConfigurableProviderToModelConfigurer() {
+	void forwardsConfigureUsingActionOnConfigurableProviderAsModelActionRegistration() {
 		subject.asProvider().configure(ActionTestUtils.doSomething());
-		verify(modelConfigurer).configure(any());
+		verify(modelRegistry).instantiate(any());
 	}
 
 	@Nested

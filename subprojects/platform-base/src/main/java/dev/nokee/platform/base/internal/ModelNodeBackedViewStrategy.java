@@ -17,11 +17,14 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ModelElementFactory;
+import dev.nokee.model.internal.actions.ModelAction;
+import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.core.OriginalEntityComponent;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -33,10 +36,8 @@ import org.gradle.api.tasks.TaskProvider;
 
 import java.util.Set;
 
-import static dev.nokee.model.internal.core.ModelActions.*;
-import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
+import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
@@ -66,8 +67,12 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 
 	@Override
 	public <T> void configureEach(Class<T> elementType, Action<? super T> action) {
-		applyTo(entity, allDirectDescendants(stateAtLeast(ModelState.Realized).and(ModelNodes.withType(of(elementType))))
-			.apply(once(executeUsingProjection(of(elementType), action))));
+		val descendantOfSpec = descendantOf(entity.getComponent(ViewConfigurationBaseComponent.class).get().getId());
+		if (entity.hasComponent(BaseModelSpecComponent.class)) {
+			instantiate(entity, ModelAction.configureEach(entity.getComponent(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
+		} else {
+			instantiate(entity, ModelAction.configureEach(descendantOfSpec, elementType, action));
+		}
 	}
 
 	@Override
@@ -97,17 +102,17 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 
 	@Override
 	public <T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action) {
-		applyTo(entity, allDirectDescendants(stateAtLeast(ModelState.Created).and(ModelNodes.withType(of(elementType))))
-			.apply(once(executeAsKnownProjection(of(elementType), action))));
+		val descendantOfSpec = descendantOf(entity.getComponent(ViewConfigurationBaseComponent.class).get().getId());
+		if (entity.hasComponent(BaseModelSpecComponent.class)) {
+			instantiate(entity, ModelAction.whenElementKnown(entity.getComponent(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
+		} else {
+			instantiate(entity, ModelAction.whenElementKnown(descendantOfSpec, elementType, action));
+		}
 	}
 
 	@Override
 	public <T> NamedDomainObjectProvider<T> named(String name, Class<T> elementType) {
-		val result = ModelProperties.findProperty(entity, name);
-		if (result.isPresent()) {
-			return result.get().as(elementType).asProvider();
-		}
-		throw new RuntimeException(String.format("Element '%s' not found.", name));
+		return entity.getComponent(ModelComponentType.componentOf(ModelElementFactory.class)).createObject(ModelNodeUtils.getDescendant(entity, name).getComponent(ModelComponentType.componentOf(OriginalEntityComponent.class)).get(), of(elementType)).asProvider();
 	}
 
 	private static final class RunOnceRunnable implements Runnable {

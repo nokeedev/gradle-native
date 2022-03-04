@@ -26,7 +26,11 @@ public final class RelativeRegistrationService {
 		this.modelRegistry = modelRegistry;
 	}
 
-	public <T> ModelElement register(NodeRegistration registration) {
+	public ModelElement register(NodeRegistration registration) {
 		return modelRegistry.register(registration.scope(path));
+	}
+
+	public ModelNode instantiate(ModelRegistration registration) {
+		return modelRegistry.instantiate(registration);
 	}
 }

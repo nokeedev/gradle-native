@@ -29,7 +29,6 @@ import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
-import dev.nokee.language.nativebase.internal.ProjectHeaderSearchPaths;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.DependencyFactory;
@@ -37,8 +36,18 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelProperty;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -47,14 +56,33 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.*;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryIdentity;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentNamer;
+import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ConfigurationNamer;
+import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.GroupId;
+import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.TaskRegistrationFactory;
+import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.jni.*;
+import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
+import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
+import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
+import dev.nokee.platform.jni.JniJarBinary;
+import dev.nokee.platform.jni.JniLibrary;
+import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -81,18 +109,17 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
-import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.NodePredicate.allDescendants;
-import static dev.nokee.model.internal.core.NodePredicate.self;
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
+import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.model.internal.actions.ModelAction.configureEach;
+import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
+import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
@@ -101,7 +128,9 @@ import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskPropertie
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
-import static dev.nokee.utils.TaskUtils.*;
+import static dev.nokee.utils.TaskUtils.configureBuildGroup;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static dev.nokee.utils.TaskUtils.configureDescription;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
@@ -333,8 +362,8 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JavaLanguageSourceSet.class), (entity, id, variants, sourceSet) -> {
 				if (id.equals(identifier)) {
-					whenElementKnown(entity, ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ProjectHeaderSearchPaths.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, i, ss, l, ignored) -> {
-						if (!i.getOwnerIdentifier().equals(identifier) && ss instanceof HasHeaders) {
+					instantiate(entity, dev.nokee.model.internal.actions.ModelAction.configureEach(descendantOf(entity.getId()), LanguageSourceSet.class, ss -> {
+						if (ss instanceof HasHeaders) {
 							((ConfigurableSourceSet) ((HasHeaders) ss).getHeaders()).convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
 						}
 					}));
@@ -342,11 +371,9 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JvmJarArtifact.class), (entity, id, variants, jvmJar) -> {
 				if (id.equals(identifier)) {
-					variants.forEach(it -> {
-						applyTo(it, self(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTask.class), (e, assembleTask) -> {
-							assembleTask.configure(configureDependsOn(jvmJar));
-						})));
-					});
+					instantiate(entity, configureEach(ownedBy(entity.getId()), JniLibraryInternal.class, variant -> {
+						variant.getAssembleTask().configure(configureDependsOn(jvmJar));
+					}));
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asDomainObject(), (entity, id, ignored, jvmJar, component) -> {
@@ -362,10 +389,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.build()
 			;
-	}
-
-	private static void whenElementKnown(Object target, ModelAction action) {
-		applyTo(ModelNodes.of(target), allDescendants(stateAtLeast(ModelState.Created)).apply(once(action)));
 	}
 
 	private static void assertTargetMachinesAreKnown(Iterable<Coordinate<TargetMachine>> targetMachines, ToolChainSelectorInternal toolChainSelector) {

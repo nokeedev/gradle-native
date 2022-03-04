@@ -167,6 +167,10 @@ public final class ModelNodeUtils {
 		self.getComponent(RelativeConfigurationService.class).applyTo(action);
 	}
 
+	public static ModelNode instantiate(ModelNode self, ModelRegistration registration) {
+		return self.getComponent(RelativeRegistrationService.class).instantiate(registration);
+	}
+
 	/**
 	 * Returns the path of this model node.
 	 *

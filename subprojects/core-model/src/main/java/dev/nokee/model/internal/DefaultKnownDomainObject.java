@@ -21,8 +21,12 @@ import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.internal.provider.ProviderConvertibleInternal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.actions.ModelAction;
+import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
@@ -37,10 +41,6 @@ import org.gradle.api.provider.Provider;
 
 import java.util.function.Supplier;
 
-import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -67,7 +67,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 			@Override
 			public <S> void configure(ModelType<S> t, Action<? super S> action) {
 				assert fullType.equals(t);
-				ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(t, action))));
+				ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), t.getConcreteType(), action));
 			}
 		};
 		val factory = new NamedDomainObjectProviderFactory();
