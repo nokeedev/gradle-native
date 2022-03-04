@@ -74,7 +74,9 @@ public final class ModelStates {
 		if (!self.hasComponent(ModelState.IsAtLeastInitialized.class)) {
 			create(self);
 			if (self.hasComponent(ModelState.class)) {
-				self.setComponent(ModelState.class, ModelState.Initialized);
+				if (!self.getComponent(ModelState.class).isAtLeast(ModelState.Initialized)) {
+					self.setComponent(ModelState.class, ModelState.Initialized);
+				}
 			} else {
 				self.addComponent(ModelState.Initialized);
 			}
@@ -90,7 +92,9 @@ public final class ModelStates {
 				if (!self.hasComponent(Registering.class)) {
 					self.addComponent(new Registering());
 					if (self.hasComponent(ModelState.class)) {
-						self.setComponent(ModelState.class, ModelState.Registered);
+						if (!self.getComponent(ModelState.class).isAtLeast(ModelState.Registered)) {
+							self.setComponent(ModelState.class, ModelState.Registered);
+						}
 					} else {
 						self.addComponent(ModelState.Registered);
 					}
