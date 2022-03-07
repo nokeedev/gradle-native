@@ -1,8 +1,6 @@
 plugins {
 	id 'dev.gradleplugins.groovy-gradle-plugin'
 	id 'java-test-fixtures'
-	id 'dev.gradleplugins.gradle-plugin-functional-test'
-	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
 group = 'dev.nokee.docs'
@@ -55,21 +53,4 @@ dependencies {
 	testFixturesImplementation 'junit:junit:4.13'
 	testFixturesImplementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	testFixturesCompileOnly "org.codehaus.groovy:groovy-xml:${groovyVersion}"
-}
-
-test {
-	dependencies {
-		implementation spockFramework()
-		implementation groovy()
-		runtimeOnly 'net.bytebuddy:byte-buddy:1.10.9'
-		runtimeOnly 'org.objenesis:objenesis:3.1'
-	}
-}
-
-functionalTest {
-	dependencies {
-		implementation spockFramework()
-		implementation gradleFixtures()
-		implementation gradleTestKit()
-	}
 }
