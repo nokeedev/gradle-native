@@ -21,7 +21,6 @@ gradlePlugin {
 repositories {
 	mavenCentral()
 	gradlePluginDevelopment()
-	gradlePluginPortal() { mavenContent { it.includeModule('org.jbake', 'jbake-gradle-plugin') } }
 }
 
 dependencies {
