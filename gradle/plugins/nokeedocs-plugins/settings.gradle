@@ -1,0 +1,14 @@
+plugins {
+	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.4'
+}
+
+rootProject.name = 'nokeedocs-plugins'
+
+includeBuild '../documentation-kit-plugins'
+includeBuild '../jbake-gradle-plugin'
+
+gradle.allprojects {
+	repositories {
+		mavenCentral()
+	}
+}

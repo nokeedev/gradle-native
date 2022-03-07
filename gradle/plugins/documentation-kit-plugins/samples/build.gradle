@@ -1,0 +1,22 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'maven-publish'
+}
+
+gradlePlugin {
+	plugins {
+		samplesBase {
+			id = 'dev.gradleplugins.documentation.samples-base'
+			implementationClass = 'dev.gradleplugins.dockit.samples.SamplesBasePlugin'
+		}
+		samples {
+			id = 'dev.gradleplugins.documentation.samples'
+			implementationClass = 'dev.gradleplugins.dockit.samples.SamplesPlugin'
+		}
+	}
+
+	dependencies {
+		api project(':common')
+	}
+}

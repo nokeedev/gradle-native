@@ -29,10 +29,10 @@
 			<div class="download">
 				<ul>
 					<li>
-						<p><a href="${content.archivebasename}-${content.version}-groovy-dsl.zip"><span class="icon"><i class="fa fa-download"></i></span> Groovy DSL</a></p>
+						<p><a href="${content.archivebasename}-${content.archiveversion == null ? config.archiveversion : content.archiveversion}-groovy-dsl.zip"><span class="icon"><i class="fa fa-download"></i></span> Groovy DSL</a></p>
 					</li>
 					<li>
-						<p><a href="${content.archivebasename}-${content.version}-kotlin-dsl.zip"><span class="icon"><i class="fa fa-download"></i></span> Kotlin DSL</a></p>
+						<p><a href="${content.archivebasename}-${content.archiveversion == null ? config.archiveversion : content.archiveversion}-kotlin-dsl.zip"><span class="icon"><i class="fa fa-download"></i></span> Kotlin DSL</a></p>
 					</li>
 				</ul>
 			</div>

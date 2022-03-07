@@ -9,7 +9,9 @@ includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 includeBuild 'gradle/plugins/license-gradle-plugin'
 includeBuild 'gradle/plugins/jbake-gradle-plugin'
+includeBuild 'gradle/plugins/documentation-kit-plugins'
 includeBuild 'gradle/plugins/nokeebuild-plugins'
+includeBuild 'gradle/plugins/nokeedocs-plugins'
 
 /**
  * Adds specified subproject path to this Gradle build.

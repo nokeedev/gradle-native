@@ -1,0 +1,18 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'maven-publish'
+}
+
+gradlePlugin {
+	plugins {
+		userManualBase {
+			id = 'dev.gradleplugins.documentation.user-manual'
+			implementationClass = 'dev.gradleplugins.dockit.manual.UserManualPlugin'
+		}
+	}
+
+	dependencies {
+		api project(':common')
+	}
+}
