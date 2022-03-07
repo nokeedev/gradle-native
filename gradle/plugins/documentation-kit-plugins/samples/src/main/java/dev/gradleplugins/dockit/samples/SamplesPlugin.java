@@ -31,6 +31,7 @@ class SamplesPlugin implements Plugin<Project> {
 			samples.configureEach(new UseSampleNameAsArchiveBaseNameConvention());
 		});
 		samples(project, new CreateStageSamplesTask(project));
+		samples(project, new CreateAssembleSampleZipsTask(project));
 	}
 
 	private static void samples(Project project, Action<? super NamedDomainObjectContainer<Sample>> action) {
