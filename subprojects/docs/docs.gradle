@@ -1,9 +1,5 @@
 import dev.gradleplugins.fixtures.sample.JavaBasicGradlePlugin
 import dev.nokee.docs.PluginManagementBlock
-import dev.nokee.docs.tasks.AsciicastCompile
-import dev.nokee.docs.tasks.CreateAsciinema
-import dev.nokee.docs.tasks.ExtractScreenshot
-import dev.nokee.docs.tasks.GifCompile
 import dev.nokee.platform.ios.fixtures.ObjectiveCIosApp
 import dev.nokee.platform.ios.fixtures.SwiftIosApp
 import dev.nokee.platform.jni.fixtures.*
@@ -28,9 +24,6 @@ plugins {
 }
 
 docsTest.dependsOn({ project(':distributions').tasks.named('publishToStaging')})
-tasks.withType(CreateAsciinema).configureEach {
-	dependsOn({ project(':distributions').tasks.named('publishToStaging')})
-}
 
 def readMeFile = rootProject.file('README.adoc')
 docsTest.inputs.file(readMeFile)
@@ -205,16 +198,6 @@ publishing {
 			name = 'docsNokeeDev'
 			credentials(AwsCredentials)
 			url = 's3://docs.nokee.dev/'
-		}
-	}
-}
-
-afterEvaluate {
-	[ExtractScreenshot, CreateAsciinema, AsciicastCompile, GifCompile].each { type ->
-		tasks.withType(type).configureEach {
-			onlyIf {
-				return !project.hasProperty('skipAllAsciinemaTasks')
-			}
 		}
 	}
 }
