@@ -1,0 +1,3 @@
+[submodule "gradle/plugins/jbake-gradle-plugin"]
+	path = gradle/plugins/jbake-gradle-plugin
+	url = git@github.com:nokeedev/jbake-gradle-plugin.git
