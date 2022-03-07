@@ -1,0 +1,25 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'maven-publish'
+}
+
+group = 'nokeebuild'
+
+gradlePlugin {
+	plugins {
+		userManual {
+			id = 'nokeedocs.user-manual'
+			implementationClass = 'nokeedocs.NokeeUserManualPlugin'
+		}
+		samples {
+			id = 'nokeedocs.samples'
+			implementationClass = 'nokeedocs.NokeeSamplesPlugin'
+		}
+	}
+	dependencies {
+		implementation 'dev.gradleplugins:user-manual'
+		implementation 'dev.gradleplugins:samples'
+		implementation 'net.nokeedev:jbake-gradle-plugin'
+	}
+}

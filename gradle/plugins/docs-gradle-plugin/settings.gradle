@@ -4,6 +4,10 @@ plugins {
 
 rootProject.name = 'docs-gradle-plugin'
 
+includeBuild '../documentation-kit-plugins'
+includeBuild '../nokeedocs-plugins'
+includeBuild '../jbake-gradle-plugin'
+
 gradle.rootProject {
 	def properties = new Properties()
 	file('../../../gradle.properties').withInputStream {

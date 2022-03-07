@@ -1,0 +1,18 @@
+plugins {
+	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.4'
+}
+
+rootProject.name = 'documentation-kit-ex'
+
+include 'common'
+include 'samples'
+include 'user-manual'
+
+gradle.allprojects {
+	group = 'dev.gradleplugins'
+	version = '1.0.8'
+
+	repositories {
+		mavenCentral()
+	}
+}

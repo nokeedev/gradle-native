@@ -71,7 +71,6 @@ dependencies {
 }
 
 documentation {
-	samples.configureEach { minimumGradleVersion = project.minimumGradleVersion }
 	samples {
 		'kotlin-cpp-jni-library' {
 			template.set(new KotlinJniCppGreeterLib('kotlin-cpp-jni-library').withJUnitTest())
@@ -170,45 +169,35 @@ documentation {
 
 		'gradle-plugin-development-runtime-compatibilities' {
 			productVersion = project.toolboxVersion
-			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock.set(PluginManagementBlock.none())
 			template.set(new JavaBasicGradlePlugin().withProjectBuilderTest())
 		}
 		'gradle-plugin-development-with-minimum-gradle-version' {
 			productVersion = project.toolboxVersion
-			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock.set(PluginManagementBlock.none())
 			template.set(new JavaBasicGradlePlugin().withTestKitTest())
 		}
 		'gradle-plugin-development-with-test-suites' {
 			productVersion = project.toolboxVersion
-			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock.set(PluginManagementBlock.none())
 			template.set(new JavaBasicGradlePlugin().withProjectBuilderTest().withTestKitFunctionalTest())
 		}
 		'gradle-plugin-development-with-testing-strategies' {
 			productVersion = project.toolboxVersion
-			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock.set(PluginManagementBlock.none())
 			template.set(new JavaBasicGradlePlugin().withFunctionalTest())
 		}
 	}
 }
 
-
 publishing {
 	publications {
 		jbake(MavenPublication) {
 			from components.jbake
-			artifactId = 'jbake'
+			artifactId = 'docs'
 			group = 'dev.nokee.docs'
 			// Use date/time as the version because commits mess-up the "latest" search
 			version = new SimpleDateFormat("yyyyMMddHHmm").format(new Date())
-		}
-		baked(MavenPublication) {
-			from components.baked
-			artifactId = 'docs'
-			group = 'dev.nokee.docs'
 		}
 	}
 	repositories {
