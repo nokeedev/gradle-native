@@ -104,6 +104,8 @@ plugins.withId('com.gradle.enterprise') {
 			} else {
 				tag 'LOCAL'
 			}
+
+			uploadInBackground = System.getenv("CI") == null
 		}
 	}
 }
