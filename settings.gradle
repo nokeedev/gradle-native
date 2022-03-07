@@ -106,6 +106,9 @@ plugins.withId('com.gradle.enterprise') {
 			}
 
 			uploadInBackground = System.getenv("CI") == null
+			capture {
+				taskInputFiles = true
+			}
 		}
 	}
 }
