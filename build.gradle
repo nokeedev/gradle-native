@@ -6,7 +6,6 @@ buildscript {
 		maven { url = 'https://repo.nokee.dev/release' }
 	}
 	dependencies {
-		classpath 'dev.gradleplugins:documentation-kit:1.0.6'
 		classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.15.1'
 		classpath 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1'
 		classpath 'dev.nokeebuild:license-gradle-plugin:latest.integration'
@@ -46,29 +45,6 @@ subprojects {
 // Configure JUnit 5 compatibility
 subprojects {
 	tasks.withType(Test).configureEach { it.useJUnitPlatform() }
-}
-
-// Configure Documentation
-subprojects { prj ->
-	if (prj.name == 'internalTesting') {
-		return; // skip
-	}
-	pluginManager.apply('dev.gradleplugins.documentation.dsl-reference')
-	pluginManager.apply('dev.gradleplugins.documentation.api-reference')
-	pluginManager.apply('dev.gradleplugins.documentation.javadoc-render')
-	prj.configurations.matching { it.name == 'implementation' }.all { implementation ->
-		prj.extensions.components.apiReference {
-			dependencies.api.asConfiguration.extendsFrom(implementation)
-		}
-	}
-	prj.configurations.matching { it.name == 'compileOnly' }.all { compileOnly ->
-		prj.extensions.components.apiReference {
-			dependencies.api.asConfiguration.extendsFrom(compileOnly)
-		}
-	}
-	tasks.named('generateDslReference') {
-		templateFile = rootProject.file('subprojects/docs/src/docs/dsl/dsl.template')
-	}
 }
 
 // Configure publishing to Nokee
