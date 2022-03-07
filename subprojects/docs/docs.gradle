@@ -106,123 +106,123 @@ documentation {
 	samples.configureEach { minimumGradleVersion = project.minimumGradleVersion }
 	samples {
 		'kotlin-cpp-jni-library' {
-			template = new KotlinJniCppGreeterLib('kotlin-cpp-jni-library').withJUnitTest()
+			template.set(new KotlinJniCppGreeterLib('kotlin-cpp-jni-library').withJUnitTest())
 		}
 		'java-cpp-jni-library' {
-			template = new JavaJniCppGreeterLib('java-cpp-jni-library')
+			template.set(new JavaJniCppGreeterLib('java-cpp-jni-library'))
 		}
 		'java-c-jni-library' {
-			template = new JavaJniCGreeterLib('java-c-jni-library')
+			template.set(new JavaJniCGreeterLib('java-c-jni-library'))
 		}
 		'java-objective-c-jni-library' {
-			template = new JavaJniObjectiveCGreeterLib('java-objective-c-jni-library')
+			template.set(new JavaJniObjectiveCGreeterLib('java-objective-c-jni-library'))
 		}
 		'java-objective-cpp-jni-library' {
-			template = new JavaJniObjectiveCppGreeterLib('java-objective-cpp-jni-library')
+			template.set(new JavaJniObjectiveCppGreeterLib('java-objective-cpp-jni-library'))
 		}
 		'jni-library-with-junit-test' {
-			template = new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest()
+			template.set(new JavaJniCppGreeterLib('jni-library-with-junit-test').withJUnitTest())
 		}
 		'jni-library-with-pre-built-binaries' {
-			template = new JavaJniCppGreeterLib('jni-library-with-pre-built-binaries')
+			template.set(new JavaJniCppGreeterLib('jni-library-with-pre-built-binaries'))
 		}
 		'jni-library-with-target-machines' {
-			template = new JavaJniCppGreeterLib('jni-library-with-target-machines')
+			template.set(new JavaJniCppGreeterLib('jni-library-with-target-machines'))
 		}
 		'jvm-application-with-jni-library' {
-			template = new GreeterAppWithJniLibrary('jvm-application-with-jni-library').withLibraryAsSubproject('jni-library')
+			template.set(new GreeterAppWithJniLibrary('jvm-application-with-jni-library').withLibraryAsSubproject('jni-library'))
 		}
 		'jni-library-composing-from-source' {
-			template = new JavaJniCppGreeterLib('jni-library-composing-from-source').withImplementationAsSubprojects()
+			template.set(new JavaJniCppGreeterLib('jni-library-composing-from-source').withImplementationAsSubprojects())
 		}
 		'jni-library-composing-from-pre-built-binaries' {
 			// The project name for the template needs to align with the pre-built binary name
-			template = new JavaJniCppGreeterLib('jni-greeter').withoutNativeImplementation().withJUnitTest()
+			template.set(new JavaJniCppGreeterLib('jni-greeter').withoutNativeImplementation().withJUnitTest())
 		}
 		'publish-jni-library' {
-			template = new JavaJniCppGreeterLib('publish-jni-library')
+			template.set(new JavaJniCppGreeterLib('publish-jni-library'))
 		}
 		'publish-jni-library-with-target-machines' {
-			template = new JavaJniCppGreeterLib('publish-jni-library-with-target-machines')
+			template.set(new JavaJniCppGreeterLib('publish-jni-library-with-target-machines'))
 		}
 		'jni-library-with-resource-path' {
-			template = new JavaJniCppGreeterLib('jni-library-with-resource-path')
+			template.set(new JavaJniCppGreeterLib('jni-library-with-resource-path'))
 		}
 		'jni-library-with-framework-dependencies' {
-			template = new JavaJniObjectiveCNSSavePanelLib('jni-library-with-framework-dependencies')
+			template.set(new JavaJniObjectiveCNSSavePanelLib('jni-library-with-framework-dependencies'))
 		}
 		'jni-library-as-uber-jar' {
-			template = new JavaJniCppGreeterLib('jni-library-as-uber-jar')
+			template.set(new JavaJniCppGreeterLib('jni-library-as-uber-jar'))
 		}
 
 		'c-application' {
-			template = new CGreeterApp()
+			template.set(new CGreeterApp())
 		}
 		'c-library' {
-			template = new CGreeterLib()
+			template.set(new CGreeterLib())
 		}
 		'cpp-application' {
-			template = new CppGreeterApp()
+			template.set(new CppGreeterApp())
 		}
 		'cpp-library' {
-			template = new CppGreeterLib()
+			template.set(new CppGreeterLib())
 		}
 		'objective-c-application' {
-			template = new ObjectiveCGreeterApp()
+			template.set(new ObjectiveCGreeterApp())
 		}
 		'objective-c-library' {
-			template = new ObjectiveCGreeterLib()
+			template.set(new ObjectiveCGreeterLib())
 		}
 		'objective-cpp-application' {
-			template = new ObjectiveCppGreeterApp()
+			template.set(new ObjectiveCppGreeterApp())
 		}
 		'objective-cpp-library' {
-			template = new ObjectiveCppGreeterLib()
+			template.set(new ObjectiveCppGreeterLib())
 		}
 		'swift-application' {
-			template = new SwiftGreeterApp()
+			template.set(new SwiftGreeterApp())
 		}
 		'swift-library' {
-			template = new SwiftGreeterLib()
+			template.set(new SwiftGreeterLib())
 		}
 
 		'xcode-ide-composing' {
-			template = new JavaJniObjectiveCGreeterLib('xcode-ide-composing')
+			template.set(new JavaJniObjectiveCGreeterLib('xcode-ide-composing'))
 		}
 
 		'objective-c-ios-application' {
-			template = new ObjectiveCIosApp()
+			template.set(new ObjectiveCIosApp())
 		}
 		'objective-c-ios-xctest-test-suite' {
-			template = new ObjectiveCIosApp().withUnitTest().withUiTest()
+			template.set(new ObjectiveCIosApp().withUnitTest().withUiTest())
 		}
 		'swift-ios-application' {
-			template = new SwiftIosApp()
+			template.set(new SwiftIosApp())
 		}
 
 		'gradle-plugin-development-runtime-compatibilities' {
 			productVersion = project.toolboxVersion
 			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock = PluginManagementBlock.none()
-			template = new JavaBasicGradlePlugin().withProjectBuilderTest()
+			template.set(new JavaBasicGradlePlugin().withProjectBuilderTest())
 		}
 		'gradle-plugin-development-with-minimum-gradle-version' {
 			productVersion = project.toolboxVersion
 			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock = PluginManagementBlock.none()
-			template = new JavaBasicGradlePlugin().withTestKitTest()
+			template.set(new JavaBasicGradlePlugin().withTestKitTest())
 		}
 		'gradle-plugin-development-with-test-suites' {
 			productVersion = project.toolboxVersion
 			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock = PluginManagementBlock.none()
-			template = new JavaBasicGradlePlugin().withProjectBuilderTest().withTestKitFunctionalTest()
+			template.set(new JavaBasicGradlePlugin().withProjectBuilderTest().withTestKitFunctionalTest())
 		}
 		'gradle-plugin-development-with-testing-strategies' {
 			productVersion = project.toolboxVersion
 			minimumGradleVersion = '6.2.1'
 			pluginManagementBlock = PluginManagementBlock.none()
-			template = new JavaBasicGradlePlugin().withFunctionalTest()
+			template.set(new JavaBasicGradlePlugin().withFunctionalTest())
 		}
 	}
 }
