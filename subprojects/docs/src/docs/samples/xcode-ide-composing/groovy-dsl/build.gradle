@@ -36,9 +36,9 @@ Provider<SharedLibraryBinary> getSharedLibraryBinary() {
 	return library.binaries.withType(SharedLibraryBinary).elements.map { it.first() }
 }
 
-Transformer<String, SharedLibraryBinary> asHeaderSearchPaths() {
+Transformer<Provider<String>, SharedLibraryBinary> asHeaderSearchPaths() {
 	return {
-		it.compileTasks.withType(NativeSourceCompile).get().first().headerSearchPaths.get().collect { "\"${it.asFile.absolutePath}\"" }.join(' ')
+		it.compileTasks.withType(NativeSourceCompile).get().first().headerSearchPaths.map { it.collect { "\"${it.asFile.absolutePath}\"" }.join(' ') }
 	}
 }
 //endregion
@@ -59,7 +59,7 @@ xcode {
 			productType = productTypes.dynamicLibrary
 			buildConfigurations.register('Default') {
 				productLocation = sharedLibraryBinary.flatMap { it.linkTask.get().linkedFile }
-				buildSettings.put('HEADER_SEARCH_PATHS', sharedLibraryBinary.map(asHeaderSearchPaths()))
+				buildSettings.put('HEADER_SEARCH_PATHS', sharedLibraryBinary.flatMap(asHeaderSearchPaths()))
 				buildSettings.put('PRODUCT_NAME', ideTarget.productName)
 			}
 			sources.from(fileTree('src/main/objc') { include('**/*.m') })
