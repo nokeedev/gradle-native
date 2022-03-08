@@ -222,6 +222,8 @@ tasks.named('docsTest', Test) { task ->
 	task.useJUnit {
 		excludeCategories('dev.nokee.docs.tags.Baked')
 	}
-	task.inputs.dir(layout.buildDirectory.dir('generated/zips'))
-	task.systemProperty('sampleArchiveDirectory', layout.buildDirectory.dir('generated/zips').get().asFile.absolutePath)
+
+	def zipsDirectory = tasks.named('assembleSampleZips', Sync).map { it.destinationDir }
+	task.inputs.dir(zipsDirectory)
+	task.systemProperty('sampleArchiveDirectory', zipsDirectory.get().absolutePath)
 }
