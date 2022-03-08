@@ -206,7 +206,7 @@ tasks.register('bakedDocsTest', Test) { task ->
 
 	def bakeDirectory = tasks.named('bake', JBakeTask).map { it.destinationDirectory.get() }
 	task.inputs.dir(bakeDirectory)
-	task.systemProperty('bakedContentDirectory', bakeDirectory.get())
+	task.systemProperty('bakedContentDirectory', bakeDirectory.get().asFile.absolutePath)
 
 	task.useJUnit {
 		includeCategories('dev.nokee.docs.tags.Baked')
