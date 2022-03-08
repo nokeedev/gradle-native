@@ -7,6 +7,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v2
+                with:
+                    submodules: true
             -   uses: ./.github/actions/install-documentation-dependencies
             -   name: Build all code
                 uses: ./.github/actions/gradle
@@ -21,6 +23,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v2
+                with:
+                    submodules: true
             -   name: Deploy to snapshot
                 uses: ./.github/actions/gradle
                 with:
@@ -40,6 +44,8 @@ jobs:
                 os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         steps:
             -   uses: actions/checkout@v2
+                with:
+                    submodules: true
             -   uses: ./.github/actions/install-build-dependencies
             -   name: Run all tests
                 uses: ./.github/actions/gradle
@@ -59,6 +65,8 @@ jobs:
                 os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         steps:
             -   uses: actions/checkout@v2
+                with:
+                    submodules: true
             -   uses: ./.github/actions/install-build-dependencies
             -   name: Run all tests
                 uses: ./.github/actions/gradle
@@ -73,6 +81,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v2
+                with:
+                    submodules: true
             -   uses: ./.github/actions/install-documentation-dependencies
             -   uses: ./.github/actions/install-build-dependencies
             -   name: Run all tests
@@ -91,6 +101,8 @@ jobs:
                 os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         steps:
             -   uses: actions/checkout@v2
+                with:
+                    submodules: true
             -   uses: ./.github/actions/install-documentation-dependencies
             -   uses: ./.github/actions/install-build-dependencies
             -   name: Run all tests
@@ -106,6 +118,8 @@ jobs:
         runs-on: macos-10.15
         steps:
             -   uses: actions/checkout@v2
+                with:
+                    submodules: true
             -   uses: nokeedev/actions/setup-vagrant@main
                 with:
                     install-vagrant-if: 'false'
@@ -126,6 +140,7 @@ jobs:
         steps:
             -   uses: actions/checkout@v2
                 with:
+                    submodules: true
                     fetch-depth: '0' # will fetch the entire history for auto-version plugin
             -   uses: ./.github/actions/install-documentation-dependencies
             -   name: Publish
