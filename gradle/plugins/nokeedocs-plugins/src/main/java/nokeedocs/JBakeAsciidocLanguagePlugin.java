@@ -54,9 +54,9 @@ class JBakeAsciidocLanguagePlugin implements Plugin<Project> {
 
 					// TODO: We should add those attributes to each .adoc
 					attributes.put("gradle-version", "current");
-					attributes.put("gradle-user-manual", "https://docs.gradle.org/{gradle-version}/userguide");
-					attributes.put("gradle-language-reference", "https://docs.gradle.org/{gradle-version}/dsl");
-					attributes.put("gradle-api-reference", "https://docs.gradle.org/{gradle-version}/javadoc");
+					attributes.put("gradle-user-manual", "https://docs.gradle.org/current/userguide");
+					attributes.put("gradle-language-reference", "https://docs.gradle.org/current/dsl");
+					attributes.put("gradle-api-reference", "https://docs.gradle.org/current/javadoc");
 					attributes.put("gradle-guides", "https://guides.gradle.org/");
 				});
 			});
