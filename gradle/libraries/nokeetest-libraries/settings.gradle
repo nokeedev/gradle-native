@@ -1,0 +1,8 @@
+rootProject.name = 'nokeetest-libraries'
+
+include 'test-directory'
+include 'test-directory-junit-jupiter'
+
+gradle.allprojects {
+	group = 'net.nokeedev.testing'
+}

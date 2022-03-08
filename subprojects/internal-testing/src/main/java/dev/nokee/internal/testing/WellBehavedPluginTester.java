@@ -15,7 +15,6 @@
  */
 package dev.nokee.internal.testing;
 
-import dev.nokee.internal.testing.file.TestNameTestDirectoryProvider;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
@@ -25,6 +24,7 @@ import dev.nokee.internal.testing.runnerkit.GradleDsl;
 import dev.nokee.internal.testing.runnerkit.InitscriptSectionBuilder;
 import lombok.SneakyThrows;
 import lombok.val;
+import net.nokeedev.testing.file.TestNameTestDirectoryProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.PluginAware;
 import org.gradle.util.GradleVersion;

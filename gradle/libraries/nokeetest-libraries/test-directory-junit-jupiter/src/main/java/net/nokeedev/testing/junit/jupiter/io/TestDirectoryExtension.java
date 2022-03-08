@@ -13,9 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.internal.testing.file;
+package net.nokeedev.testing.junit.jupiter.io;
 
-import org.junit.jupiter.api.extension.*;
+import net.nokeedev.testing.file.TestDirectoryProvider;
+import net.nokeedev.testing.file.TestNameTestDirectoryProvider;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionConfigurationException;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.extension.TestWatcher;
 import org.junit.platform.commons.util.ExceptionUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
 
@@ -30,8 +39,8 @@ import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedField
 import static org.junit.platform.commons.util.ReflectionUtils.isPrivate;
 import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 
-public final class CleanupTestDirectoryExtension implements TestWatcher, BeforeAllCallback, BeforeEachCallback, ParameterResolver {
-	private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(CleanupTestDirectoryExtension.class);
+public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallback, BeforeEachCallback, ParameterResolver {
+	private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(TestDirectoryExtension.class);
 	private static final String KEY = "temp.dir";
 
 	@Override
