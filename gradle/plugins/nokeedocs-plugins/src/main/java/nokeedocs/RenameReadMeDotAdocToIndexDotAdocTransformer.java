@@ -17,7 +17,7 @@ package nokeedocs;
 
 import org.gradle.api.Transformer;
 
-public final class RenameReadMeDotAdocToIndexDotAdocTransformer implements Transformer<String, String> {
+final class RenameReadMeDotAdocToIndexDotAdocTransformer implements Transformer<String, String> {
 	@Override
 	public String transform(String s) {
 		if ("README.adoc".equals(s)) {

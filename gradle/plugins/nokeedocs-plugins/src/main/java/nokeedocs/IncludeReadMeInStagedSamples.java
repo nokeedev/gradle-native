@@ -17,12 +17,11 @@ package nokeedocs;
 
 import dev.gradleplugins.dockit.samples.Sample;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Sync;
 
-public final class IncludeReadMeInStagedSamples implements Action<NamedDomainObjectSet<Sample>> {
+final class IncludeReadMeInStagedSamples implements Action<NamedDomainObjectSet<Sample>> {
 	private final Project project;
 
 	public IncludeReadMeInStagedSamples(Project project) {
