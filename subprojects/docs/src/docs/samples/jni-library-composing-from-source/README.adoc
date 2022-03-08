@@ -25,7 +25,7 @@ $ ./gradlew projects
 > Task :projects
 
 ------------------------------------------------------------
-Root project - The JNI library as the consumer would expect.
+Root project 'jni-library-composing-from-source' - The JNI library as the consumer would expect.
 ------------------------------------------------------------
 
 Root project 'jni-library-composing-from-source' - The JNI library as the consumer would expect.
