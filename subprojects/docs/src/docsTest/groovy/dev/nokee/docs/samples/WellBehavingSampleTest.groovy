@@ -70,7 +70,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	protected GradleRunner configureLocalPluginResolution(GradleRunner runner) {
 		def initScriptFile = temporaryFolder.file('repo.init.gradle')
 		initScriptFile << """
-			settingsEvaluated { settings ->
+			beforeSettings { settings ->
 				settings.pluginManagement {
 					repositories {
 						gradlePluginPortal()
