@@ -46,6 +46,7 @@ class NokeeSamplesPlugin implements Plugin<Project> {
 			samples.configureEach(new UseLatestGlobalAvailableGradleWrapper(project));
 		});
 		samples(project, new LoadAllSamples(project.file("src/docs/samples").toPath()));
+		samples(project, new IncludeReadMeInStagedSamples(project));
 
 		project.getPluginManager().withPlugin("net.nokeedev.jbake-site", ignored -> {
 			samples(project, new Action<NamedDomainObjectContainer<Sample>>() {
