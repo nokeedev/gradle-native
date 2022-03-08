@@ -15,16 +15,15 @@
  */
 package nokeedocs;
 
-import dev.gradleplugins.dockit.samples.Sample;
-import org.gradle.api.file.CopySpec;
+import org.gradle.api.Transformer;
 
-import java.util.function.BiConsumer;
-
-final class SampleReadMe implements BiConsumer<Sample, CopySpec> {
+public final class RenameReadMeDotAdocToIndexDotAdocTransformer implements Transformer<String, String> {
 	@Override
-	public void accept(Sample sample, CopySpec spec) {
-		spec.from(sample.getSampleDirectory().file("README.adoc"), it -> {
-			it.rename(new RenameReadMeDotAdocToIndexDotAdocTransformer());
-		});
+	public String transform(String s) {
+		if ("README.adoc".equals(s)) {
+			return "index.adoc";
+		} else {
+			return s;
+		}
 	}
 }
