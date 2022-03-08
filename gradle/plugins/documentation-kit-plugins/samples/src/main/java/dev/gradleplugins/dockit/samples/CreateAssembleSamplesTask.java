@@ -20,17 +20,17 @@ import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Sync;
 
-final class CreateStageSamplesTask implements Action<NamedDomainObjectSet<? extends Sample>> {
+final class CreateAssembleSamplesTask implements Action<NamedDomainObjectSet<? extends Sample>> {
 	private final Project project;
 
-	CreateStageSamplesTask(Project project) {
+	CreateAssembleSamplesTask(Project project) {
 		this.project = project;
 	}
 
 	@Override
 	public void execute(NamedDomainObjectSet<? extends Sample> samples) {
-		project.getTasks().register("stageSamples", Sync.class, task -> {
-			task.setGroup("documentation");
+		project.getTasks().register("assembleSamples", Sync.class, task -> {
+			task.setGroup("build");
 			task.setDestinationDir(project.getLayout().getBuildDirectory().dir("generated/samples").get().getAsFile());
 			task.setIncludeEmptyDirs(false);
 			samples.all(sample -> {

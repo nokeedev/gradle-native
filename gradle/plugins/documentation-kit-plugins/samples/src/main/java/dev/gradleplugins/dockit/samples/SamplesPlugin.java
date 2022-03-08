@@ -30,7 +30,7 @@ class SamplesPlugin implements Plugin<Project> {
 			samples.configureEach(new UseProjectVersionAsProductVersionConvention(project));
 			samples.configureEach(new UseSampleNameAsArchiveBaseNameConvention());
 		});
-		samples(project, new CreateStageSamplesTask(project));
+		samples(project, new CreateAssembleSamplesTask(project));
 		samples(project, new CreateAssembleSampleZipsTask(project));
 	}
 
