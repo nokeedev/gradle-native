@@ -19,6 +19,7 @@ dependencies {
 	api "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
 	// Support libraries
+	api 'net.nokeedev.testing:test-directory-junit-jupiter'
 	api "org.hamcrest:hamcrest:${hamcrestVersion}"
 	api "com.spotify:hamcrest-optional:${hamcrestOptionalVersion}"
 	api "org.apache.commons:commons-lang3:${commonsLangVersion}"

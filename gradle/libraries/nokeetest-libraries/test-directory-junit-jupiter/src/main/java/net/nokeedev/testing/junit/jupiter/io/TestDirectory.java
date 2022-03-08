@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.internal.testing.file;
+package net.nokeedev.testing.junit.jupiter.io;
 
-import java.nio.file.Path;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * Implementations provide a working space to be used in tests.
- *
- * The client is not responsible for removing any files.
- */
-public interface TestDirectoryProvider {
-
-	/**
-	 * The directory to use, guaranteed to exist.
-	 *
-	 * @return The directory to use, guaranteed to exist.
-	 */
-	Path getTestDirectory();
-
-	void suppressCleanup();
-
-	void suppressCleanupErrors();
+@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface TestDirectory {
 
 }

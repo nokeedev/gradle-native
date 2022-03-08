@@ -16,8 +16,8 @@
 package dev.nokee.internal.testing.util;
 
 import dev.nokee.internal.testing.NativeServicesTestFixture;
-import dev.nokee.internal.testing.file.TestNameTestDirectoryProvider;
 import lombok.val;
+import net.nokeedev.testing.file.TestNameTestDirectoryProvider;
 import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;

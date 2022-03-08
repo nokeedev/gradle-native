@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.internal.testing.file;
+package net.nokeedev.testing.file;
 
-import dev.nokee.internal.testing.util.RetryUtils;
-import lombok.val;
+import dev.failsafe.Failsafe;
+import dev.failsafe.RetryPolicy;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -41,6 +41,7 @@ import static java.util.stream.Collectors.joining;
  * or {@literal <} 40 chars for "{TestClass}/{testMethod}/qqlj8"
  */
 abstract class AbstractTestDirectoryProvider implements TestDirectoryProvider, AutoCloseable {
+	private static final RetryPolicy<Void> RETRY_POLICY = RetryPolicy.<Void>builder().abortOn(InterruptedException.class).withMaxAttempts(100).withDelay(Duration.ofMillis(100)).build();
 	protected final Path root;
 	private final String className;
 
@@ -75,13 +76,7 @@ abstract class AbstractTestDirectoryProvider implements TestDirectoryProvider, A
 
 	public void cleanup() throws IOException {
 		if (cleanup && dir != null && Files.exists(dir)) {
-			try {
-				RetryUtils.retry(100, Duration.ofMillis(100), () -> {
-					FileUtils.forceDelete(dir.toFile());
-				});
-			} catch (InterruptedException e) {
-				ExceptionUtils.rethrow(e);
-			}
+			Failsafe.with(RETRY_POLICY).run(() -> FileUtils.forceDelete(dir.toFile()));
 		}
 	}
 
@@ -203,7 +198,7 @@ abstract class AbstractTestDirectoryProvider implements TestDirectoryProvider, A
 	}
 
 	public Path createFile(Object... path) {
-		val result = file(path);
+		final Path result = file(path);
 		try {
 			Files.createDirectories(result.getParent());
 			return Files.createFile(result);

@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.internal.testing.file;
-
-import lombok.val;
+package net.nokeedev.testing.file;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -38,7 +36,7 @@ public final class TestNameTestDirectoryProvider extends AbstractTestDirectoryPr
 	}
 
 	public static TestNameTestDirectoryProvider newInstance(String methodName, Object target) {
-		val testDirectoryProvider =	new TestNameTestDirectoryProvider(target.getClass());
+		final TestNameTestDirectoryProvider testDirectoryProvider =	new TestNameTestDirectoryProvider(target.getClass());
 		testDirectoryProvider.init(methodName);
 		return testDirectoryProvider;
 	}
