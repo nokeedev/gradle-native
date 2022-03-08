@@ -18,7 +18,6 @@ package net.nokeedev.testing.file;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -179,7 +178,7 @@ abstract class AbstractTestDirectoryProvider implements TestDirectoryProvider, A
 			try {
 				return Files.createDirectories(dir);
 			} catch (IOException e) {
-				return ExceptionUtils.rethrow(e);
+				throw new UncheckedIOException(e);
 			}
 		}
 	}
