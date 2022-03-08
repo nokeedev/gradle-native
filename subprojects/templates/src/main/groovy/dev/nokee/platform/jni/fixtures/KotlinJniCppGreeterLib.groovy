@@ -132,7 +132,7 @@ object NativeLoader {
 	}
 
 	private fun libFilename(libName: String): String {
-		val osName = System.getProperty("os.name").toLowerCase()
+		val osName = System.getProperty("os.name").lowercase()
 		if (osName.indexOf("win") >= 0) {
 			return "\$libName.dll"
 		} else if (osName.indexOf("mac") >= 0) {
