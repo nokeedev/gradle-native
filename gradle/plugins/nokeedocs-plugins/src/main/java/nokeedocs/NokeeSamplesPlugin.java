@@ -73,7 +73,10 @@ class NokeeSamplesPlugin implements Plugin<Project> {
 			jbake(project, new Action<JBakeExtension>() {
 				@Override
 				public void execute(JBakeExtension extension) {
-					extension.getContent().from(extension.sync("samplesContent", toSamples(spec -> spec.from(samples(project).flatMap(collect(JBakeExtension::getContent))))));
+					extension.getContent().from(extension.sync("samplesContent", toSamples(spec -> {
+						spec.from(samples(project).flatMap(collect(JBakeExtension::getContent)));
+						spec.from("src/docs/samples/index.adoc");
+					})));
 					extension.getAssets().from(extension.sync("samplesAssets", toSamples(spec -> spec.from(samples(project).flatMap(collect(JBakeExtension::getAssets))))));
 					extension.getTemplates().from(samples(project).flatMap(collect(JBakeExtension::getTemplates)));
 					extension.getConfigurations().putAll(samples(project).flatMap(collectAllConfigurations()));
