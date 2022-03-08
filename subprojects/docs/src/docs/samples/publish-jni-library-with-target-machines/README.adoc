@@ -41,7 +41,7 @@ To publish the library:
 $ ./gradlew publishJniLibraryPublicationToMavenRepository publishJniLibraryMacosPublicationToMavenRepository
 
 BUILD SUCCESSFUL
-11 actionable tasks: 11 executed
+15 actionable tasks: 15 executed
 $ tree ./build/publishing-repository
 ./build/publishing-repository
 └── com
