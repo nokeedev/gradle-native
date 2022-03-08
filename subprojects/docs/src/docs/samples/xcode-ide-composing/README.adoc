@@ -43,7 +43,7 @@ $ ./gradlew xcode
 Generated Xcode workspace at file://xcode-ide-composing.xcworkspace/
 
 BUILD SUCCESSFUL
-3 actionable tasks: 3 executed
+4 actionable tasks: 4 executed
 ----
 
 We can validate from the command line the generated workspace is buildable by Xcode IDE using the `xcodebuild` tool:
