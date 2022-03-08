@@ -20,6 +20,7 @@ import dev.nokee.docs.fixtures.html.HtmlTag
 import dev.nokee.docs.tags.Baked
 import groovy.json.JsonSlurper
 import org.junit.experimental.categories.Category
+import spock.lang.Ignore
 import spock.lang.Specification
 
 @Category(Baked)
@@ -87,6 +88,7 @@ class ProperBakedHtmlTest extends Specification {
 		}
 	}
 
+	@Ignore
 	def "has breadcrumb structured data"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())

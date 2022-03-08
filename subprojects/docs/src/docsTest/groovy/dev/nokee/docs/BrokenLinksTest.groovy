@@ -18,6 +18,7 @@ package dev.nokee.docs
 import dev.nokee.docs.fixtures.html.HtmlLinkTester
 import dev.nokee.docs.tags.Baked
 import org.junit.experimental.categories.Category
+import spock.lang.Ignore
 import spock.lang.Requires
 import spock.lang.Specification
 import spock.util.environment.OperatingSystem
@@ -25,6 +26,7 @@ import spock.util.environment.OperatingSystem
 @Category(Baked)
 @Requires({ os.family == OperatingSystem.Family.MAC_OS })
 class BrokenLinksTest extends Specification {
+	@Ignore
 	def "checks HTML for broken links"() {
 		expect:
 		def report = new HtmlLinkTester(HtmlLinkTester.validEmails("hello@nokee.dev"), new HtmlLinkTester.BlackList() {
