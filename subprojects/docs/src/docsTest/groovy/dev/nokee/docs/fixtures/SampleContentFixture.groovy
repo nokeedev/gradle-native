@@ -24,6 +24,8 @@ import dev.nokee.docs.fixtures.html.UriService
 import org.asciidoctor.Asciidoctor
 import org.asciidoctor.ast.Document
 
+import java.nio.file.Files
+
 import static dev.gradleplugins.exemplarkit.asciidoc.AsciidocExemplarStepLoader.extractFromAsciiDoc
 import static org.asciidoctor.OptionsBuilder.options
 
@@ -49,13 +51,17 @@ class SampleContentFixture {
 	TestFile getGroovyDslSample() {
 		Document document = loadDocument()
 //		processAsciidocSampleBlocks(document)
-		return TestFile.of(new File("${System.getProperty('sampleArchiveDirectory')}/${document.attributes.get('jbake-archivebasename')}-${document.attributes.get('jbake-version')}-groovy-dsl.zip")).assertExists()
+		return TestFile.of(Files.newDirectoryStream(new File(System.getProperty('sampleArchiveDirectory')).toPath(), "*-groovy-dsl.zip").withCloseable { dirStream ->
+			return dirStream.find {it.getFileName().toString().startsWith("${document.attributes.get('jbake-archivebasename')}-") }.toFile()
+		})
 	}
 
 	TestFile getKotlinDslSample() {
 		Document document = loadDocument()
 //		processAsciidocSampleBlocks(document)
-		return TestFile.of(new File("${System.getProperty('sampleArchiveDirectory')}/${document.attributes.get('jbake-archivebasename')}-${document.attributes.get('jbake-version')}-kotlin-dsl.zip")).assertExists()
+		return TestFile.of(Files.newDirectoryStream(new File(System.getProperty('sampleArchiveDirectory')).toPath(), "*-kotlin-dsl.zip").withCloseable { dirStream ->
+			return dirStream.find { it.getFileName().toString().startsWith("${document.attributes.get('jbake-archivebasename')}-") }.toFile()
+		})
 	}
 
 	TestFile getDslSample(GradleScriptDsl dsl) {
