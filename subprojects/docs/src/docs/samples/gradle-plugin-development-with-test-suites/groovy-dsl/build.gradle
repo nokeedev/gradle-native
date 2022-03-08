@@ -20,7 +20,7 @@ repositories {
 
 test {
 	dependencies {
-		implementation platform('org.spockframework:spock-bom:2.0-groovy-2.5')
+		implementation platform('org.spockframework:spock-bom:2.0-groovy-3.0')
 		implementation 'org.spockframework:spock-core'
 	}
 	testTasks.configureEach { useJUnitPlatform() }
@@ -28,7 +28,7 @@ test {
 
 functionalTest {
 	dependencies {
-		implementation platform('org.spockframework:spock-bom:2.0-groovy-2.5')
+		implementation platform('org.spockframework:spock-bom:2.0-groovy-3.0')
 		implementation 'org.spockframework:spock-core'
 		implementation gradleTestKit()
 	}

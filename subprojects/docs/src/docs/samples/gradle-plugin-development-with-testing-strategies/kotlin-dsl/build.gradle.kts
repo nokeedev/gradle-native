@@ -20,7 +20,7 @@ repositories {
 functionalTest {
 	testingStrategies.set(listOf(strategies.coverageForMinimumVersion, strategies.coverageForLatestGlobalAvailableVersion, strategies.coverageForLatestNightlyVersion))
 	dependencies {
-		implementation(platform("org.spockframework:spock-bom:2.0-groovy-2.5"))
+		implementation(platform("org.spockframework:spock-bom:2.0-groovy-3.0"))
 		implementation("org.spockframework:spock-core")
 		implementation(gradleTestKit())
 	}

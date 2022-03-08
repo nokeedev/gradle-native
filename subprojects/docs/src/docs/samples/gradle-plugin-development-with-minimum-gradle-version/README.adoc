@@ -57,16 +57,15 @@ compileClasspath - Compile classpath for source set 'main'.
      \--- org.codehaus.groovy:groovy:2.5.4
 ...
 testRuntimeClasspath - Runtime classpath of source set 'test'.
-+--- org.spockframework:spock-bom:2.0-groovy-2.5
-|    +--- org.spockframework:spock-core:2.0-groovy-2.5 (c)
-|    \--- org.spockframework:spock-groovy2-compat:2.0-groovy-2.5 (c)
-\--- org.spockframework:spock-core -> 2.0-groovy-2.5
++--- org.spockframework:spock-bom:2.0-groovy-3.0
+|    \--- org.spockframework:spock-core:2.0-groovy-3.0 (c)
+\--- org.spockframework:spock-core -> 2.0-groovy-3.0
      +--- org.junit:junit-bom:5.7.2
      |    +--- org.junit.platform:junit-platform-engine:1.7.2 (c)
      |    +--- org.junit.platform:junit-platform-testkit:1.7.2 (c)
      |    +--- org.junit.platform:junit-platform-commons:1.7.2 (c)
      |    \--- org.junit.platform:junit-platform-launcher:1.7.2 (c)
-     +--- org.codehaus.groovy:groovy:2.5.14
+     +--- org.codehaus.groovy:groovy:3.0.8
      +--- org.junit.platform:junit-platform-engine -> 1.7.2
      |    +--- org.junit:junit-bom:5.7.2 (*)
      |    +--- org.apiguardian:apiguardian-api:1.1.0
@@ -88,10 +87,7 @@ testRuntimeClasspath - Runtime classpath of source set 'test'.
      +--- org.ow2.asm:asm:9.1
      +--- net.bytebuddy:byte-buddy:1.11.0
      +--- cglib:cglib-nodep:3.3.0
-     +--- org.objenesis:objenesis:3.2
-     \--- org.spockframework:spock-groovy2-compat:2.0-groovy-2.5
-          +--- org.junit:junit-bom:5.7.2 (*)
-          \--- org.codehaus.groovy:groovy:2.5.14
+     \--- org.objenesis:objenesis:3.2
 ...
 ----
 

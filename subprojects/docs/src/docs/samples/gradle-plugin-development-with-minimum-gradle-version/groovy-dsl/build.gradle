@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies { // <1>
-	testImplementation platform('org.spockframework:spock-bom:2.0-groovy-2.5')
+	testImplementation platform('org.spockframework:spock-bom:2.0-groovy-3.0')
 	testImplementation 'org.spockframework:spock-core'
 	testImplementation gradleTestKit()
 }
