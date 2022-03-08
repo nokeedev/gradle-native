@@ -43,7 +43,11 @@ class NokeeUserManualPlugin implements Plugin<Project> {
 			jbake(project, new Action<JBakeExtension>() {
 				@Override
 				public void execute(JBakeExtension extension) {
-					extension.getContent().from(extension.sync("manualContent", toManual(spec -> spec.from(userManual(project).flatMap(it -> jbake(it).getContent().getElements())))));
+					extension.getContent().from(extension.sync("manualContent", toManual(spec -> {
+						spec.from(userManual(project).flatMap(it -> jbake(it).getContent().getElements()));
+						spec.from("src/docs/index.adoc");
+						spec.from("src/docs/release-notes.adoc");
+					})));
 					extension.getAssets().from(extension.sync("manualAssets", toManual(spec -> spec.from(userManual(project).flatMap(it -> jbake(it).getAssets().getElements())))));
 					extension.getTemplates().from(userManual(project).flatMap(it -> jbake(it).getTemplates().getElements()));
 					extension.getConfigurations().putAll(userManual(project).flatMap(it -> jbake(it).getConfigurations()));
