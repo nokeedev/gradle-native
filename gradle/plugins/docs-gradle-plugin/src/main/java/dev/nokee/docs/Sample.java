@@ -2,7 +2,11 @@ package dev.nokee.docs;
 
 import com.google.common.collect.ImmutableMap;
 import dev.gradleplugins.fixtures.sources.SourceElement;
-import dev.nokee.docs.tasks.*;
+import dev.nokee.docs.tasks.AsciicastCompile;
+import dev.nokee.docs.tasks.CreateAsciinema;
+import dev.nokee.docs.tasks.CreateEmbeddedPlayer;
+import dev.nokee.docs.tasks.ExtractScreenshot;
+import dev.nokee.docs.tasks.GifCompile;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
@@ -14,12 +18,18 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.file.*;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.DuplicatesStrategy;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.specs.Specs;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -40,12 +50,6 @@ public abstract class Sample implements Named {
 	public Sample(String name, ProjectLayout layout, TaskContainer tasks, DependencyHandler dependencies) {
 		this.name = name;
 		this.dependencies = dependencies;
-
-		// Configure template source set
-		TaskProvider<GenerateSampleContent> generateSampleCodeTask = tasks.register(getTaskName("generate", "content"), GenerateSampleContent.class, task -> {
-			task.getTemplate().value(getTemplate()).disallowChanges();
-		});
-		getTemplateSourceSet().from(generateSampleCodeTask.flatMap(GenerateSampleContent::getOutputDirectory));
 
 		// Gradle Wrapper
 		Provider<Directory> gradleWrapperFiles = generateGradleWrapper();
@@ -89,32 +93,14 @@ public abstract class Sample implements Named {
 		getAttributes().put("jbake-permalink", getName());
 		getAttributes().put("jbake-archivebasename", GUtil.toCamelCase(getName()));
 		getAttributes().put("includedir", ".");
-		TaskProvider<ProcessAsciidoctor> generateHeaderTask = tasks.register(getTaskName("process", "asciidoctor"), ProcessAsciidoctor.class, task -> {
-			task.getSource().setDir("src/docs/samples/" + getName()).include("README.adoc");
-			task.getAttributes().set(getAttributes());
-		});
-		getContentSourceSet().from(generateHeaderTask.flatMap(ProcessAsciidoctor::getOutputDirectory));
-		getContentSourceSet().from(compileDotToPng());
-		Provider<RegularFile> contentFile = generateHeaderTask.flatMap(it -> it.getOutputDirectory().map(dir -> dir.file("README.adoc")));
 
 		// Generate Asciinema files
-		Provider<RegularFile> asciicastFile = generateAsciicastFile(contentFile);
+		Provider<RegularFile> asciicastFile = generateAsciicastFile(null/*contentFile*/);
 		Provider<RegularFile> gifFile = compileAsciicastToGif(asciicastFile);
 		Provider<RegularFile> mp4File = compileGifToMp4(gifFile);
 		Provider<RegularFile> screenShotFile = extractScreenShot(mp4File);
 		Provider<RegularFile> htmlPlayerFile = createEmbeddedPlayer(mp4File);
 		getAsciinemaSourceSet().from(asciicastFile).from(gifFile).from(mp4File).from(screenShotFile).from(htmlPlayerFile);
-
-		TaskProvider<StageSample> stageTask = tasks.register(getTaskName("stage"), StageSample.class, task -> {
-			task.getContentSources().from(groovyDslZip);
-			task.getContentSources().from(kotlinDslZip);
-			task.getContentSources().from(getContentSourceSet());
-			task.getContentSources().from(getObjects().fileTree().setDir("src/docs/samples/" + getName()).include("**/*.png"));
-			task.getContentSources().from(getObjects().fileTree().setDir("src/docs/samples/" + getName()).include("**/*.gif"));
-			task.getGroovyDslSources().from(getGroovyDslSourceSet());
-			task.getKotlinDslSources().from(getKotlinDslSourceSet());
-		});
-		getStageSourceSet().from(stageTask.flatMap(StageSample::getDestinationDirectory));
 	}
 
 	private String getTaskName(String verb) {
@@ -240,13 +226,6 @@ public abstract class Sample implements Named {
 			task.getMp4FileName().set(file.map(it -> it.getAsFile().getName()));
 		});
 		return createEmbeddedPlayer.flatMap(CreateEmbeddedPlayer::getHtmlPlayerFile);
-	}
-
-	private Provider<Directory> compileDotToPng() {
-		TaskProvider<DotCompile> compileDotTask = getTasks().register("compileDocsDot" + getNameAsCamelCase(), DotCompile.class, task -> {
-			task.getSource().setDir("src/docs/samples/" + getName()).include("**/*.dot");
-		});
-		return compileDotTask.flatMap(DotCompile::getOutputDirectory);
 	}
 
 	private Provider<RegularFile> zipSample(FileCollection source, Dsl dsl) {
