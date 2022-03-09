@@ -15,7 +15,9 @@
  */
 package nokeebuild;
 
-import dev.gradleplugins.*;
+import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
+import dev.gradleplugins.GradlePluginTestingStrategy;
+import dev.gradleplugins.GradlePluginTestingStrategyFactory;
 import nokeebuild.testing.strategies.DevelopmentTestingStrategy;
 import nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategy;
 import org.gradle.api.Action;
@@ -23,14 +25,15 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import javax.inject.Inject;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static nokeebuild.UseJUnitJupiter.junitVersion;
 import static nokeebuild.UseSpockFramework.spockVersion;
-import static nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategies.*;
+import static nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategies.LINUX;
+import static nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategies.MACOS;
+import static nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategies.WINDOWS;
 
 abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implements Plugin<Project> {
 	@Inject
