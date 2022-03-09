@@ -1,5 +1,5 @@
 plugins {
-	id 'dev.gradleplugins.groovy-gradle-plugin'
+	id 'dev.gradleplugins.java-gradle-plugin'
 	id 'java-test-fixtures'
 }
 
@@ -37,7 +37,6 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation 'com.github.javaparser:javaparser-core:3.15.18'
-	implementation "org.codehaus.groovy:groovy-all:${groovyVersion}"
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
