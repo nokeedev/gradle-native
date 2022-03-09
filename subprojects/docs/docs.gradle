@@ -13,8 +13,13 @@ buildscript {
 		maven { url = 'https://repo.nokee.dev/release' }
 	}
 	dependencies {
-		classpath 'dev.nokee:templates:latest.integration'
-		classpath "dev.gradleplugins:gradle-plugin-development-test-fixtures:${toolboxVersion}"
+		classpath('dev.nokee:templates:latest.integration') {
+			exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+		}
+		classpath("dev.gradleplugins:gradle-plugin-development-test-fixtures:${toolboxVersion}") {
+			exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+			exclude group: 'dev.gradleplugins', module: 'gradle-fixtures'
+		}
 	}
 }
 
