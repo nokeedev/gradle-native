@@ -180,11 +180,6 @@ save () {
 APP_ARGS=`save "$@"`
 
 # Collect all arguments for the java command, following the shell quoting and substitution rules
-NOKEE_INIT_SCRIPT_FILE=$APP_HOME/gradle/nokee.init.gradle
-if [ -f "$NOKEE_INIT_SCRIPT_FILE" ] ; then
-    NOKEE_ARGS="--init-script \"$NOKEE_INIT_SCRIPT_FILE\""
-fi
-
-eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$NOKEE_ARGS" "$APP_ARGS"
+eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"
 
 exec "$JAVACMD" "$@"
