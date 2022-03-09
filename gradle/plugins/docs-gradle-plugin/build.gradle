@@ -30,7 +30,6 @@ dependencies {
 	implementation 'dev.gradleplugins:samples'
 	implementation 'nokeebuild:nokeedocs-plugins'
 	implementation "dev.gradleplugins:gradle-plugin-development:${toolboxVersion}"
-	implementation gradleFixtures()
 	implementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
 	implementation "org.apache.commons:commons-exec:${commonsExecVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
