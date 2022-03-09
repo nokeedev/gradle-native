@@ -40,7 +40,7 @@ dependencies {
 
 //region Configure JUnit 5 with Groovy
 dependencies {
-	testImplementation localGroovy()
+	testImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 	testImplementation "org.hamcrest:hamcrest:2.2"
 	testImplementation "org.mockito:mockito-core:2.28.2"
 	testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"

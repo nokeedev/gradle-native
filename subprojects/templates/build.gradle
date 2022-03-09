@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-	implementation localGroovy()
+	implementation 'org.codehaus.groovy:groovy-all:2.5.8'
 	api 'dev.gradleplugins:gradle-fixtures-source-elements:latest.release'
 	implementation 'dev.gradleplugins:gradle-fixtures-file-system:latest.release'
 	implementation 'com.google.guava:guava:28.2-jre'
