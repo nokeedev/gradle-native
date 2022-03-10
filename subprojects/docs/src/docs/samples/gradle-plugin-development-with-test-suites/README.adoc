@@ -40,7 +40,7 @@ To build and test the plugin:
 $ ./gradlew check
 
 BUILD SUCCESSFUL
-9 actionable tasks: 9 executed
+10 actionable tasks: 10 executed
 ----
 
 Gradle executes both test suites, which is a unit test and a functional test, as expected.
