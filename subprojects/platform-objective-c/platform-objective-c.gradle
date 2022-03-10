@@ -35,7 +35,7 @@ test {
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':coreModel'))
 		implementation testFixtures(project(':languageObjectiveC'))
-		implementation gradleTestKit()
+		implementation gradleTestKit(minimumGradleVersion)
 	}
 }
 

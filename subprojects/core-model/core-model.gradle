@@ -17,7 +17,7 @@ dependencies {
 	testImplementation gradleApi(minimumGradleVersion)
 	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
 	testImplementation "nl.jqno.equalsverifier:equalsverifier:${equalsverifierVersion}"
-	testImplementation gradleTestKit()
+	testImplementation gradleTestKit(minimumGradleVersion)
 	testImplementation(testFixtures(project(':coreUtils')))
 
 	testFixturesApi project(':internalTesting')
