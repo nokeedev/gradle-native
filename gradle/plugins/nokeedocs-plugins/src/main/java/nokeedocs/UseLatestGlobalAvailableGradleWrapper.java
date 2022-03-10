@@ -55,6 +55,6 @@ final class UseLatestGlobalAvailableGradleWrapper implements Action<Sample> {
 	}
 
 	private static String getLatestGlobalAvailableVersion() {
-		return "7.4";
+		return "7.4.1";
 	}
 }
