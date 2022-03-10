@@ -17,6 +17,7 @@ package nokeebuild.ci;
 
 import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
 import org.gradle.api.Transformer;
+import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.testing.Test;
 
@@ -29,6 +30,9 @@ class GradlePluginDevelopmentTestSuiteTestTasksTransformer implements Transforme
 
 	@Override
 	public Provider<? extends Iterable<Test>> transform(GradlePluginDevelopmentTestSuite testSuite) {
-		return mapper.apply(testSuite, testSuite.getTestTasks().getElements());
+		// We flatMap here because of an issue with Gradle not recognizing our intention properly
+		//   Gradle thinks we are accessing a Task before its execution...
+		//   when in fact we are filtering a set of tasks to use as dependencies
+		return mapper.apply(testSuite, testSuite.getTestTasks().getElements().flatMap(Providers::of));
 	}
 }
