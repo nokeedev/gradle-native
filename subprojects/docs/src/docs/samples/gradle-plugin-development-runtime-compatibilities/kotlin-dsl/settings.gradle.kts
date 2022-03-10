@@ -6,7 +6,7 @@ pluginManagement {
 }
 
 plugins {
-	id("dev.gradleplugins.gradle-plugin-development") version("1.6.5")
+	id("dev.gradleplugins.gradle-plugin-development") version("1.6.6")
 }
 
 rootProject.name = "gradle-plugin-development-runtime-compatibilities"
