@@ -6,27 +6,13 @@ buildscript {
 		maven { url = 'https://repo.nokee.dev/release' }
 	}
 	dependencies {
-		classpath 'com.diffplug.spotless:spotless-plugin-gradle:5.15.1'
 		classpath 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1'
-		classpath 'dev.nokeebuild:license-gradle-plugin:latest.integration'
 	}
 }
 
 plugins {
 	id 'nokeebuild.nokee-auto-version'
 	id 'nokeebuild.intellij-ide'
-}
-
-allprojects {
-	apply plugin: 'com.diffplug.spotless'
-	apply plugin: 'dev.nokeebuild.license'
-	spotless {
-		pluginManager.withPlugin('java-base') {
-			java {
-				targetExclude files('build/generated-src').asFileTree
-			}
-		}
-	}
 }
 
 allprojects {

@@ -15,6 +15,7 @@
  */
 package nokeebuild;
 
+import com.diffplug.gradle.spotless.SpotlessExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginExtension;
@@ -39,5 +40,13 @@ abstract /*final*/ class JavaGradlePluginDevelopmentPlugin implements Plugin<Pro
 		java(project, JavaPluginExtension::withJavadocJar);
 		java(project, JavaPluginExtension::withSourcesJar);
 		project.getTasks().named("javadoc", Javadoc.class, new JavadocGradleDevelopmentConvention(project));
+
+		project.getPluginManager().apply("com.diffplug.spotless");
+		project.getPluginManager().apply("nokeebuild.license");
+		project.getExtensions().configure("spotless", (SpotlessExtension extension) -> {
+			project.getPluginManager().withPlugin("java-base", ignored -> {
+				extension.java(it -> it.targetExclude(project.files("build/generated-src").getAsFileTree()));
+			});
+		});
 	}
 }

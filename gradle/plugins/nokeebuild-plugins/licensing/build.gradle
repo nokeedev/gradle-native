@@ -1,0 +1,17 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+gradlePlugin {
+	plugins {
+		licensing {
+			id = 'nokeebuild.license'
+			implementationClass = 'nokeebuild.licensing.NokeeLicensePlugin'
+		}
+	}
+
+	dependencies {
+		compileOnly 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext'
+		compileOnly 'com.diffplug.spotless:spotless-plugin-gradle'
+	}
+}

@@ -4,6 +4,8 @@ plugins {
 
 dependencies {
 	implementation project(':jvm-basics')
+	implementation project(':licensing')
+	implementation 'com.diffplug.spotless:spotless-plugin-gradle'
 	implementation 'org.apache.commons:commons-lang3'
 	runtimeOnly project(':jvm-basics')
 	runtimeOnly project(':continuous-integration')
