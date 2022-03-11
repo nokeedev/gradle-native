@@ -19,13 +19,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.file.*;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
+import org.gradle.api.file.FileVisitDetails;
+import org.gradle.api.file.FileVisitor;
+import org.gradle.api.file.RelativePath;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension;
 import org.gradle.util.GUtil;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +62,7 @@ final class JavadocGradleDevelopmentConvention implements Action<Javadoc> {
 
 	@Override
 	public void execute(Javadoc task) {
-		task.setSource(callableOf(ofDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcePathJavadocOption(task)));
+		task.setSource(ofDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcePathJavadocOption(task));
 
 		title(task).set(toWords(project.getName()).map(StringUtils::capitalize).collect(joining(" ")) + " " + project.getVersion());
 		subpackages(task).set(project.provider(() -> {
@@ -83,36 +86,42 @@ final class JavadocGradleDevelopmentConvention implements Action<Javadoc> {
 	}
 
 	private static Callable<Object> ofDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcePathJavadocOption(Javadoc task) {
-		return () -> {
-			if (sources(task).isEmpty()) {
-				return Collections.emptyList();
-			} else {
-				final MutableBoolean hasSources = new MutableBoolean(false);
-				sources(task).getAsFileTree().visit(new FileVisitor() {
-					@Override
-					public void visitDir(FileVisitDetails dirDetails) {
-						// ignores
-					}
+		return new Callable<Object>() {
+			private File dummyFile;
 
-					@Override
-					public void visitFile(FileVisitDetails details) {
-						// Antlr, for example, generates files in a root source directory despite not being in the default package.
-						//   Ideally, we should peek into the source files to identify their package.
-						if (details.getRelativePath().getSegments().length > 1 && stream(details.getRelativePath().getSegments()).noneMatch("internal"::equals)) {
-							hasSources.setTrue();
-							details.stopVisiting();
+			@Override
+			public Object call() throws Exception {
+				if (dummyFile == null) {
+					if (sources(task).isEmpty()) {
+						return Collections.emptyList();
+					} else {
+						final MutableBoolean hasSources = new MutableBoolean(false);
+						sources(task).getAsFileTree().visit(new FileVisitor() {
+							@Override
+							public void visitDir(FileVisitDetails dirDetails) {
+								// ignores
+							}
+
+							@Override
+							public void visitFile(FileVisitDetails details) {
+								// Antlr, for example, generates files in a root source directory despite not being in the default package.
+								//   Ideally, we should peek into the source files to identify their package.
+								if (details.getRelativePath().getSegments().length > 1 && stream(details.getRelativePath().getSegments()).noneMatch("internal"::equals)) {
+									hasSources.setTrue();
+									details.stopVisiting();
+								}
+							}
+						});
+						if (hasSources.booleanValue()) {
+							dummyFile = task.getTemporaryDir().toPath().resolve("Dummy.java").toFile();
+						} else {
+							return Collections.emptyList();
 						}
 					}
-				});
-				if (hasSources.booleanValue()) {
-					try {
-						return Files.write(task.getTemporaryDir().toPath().resolve("Dummy.java"), Arrays.asList("package internal;", "class Dummy {}"), UTF_8, CREATE, TRUNCATE_EXISTING);
-					} catch (IOException e) {
-						throw new UncheckedIOException(e);
-					}
-				} else {
-					return Collections.emptyList();
 				}
+
+				Files.createDirectories(dummyFile.getParentFile().toPath());
+				return Files.write(dummyFile.toPath(), Arrays.asList("package internal;", "class Dummy {}"), UTF_8, CREATE, TRUNCATE_EXISTING);
 			}
 		};
 	}
