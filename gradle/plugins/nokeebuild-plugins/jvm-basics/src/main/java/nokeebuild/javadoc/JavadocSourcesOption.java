@@ -18,6 +18,7 @@ package nokeebuild.javadoc;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.javadoc.Javadoc;
 
 public class JavadocSourcesOption implements Action<Javadoc> {
@@ -33,7 +34,7 @@ public class JavadocSourcesOption implements Action<Javadoc> {
 	public void execute(Javadoc task) {
 		final ConfigurableFileCollection sources = project.getObjects().fileCollection();
 		task.getExtensions().add(ConfigurableFileCollection.class, SOURCES_EXTENSION_NAME, sources);
-		task.getInputs().files(sources.getAsFileTree());
+		task.getInputs().files(sources).ignoreEmptyDirectories().withPathSensitivity(PathSensitivity.RELATIVE);
 	}
 
 	public static ConfigurableFileCollection sources(Javadoc self) {
