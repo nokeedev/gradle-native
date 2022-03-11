@@ -1,15 +1,3 @@
-buildscript {
-	repositories {
-		mavenCentral()
-		maven { url = 'subprojects/distributions/build/repository' }
-		maven { url = 'https://repo.nokee.dev/snapshot' }
-		maven { url = 'https://repo.nokee.dev/release' }
-	}
-	dependencies {
-		classpath 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1'
-	}
-}
-
 plugins {
 	id 'nokeebuild.nokee-auto-version'
 	id 'nokeebuild.intellij-ide'
