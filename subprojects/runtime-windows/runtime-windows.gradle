@@ -1,6 +1,5 @@
 plugins {
 	id 'nokeebuild.java-gradle-library'
-	id 'groovy-base'
 	id 'maven-publish'
 }
 
