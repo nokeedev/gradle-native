@@ -7,7 +7,10 @@ rootProject.name = 'nokeebuild-plugins'
 include 'build-platform'
 
 include 'basics'
+include 'build-cache'
+include 'build-scan'
 include 'continuous-integration'
+include 'enterprise'
 include 'ide-idea'
 include 'jvm-basics'
 include 'jvm-strict-compile'
@@ -23,6 +26,43 @@ gradle.allprojects {
 	pluginManager.withPlugin('dev.gradleplugins.java-gradle-plugin') {
 		dependencies {
 			api platform(project(":build-platform"))
+		}
+	}
+
+	// Use JUnit 5
+	pluginManager.withPlugin('dev.gradleplugins.gradle-plugin-unit-test') {
+		test {
+			dependencies {
+				implementation platform('org.junit:junit-bom:5.8.2')
+				implementation 'org.junit.jupiter:junit-jupiter'
+			}
+			testTasks.configureEach { useJUnitPlatform() }
+		}
+	}
+	pluginManager.withPlugin('dev.gradleplugins.gradle-plugin-functional-test') {
+		functionalTest {
+			dependencies {
+				implementation platform('org.junit:junit-bom:5.8.2')
+				implementation 'org.junit.jupiter:junit-jupiter'
+			}
+			testTasks.configureEach { useJUnitPlatform() }
+		}
+	}
+
+	// Use mockito
+	pluginManager.withPlugin('dev.gradleplugins.gradle-plugin-unit-test') {
+		test {
+			dependencies {
+				implementation 'org.mockito:mockito-core:4.3.1'
+				implementation 'org.mockito:mockito-junit-jupiter:4.3.1'
+			}
+		}
+	}
+
+	// Use Gradle Runner Kit
+	pluginManager.withPlugin('dev.gradleplugins.gradle-plugin-functional-test') {
+		dependencies {
+			functionalTestImplementation gradleRunnerKit()
 		}
 	}
 }
