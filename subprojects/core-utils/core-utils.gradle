@@ -18,11 +18,3 @@ dependencies {
 	testFixturesImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
 	testFixturesImplementation "com.google.guava:guava:${guavaVersion}"
 }
-
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
-	}
-}

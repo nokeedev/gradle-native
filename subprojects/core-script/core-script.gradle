@@ -11,11 +11,3 @@ dependencies {
 	testFixturesApi gradleApi(minimumGradleVersion)
 	testFixturesApi "org.hamcrest:hamcrest:${hamcrestVersion}"
 }
-
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
-	}
-}

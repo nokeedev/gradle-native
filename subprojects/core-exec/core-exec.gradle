@@ -30,11 +30,3 @@ dependencies {
 	testImplementation gradleFixtures()
 	testImplementation gradleApi(minimumGradleVersion)
 }
-
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
-	}
-}

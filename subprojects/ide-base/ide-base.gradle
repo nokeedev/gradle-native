@@ -22,11 +22,3 @@ dependencies {
 	testFixturesApi project(':runtimeBase')
 	testFixturesApi "dev.gradleplugins:gradle-fixtures-file-system:latest.release"
 }
-
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
-	}
-}
