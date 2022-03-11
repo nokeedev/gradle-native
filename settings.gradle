@@ -8,7 +8,7 @@ pluginManagement {
 
 plugins {
 	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.7'
-	id 'com.gradle.enterprise' version '3.8.1'
+	id 'nokeebuild.enterprise'
 }
 
 rootProject.name = 'gradle-native'
@@ -81,41 +81,3 @@ subproject('runtime-windows')
 subproject('testing-base')
 subproject('testing-native')
 subproject('testing-xctest')
-
-import java.util.Optional
-buildCache {
-	remote(HttpBuildCache) {
-		Optional.ofNullable(System.getProperty('gradle.cache.remote.url')).ifPresent { url = it }
-		credentials {
-			username = System.getProperty('gradle.cache.remote.username')
-			password = System.getProperty('gradle.cache.remote.password')
-		}
-		enabled = credentials.username != null && credentials.password != null
-		push = System.getenv().containsKey('CI')
-	}
-}
-
-// We prefer using `--scan` flag because...
-//   We would be left playing a cat & mouse game with the enterprise plugin
-//   to figure out which version should match our build.
-plugins.withId('com.gradle.enterprise') {
-	gradleEnterprise {
-		buildScan {
-			server = System.getProperty('gradle.enterprise.url', null)
-			termsOfServiceUrl = "https://gradle.com/terms-of-service"
-			termsOfServiceAgree = "yes"
-			publishAlways()
-
-			if (System.getenv('CI')) {
-				tag 'CI'
-			} else {
-				tag 'LOCAL'
-			}
-
-			uploadInBackground = System.getenv("CI") == null
-			capture {
-				taskInputFiles = true
-			}
-		}
-	}
-}

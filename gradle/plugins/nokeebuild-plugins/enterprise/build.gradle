@@ -1,0 +1,19 @@
+plugins {
+    id 'dev.gradleplugins.java-gradle-plugin'
+    id 'dev.gradleplugins.gradle-plugin-unit-test'
+}
+
+gradlePlugin {
+    plugins {
+        enterprise {
+            id = 'nokeebuild.enterprise'
+            implementationClass = 'nokeebuild.enterprise.GradleEnterprisePlugin'
+        }
+    }
+
+    dependencies {
+        runtimeOnly project(':build-cache')
+        runtimeOnly project(':build-scan')
+		runtimeOnly 'com.gradle:gradle-enterprise-gradle-plugin'
+    }
+}
