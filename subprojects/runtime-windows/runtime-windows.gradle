@@ -7,11 +7,3 @@ dependencies {
 	api project(':runtimeBase')
 	implementation project(':coreExec')
 }
-
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
-	}
-}

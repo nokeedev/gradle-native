@@ -25,14 +25,6 @@ dependencies {
 	testFixturesImplementation gradleApi(minimumGradleVersion)
 }
 
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
-	}
-}
-
 gradlePlugin {
 	plugins {
 		modelBase {

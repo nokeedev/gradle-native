@@ -76,11 +76,3 @@ sourceSets {
 	'v6.6' {}
 	'v7.0' {}
 }
-
-publishing {
-	publications {
-		library(MavenPublication) {
-			from components.java
-		}
-	}
-}
