@@ -20,8 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
@@ -51,6 +51,18 @@ class DomainObjectIdentityTest {
 	@Test
 	void returnsEmptySetWhenValueDoesNotExists() {
 		assertThat(subject.getAll(MyOtherValue.class), emptyIterable());
+	}
+
+	@Test
+	void canSetMultipleValuesUsingIterableAsObject() {
+		assertThat(subject.with((Object) singletonList(ALTERNATE_VALUE)).getAll(MyValue.class),
+			containsInAnyOrder(ALTERNATE_VALUE));
+	}
+
+	@Test
+	void canSetMultipleValuesUsingIterable() {
+		assertThat(subject.with(singletonList(ALTERNATE_VALUE)).getAll(MyValue.class),
+			containsInAnyOrder(ALTERNATE_VALUE));
 	}
 
 	@Test
