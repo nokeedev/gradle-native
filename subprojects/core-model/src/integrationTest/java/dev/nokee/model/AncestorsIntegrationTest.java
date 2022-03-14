@@ -53,10 +53,10 @@ class AncestorsIntegrationTest {
 
 	@Test
 	void hasAncestorsComponentOnlyIfItHasParent() {
-		assertThat(greatGrandParent.hasComponent(AncestorsComponent.class), is(false));
-		assertThat(grandParent.hasComponent(AncestorsComponent.class), is(true));
-		assertThat(parent.hasComponent(AncestorsComponent.class), is(true));
-		assertThat(child.hasComponent(AncestorsComponent.class), is(true));
+		assertThat(greatGrandParent.has(AncestorsComponent.class), is(false));
+		assertThat(grandParent.has(AncestorsComponent.class), is(true));
+		assertThat(parent.has(AncestorsComponent.class), is(true));
+		assertThat(child.has(AncestorsComponent.class), is(true));
 	}
 
 	@Test

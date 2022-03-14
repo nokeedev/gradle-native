@@ -103,7 +103,7 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	@Override
 	public <T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action) {
 		val descendantOfSpec = descendantOf(entity.getComponent(ViewConfigurationBaseComponent.class).get().getId());
-		if (entity.hasComponent(BaseModelSpecComponent.class)) {
+		if (entity.has(BaseModelSpecComponent.class)) {
 			instantiate(entity, ModelAction.whenElementKnown(entity.getComponent(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
 		} else {
 			instantiate(entity, ModelAction.whenElementKnown(descendantOfSpec, elementType, action));
