@@ -97,7 +97,7 @@ public final class BuildVariants {
 		@Override
 		public Provider<CoordinateSet<?>> transform(ModelNode entity) {
 			@SuppressWarnings("unchecked")
-			val values = (Provider<Set<Object>>) entity.getComponent(GradlePropertyComponent.class).get();
+			val values = (Provider<Set<Object>>) entity.get(GradlePropertyComponent.class).get();
 
 			return values.map(asCoordinateSet(entity, componentName));
 		}

@@ -113,7 +113,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
 			// TODO: Each plugins should just map the build variants into the variants.
-			((Provider<?>) buildVariants.get().getComponent(GradlePropertyComponent.class).get()).get();
+			((Provider<?>) buildVariants.get().get(GradlePropertyComponent.class).get()).get();
 		}));
 	}
 
