@@ -20,15 +20,11 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
-
-import java.util.Optional;
-
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
 public abstract class AncestryCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
@@ -37,13 +33,6 @@ public abstract class AncestryCapabilityPlugin<T extends ExtensionAware & Plugin
 	}
 
 	private static void calculateAncestorsFromParent(ModelNode entity, ParentComponent parent) {
-		val ancestors = ImmutableSet.<AncestorRef>builder();
-		Optional<ParentComponent> parentComponent = Optional.of(parent);
-		while (parentComponent.isPresent()) {
-			ancestors.add(AncestorRef.of(parentComponent.get().get()));
-			parentComponent = parentComponent.flatMap(it -> it.get().findComponent(componentOf(ParentComponent.class)));
-		}
-
-		entity.addComponent(new AncestorsComponent(new Ancestors(ancestors.build())));
+		entity.addComponent(new AncestorsComponent(new Ancestors(ParentUtils.stream(parent).map(AncestorRef::of).collect(ImmutableSet.toImmutableSet()))));
 	}
 }
