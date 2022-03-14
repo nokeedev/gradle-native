@@ -124,7 +124,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	private static Set<ModelEntityId> executedActions(ModelNode entity) {
-		return entity.findComponent(ExecutedActionComponent.class).map(ExecutedActionComponent::get).orElse(Collections.emptySet());
+		return entity.find(ExecutedActionComponent.class).map(ExecutedActionComponent::get).orElse(Collections.emptySet());
 	}
 	//endregion
 

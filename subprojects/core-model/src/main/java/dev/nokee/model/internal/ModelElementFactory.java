@@ -222,7 +222,7 @@ public final class ModelElementFactory {
 				return ModelNodeUtils.get(ModelStates.realize(entity), type);
 			}
 		};
-		val provider = entity.findComponent(ModelElementProviderSourceComponent.class).map(it -> it.get().map(ignored -> ModelNodeUtils.get(entity, type))).orElseGet(() -> ProviderUtils.supplied(() -> ModelNodeUtils.get(entity, type))).map(it -> {
+		val provider = entity.find(ModelElementProviderSourceComponent.class).map(it -> it.get().map(ignored -> ModelNodeUtils.get(entity, type))).orElseGet(() -> ProviderUtils.supplied(() -> ModelNodeUtils.get(entity, type))).map(it -> {
 			if (!type.isSubtypeOf(Provider.class)) {
 				ModelStates.realize(entity);
 			}

@@ -111,7 +111,14 @@ public final class ModelNode {
 	}
 
 	public <T> Optional<T> findComponent(Class<T> type) {
+		if (ModelComponent.class.isAssignableFrom(type)) {
+			throw new UnsupportedOperationException("Use find(Class) instead.");
+		}
 		return components.values().stream().filter(type::isInstance).map(type::cast).findFirst();
+	}
+
+	public <T extends ModelComponent> Optional<T> find(Class<T> type) {
+		return findComponent(ModelComponentType.componentOf(type));
 	}
 
 	public <T> Optional<T> findComponent(ModelComponentType<T> componentType) {
