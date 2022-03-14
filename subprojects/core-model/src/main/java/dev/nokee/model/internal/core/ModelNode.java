@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -99,7 +100,7 @@ public final class ModelNode {
 		if (ModelComponent.class.isAssignableFrom(type)) {
 			throw new UnsupportedOperationException("Use get(Class) instead.");
 		}
-		return findComponent(type).orElseThrow(() -> new RuntimeException(String.format("No components of type '%s'. Available: %s", type.getSimpleName(), components.keySet())));
+		return findComponent(type).orElseThrow(() -> new RuntimeException(String.format("No components of type '%s'. Available: %s", type.getSimpleName(), components.keySet().stream().map(Objects::toString).collect(Collectors.joining(", ")))));
 	}
 
 	public <T extends ModelComponent> T get(Class<T> type) {
@@ -107,7 +108,9 @@ public final class ModelNode {
 	}
 
 	public <T> T getComponent(ModelComponentType<T> componentType) {
-		return findComponent(componentType).orElseThrow(RuntimeException::new);
+		return findComponent(componentType).orElseThrow(() -> {
+			return new RuntimeException(String.format("No components of type '%s'. Available: %s", componentType, components.keySet().stream().map(Objects::toString).collect(Collectors.joining(", "))));
+		});
 	}
 
 	public <T> Optional<T> findComponent(Class<T> type) {

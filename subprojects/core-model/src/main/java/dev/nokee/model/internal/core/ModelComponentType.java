@@ -111,6 +111,11 @@ public abstract class ModelComponentType<T> {
 		public Bits bits() {
 			return componentBits(value);
 		}
+
+		@Override
+		public String toString() {
+			return value.getSimpleName();
+		}
 	}
 
 	@Value
@@ -134,6 +139,11 @@ public abstract class ModelComponentType<T> {
 		@Override
 		public Bits bits() {
 			return componentBits(value).or(componentBits(ModelProjection.class));
+		}
+
+		@Override
+		public String toString() {
+			return "projection of " + value.getSimpleName();
 		}
 	}
 }
