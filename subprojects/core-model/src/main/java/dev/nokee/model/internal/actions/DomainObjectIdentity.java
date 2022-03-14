@@ -65,9 +65,13 @@ final class DomainObjectIdentity {
 
 	public <T> DomainObjectIdentity with(T value) {
 		Objects.requireNonNull(value);
-		val result = MultimapBuilder.hashKeys().hashSetValues().build(values);
-		result.replaceValues(value.getClass(), ImmutableSet.of(value));
-		return new DomainObjectIdentity(result);
+		if (value instanceof Iterable) {
+			return with((Iterable<? extends Object>) value);
+		} else {
+			val result = MultimapBuilder.hashKeys().hashSetValues().build(values);
+			result.replaceValues(value.getClass(), ImmutableSet.of(value));
+			return new DomainObjectIdentity(result);
+		}
 	}
 
 	public <T> DomainObjectIdentity with(Iterable<T> value) {
