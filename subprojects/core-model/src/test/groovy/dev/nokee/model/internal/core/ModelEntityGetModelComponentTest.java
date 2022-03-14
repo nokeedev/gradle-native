@@ -15,11 +15,12 @@
  */
 package dev.nokee.model.internal.core;
 
-import org.hamcrest.Matchers;
+import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -44,12 +45,14 @@ class ModelEntityGetModelComponentTest {
 
 	@Test
 	void throwsExceptionWhenModelComponentByTypeDoesNotExistsOnEntity() {
-		assertThrows(RuntimeException.class, () -> subject.getComponent(ModelComponentType.componentOf(MyOtherComponent.class)));
+		val ex = assertThrows(RuntimeException.class, () -> subject.getComponent(ModelComponentType.componentOf(MyOtherComponent.class)));
+		assertThat(ex.getMessage(), equalTo("No components of type 'MyOtherComponent'. Available: MyComponent"));
 	}
 
 	@Test
 	void throwsExceptionWhenModelComponentByClassDoesNotExistsOnEntity() {
-		assertThrows(RuntimeException.class, () -> subject.get(MyOtherComponent.class));
+		val ex = assertThrows(RuntimeException.class, () -> subject.get(MyOtherComponent.class));
+		assertThat(ex.getMessage(), equalTo("No components of type 'MyOtherComponent'. Available: MyComponent"));
 	}
 
 	@Test
