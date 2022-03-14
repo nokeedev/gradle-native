@@ -114,11 +114,18 @@ public final class ModelNode {
 	}
 
 	public boolean hasComponent(Class<?> type) {
+		if (ModelComponent.class.isAssignableFrom(type)) {
+			throw new UnsupportedOperationException("Use has(Class) instead.");
+		}
 		return components.values().stream().anyMatch(type::isInstance);
 	}
 
 	public boolean hasComponent(ModelComponentType<?> componentType) {
 		return components.containsKey(componentType);
+	}
+
+	public <T extends ModelComponent> boolean has(Class<T> type) {
+		return hasComponent(ModelComponentType.componentOf(type));
 	}
 
 	public <T> void setComponent(Class<T> componentType, T component) {
