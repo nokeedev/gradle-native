@@ -132,4 +132,14 @@ public interface ModelSpec {
 	static ModelSpec isEqual(Object o) {
 		return new EqualSpec(Objects.requireNonNull(o));
 	}
+
+	/**
+	 * Creates a specification that match a value against an iterable identity entry.
+	 *
+	 * @param o  the expected value to find in identity entry, must not be null
+	 * @return a new specification matching the specified value in the identity entry, never null
+	 */
+	static ModelSpec has(Object o) {
+		return new ContainSpec(Objects.requireNonNull(o));
+	}
 }

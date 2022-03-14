@@ -16,8 +16,11 @@
 package dev.nokee.model.internal.actions;
 
 import com.google.common.collect.ImmutableSet;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.internal.actions.ModelSpec.has;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ModelSpec_ContainTest implements ModelSpecTester<ContainSpec> {
@@ -42,5 +45,11 @@ class ModelSpec_ContainTest implements ModelSpecTester<ContainSpec> {
 	@Test
 	void doesNotSatisfyOnEmptyIdentity() {
 		assertFalse(subject().isSatisfiedBy(emptyIdentity()));
+	}
+
+	@Test
+	void canCreateSpecUsingFactoryMethod() {
+		val obj = new Object();
+		assertEquals(new ContainSpec(obj), has(obj));
 	}
 }
