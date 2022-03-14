@@ -32,7 +32,7 @@ public final class ModelBackedGradlePropertyConvertibleStrategy implements Prope
 	@Override
 	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
 	public <P extends HasConfigurableValue> P asProperty(ModelType<P> propertyType) {
-		val result = entity.getComponent(GradlePropertyComponent.class).get();
+		val result = entity.get(GradlePropertyComponent.class).get();
 		if (GradlePropertyTypes.of(result).isSubtypeOf(propertyType)) {
 			return (P) result;
 		} else {

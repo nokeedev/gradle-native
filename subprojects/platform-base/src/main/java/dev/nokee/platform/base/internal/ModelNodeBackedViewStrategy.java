@@ -67,9 +67,9 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 
 	@Override
 	public <T> void configureEach(Class<T> elementType, Action<? super T> action) {
-		val descendantOfSpec = descendantOf(entity.getComponent(ViewConfigurationBaseComponent.class).get().getId());
-		if (entity.hasComponent(BaseModelSpecComponent.class)) {
-			instantiate(entity, ModelAction.configureEach(entity.getComponent(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
+		val descendantOfSpec = descendantOf(entity.get(ViewConfigurationBaseComponent.class).get().getId());
+		if (entity.has(BaseModelSpecComponent.class)) {
+			instantiate(entity, ModelAction.configureEach(entity.get(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
 		} else {
 			instantiate(entity, ModelAction.configureEach(descendantOfSpec, elementType, action));
 		}

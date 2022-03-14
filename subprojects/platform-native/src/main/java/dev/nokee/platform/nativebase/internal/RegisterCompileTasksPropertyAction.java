@@ -66,7 +66,7 @@ public final class RegisterCompileTasksPropertyAction extends ModelActionWithInp
 		if (identifier.equals(this.identifier)) {
 			val compileTasks = registry.register(ModelRegistration.builder()
 				.mergeFrom(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class))
-				.withComponent(new ViewConfigurationBaseComponent(entity.getComponent(ParentComponent.class).get()))
+				.withComponent(new ViewConfigurationBaseComponent(entity.get(ParentComponent.class).get()))
 				.withComponent(new BaseModelSpecComponent(ModelSpec.isEqual(CompileTaskTag.tag())))
 				.build()
 			);

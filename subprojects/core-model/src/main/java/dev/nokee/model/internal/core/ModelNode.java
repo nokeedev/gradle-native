@@ -96,7 +96,14 @@ public final class ModelNode {
 	}
 
 	public <T> T getComponent(Class<T> type) {
+		if (ModelComponent.class.isAssignableFrom(type)) {
+			throw new UnsupportedOperationException("Use get(Class) instead.");
+		}
 		return findComponent(type).orElseThrow(() -> new RuntimeException(String.format("No components of type '%s'. Available: %s", type.getSimpleName(), components.keySet())));
+	}
+
+	public <T extends ModelComponent> T get(Class<T> type) {
+		return getComponent(ModelComponentType.componentOf(type));
 	}
 
 	public <T> T getComponent(ModelComponentType<T> componentType) {

@@ -61,15 +61,15 @@ class AncestorsIntegrationTest {
 
 	@Test
 	void doesNotContainsSelfInAncestors() {
-		assertThat(grandParent.getComponent(AncestorsComponent.class).get(), not(hasItem(of(grandParent))));
-		assertThat(parent.getComponent(AncestorsComponent.class).get(), not(hasItem(of(parent))));
-		assertThat(child.getComponent(AncestorsComponent.class).get(), not(hasItem(of(child))));
+		assertThat(grandParent.get(AncestorsComponent.class).get(), not(hasItem(of(grandParent))));
+		assertThat(parent.get(AncestorsComponent.class).get(), not(hasItem(of(parent))));
+		assertThat(child.get(AncestorsComponent.class).get(), not(hasItem(of(child))));
 	}
 
 	@Test
 	void containsAllParentsInAncestors() {
-		assertThat(grandParent.getComponent(AncestorsComponent.class).get(), containsInAnyOrder(of(greatGrandParent)));
-		assertThat(parent.getComponent(AncestorsComponent.class).get(), containsInAnyOrder(of(greatGrandParent), of(grandParent)));
-		assertThat(child.getComponent(AncestorsComponent.class).get(), containsInAnyOrder(of(greatGrandParent), of(grandParent), of(parent)));
+		assertThat(grandParent.get(AncestorsComponent.class).get(), containsInAnyOrder(of(greatGrandParent)));
+		assertThat(parent.get(AncestorsComponent.class).get(), containsInAnyOrder(of(greatGrandParent), of(grandParent)));
+		assertThat(child.get(AncestorsComponent.class).get(), containsInAnyOrder(of(greatGrandParent), of(grandParent), of(parent)));
 	}
 }

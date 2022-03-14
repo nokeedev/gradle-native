@@ -82,7 +82,7 @@ public final class ModelElementFactory {
 	public ModelElement createElement(ModelNode entity) {
 		Objects.requireNonNull(entity);
 		if (entity.hasComponent(ModelPropertyTag.class)) {
-			return createPropertyInternal(entity, entity.getComponent(ModelPropertyTypeComponent.class).get());
+			return createPropertyInternal(entity, entity.get(ModelPropertyTypeComponent.class).get());
 		} else {
 			return createElementInternal(entity);
 		}
@@ -93,7 +93,7 @@ public final class ModelElementFactory {
 		val namedStrategy = new NamedStrategy() {
 			@Override
 			public String getAsString() {
-				return entity.getComponent(ElementNameComponent.class).get().toString();
+				return entity.get(ElementNameComponent.class).get().toString();
 			}
 		};
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
@@ -148,7 +148,7 @@ public final class ModelElementFactory {
 
 	@SuppressWarnings("unchecked")
 	private static <T> ModelType<T> propertyType(ModelNode entity) {
-		return (ModelType<T>) entity.getComponent(ModelPropertyTypeComponent.class).get();
+		return (ModelType<T>) entity.get(ModelPropertyTypeComponent.class).get();
 	}
 
 	private <T> DomainObjectProvider<T> createObjectInternal(ModelNode entity, ModelType<T> type) {
@@ -159,7 +159,7 @@ public final class ModelElementFactory {
 		val namedStrategy = new NamedStrategy() {
 			@Override
 			public String getAsString() {
-				return entity.getComponent(ElementNameComponent.class).get().toString();
+				return entity.get(ElementNameComponent.class).get().toString();
 			}
 		};
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
@@ -167,7 +167,7 @@ public final class ModelElementFactory {
 			@Override
 			@SuppressWarnings("unchecked")
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
-				if (!ModelNodeUtils.canBeViewedAs(entity, type) && !type.isSupertypeOf(entity.getComponent(ModelPropertyTypeComponent.class).get())) {
+				if (!ModelNodeUtils.canBeViewedAs(entity, type) && !type.isSupertypeOf(entity.get(ModelPropertyTypeComponent.class).get())) {
 					throw new RuntimeException("...");
 				}
 				assert fullType.equals(type);
@@ -275,7 +275,7 @@ public final class ModelElementFactory {
 	public ModelProperty<?> createProperty(ModelNode entity) {
 		Objects.requireNonNull(entity);
 		Preconditions.checkArgument(entity.hasComponent(ModelPropertyTag.class));
-		return createPropertyInternal(entity, entity.getComponent(ModelPropertyTypeComponent.class).get());
+		return createPropertyInternal(entity, entity.get(ModelPropertyTypeComponent.class).get());
 	}
 
 	public <T> ModelProperty<T> createProperty(ModelNode entity, ModelType<T> type) {
@@ -290,7 +290,7 @@ public final class ModelElementFactory {
 		val namedStrategy = new NamedStrategy() {
 			@Override
 			public String getAsString() {
-				return entity.getComponent(ElementNameComponent.class).get().toString();
+				return entity.get(ElementNameComponent.class).get().toString();
 			}
 		};
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
@@ -383,7 +383,7 @@ public final class ModelElementFactory {
 		@Override
 		@SuppressWarnings("unchecked")
 		public T get() {
-			val value = entity.getComponent(GradlePropertyComponent.class).get();
+			val value = entity.get(GradlePropertyComponent.class).get();
 			if (value instanceof Provider) {
 				return ((Provider<T>) value).getOrNull();
 			} else if (value instanceof FileCollection) {
