@@ -71,6 +71,6 @@ public final class ModelBackedModelCastableStrategy implements ModelCastableStra
 	}
 
 	private static Optional<ModelType<?>> propertyType(ModelNode entity) {
-		return entity.findComponent(ModelPropertyTypeComponent.class).map(ModelPropertyTypeComponent::get);
+		return entity.find(ModelPropertyTypeComponent.class).map(ModelPropertyTypeComponent::get);
 	}
 }
