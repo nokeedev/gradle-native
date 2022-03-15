@@ -16,6 +16,7 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
 import com.google.common.collect.Iterables;
+import dev.nokee.language.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
@@ -42,7 +43,6 @@ import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFac
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.language.base.internal.ComponentSourcesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;

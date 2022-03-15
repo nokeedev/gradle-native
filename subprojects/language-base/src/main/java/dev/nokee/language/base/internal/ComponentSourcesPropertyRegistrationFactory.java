@@ -19,8 +19,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.model.internal.BaseDomainObjectViewProjection;
 import dev.nokee.model.internal.BaseNamedDomainObjectViewProjection;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
