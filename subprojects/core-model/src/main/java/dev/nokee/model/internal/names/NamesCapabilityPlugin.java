@@ -29,8 +29,6 @@ import org.gradle.api.plugins.PluginAware;
 import static dev.nokee.model.internal.names.FullyQualifiedName.toFullyQualifiedName;
 import static dev.nokee.model.internal.names.RelativeNames.toRelativeNames;
 
-// TODO: Move ElementName + component to this package
-// TODO: Move FullyQualifiedName + component to this package
 public abstract class NamesCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
