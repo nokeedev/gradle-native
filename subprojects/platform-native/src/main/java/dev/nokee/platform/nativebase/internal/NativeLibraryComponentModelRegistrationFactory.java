@@ -25,7 +25,6 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.*;
@@ -95,7 +94,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			// TODO: Should configure FileCollection on CApplication
 			//   and link FileCollection to source sets
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {

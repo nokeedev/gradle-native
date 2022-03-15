@@ -28,6 +28,8 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.names.NamingScheme;
+import dev.nokee.model.internal.names.NamingSchemeSystem;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -35,8 +37,10 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
+import dev.nokee.platform.base.Artifact;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariants;
@@ -60,6 +64,7 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketR
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.ParameterizedType;
@@ -115,6 +120,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			// TODO: Each plugins should just map the build variants into the variants.
 			((Provider<?>) buildVariants.get().get(GradlePropertyComponent.class).get()).get();
 		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Artifact.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Task.class, NamingScheme::suffixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Component.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(DependencyBucket.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Variant.class, NamingScheme::prefixTo));
 	}
 
 	@SuppressWarnings("unchecked")

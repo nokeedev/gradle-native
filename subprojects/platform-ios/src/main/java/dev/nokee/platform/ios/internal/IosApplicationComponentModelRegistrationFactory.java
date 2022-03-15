@@ -23,7 +23,6 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -50,13 +49,11 @@ import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFac
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.ComponentNamer;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantNamer;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
@@ -139,7 +136,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(new FullyQualifiedNameComponent(ComponentNamer.INSTANCE.determineName(identifier)))
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(identifier.getName().get(), project)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
 				private boolean alreadyExecuted = false;
@@ -234,7 +230,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(new FullyQualifiedNameComponent(VariantNamer.INSTANCE.determineName(identifier)))
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
 				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))

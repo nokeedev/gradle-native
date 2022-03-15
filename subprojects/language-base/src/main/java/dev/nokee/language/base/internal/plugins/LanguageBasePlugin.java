@@ -27,6 +27,8 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelPropertyTag;
+import dev.nokee.model.internal.names.NamingScheme;
+import dev.nokee.model.internal.names.NamingSchemeSystem;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -54,5 +56,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 			}
 		}));
 		project.getExtensions().add(ComponentSourcesPropertyRegistrationFactory.class, "__nokee_componentSourcesPropertyFactory", new ComponentSourcesPropertyRegistrationFactory(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ModelPropertyRegistrationFactory.class), project.getExtensions().getByType(ModelConfigurer.class), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(LanguageSourceSet.class, NamingScheme::prefixTo));
 	}
 }
