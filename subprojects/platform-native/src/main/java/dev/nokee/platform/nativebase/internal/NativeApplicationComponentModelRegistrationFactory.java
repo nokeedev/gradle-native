@@ -71,11 +71,11 @@ import org.gradle.api.Project;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.maven;
+import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.maven;
-import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.nativeApplicationProjection;

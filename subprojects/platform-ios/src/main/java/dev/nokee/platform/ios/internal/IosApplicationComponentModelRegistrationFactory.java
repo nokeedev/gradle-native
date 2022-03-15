@@ -91,6 +91,8 @@ import org.gradle.internal.Cast;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.maven;
+import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.applyTo;
@@ -100,8 +102,6 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.maven;
-import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;

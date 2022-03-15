@@ -48,9 +48,9 @@ import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
+import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 public abstract class BaseNativeComponent<T extends VariantInternal> extends BaseComponent<T> implements VariantAwareComponentInternal<T> {
