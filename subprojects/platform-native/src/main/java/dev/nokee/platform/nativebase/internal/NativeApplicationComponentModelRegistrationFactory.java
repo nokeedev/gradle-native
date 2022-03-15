@@ -31,6 +31,7 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
@@ -97,7 +98,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		val name = entityPath.getName();
-		return ModelRegistration.builder()
+		val builder =  ModelRegistration.builder()
 			.withComponent(entityPath)
 			.withComponent(createdUsing(of(componentType), () -> project.getObjects().newInstance(implementationComponentType)))
 			.withComponent(identifier)
@@ -169,9 +170,13 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 				if (entityPath.equals(path)) {
 					new CalculateNativeApplicationVariantAction(project).execute(entity, path);
 				}
-			}))
-			.build()
-			;
+			}));
+
+		if (identifier.isMainComponent()) {
+			builder.withComponent(ExcludeFromQualifyingNameTag.tag());
+		}
+
+		return builder.build();
 	}
 
 	private static class CalculateNativeApplicationVariantAction extends ModelActionWithInputs.ModelAction1<ModelPath> {

@@ -47,6 +47,7 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -144,7 +145,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = DomainObjectIdentifierUtils.toPath(identifier);
-		return ModelRegistration.builder()
+		val builder = ModelRegistration.builder()
 			.withComponent(identifier)
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
 				if (entityPath.isDirectDescendant(path)) {
@@ -383,9 +384,13 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						}));
 					}
 				}
-			}))
-			.build()
-			;
+			}));
+
+		if (identifier.isMainComponent()) {
+			builder.withComponent(ExcludeFromQualifyingNameTag.tag());
+		}
+
+		return builder.build();
 	}
 
 	private static void assertTargetMachinesAreKnown(Iterable<Coordinate<TargetMachine>> targetMachines, ToolChainSelectorInternal toolChainSelector) {
