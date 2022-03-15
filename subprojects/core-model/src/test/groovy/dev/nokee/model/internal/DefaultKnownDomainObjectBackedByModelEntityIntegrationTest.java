@@ -21,7 +21,7 @@ import dev.nokee.model.KnownDomainObjectTester;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
-import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;

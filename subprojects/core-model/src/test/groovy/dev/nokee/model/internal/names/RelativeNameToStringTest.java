@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.internal.names;
 
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.core.ModelNodes;
-import org.gradle.api.Named;
+import org.junit.jupiter.api.Test;
 
-public interface ModelBackedNamedMixIn extends Named {
-	@Override
-	default String getName() {
-		return ModelNodes.of(this).get(FullyQualifiedNameComponent.class).get().toString();
+import static dev.nokee.model.internal.core.ModelEntityId.ofId;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasToString;
+
+class RelativeNameToStringTest {
+	@Test
+	void checkToString() {
+		assertThat(RelativeName.of(ofId(42), "ldfeKiel"), hasToString("ldfeKiel"));
 	}
 }

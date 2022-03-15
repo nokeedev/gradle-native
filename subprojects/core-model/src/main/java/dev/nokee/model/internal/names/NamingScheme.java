@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.names;
 
-import java.util.function.Supplier;
+import org.gradle.api.Namer;
 
-public final class FullyQualifiedNameComponent implements Supplier<FullyQualifiedName> {
-	private final FullyQualifiedName value;
-
-	public FullyQualifiedNameComponent(String value) {
-		this.value = FullyQualifiedName.of(value);
+public interface NamingScheme extends Namer<QualifyingName> {
+	static NamingScheme prefixTo(ElementName name) {
+		return new PrefixToNamingScheme(name);
 	}
 
-	public FullyQualifiedNameComponent(FullyQualifiedName value) {
-		this.value = value;
-	}
-
-	@Override
-	public FullyQualifiedName get() {
-		return value;
+	static NamingScheme suffixTo(ElementName name) {
+		return new SuffixToNamingScheme(name);
 	}
 }

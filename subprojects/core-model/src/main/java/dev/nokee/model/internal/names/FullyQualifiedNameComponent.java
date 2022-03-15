@@ -13,17 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal.actions;
+package dev.nokee.model.internal.names;
 
-import org.junit.jupiter.api.Test;
+import dev.nokee.model.internal.core.ModelComponent;
 
-import static dev.nokee.model.internal.core.ModelEntityId.ofId;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasToString;
+import java.util.function.Supplier;
 
-class RelativeNameToStringTest {
-	@Test
-	void checkToString() {
-		assertThat(RelativeName.of(ofId(42), "ldfeKiel"), hasToString("ldfeKiel"));
+public final class FullyQualifiedNameComponent implements ModelComponent, Supplier<FullyQualifiedName> {
+	private final FullyQualifiedName value;
+
+	public FullyQualifiedNameComponent(String value) {
+		this.value = FullyQualifiedName.of(value);
+	}
+
+	public FullyQualifiedNameComponent(FullyQualifiedName value) {
+		this.value = value;
+	}
+
+	@Override
+	public FullyQualifiedName get() {
+		return value;
 	}
 }

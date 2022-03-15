@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.names;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.equalTo;
 
-class FullyQualifiedNameTest {
+class PrefixToNamingSchemeTest {
+	private final NamingScheme subject = new PrefixToNamingScheme(ElementName.of("zala"));
+
 	@Test
-	void checkEquals() {
-		EqualsVerifier.forClass(FullyQualifiedName.class)
-			.verify();
+	void prefixesElementNameWithQualifyingNameUsingLowerCamelCase() {
+		assertThat(subject.determineName(QualifyingName.of("wici")), equalTo("wiciZala"));
 	}
 
 	@Test
-	void canConvertToString() {
-		assertThat(FullyQualifiedName.of("leqe"), hasToString("leqe"));
+	void returnsElementNameOnEmptyQualifyingName() {
+		assertThat(subject.determineName(QualifyingName.empty()), equalTo("zala"));
+	}
+
+	@Test
+	void canCreateNamingSchemeUsingFactoryMethod() {
+		assertThat(NamingScheme.prefixTo(ElementName.of("zala")), equalTo(subject));
 	}
 }

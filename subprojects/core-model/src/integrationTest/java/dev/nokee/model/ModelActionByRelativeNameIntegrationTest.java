@@ -15,42 +15,34 @@
  */
 package dev.nokee.model;
 
-import dev.nokee.model.internal.ElementNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelSpec;
-import dev.nokee.model.internal.actions.RelativeName;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import org.junit.jupiter.api.BeforeEach;
+import dev.nokee.model.internal.names.RelativeName;
+import dev.nokee.model.internal.names.RelativeNames;
+import dev.nokee.model.internal.names.RelativeNamesComponent;
 
 import static dev.nokee.model.internal.actions.ModelSpec.has;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 
 class ModelActionByRelativeNameIntegrationTest extends ModelActionIntegrationTester {
-	private final ModelNode ancestor = new ModelNode();
+	private final ModelNode grandParent = new ModelNode();
 	private final ModelNode parent = new ModelNode();
 	private final ModelNode unrelated = new ModelNode();
 
-	@BeforeEach
-	void createEntities() {
-		ancestor.addComponent(new ElementNameComponent("orle"));
-		parent.addComponent(new ParentComponent(ancestor));
-		unrelated.addComponent(new ElementNameComponent("unre"));
-	}
-
 	@Override
 	public ModelSpec spec() {
-		return has(RelativeName.of(ancestor.getId(), "orleJkel"));
+		return has(RelativeName.of(grandParent.getId(), "orleJkel"));
 	}
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(ConfigurableTag.tag()).withComponent(new ElementNameComponent("jkel")).withComponent(new ParentComponent(parent)).build();
+		return builder().withComponent(ConfigurableTag.tag()).withComponent(new RelativeNamesComponent(RelativeNames.of(RelativeName.of(parent, "jkel"), RelativeName.of(grandParent, "orleJkel")))).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(ConfigurableTag.tag()).withComponent(new ElementNameComponent("leor")).withComponent(new ParentComponent(unrelated)).build();
+		return builder().withComponent(ConfigurableTag.tag()).withComponent(new RelativeNamesComponent(RelativeNames.of(RelativeName.of(unrelated, "unre")))).build();
 	}
 }

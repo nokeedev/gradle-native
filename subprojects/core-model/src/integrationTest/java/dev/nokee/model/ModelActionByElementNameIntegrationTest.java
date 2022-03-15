@@ -15,8 +15,8 @@
  */
 package dev.nokee.model;
 
-import dev.nokee.model.internal.ElementName;
-import dev.nokee.model.internal.ElementNameComponent;
+import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelRegistration;

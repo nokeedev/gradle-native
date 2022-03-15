@@ -17,7 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
-import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.state.ModelState;

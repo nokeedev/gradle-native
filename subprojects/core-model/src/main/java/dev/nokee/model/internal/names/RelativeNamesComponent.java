@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.names;
 
 import dev.nokee.model.internal.core.ModelComponent;
 
-public final class ElementNameComponent implements ModelComponent {
-	private final ElementName value;
+import java.util.function.Supplier;
 
-	public ElementNameComponent(String value) {
-		this.value = ElementName.of(value);
-	}
+public final class RelativeNamesComponent implements ModelComponent, Supplier<RelativeNames> {
+	private final RelativeNames value;
 
-	public ElementNameComponent(ElementName value) {
+	public RelativeNamesComponent(RelativeNames value) {
 		this.value = value;
 	}
 
-	public ElementName get() {
+	public RelativeNames get() {
 		return value;
 	}
 }

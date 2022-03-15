@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ElementNameComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;

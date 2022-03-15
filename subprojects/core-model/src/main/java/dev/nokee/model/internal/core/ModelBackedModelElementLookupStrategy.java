@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ElementNameComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.type.ModelType;
 

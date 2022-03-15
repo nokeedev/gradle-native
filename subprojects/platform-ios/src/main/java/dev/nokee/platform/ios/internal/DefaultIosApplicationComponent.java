@@ -20,7 +20,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodes;

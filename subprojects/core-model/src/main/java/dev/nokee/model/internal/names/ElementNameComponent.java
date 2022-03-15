@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.internal.names;
 
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.core.ModelNodes;
-import org.gradle.api.Named;
+import dev.nokee.model.internal.core.ModelComponent;
 
-public interface ModelBackedNamedMixIn extends Named {
-	@Override
-	default String getName() {
-		return ModelNodes.of(this).get(FullyQualifiedNameComponent.class).get().toString();
+import java.util.function.Supplier;
+
+public final class ElementNameComponent implements ModelComponent, Supplier<ElementName> {
+	private final ElementName value;
+
+	public ElementNameComponent(String value) {
+		this.value = ElementName.of(value);
+	}
+
+	public ElementNameComponent(ElementName value) {
+		this.value = value;
+	}
+
+	public ElementName get() {
+		return value;
 	}
 }
