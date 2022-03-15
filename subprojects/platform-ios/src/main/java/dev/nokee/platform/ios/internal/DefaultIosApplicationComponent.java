@@ -20,7 +20,6 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -37,7 +36,6 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryName;
-import dev.nokee.platform.base.internal.BinaryNamer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.GroupId;
@@ -241,7 +239,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(applicationBundleIdentifier)
-			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(applicationBundleIdentifier)))
 			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> {
 				return new IosApplicationBundleInternal(createApplicationBundleTask);
 			}))
@@ -259,7 +256,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(signedApplicationBundleIdentifier)
-			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(signedApplicationBundleIdentifier)))
 			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {
 				return new SignedIosApplicationBundleInternal(signApplicationBundleTask);
 			}))

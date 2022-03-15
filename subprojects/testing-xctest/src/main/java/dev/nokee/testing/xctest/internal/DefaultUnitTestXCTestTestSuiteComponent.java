@@ -18,7 +18,6 @@ package dev.nokee.testing.xctest.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -26,7 +25,6 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryName;
-import dev.nokee.platform.base.internal.BinaryNamer;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -120,7 +118,6 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(binaryIdentifierXCTestBundle)
-			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierXCTestBundle)))
 			.withComponent(createdUsing(of(IosXCTestBundle.class), () -> xcTestBundle))
 			.build());
 		// We could use signed bundle as development binary but right now it's only used in Xcode which Xcode will perform the signing so no need to provide a signed bundle
@@ -147,7 +144,6 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(binaryIdentifierApplicationBundle)
-			.withComponent(new FullyQualifiedNameComponent(BinaryNamer.INSTANCE.determineName(binaryIdentifierApplicationBundle)))
 			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> new SignedIosApplicationBundleInternal(signTask)))
 			.build());
 
