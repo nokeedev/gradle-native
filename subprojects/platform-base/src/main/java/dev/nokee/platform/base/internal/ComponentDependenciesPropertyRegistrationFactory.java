@@ -27,6 +27,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
+import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;

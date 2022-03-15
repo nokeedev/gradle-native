@@ -25,6 +25,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
+import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;

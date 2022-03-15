@@ -27,7 +27,6 @@ import dev.nokee.model.internal.names.RelativeNamesComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.internal.ComponentElementsTag;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
