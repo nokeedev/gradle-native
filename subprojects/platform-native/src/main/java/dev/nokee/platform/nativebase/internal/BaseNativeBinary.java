@@ -32,10 +32,10 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryNamer;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -81,6 +81,7 @@ import java.util.stream.Stream;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths {
 	private final ToolChainSelectorInternal toolChainSelector;
+	private final FullyQualifiedName name;
 	@Getter protected final BinaryIdentifier<?> identifier;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<ObjectSourceSet> objectSourceSets;
@@ -92,7 +93,8 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory) {
+	public BaseNativeBinary(FullyQualifiedName name, BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory) {
+		this.name = name;
 		this.identifier = identifier;
 		this.compileTasks = taskViewFactory.create(identifier.getOwnerIdentifier(), Task.class);
 		this.objectSourceSets = objectSourceSets;
@@ -119,7 +121,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 
 	@Override
 	public String getName() {
-		return BinaryNamer.INSTANCE.determineName(identifier);
+		return name.toString();
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
