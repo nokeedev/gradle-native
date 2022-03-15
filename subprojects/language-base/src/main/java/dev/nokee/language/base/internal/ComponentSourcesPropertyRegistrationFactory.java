@@ -112,8 +112,6 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
 			.withComponent(managed(of(sourceViewType)))
-			.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
-			.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
 				if (id.equals(identifier)) {
 					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), (e, p, ignored1, ignored2, projection) -> {
