@@ -16,29 +16,28 @@
 package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.gradle.NamedDomainObjectProviderFactory;
+import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.actions.ModelSpec;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.OriginalEntityComponent;
+import dev.nokee.model.internal.names.RelativeName;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.TaskProvider;
 
 import java.util.Set;
 
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
-import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 
 public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	private static final Runnable NO_OP_REALIZE = () -> {};
@@ -78,41 +77,48 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
-		return objects.setProperty(elementType).value(providerFactory.provider(() -> {
-			realize.run();
-			if (Task.class.isAssignableFrom(elementType)) {
-				return ModelProperties.getProperties(entity).filter(it -> it.instanceOf(elementType))
-					.map(it -> it.as(TaskProvider.class).get()).collect(ImmutableSet.toImmutableSet());
-			} else {
-				return ModelProperties.getProperties(entity).filter(it -> it.instanceOf(elementType))
-					.map(it -> it.as(elementType).get()).collect(ImmutableSet.toImmutableSet());
-			}
-		}).flatMap(it -> {
-			val result = objects.setProperty(elementType);
-			for (Object o : it) {
-				if (o instanceof Provider) {
-					result.add((Provider<? extends T>) o);
-				} else {
-					result.add((T) o);
-				}
-			}
-			return result;
-		}));
+		return providerFactory.provider(() -> {
+			realize.run(); // TODO: Should move to some provider source or something
+			return ((MapProperty<String, T>) entity.get(GradlePropertyComponent.class).get()).map(it -> {
+				return it.values().stream().filter(elementType::isInstance).collect(ImmutableSet.toImmutableSet());
+			});
+		}).flatMap(noOpTransformer());
 	}
 
 	@Override
 	public <T> void whenElementKnown(Class<T> elementType, Action<? super KnownDomainObject<T>> action) {
-		val descendantOfSpec = descendantOf(entity.getComponent(ViewConfigurationBaseComponent.class).get().getId());
+		val descendantOfSpec = descendantOf(entity.get(ViewConfigurationBaseComponent.class).get().getId());
 		if (entity.has(BaseModelSpecComponent.class)) {
-			instantiate(entity, ModelAction.whenElementKnown(entity.getComponent(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
+			instantiate(entity, ModelAction.whenElementKnown(entity.get(BaseModelSpecComponent.class).get().and(descendantOfSpec), elementType, action));
 		} else {
 			instantiate(entity, ModelAction.whenElementKnown(descendantOfSpec, elementType, action));
 		}
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> NamedDomainObjectProvider<T> named(String name, Class<T> elementType) {
-		return entity.getComponent(ModelComponentType.componentOf(ModelElementFactory.class)).createObject(ModelNodeUtils.getDescendant(entity, name).getComponent(ModelComponentType.componentOf(OriginalEntityComponent.class)).get(), of(elementType)).asProvider();
+		if (!((MapProperty<String, Object>) entity.get(GradlePropertyComponent.class).get()).get().containsKey(name)) {
+			throw new RuntimeException();
+		}
+		return (NamedDomainObjectProvider<T>) new NamedDomainObjectProviderFactory().create(NamedDomainObjectProviderSpec.builder().named(name)
+			.typedAs(elementType)
+			.configureUsing(action -> {
+				val relativeNameSpec = ModelSpec.has(RelativeName.of(entity.get(ViewConfigurationBaseComponent.class).get().getId(), name));
+				if (entity.has(BaseModelSpecComponent.class)) {
+					instantiate(entity, ModelAction.configureEach(entity.get(BaseModelSpecComponent.class).get().and(relativeNameSpec), elementType, action));
+				} else {
+					instantiate(entity, ModelAction.configureEach(relativeNameSpec, elementType, action));
+				}
+			})
+			.delegateTo(providerFactory.provider(() -> {
+					realize.run();
+					return new Object();
+				})
+				.flatMap(it -> {
+					return ((MapProperty<String, Object>) entity.get(GradlePropertyComponent.class).get()).getting(name);
+				}))
+			.build());
 	}
 
 	private static final class RunOnceRunnable implements Runnable {

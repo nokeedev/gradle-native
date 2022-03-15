@@ -27,6 +27,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.model.ObjectFactory;
@@ -66,7 +67,9 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(ComponentElementsTag.tag())
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
+			.withComponent(new ComponentElementTypeComponent(of(Binary.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Binary.class))))
+			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, Binary.class)))
 			.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));

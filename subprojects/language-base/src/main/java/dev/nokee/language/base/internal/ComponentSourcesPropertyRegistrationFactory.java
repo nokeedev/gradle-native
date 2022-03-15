@@ -30,6 +30,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.language.base.SourceView;
+import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import dev.nokee.platform.base.internal.ComponentElementsTag;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
@@ -75,7 +76,9 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(ComponentElementsTag.tag())
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
+			.withComponent(new ComponentElementTypeComponent(of(LanguageSourceSet.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
+			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
 			.withComponent(createdUsing(of(SourceView.class), () -> new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
@@ -107,6 +110,7 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(ComponentElementsTag.tag())
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
+			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
 			.withComponent(managed(of(sourceViewType)))
 			.withComponent(managed(of(BaseDomainObjectViewProjection.class)))
 			.withComponent(managed(of(BaseNamedDomainObjectViewProjection.class)))
@@ -136,7 +140,9 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(ComponentElementsTag.tag())
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
+			.withComponent(new ComponentElementTypeComponent(of(LanguageSourceSet.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
+			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
 			.withComponent(createdUsing(of(sourceViewType), () -> factory.apply(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));

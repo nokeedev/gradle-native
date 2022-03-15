@@ -360,7 +360,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JavaLanguageSourceSet.class), (entity, id, variants, sourceSet) -> {
 				if (id.equals(identifier)) {
-					instantiate(entity, dev.nokee.model.internal.actions.ModelAction.configureEach(descendantOf(entity.getId()), LanguageSourceSet.class, ss -> {
+					instantiate(entity, configureEach(descendantOf(entity.getId()), LanguageSourceSet.class, ss -> {
 						if (ss instanceof HasHeaders) {
 							((ConfigurableSourceSet) ((HasHeaders) ss).getHeaders()).convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
 						}
