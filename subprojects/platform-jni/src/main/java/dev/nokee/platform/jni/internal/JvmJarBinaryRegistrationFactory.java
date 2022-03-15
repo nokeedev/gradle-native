@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.platform.base.internal.BinaryIdentifier;

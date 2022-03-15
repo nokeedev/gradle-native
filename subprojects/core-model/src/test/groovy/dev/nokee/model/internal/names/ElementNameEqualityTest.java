@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.internal.names;
 
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.core.ModelNodes;
-import org.gradle.api.Named;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.jupiter.api.Test;
 
-public interface ModelBackedNamedMixIn extends Named {
-	@Override
-	default String getName() {
-		return ModelNodes.of(this).get(FullyQualifiedNameComponent.class).get().toString();
+class ElementNameEqualityTest {
+	@Test
+	void checkEquals() {
+		EqualsVerifier.forClass(ElementName.class).verify();
 	}
 }

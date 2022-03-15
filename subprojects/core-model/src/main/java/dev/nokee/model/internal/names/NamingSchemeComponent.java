@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal.actions;
+package dev.nokee.model.internal.names;
 
-import dev.nokee.model.internal.core.ModelEntityId;
-import lombok.EqualsAndHashCode;
+import dev.nokee.model.internal.core.ModelComponent;
 
-@EqualsAndHashCode
-public final class RelativeName {
-	private final ModelEntityId baseRef;
-	private final String name;
+import java.util.function.Supplier;
 
-	private RelativeName(ModelEntityId baseRef, String name) {
-		this.baseRef = baseRef;
-		this.name = name;
+public final class NamingSchemeComponent implements ModelComponent, Supplier<NamingScheme> {
+	private final NamingScheme value;
+
+	public NamingSchemeComponent(NamingScheme value) {
+		this.value = value;
 	}
 
-	public static RelativeName of(ModelEntityId baseRef, String name) {
-		return new RelativeName(baseRef, name);
-	}
-
-	@Override
-	public String toString() {
-		return name;
+	public NamingScheme get() {
+		return value;
 	}
 }

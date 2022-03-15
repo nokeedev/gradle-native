@@ -16,9 +16,8 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
-import dev.nokee.model.internal.FullyQualifiedName;
-import dev.nokee.model.internal.FullyQualifiedNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedName;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;

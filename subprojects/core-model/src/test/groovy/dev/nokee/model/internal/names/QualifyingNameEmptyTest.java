@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal;
+package dev.nokee.model.internal.names;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.is;
 
-class ElementNameTest {
+class QualifyingNameEmptyTest {
 	@Test
-	void checkEquals() {
-		EqualsVerifier.forClass(ElementName.class)
-			.verify();
+	void isEmptyWhenNameIsEmptyString() {
+		assertThat(QualifyingName.empty().isEmpty(), is(true));
 	}
 
 	@Test
-	void canConvertToString() {
-		assertThat(ElementName.of("taqe"), hasToString("taqe"));
+	void isNotEmptyWhenNameIsNotEmptyString() {
+		assertThat(QualifyingName.of("fudo").isEmpty(), is(false));
 	}
 }

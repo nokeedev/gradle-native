@@ -16,7 +16,7 @@
 package dev.nokee.model.internal.actions;
 
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.FullyQualifiedName;
+import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;

@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal.actions;
+package dev.nokee.model.internal.names;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.jupiter.api.Test;
+import dev.nokee.model.internal.core.ModelNode;
+import lombok.val;
 
-class RelativeNameEqualityTest {
-	@Test
-	void checkEquals() {
-		EqualsVerifier.forClass(RelativeName.class).verify();
+import java.util.function.BiConsumer;
+
+final class QualifyingNameAccumulator implements BiConsumer<QualifyingName.Builder, ModelNode> {
+	@Override
+	public void accept(QualifyingName.Builder builder, ModelNode parentEntity) {
+		val parentElementName = parentEntity.find(ElementNameComponent.class).map(ElementNameComponent::get).map(ElementName::toString);
+		if (!parentEntity.has(ExcludeFromQualifyingNameTag.class)) {
+			parentElementName.ifPresent(builder::prepend);
+		}
 	}
 }

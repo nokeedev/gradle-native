@@ -17,25 +17,19 @@ package dev.nokee.model.internal.actions;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.ElementNameComponent;
-import dev.nokee.model.internal.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.specs.Spec;
 
 import java.util.Collections;
@@ -44,6 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
@@ -66,13 +61,10 @@ public final class ModelActionSystem implements Action<Project> {
 
 		// Rules to keep identity up-to-date
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.ofAny(componentOf(ModelProjection.class)), this::updateSelectorForProjection));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ElementNameComponent.class), this::updateSelectorForElementName));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), this::updateSelectorForFullyQualifiedName));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), this::updateSelectorForSelf));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), this::updateSelectorForRelativeNames));
 	}
 
 	// ComponentFromEntity<MatchingSpecificationComponent> (readonly) all
@@ -136,22 +128,6 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForElementName(ModelNode entity, ConfigurableTag tag, ElementNameComponent elementName) {
-		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(elementName.get()))
-			.orElseGet(() -> DomainObjectIdentity.of(elementName.get()))));
-	}
-
-	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForFullyQualifiedName(ModelNode entity, ConfigurableTag tag, FullyQualifiedNameComponent fullyQualifiedName) {
-		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(fullyQualifiedName.get()))
-			.orElseGet(() -> DomainObjectIdentity.of(fullyQualifiedName.get()))));
-	}
-
-	// ComponentFromEntity<ActionSelectorComponent> read-write self
 	private void updateSelectorForState(ModelNode entity, ConfigurableTag tag, ModelState state) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
@@ -199,39 +175,6 @@ public final class ModelActionSystem implements Action<Project> {
 			.orElseGet(() -> DomainObjectIdentity.of(new SelfRef(entity.getId())))));
 	}
 
-	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	// ComponentFromEntity<ParentComponent> read-only all
-	// ComponentFromEntity<ElementNameComponent> read-only all
-	private void updateSelectorForRelativeNames(ModelNode entity, ConfigurableTag tag, ParentComponent parent, ElementNameComponent elementName) {
-		val names = ImmutableSet.<RelativeName>builder();
-		String variantName = "";
-		Optional<ParentComponent> parentComponent = Optional.of(parent);
-		names.add(RelativeName.of(entity.getId(), elementName.get().toString()));
-		while(parentComponent.isPresent()) {
-			val parentEntity = parentComponent.get().get();
-			val parentElementName = parentEntity.findComponent(componentOf(ElementNameComponent.class));
-			if (parentElementName.isPresent()) {
-				variantName = parentElementName.get().get().toString() + StringUtils.capitalize(variantName);
-				if (ModelNodeUtils.canBeViewedAs(entity, ModelType.of(Task.class))) {
-					names.add(RelativeName.of(parentEntity.getId(), elementName.get().toString() + StringUtils.capitalize(variantName)));
-				} else {
-					names.add(RelativeName.of(parentEntity.getId(), variantName + StringUtils.capitalize(elementName.get().toString())));
-				}
-			} else if (variantName.isEmpty()) {
-				names.add(RelativeName.of(parentEntity.getId(), elementName.get().toString()));
-			} else {
-				names.add(RelativeName.of(parentEntity.getId(), variantName));
-			}
-
-			parentComponent = parentComponent.flatMap(it -> it.get().findComponent(componentOf(ParentComponent.class)));
-		}
-
-		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-			.map(ActionSelectorComponent::get)
-			.map(it -> it.with(names.build()))
-			.orElseGet(() -> DomainObjectIdentity.of(names.build()))));
-	}
-
 	// ComponentFromEntity<ActionSelectorComponent> (readonly) all
 	// ComponentFromEntity<ExecutedActionComponent> (read-write) all
 	private void onActionAdded(ModelNode entity, ModelSpecComponent identity, ModelActionComponent component) {
@@ -256,11 +199,22 @@ public final class ModelActionSystem implements Action<Project> {
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
 	public static <T> ModelAction updateSelectorForTag(Class<T> componentType) {
-		return ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(componentType), (entity, tag, component) -> {
-			entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
-				.map(ActionSelectorComponent::get)
-				.map(it -> it.with(component))
-				.orElseGet(() -> DomainObjectIdentity.of(component))));
+		return ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(componentType), new ModelActionWithInputs.A2<ConfigurableTag, T>() {
+			@Override
+			public void execute(ModelNode entity, ConfigurableTag tag, T component) {
+				entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
+					.map(ActionSelectorComponent::get)
+					.map(it -> it.with(valueOf(component)))
+					.orElseGet(() -> DomainObjectIdentity.of(valueOf(component)))));
+			}
+
+			private Object valueOf(T component) {
+				if (component instanceof Supplier) {
+					return ((Supplier<?>) component).get();
+				} else {
+					return component;
+				}
+			}
 		});
 	}
 }

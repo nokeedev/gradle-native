@@ -27,6 +27,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
@@ -71,7 +72,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 			}
 		};
 		val factory = new NamedDomainObjectProviderFactory();
-		val delegate = factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).typedAs(fullType.getConcreteType()).delegateTo(provider).configureUsing(action -> configurableStrategy.configure(fullType, action)).build());
+		val delegate = factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).typedAs(fullType.getConcreteType()).delegateTo(provider).configureUsing(action -> configurableStrategy.configure(fullType, action)).build());
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
 			@SuppressWarnings("unchecked")

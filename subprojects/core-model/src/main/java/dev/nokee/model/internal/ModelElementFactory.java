@@ -40,6 +40,8 @@ import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -241,10 +243,10 @@ public final class ModelElementFactory {
 					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
 						return provider;
 					} else {
-						return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+						return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
 					}
 				} else {
-					return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+					return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
 				}
 			}
 		};
@@ -362,10 +364,10 @@ public final class ModelElementFactory {
 					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
 						return provider;
 					} else {
-						return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+						return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
 					}
 				} else {
-					return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.getComponent(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
+					return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
 				}
 			}
 		};

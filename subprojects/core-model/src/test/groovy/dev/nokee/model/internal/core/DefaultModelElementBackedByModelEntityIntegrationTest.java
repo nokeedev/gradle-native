@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ElementNameComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ModelObjectTester;
 import dev.nokee.model.internal.registry.ModelRegistry;
