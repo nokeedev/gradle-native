@@ -42,7 +42,6 @@ public abstract class NamesCapabilityPlugin<T extends ExtensionAware & PluginAwa
 	// ComponentFromEntity<MainComponentTag> read-only ancestors
 	// ComponentFromEntity<ElementNameComponent> read-only ancestors
 	private static void computeRelativelyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, NamingSchemeComponent namingScheme) {
-		System.out.println(ParentUtils.stream(parent).collect(toRelativeNames(namingScheme.get())));
 		entity.addComponent(new RelativeNamesComponent(ParentUtils.stream(parent).collect(toRelativeNames(namingScheme.get()))));
 	}
 
