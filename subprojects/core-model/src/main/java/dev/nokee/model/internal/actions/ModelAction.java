@@ -23,7 +23,7 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.state.ModelState;
 import org.gradle.api.Action;
 
-import static dev.nokee.model.internal.actions.ModelSpec.named;
+import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.actions.ModelSpec.self;
 import static dev.nokee.model.internal.actions.ModelSpec.stateAtLeast;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
@@ -108,7 +108,7 @@ public interface ModelAction {
 	 * @return a registration for model action, never null
 	 */
 	static <T> ModelRegistration configure(String name, Class<T> type, Action<? super T> action) {
-		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Realized)).and(named(FullyQualifiedName.of(name))),
+		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Realized)).and(isEqual(FullyQualifiedName.of(name))),
 			new ModelActionAdapter<>(of(type), action));
 	}
 

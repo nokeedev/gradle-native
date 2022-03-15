@@ -22,7 +22,7 @@ import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelRegistration;
 import org.junit.jupiter.api.BeforeAll;
 
-import static dev.nokee.model.internal.actions.ModelSpec.named;
+import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -37,7 +37,7 @@ class ModelActionByFullyQualifiedNameIntegrationTest extends ModelActionIntegrat
 
 	@Override
 	public ModelSpec spec() {
-		return named(NAME);
+		return isEqual(NAME);
 	}
 
 	@Override

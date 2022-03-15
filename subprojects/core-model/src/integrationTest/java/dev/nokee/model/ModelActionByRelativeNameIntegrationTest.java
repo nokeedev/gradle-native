@@ -24,7 +24,7 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import org.junit.jupiter.api.BeforeEach;
 
-import static dev.nokee.model.internal.actions.ModelSpec.named;
+import static dev.nokee.model.internal.actions.ModelSpec.has;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 
 class ModelActionByRelativeNameIntegrationTest extends ModelActionIntegrationTester {
@@ -41,7 +41,7 @@ class ModelActionByRelativeNameIntegrationTest extends ModelActionIntegrationTes
 
 	@Override
 	public ModelSpec spec() {
-		return named(RelativeName.of(ancestor.getId(), "orleJkel"));
+		return has(RelativeName.of(ancestor.getId(), "orleJkel"));
 	}
 
 	@Override
