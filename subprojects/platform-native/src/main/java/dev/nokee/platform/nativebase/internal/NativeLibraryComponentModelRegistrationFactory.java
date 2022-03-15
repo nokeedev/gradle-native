@@ -112,7 +112,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		val name = entityPath.getName();
-		return ModelRegistration.builder()
+		val builder = ModelRegistration.builder()
 			.withComponent(entityPath)
 			.withComponent(createdUsing(of(componentType), () -> project.getObjects().newInstance(implementationComponentType)))
 			.withComponent(identifier)
@@ -185,9 +185,13 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				if (entityPath.equals(path)) {
 					new CalculateNativeLibraryVariantAction(project).execute(entity, path);
 				}
-			}))
-			.build()
-			;
+			}));
+
+		if (identifier.isMainComponent()) {
+			builder.withComponent(ExcludeFromQualifyingNameTag.tag());
+		}
+
+		return builder.build();
 	}
 
 	private static class CalculateNativeLibraryVariantAction extends ModelActionWithInputs.ModelAction1<ModelPath> {

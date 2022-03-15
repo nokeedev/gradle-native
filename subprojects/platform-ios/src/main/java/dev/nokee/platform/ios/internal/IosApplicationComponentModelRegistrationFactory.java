@@ -38,6 +38,7 @@ import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -125,7 +126,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = ModelPath.path(identifier.getName().get());
-		return ModelRegistration.builder()
+		val builder = ModelRegistration.builder()
 			.withComponent(entityPath)
 			.withComponent(identifier)
 			.withComponent(createdUsing(of(componentType), () -> project.getObjects().newInstance(implementationComponentType)))
@@ -209,9 +210,13 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 					component.finalizeValue();
 				}
-			}))
-			.build()
-			;
+			}));
+
+		if (identifier.isMainComponent()) {
+			builder.withComponent(ExcludeFromQualifyingNameTag.tag());
+		}
+
+		return builder.build();
 	}
 
 	private static void onEachVariantDependencies(DomainObjectProvider<DefaultIosApplicationVariant> variant, VariantComponentDependencies<?> dependencies) {
