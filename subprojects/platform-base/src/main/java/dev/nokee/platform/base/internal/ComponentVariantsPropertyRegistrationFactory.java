@@ -24,6 +24,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
@@ -58,7 +59,9 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(ComponentElementsTag.tag())
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
+			.withComponent(new ComponentElementTypeComponent(of(elementType)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
+			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, elementType)))
 			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, objects, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.ofProjection(elementType), (e, p, ignored1, ignored2, projection) -> {
 				if (ownerPath.isDirectDescendant(p)) {

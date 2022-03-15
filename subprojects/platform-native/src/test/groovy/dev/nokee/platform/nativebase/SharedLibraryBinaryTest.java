@@ -26,12 +26,12 @@ import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -45,8 +45,8 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
@@ -65,17 +65,22 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Set;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.*;
-import static dev.nokee.internal.testing.GradleProviderMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
+import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
+import static dev.nokee.internal.testing.GradleProviderMatchers.absentProvider;
+import static dev.nokee.internal.testing.GradleProviderMatchers.presentProvider;
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.host;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class SharedLibraryBinaryTest extends AbstractPluginTest {
@@ -169,14 +174,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					task.getToolChain().set(toolChainSelector.select(task));
 				});
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "tovi");
-				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-					.withComponent(newPropertyIdentifier)
-					.withComponent(ModelPropertyTag.instance())
-					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
-					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
-					.build());
+				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("tovi", compileTask);
 
 				assertThat(subject().isBuildable(), is(true));
 			}
@@ -194,14 +192,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					task.getToolChain().set(toolChainSelector.select(task));
 				});
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "vavu");
-				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-					.withComponent(newPropertyIdentifier)
-					.withComponent(ModelPropertyTag.instance())
-					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
-					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
-					.build());
+				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("vavu", compileTask);
 
 				assertThat(subject().isBuildable(), is(true));
 			}
@@ -230,13 +221,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 				compileTask.getToolChain().set(toolChainSelector.select(compileTask));
 
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "qizo");
-				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-					.withComponent(newPropertyIdentifier)
-					.withComponent(ModelPropertyTag.instance())
-					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), () -> compileTask))
-					.build());
+				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("qizo", compileTask);
 
 				assertThat(subject().isBuildable(), is(false));
 			}
@@ -246,14 +231,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		void includesAllCompileTasksAsBuildDependencies() {
 			val compileTask = project().getTasks().register("xuvi", MySourceCompileTask.class);
 			val compileTasks = ModelProperties.getProperty(subject(), "compileTasks");
-			val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "xuvi");
-			project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-				.withComponent(newPropertyIdentifier)
-				.withComponent(ModelPropertyTag.instance())
-				.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
-				.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
-				.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
-				.build());
+			((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("xuvi", compileTask);
+
 			assertThat(subject(), buildDependencies(hasItem(compileTask.get())));
 		}
 
@@ -294,14 +273,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					}
 				});
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "suti");
-				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-					.withComponent(newPropertyIdentifier)
-					.withComponent(ModelPropertyTag.instance())
-					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
-					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
-					.withComponent(createdUsing(ModelType.of(NativeSourceCompile.class), compileTask::get))
-					.build());
+				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("suti", compileTask);
+
 				assertThat(subject().getSource(), contains(aFileNamed("foo.o"), aFileNamed("foo.obj")));
 			}
 
@@ -316,14 +289,8 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 					}
 				});
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "kedi");
-				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-					.withComponent(newPropertyIdentifier)
-					.withComponent(ModelPropertyTag.instance())
-					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
-					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
-					.build());
+				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("kedi", compileTask);
+
 				assertThat(subject().getSource(), contains(aFileNamed("bar.o"), aFileNamed("bar.obj")));
 			}
 
@@ -331,14 +298,7 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 			void doesNotThrowExceptionWhenResolvingSourcesWithCompileTasksWithoutObjectFiles() {
 				val compileTask = project().getTasks().register("xuvi", MySourceCompileTask.class);
 				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				val newPropertyIdentifier = ModelPropertyIdentifier.of(ModelNodes.of(compileTasks).getComponent(DomainObjectIdentifier.class), "xuvi");
-				project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-					.withComponent(newPropertyIdentifier)
-					.withComponent(ModelPropertyTag.instance())
-					.withComponent(new ModelPropertyTypeComponent(ModelType.of(SourceCompile.class)))
-					.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> compileTask))
-					.withComponent(createdUsing(ModelType.of(SourceCompile.class), compileTask::get))
-					.build());
+				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("xuvi", compileTask);
 				assertThat(subject().getSource(), emptyIterable());
 			}
 

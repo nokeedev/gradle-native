@@ -26,9 +26,11 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.model.ObjectFactory;
 
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -43,12 +45,14 @@ public final class ComponentDependenciesPropertyRegistrationFactory {
 	private final ModelPropertyRegistrationFactory propertyFactory;
 	private final ModelConfigurer modelConfigurer;
 	private final ModelLookup lookup;
+	private final ObjectFactory objects;
 
-	public ComponentDependenciesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ModelLookup lookup) {
+	public ComponentDependenciesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ModelLookup lookup, ObjectFactory objects) {
 		this.registry = registry;
 		this.propertyFactory = propertyFactory;
 		this.modelConfigurer = modelConfigurer;
 		this.lookup = lookup;
+		this.objects = objects;
 	}
 
 	public <T extends ComponentDependencies> ModelRegistration create(ModelPropertyIdentifier identifier, Class<T> type, Supplier<? extends T> instance) {
@@ -62,6 +66,8 @@ public final class ComponentDependenciesPropertyRegistrationFactory {
 			.withComponent(ComponentElementsTag.tag())
 			.withComponent(new ViewConfigurationBaseComponent(lookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(DependencyBucket.class))))
+			.withComponent(new ComponentElementTypeComponent(of(DependencyBucket.class)))
+			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, DependencyBucket.class)))
 			.withComponent(createdUsing(of(type), instance::get))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
 				if (id.equals(identifier)) {
