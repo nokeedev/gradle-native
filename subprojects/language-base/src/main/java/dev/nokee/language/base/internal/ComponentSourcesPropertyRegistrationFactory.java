@@ -31,7 +31,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
-import dev.nokee.platform.base.internal.ComponentElementsTag;
+import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;

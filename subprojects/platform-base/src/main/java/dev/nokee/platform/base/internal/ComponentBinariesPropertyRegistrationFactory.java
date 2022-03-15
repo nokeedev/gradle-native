@@ -28,6 +28,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
+import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.model.ObjectFactory;
