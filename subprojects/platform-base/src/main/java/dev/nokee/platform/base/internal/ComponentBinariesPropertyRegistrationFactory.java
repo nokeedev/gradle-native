@@ -15,14 +15,9 @@
  */
 package dev.nokee.platform.base.internal;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
@@ -30,18 +25,14 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
-
-import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
@@ -82,19 +73,6 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
-				if (id.equals(identifier)) {
-					modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofProjection(Binary.class), (e, p, ignored1, ignored2, projection) -> {
-						if (ownerPath.isDescendant(p)) {
-							val elementName = StringUtils.uncapitalize(Streams.stream(Iterables.skip(p, Iterables.size(ownerPath)))
-								.filter(it -> !it.isEmpty())
-								.map(StringUtils::capitalize)
-								.collect(Collectors.joining()));
-							registry.register(propertyFactory.create(ModelPropertyIdentifier.of(identifier, elementName), e));
-						}
-					}));
-				}
-			}))
 			.build();
 	}
 }

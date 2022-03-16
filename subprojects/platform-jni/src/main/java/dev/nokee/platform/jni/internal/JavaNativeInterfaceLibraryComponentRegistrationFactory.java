@@ -36,6 +36,8 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.actions.ModelAction;
+import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElements;
@@ -59,6 +61,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -113,6 +116,7 @@ import static dev.nokee.language.base.internal.LanguageSourceSetConventionSuppli
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
+import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
@@ -175,32 +179,11 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 
 						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), JavaNativeInterfaceLibrarySources.class, JavaNativeInterfaceSourcesViewAdapter::new));
 
-						project.getPluginManager().withPlugin("groovy", ignored -> {
-							registry.register(project.getExtensions().getByType(GroovySourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "groovy")));
-						});
-						project.getPluginManager().withPlugin("java", ignored -> {
-							val sourceSetIdentifier = LanguageSourceSetIdentifier.of(identifier, "java");
-							val sourceSet = registry.register(project.getExtensions().getByType(JavaSourceSetRegistrationFactory.class).create(sourceSetIdentifier));
-
-							sourceSet.configure(JavaSourceSet.class, it -> {
-								it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(sourceSetIdentifier, project.getLayout()));
-							});
-
-							entity.addComponent(new JavaLanguageSourceSet(sourceSet));
-						});
-						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-							registry.register(project.getExtensions().getByType(KotlinSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "kotlin")));
-						});
-
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), JavaNativeInterfaceLibraryComponentDependencies.class, ModelBackedJavaNativeInterfaceLibraryComponentDependencies::new));
 						val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier)));
 						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmImplementation"), identifier)));
 						val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmRuntimeOnly"), identifier)));
-						project.getPluginManager().withPlugin("java", appliedPlugin -> {
-							project.getConfigurations().named(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("implementation"), identifier)), configureExtendsFrom(implementation.as(Configuration.class)));
-							project.getConfigurations().named(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)), configureExtendsFrom(runtimeOnly.as(Configuration.class)));
-						});
 						project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 							private boolean alreadyExecuted = false;
 
@@ -258,16 +241,12 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						project.getPluginManager().withPlugin("groovy", registerJvmJarBinaryAction);
 						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", registerJvmJarBinaryAction);
 
-						val binaries = registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
+						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 
 						// TODO: This is an external dependency meaning we should go through the component dependencies.
 						//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 						//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-						binaries.configure(of(new TypeOf<BinaryView<Binary>>() {}), binaryView -> {
-							binaryView.configureEach(SharedLibraryBinary.class, binary -> {
-								binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, includeRoots(from(jvmIncludes())));
-							});
-						});
+						registry.instantiate(configureEach(descendantOf(entity.getId()).and(isEqual(CompileTaskTag.tag())), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val toolChainSelectorInternal = project.getObjects().newInstance(ToolChainSelectorInternal.class);
@@ -281,6 +260,28 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
 							.defaultValue(TargetLinkages.SHARED)
 							.build());
+
+						project.getPluginManager().withPlugin("groovy", ignored -> {
+							registry.register(project.getExtensions().getByType(GroovySourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "groovy")));
+						});
+						project.getPluginManager().withPlugin("java", ignored -> {
+							val sourceSetIdentifier = LanguageSourceSetIdentifier.of(identifier, "java");
+							val sourceSet = registry.register(project.getExtensions().getByType(JavaSourceSetRegistrationFactory.class).create(sourceSetIdentifier));
+
+							sourceSet.configure(JavaSourceSet.class, it -> {
+								it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(sourceSetIdentifier, project.getLayout()));
+							});
+
+							entity.addComponent(new JavaLanguageSourceSet(sourceSet));
+						});
+						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
+							registry.register(project.getExtensions().getByType(KotlinSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "kotlin")));
+						});
+
+						project.getPluginManager().withPlugin("java", appliedPlugin -> {
+							project.getConfigurations().named(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("implementation"), identifier)), configureExtendsFrom(implementation.as(Configuration.class)));
+							project.getConfigurations().named(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)), configureExtendsFrom(runtimeOnly.as(Configuration.class)));
+						});
 					}
 				}
 			}))
@@ -377,11 +378,9 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asDomainObject(), (entity, id, ignored, jvmJar, component) -> {
 				if (id.equals(identifier)) {
 					if (component.getBuildVariants().get().size() == 1) {
-						project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.ofProjection(JvmJarBinary.class).asDomainObject(), (e, i, binary) -> {
-							if (i.getOwnerIdentifier().equals(identifier)) {
+						project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configureEach(ModelSpec.ownedBy(entity.getId()), JvmJarBinary.class, binary -> {
 								binary.getJarTask().configure(configureDescription("Assembles a JAR archive containing the classes and shared library for %s.", ModelNodes.of(binary).getComponent(BinaryIdentifier.class)));
-							}
-						}));
+							}));
 					}
 				}
 			}));
