@@ -22,15 +22,11 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.testers.SourceTester;
-import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
-import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.jvm.HasJavaSourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
-import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
-import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -52,12 +48,18 @@ import org.junit.jupiter.api.Test;
 import static com.google.common.collect.MoreCollectors.onlyElement;
 import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
 import static dev.nokee.internal.testing.ConfigurationMatchers.ofFile;
-import static dev.nokee.internal.testing.FileSystemMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 @PluginRequirement.Require(id = "java")
