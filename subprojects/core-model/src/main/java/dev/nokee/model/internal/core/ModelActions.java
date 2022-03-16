@@ -27,7 +27,6 @@ import org.gradle.api.Action;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelComponentReference.ofAny;
@@ -310,15 +309,5 @@ public final class ModelActions {
 		public String toString() {
 			return "ModelActions.executeAsKnownProjection(" + type + ", " + action + ")";
 		}
-	}
-
-	public static ModelAction initialize(Consumer<? super ModelInitializerAction.Context> action) {
-		requireNonNull(action);
-		return new ModelInitializerAction() {
-			@Override
-			public void execute(Context context) {
-				action.accept(context);
-			}
-		};
 	}
 }

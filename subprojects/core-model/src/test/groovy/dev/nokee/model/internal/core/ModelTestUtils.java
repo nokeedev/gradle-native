@@ -22,6 +22,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -34,7 +35,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.model.internal.core.ModelActions.initialize;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -115,7 +115,37 @@ public final class ModelTestUtils {
 	}
 
 	private static ModelAction addProjections(List<ModelProjection> projections) {
-		return initialize(context -> projections.forEach(context::withProjection));
+		return new AddProjectionAction(projections);
+	}
+
+	public static final class AddProjectionAction implements ModelAction, HasInputs {
+		private final List<ModelComponentReference<?>> inputs = ImmutableList.of(ModelComponentReference.of(ModelState.class), ModelComponentReference.of(BindManagedProjectionService.class));
+		private final Bits inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
+		private final Iterable<ModelProjection> projections;
+
+		public AddProjectionAction(Iterable<ModelProjection> projections) {
+			this.projections = projections;
+		}
+
+		@Override
+		public void execute(ModelNode node) {
+			if (node.getComponentBits().containsAll(inputBits)) {
+				if (ModelStates.getState(node).equals(ModelState.Created)) {
+					// NOTE: The contextual node should not be accessed from the action, it's simply for contextualizing the action execution.
+					projections.forEach(node::addComponent);
+				}
+			}
+		}
+
+		@Override
+		public List<? extends ModelComponentReference<?>> getInputs() {
+			return inputs;
+		}
+
+		@Override
+		public Bits getInputBits() {
+			return inputBits;
+		}
 	}
 
 	public static ModelNode childNode(ModelNode parent) {
