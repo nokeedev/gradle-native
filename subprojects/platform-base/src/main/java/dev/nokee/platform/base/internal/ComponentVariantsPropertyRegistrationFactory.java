@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -39,12 +38,10 @@ import static dev.nokee.model.internal.type.ModelTypes.map;
 public final class ComponentVariantsPropertyRegistrationFactory {
 	private final ProviderFactory providerFactory;
 	private final ModelLookup modelLookup;
-	private final ObjectFactory objects;
 
-	public ComponentVariantsPropertyRegistrationFactory(ProviderFactory providerFactory, ModelLookup modelLookup, ObjectFactory objects) {
+	public ComponentVariantsPropertyRegistrationFactory(ProviderFactory providerFactory, ModelLookup modelLookup) {
 		this.providerFactory = providerFactory;
 		this.modelLookup = modelLookup;
-		this.objects = objects;
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier, Class<? extends Variant> elementType) {
@@ -59,7 +56,6 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ComponentElementTypeComponent(of(elementType)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
-			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, elementType)))
 			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
 			.build();
 	}

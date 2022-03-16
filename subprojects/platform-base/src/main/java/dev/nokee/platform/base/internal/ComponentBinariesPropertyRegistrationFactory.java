@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -28,7 +27,6 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
 import lombok.val;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
@@ -39,12 +37,10 @@ import static dev.nokee.model.internal.type.ModelTypes.map;
 public final class ComponentBinariesPropertyRegistrationFactory {
 	private final ProviderFactory providers;
 	private final ModelLookup modelLookup;
-	private final ObjectFactory objects;
 
-	public ComponentBinariesPropertyRegistrationFactory(ProviderFactory providers, ModelLookup modelLookup, ObjectFactory objects) {
+	public ComponentBinariesPropertyRegistrationFactory(ProviderFactory providers, ModelLookup modelLookup) {
 		this.providers = providers;
 		this.modelLookup = modelLookup;
-		this.objects = objects;
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier) {
@@ -59,7 +55,6 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ComponentElementTypeComponent(of(Binary.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Binary.class))))
-			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, Binary.class)))
 			.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));

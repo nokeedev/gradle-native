@@ -45,12 +45,10 @@ import static dev.nokee.model.internal.type.ModelTypes.map;
 public final class ComponentSourcesPropertyRegistrationFactory {
 	private final ProviderFactory providers;
 	private final ModelLookup modelLookup;
-	private final ObjectFactory objects;
 
-	public ComponentSourcesPropertyRegistrationFactory(ProviderFactory providers, ModelLookup modelLookup, ObjectFactory objects) {
+	public ComponentSourcesPropertyRegistrationFactory(ProviderFactory providers, ModelLookup modelLookup) {
 		this.providers = providers;
 		this.modelLookup = modelLookup;
-		this.objects = objects;
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier) {
@@ -65,7 +63,6 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ComponentElementTypeComponent(of(LanguageSourceSet.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
-			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
 			.withComponent(createdUsing(of(SourceView.class), () -> new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
@@ -85,7 +82,6 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ComponentElementTypeComponent(of(LanguageSourceSet.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
-			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
 			.withComponent(createdUsing(of(sourceViewType), () -> factory.apply(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
