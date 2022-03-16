@@ -322,16 +322,6 @@ public final class ModelActions {
 		};
 	}
 
-	public static ModelAction discover(Consumer<? super ModelDiscoverAction.Context> action) {
-		requireNonNull(action);
-		return new ModelDiscoverAction() {
-			@Override
-			protected void execute(Context context) {
-				action.accept(context);
-			}
-		};
-	}
-
 	public static <T> ModelAction mutate(ModelType<T> projectionType, Consumer<? super T> action) {
 		requireNonNull(projectionType);
 		requireNonNull(action);
