@@ -21,10 +21,23 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.*;
-import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
+import dev.nokee.platform.base.testers.SourceAwareComponentTester;
+import dev.nokee.platform.base.testers.TaskAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
 import dev.nokee.platform.ios.internal.plugins.IosResourcePlugin;
@@ -36,6 +49,7 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.provider.MapProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,7 +62,9 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin.swiftIosApplication;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.startsWith;
 
 class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 	, SourceAwareComponentTester<SwiftIosApplication>
@@ -261,8 +277,9 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 				}
 
 				@Test
+				@SuppressWarnings("unchecked")
 				public void hasLinkLibraries() {
-					assertThat(ModelProperties.getProperty(subject(), "linkLibraries").as(Configuration.class).asProvider(), providerOf(named("fomaLinkLibraries")));
+					assertThat(((MapProperty<String, DependencyBucket>) ModelNodes.of(subject()).get(GradlePropertyComponent.class).get()).getting("linkLibraries").map(DependencyBucket::getAsConfiguration), providerOf(named("fomaLinkLibraries")));
 				}
 			}
 		}
