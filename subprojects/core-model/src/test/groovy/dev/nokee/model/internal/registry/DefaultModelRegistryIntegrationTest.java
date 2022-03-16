@@ -17,10 +17,21 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ModelSpecs;
+import dev.nokee.model.internal.core.ModelTestActions;
+import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.RelativeConfigurationService;
+import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.Value;
 import lombok.val;
 import org.gradle.api.provider.Property;
@@ -31,26 +42,38 @@ import java.util.HashSet;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
-import static dev.nokee.model.internal.core.ModelActions.*;
+import static dev.nokee.model.internal.core.ModelActions.matching;
+import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
-import static dev.nokee.model.internal.state.ModelState.Realized;
-import static dev.nokee.model.internal.state.ModelState.Registered;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelNodes.stateOf;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
-import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.*;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.created;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.realized;
+import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.registered;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.MyComponent.aComponent;
+import static dev.nokee.model.internal.state.ModelState.Realized;
+import static dev.nokee.model.internal.state.ModelState.Registered;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.isA;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DefaultModelRegistryIntegrationTest {
 	private final DefaultModelRegistry modelRegistry = new DefaultModelRegistry(ProjectTestUtils.objectFactory()::newInstance);
@@ -318,47 +341,6 @@ public class DefaultModelRegistryIntegrationTest {
 		System.out.println("Current paths: " + paths);
 		assertThat(paths, contains(root(), path("foo"), path("foo.bar"), path("bar")));
 	}
-
-	@Test
-	void realizingChildNodeWhileTheParentNodeIsBeingRealizedCallbacksOnlyOnce() {
-		val action = new ModelTestActions.CaptureNodeTransitionAction();
-		modelRegistry.configure(action);
-
-		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
-			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
-			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
-		ModelStates.realize(modelRegistry.get(path("a")));
-
-		assertThat(action.getAllTransitions(), contains(registered(root()),
-			created("a"), initialized("a"), registered("a"),
-			created("a.child"), initialized("a.child"), registered("a.child"),
-			realized(root()), realized("a"), realized("a.child")));
-	}
-
-	@Test
-	void realizingChildNodeWhileTheChildNodeIsBeingRealizedCallbacksOnlyOnce() {
-		val action = new ModelTestActions.CaptureNodeTransitionAction();
-		modelRegistry.configure(action);
-
-		modelRegistry.register(NodeRegistration.of("a", of(MyParent.class))
-			.action(self(discover(ctx -> ctx.register(NodeRegistration.of("child", of(MyChild.class))))))
-			.action(self(mutate(of(MyParent.class), MyParent::getChild))));
-		ModelStates.realize(modelRegistry.get(path("a.child")));
-
-		assertThat(action.getAllTransitions(), contains(registered(root()),
-			created("a"), initialized("a"), registered("a"),
-			created("a.child"), initialized("a.child"), registered("a.child"),
-			realized(root()), realized("a"), realized("a.child")));
-	}
-
-	interface MyParent {
-		default MyChild getChild() {
-			// When querying descendant node, it's best practice to realize the node.
-			return ModelNodeUtils.get(ModelStates.realize(ModelNodeUtils.getDescendant(ModelNodes.of(this), "child")), MyChild.class);
-		}
-	}
-
-	interface MyChild {}
 
 	@Test
 	void canExecuteActionWithComponentInputs() {
