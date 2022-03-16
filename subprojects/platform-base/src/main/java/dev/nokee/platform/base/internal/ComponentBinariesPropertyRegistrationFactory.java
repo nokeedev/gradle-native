@@ -60,7 +60,7 @@ public final class ComponentBinariesPropertyRegistrationFactory {
 			.withComponent(new ComponentElementTypeComponent(of(Binary.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Binary.class))))
 			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, Binary.class)))
-			.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
+			.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(new ViewAdapter<>(Binary.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))

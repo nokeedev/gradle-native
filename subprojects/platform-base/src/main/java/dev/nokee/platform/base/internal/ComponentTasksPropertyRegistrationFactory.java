@@ -60,7 +60,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(new ComponentElementTypeComponent(of(Task.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Task.class))))
 			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, Task.class)))
-			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
@@ -80,7 +80,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(new ComponentElementTypeComponent(of(elementType)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
 			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, elementType)))
-			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, objects, () -> {
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))

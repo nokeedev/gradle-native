@@ -60,7 +60,7 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 			.withComponent(new ComponentElementTypeComponent(of(elementType)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
 			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, elementType)))
-			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, objects, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
+			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
 			.build();
 	}
 }

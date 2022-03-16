@@ -66,7 +66,7 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(new ComponentElementTypeComponent(of(LanguageSourceSet.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
-			.withComponent(createdUsing(of(SourceView.class), () -> new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
+			.withComponent(createdUsing(of(SourceView.class), () -> new SourceViewAdapter<>(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
@@ -86,7 +86,7 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 			.withComponent(new ComponentElementTypeComponent(of(LanguageSourceSet.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
 			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
-			.withComponent(createdUsing(of(sourceViewType), () -> factory.apply(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, objects, () -> {
+			.withComponent(createdUsing(of(sourceViewType), () -> factory.apply(new ViewAdapter<>(LanguageSourceSet.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
