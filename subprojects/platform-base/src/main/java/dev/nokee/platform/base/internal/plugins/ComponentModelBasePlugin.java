@@ -24,6 +24,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
@@ -35,12 +36,17 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Artifact;
+import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
+import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariants;
@@ -129,6 +135,32 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Variant.class, NamingScheme::prefixTo));
 
 		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(BinaryAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
+			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "binaries"));
+			}
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(SourceAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
+			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "sources"));
+			}
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
+			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "dependencies"));
+			}
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(TaskAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
+			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "tasks"));
+			}
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(VariantAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
+			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "variants"));
+			}
+		}));
 	}
 
 	@SuppressWarnings("unchecked")
