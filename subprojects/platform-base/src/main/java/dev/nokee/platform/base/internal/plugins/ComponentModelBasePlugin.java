@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.DependencyFactory;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
@@ -24,10 +25,13 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.names.NamingScheme;
 import dev.nokee.model.internal.names.NamingSchemeSystem;
@@ -47,6 +51,7 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskAwareComponent;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.internal.BuildVariants;
@@ -58,16 +63,20 @@ import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactor
 import dev.nokee.platform.base.internal.ComponentVariantsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
 import dev.nokee.platform.base.internal.TaskNamer;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
+import dev.nokee.platform.base.internal.TaskViewAdapter;
+import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.components.DefaultComponentContainer;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
+import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -77,6 +86,7 @@ import org.gradle.api.provider.Provider;
 import java.lang.reflect.ParameterizedType;
 
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
@@ -110,6 +120,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory(PolymorphicDomainObjectRegistry.of(project.getTasks()), TaskNamer.INSTANCE));
 
+		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.class), ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(ComponentIdentifier.class), (entity, state, component, identifier) -> {
 			if (state.equals(ModelState.Registered)) {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -127,6 +138,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			// TODO: Each plugins should just map the build variants into the variants.
 			((Provider<?>) buildVariants.get().get(GradlePropertyComponent.class).get()).get();
 		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedTaskAwareComponentMixIn.class)), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
+			modeRegistry.register(ModelRegistration.builder()
+				.withComponent(ModelPropertyIdentifier.of(identifier, "tasks"))
+				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(Task.class)).build())
+				.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
+				.build());
+		})));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Artifact.class, NamingScheme::prefixTo));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Task.class, NamingScheme::suffixTo));
