@@ -18,13 +18,10 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
@@ -40,17 +37,11 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentBinariesPropertyRegistrationFactory {
-	private final ModelRegistry registry;
-	private final ModelPropertyRegistrationFactory propertyFactory;
-	private final ModelConfigurer modelConfigurer;
 	private final ProviderFactory providers;
 	private final ModelLookup modelLookup;
 	private final ObjectFactory objects;
 
-	public ComponentBinariesPropertyRegistrationFactory(ModelRegistry registry, ModelPropertyRegistrationFactory propertyFactory, ModelConfigurer modelConfigurer, ProviderFactory providers, ModelLookup modelLookup, ObjectFactory objects) {
-		this.registry = registry;
-		this.propertyFactory = propertyFactory;
-		this.modelConfigurer = modelConfigurer;
+	public ComponentBinariesPropertyRegistrationFactory(ProviderFactory providers, ModelLookup modelLookup, ObjectFactory objects) {
 		this.providers = providers;
 		this.modelLookup = modelLookup;
 		this.objects = objects;
