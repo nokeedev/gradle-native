@@ -39,7 +39,6 @@ import java.util.function.Function;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.map;
 
@@ -71,22 +70,6 @@ public final class ComponentSourcesPropertyRegistrationFactory {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
 			})))))
-			.build();
-	}
-
-	public ModelRegistration create(ModelPropertyIdentifier identifier, Class<? extends FunctionalSourceSet> sourceViewType) {
-		val path = toPath(identifier);
-		assert path.getParent().isPresent();
-		val ownerPath = path.getParent().get();
-		return ModelRegistration.builder()
-			.withComponent(identifier)
-			.withComponent(ModelPropertyTag.instance())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(ComponentElementsTag.tag())
-			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
-			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(LanguageSourceSet.class))))
-			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, LanguageSourceSet.class)))
-			.withComponent(managed(of(sourceViewType)))
 			.build();
 	}
 
