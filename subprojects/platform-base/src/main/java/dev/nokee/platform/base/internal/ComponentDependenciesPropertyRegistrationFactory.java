@@ -16,15 +16,11 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelPropertyTag;
-import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
-import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
+import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import lombok.val;
 
 import java.util.function.Supplier;
@@ -32,9 +28,9 @@ import java.util.function.Supplier;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentDependenciesPropertyRegistrationFactory {
+	private final ComponentElementsPropertyRegistrationFactory factory = new ComponentElementsPropertyRegistrationFactory();
 	private final ModelLookup lookup;
 
 	public ComponentDependenciesPropertyRegistrationFactory(ModelLookup lookup) {
@@ -47,12 +43,7 @@ public final class ComponentDependenciesPropertyRegistrationFactory {
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(ModelPropertyTag.instance())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(ComponentElementsTag.tag())
-			.withComponent(new ViewConfigurationBaseComponent(lookup.get(ownerPath)))
-			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(DependencyBucket.class))))
-			.withComponent(new ComponentElementTypeComponent(of(DependencyBucket.class)))
+			.mergeFrom(factory.newProperty().baseRef(lookup.get(ownerPath)).elementType(of(DependencyBucket.class)).build())
 			.withComponent(createdUsing(of(type), instance::get))
 			.build();
 	}

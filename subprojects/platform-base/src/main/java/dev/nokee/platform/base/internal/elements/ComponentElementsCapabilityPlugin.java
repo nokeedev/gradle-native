@@ -22,11 +22,16 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.RelativeName;
 import dev.nokee.model.internal.names.RelativeNamesComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
+import dev.nokee.platform.base.internal.VariantViewAdapter;
+import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -39,6 +44,7 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
@@ -54,10 +60,13 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(T target) {
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ComponentElementsTag.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, tag, elementType, parent) -> {
+			entity.addComponent(createdUsing(of(ViewAdapter.class), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> ModelStates.finalize(parent.get())))));
+		}));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), (entity, tag, base, elementType) -> {
-			val property = objects.mapProperty(String.class, elementType.get().getConcreteType());
+			val property = objects.mapProperty(String.class, (Class<Object>) elementType.get().getConcreteType());
 			entity.addComponent(new GradlePropertyComponent(property));
-			((MapProperty<String, Object>) property.get()).set(providers.provider(() -> {
+			property.set(providers.provider(() -> {
 				@SuppressWarnings("unchecked")
 				val result = (MapProperty<String, Object>) objects.mapProperty(String.class, elementType.get().getConcreteType());
 				target.getExtensions().getByType(ModelLookup.class)

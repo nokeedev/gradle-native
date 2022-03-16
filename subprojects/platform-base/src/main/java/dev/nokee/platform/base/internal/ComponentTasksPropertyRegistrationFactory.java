@@ -16,30 +16,26 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelPropertyTag;
-import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
+import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
-import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
+import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import lombok.val;
 import org.gradle.api.Task;
-import org.gradle.api.provider.ProviderFactory;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentTasksPropertyRegistrationFactory {
-	private final ProviderFactory providers;
+	private final ComponentElementsPropertyRegistrationFactory factory = new ComponentElementsPropertyRegistrationFactory();
 	private final ModelLookup modelLookup;
 
-	public ComponentTasksPropertyRegistrationFactory(ProviderFactory providers, ModelLookup modelLookup) {
-		this.providers = providers;
+	public ComponentTasksPropertyRegistrationFactory(ModelLookup modelLookup) {
 		this.modelLookup = modelLookup;
 	}
 
@@ -49,16 +45,8 @@ public final class ComponentTasksPropertyRegistrationFactory {
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(ModelPropertyTag.instance())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(ComponentElementsTag.tag())
-			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
-			.withComponent(new ComponentElementTypeComponent(of(Task.class)))
-			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Task.class))))
-			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, () -> {
-				ModelStates.realize(modelLookup.get(ownerPath));
-				ModelStates.finalize(modelLookup.get(ownerPath));
-			})))))
+			.mergeFrom(factory.newProperty().baseRef(modelLookup.get(ownerPath)).elementType(of(Task.class)).build())
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
 			.build();
 	}
 
@@ -68,16 +56,8 @@ public final class ComponentTasksPropertyRegistrationFactory {
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(ModelPropertyTag.instance())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(ComponentElementsTag.tag())
-			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
-			.withComponent(new ComponentElementTypeComponent(of(elementType)))
-			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
-			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, () -> {
-				ModelStates.realize(modelLookup.get(ownerPath));
-				ModelStates.finalize(modelLookup.get(ownerPath));
-			})))))
+			.mergeFrom(factory.newProperty().baseRef(modelLookup.get(ownerPath)).elementType(of(elementType)).build())
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
 			.build();
 	}
 }
