@@ -39,7 +39,6 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
@@ -146,8 +145,6 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(TargetMachines.host())
 							.build());
-
-						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 					}
 				}
 			}))
