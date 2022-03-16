@@ -122,23 +122,21 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory(PolymorphicDomainObjectRegistry.of(project.getTasks()), TaskNamer.INSTANCE));
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.class), ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ParentComponent.class), (entity, state, component, identifier, parent) -> {
-			if (state.equals(ModelState.Registered)) {
-				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-				val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-				entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ParentComponent.class), (entity, component, identifier, parent) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
+			val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
+			entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
 
-				val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
-				entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
+			val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
+			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
 
-				registry.register(ModelRegistration.builder()
-					.withComponent(ModelPropertyIdentifier.of(identifier, "variants"))
-					.mergeFrom(elementsPropertyFactory.newProperty().baseRef(parent.get()).elementType(of(variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType()))).build())
-					.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends Variant>>() {})))))
-					.build());
-			}
-		}));
+			registry.register(ModelRegistration.builder()
+				.withComponent(ModelPropertyIdentifier.of(identifier, "variants"))
+				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(parent.get()).elementType(of(variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType()))).build())
+				.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends Variant>>() {})))))
+				.build());
+		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
 			// TODO: Each plugins should just map the build variants into the variants.
 			((Provider<?>) buildVariants.get().get(GradlePropertyComponent.class).get()).get();
