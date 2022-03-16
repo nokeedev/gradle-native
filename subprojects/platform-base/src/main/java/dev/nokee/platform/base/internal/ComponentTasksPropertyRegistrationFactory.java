@@ -39,17 +39,6 @@ public final class ComponentTasksPropertyRegistrationFactory {
 		this.modelLookup = modelLookup;
 	}
 
-	public ModelRegistration create(ModelPropertyIdentifier identifier) {
-		val path = toPath(identifier);
-		assert path.getParent().isPresent();
-		val ownerPath = path.getParent().get();
-		return ModelRegistration.builder()
-			.withComponent(identifier)
-			.mergeFrom(factory.newProperty().baseRef(modelLookup.get(ownerPath)).elementType(of(Task.class)).build())
-			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
-			.build();
-	}
-
 	public ModelRegistration create(ModelPropertyIdentifier identifier, Class<? extends Task> elementType) {
 		val path = toPath(identifier);
 		assert path.getParent().isPresent();
