@@ -54,7 +54,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 				entity.addComponent(ConfigurableTag.tag());
 			}
 		}));
-		project.getExtensions().add(ComponentSourcesPropertyRegistrationFactory.class, "__nokee_componentSourcesPropertyFactory", new ComponentSourcesPropertyRegistrationFactory(project.getProviders(), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));
+		project.getExtensions().add(ComponentSourcesPropertyRegistrationFactory.class, "__nokee_componentSourcesPropertyFactory", new ComponentSourcesPropertyRegistrationFactory(project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(LanguageSourceSet.class, NamingScheme::prefixTo));
 	}
 }

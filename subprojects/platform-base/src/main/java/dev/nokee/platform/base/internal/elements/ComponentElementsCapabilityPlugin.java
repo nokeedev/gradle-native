@@ -54,7 +54,9 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ComponentElementsTag.class), ModelComponentReference.of(GradlePropertyComponent.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), (entity, tag, property, base, elementType) -> {
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), (entity, tag, base, elementType) -> {
+			val property = objects.mapProperty(String.class, elementType.get().getConcreteType());
+			entity.addComponent(new GradlePropertyComponent(property));
 			((MapProperty<String, Object>) property.get()).set(providers.provider(() -> {
 				@SuppressWarnings("unchecked")
 				val result = (MapProperty<String, Object>) objects.mapProperty(String.class, elementType.get().getConcreteType());

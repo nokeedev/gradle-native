@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -28,7 +27,6 @@ import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
 import lombok.val;
 import org.gradle.api.Task;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
@@ -39,12 +37,10 @@ import static dev.nokee.model.internal.type.ModelTypes.map;
 public final class ComponentTasksPropertyRegistrationFactory {
 	private final ProviderFactory providers;
 	private final ModelLookup modelLookup;
-	private final ObjectFactory objects;
 
-	public ComponentTasksPropertyRegistrationFactory(ProviderFactory providers, ModelLookup modelLookup, ObjectFactory objects) {
+	public ComponentTasksPropertyRegistrationFactory(ProviderFactory providers, ModelLookup modelLookup) {
 		this.providers = providers;
 		this.modelLookup = modelLookup;
-		this.objects = objects;
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier) {
@@ -59,7 +55,6 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ComponentElementTypeComponent(of(Task.class)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(Task.class))))
-			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, Task.class)))
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(Task.class, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));
@@ -79,7 +74,6 @@ public final class ComponentTasksPropertyRegistrationFactory {
 			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
 			.withComponent(new ComponentElementTypeComponent(of(elementType)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
-			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, elementType)))
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providers, () -> {
 				ModelStates.realize(modelLookup.get(ownerPath));
 				ModelStates.finalize(modelLookup.get(ownerPath));

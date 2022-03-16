@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -27,7 +26,6 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
 import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
 import lombok.val;
-import org.gradle.api.model.ObjectFactory;
 
 import java.util.function.Supplier;
 
@@ -38,11 +36,9 @@ import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentDependenciesPropertyRegistrationFactory {
 	private final ModelLookup lookup;
-	private final ObjectFactory objects;
 
-	public ComponentDependenciesPropertyRegistrationFactory(ModelLookup lookup, ObjectFactory objects) {
+	public ComponentDependenciesPropertyRegistrationFactory(ModelLookup lookup) {
 		this.lookup = lookup;
-		this.objects = objects;
 	}
 
 	public <T extends ComponentDependencies> ModelRegistration create(ModelPropertyIdentifier identifier, Class<T> type, Supplier<? extends T> instance) {
@@ -57,7 +53,6 @@ public final class ComponentDependenciesPropertyRegistrationFactory {
 			.withComponent(new ViewConfigurationBaseComponent(lookup.get(ownerPath)))
 			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(DependencyBucket.class))))
 			.withComponent(new ComponentElementTypeComponent(of(DependencyBucket.class)))
-			.withComponent(new GradlePropertyComponent(objects.mapProperty(String.class, DependencyBucket.class)))
 			.withComponent(createdUsing(of(type), instance::get))
 			.build();
 	}
