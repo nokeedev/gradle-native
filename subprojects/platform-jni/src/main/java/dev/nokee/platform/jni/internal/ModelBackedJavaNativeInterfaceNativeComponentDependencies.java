@@ -15,15 +15,16 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.provider.MapProperty;
 import org.gradle.util.ConfigureUtil;
 
 public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies implements JavaNativeInterfaceNativeComponentDependencies, ModelNodeAware {
@@ -45,8 +46,9 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public DependencyBucket getNativeImplementation() {
-		return ModelProperties.getProperty(this, "nativeImplementation").as(DependencyBucket.class).get();
+		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("nativeImplementation").get();
 	}
 
 	@Override
@@ -65,8 +67,9 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public DependencyBucket getNativeLinkOnly() {
-		return ModelProperties.getProperty(this, "nativeLinkOnly").as(DependencyBucket.class).get();
+		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("nativeLinkOnly").get();
 	}
 
 	@Override
@@ -85,8 +88,9 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public DependencyBucket getNativeRuntimeOnly() {
-		return ModelProperties.getProperty(this, "nativeRuntimeOnly").as(DependencyBucket.class).get();
+		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("nativeRuntimeOnly").get();
 	}
 
 	@Override

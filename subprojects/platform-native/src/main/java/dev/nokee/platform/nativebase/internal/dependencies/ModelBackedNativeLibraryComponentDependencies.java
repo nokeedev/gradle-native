@@ -15,39 +15,45 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
+import org.gradle.api.provider.MapProperty;
 
 public final class ModelBackedNativeLibraryComponentDependencies implements NativeLibraryComponentDependencies, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public DependencyBucket getApi() {
-		return ModelProperties.getProperty(this, "api").as(DependencyBucket.class).get();
+		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("api").get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public DependencyBucket getCompileOnly() {
-		return ModelProperties.getProperty(this, "compileOnly").as(DependencyBucket.class).get();
+		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("compileOnly").get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public DependencyBucket getImplementation() {
-		return ModelProperties.getProperty(this, "implementation").as(DependencyBucket.class).get();
+		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("implementation").get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public DependencyBucket getRuntimeOnly() {
-		return ModelProperties.getProperty(this, "runtimeOnly").as(DependencyBucket.class).get();
+		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("runtimeOnly").get();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public DependencyBucket getLinkOnly() {
-		return ModelProperties.getProperty(this, "linkOnly").as(DependencyBucket.class).get();
+		return ((MapProperty<String, DependencyBucket>) node.get(GradlePropertyComponent.class).get()).getting("linkOnly").get();
 	}
 
 	@Override

@@ -66,12 +66,12 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 							if (ModelNodeUtils.canBeViewedAs(it, of(NamedDomainObjectProvider.class))) {
 								result.put(name, ModelNodeUtils.get(it, NamedDomainObjectProvider.class).map(t -> {
 									ModelStates.realize(it);
-									return t;
+									return ModelNodeUtils.get(it, elementType.get());
 								}));
 							} else if (it.has(ModelElementProviderSourceComponent.class)) {
 								result.put(name, it.get(ModelElementProviderSourceComponent.class).get().map(t -> {
 									ModelStates.realize(it);
-									return t;
+									return ModelNodeUtils.get(it, elementType.get());
 								}));
 							} else {
 								result.put(name, providers.provider(() -> {
