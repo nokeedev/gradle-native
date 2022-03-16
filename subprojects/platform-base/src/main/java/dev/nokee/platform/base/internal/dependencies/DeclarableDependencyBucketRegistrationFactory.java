@@ -39,6 +39,7 @@ import org.gradle.api.plugins.ExtensionAware;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
+import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
@@ -72,9 +73,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get))
-			.withComponent(createdUsing(of(DeclarableDependencyBucket.class), () -> {
-				return ((ExtensionAware) configurationProvider.get()).getExtensions().getByType(DeclarableDependencyBucket.class);
-			}))
+			.withComponent(ofInstance(bucket))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path)) {
 					configurationProvider.configure(configuration -> {
