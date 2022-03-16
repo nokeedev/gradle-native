@@ -53,7 +53,6 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.CompileTaskTag;
-import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -164,8 +163,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPath.class), (entity, id, state, path) -> {
 				if (id.equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-					registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 
 					registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources")));
 

@@ -58,7 +58,6 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.CompileTaskTag;
-import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
@@ -232,8 +231,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						project.getPluginManager().withPlugin("java", registerJvmJarBinaryAction);
 						project.getPluginManager().withPlugin("groovy", registerJvmJarBinaryAction);
 						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", registerJvmJarBinaryAction);
-
-						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 
 						// TODO: This is an external dependency meaning we should go through the component dependencies.
 						//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries

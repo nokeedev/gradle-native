@@ -50,7 +50,6 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
@@ -179,8 +178,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 						registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCApplicationSources.class, ObjectiveCApplicationSourcesAdapter::new));
 
-						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
-
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 						registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), NativeComponentDependencies.class, ModelBackedNativeComponentDependencies::new));
 
@@ -265,8 +262,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 				registry.register(project.getExtensions().getByType(ComponentSourcesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "sources"), ObjectiveCApplicationSources.class, ObjectiveCApplicationSourcesAdapter::new));
-
-				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 
 				val dependencies = registry.register(project.getExtensions().getByType(ComponentDependenciesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "dependencies"), NativeComponentDependencies.class, ModelBackedNativeComponentDependencies::new));
 

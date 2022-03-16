@@ -44,7 +44,6 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ComponentBinariesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentDependenciesPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
@@ -169,8 +168,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
 							.build());
-
-						registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 					}
 				}
 			}))
@@ -276,8 +273,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				val outgoing = entity.addComponent(new IosApplicationOutgoingDependencies(ModelNodeUtils.get(ModelNodes.of(runtimeElements), Configuration.class), project.getObjects()));
 				val incoming = entity.getComponent(NativeIncomingDependencies.class);
 				entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(dependencies.as(NativeComponentDependencies.class)::get, incoming, outgoing));
-
-				registry.register(project.getExtensions().getByType(ComponentBinariesPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(identifier, "binaries")));
 
 				registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path)));
 			})))
