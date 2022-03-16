@@ -16,31 +16,25 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelPropertyTag;
-import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
+import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
-import dev.nokee.platform.base.internal.elements.ComponentElementsTag;
+import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import lombok.val;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ProviderFactory;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.model.internal.type.ModelTypes.map;
 
 public final class ComponentVariantsPropertyRegistrationFactory {
-	private final ProviderFactory providerFactory;
+	private final ComponentElementsPropertyRegistrationFactory factory = new ComponentElementsPropertyRegistrationFactory();
 	private final ModelLookup modelLookup;
 
-	public ComponentVariantsPropertyRegistrationFactory(ProviderFactory providerFactory, ModelLookup modelLookup) {
-		this.providerFactory = providerFactory;
+	public ComponentVariantsPropertyRegistrationFactory(ModelLookup modelLookup) {
 		this.modelLookup = modelLookup;
 	}
 
@@ -50,13 +44,8 @@ public final class ComponentVariantsPropertyRegistrationFactory {
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
 			.withComponent(identifier)
-			.withComponent(ModelPropertyTag.instance())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(ComponentElementsTag.tag())
-			.withComponent(new ViewConfigurationBaseComponent(modelLookup.get(ownerPath)))
-			.withComponent(new ComponentElementTypeComponent(of(elementType)))
-			.withComponent(new ModelPropertyTypeComponent(map(of(String.class), of(elementType))))
-			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(new ViewAdapter<>(elementType, new ModelNodeBackedViewStrategy(providerFactory, () -> ModelStates.finalize(modelLookup.get(ownerPath)))))))
+			.mergeFrom(factory.newProperty().baseRef(modelLookup.get(ownerPath)).elementType(of(elementType)).build())
+			.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends Variant>>() {})))))
 			.build();
 	}
 }
