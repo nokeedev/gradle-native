@@ -44,22 +44,19 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	private final Runnable realize;
 	private final ModelNode entity;
 	private final ProviderFactory providerFactory;
-	private final ObjectFactory objects;
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, ObjectFactory objects) {
+	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory) {
 		this.providerFactory = providerFactory;
-		this.objects = objects;
 		this.entity = ModelNodeContext.getCurrentModelNode();
 		this.realize = NO_OP_REALIZE;
 	}
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, ObjectFactory objects, Runnable realize) {
-		this(providerFactory, objects, realize, ModelNodeContext.getCurrentModelNode());
+	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize) {
+		this(providerFactory, realize, ModelNodeContext.getCurrentModelNode());
 	}
 
-	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, ObjectFactory objects, Runnable realize, ModelNode entity) {
+	public ModelNodeBackedViewStrategy(ProviderFactory providerFactory, Runnable realize, ModelNode entity) {
 		this.providerFactory = providerFactory;
-		this.objects = objects;
 		this.realize = new RunOnceRunnable(realize);
 		this.entity = entity;
 	}
