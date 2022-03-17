@@ -95,14 +95,14 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class NativeLibraryComponentModelRegistrationFactory {
 	private final Class<Component> componentType;
-	private final Class<? extends Component> implementationComponentType;
+	private final Class<Component> implementationComponentType;
 	private final BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration;
 	private final Project project;
 
 	@SuppressWarnings("unchecked")
 	public <T extends Component> NativeLibraryComponentModelRegistrationFactory(Class<? super T> componentType, Class<T> implementationComponentType, Project project, BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration) {
 		this.componentType = (Class<Component>) componentType;
-		this.implementationComponentType = implementationComponentType;
+		this.implementationComponentType = (Class<Component>) implementationComponentType;
 		this.sourceRegistration = sourceRegistration;
 		this.project = project;
 	}
@@ -112,7 +112,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		val name = entityPath.getName();
 		val builder = ModelRegistration.builder()
 			.withComponent(entityPath)
-			.withComponent(createdUsing(of(componentType), () -> project.getObjects().newInstance(implementationComponentType)))
+			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
 			.withComponent(identifier)
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
