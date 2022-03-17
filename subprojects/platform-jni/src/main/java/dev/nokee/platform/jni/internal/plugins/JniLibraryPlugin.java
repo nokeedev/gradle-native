@@ -122,20 +122,20 @@ public class JniLibraryPlugin implements Plugin<Project> {
 			// Ensure the variants are resolved so all tasks are registered.
 			getTasks().named("tasks", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get();
+					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get().get();
 					return emptyList();
 				});
 			});
 			// Ensure the variants are resolved so all configurations and dependencies are registered.
 			getTasks().named("dependencies", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get();
+					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get().get();
 					return emptyList();
 				});
 			});
 			getTasks().named("outgoingVariants", task -> {
 				task.dependsOn((Callable) () -> {
-					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get();
+					ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get().get();
 					return emptyList();
 				});
 			});
@@ -144,7 +144,7 @@ public class JniLibraryPlugin implements Plugin<Project> {
 		project.afterEvaluate(proj -> {
 			// The previous trick doesn't work for dependencyInsight task and vice-versa.
 			project.getConfigurations().addRule("Java Native Interface (JNI) variants are resolved only when needed.", it -> {
-				ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get();
+				ModelProperties.getProperty(ModelNodes.of(extension), "variants").as(VariantView.class).get().get();
 			});
 		});
 		project.afterEvaluate(finalizeModelNodeOf(extension));
