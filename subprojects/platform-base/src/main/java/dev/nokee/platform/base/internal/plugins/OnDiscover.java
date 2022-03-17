@@ -16,7 +16,6 @@
 package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.core.Bits;
 import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
@@ -24,7 +23,6 @@ import dev.nokee.model.internal.core.ModelActions;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 
