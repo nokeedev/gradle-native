@@ -144,6 +144,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			((Provider<?>) buildVariants.get().get(GradlePropertyComponent.class).get()).get();
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedTaskAwareComponentMixIn.class)), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
+			if (identifier instanceof ModelPropertyIdentifier) {
+				return;
+			}
 			modeRegistry.register(ModelRegistration.builder()
 				.withComponent(ModelPropertyIdentifier.of(identifier, "tasks"))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(Task.class)).build())
@@ -151,6 +154,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.build());
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedBinaryAwareComponentMixIn.class)), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
+			if (identifier instanceof ModelPropertyIdentifier) {
+				return;
+			}
 			modeRegistry.register(ModelRegistration.builder()
 				.withComponent(ModelPropertyIdentifier.of(identifier, "binaries"))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(Binary.class)).build())
