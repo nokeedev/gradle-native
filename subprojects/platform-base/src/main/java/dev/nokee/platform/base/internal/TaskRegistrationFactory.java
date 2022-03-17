@@ -30,17 +30,21 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import lombok.val;
 import org.gradle.api.Namer;
 import org.gradle.api.Task;
+import org.gradle.api.internal.MutationGuards;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 
 public final class TaskRegistrationFactory {
+	private final TaskContainer tasks;
 	private final PolymorphicDomainObjectRegistry<Task> taskRegistry;
 	private final Namer<TaskIdentifier<?>> taskNamer;
 
 	// TODO: Specialize registry into TaskRegistry and return TaskProvider instead of NamedDomainObjectProvider.
-	public TaskRegistrationFactory(PolymorphicDomainObjectRegistry<Task> taskRegistry, Namer<TaskIdentifier<?>> taskNamer) {
+	public TaskRegistrationFactory(TaskContainer tasks, PolymorphicDomainObjectRegistry<Task> taskRegistry, Namer<TaskIdentifier<?>> taskNamer) {
+		this.tasks = tasks;
 		this.taskRegistry = taskRegistry;
 		this.taskNamer = taskNamer;
 	}
@@ -57,7 +61,9 @@ public final class TaskRegistrationFactory {
 			.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(TaskIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
-					taskProvider.configure(task -> ModelStates.realize(entity));
+					taskProvider.configure(task -> {
+						MutationGuards.of(tasks).withMutationEnabled(__ -> ModelStates.realize(entity)).execute(null);
+					});
 				}
 			}))
 			;
