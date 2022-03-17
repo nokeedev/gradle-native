@@ -106,14 +106,14 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 
 public final class IosApplicationComponentModelRegistrationFactory {
 	private final Class<Component> componentType;
-	private final Class<? extends Component> implementationComponentType;
+	private final Class<Component> implementationComponentType;
 	private final BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration;
 	private final Project project;
 
 	@SuppressWarnings("unchecked")
 	public <T extends Component> IosApplicationComponentModelRegistrationFactory(Class<? super T> componentType, Class<T> implementationComponentType, Project project, BiConsumer<? super ModelNode, ? super ModelPath> sourceRegistration) {
 		this.componentType = (Class<Component>) componentType;
-		this.implementationComponentType = implementationComponentType;
+		this.implementationComponentType = (Class<Component>) implementationComponentType;
 		this.sourceRegistration = sourceRegistration;
 		this.project = project;
 	}
@@ -123,7 +123,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		val builder = ModelRegistration.builder()
 			.withComponent(entityPath)
 			.withComponent(identifier)
-			.withComponent(createdUsing(of(componentType), () -> project.getObjects().newInstance(implementationComponentType)))
+			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path)) {
 					withConventionOf(maven(identifier.getName())).accept(sourceSet);
