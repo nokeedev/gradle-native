@@ -28,6 +28,7 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.platform.swift.SwiftApplication;
@@ -89,7 +90,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultSwiftApplication implements SwiftApplication
-		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<SwiftApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn

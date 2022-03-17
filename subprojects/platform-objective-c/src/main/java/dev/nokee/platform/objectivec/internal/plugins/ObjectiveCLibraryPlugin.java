@@ -35,6 +35,7 @@ import dev.nokee.platform.nativebase.HasPublicSourceSet;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.HasObjectiveCSourceSet;
 import dev.nokee.platform.objectivec.ObjectiveCLibrary;
@@ -106,7 +107,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultObjectiveCLibrary implements ObjectiveCLibrary
-		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCLibrarySources>
 		, ModelBackedBinaryAwareComponentMixIn

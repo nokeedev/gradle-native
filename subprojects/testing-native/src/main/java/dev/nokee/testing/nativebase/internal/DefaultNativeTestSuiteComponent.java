@@ -43,6 +43,7 @@ import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
@@ -58,6 +59,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
@@ -101,6 +103,7 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
 
 public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite
+	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<DefaultNativeTestSuiteVariant>
 	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeTestSuiteVariant>

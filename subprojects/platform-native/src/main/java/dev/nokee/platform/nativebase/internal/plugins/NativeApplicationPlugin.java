@@ -212,7 +212,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension
-		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<NativeApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn

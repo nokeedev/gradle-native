@@ -35,7 +35,7 @@ import javax.inject.Inject;
 import java.util.Set;
 
 public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
-	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies>
+	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies, ModelBackedJavaNativeInterfaceLibraryComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<JniLibrary>
 	, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources>
 	, ModelBackedBinaryAwareComponentMixIn

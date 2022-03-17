@@ -28,6 +28,7 @@ import dev.nokee.platform.base.internal.*;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.platform.swift.SwiftLibrary;
@@ -90,7 +91,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultSwiftLibrary implements SwiftLibrary
-		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 		, ModelBackedSourceAwareComponentMixIn<SwiftLibrarySources>
 		, ModelBackedBinaryAwareComponentMixIn

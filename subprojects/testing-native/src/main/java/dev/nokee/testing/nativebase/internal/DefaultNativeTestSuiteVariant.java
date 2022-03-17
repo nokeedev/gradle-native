@@ -30,6 +30,7 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
@@ -45,7 +46,7 @@ import javax.inject.Inject;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
 public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware
-	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
+	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<ObjectiveCApplicationSources>
 	, ModelBackedNamedMixIn

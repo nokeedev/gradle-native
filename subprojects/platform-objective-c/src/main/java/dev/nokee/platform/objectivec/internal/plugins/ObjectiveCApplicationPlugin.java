@@ -37,6 +37,7 @@ import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.HasObjectiveCSourceSet;
 import dev.nokee.platform.objectivec.ObjectiveCApplication;
@@ -104,7 +105,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication
-		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn

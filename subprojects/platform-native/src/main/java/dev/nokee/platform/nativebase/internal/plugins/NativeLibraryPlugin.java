@@ -151,7 +151,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension
-		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies>
+		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 		, ModelBackedSourceAwareComponentMixIn<NativeLibrarySources>
 		, ModelBackedBinaryAwareComponentMixIn

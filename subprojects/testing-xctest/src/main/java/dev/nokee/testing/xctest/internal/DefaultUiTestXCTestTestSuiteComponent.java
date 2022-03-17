@@ -46,6 +46,7 @@ import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
@@ -68,7 +69,7 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
-	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
+	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn

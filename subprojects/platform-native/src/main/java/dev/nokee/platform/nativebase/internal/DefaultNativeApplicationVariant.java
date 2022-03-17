@@ -30,6 +30,7 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
@@ -41,7 +42,7 @@ import javax.inject.Inject;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
 public class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication, VariantInternal, ModelNodeAware
-	, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+	, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedNamedMixIn
