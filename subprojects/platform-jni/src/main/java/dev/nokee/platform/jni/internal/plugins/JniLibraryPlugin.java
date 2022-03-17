@@ -60,7 +60,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.*;
+import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.CURRENT_MODEL_PLUGIN_IDS;
+import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_APPLICATION_PLUGIN_ID;
+import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_LIBRARY_PLUGIN_ID;
+import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.SOFTWARE_MODEL_PLUGIN_IDS;
 import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferHostMachineArchitecture;
 import static dev.nokee.platform.nativebase.internal.NativeVariantComparators.preferHostOperatingSystemFamily;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
