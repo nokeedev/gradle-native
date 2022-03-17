@@ -35,6 +35,7 @@ import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.*;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import groovy.lang.Closure;
 import lombok.AccessLevel;
@@ -93,7 +94,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultCppApplication implements CppApplication
-		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies>
+		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<CppApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn

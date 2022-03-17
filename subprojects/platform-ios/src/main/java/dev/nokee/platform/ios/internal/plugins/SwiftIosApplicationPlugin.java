@@ -35,6 +35,7 @@ import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
 import dev.nokee.platform.ios.internal.SwiftIosApplicationSourcesAdapter;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import groovy.lang.Closure;
@@ -89,7 +90,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication
-		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies>
+		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, ModelBackedSourceAwareComponentMixIn<SwiftIosApplicationSources>
 		, ModelBackedBinaryAwareComponentMixIn

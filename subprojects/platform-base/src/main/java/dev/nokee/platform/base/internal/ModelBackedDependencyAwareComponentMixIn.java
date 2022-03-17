@@ -23,7 +23,7 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.util.ConfigureUtil;
 
-public interface ModelBackedDependencyAwareComponentMixIn<T extends ComponentDependencies> extends DependencyAwareComponent<T> {
+public interface ModelBackedDependencyAwareComponentMixIn<T extends ComponentDependencies, S extends T> extends DependencyAwareComponent<T> {
 	@Override
 	@SuppressWarnings("unchecked")
 	default T getDependencies() {
