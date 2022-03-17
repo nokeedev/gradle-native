@@ -137,20 +137,24 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(identifier)
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, sourceSet, ignored) -> {
-				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && sourceSet instanceof HasHeaders) {
-					((ConfigurableSourceSet) ((HasHeaders) sourceSet).getHeaders()).convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asKnownObject(), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, knownSourceSet, ignored) -> {
+				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && HasHeaders.class.isAssignableFrom(knownSourceSet.getType())) {
+					knownSourceSet.configure(sourceSet -> {
+						((ConfigurableSourceSet) ((HasHeaders) sourceSet).getHeaders()).convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");
+					});
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, sourceSet, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asKnownObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, knownSourceSet, ignored) -> {
 				if (DomainObjectIdentifierUtils.isDescendent(id, identifier)) {
-					if (sourceSet instanceof ObjectiveCSourceSet) {
-						sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objc"));
-					} else if (sourceSet instanceof ObjectiveCppSourceSet) {
-						sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objcpp"));
-					} else {
-						sourceSet.convention("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get());
-					}
+					knownSourceSet.configure(sourceSet -> {
+						if (sourceSet instanceof ObjectiveCSourceSet) {
+							sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objc"));
+						} else if (sourceSet instanceof ObjectiveCppSourceSet) {
+							sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objcpp"));
+						} else {
+							sourceSet.convention("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get());
+						}
+					});
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {
