@@ -8,19 +8,6 @@ plugins {
 }
 
 dependencies {
-	api project(':platformBase')
-	compileOnly project(':gradleAnnotation')
-	api project(':coreModel')
-	implementation project(':coreUtils')
-	implementation project(':coreScript')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-	annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-
-	testCompileOnly project(':platformBase')
-	testImplementation testFixtures(project(':coreModel'))
-
 	testFixturesApi project(':internalTesting')
 	testFixturesImplementation testFixtures(project(':coreModel'))
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
@@ -32,6 +19,25 @@ gradlePlugin {
 			id = "dev.nokee.language-base"
 			implementationClass = "dev.nokee.language.base.internal.plugins.LanguageBasePlugin"
 		}
+	}
+
+	dependencies {
+		api project(':platformBase')
+		compileOnly project(':gradleAnnotation')
+		api project(':coreModel')
+		implementation project(':coreUtils')
+		implementation project(':coreScript')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+		implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
+		annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
+	}
+}
+
+test {
+	dependencies {
+		compileOnly project(':platformBase')
+		implementation testFixtures(project(':coreModel'))
 	}
 }
 

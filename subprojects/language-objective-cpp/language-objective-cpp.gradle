@@ -8,18 +8,6 @@ plugins {
 }
 
 dependencies {
-	api project(':languageCpp')
-	implementation project(':coreScript')
-	implementation project(':coreUtils')
-	implementation project(':runtimeNative')
-	implementation "com.google.guava:guava:${guavaVersion}"
-
-	testImplementation project(':languageCpp') // TODO: Maybe?
-	testImplementation project(':runtimeNative')
-	testImplementation project(':platformBase')
-	testImplementation testFixtures(project(':coreModel'))
-	testImplementation testFixtures(project(':coreScript'))
-
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }
@@ -34,6 +22,24 @@ gradlePlugin {
 			id = 'dev.nokee.objective-cpp-language'
 			implementationClass = 'dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin'
 		}
+	}
+
+	dependencies {
+		api project(':languageCpp')
+		implementation project(':coreScript')
+		implementation project(':coreUtils')
+		implementation project(':runtimeNative')
+		implementation "com.google.guava:guava:${guavaVersion}"
+	}
+}
+
+test {
+	dependencies {
+		implementation project(':languageCpp') // TODO: Maybe?
+		implementation project(':runtimeNative')
+		implementation project(':platformBase')
+		implementation testFixtures(project(':coreModel'))
+		implementation testFixtures(project(':coreScript'))
 	}
 }
 

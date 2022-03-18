@@ -8,18 +8,6 @@ plugins {
 }
 
 dependencies {
-	api project(':languageC')
-	implementation project(':coreScript')
-	implementation project(':coreUtils')
-	implementation project(':runtimeNative')
-	implementation "com.google.guava:guava:${guavaVersion}"
-
-	testImplementation project(':languageC')
-	testImplementation project(':runtimeNative')
-	testImplementation project(':platformBase')
-	testImplementation testFixtures(project(':coreModel'))
-	testImplementation testFixtures(project(':coreScript'))
-
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }
@@ -34,6 +22,24 @@ gradlePlugin {
 			id = 'dev.nokee.objective-c-language'
 			implementationClass = 'dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin'
 		}
+	}
+
+	dependencies {
+		api project(':languageC')
+		implementation project(':coreScript')
+		implementation project(':coreUtils')
+		implementation project(':runtimeNative')
+		implementation "com.google.guava:guava:${guavaVersion}"
+	}
+}
+
+test {
+	dependencies {
+		implementation project(':languageC')
+		implementation project(':runtimeNative')
+		implementation project(':platformBase')
+		implementation testFixtures(project(':coreModel'))
+		implementation testFixtures(project(':coreScript'))
 	}
 }
 

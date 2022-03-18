@@ -5,27 +5,6 @@ plugins {
 	id 'maven-publish'
 }
 
-dependencies {
-	compileOnly project(':gradleAnnotation')
-	implementation project(':coreUtils')
-	implementation project(':coreModel')
-	implementation project(':languageObjectiveC')
-	implementation project(':languageSwift')
-	implementation project(':coreExec')
-	implementation project(':runtimeDarwin')
-	implementation project(':runtimeNative')
-	implementation project(':platformObjectiveC')
-	implementation project(':platformObjectiveCpp')
-	implementation project(':platformSwift')
-	api project(':platformBase')
-	implementation project(':platformNative')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "commons-io:commons-io:${commonsIoVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation 'com.google.code.gson:gson:2.8.6' // For deserializing the descriptor... probably not the right place to do this
-	implementation "commons-io:commons-io:${commonsIoVersion}" // same as previous
-}
-
 gradlePlugin {
 	plugins {
 		objcIosApplication {
@@ -36,6 +15,27 @@ gradlePlugin {
 			id = 'dev.nokee.swift-ios-application'
 			implementationClass = 'dev.nokee.platform.ios.internal.plugins.SwiftIosApplicationPlugin'
 		}
+	}
+
+	dependencies {
+		compileOnly project(':gradleAnnotation')
+		implementation project(':coreUtils')
+		implementation project(':coreModel')
+		implementation project(':languageObjectiveC')
+		implementation project(':languageSwift')
+		implementation project(':coreExec')
+		implementation project(':runtimeDarwin')
+		implementation project(':runtimeNative')
+		implementation project(':platformObjectiveC')
+		implementation project(':platformObjectiveCpp')
+		implementation project(':platformSwift')
+		api project(':platformBase')
+		implementation project(':platformNative')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "commons-io:commons-io:${commonsIoVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+		implementation 'com.google.code.gson:gson:2.8.6' // For deserializing the descriptor... probably not the right place to do this
+		implementation "commons-io:commons-io:${commonsIoVersion}" // same as previous
 	}
 }
 

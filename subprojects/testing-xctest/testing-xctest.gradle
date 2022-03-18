@@ -5,28 +5,28 @@ plugins {
 	id 'maven-publish'
 }
 
-dependencies {
-	implementation project(':coreUtils')
-	implementation project(':platformBase')
-	implementation project(':platformIos')
-	implementation project(':platformNative') // for NativeBinary
-	implementation project(':runtimeNative')
-	implementation project(':coreExec')
-	implementation project(':languageObjectiveC')
-	implementation project(':languageSwift')
-	implementation project(':testingNative')
-	implementation project(':platformObjectiveC')
-	implementation "commons-io:commons-io:${commonsIoVersion}"
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-}
-
 gradlePlugin {
 	plugins {
 		objcXctestTestSuite {
 			id = 'dev.nokee.objective-c-xctest-test-suite'
 			implementationClass = 'dev.nokee.testing.xctest.internal.plugins.ObjectiveCXCTestTestSuitePlugin'
 		}
+	}
+
+	dependencies {
+		implementation project(':coreUtils')
+		implementation project(':platformBase')
+		implementation project(':platformIos')
+		implementation project(':platformNative') // for NativeBinary
+		implementation project(':runtimeNative')
+		implementation project(':coreExec')
+		implementation project(':languageObjectiveC')
+		implementation project(':languageSwift')
+		implementation project(':testingNative')
+		implementation project(':platformObjectiveC')
+		implementation "commons-io:commons-io:${commonsIoVersion}"
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	}
 }
 

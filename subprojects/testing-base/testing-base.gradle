@@ -5,11 +5,20 @@ plugins {
 	id 'maven-publish'
 }
 
-dependencies {
-	implementation project(':coreUtils')
-	implementation project(':coreModel')
-	api project(':platformBase')
+gradlePlugin {
+	plugins {
+	}
 
-	testImplementation testFixtures(project(':coreModel'))
-	testImplementation testFixtures(project(':platformBase'))
+	dependencies {
+		implementation project(':coreUtils')
+		implementation project(':coreModel')
+		api project(':platformBase')
+	}
+}
+
+test {
+	dependencies {
+		implementation testFixtures(project(':coreModel'))
+		implementation testFixtures(project(':platformBase'))
+	}
 }

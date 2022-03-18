@@ -5,28 +5,28 @@ plugins {
 	id 'maven-publish'
 }
 
-dependencies {
-	api project(':testingBase')
-
-	implementation project(':coreUtils')
-	implementation project(':platformNative')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation project(':languageC')
-	implementation project(':languageCpp')
-	implementation project(':languageObjectiveC')
-	implementation project(':languageObjectiveCpp')
-	implementation project(':languageSwift')
-	implementation project(':platformObjectiveC')
-	implementation project(':platformObjectiveCpp')
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-}
-
 gradlePlugin {
 	plugins {
 		nativeUnitTesting {
 			id = 'dev.nokee.native-unit-testing'
 			implementationClass = 'dev.nokee.testing.nativebase.internal.plugins.NativeUnitTestingPlugin'
 		}
+	}
+
+	dependencies {
+		api project(':testingBase')
+
+		implementation project(':coreUtils')
+		implementation project(':platformNative')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation project(':languageC')
+		implementation project(':languageCpp')
+		implementation project(':languageObjectiveC')
+		implementation project(':languageObjectiveCpp')
+		implementation project(':languageSwift')
+		implementation project(':platformObjectiveC')
+		implementation project(':platformObjectiveCpp')
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	}
 }
 

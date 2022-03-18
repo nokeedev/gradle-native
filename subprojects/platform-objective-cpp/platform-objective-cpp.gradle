@@ -5,17 +5,6 @@ plugins {
 	id 'maven-publish'
 }
 
-dependencies {
-	api project(':platformNative')
-	implementation project(':coreUtils')
-	implementation project(':languageObjectiveCpp')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation "commons-io:commons-io:${commonsIoVersion}"
-	implementation project(':coreExec')
-	implementation project(':runtimeDarwin')
-}
-
 gradlePlugin {
 	plugins {
 		objcppApplication {
@@ -26,6 +15,17 @@ gradlePlugin {
 			id = 'dev.nokee.objective-cpp-library'
 			implementationClass = 'dev.nokee.platform.objectivecpp.internal.plugins.ObjectiveCppLibraryPlugin'
 		}
+	}
+
+	dependencies {
+		api project(':platformNative')
+		implementation project(':coreUtils')
+		implementation project(':languageObjectiveCpp')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+		implementation "commons-io:commons-io:${commonsIoVersion}"
+		implementation project(':coreExec')
+		implementation project(':runtimeDarwin')
 	}
 }
 

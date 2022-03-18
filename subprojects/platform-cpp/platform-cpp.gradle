@@ -5,17 +5,6 @@ plugins {
 	id 'maven-publish'
 }
 
-dependencies {
-	api project(':platformNative')
-	implementation project(':coreUtils')
-	implementation project(':languageCpp')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation "commons-io:commons-io:${commonsIoVersion}"
-	implementation project(':coreExec')
-	implementation project(':runtimeDarwin')
-}
-
 gradlePlugin {
 	plugins {
 		cppApplication {
@@ -26,6 +15,17 @@ gradlePlugin {
 			id = 'dev.nokee.cpp-library'
 			implementationClass = 'dev.nokee.platform.cpp.internal.plugins.CppLibraryPlugin'
 		}
+	}
+
+	dependencies {
+		api project(':platformNative')
+		implementation project(':coreUtils')
+		implementation project(':languageCpp')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+		implementation "commons-io:commons-io:${commonsIoVersion}"
+		implementation project(':coreExec')
+		implementation project(':runtimeDarwin')
 	}
 }
 

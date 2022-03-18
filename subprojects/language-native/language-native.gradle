@@ -7,18 +7,6 @@ plugins {
 }
 
 dependencies {
-	api project(':languageBase')
-	implementation project(':runtimeNative')
-	implementation project(':runtimeDarwin')
-	implementation project(':coreUtils')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation project(':platformBase')
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}" // for SystemUtils
-	implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-	annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-
-	testImplementation testFixtures(project(':coreModel'))
-
 	testFixturesApi testFixtures(project(':languageBase'))
 	testFixturesApi testFixtures(project(':coreModel'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
@@ -26,5 +14,23 @@ dependencies {
 
 gradlePlugin {
 	plugins {
+	}
+
+	dependencies {
+		api project(':languageBase')
+		implementation project(':runtimeNative')
+		implementation project(':runtimeDarwin')
+		implementation project(':coreUtils')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation project(':platformBase')
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}" // for SystemUtils
+		implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
+		annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
+	}
+}
+
+test {
+	dependencies {
+		implementation testFixtures(project(':coreModel'))
 	}
 }

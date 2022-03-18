@@ -9,26 +9,37 @@ plugins {
 }
 
 dependencies {
-	api project(':coreModel')
-	implementation project(':gradleApi')
-	implementation project(':coreUtils')
-	implementation project(':runtimeBase')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	compileOnly gradleApi(minimumGradleVersion)
-
-	testImplementation gradleApi(minimumGradleVersion)
-	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
-	testImplementation testFixtures(project(':coreModel'))
-	testImplementation project(':testingBase')
-	testImplementation testFixtures(project(':coreUtils'))
-
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesApi testFixtures(project(':coreUtils'))
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 	testFixturesImplementation gradleFixtures()
 	testFixturesImplementation "dev.gradleplugins:gradle-fixtures-source-elements:latest.release"
 	testFixturesImplementation testFixtures(project(':coreModel'))
+}
+
+gradlePlugin {
+	plugins {
+	}
+
+	dependencies {
+		api project(':coreModel')
+		implementation project(':gradleApi')
+		implementation project(':coreUtils')
+		implementation project(':runtimeBase')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+		compileOnly gradleApi(minimumGradleVersion)
+	}
+}
+
+test {
+	dependencies {
+		implementation gradleApi(minimumGradleVersion)
+		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+		implementation testFixtures(project(':coreModel'))
+		implementation project(':testingBase')
+		implementation testFixtures(project(':coreUtils'))
+	}
 }
 
 integrationTest {
