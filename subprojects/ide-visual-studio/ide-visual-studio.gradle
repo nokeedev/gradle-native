@@ -5,23 +5,6 @@ plugins {
 	id 'maven-publish'
 }
 
-dependencies {
-	implementation project(':coreUtils')
-	api project(':ideBase')
-	implementation project(':languageC')
-	implementation project(':languageCpp')
-	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'
-	implementation 'org.simpleframework:simple-xml:2.7.1'
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "commons-io:commons-io:${commonsIoVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation "org.apache.commons:commons-text:${commonsTextVersion}"
-
-	implementation project(':platformBase')
-	implementation project(':platformNative') // for NativeBinary
-	implementation project(':platformJni')
-}
-
 gradlePlugin {
 	plugins {
 		visualStudioIde {
@@ -32,6 +15,23 @@ gradlePlugin {
 			id = 'dev.nokee.visual-studio-ide-base'
 			implementationClass = 'dev.nokee.ide.visualstudio.internal.plugins.VisualStudioIdeBasePlugin'
 		}
+	}
+
+	dependencies {
+		implementation project(':coreUtils')
+		api project(':ideBase')
+		implementation project(':languageC')
+		implementation project(':languageCpp')
+		implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.8'
+		implementation 'org.simpleframework:simple-xml:2.7.1'
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "commons-io:commons-io:${commonsIoVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+		implementation "org.apache.commons:commons-text:${commonsTextVersion}"
+
+		implementation project(':platformBase')
+		implementation project(':platformNative') // for NativeBinary
+		implementation project(':platformJni')
 	}
 }
 

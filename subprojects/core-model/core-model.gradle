@@ -9,17 +9,6 @@ plugins {
 }
 
 dependencies {
-	implementation project(':coreUtils')
-	implementation project(':gradleApi')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-
-	testImplementation gradleApi(minimumGradleVersion)
-	testImplementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
-	testImplementation "nl.jqno.equalsverifier:equalsverifier:${equalsverifierVersion}"
-	testImplementation gradleTestKit(minimumGradleVersion)
-	testImplementation(testFixtures(project(':coreUtils')))
-
 	testFixturesApi project(':internalTesting')
 	testFixturesImplementation project(':coreUtils')
 	testFixturesImplementation gradleApi(minimumGradleVersion)
@@ -31,6 +20,23 @@ gradlePlugin {
 			id = 'dev.nokee.model-base'
 			implementationClass = 'dev.nokee.model.internal.plugins.ModelBasePlugin'
 		}
+	}
+
+	dependencies {
+		implementation project(':coreUtils')
+		implementation project(':gradleApi')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	}
+}
+
+test {
+	dependencies {
+		implementation gradleApi(minimumGradleVersion)
+		implementation "dev.gradleplugins:gradle-fixtures-well-behaving-plugins:latest.release"
+		implementation "nl.jqno.equalsverifier:equalsverifier:${equalsverifierVersion}"
+		implementation gradleTestKit(minimumGradleVersion)
+		implementation testFixtures(project(':coreUtils'))
 	}
 }
 

@@ -8,22 +8,6 @@ plugins {
 }
 
 dependencies {
-	api project(':languageBase')
-	implementation project(':coreScript')
-	implementation project(':coreUtils')
-	implementation project(':languageNative')
-	implementation project(':platformBase')
-	implementation project(':coreExec')
-	implementation project(':runtimeNative')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-	annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
-
-	testImplementation testFixtures(project(':coreModel'))
-	testImplementation testFixtures(project(':coreScript'))
-	testImplementation testFixtures(project(':languageNative'))
-	testImplementation project(':runtimeNative')
-
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }
@@ -34,6 +18,28 @@ gradlePlugin {
 			id = "dev.nokee.swift-language-base"
 			implementationClass = "dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin"
 		}
+	}
+
+	dependencies {
+		api project(':languageBase')
+		implementation project(':coreScript')
+		implementation project(':coreUtils')
+		implementation project(':languageNative')
+		implementation project(':platformBase')
+		implementation project(':coreExec')
+		implementation project(':runtimeNative')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
+		annotationProcessor "com.google.auto.factory:auto-factory:${autoFactoryVersion}"
+	}
+}
+
+test {
+	dependencies {
+		implementation testFixtures(project(':coreModel'))
+		implementation testFixtures(project(':coreScript'))
+		implementation testFixtures(project(':languageNative'))
+		implementation project(':runtimeNative')
 	}
 }
 

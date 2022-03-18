@@ -16,14 +16,13 @@ gradlePlugin {
 			implementationClass = 'dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin'
 		}
 	}
-}
 
-dependencies {
-	api project(':runtimeBase')
-	implementation project(':coreExec')
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	functionalTestImplementation project(':runtimeBase')
+	dependencies {
+		api project(':runtimeBase')
+		implementation project(':coreExec')
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	}
 }
 
 test {
@@ -36,5 +35,6 @@ functionalTest {
 	dependencies {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation testFixtures(project(':runtimeBase'))
+		implementation project(':runtimeBase')
 	}
 }

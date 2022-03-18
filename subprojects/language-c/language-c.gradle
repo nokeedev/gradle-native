@@ -8,16 +8,6 @@ plugins {
 }
 
 dependencies {
-	api project(':languageNative')
-	implementation project(':coreScript')
-	implementation project(':coreUtils')
-	implementation project(':runtimeNative')
-	implementation "com.google.guava:guava:${guavaVersion}"
-
-	testImplementation project(':runtimeNative')
-	testImplementation project(':platformBase')
-	testImplementation testFixtures(project(':coreModel'))
-
 	testFixturesApi testFixtures(project(':languageNative'))
 	testFixturesImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 }
@@ -32,6 +22,22 @@ gradlePlugin {
 			id = 'dev.nokee.c-language'
 			implementationClass = 'dev.nokee.language.c.internal.plugins.CLanguagePlugin'
 		}
+	}
+
+	dependencies {
+		api project(':languageNative')
+		implementation project(':coreScript')
+		implementation project(':coreUtils')
+		implementation project(':runtimeNative')
+		implementation "com.google.guava:guava:${guavaVersion}"
+	}
+}
+
+test {
+	dependencies {
+		implementation project(':runtimeNative')
+		implementation project(':platformBase')
+		implementation testFixtures(project(':coreModel'))
 	}
 }
 

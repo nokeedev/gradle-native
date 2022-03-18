@@ -7,16 +7,28 @@ plugins {
 }
 
 dependencies {
-	api project(':coreUtils')
-	api project(':publishingCore')
-	implementation project(':coreExec')
-	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
-	implementation "commons-io:commons-io:${commonsIoVersion}"
-	implementation "com.google.guava:guava:${guavaVersion}"
-	implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
-	implementation 'com.google.code.gson:gson:2.8.6'
-	testImplementation 'uk.co.probablyfine:java-8-matchers:1.9'
-
 	testFixturesCompileOnly gradleApi(minimumGradleVersion)
 	testFixturesImplementation project(':internalTesting')
+}
+
+gradlePlugin {
+	plugins {
+	}
+
+	dependencies {
+		api project(':coreUtils')
+		api project(':publishingCore')
+		implementation project(':coreExec')
+		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+		implementation "commons-io:commons-io:${commonsIoVersion}"
+		implementation "com.google.guava:guava:${guavaVersion}"
+		implementation 'org.eclipse.jetty:jetty-server:9.4.27.v20200227'
+		implementation 'com.google.code.gson:gson:2.8.6'
+	}
+}
+
+test {
+	dependencies {
+		implementation 'uk.co.probablyfine:java-8-matchers:1.9'
+	}
 }
