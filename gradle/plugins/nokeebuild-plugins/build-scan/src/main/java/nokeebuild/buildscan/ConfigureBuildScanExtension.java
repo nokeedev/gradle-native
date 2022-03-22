@@ -31,6 +31,7 @@ final class ConfigureBuildScanExtension implements Action<GradleEnterpriseExtens
         extension.buildScan(new AgreePublicBuildScanTermsOfService(parameters));
         extension.buildScan(new UploadInBackgroundOnlyOnLocalBuildEnvironment(() -> parameters.buildEnvironment() == BuildEnvironmentCustomValueProvider.BuildEnvironment.LOCAL));
         extension.buildScan(new AlwaysPublishBuildScan());
+        extension.buildScan(new CaptureTaskInputFiles());
 
         // Custom value providers
         extension.buildScan(new BuildEnvironmentCustomValueProvider(parameters));
