@@ -19,8 +19,8 @@ import com.gradle.scan.plugin.BuildScanExtension;
 import org.gradle.api.Action;
 
 final class AlwaysPublishBuildScan implements Action<BuildScanExtension> {
-    @Override
-    public void execute(BuildScanExtension buildScan) {
-        buildScan.publishAlways();
-    }
+	@Override
+	public void execute(BuildScanExtension buildScan) {
+		buildScan.publishAlways();
+	}
 }

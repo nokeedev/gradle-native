@@ -32,24 +32,24 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SkipIfBuildScanExplicitlyDisabledViaStartParametersTest {
-    @Mock private Action<GradleEnterpriseExtension> action;
-    @Spy private StartParameter parameters;
-    @InjectMocks private SkipIfBuildScanExplicitlyDisabledViaStartParameters subject;
-    @Mock private GradleEnterpriseExtension extension;
+	@Mock private Action<GradleEnterpriseExtension> action;
+	@Spy private StartParameter parameters;
+	@InjectMocks private SkipIfBuildScanExplicitlyDisabledViaStartParameters subject;
+	@Mock private GradleEnterpriseExtension extension;
 
-    @Test
-    void doesNotExecuteActionWhenBuildScanDisabledInStartParameters() {
-        when(parameters.isNoBuildScan()).thenReturn(true);
+	@Test
+	void doesNotExecuteActionWhenBuildScanDisabledInStartParameters() {
+		when(parameters.isNoBuildScan()).thenReturn(true);
 
-        subject.execute(extension);
-        verify(action, never()).execute(any());
-    }
+		subject.execute(extension);
+		verify(action, never()).execute(any());
+	}
 
-    @Test
-    void executesActionWhenBuildScanIsNotExplicitlyDisabledInStartParameters() {
-        when(parameters.isNoBuildScan()).thenReturn(false);
+	@Test
+	void executesActionWhenBuildScanIsNotExplicitlyDisabledInStartParameters() {
+		when(parameters.isNoBuildScan()).thenReturn(false);
 
-        subject.execute(extension);
-        verify(action).execute(extension);
-    }
+		subject.execute(extension);
+		verify(action).execute(extension);
+	}
 }

@@ -29,26 +29,26 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UseGradleEnterpriseBuildScanServerIfConfiguredTest {
-    @Mock private UseGradleEnterpriseBuildScanServerIfConfigured.BuildScanServerParameter gradleEnterprise;
-    @InjectMocks private UseGradleEnterpriseBuildScanServerIfConfigured subject;
-    @Mock private BuildScanExtension buildScan;
+	@Mock private UseGradleEnterpriseBuildScanServerIfConfigured.BuildScanServerParameter gradleEnterprise;
+	@InjectMocks private UseGradleEnterpriseBuildScanServerIfConfigured subject;
+	@Mock private BuildScanExtension buildScan;
 
-    @Test
-    void usesServerUrl() {
-        when(gradleEnterprise.serverUrl()).thenReturn("https://my-company.gradle.com/");
-        subject.execute(buildScan);
-        verify(buildScan).setServer("https://my-company.gradle.com/");
-    }
+	@Test
+	void usesServerUrl() {
+		when(gradleEnterprise.serverUrl()).thenReturn("https://my-company.gradle.com/");
+		subject.execute(buildScan);
+		verify(buildScan).setServer("https://my-company.gradle.com/");
+	}
 
-    @Test
-    void canUseNullServerUrl__akaPublicInstance() {
-        when(gradleEnterprise.serverUrl()).thenReturn(null);
-        subject.execute(buildScan);
-        verify(buildScan).setServer(null);
-    }
+	@Test
+	void canUseNullServerUrl__akaPublicInstance() {
+		when(gradleEnterprise.serverUrl()).thenReturn(null);
+		subject.execute(buildScan);
+		verify(buildScan).setServer(null);
+	}
 
-    @Test
-    void hasGradleEnterpriseUrlSystemProperty() {
-        assertEquals("gradle.enterprise.url", GRADLE_ENTERPRISE_URL_PROPERTY_NAME);
-    }
+	@Test
+	void hasGradleEnterpriseUrlSystemProperty() {
+		assertEquals("gradle.enterprise.url", GRADLE_ENTERPRISE_URL_PROPERTY_NAME);
+	}
 }

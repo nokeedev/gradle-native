@@ -32,73 +32,73 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ConfigureBuildScanExtensionTest {
-    @Mock private ConfigureBuildScanExtension.Parameters parameters;
-    @InjectMocks private ConfigureBuildScanExtension subject;
-    @Mock private GradleEnterpriseExtension extension;
+	@Mock private ConfigureBuildScanExtension.Parameters parameters;
+	@InjectMocks private ConfigureBuildScanExtension subject;
+	@Mock private GradleEnterpriseExtension extension;
 
-    @BeforeEach
-    void setUp() {
-        subject.execute(extension);
-    }
+	@BeforeEach
+	void setUp() {
+		subject.execute(extension);
+	}
 
-    @Test
-    void usesGradleEnterpriseServerUrl() {
-        verify(extension).buildScan(isA(UseGradleEnterpriseBuildScanServerIfConfigured.class));
-    }
+	@Test
+	void usesGradleEnterpriseServerUrl() {
+		verify(extension).buildScan(isA(UseGradleEnterpriseBuildScanServerIfConfigured.class));
+	}
 
-    @Test
-    void alwaysAgreeTermsOfServices() {
-        verify(extension).buildScan(isA(AgreePublicBuildScanTermsOfService.class));
-    }
+	@Test
+	void alwaysAgreeTermsOfServices() {
+		verify(extension).buildScan(isA(AgreePublicBuildScanTermsOfService.class));
+	}
 
-    @Test
-    void usesBackgroundUploadOnLocalBuildEnvironment() {
-        verify(extension).buildScan(isA(UploadInBackgroundOnlyOnLocalBuildEnvironment.class));
-    }
+	@Test
+	void usesBackgroundUploadOnLocalBuildEnvironment() {
+		verify(extension).buildScan(isA(UploadInBackgroundOnlyOnLocalBuildEnvironment.class));
+	}
 
-    @Test
-    void usesIdeaIdeCustomValueProvider() {
-        verify(extension).buildScan(valueProviderOf(IdeaIdeCustomValueProvider.class));
-    }
+	@Test
+	void usesIdeaIdeCustomValueProvider() {
+		verify(extension).buildScan(valueProviderOf(IdeaIdeCustomValueProvider.class));
+	}
 
-    @Test
-    void usesGitInformationCustomValueProvider() {
-        verify(extension).buildScan(valueProviderOf(GitInformationCustomValueProvider.class));
-    }
+	@Test
+	void usesGitInformationCustomValueProvider() {
+		verify(extension).buildScan(valueProviderOf(GitInformationCustomValueProvider.class));
+	}
 
-    @Test
-    void usesBuildCacheCustomValueProvider() {
-        verify(extension).buildScan(valueProviderOf(BuildCacheCustomValueProvider.class));
-    }
+	@Test
+	void usesBuildCacheCustomValueProvider() {
+		verify(extension).buildScan(valueProviderOf(BuildCacheCustomValueProvider.class));
+	}
 
-    @Test
-    void usesBuildEnvironmentCustomValueProvider() {
-        verify(extension).buildScan(valueProviderOf(BuildCacheCustomValueProvider.class));
-    }
+	@Test
+	void usesBuildEnvironmentCustomValueProvider() {
+		verify(extension).buildScan(valueProviderOf(BuildCacheCustomValueProvider.class));
+	}
 
-    @Test
-    void usesGitHubActionsCustomValueProvider() {
-        verify(extension).buildScan(valueProviderOf(BuildCacheCustomValueProvider.class));
-    }
+	@Test
+	void usesGitHubActionsCustomValueProvider() {
+		verify(extension).buildScan(valueProviderOf(BuildCacheCustomValueProvider.class));
+	}
 
-    private static Action<BuildScanExtension> valueProviderOf(Class<? extends Action<BuildScanExtension>> providerType) {
-        return argThat(new CustomValueProvider(providerType));
-    }
+	private static Action<BuildScanExtension> valueProviderOf(Class<? extends Action<BuildScanExtension>> providerType) {
+		return argThat(new CustomValueProvider(providerType));
+	}
 
-    private static final class CustomValueProvider implements ArgumentMatcher<Action<BuildScanExtension>> {
-        private final Class<? extends Action<BuildScanExtension>> providerType;
+	private static final class CustomValueProvider implements ArgumentMatcher<Action<BuildScanExtension>> {
+		private final Class<? extends Action<BuildScanExtension>> providerType;
 
-        public CustomValueProvider(Class<? extends Action<BuildScanExtension>> providerType) {
-            this.providerType = providerType;
-        }
+		public CustomValueProvider(Class<? extends Action<BuildScanExtension>> providerType) {
+			this.providerType = providerType;
+		}
 
-        @Override
-        public boolean matches(Action<BuildScanExtension> argument) {
-            if (argument instanceof InBackground) {
-                return providerType.isInstance(((InBackground) argument).getDelegate());
-            } else {
-                return providerType.isInstance(argument);
-            }
-        }
-    }
+		@Override
+		public boolean matches(Action<BuildScanExtension> argument) {
+			if (argument instanceof InBackground) {
+				return providerType.isInstance(((InBackground) argument).getDelegate());
+			} else {
+				return providerType.isInstance(argument);
+			}
+		}
+	}
 }

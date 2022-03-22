@@ -27,28 +27,28 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 public final class BuildCacheConfigurationTestUtils {
-    @SuppressWarnings("Unchecked")
-    public static BuildCacheConfiguration mock() {
-        final HttpBuildCache remoteBuildCache = Mockito.spy(HttpBuildCache.class);
-        final DirectoryBuildCache localBuildCache = Mockito.spy(DirectoryBuildCache.class);
+	@SuppressWarnings("Unchecked")
+	public static BuildCacheConfiguration mock() {
+		final HttpBuildCache remoteBuildCache = Mockito.spy(HttpBuildCache.class);
+		final DirectoryBuildCache localBuildCache = Mockito.spy(DirectoryBuildCache.class);
 
-        final BuildCacheConfiguration result = Mockito.mock(BuildCacheConfiguration.class);
-        Mockito.doAnswer(callActionWith(1, remoteBuildCache)).when(result).remote(eq(HttpBuildCache.class), any());
-        Mockito.when(result.remote(HttpBuildCache.class)).thenReturn(remoteBuildCache);
-        Mockito.doAnswer(callActionWith(0, localBuildCache)).when(result).local(any(Action.class));
-        Mockito.when(result.getLocal()).thenReturn(localBuildCache);
+		final BuildCacheConfiguration result = Mockito.mock(BuildCacheConfiguration.class);
+		Mockito.doAnswer(callActionWith(1, remoteBuildCache)).when(result).remote(eq(HttpBuildCache.class), any());
+		Mockito.when(result.remote(HttpBuildCache.class)).thenReturn(remoteBuildCache);
+		Mockito.doAnswer(callActionWith(0, localBuildCache)).when(result).local(any(Action.class));
+		Mockito.when(result.getLocal()).thenReturn(localBuildCache);
 
-        return result;
-    }
+		return result;
+	}
 
-    private static Answer<Void> callActionWith(int idx, Object value) {
-        return new Answer<Void>() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                invocation.getArgument(idx, Action.class).execute(value);
-                return null;
-            }
-        };
-    }
+	private static Answer<Void> callActionWith(int idx, Object value) {
+		return new Answer<Void>() {
+			@Override
+			@SuppressWarnings("unchecked")
+			public Void answer(InvocationOnMock invocation) throws Throwable {
+				invocation.getArgument(idx, Action.class).execute(value);
+				return null;
+			}
+		};
+	}
 }

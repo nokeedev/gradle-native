@@ -21,25 +21,26 @@ import org.gradle.api.Action;
 import java.util.Optional;
 
 final class IdeaIdeCustomValueProvider implements Action<BuildScanExtension> {
-    public static final String[] IDEA_RUNTIME_SYSTEM_PROPERTY_NAMES = new String[] {"idea.registered", "idea.active", "idea.paths.selector"};
-    public static final String IDEA_VERSION_SYSTEM_PROPERTY_NAME = "idea.paths.selector";
-    private static final String IDEA_VERSION = "ideaVersion";
-    private final IdeaRuntimeParameter ideaRuntime;
+	public static final String[] IDEA_RUNTIME_SYSTEM_PROPERTY_NAMES = new String[]{"idea.registered", "idea.active", "idea.paths.selector"};
+	public static final String IDEA_VERSION_SYSTEM_PROPERTY_NAME = "idea.paths.selector";
+	private static final String IDEA_VERSION = "ideaVersion";
+	private final IdeaRuntimeParameter ideaRuntime;
 
-    IdeaIdeCustomValueProvider(IdeaRuntimeParameter ideaRuntime) {
-        this.ideaRuntime = ideaRuntime;
-    }
+	IdeaIdeCustomValueProvider(IdeaRuntimeParameter ideaRuntime) {
+		this.ideaRuntime = ideaRuntime;
+	}
 
-    @Override
-    public void execute(BuildScanExtension buildScan) {
-        if (ideaRuntime.wasLaunchedFromIdea()) {
-            buildScan.tag("IDEA");
-            ideaRuntime.ideaVersion().ifPresent(it -> buildScan.value(IDEA_VERSION, it));
-        }
-    }
+	@Override
+	public void execute(BuildScanExtension buildScan) {
+		if (ideaRuntime.wasLaunchedFromIdea()) {
+			buildScan.tag("IDEA");
+			ideaRuntime.ideaVersion().ifPresent(it -> buildScan.value(IDEA_VERSION, it));
+		}
+	}
 
-    interface IdeaRuntimeParameter {
-        boolean wasLaunchedFromIdea();
-        Optional<String> ideaVersion();
-    }
+	interface IdeaRuntimeParameter {
+		boolean wasLaunchedFromIdea();
+
+		Optional<String> ideaVersion();
+	}
 }

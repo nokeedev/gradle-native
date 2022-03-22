@@ -23,30 +23,30 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 final class GradleEnterpriseCustomSearchQueryUrlTransformer implements UnaryOperator<String> {
-    private final Map<String, String> search;
+	private final Map<String, String> search;
 
-    private GradleEnterpriseCustomSearchQueryUrlTransformer(Map<String, String> search) {
-        this.search = search;
-    }
+	private GradleEnterpriseCustomSearchQueryUrlTransformer(Map<String, String> search) {
+		this.search = search;
+	}
 
-    @Override
-    public String apply(String serverUrl) {
-        String query = search.entrySet()
-                .stream()
-                .map(entry -> String.format("search.names=%s&search.values=%s", urlEncode(entry.getKey()), urlEncode(entry.getValue())))
-                .collect(Collectors.joining("&"));
-        return String.format("%s/scans?%s", serverUrl, query);
-    }
+	@Override
+	public String apply(String serverUrl) {
+		String query = search.entrySet()
+			.stream()
+			.map(entry -> String.format("search.names=%s&search.values=%s", urlEncode(entry.getKey()), urlEncode(entry.getValue())))
+			.collect(Collectors.joining("&"));
+		return String.format("%s/scans?%s", serverUrl, query);
+	}
 
-    private static String urlEncode(String s) {
-        try {
-            return URLEncoder.encode(s, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private static String urlEncode(String s) {
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public static Function<String, String> toCustomSearchUrl(Map<String, String> search) {
-        return new GradleEnterpriseCustomSearchQueryUrlTransformer(search);
-    }
+	public static Function<String, String> toCustomSearchUrl(Map<String, String> search) {
+		return new GradleEnterpriseCustomSearchQueryUrlTransformer(search);
+	}
 }

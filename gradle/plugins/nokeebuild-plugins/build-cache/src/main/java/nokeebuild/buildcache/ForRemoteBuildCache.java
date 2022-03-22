@@ -19,20 +19,21 @@ import org.gradle.api.Action;
 import org.gradle.caching.http.HttpBuildCacheCredentials;
 
 final class ForRemoteBuildCache implements Action<HttpBuildCacheCredentials> {
-    private final RemoteBuildCacheCredentials buildCacheCredentials;
+	private final RemoteBuildCacheCredentials buildCacheCredentials;
 
-    public ForRemoteBuildCache(RemoteBuildCacheCredentials buildCacheCredentials) {
-        this.buildCacheCredentials = buildCacheCredentials;
-    }
+	public ForRemoteBuildCache(RemoteBuildCacheCredentials buildCacheCredentials) {
+		this.buildCacheCredentials = buildCacheCredentials;
+	}
 
-    @Override
-    public void execute(HttpBuildCacheCredentials credentials) {
-        credentials.setUsername(buildCacheCredentials.remoteBuildCacheUsername());
-        credentials.setPassword(buildCacheCredentials.remoteBuildCachePassword());
-    }
+	@Override
+	public void execute(HttpBuildCacheCredentials credentials) {
+		credentials.setUsername(buildCacheCredentials.remoteBuildCacheUsername());
+		credentials.setPassword(buildCacheCredentials.remoteBuildCachePassword());
+	}
 
-    interface RemoteBuildCacheCredentials {
-        String remoteBuildCacheUsername();
-        String remoteBuildCachePassword();
-    }
+	interface RemoteBuildCacheCredentials {
+		String remoteBuildCacheUsername();
+
+		String remoteBuildCachePassword();
+	}
 }

@@ -19,18 +19,18 @@ import com.gradle.scan.plugin.BuildScanExtension;
 import org.gradle.api.Action;
 
 final class InBackground implements Action<BuildScanExtension> {
-    private final Action<BuildScanExtension> delegate;
+	private final Action<BuildScanExtension> delegate;
 
-    InBackground(Action<BuildScanExtension> delegate) {
-        this.delegate = delegate;
-    }
+	InBackground(Action<BuildScanExtension> delegate) {
+		this.delegate = delegate;
+	}
 
-    @Override
-    public void execute(BuildScanExtension buildScan) {
-        buildScan.background(delegate);
-    }
+	@Override
+	public void execute(BuildScanExtension buildScan) {
+		buildScan.background(delegate);
+	}
 
-    public Action<BuildScanExtension> getDelegate() {
-        return delegate;
-    }
+	public Action<BuildScanExtension> getDelegate() {
+		return delegate;
+	}
 }

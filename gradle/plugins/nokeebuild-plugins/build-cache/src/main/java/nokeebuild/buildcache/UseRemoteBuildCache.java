@@ -28,22 +28,23 @@ import static nokeebuild.buildcache.HttpBuildCacheUtils.url;
 import static nokeebuild.buildcache.PropertyUtils.set;
 
 final class UseRemoteBuildCache implements Action<BuildCacheConfiguration> {
-    private final RemoteBuildCacheParameters remoteParameters;
+	private final RemoteBuildCacheParameters remoteParameters;
 
-    UseRemoteBuildCache(RemoteBuildCacheParameters remoteParameters) {
-        this.remoteParameters = remoteParameters;
-    }
+	UseRemoteBuildCache(RemoteBuildCacheParameters remoteParameters) {
+		this.remoteParameters = remoteParameters;
+	}
 
-    @Override
-    public void execute(BuildCacheConfiguration buildCache) {
-        remoteParameters.remoteBuildCacheUrl().ifPresent(it -> buildCache.remote(HttpBuildCache.class, url(set(it))));
-        buildCache.remote(HttpBuildCache.class, credentials(new ForRemoteBuildCache(remoteParameters)));
-        buildCache.remote(HttpBuildCache.class, enabled(new OnlyIfCredentialsAvailable()));
-        buildCache.remote(HttpBuildCache.class, push(set(remoteParameters.allowPushToRemote())));
-    }
+	@Override
+	public void execute(BuildCacheConfiguration buildCache) {
+		remoteParameters.remoteBuildCacheUrl().ifPresent(it -> buildCache.remote(HttpBuildCache.class, url(set(it))));
+		buildCache.remote(HttpBuildCache.class, credentials(new ForRemoteBuildCache(remoteParameters)));
+		buildCache.remote(HttpBuildCache.class, enabled(new OnlyIfCredentialsAvailable()));
+		buildCache.remote(HttpBuildCache.class, push(set(remoteParameters.allowPushToRemote())));
+	}
 
-    interface RemoteBuildCacheParameters extends ForRemoteBuildCache.RemoteBuildCacheCredentials {
-        Optional<String> remoteBuildCacheUrl();
-        boolean allowPushToRemote();
-    }
+	interface RemoteBuildCacheParameters extends ForRemoteBuildCache.RemoteBuildCacheCredentials {
+		Optional<String> remoteBuildCacheUrl();
+
+		boolean allowPushToRemote();
+	}
 }

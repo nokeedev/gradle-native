@@ -38,135 +38,135 @@ import static nokeebuild.buildscan.UseGradleEnterpriseBuildScanServerIfConfigure
 
 @SuppressWarnings("UnstableApiUsage")
 class BuildScanPlugin implements Plugin<Settings> {
-    private final ProviderFactory providers;
-    private final ExecOperations execOperations;
+	private final ProviderFactory providers;
+	private final ExecOperations execOperations;
 
-    @Inject
-    public BuildScanPlugin(ProviderFactory providers, ExecOperations execOperations) {
-        this.providers = providers;
-        this.execOperations = execOperations;
-    }
+	@Inject
+	public BuildScanPlugin(ProviderFactory providers, ExecOperations execOperations) {
+		this.providers = providers;
+		this.execOperations = execOperations;
+	}
 
-    public void apply(Settings settings) {
-        // We prefer using `--scan` flag because...
-        //   We would be left playing a cat & mouse game with the enterprise plugin
-        //   to figure out which version should match our build.
-        settings.getPlugins().withId("com.gradle.enterprise", new ConfigureGradleEnterprisePlugin(settings, new SkipIfBuildScanExplicitlyDisabledViaStartParameters(settings.getStartParameter(), new ConfigureBuildScanExtension(new BuildScanParameters(settings)))));
-    }
+	public void apply(Settings settings) {
+		// We prefer using `--scan` flag because...
+		//   We would be left playing a cat & mouse game with the enterprise plugin
+		//   to figure out which version should match our build.
+		settings.getPlugins().withId("com.gradle.enterprise", new ConfigureGradleEnterprisePlugin(settings, new SkipIfBuildScanExplicitlyDisabledViaStartParameters(settings.getStartParameter(), new ConfigureBuildScanExtension(new BuildScanParameters(settings)))));
+	}
 
-    private class BuildScanParameters implements ConfigureBuildScanExtension.Parameters {
-        private final Settings settings;
+	private class BuildScanParameters implements ConfigureBuildScanExtension.Parameters {
+		private final Settings settings;
 
-        private BuildScanParameters(Settings settings) {
-            this.settings = settings;
-        }
+		private BuildScanParameters(Settings settings) {
+			this.settings = settings;
+		}
 
-        @Override
-        public boolean buildCacheEnabled() {
-            return settings.getGradle().getStartParameter().isBuildCacheEnabled();
-        }
+		@Override
+		public boolean buildCacheEnabled() {
+			return settings.getGradle().getStartParameter().isBuildCacheEnabled();
+		}
 
-        @Override
-        public BuildEnvironmentCustomValueProvider.BuildEnvironment buildEnvironment() {
-            if (providers.environmentVariable("CI").forUseAtConfigurationTime().isPresent()) {
-                return BuildEnvironmentCustomValueProvider.BuildEnvironment.CI;
-            } else {
-                return BuildEnvironmentCustomValueProvider.BuildEnvironment.LOCAL;
-            }
-        }
+		@Override
+		public BuildEnvironmentCustomValueProvider.BuildEnvironment buildEnvironment() {
+			if (providers.environmentVariable("CI").forUseAtConfigurationTime().isPresent()) {
+				return BuildEnvironmentCustomValueProvider.BuildEnvironment.CI;
+			} else {
+				return BuildEnvironmentCustomValueProvider.BuildEnvironment.LOCAL;
+			}
+		}
 
-        @Override
-        public boolean wasLaunchedFromIdea() {
-            return Stream.of(IDEA_RUNTIME_SYSTEM_PROPERTY_NAMES)
-                    .anyMatch(it -> providers.systemProperty(it).forUseAtConfigurationTime().isPresent());
-        }
+		@Override
+		public boolean wasLaunchedFromIdea() {
+			return Stream.of(IDEA_RUNTIME_SYSTEM_PROPERTY_NAMES)
+				.anyMatch(it -> providers.systemProperty(it).forUseAtConfigurationTime().isPresent());
+		}
 
-        @Override
-        public Optional<String> ideaVersion() {
-            return Optional.ofNullable(providers.systemProperty(IDEA_VERSION_SYSTEM_PROPERTY_NAME)
-                    .forUseAtConfigurationTime().getOrNull());
-        }
+		@Override
+		public Optional<String> ideaVersion() {
+			return Optional.ofNullable(providers.systemProperty(IDEA_VERSION_SYSTEM_PROPERTY_NAME)
+				.forUseAtConfigurationTime().getOrNull());
+		}
 
-        @Nullable
-        @Override
-        public String serverUrl() {
-            return providers.systemProperty(GRADLE_ENTERPRISE_URL_PROPERTY_NAME)
-                    .forUseAtConfigurationTime().getOrNull();
-        }
+		@Nullable
+		@Override
+		public String serverUrl() {
+			return providers.systemProperty(GRADLE_ENTERPRISE_URL_PROPERTY_NAME)
+				.forUseAtConfigurationTime().getOrNull();
+		}
 
-        @Override
-        public boolean isGitHubActionsEnvironment() {
-            return providers.environmentVariable("GITHUB_ACTIONS")
-                    .forUseAtConfigurationTime().isPresent();
-        }
+		@Override
+		public boolean isGitHubActionsEnvironment() {
+			return providers.environmentVariable("GITHUB_ACTIONS")
+				.forUseAtConfigurationTime().isPresent();
+		}
 
-        @Override
-        public String githubSha() {
-            return envVar("GITHUB_SHA");
-        }
+		@Override
+		public String githubSha() {
+			return envVar("GITHUB_SHA");
+		}
 
-        @Override
-        public String githubRepository() {
-            return envVar("GITHUB_REPOSITORY");
-        }
+		@Override
+		public String githubRepository() {
+			return envVar("GITHUB_REPOSITORY");
+		}
 
-        @Override
-        public String githubRunId() {
-            return envVar("GITHUB_RUN_ID");
-        }
+		@Override
+		public String githubRunId() {
+			return envVar("GITHUB_RUN_ID");
+		}
 
-        @Override
-        public String githubRunNumber() {
-            return envVar("GITHUB_RUN_NUMBER");
-        }
+		@Override
+		public String githubRunNumber() {
+			return envVar("GITHUB_RUN_NUMBER");
+		}
 
-        @Nullable
-        private String envVar(String variableName) {
-            return providers.environmentVariable(variableName).forUseAtConfigurationTime().getOrNull();
-        }
+		@Nullable
+		private String envVar(String variableName) {
+			return providers.environmentVariable(variableName).forUseAtConfigurationTime().getOrNull();
+		}
 
-        @Override
-        public Optional<String> gitRef() {
-            // https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
-            String githubRef = envVar("GITHUB_REF");
-            String githubHeadRef = envVar("GITHUB_HEAD_REF");
-            if (githubRef != null) {
-                return Optional.of(githubRef);
-            } else if (githubHeadRef != null) {
-                return Optional.of(githubHeadRef);
-            } else {
-                return capture(outStream -> {
-                    execOperations.exec(spec -> {
-                        spec.commandLine("git", "rev-parse", "--abbrev-ref", "HEAD");
-                        spec.setStandardOutput(outStream);
-                        spec.setErrorOutput(outStream);
-                        spec.workingDir(settings.getRootDir());
-                    });
-                });
-            }
-        }
+		@Override
+		public Optional<String> gitRef() {
+			// https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
+			String githubRef = envVar("GITHUB_REF");
+			String githubHeadRef = envVar("GITHUB_HEAD_REF");
+			if (githubRef != null) {
+				return Optional.of(githubRef);
+			} else if (githubHeadRef != null) {
+				return Optional.of(githubHeadRef);
+			} else {
+				return capture(outStream -> {
+					execOperations.exec(spec -> {
+						spec.commandLine("git", "rev-parse", "--abbrev-ref", "HEAD");
+						spec.setStandardOutput(outStream);
+						spec.setErrorOutput(outStream);
+						spec.workingDir(settings.getRootDir());
+					});
+				});
+			}
+		}
 
-        @Override
-        public Optional<String> gitStatus() {
-            return capture(outStream -> {
-                execOperations.exec(spec -> {
-                    spec.commandLine("git", "status", "--porcelain");
-                    spec.setStandardOutput(outStream);
-                    spec.setErrorOutput(outStream);
-                    spec.workingDir(settings.getRootDir());
-                });
-            });
-        }
+		@Override
+		public Optional<String> gitStatus() {
+			return capture(outStream -> {
+				execOperations.exec(spec -> {
+					spec.commandLine("git", "status", "--porcelain");
+					spec.setStandardOutput(outStream);
+					spec.setErrorOutput(outStream);
+					spec.workingDir(settings.getRootDir());
+				});
+			});
+		}
 
-        @Override
-        public boolean publicBuildScanTermsOfServiceAgreed() {
-            return "yes".equals(providers.systemProperty("gradle.enterprise.agreePublicBuildScanTermOfService").forUseAtConfigurationTime().orElse("no").get());
-        }
-    }
+		@Override
+		public boolean publicBuildScanTermsOfServiceAgreed() {
+			return "yes".equals(providers.systemProperty("gradle.enterprise.agreePublicBuildScanTermOfService").forUseAtConfigurationTime().orElse("no").get());
+		}
+	}
 
-    private static Optional<String> capture(Consumer<? super OutputStream> action) {
-        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        action.accept(outStream);
-        return Optional.of(outStream.toString().trim()).filter(it -> !it.isEmpty());
-    }
+	private static Optional<String> capture(Consumer<? super OutputStream> action) {
+		final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		action.accept(outStream);
+		return Optional.of(outStream.toString().trim()).filter(it -> !it.isEmpty());
+	}
 }

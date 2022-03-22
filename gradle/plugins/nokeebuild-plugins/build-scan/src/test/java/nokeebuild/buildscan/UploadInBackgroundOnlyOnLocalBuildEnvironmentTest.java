@@ -27,21 +27,21 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UploadInBackgroundOnlyOnLocalBuildEnvironmentTest {
-    @Mock private UploadInBackgroundOnlyOnLocalBuildEnvironment.UploadInBackgroundParameters parameters;
-    @InjectMocks private UploadInBackgroundOnlyOnLocalBuildEnvironment subject;
-    @Mock private BuildScanExtension buildScan;
+	@Mock private UploadInBackgroundOnlyOnLocalBuildEnvironment.UploadInBackgroundParameters parameters;
+	@InjectMocks private UploadInBackgroundOnlyOnLocalBuildEnvironment subject;
+	@Mock private BuildScanExtension buildScan;
 
-    @Test
-    void enablesUploadInBackgroundOnLocalBuildEnvironment() {
-        when(parameters.isLocalBuildEnvironment()).thenReturn(true);
-        subject.execute(buildScan);
-        Mockito.verify(buildScan).setUploadInBackground(true);
-    }
+	@Test
+	void enablesUploadInBackgroundOnLocalBuildEnvironment() {
+		when(parameters.isLocalBuildEnvironment()).thenReturn(true);
+		subject.execute(buildScan);
+		Mockito.verify(buildScan).setUploadInBackground(true);
+	}
 
-    @Test
-    void disablesUploadInBackgroundOnNonLocalBuildEnvironment() {
-        when(parameters.isLocalBuildEnvironment()).thenReturn(false);
-        subject.execute(buildScan);
-        Mockito.verify(buildScan).setUploadInBackground(false);
-    }
+	@Test
+	void disablesUploadInBackgroundOnNonLocalBuildEnvironment() {
+		when(parameters.isLocalBuildEnvironment()).thenReturn(false);
+		subject.execute(buildScan);
+		Mockito.verify(buildScan).setUploadInBackground(false);
+	}
 }

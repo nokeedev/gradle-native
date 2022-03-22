@@ -32,49 +32,49 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GitInformationCustomValueProviderTest {
-    @Mock GitInformationCustomValueProvider.GitInformationParameters git;
-    @InjectMocks GitInformationCustomValueProvider subject;
-    @Mock BuildScanExtension buildScan;
+	@Mock GitInformationCustomValueProvider.GitInformationParameters git;
+	@InjectMocks GitInformationCustomValueProvider subject;
+	@Mock BuildScanExtension buildScan;
 
-    @Test
-    void tagsBuildScanWithDirtyTagWhenGitStatusIsNotEmpty() {
-        when(git.gitStatus()).thenReturn(Optional.of("something"));
-        subject.execute(buildScan);
-        verify(buildScan).tag("dirty");
-    }
+	@Test
+	void tagsBuildScanWithDirtyTagWhenGitStatusIsNotEmpty() {
+		when(git.gitStatus()).thenReturn(Optional.of("something"));
+		subject.execute(buildScan);
+		verify(buildScan).tag("dirty");
+	}
 
-    @Test
-    void doesNotTagBuildScanWithDirtyTagWhenGitStatusIsEmpty() {
-        when(git.gitStatus()).thenReturn(Optional.empty());
-        subject.execute(buildScan);
-        verify(buildScan, never()).tag("dirty");
-    }
+	@Test
+	void doesNotTagBuildScanWithDirtyTagWhenGitStatusIsEmpty() {
+		when(git.gitStatus()).thenReturn(Optional.empty());
+		subject.execute(buildScan);
+		verify(buildScan, never()).tag("dirty");
+	}
 
-    @Test
-    void addsGitStatusWhenNotEmpty() {
-        when(git.gitStatus()).thenReturn(Optional.of("something something dirty"));
-        subject.execute(buildScan);
-        verify(buildScan).value("gitStatus", "something something dirty");
-    }
+	@Test
+	void addsGitStatusWhenNotEmpty() {
+		when(git.gitStatus()).thenReturn(Optional.of("something something dirty"));
+		subject.execute(buildScan);
+		verify(buildScan).value("gitStatus", "something something dirty");
+	}
 
-    @Test
-    void doesNotAddGitStatusWhenEmpty() {
-        when(git.gitStatus()).thenReturn(Optional.empty());
-        subject.execute(buildScan);
-        verify(buildScan, never()).value(eq("gitStatus"), any());
-    }
+	@Test
+	void doesNotAddGitStatusWhenEmpty() {
+		when(git.gitStatus()).thenReturn(Optional.empty());
+		subject.execute(buildScan);
+		verify(buildScan, never()).value(eq("gitStatus"), any());
+	}
 
-    @Test
-    void addsGitRefWhenPresent() {
-        when(git.gitRef()).thenReturn(Optional.of("refs/heads/feature-branch-1"));
-        subject.execute(buildScan);
-        verify(buildScan).value("gitBranchName", "refs/heads/feature-branch-1");
-    }
+	@Test
+	void addsGitRefWhenPresent() {
+		when(git.gitRef()).thenReturn(Optional.of("refs/heads/feature-branch-1"));
+		subject.execute(buildScan);
+		verify(buildScan).value("gitBranchName", "refs/heads/feature-branch-1");
+	}
 
-    @Test
-    void doesNotAddsGitRefWhenNotPresent() {
-        when(git.gitRef()).thenReturn(Optional.empty());
-        subject.execute(buildScan);
-        verify(buildScan, never()).value(eq("gitBranchName"), any());
-    }
+	@Test
+	void doesNotAddsGitRefWhenNotPresent() {
+		when(git.gitRef()).thenReturn(Optional.empty());
+		subject.execute(buildScan);
+		verify(buildScan, never()).value(eq("gitBranchName"), any());
+	}
 }
