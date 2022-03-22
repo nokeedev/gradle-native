@@ -53,7 +53,7 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 				it.implementation(it.gradleFixtures());
 			});
 			testSuite.getTestTasks().configureEach(task -> {
-				task.systemProperty("org.gradle.testkit.dir", project.getLayout().getBuildDirectory().dir("gradle-runner-kit").get().getAsFile().getAbsolutePath());
+				task.getJvmArgumentProviders().add(new TestKitDirectoryArgumentProvider(project));
 			});
 		});
 		functionalTest(project, new UseJUnitJupiter(junitVersion(project)));
