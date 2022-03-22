@@ -28,26 +28,26 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BuildEnvironmentCustomValueProviderTest {
-    @Mock private BuildEnvironmentCustomValueProvider.BuildEnvironmentParameter buildEnvironment;
-    @InjectMocks private BuildEnvironmentCustomValueProvider subject;
-    @Mock private BuildScanExtension buildScan;
+	@Mock private BuildEnvironmentCustomValueProvider.BuildEnvironmentParameter buildEnvironment;
+	@InjectMocks private BuildEnvironmentCustomValueProvider subject;
+	@Mock private BuildScanExtension buildScan;
 
-    @Test
-    void usesLocalTagsOnLocalEnvironment() {
-        when(buildEnvironment.buildEnvironment()).thenReturn(BuildEnvironmentCustomValueProvider.BuildEnvironment.LOCAL);
-        subject.execute(buildScan);
-        verify(buildScan).tag("LOCAL");
-    }
+	@Test
+	void usesLocalTagsOnLocalEnvironment() {
+		when(buildEnvironment.buildEnvironment()).thenReturn(BuildEnvironmentCustomValueProvider.BuildEnvironment.LOCAL);
+		subject.execute(buildScan);
+		verify(buildScan).tag("LOCAL");
+	}
 
-    @Test
-    void usesCiTagsOnCiEnvironment() {
-        when(buildEnvironment.buildEnvironment()).thenReturn(BuildEnvironmentCustomValueProvider.BuildEnvironment.CI);
-        subject.execute(buildScan);
-        verify(buildScan).tag("CI");
-    }
+	@Test
+	void usesCiTagsOnCiEnvironment() {
+		when(buildEnvironment.buildEnvironment()).thenReturn(BuildEnvironmentCustomValueProvider.BuildEnvironment.CI);
+		subject.execute(buildScan);
+		verify(buildScan).tag("CI");
+	}
 
-    @Test
-    void throwsExceptionIfBuildEnvironmentIsNull() {
-        assertThrows(NullPointerException.class, () -> subject.execute(buildScan));
-    }
+	@Test
+	void throwsExceptionIfBuildEnvironmentIsNull() {
+		assertThrows(NullPointerException.class, () -> subject.execute(buildScan));
+	}
 }

@@ -21,23 +21,23 @@ import org.gradle.api.Action;
 import javax.inject.Inject;
 
 final class BuildEnvironmentCustomValueProvider implements Action<BuildScanExtension> {
-    private final BuildEnvironmentParameter buildEnvironment;
+	private final BuildEnvironmentParameter buildEnvironment;
 
-    @Inject
-    public BuildEnvironmentCustomValueProvider(BuildEnvironmentParameter buildEnvironment) {
-        this.buildEnvironment = buildEnvironment;
-    }
+	@Inject
+	public BuildEnvironmentCustomValueProvider(BuildEnvironmentParameter buildEnvironment) {
+		this.buildEnvironment = buildEnvironment;
+	}
 
-    @Override
-    public void execute(BuildScanExtension buildScan) {
-        buildScan.tag(buildEnvironment.buildEnvironment().name());
-    }
+	@Override
+	public void execute(BuildScanExtension buildScan) {
+		buildScan.tag(buildEnvironment.buildEnvironment().name());
+	}
 
-    interface BuildEnvironmentParameter {
-        BuildEnvironment buildEnvironment();
-    }
+	interface BuildEnvironmentParameter {
+		BuildEnvironment buildEnvironment();
+	}
 
-    enum BuildEnvironment {
-        CI, LOCAL
-    }
+	enum BuildEnvironment {
+		CI, LOCAL
+	}
 }

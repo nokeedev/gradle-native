@@ -20,18 +20,18 @@ import org.gradle.StartParameter;
 import org.gradle.api.Action;
 
 final class SkipIfBuildScanExplicitlyDisabledViaStartParameters implements Action<GradleEnterpriseExtension> {
-    private final StartParameter startParameters;
-    private final Action<? super GradleEnterpriseExtension> delegate;
+	private final StartParameter startParameters;
+	private final Action<? super GradleEnterpriseExtension> delegate;
 
-    public SkipIfBuildScanExplicitlyDisabledViaStartParameters(StartParameter startParameters, Action<? super GradleEnterpriseExtension> delegate) {
-        this.startParameters = startParameters;
-        this.delegate = delegate;
-    }
+	public SkipIfBuildScanExplicitlyDisabledViaStartParameters(StartParameter startParameters, Action<? super GradleEnterpriseExtension> delegate) {
+		this.startParameters = startParameters;
+		this.delegate = delegate;
+	}
 
-    @Override
-    public void execute(GradleEnterpriseExtension extension) {
-        if (!startParameters.isNoBuildScan()) {
-            delegate.execute(extension);
-        }
-    }
+	@Override
+	public void execute(GradleEnterpriseExtension extension) {
+		if (!startParameters.isNoBuildScan()) {
+			delegate.execute(extension);
+		}
+	}
 }

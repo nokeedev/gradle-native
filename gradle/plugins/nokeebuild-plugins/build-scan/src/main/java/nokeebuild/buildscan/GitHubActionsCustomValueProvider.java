@@ -24,31 +24,31 @@ import java.util.Optional;
 import static nokeebuild.buildscan.GradleEnterpriseCustomSearchQueryUrlTransformer.toCustomSearchUrl;
 
 final class GitHubActionsCustomValueProvider implements Action<BuildScanExtension> {
-    private static final String BUILD_ID = "buildId";
-    private static final String GIT_COMMIT_NAME = "gitCommitId";
-    private final GitHubActionsParameters gitHubActions;
+	private static final String BUILD_ID = "buildId";
+	private static final String GIT_COMMIT_NAME = "gitCommitId";
+	private final GitHubActionsParameters gitHubActions;
 
-    public GitHubActionsCustomValueProvider(GitHubActionsParameters gitHubActions) {
-        this.gitHubActions = gitHubActions;
-    }
+	public GitHubActionsCustomValueProvider(GitHubActionsParameters gitHubActions) {
+		this.gitHubActions = gitHubActions;
+	}
 
-    @Override
-    public void execute(BuildScanExtension buildScan) {
-        if (gitHubActions.isGitHubActionsEnvironment()) {
-            String commitId = gitHubActions.githubSha();
-            String repo = gitHubActions.githubRepository();
-            String runId = gitHubActions.githubRunId();
-            String buildUrl = String.format("https://github.com/%s/actions/runs/%s", repo, runId);
-            String commitUrl = String.format("https://github.com/%s/commit/%s", repo, commitId);
+	@Override
+	public void execute(BuildScanExtension buildScan) {
+		if (gitHubActions.isGitHubActionsEnvironment()) {
+			String commitId = gitHubActions.githubSha();
+			String repo = gitHubActions.githubRepository();
+			String runId = gitHubActions.githubRunId();
+			String buildUrl = String.format("https://github.com/%s/actions/runs/%s", repo, runId);
+			String commitUrl = String.format("https://github.com/%s/commit/%s", repo, commitId);
 
-            buildScan.link("GitHub Actions Build", buildUrl);
-            buildScan.link("Source", commitUrl);
-            buildScan.value(BUILD_ID, String.format("%s %s", runId, gitHubActions.githubRunNumber()));
-            buildScan.value(GIT_COMMIT_NAME, commitId);
+			buildScan.link("GitHub Actions Build", buildUrl);
+			buildScan.link("Source", commitUrl);
+			buildScan.value(BUILD_ID, String.format("%s %s", runId, gitHubActions.githubRunNumber()));
+			buildScan.value(GIT_COMMIT_NAME, commitId);
 
-            Optional.ofNullable(buildScan.getServer()).map(toCustomSearchUrl(Collections.singletonMap(GIT_COMMIT_NAME, commitId))).ifPresent(url -> buildScan.link("Git Commit Scans", url));
-        }
-    }
+			Optional.ofNullable(buildScan.getServer()).map(toCustomSearchUrl(Collections.singletonMap(GIT_COMMIT_NAME, commitId))).ifPresent(url -> buildScan.link("Git Commit Scans", url));
+		}
+	}
 
 //    @SuppressWarnings("UnstableApiUsage")
 //    private boolean isGitHubActionsEnvironment() {
@@ -59,11 +59,15 @@ final class GitHubActionsCustomValueProvider implements Action<BuildScanExtensio
 //        return providers.environmentVariable(variableName).forUseAtConfigurationTime().orElse("").get();
 //    }
 
-    interface GitHubActionsParameters {
-        boolean isGitHubActionsEnvironment();
-        String githubSha();
-        String githubRepository();
-        String githubRunId();
-        String githubRunNumber();
-    }
+	interface GitHubActionsParameters {
+		boolean isGitHubActionsEnvironment();
+
+		String githubSha();
+
+		String githubRepository();
+
+		String githubRunId();
+
+		String githubRunNumber();
+	}
 }

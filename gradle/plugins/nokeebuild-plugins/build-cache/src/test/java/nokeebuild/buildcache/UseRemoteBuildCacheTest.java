@@ -36,72 +36,72 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UseRemoteBuildCacheTest {
-    @Mock private UseRemoteBuildCache.RemoteBuildCacheParameters parameters;
-    @InjectMocks private UseRemoteBuildCache subject;
-    private final BuildCacheConfiguration buildCache = BuildCacheConfigurationTestUtils.mock();
+	@Mock private UseRemoteBuildCache.RemoteBuildCacheParameters parameters;
+	@InjectMocks private UseRemoteBuildCache subject;
+	private final BuildCacheConfiguration buildCache = BuildCacheConfigurationTestUtils.mock();
 
-    @BeforeEach
-    void configureParameters() {
-        when(parameters.remoteBuildCacheUrl()).thenReturn(Optional.of("https://my-cache.company.com/"));
-        when(parameters.remoteBuildCacheUsername()).thenReturn("my-username");
-        when(parameters.remoteBuildCachePassword()).thenReturn("my-password");
-    }
+	@BeforeEach
+	void configureParameters() {
+		when(parameters.remoteBuildCacheUrl()).thenReturn(Optional.of("https://my-cache.company.com/"));
+		when(parameters.remoteBuildCacheUsername()).thenReturn("my-username");
+		when(parameters.remoteBuildCachePassword()).thenReturn("my-password");
+	}
 
-    @Test
-    void configureRemoteBuildCacheUrlUsingParameters() throws URISyntaxException {
-        subject.execute(buildCache);
-        assertEquals(new URI("https://my-cache.company.com/"), buildCache.remote(HttpBuildCache.class).getUrl());
-    }
+	@Test
+	void configureRemoteBuildCacheUrlUsingParameters() throws URISyntaxException {
+		subject.execute(buildCache);
+		assertEquals(new URI("https://my-cache.company.com/"), buildCache.remote(HttpBuildCache.class).getUrl());
+	}
 
-    @Test
-    void doesNotTryToSetRemoveBuildCacheUrlWhenAbsent() {
-        when(parameters.remoteBuildCacheUrl()).thenReturn(Optional.empty());
+	@Test
+	void doesNotTryToSetRemoveBuildCacheUrlWhenAbsent() {
+		when(parameters.remoteBuildCacheUrl()).thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() -> subject.execute(buildCache));
-    }
+		assertDoesNotThrow(() -> subject.execute(buildCache));
+	}
 
-    @Test
-    void configureRemoteBuildCacheCredentialsUsingParameters() {
-        subject.execute(buildCache);
-        assertEquals("my-username", buildCache.remote(HttpBuildCache.class).getCredentials().getUsername());
-        assertEquals("my-password", buildCache.remote(HttpBuildCache.class).getCredentials().getPassword());
-    }
+	@Test
+	void configureRemoteBuildCacheCredentialsUsingParameters() {
+		subject.execute(buildCache);
+		assertEquals("my-username", buildCache.remote(HttpBuildCache.class).getCredentials().getUsername());
+		assertEquals("my-password", buildCache.remote(HttpBuildCache.class).getCredentials().getPassword());
+	}
 
-    @Test
-    void enablesRemoteBuildCacheIfCredentialsPresent() {
-        subject.execute(buildCache);
-        assertTrue(buildCache.remote(HttpBuildCache.class).isEnabled());
-    }
+	@Test
+	void enablesRemoteBuildCacheIfCredentialsPresent() {
+		subject.execute(buildCache);
+		assertTrue(buildCache.remote(HttpBuildCache.class).isEnabled());
+	}
 
-    @Test
-    void disablesRemoteBuildCacheIfUsernameAbsent() {
-        when(parameters.remoteBuildCacheUsername()).thenReturn(null);
+	@Test
+	void disablesRemoteBuildCacheIfUsernameAbsent() {
+		when(parameters.remoteBuildCacheUsername()).thenReturn(null);
 
-        subject.execute(buildCache);
-        assertFalse(buildCache.remote(HttpBuildCache.class).isEnabled());
-    }
+		subject.execute(buildCache);
+		assertFalse(buildCache.remote(HttpBuildCache.class).isEnabled());
+	}
 
-    @Test
-    void disablesRemoteBuildCacheIfPasswordAbsent() {
-        when(parameters.remoteBuildCachePassword()).thenReturn(null);
+	@Test
+	void disablesRemoteBuildCacheIfPasswordAbsent() {
+		when(parameters.remoteBuildCachePassword()).thenReturn(null);
 
-        subject.execute(buildCache);
-        assertFalse(buildCache.remote(HttpBuildCache.class).isEnabled());
-    }
+		subject.execute(buildCache);
+		assertFalse(buildCache.remote(HttpBuildCache.class).isEnabled());
+	}
 
-    @Test
-    void enablesPushToRemoteBuildCacheWhenAllowed() {
-        when(parameters.allowPushToRemote()).thenReturn(true);
+	@Test
+	void enablesPushToRemoteBuildCacheWhenAllowed() {
+		when(parameters.allowPushToRemote()).thenReturn(true);
 
-        subject.execute(buildCache);
-        assertTrue(buildCache.remote(HttpBuildCache.class).isPush());
-    }
+		subject.execute(buildCache);
+		assertTrue(buildCache.remote(HttpBuildCache.class).isPush());
+	}
 
-    @Test
-    void disablesPushToRemoteBuildCacheWhenAllowed() {
-        when(parameters.allowPushToRemote()).thenReturn(false);
+	@Test
+	void disablesPushToRemoteBuildCacheWhenAllowed() {
+		when(parameters.allowPushToRemote()).thenReturn(false);
 
-        subject.execute(buildCache);
-        assertFalse(buildCache.remote(HttpBuildCache.class).isPush());
-    }
+		subject.execute(buildCache);
+		assertFalse(buildCache.remote(HttpBuildCache.class).isPush());
+	}
 }

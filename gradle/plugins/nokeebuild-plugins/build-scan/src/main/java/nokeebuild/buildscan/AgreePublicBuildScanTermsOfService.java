@@ -19,19 +19,19 @@ import com.gradle.scan.plugin.BuildScanExtension;
 import org.gradle.api.Action;
 
 final class AgreePublicBuildScanTermsOfService implements Action<BuildScanExtension> {
-    private final Parameters parameters;
+	private final Parameters parameters;
 
-    AgreePublicBuildScanTermsOfService(Parameters parameters) {
-        this.parameters = parameters;
-    }
+	AgreePublicBuildScanTermsOfService(Parameters parameters) {
+		this.parameters = parameters;
+	}
 
-    @Override
-    public void execute(BuildScanExtension extension) {
-        extension.setTermsOfServiceUrl("https://gradle.com/terms-of-service");
-        extension.setTermsOfServiceAgree(parameters.publicBuildScanTermsOfServiceAgreed() ? "yes" : "no");
-    }
+	@Override
+	public void execute(BuildScanExtension extension) {
+		extension.setTermsOfServiceUrl("https://gradle.com/terms-of-service");
+		extension.setTermsOfServiceAgree(parameters.publicBuildScanTermsOfServiceAgreed() ? "yes" : "no");
+	}
 
-    interface Parameters {
-        boolean publicBuildScanTermsOfServiceAgreed();
-    }
+	interface Parameters {
+		boolean publicBuildScanTermsOfServiceAgreed();
+	}
 }

@@ -26,13 +26,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class InBackgroundTest {
-    @Mock private Action<BuildScanExtension> action;
-    @InjectMocks private InBackground subject;
-    @Mock private BuildScanExtension buildScan;
+	@Mock private Action<BuildScanExtension> action;
+	@InjectMocks private InBackground subject;
+	@Mock private BuildScanExtension buildScan;
 
-    @Test
-    void forwardsActionToBuildScanBackgroundExecutor() {
-        subject.execute(buildScan);
-        Mockito.verify(buildScan).background(action);
-    }
+	@Test
+	void forwardsActionToBuildScanBackgroundExecutor() {
+		subject.execute(buildScan);
+		Mockito.verify(buildScan).background(action);
+	}
 }

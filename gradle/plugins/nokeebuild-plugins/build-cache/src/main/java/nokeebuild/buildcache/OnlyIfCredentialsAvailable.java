@@ -20,8 +20,8 @@ import org.gradle.caching.http.HttpBuildCache;
 import java.util.function.BiConsumer;
 
 final class OnlyIfCredentialsAvailable implements BiConsumer<HttpBuildCache, Property<Boolean>> {
-    @Override
-    public void accept(HttpBuildCache self, Property<Boolean> property) {
-        property.set(self.getCredentials().getUsername() != null && self.getCredentials().getPassword() != null);
-    }
+	@Override
+	public void accept(HttpBuildCache self, Property<Boolean> property) {
+		property.set(self.getCredentials().getUsername() != null && self.getCredentials().getPassword() != null);
+	}
 }

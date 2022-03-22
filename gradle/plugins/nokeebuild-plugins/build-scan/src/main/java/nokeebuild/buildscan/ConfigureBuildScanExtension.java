@@ -19,34 +19,34 @@ import com.gradle.enterprise.gradleplugin.GradleEnterpriseExtension;
 import org.gradle.api.Action;
 
 final class ConfigureBuildScanExtension implements Action<GradleEnterpriseExtension> {
-    private final Parameters parameters;
+	private final Parameters parameters;
 
-    public ConfigureBuildScanExtension(Parameters parameters) {
-        this.parameters = parameters;
-    }
+	public ConfigureBuildScanExtension(Parameters parameters) {
+		this.parameters = parameters;
+	}
 
-    @Override
-    public void execute(GradleEnterpriseExtension extension) {
-        extension.buildScan(new UseGradleEnterpriseBuildScanServerIfConfigured(parameters));
-        extension.buildScan(new AgreePublicBuildScanTermsOfService(parameters));
-        extension.buildScan(new UploadInBackgroundOnlyOnLocalBuildEnvironment(() -> parameters.buildEnvironment() == BuildEnvironmentCustomValueProvider.BuildEnvironment.LOCAL));
-        extension.buildScan(new AlwaysPublishBuildScan());
-        extension.buildScan(new CaptureTaskInputFiles());
+	@Override
+	public void execute(GradleEnterpriseExtension extension) {
+		extension.buildScan(new UseGradleEnterpriseBuildScanServerIfConfigured(parameters));
+		extension.buildScan(new AgreePublicBuildScanTermsOfService(parameters));
+		extension.buildScan(new UploadInBackgroundOnlyOnLocalBuildEnvironment(() -> parameters.buildEnvironment() == BuildEnvironmentCustomValueProvider.BuildEnvironment.LOCAL));
+		extension.buildScan(new AlwaysPublishBuildScan());
+		extension.buildScan(new CaptureTaskInputFiles());
 
-        // Custom value providers
-        extension.buildScan(new BuildEnvironmentCustomValueProvider(parameters));
-        extension.buildScan(new IdeaIdeCustomValueProvider(parameters));
-        extension.buildScan(new GitHubActionsCustomValueProvider(parameters));
-        extension.buildScan(new BuildCacheCustomValueProvider(parameters));
-        extension.buildScan(new InBackground(new GitInformationCustomValueProvider(parameters)));
-    }
+		// Custom value providers
+		extension.buildScan(new BuildEnvironmentCustomValueProvider(parameters));
+		extension.buildScan(new IdeaIdeCustomValueProvider(parameters));
+		extension.buildScan(new GitHubActionsCustomValueProvider(parameters));
+		extension.buildScan(new BuildCacheCustomValueProvider(parameters));
+		extension.buildScan(new InBackground(new GitInformationCustomValueProvider(parameters)));
+	}
 
-    interface Parameters extends BuildCacheCustomValueProvider.BuildCacheParameter
-            , BuildEnvironmentCustomValueProvider.BuildEnvironmentParameter
-            , IdeaIdeCustomValueProvider.IdeaRuntimeParameter
-            , UseGradleEnterpriseBuildScanServerIfConfigured.BuildScanServerParameter
-            , GitHubActionsCustomValueProvider.GitHubActionsParameters
-            , GitInformationCustomValueProvider.GitInformationParameters
-            , AgreePublicBuildScanTermsOfService.Parameters
-    {}
+	interface Parameters extends BuildCacheCustomValueProvider.BuildCacheParameter
+		, BuildEnvironmentCustomValueProvider.BuildEnvironmentParameter
+		, IdeaIdeCustomValueProvider.IdeaRuntimeParameter
+		, UseGradleEnterpriseBuildScanServerIfConfigured.BuildScanServerParameter
+		, GitHubActionsCustomValueProvider.GitHubActionsParameters
+		, GitInformationCustomValueProvider.GitInformationParameters
+		, AgreePublicBuildScanTermsOfService.Parameters {
+	}
 }

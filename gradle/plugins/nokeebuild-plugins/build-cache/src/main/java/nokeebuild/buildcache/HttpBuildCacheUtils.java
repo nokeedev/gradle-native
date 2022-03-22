@@ -23,19 +23,19 @@ import org.gradle.caching.http.HttpBuildCacheCredentials;
 import java.util.function.BiConsumer;
 
 final class HttpBuildCacheUtils {
-    public static <SELF extends HttpBuildCache> Action<SELF> url(BiConsumer<? super SELF, ? super Property<String>> action) {
-        return it -> action.accept(it, new Property<>(it::setUrl));
-    }
+	public static <SELF extends HttpBuildCache> Action<SELF> url(BiConsumer<? super SELF, ? super Property<String>> action) {
+		return it -> action.accept(it, new Property<>(it::setUrl));
+	}
 
-    public static Action<HttpBuildCache> credentials(Action<? super HttpBuildCacheCredentials> action) {
-        return it -> it.credentials(action);
-    }
+	public static Action<HttpBuildCache> credentials(Action<? super HttpBuildCacheCredentials> action) {
+		return it -> it.credentials(action);
+	}
 
-    public static <SELF extends BuildCache> Action<SELF> enabled(BiConsumer<? super SELF, ? super Property<Boolean>> action) {
-        return it -> action.accept(it, new Property<>(it::setEnabled));
-    }
+	public static <SELF extends BuildCache> Action<SELF> enabled(BiConsumer<? super SELF, ? super Property<Boolean>> action) {
+		return it -> action.accept(it, new Property<>(it::setEnabled));
+	}
 
-    public static <SELF extends BuildCache> Action<SELF> push(BiConsumer<? super SELF, ? super Property<Boolean>> action) {
-        return it -> action.accept(it, new Property<>(it::setPush));
-    }
+	public static <SELF extends BuildCache> Action<SELF> push(BiConsumer<? super SELF, ? super Property<Boolean>> action) {
+		return it -> action.accept(it, new Property<>(it::setPush));
+	}
 }

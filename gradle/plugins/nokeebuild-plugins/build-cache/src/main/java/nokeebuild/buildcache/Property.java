@@ -18,14 +18,14 @@ package nokeebuild.buildcache;
 import java.util.function.Consumer;
 
 final class Property<T> {
-    private final Consumer<? super T> setter;
+	private final Consumer<? super T> setter;
 
-    public Property(Consumer<? super T> setter) {
-        this.setter = setter;
-    }
+	public Property(Consumer<? super T> setter) {
+		this.setter = setter;
+	}
 
-    @SuppressWarnings("unchecked")
-    public void set(Object value) {
-        setter.accept((T) value);
-    }
+	@SuppressWarnings("unchecked")
+	public void set(Object value) {
+		setter.accept((T) value);
+	}
 }

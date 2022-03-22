@@ -18,9 +18,10 @@ package nokeebuild.buildcache;
 import java.util.function.BiConsumer;
 
 final class PropertyUtils {
-    private PropertyUtils() {}
+	private PropertyUtils() {
+	}
 
-    public static <SELF, T> BiConsumer<SELF, Property<T>> set(T value) {
-        return (self, property) -> property.set(value);
-    }
+	public static <SELF, T> BiConsumer<SELF, Property<T>> set(T value) {
+		return (self, property) -> property.set(value);
+	}
 }

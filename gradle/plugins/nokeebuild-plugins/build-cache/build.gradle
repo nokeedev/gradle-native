@@ -1,13 +1,13 @@
 plugins {
-    id 'dev.gradleplugins.java-gradle-plugin'
-    id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
 gradlePlugin {
-    plugins {
-        buildCache {
-            id = 'nokeebuild.build-cache'
-            implementationClass = 'nokeebuild.buildcache.BuildCachePlugin'
-        }
-    }
+	plugins {
+		buildCache {
+			id = 'nokeebuild.build-cache'
+			implementationClass = 'nokeebuild.buildcache.BuildCachePlugin'
+		}
+	}
 }

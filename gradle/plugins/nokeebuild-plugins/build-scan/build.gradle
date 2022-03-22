@@ -1,15 +1,15 @@
 plugins {
-    id 'dev.gradleplugins.java-gradle-plugin'
-    id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
 }
 
 gradlePlugin {
-    plugins {
-        buildScan {
-            id = 'nokeebuild.build-scan'
-            implementationClass = 'nokeebuild.buildscan.BuildScanPlugin'
-        }
-    }
+	plugins {
+		buildScan {
+			id = 'nokeebuild.build-scan'
+			implementationClass = 'nokeebuild.buildscan.BuildScanPlugin'
+		}
+	}
 
 	dependencies {
 		compileOnly 'com.gradle:gradle-enterprise-gradle-plugin'
@@ -17,7 +17,7 @@ gradlePlugin {
 }
 
 test {
-    dependencies {
-        implementation 'com.gradle:gradle-enterprise-gradle-plugin:3.8.1'
-    }
+	dependencies {
+		implementation 'com.gradle:gradle-enterprise-gradle-plugin:3.8.1'
+	}
 }

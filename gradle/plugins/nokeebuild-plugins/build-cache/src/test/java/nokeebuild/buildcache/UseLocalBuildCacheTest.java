@@ -29,27 +29,27 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UseLocalBuildCacheTest {
-    @Mock private UseLocalBuildCache.LocalBuildCacheParameters parameters;
-    @InjectMocks private UseLocalBuildCache subject;
-    private final BuildCacheConfiguration buildCache = BuildCacheConfigurationTestUtils.mock();
+	@Mock private UseLocalBuildCache.LocalBuildCacheParameters parameters;
+	@InjectMocks private UseLocalBuildCache subject;
+	private final BuildCacheConfiguration buildCache = BuildCacheConfigurationTestUtils.mock();
 
-    @Test
-    void canDisableLocalBuildCacheUsingParameters() {
-        when(parameters.localBuildCacheDisabled()).thenReturn(true);
+	@Test
+	void canDisableLocalBuildCacheUsingParameters() {
+		when(parameters.localBuildCacheDisabled()).thenReturn(true);
 
-        subject.execute(buildCache);
-        assertFalse(buildCache.getLocal().isEnabled());
-    }
+		subject.execute(buildCache);
+		assertFalse(buildCache.getLocal().isEnabled());
+	}
 
-    @Test
-    void localBuildCacheEnabledByDefault() {
-        subject.execute(buildCache);
-        assertTrue(buildCache.getLocal().isEnabled());
-    }
+	@Test
+	void localBuildCacheEnabledByDefault() {
+		subject.execute(buildCache);
+		assertTrue(buildCache.getLocal().isEnabled());
+	}
 
-    @Test
-    void disableCacheRemovalByDefault() {
-        subject.execute(buildCache);
-        assertEquals(Integer.MAX_VALUE, buildCache.getLocal().getRemoveUnusedEntriesAfterDays());
-    }
+	@Test
+	void disableCacheRemovalByDefault() {
+		subject.execute(buildCache);
+		assertEquals(Integer.MAX_VALUE, buildCache.getLocal().getRemoveUnusedEntriesAfterDays());
+	}
 }

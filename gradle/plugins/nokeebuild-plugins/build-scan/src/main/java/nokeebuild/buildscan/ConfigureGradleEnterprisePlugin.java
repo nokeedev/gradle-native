@@ -22,29 +22,29 @@ import org.gradle.api.initialization.Settings;
 
 @SuppressWarnings("rawtypes")
 final class ConfigureGradleEnterprisePlugin implements Action<Plugin> {
-    private final Settings settings;
-    private final Action<? super GradleEnterpriseExtension> action;
+	private final Settings settings;
+	private final Action<? super GradleEnterpriseExtension> action;
 
-    public ConfigureGradleEnterprisePlugin(Settings settings, Action<? super GradleEnterpriseExtension> action) {
-        this.settings = settings;
-        this.action = action;
-    }
+	public ConfigureGradleEnterprisePlugin(Settings settings, Action<? super GradleEnterpriseExtension> action) {
+		this.settings = settings;
+		this.action = action;
+	}
 
-    @Override
-    public void execute(Plugin ignored) {
-        if (!containsPropertiesTask(settings)) {
-            gradleEnterprise(settings, action);
-        }
-    }
+	@Override
+	public void execute(Plugin ignored) {
+		if (!containsPropertiesTask(settings)) {
+			gradleEnterprise(settings, action);
+		}
+	}
 
-    // Disable build scan for security reason
-    // https://github.com/gradle/gradle-enterprise-conventions-plugin/issues/9
-    private static boolean containsPropertiesTask(Settings settings) {
-        return settings.getGradle().getStartParameter().getTaskNames().contains("properties")
-                || settings.getGradle().getStartParameter().getTaskNames().stream().anyMatch(it -> it.endsWith(":properties"));
-    }
+	// Disable build scan for security reason
+	// https://github.com/gradle/gradle-enterprise-conventions-plugin/issues/9
+	private static boolean containsPropertiesTask(Settings settings) {
+		return settings.getGradle().getStartParameter().getTaskNames().contains("properties")
+			|| settings.getGradle().getStartParameter().getTaskNames().stream().anyMatch(it -> it.endsWith(":properties"));
+	}
 
-    private static void gradleEnterprise(Settings target, Action<? super GradleEnterpriseExtension> action) {
-        action.execute(target.getExtensions().getByType(GradleEnterpriseExtension.class));
-    }
+	private static void gradleEnterprise(Settings target, Action<? super GradleEnterpriseExtension> action) {
+		action.execute(target.getExtensions().getByType(GradleEnterpriseExtension.class));
+	}
 }

@@ -21,25 +21,26 @@ import org.gradle.api.Action;
 import java.util.Optional;
 
 final class GitInformationCustomValueProvider implements Action<BuildScanExtension> {
-    private static final String GIT_STATUS = "gitStatus";
-    private static final String GIT_BRANCH_NAME = "gitBranchName";
-    private final GitInformationParameters gitInformation;
+	private static final String GIT_STATUS = "gitStatus";
+	private static final String GIT_BRANCH_NAME = "gitBranchName";
+	private final GitInformationParameters gitInformation;
 
-    GitInformationCustomValueProvider(GitInformationParameters gitInformation) {
-        this.gitInformation = gitInformation;
-    }
+	GitInformationCustomValueProvider(GitInformationParameters gitInformation) {
+		this.gitInformation = gitInformation;
+	}
 
-    @Override
-    public void execute(BuildScanExtension buildScan) {
-        gitInformation.gitStatus().ifPresent(it -> {
-            buildScan.tag("dirty");
-            buildScan.value(GIT_STATUS, it);
-        });
-        gitInformation.gitRef().ifPresent(it -> buildScan.value(GIT_BRANCH_NAME, it));
-    }
+	@Override
+	public void execute(BuildScanExtension buildScan) {
+		gitInformation.gitStatus().ifPresent(it -> {
+			buildScan.tag("dirty");
+			buildScan.value(GIT_STATUS, it);
+		});
+		gitInformation.gitRef().ifPresent(it -> buildScan.value(GIT_BRANCH_NAME, it));
+	}
 
-    interface GitInformationParameters {
-        Optional<String> gitRef();
-        Optional<String> gitStatus();
-    }
+	interface GitInformationParameters {
+		Optional<String> gitRef();
+
+		Optional<String> gitStatus();
+	}
 }

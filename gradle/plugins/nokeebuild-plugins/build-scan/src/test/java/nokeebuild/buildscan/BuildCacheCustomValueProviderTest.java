@@ -29,21 +29,21 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BuildCacheCustomValueProviderTest {
-    @Mock private BuildCacheCustomValueProvider.BuildCacheParameter buildCache;
-    @InjectMocks private BuildCacheCustomValueProvider subject;
-    @Mock private BuildScanExtension buildScan;
+	@Mock private BuildCacheCustomValueProvider.BuildCacheParameter buildCache;
+	@InjectMocks private BuildCacheCustomValueProvider subject;
+	@Mock private BuildScanExtension buildScan;
 
-    @Test
-    void tagsBuildScanUsingCachedTagWhenBuildCacheEnabled() {
-        when(buildCache.buildCacheEnabled()).thenReturn(true);
-        subject.execute(buildScan);
-        verify(buildScan).tag("CACHED");
-    }
+	@Test
+	void tagsBuildScanUsingCachedTagWhenBuildCacheEnabled() {
+		when(buildCache.buildCacheEnabled()).thenReturn(true);
+		subject.execute(buildScan);
+		verify(buildScan).tag("CACHED");
+	}
 
-    @Test
-    void doesNotTagBuildScanWhenBuildCacheNotEnabled() {
-        when(buildCache.buildCacheEnabled()).thenReturn(false);
-        subject.execute(buildScan);
-        verify(buildScan, never()).tag(any());
-    }
+	@Test
+	void doesNotTagBuildScanWhenBuildCacheNotEnabled() {
+		when(buildCache.buildCacheEnabled()).thenReturn(false);
+		subject.execute(buildScan);
+		verify(buildScan, never()).tag(any());
+	}
 }

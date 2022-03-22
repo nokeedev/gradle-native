@@ -23,30 +23,30 @@ import static nokeebuild.buildcache.HttpBuildCacheUtils.enabled;
 import static nokeebuild.buildcache.PropertyUtils.set;
 
 final class UseLocalBuildCache implements Action<BuildCacheConfiguration> {
-    private final LocalBuildCacheParameters localParameters;
+	private final LocalBuildCacheParameters localParameters;
 
-    UseLocalBuildCache(LocalBuildCacheParameters localParameters) {
-        this.localParameters = localParameters;
-    }
+	UseLocalBuildCache(LocalBuildCacheParameters localParameters) {
+		this.localParameters = localParameters;
+	}
 
-    @Override
-    public void execute(BuildCacheConfiguration buildCache) {
-        if (localParameters.localBuildCacheDisabled()) {
-            buildCache.local(enabled(set(false)));
-        } else {
-            buildCache.local(enabled(set(true)));
-        }
-        buildCache.local(new DisableCacheRemoval());
-    }
+	@Override
+	public void execute(BuildCacheConfiguration buildCache) {
+		if (localParameters.localBuildCacheDisabled()) {
+			buildCache.local(enabled(set(false)));
+		} else {
+			buildCache.local(enabled(set(true)));
+		}
+		buildCache.local(new DisableCacheRemoval());
+	}
 
-    interface LocalBuildCacheParameters {
-        boolean localBuildCacheDisabled();
-    }
+	interface LocalBuildCacheParameters {
+		boolean localBuildCacheDisabled();
+	}
 
-    static final class DisableCacheRemoval implements Action<DirectoryBuildCache> {
-        @Override
-        public void execute(DirectoryBuildCache buildCache) {
-            buildCache.setRemoveUnusedEntriesAfterDays(Integer.MAX_VALUE);
-        }
-    }
+	static final class DisableCacheRemoval implements Action<DirectoryBuildCache> {
+		@Override
+		public void execute(DirectoryBuildCache buildCache) {
+			buildCache.setRemoveUnusedEntriesAfterDays(Integer.MAX_VALUE);
+		}
+	}
 }
