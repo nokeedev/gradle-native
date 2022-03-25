@@ -18,13 +18,13 @@ package dev.gradleplugins.buildscript.blocks;
 import org.junit.jupiter.api.Test;
 
 import static dev.gradleplugins.buildscript.BuildScriptMatchers.visit;
-import static dev.gradleplugins.buildscript.statements.Statement.empty;
 import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.buildscript;
+import static dev.gradleplugins.buildscript.statements.Statement.empty;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class BuildScriptBlockTest {
 	@Test
-	void dfd() {
+	void rendersBuildScriptWithRepositoryBlockAndEmptyDependenciesBlock() {
 		assertThat(buildscript(t -> {
 			t.comment("These are maven repos", tt -> {
 				tt.repositories(r -> r.mavenCentral().mavenLocal());
