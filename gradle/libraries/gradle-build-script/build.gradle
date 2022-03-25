@@ -1,0 +1,13 @@
+plugins {
+	id 'java-library'
+}
+
+dependencies {
+	annotationProcessor 'org.projectlombok:lombok:1.18.12'
+	compileOnly 'org.projectlombok:lombok:1.18.12'
+
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.0'
+	testImplementation 'org.mockito:mockito-core:3.6.0'
+	testImplementation 'org.hamcrest:hamcrest:2.2'
+	testImplementation 'org.apache.commons:commons-lang3:3.12.0'
+}
