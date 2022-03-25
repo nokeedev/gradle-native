@@ -45,8 +45,9 @@ import static nokeebuild.ci.TaskUtils.useVerificationGroup;
 		//      E.g.`gradle.includedBuild('<build-name>').task(':check')
 		//   2. Register check task on root project of included build.
 		//      E.g. `tasks.register('check') { dependsOn(subprojects.collect { "${it.name}:check" }) }`
-		// TODO: Check our included builds (when they have tests)
-		sanityCheck.configure(dependsOn(new IncludedBuildCheckTask(project, "jbake-gradle-plugin")));
-		sanityCheck.configure(dependsOn(new IncludedBuildCheckTask(project, "nokeebuild-plugins")));
+		// Ex:
+		// tasks.named('sanityCheck') { task ->
+		//   task.dependsOn(gradle.includedBuild('<build-name>').task(':check')
+		// }
 	}
 }
