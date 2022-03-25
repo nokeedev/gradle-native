@@ -49,6 +49,10 @@ public final class BlockStatement<T extends Statement> implements Statement {
 		return new BlockStatement<>(sectionSelector, content.prefixWith(literal("it.")));
 	}
 
+	public Statement useGetter() {
+		return content.prefixWith(concat(asList(sectionSelector, literal("."))));
+	}
+
 	@Override
 	public void accept(Visitor visitor) {
 		visitor.visit(this);

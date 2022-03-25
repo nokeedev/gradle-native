@@ -40,6 +40,7 @@ import java.util.Optional;
 
 import static dev.gradleplugins.buildscript.blocks.ApplyStatement.Notation.plugin;
 import static dev.gradleplugins.buildscript.blocks.ApplyStatement.apply;
+import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.buildscript;
 import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.classpath;
 import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.initscript;
 import static dev.gradleplugins.buildscript.blocks.DependencyNotation.files;
@@ -285,7 +286,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			val gradle = GradleBlock.builder()
 				.initscript(it -> it.dependencies(classpath(files(runner.getPluginClasspath()))))
 				.beforeSettings(it -> {
-					it.buildscript(t -> t.dependencies(classpath(files(runner.getPluginClasspath()))));
+					it.add(buildscript(t -> t.dependencies(classpath(files(runner.getPluginClasspath())))).useGetter());
 
 					// Include sub-projects in-case the plugin misbehave on sub-projects
 					it.include("a", "b", "c");
