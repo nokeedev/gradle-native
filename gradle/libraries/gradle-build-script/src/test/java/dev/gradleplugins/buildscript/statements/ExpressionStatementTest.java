@@ -35,6 +35,6 @@ class ExpressionStatementTest {
 	void doesNotVisitAnyStatement() {
 		final Visitor visitor = Mockito.mock(Visitor.class);
 		subject.accept(visitor);
-		Mockito.verifyNoInteractions(visitor);
+		Mockito.verify(visitor).visit(subject);
 	}
 }

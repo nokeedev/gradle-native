@@ -38,7 +38,7 @@ public final class BlockStatement<T extends Statement> implements Statement {
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.visit(content);
+		visitor.visit(this);
 	}
 
 	public Expression getSelector() {

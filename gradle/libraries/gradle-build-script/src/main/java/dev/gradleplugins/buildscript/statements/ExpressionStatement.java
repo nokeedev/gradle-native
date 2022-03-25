@@ -38,7 +38,7 @@ public final class ExpressionStatement implements Statement {
 
 	@Override
 	public void accept(Visitor visitor) {
-		// do nothing
+		visitor.visit(this);
 	}
 
 	public static ExpressionStatement of(Expression expression) {
