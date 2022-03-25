@@ -1,6 +1,7 @@
 plugins {
 	id 'nokeebuild.nokee-auto-version'
 	id 'nokeebuild.intellij-ide'
+	id 'nokeebuild.continuous-integration'
 }
 
 allprojects {
@@ -78,4 +79,9 @@ tasks.register('publishAllPublicationsToNokeeReleaseRepository') {
 	doLast {
 		println "Published version ${project.version}"
 	}
+}
+
+tasks.named('sanityCheck') { task ->
+	task.dependsOn(gradle.includedBuild('jbake-gradle-plugin').task(':check'))
+	task.dependsOn(gradle.includedBuild('nokeebuild-plugins').task(':check'))
 }
