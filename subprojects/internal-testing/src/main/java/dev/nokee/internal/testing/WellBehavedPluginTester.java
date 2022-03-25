@@ -284,7 +284,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			val initScript = new BuildScriptFile(getWorkingDirectory().resolve("classpath.init.gradle"));
 			val gradle = GradleBlock.builder()
 				.initscript(it -> it.dependencies(classpath(files(runner.getPluginClasspath()))))
-				.settingsEvaluated(it -> {
+				.beforeSettings(it -> {
 					it.buildscript(t -> t.dependencies(classpath(files(runner.getPluginClasspath()))));
 
 					// Include sub-projects in-case the plugin misbehave on sub-projects
