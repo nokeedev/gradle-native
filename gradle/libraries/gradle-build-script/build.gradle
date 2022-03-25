@@ -11,3 +11,5 @@ dependencies {
 	testImplementation 'org.hamcrest:hamcrest:2.2'
 	testImplementation 'org.apache.commons:commons-lang3:3.12.0'
 }
+
+tasks.named('test', Test) { task -> task.useJUnitPlatform() }
