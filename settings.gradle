@@ -16,6 +16,7 @@ rootProject.name = 'gradle-native'
 includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 includeBuild 'gradle/libraries/nokeetest-libraries'
+includeBuild 'gradle/libraries/gradle-build-script'
 
 /**
  * Adds specified subproject path to this Gradle build.

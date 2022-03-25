@@ -84,4 +84,5 @@ tasks.register('publishAllPublicationsToNokeeReleaseRepository') {
 tasks.named('sanityCheck') { task ->
 	task.dependsOn(gradle.includedBuild('jbake-gradle-plugin').task(':check'))
 	task.dependsOn(gradle.includedBuild('nokeebuild-plugins').task(':check'))
+	task.dependsOn(gradle.includedBuild('gradle-build-script').task(':check'))
 }
