@@ -45,6 +45,8 @@ public final class KotlinSyntax implements Syntax {
 			return StreamSupport.stream(((CompositeExpression) expression).spliterator(), false).map(this::render).collect(Collectors.joining());
 		} else if (expression instanceof SetLiteralValue) {
 			return renderSetLiteral((SetLiteralValue) expression);
+		} else if (expression instanceof VariableDeclarableExpression) {
+			return renderStandaloneVariableDeclaration((VariableDeclarableExpression) expression);
 		}
 		throw new UnsupportedOperationException("Unknown expression");
 	}
@@ -168,6 +170,19 @@ public final class KotlinSyntax implements Syntax {
 			builder.append(render(expression.getValue()));
 			builder.append(")");
 		}
+		return builder.toString();
+	}
+
+	private String renderStandaloneVariableDeclaration(VariableDeclarableExpression expression) {
+		if (expression.isFinal()) {
+			throw new UnsupportedOperationException("Cannot declare final variable without value");
+		}
+
+		final StringBuilder builder = new StringBuilder();
+		builder.append("var ").append(expression.getName());
+		expression.getType().ifPresent(type -> {
+			builder.append(": ").append(render(type));
+		});
 		return builder.toString();
 	}
 
