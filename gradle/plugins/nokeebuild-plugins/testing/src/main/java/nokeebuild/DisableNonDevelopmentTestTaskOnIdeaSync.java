@@ -15,7 +15,6 @@
  */
 package nokeebuild;
 
-import dev.gradleplugins.CompositeGradlePluginTestingStrategy;
 import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
 import dev.gradleplugins.GradlePluginTestingStrategy;
 import nokeebuild.testing.strategies.DevelopmentTestingStrategy;
@@ -23,13 +22,12 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.testing.Test;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import static dev.gradleplugins.GradlePluginTestingStrategy.testingStrategy;
+import static dev.gradleplugins.GradlePluginTestingStrategy.Spec.matches;
 
 /**
  * Disable non-development {@literal Test} task on IDE sync.
@@ -53,7 +51,7 @@ final class DisableNonDevelopmentTestTaskOnIdeaSync implements Action<GradlePlug
 					final GradlePluginTestingStrategy testingStrategy = testingStrategyProvider.getOrNull();
 					if (testingStrategy == null) {
 						return testClassesDirs;
-					} else if (stream(testingStrategy).anyMatch(it -> it instanceof DevelopmentTestingStrategy)) {
+					} else if (matches(DevelopmentTestingStrategy.class::isInstance).isSatisfiedBy(testingStrategy)) {
 						return testClassesDirs;
 					} else {
 						return Collections.emptyList();
@@ -63,12 +61,8 @@ final class DisableNonDevelopmentTestTaskOnIdeaSync implements Action<GradlePlug
 		});
 	}
 
-	private static Stream<GradlePluginTestingStrategy> stream(GradlePluginTestingStrategy strategy) {
-		if (strategy instanceof CompositeGradlePluginTestingStrategy) {
-			return Stream.concat(Stream.of(strategy), StreamSupport.stream(((CompositeGradlePluginTestingStrategy) strategy).spliterator(), false));
-		} else {
-			return Stream.of(strategy);
-		}
+	private Provider<GradlePluginTestingStrategy> testingStrategy(Test task) {
+		return project.provider(() -> (Provider<GradlePluginTestingStrategy>) task.getExtensions().findByName("testingStrategy")).flatMap(it -> it);
 	}
 
 	private static void onIdeaSync(Project project, Runnable action) {
