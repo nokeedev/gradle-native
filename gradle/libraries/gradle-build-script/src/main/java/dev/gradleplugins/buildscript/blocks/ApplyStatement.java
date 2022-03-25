@@ -46,6 +46,11 @@ public final class ApplyStatement implements Statement, NestedStatement {
 		delegate.accept(visitor);
 	}
 
+	@Override
+	public String toString() {
+		return MoreStringUtils.toString(this);
+	}
+
 	@EqualsAndHashCode
 	public static final class Notation {
 		private final Expression delegate;
