@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
@@ -46,6 +47,7 @@ public final class GroupStatement implements Statement, Iterable<Statement>, Emp
 
 	@Override
 	public void accept(Visitor visitor) {
+		Objects.requireNonNull(visitor);
 		for (Statement statement : statementList) {
 			visitor.visit(statement);
 		}
@@ -61,7 +63,7 @@ public final class GroupStatement implements Statement, Iterable<Statement>, Emp
 	}
 
 	public static GroupStatement of(Statement statement) {
-		return new GroupStatement(Collections.singletonList(statement));
+		return new GroupStatement(Collections.singletonList(Objects.requireNonNull(statement)));
 	}
 
 	public static GroupStatement of(Statement firstStatement, Statement... otherStatements) {
@@ -84,7 +86,7 @@ public final class GroupStatement implements Statement, Iterable<Statement>, Emp
 		private final List<Statement> statementList = new ArrayList<>();
 
 		public Builder add(Statement statement) {
-			statementList.add(statement);
+			statementList.add(Objects.requireNonNull(statement));
 			return this;
 		}
 
