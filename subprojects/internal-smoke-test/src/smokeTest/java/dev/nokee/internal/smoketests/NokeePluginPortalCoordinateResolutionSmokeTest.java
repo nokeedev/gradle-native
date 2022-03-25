@@ -15,11 +15,10 @@
  */
 package dev.nokee.internal.smoketests;
 
+import dev.gradleplugins.buildscript.blocks.ProjectBlock;
+import dev.gradleplugins.buildscript.blocks.RepositoriesBlock;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
-import dev.nokee.internal.testing.runnerkit.BuildFile;
-import dev.nokee.internal.testing.runnerkit.GradleDsl;
-import dev.nokee.internal.testing.runnerkit.RepositoriesSectionBuilder;
 import lombok.val;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,7 +37,7 @@ class NokeePluginPortalCoordinateResolutionSmokeTest {
 	@ParameterizedTest(name = "can use Gradle module metadata during resolution from plugin.gradle.org/m2 [{arguments}]")
 	@ValueSource(strings = {"0.3.0", "0.4.0"}) // only since 0.3.0
 	void canUseGradleModuleMetadataDuringResolution(String nokeeVersion) throws IOException {
-		createProject(nokeeVersion).generate(GradleDsl.GROOVY, testDirectory);
+		createProject(nokeeVersion).writeTo(testDirectory.resolve("build.gradle"));
 		val result = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(testDirectory)
 			.withArguments("dependencyInsight", "--configuration", "pluginClasspath", "--dependency",
 				"dev.nokee:platformJni:" + nokeeVersion, "--refresh-dependencies")
@@ -59,9 +58,9 @@ class NokeePluginPortalCoordinateResolutionSmokeTest {
 			)));
 	}
 
-	static BuildFile createProject(String version) {
-		return new BuildFile.Builder()
-			.repositories(RepositoriesSectionBuilder::gradlePluginPortal)
+	static ProjectBlock createProject(String version) {
+		return ProjectBlock.builder()
+			.repositories(RepositoriesBlock.Builder::gradlePluginPortal)
 			.configurations(it -> it.withConfiguration("pluginClasspath",
 				config -> config.canBeConsumed(false).canBeResolved(true)))
 			.dependencies(it -> it.add("pluginClasspath", "dev.nokee:platformJni:" + version))

@@ -27,6 +27,7 @@ dependencies {
 	api "com.google.guava:guava:${guavaVersion}"
 	api "com.google.guava:guava-testlib:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
+	api 'dev.gradleplugins:gradle-build-script'
 	implementation testFixtures(gradleRunnerKit())
 	api gradleRunnerKit()
 	implementation gradleApi(minimumGradleVersion)
