@@ -46,4 +46,8 @@ public final class SingleLineCommentBlock<T extends Statement> implements Statem
 	public void accept(Visitor visitor) {
 		visitor.visit(block);
 	}
+
+	public SingleLineCommentBlock<Statement> prefixWith(Expression prefix) {
+		return new SingleLineCommentBlock<>(comment, block.prefixWith(prefix));
+	}
 }

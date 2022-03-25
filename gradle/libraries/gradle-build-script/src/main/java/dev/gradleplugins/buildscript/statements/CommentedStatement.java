@@ -16,6 +16,7 @@
 package dev.gradleplugins.buildscript.statements;
 
 import dev.gradleplugins.buildscript.Visitor;
+import dev.gradleplugins.buildscript.syntax.Expression;
 
 import java.util.Objects;
 
@@ -32,6 +33,11 @@ public final class CommentedStatement<T extends Statement> implements Statement 
 
 	public static <T extends Statement> CommentedStatement<T> commented(T commentedBlock) {
 		return new CommentedStatement<>(Objects.requireNonNull(commentedBlock));
+	}
+
+	@Override
+	public CommentedStatement<Statement> prefixWith(Expression prefix) {
+		return new CommentedStatement<>(commentedStatement.prefixWith(prefix));
 	}
 
 	@Override

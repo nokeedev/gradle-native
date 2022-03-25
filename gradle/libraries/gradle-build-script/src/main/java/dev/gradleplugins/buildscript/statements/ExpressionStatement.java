@@ -21,6 +21,10 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 
+import static dev.gradleplugins.buildscript.syntax.Syntax.concat;
+import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
+import static java.util.Arrays.asList;
+
 @EqualsAndHashCode
 public final class ExpressionStatement implements Statement {
 	private final Expression delegate;
@@ -36,6 +40,11 @@ public final class ExpressionStatement implements Statement {
 	@Override
 	public String toString() {
 		return MoreStringUtils.toString(this);
+	}
+
+	@Override
+	public ExpressionStatement prefixWith(Expression prefix) {
+		return new ExpressionStatement(concat(asList(prefix, delegate)));
 	}
 
 	@Override
