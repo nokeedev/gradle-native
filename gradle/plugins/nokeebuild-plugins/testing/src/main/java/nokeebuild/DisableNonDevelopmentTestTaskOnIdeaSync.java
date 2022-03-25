@@ -69,7 +69,7 @@ final class DisableNonDevelopmentTestTaskOnIdeaSync implements Action<GradlePlug
 		// We cannot use project.pluginManager.withPlugin('idea') hook because ...
 		//   - Idea plugin seems to be applied after the project is evaluated
 		//   - Idea sync resolve testClassesDirs before applying 'idea' plugin
-		boolean activeIdea = project.getProviders().systemProperty("idea.active").forUseAtConfigurationTime()
+		boolean activeIdea = project.getProviders().systemProperty("idea.sync.active").forUseAtConfigurationTime()
 			.map(Boolean::valueOf).orElse(Boolean.FALSE).get();
 		if (activeIdea) {
 			action.run();
