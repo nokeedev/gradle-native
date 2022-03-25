@@ -19,6 +19,8 @@ import dev.gradleplugins.buildscript.Visitor;
 import dev.gradleplugins.buildscript.syntax.Expression;
 import lombok.EqualsAndHashCode;
 
+import java.util.Objects;
+
 @EqualsAndHashCode
 public final class ExpressionStatement implements Statement {
 	private final Expression delegate;
@@ -42,6 +44,6 @@ public final class ExpressionStatement implements Statement {
 	}
 
 	public static ExpressionStatement of(Expression expression) {
-		return new ExpressionStatement(expression);
+		return new ExpressionStatement(Objects.requireNonNull(expression));
 	}
 }
