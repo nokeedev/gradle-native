@@ -21,6 +21,10 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 
+import static dev.gradleplugins.buildscript.syntax.Syntax.concat;
+import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
+import static java.util.Arrays.asList;
+
 @EqualsAndHashCode
 public final class BlockStatement<T extends Statement> implements Statement {
 	private final Expression sectionSelector;
@@ -34,6 +38,15 @@ public final class BlockStatement<T extends Statement> implements Statement {
 	@Override
 	public String toString() {
 		return MoreStringUtils.toString(this);
+	}
+
+	@Override
+	public BlockStatement<Statement> prefixWith(Expression prefix) {
+		return new BlockStatement<>(concat(asList(prefix, sectionSelector)), content);
+	}
+
+	public BlockStatement<Statement> useExplicitIt() {
+		return new BlockStatement<>(sectionSelector, content.prefixWith(literal("it.")));
 	}
 
 	@Override

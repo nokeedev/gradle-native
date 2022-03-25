@@ -42,6 +42,11 @@ public final class ApplyStatement implements Statement, NestedStatement {
 	}
 
 	@Override
+	public ApplyStatement prefixWith(Expression prefix) {
+		return new ApplyStatement(delegate.prefixWith(prefix));
+	}
+
+	@Override
 	public void accept(Visitor visitor) {
 		delegate.accept(visitor);
 	}

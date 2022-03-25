@@ -19,6 +19,7 @@ import dev.gradleplugins.buildscript.Visitor;
 import dev.gradleplugins.buildscript.statements.EmptyAwareSection;
 import dev.gradleplugins.buildscript.statements.NestedStatement;
 import dev.gradleplugins.buildscript.statements.Statement;
+import dev.gradleplugins.buildscript.syntax.Expression;
 
 import java.util.Objects;
 
@@ -40,6 +41,11 @@ abstract class AbstractBlock implements Statement, EmptyAwareSection, NestedStat
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public Statement prefixWith(Expression prefix) {
+		return delegate.prefixWith(prefix);
 	}
 
 	@Override

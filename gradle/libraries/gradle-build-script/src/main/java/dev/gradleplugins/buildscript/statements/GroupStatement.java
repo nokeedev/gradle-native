@@ -16,6 +16,7 @@
 package dev.gradleplugins.buildscript.statements;
 
 import dev.gradleplugins.buildscript.Visitor;
+import dev.gradleplugins.buildscript.syntax.Expression;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
@@ -51,6 +52,15 @@ public final class GroupStatement implements Statement, Iterable<Statement>, Emp
 		for (Statement statement : statementList) {
 			visitor.visit(statement);
 		}
+	}
+
+	@Override
+	public Statement prefixWith(Expression prefix) {
+		final GroupStatement.Builder builder = GroupStatement.builder();
+		for (Statement statement : statementList) {
+			builder.add(statement.prefixWith(prefix));
+		}
+		return builder.build();
 	}
 
 	@Override

@@ -15,8 +15,8 @@
  */
 package dev.gradleplugins.buildscript.statements;
 
-import dev.gradleplugins.buildscript.PrettyPrinter;
 import dev.gradleplugins.buildscript.GradleDsl;
+import dev.gradleplugins.buildscript.PrettyPrinter;
 import dev.gradleplugins.buildscript.Visitor;
 import dev.gradleplugins.buildscript.syntax.Expression;
 import dev.gradleplugins.buildscript.syntax.GroovySyntax;
@@ -32,6 +32,8 @@ import java.util.function.Consumer;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 
 public interface Statement {
+
+	Statement prefixWith(Expression prefix);
 
 	default void writeTo(PrettyPrinter out) throws IOException {
 		out.write(this);
