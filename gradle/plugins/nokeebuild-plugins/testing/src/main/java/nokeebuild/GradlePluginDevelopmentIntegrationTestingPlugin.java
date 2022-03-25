@@ -45,6 +45,7 @@ abstract /*final*/ class GradlePluginDevelopmentIntegrationTestingPlugin impleme
 
 		final GradlePluginDevelopmentTestSuiteFactory factory = forProject(project);
 		final GradlePluginDevelopmentTestSuite integrationTest = factory.create("integrationTest");
+		integrationTest.getSourceSet().disallowChanges();
 		project.getExtensions().add("integrationTest", integrationTest);
 
 		project.afterEvaluate(proj -> integrationTest.finalizeComponent());
