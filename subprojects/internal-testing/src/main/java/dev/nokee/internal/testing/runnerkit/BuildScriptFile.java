@@ -15,19 +15,23 @@
  */
 package dev.nokee.internal.testing.runnerkit;
 
+import dev.gradleplugins.buildscript.GradleDsl;
+import dev.gradleplugins.buildscript.statements.GroupStatement;
+import dev.gradleplugins.buildscript.statements.Statement;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
+
+import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 
 public final class BuildScriptFile {
 	private final Path path;
 	private final GradleDsl dsl;
-	private final List<Section> sections = new ArrayList<>();
+	private final GroupStatement.Builder sections = GroupStatement.builder();
 
 	static BuildScriptFile createFile(Path path) throws IOException {
 		Files.createDirectories(path.getParent());
@@ -56,18 +60,18 @@ public final class BuildScriptFile {
 		return append(text);
 	}
 
-	public BuildScriptFile leftShift(Section section) throws IOException {
+	public BuildScriptFile leftShift(Statement section) throws IOException {
 		return append(section);
 	}
 
-	public BuildScriptFile append(Section section) throws IOException {
+	public BuildScriptFile append(Statement section) throws IOException {
 		sections.add(section);
-		Files.write(path, (section.generateSection(dsl) + System.lineSeparator()).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+		Files.write(path, (section.toString(dsl) + System.lineSeparator()).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 		return this;
 	}
 
 	public BuildScriptFile append(Object text) throws IOException {
-		sections.add(dsl.newSection(text));
+		sections.add(Statement.expressionOf(literal(text)));
 		Files.write(path, (text.toString() + System.lineSeparator()).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 		return this;
 	}

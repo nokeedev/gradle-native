@@ -15,13 +15,12 @@
  */
 package dev.nokee.internal.testing;
 
+import dev.gradleplugins.buildscript.blocks.ApplyStatement;
+import dev.gradleplugins.buildscript.blocks.GradleBlock;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
-import dev.nokee.internal.testing.runnerkit.ApplySection;
 import dev.nokee.internal.testing.runnerkit.BuildScriptFile;
-import dev.nokee.internal.testing.runnerkit.GradleDsl;
-import dev.nokee.internal.testing.runnerkit.InitscriptSectionBuilder;
 import lombok.SneakyThrows;
 import lombok.val;
 import net.nokeedev.testing.file.TestNameTestDirectoryProvider;
@@ -32,15 +31,20 @@ import org.opentest4j.TestAbortedException;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import static dev.gradleplugins.buildscript.blocks.ApplyStatement.Notation.plugin;
+import static dev.gradleplugins.buildscript.blocks.ApplyStatement.apply;
+import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.classpath;
+import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.initscript;
+import static dev.gradleplugins.buildscript.blocks.DependencyNotation.files;
+import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause;
-import static dev.nokee.internal.testing.runnerkit.ApplyNotation.plugin;
-import static dev.nokee.internal.testing.runnerkit.ApplySection.apply;
-import static dev.nokee.internal.testing.runnerkit.DependenciesSection.dependencies;
-import static dev.nokee.internal.testing.runnerkit.DependencyNotation.files;
-import static dev.nokee.internal.testing.runnerkit.DependenciesSectionBuilder.classpath;
-import static dev.nokee.internal.testing.runnerkit.PluginsSection.plugins;
 import static java.lang.String.join;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -168,7 +172,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 	}
 
 	// TODO: move to Supported target?
-	private ApplySection appliesPluginToTarget(SupportedTarget target) {
+	private ApplyStatement appliesPluginToTarget(SupportedTarget target) {
 		if (target == SupportedTarget.Init || qualifiedPluginId == null) {
 			return apply(plugin(getPluginTypeUnderTest()));
 		} else {
@@ -231,10 +235,6 @@ public final class WellBehavedPluginTester extends AbstractTester {
 			if (distributionUnderTest != null) {
 			        runner = runner.withGradleVersion(distributionUnderTest);
 			}
-
-			getInitFile().append(
-				new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))).toString(GradleDsl.GROOVY)
-			);
 			return runner;
 		}
 
@@ -244,6 +244,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		public void setUp() throws Throwable {
 			super.setUp();
 			runner = newRunner();
+			getInitFile().append(initscript(it -> it.dependencies(classpath(files(runner.getPluginClasspath())))));
 		}
 
 		protected final BuildResult succeeds(String... tasks) {
@@ -281,13 +282,16 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		@SneakyThrows // TODO: GradleRunner#configure should accept functional that throws exception
 		private GradleRunner configureRunnerBuildscriptClasspath(GradleRunner runner) {
 			val initScript = new BuildScriptFile(getWorkingDirectory().resolve("classpath.init.gradle"));
-			initScript.append(new InitscriptSectionBuilder().dependencies(classpath(files(runner.getPluginClasspath()))).toString(GradleDsl.GROOVY))
-				.append(String.join(System.lineSeparator(),
-					"beforeSettings { settings ->",
-					"  settings.buildscript." + dependencies(classpath(files(runner.getPluginClasspath()))),
-					"  settings.include('a', 'b', 'c')", // Include sub-projects in-case the plugin misbehave on sub-projects
-					"}"
-				));
+			val gradle = GradleBlock.builder()
+				.initscript(it -> it.dependencies(classpath(files(runner.getPluginClasspath()))))
+				.settingsEvaluated(it -> {
+					it.buildscript(t -> t.dependencies(classpath(files(runner.getPluginClasspath()))));
+
+					// Include sub-projects in-case the plugin misbehave on sub-projects
+					it.include("a", "b", "c");
+				})
+				.build();
+			initScript.append(gradle);
 			return runner.usingInitScript(initScript.toFile());
 		}
 	}
@@ -313,7 +317,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		public void doExecute() throws Throwable {
 			buildScript(target.getBuildScriptName())
 				.append("assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 0")
-				.append(apply(plugin(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY))
+				.append(apply(plugin(getQualifiedPluginIdUnderTest())))
 				.append("assert plugins.withType(Class.forName('" + getPluginTypeUnderTest().getTypeName() + "')).size() == 1");
 
 			succeeds();
@@ -339,7 +343,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		@Override
 		public void doExecute() throws Throwable {
 			buildScript(target.getBuildScriptName()).append(
-				apply(plugin(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY)
+				apply(plugin(getQualifiedPluginIdUnderTest()))
 			);
 
 			succeeds();
@@ -365,7 +369,7 @@ public final class WellBehavedPluginTester extends AbstractTester {
 		@Override
 		public void doExecute() throws Throwable {
 			buildScript(target.getBuildScriptName()).append(
-				apply(plugin(getPluginTypeUnderTest())).generateSection(GradleDsl.GROOVY)
+				apply(plugin(getPluginTypeUnderTest()))
 			);
 			succeeds();
 		}
@@ -388,9 +392,8 @@ public final class WellBehavedPluginTester extends AbstractTester {
 
 		@Override
 		public void doExecute() throws Throwable {
-			buildScript(target.getBuildScriptName()).append(
-				plugins(it -> it.id(getQualifiedPluginIdUnderTest())).generateSection(GradleDsl.GROOVY)
-			);
+			buildScript(target.getBuildScriptName())
+				.append(plugins(it -> it.id(getQualifiedPluginIdUnderTest())));
 
 			succeeds();
 		}

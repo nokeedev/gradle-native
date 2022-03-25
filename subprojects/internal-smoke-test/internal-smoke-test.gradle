@@ -15,6 +15,8 @@ tasks.named('check') { it.dependsOn(testTask) }
 dependencies {
 	smokeTestImplementation project(':internalTesting')
 	smokeTestImplementation gradleTestKit(minimumGradleVersion)
+
+	smokeTestImplementation 'dev.gradleplugins:gradle-build-script'
 }
 
 tasks.named("fullTest") {
