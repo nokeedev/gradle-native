@@ -48,6 +48,13 @@ public final class GradleBlock extends AbstractBlock {
 			return this;
 		}
 
+		public Builder beforeSettings(Consumer<? super SettingsBlock.Builder> action) {
+			final SettingsBlock.Builder builder = new SettingsBlock.Builder();
+			action.accept(builder);
+			this.builder.add(BlockStatement.of(literal("beforeSettings"), builder.build()));
+			return this;
+		}
+
 		public GradleBlock build() {
 			return new GradleBlock(builder.build());
 		}
