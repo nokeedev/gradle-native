@@ -126,7 +126,7 @@ public final class PrettyPrinter implements Closeable, Flushable {
 					//if (content is single instruction) keep collpse
 					newLine();
 
-					newScope(() -> statement.accept(this));
+					newScope(() -> statement.getContent().accept(this));
 
 					writeIndent();
 					write("}");

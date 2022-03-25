@@ -84,7 +84,7 @@ public final class BuildScriptMatchers {
 				builder.append("<block selector='").append(syntax.render(statement.getSelector())).append("'/>");
 			} else {
 				builder.append("<block selector='").append(syntax.render(statement.getSelector())).append("'>");
-				statement.accept(this);
+				statement.getContent().accept(this);
 				builder.append("</block>");
 			}
 		}

@@ -55,10 +55,11 @@ class BlockStatementTest {
 	}
 
 	@Test
-	void visitsContent() {
+	void visitsStatement() {
 		final Statement content =  mock(Statement.class);
+		final Statement subject = of(literal("lope"), content);
 		final Visitor visitor = mock(Visitor.class);
-		of(literal("lope"), content).accept(visitor);
-		verify(visitor).visit(content);
+		subject.accept(visitor);
+		verify(visitor).visit(subject);
 	}
 }
