@@ -45,6 +45,8 @@ public final class GroovySyntax implements Syntax {
 			return StreamSupport.stream(((CompositeExpression) expression).spliterator(), false).map(this::render).collect(Collectors.joining());
 		} else if (expression instanceof SetLiteralValue) {
 			return renderSetLiteral((SetLiteralValue) expression);
+		} else if (expression instanceof VariableDeclarableExpression) {
+			return renderStandaloneVariableDeclaration((VariableDeclarableExpression) expression);
 		}
 		throw new UnsupportedOperationException("Unknown expression");
 	}
@@ -148,6 +150,8 @@ public final class GroovySyntax implements Syntax {
 			}
 
 			builder.append(variable.getType().map(this::render).orElse("def"));
+			builder.append(" ");
+			builder.append(variable.getName());
 			builder.append(" = ");
 			builder.append(render(expression.getValue()));
 		} else {
@@ -155,6 +159,18 @@ public final class GroovySyntax implements Syntax {
 			builder.append(" = ");
 			builder.append(render(expression.getValue()));
 		}
+		return builder.toString();
+	}
+
+	private String renderStandaloneVariableDeclaration(VariableDeclarableExpression expression) {
+		if (expression.isFinal()) {
+			throw new UnsupportedOperationException("Cannot declare final variable without value");
+		}
+
+		final StringBuilder builder = new StringBuilder();
+		builder.append(expression.getType().map(this::render).orElse("def"));
+		builder.append(" ");
+		builder.append(expression.getName());
 		return builder.toString();
 	}
 

@@ -50,7 +50,7 @@ class KotlinDslSyntaxTest {
 		@Test
 		void rendersValVariableWithTypeAndValue() {
 			assertThat(syntax.render(val("myProp").ofType("String").assign(string("myString"))),
-				equalTo("val myProp: String = 'myString'"));
+				equalTo("val myProp: String = \"myString\""));
 		}
 
 		@Test
@@ -61,7 +61,7 @@ class KotlinDslSyntaxTest {
 		@Test
 		void rendersVarVariableWithValue() {
 			assertThat(syntax.render(var("myProp").assign(string("value"))),
-				equalTo("var myProp = 'value'"));
+				equalTo("var myProp = \"value\""));
 		}
 
 		@Test
@@ -79,7 +79,7 @@ class KotlinDslSyntaxTest {
 		@Test
 		void rendersVarVariableWithSpecificTypeWithValue() {
 			assertThat(syntax.render(var("myProp").ofType("CharSequence").assign(string("myString"))),
-				equalTo("var myProp: CharSequence = 'myString'"));
+				equalTo("var myProp: CharSequence = \"myString\""));
 		}
 	}
 
