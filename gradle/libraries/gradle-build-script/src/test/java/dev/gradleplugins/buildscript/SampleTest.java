@@ -113,7 +113,7 @@ class SampleTest {
 				.build(),
 			groovyOf(
 				"settingsEvaluated {",
-				"  pluginManagement {",
+				"  it.pluginManagement {",
 				"    repositories {",
 				"      gradlePluginPortal()",
 				"      maven {", // TODO: Collapse single value block

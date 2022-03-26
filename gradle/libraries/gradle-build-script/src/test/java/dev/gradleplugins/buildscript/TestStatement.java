@@ -17,6 +17,7 @@ package dev.gradleplugins.buildscript;
 
 import dev.gradleplugins.buildscript.statements.EmptyAwareSection;
 import dev.gradleplugins.buildscript.statements.Statement;
+import dev.gradleplugins.buildscript.syntax.Expression;
 
 import java.io.IOException;
 
@@ -33,6 +34,11 @@ public enum TestStatement implements Statement, EmptyAwareSection {
 			return false;
 		}
 	};
+
+	@Override
+	public Statement prefixWith(Expression prefix) {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public void writeTo(PrettyPrinter out) throws IOException {
