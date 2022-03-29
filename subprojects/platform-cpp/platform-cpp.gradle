@@ -2,6 +2,7 @@ plugins {
 	id 'nokeebuild.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-unit-test'
 	id 'nokeebuild.gradle-plugin-functional-test'
+	id 'nokeebuild.gradle-plugin-performance-test'
 	id 'maven-publish'
 }
 
@@ -46,4 +47,24 @@ functionalTest {
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':languageCpp'))
 	}
+}
+
+// Check out projects
+
+repositories {
+	maven { url = 'https://repo.gradle.org/gradle/libs-releases/' }
+}
+
+dependencies {
+	performanceTestImplementation gradleRunnerKit()
+	performanceTestImplementation('dev.gradleplugins:gradle-runner-kit-impl:0.0.137') {
+		because 'we need access to AbstractGradleExecutionProvider until we open up that API in toolbox'
+	}
+	performanceTestImplementation gradleTestKit("6.9.2")
+	performanceTestImplementation 'dev.nokee:templates'
+	performanceTestImplementation project(':internalTesting')
+
+	performanceTestRuntimeOnly 'org.gradle:gradle-tooling-api:6.9.2'
+	performanceTestImplementation 'org.gradle.profiler:gradle-profiler:0.18.0'
+	performanceTestImplementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
 }

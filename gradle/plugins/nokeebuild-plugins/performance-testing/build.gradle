@@ -1,0 +1,26 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+//region Java depends on Groovy language
+apply plugin: 'groovy-base'
+tasks.named('compileGroovy') {
+	// Groovy only needs the declared dependencies
+	// (and not longer the output of compileJava)
+	classpath = sourceSets.main.compileClasspath
+}
+tasks.named('compileJava') {
+	// Java also depends on the result of Groovy compilation
+	// (which automatically makes it depend of compileGroovy)
+	classpath += files(sourceSets.main.groovy.classesDirectory)
+}
+//endregion
+
+gradlePlugin {
+	plugins {
+		performanceTesting {
+			id = 'nokeebuild.gradle-plugin-performance-test'
+			implementationClass = 'nokeebuild.testing.performance.GradlePluginDevelopmentPerformanceTestingPlugin'
+		}
+	}
+}
