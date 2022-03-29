@@ -39,7 +39,7 @@ import static java.util.stream.Collectors.joining;
  * ideally {@literal <} 90 chars (from repo root to test dir root, e.g. "core/build/tmp/test files/{TestClass}/{testMethod}/qqlj8"),
  * or {@literal <} 40 chars for "{TestClass}/{testMethod}/qqlj8"
  */
-abstract class AbstractTestDirectoryProvider implements TestDirectoryProvider, AutoCloseable {
+public abstract class AbstractTestDirectoryProvider implements TestDirectoryProvider, AutoCloseable {
 	private static final RetryPolicy<Void> RETRY_POLICY = RetryPolicy.<Void>builder().abortOn(InterruptedException.class).withMaxAttempts(100).withDelay(Duration.ofMillis(100)).build();
 	protected final Path root;
 	private final String className;

@@ -15,6 +15,7 @@ include 'ide-idea'
 include 'jvm-basics'
 include 'jvm-strict-compile'
 include 'licensing'
+include 'performance-testing'
 include 'testing'
 include 'uber-plugins'
 
