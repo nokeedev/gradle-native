@@ -1,0 +1,31 @@
+def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':docs:exemplarKit'), project(':distributions'), project(':internalTesting'), project(':distributionsLocal')])*.path
+
+def publishToStaging = tasks.register('publishToStaging') {
+	group = 'publishing'
+}
+
+def distributionRepository = layout.buildDirectory.dir('repository')
+allPluginProjectPaths.each { String projectPath ->
+	project(projectPath) { Project proj ->
+		def publishToDistribution = proj.tasks.register('publishToDistributionLocal')
+		proj.pluginManager.withPlugin('maven-publish') {
+			proj.publishing.repositories.maven {
+				name = 'distributionLocal'
+				url = distributionRepository
+			}
+			publishToDistribution.configure { dependsOn('publishAllPublicationsToDistributionLocalRepository') }
+		}
+	}
+	publishToStaging.configure { dependsOn("${projectPath}:publishToDistributionLocal") }
+}
+
+configurations.create('distributionsElements') {
+	canBeConsumed = true
+	canBeResolved = false
+	attributes {
+		attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, 'distributions'))
+	}
+	outgoing.artifact(distributionRepository) {
+		builtBy(publishToStaging)
+	}
+}

@@ -68,3 +68,20 @@ dependencies {
 	performanceTestImplementation 'org.gradle.profiler:gradle-profiler:0.18.0'
 	performanceTestImplementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
 }
+
+configurations.register('performanceTestLocalRepository') {
+	canBeResolved = true
+	canBeConsumed = false
+	attributes {
+		attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, 'distributions'))
+	}
+}
+dependencies {
+	performanceTestLocalRepository project(':distributionsLocal')
+}
+
+tasks.named('performanceTest', Test) { task ->
+	task.dependsOn(configurations.performanceTestLocalRepository)
+	task.jvmArgumentProviders.add({
+		["-Ddev.nokee.performance.localRepository.url=${configurations.performanceTestLocalRepository.singleFile}"] } as CommandLineArgumentProvider)
+}

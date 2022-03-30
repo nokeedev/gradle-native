@@ -61,7 +61,7 @@ class RealWorldCppBuildPerformanceTest {
 		if (true) {
 			val workingDirectory = perVersionWorkingDirectory(runIndex++);
 			final BuildExperimentRunner<GradleInvocationSpec> currentRunner = create(gradleProfiler(builder -> {
-				builder.displayName("Test");
+				builder.displayName("Nokee v0.4.0");
 				builder.outputDirectory(testDirectory.getTestDirectory().resolve("0.4.0"));
 			}))
 				.inDirectory(workingDirectory)
@@ -83,7 +83,7 @@ class RealWorldCppBuildPerformanceTest {
 		if (true) {
 			val workingDirectory = perVersionWorkingDirectory(runIndex++);
 			final BuildExperimentRunner<GradleInvocationSpec> baselineRunner = create(gradleProfiler(builder -> {
-				builder.displayName("Test");
+				builder.displayName("Nokee current");
 				builder.outputDirectory(testDirectory.getTestDirectory().resolve("0.5.0"));
 			}))
 				.inDirectory(workingDirectory)
@@ -93,18 +93,25 @@ class RealWorldCppBuildPerformanceTest {
 			new CppGreeterApp().writeToProject(workingDirectory.toFile());
 			Files.write(workingDirectory.resolve("build.gradle"), Arrays.asList(
 				"plugins {",
-				"  id 'dev.nokee.cpp-application' version '0.4.0'",
+				"  id 'dev.nokee.cpp-application' version '0.5.0'",
 				"}"
 			));
-			Files.createFile(workingDirectory.resolve("settings.gradle"));
+			Files.write(workingDirectory.resolve("settings.gradle"), Arrays.asList(
+				"pluginManagement {",
+				"  repositories {",
+				"    maven { url = '" + System.getProperty("dev.nokee.performance.localRepository.url") + "' }",
+				"    gradlePluginPortal()",
+				"  }",
+				"}"
+			));
 
 			baseline = baselineRunner.run();
 		}
 
 		results = PerformanceTestResult.builder()
-			.testProject("cppApp").testClass("RealWorldCppBuildPerformanceTest").testCase("assemble task")
+			.testProject("cppApp").testClass(RealWorldCppBuildPerformanceTest.class.getCanonicalName()).testCase("assemble task")
 			.experiment("Nokee v0.4.0", baseline)
-			.experiment("Nokee v0.5.0", current)
+			.experiment("Nokee current", current)
 			.build();
 	}
 
