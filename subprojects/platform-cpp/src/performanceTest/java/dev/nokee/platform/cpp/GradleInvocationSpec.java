@@ -16,6 +16,7 @@
 package dev.nokee.platform.cpp;
 
 import dev.gradleplugins.runnerkit.GradleDistribution;
+import dev.gradleplugins.runnerkit.providers.CommandLineArgumentsProvider;
 import dev.gradleplugins.runnerkit.providers.GradleDistributionProvider;
 import dev.gradleplugins.runnerkit.providers.GradleExecutionProvider;
 import lombok.AccessLevel;
@@ -24,14 +25,22 @@ import lombok.Data;
 import lombok.With;
 import org.gradle.util.GradleVersion;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 public class GradleInvocationSpec implements BuildExperimentInvocationSpec {
 	@With(AccessLevel.PRIVATE) private GradleExecutionProvider<GradleDistribution> gradleDistribution = GradleDistributionProvider.version(GradleVersion.current().getVersion());
+	private GradleExecutionProvider<List<String>> arguments = CommandLineArgumentsProvider.empty();
 
 	public GradleInvocationSpec() {}
 
 	public GradleInvocationSpec withGradleVersion(String versionNumber) {
 		return withGradleDistribution(GradleDistributionProvider.version(versionNumber));
+	}
+
+	public GradleInvocationSpec withArguments(String... arguments) {
+		return new GradleInvocationSpec(gradleDistribution, CommandLineArgumentsProvider.of(Arrays.asList(arguments)));
 	}
 }

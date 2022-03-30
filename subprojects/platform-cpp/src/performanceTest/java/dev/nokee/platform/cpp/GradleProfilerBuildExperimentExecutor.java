@@ -339,7 +339,7 @@ final class GradleProfilerBuildExperimentExecutor implements BuildExperimentExec
 			// TODO: Add better exception
 			parameters.getBuildAction().map(toGradleInvokerBuildAction()).orElseThrow(RuntimeException::new),
 			parameters.getCleanAction().map(toGradleInvokerBuildAction()).orElse(BuildAction.NO_OP),
-			Collections.emptyList(), // gradleArgs
+			parameters.getInvocation().get().getArguments().get(), // gradleArgs
 			invocationSettings.getSystemProperties(),
 			Collections.emptyList(), // build mutators
 			invocationSettings.getWarmUpCount(),
