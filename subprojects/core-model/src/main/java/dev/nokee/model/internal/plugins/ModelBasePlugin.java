@@ -52,7 +52,7 @@ public class ModelBasePlugin implements Plugin<Project> {
 
 		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
 		modelRegistry.configure(new UseModelPropertyIdentifierAsDisplayName());
-		new ModelActionSystem(modelRegistry).execute(project);
+		new ModelActionSystem().execute(project);
 		modelRegistry.configure(new GenerateModelPathFromIdentifier());
 		project.getPluginManager().apply(AncestryCapabilityPlugin.class);
 		project.getPluginManager().apply(NamesCapabilityPlugin.class);

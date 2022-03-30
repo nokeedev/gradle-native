@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.actions;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.core.ModelAction;
@@ -25,15 +26,16 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.specs.Spec;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -45,17 +47,16 @@ import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 @SuppressWarnings("unchecked")
 public final class ModelActionSystem implements Action<Project> {
 	private final ReentrantAvoidance reentrant = new ReentrantAvoidance();
-	private final ModelLookup lookup;
-
-	public ModelActionSystem(ModelLookup lookup) {
-		this.lookup = lookup;
-	}
+	private final List<ModelNode> allActionEntities = new ArrayList<>();
+	private final List<ModelNode> allConfigurableEntities = new ArrayList<>();
 
 	@Override
 	public void execute(Project project) {
 		val configurer = project.getExtensions().getByType(ModelConfigurer.class);
 
 		// Rules to execute actions
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelActionTag.class), this::trackActions));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), this::trackConfigurableEntities));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ActionSelectorComponent.class), this::onIdentityChanged));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelSpecComponent.class), ModelComponentReference.of(ModelActionComponent.class), this::onActionAdded));
 
@@ -71,7 +72,7 @@ public final class ModelActionSystem implements Action<Project> {
 	// ComponentFromEntity<ActionComponent> (readonly) all
 	// ComponentFromEntity<ExecutedActionComponent> (read-write) self
 	private void onIdentityChanged(ModelNode entity, ActionSelectorComponent component) {
-		allActions(lookup, reentrant.andDeferredActions(entity, filter(actionMatching(component),
+		allActions(reentrant.andDeferredActions(entity, filter(actionMatching(component),
 			whileIgnoringExecuted(entity, executeAction(entity)))));
 	}
 
@@ -79,8 +80,8 @@ public final class ModelActionSystem implements Action<Project> {
 		return it -> it.getComponent(componentOf(ModelActionComponent.class)).get().execute(entity);
 	}
 
-	private static void allActions(ModelLookup lookup, Consumer<? super Iterable<ModelNode>> action) {
-		action.accept(lookup.query(it -> it.hasComponent(componentOf(ModelActionTag.class))).get());
+	private void allActions(Consumer<? super Iterable<ModelNode>> action) {
+		action.accept(ImmutableList.copyOf(allActionEntities));
 	}
 
 	private static Consumer<Iterable<ModelNode>> filter(Predicate<? super ModelNode> filter, Consumer<? super Iterable<ModelNode>> action) {
@@ -125,6 +126,14 @@ public final class ModelActionSystem implements Action<Project> {
 			val identity = it.findComponent(componentOf(ModelSpecComponent.class));
 			return identity.map(actionIdentityComponent -> ((Spec<DomainObjectIdentity>) actionIdentityComponent.get()).isSatisfiedBy(component.get())).orElse(false);
 		};
+	}
+
+	private void trackActions(ModelNode entity, ModelActionTag tag) {
+		allActionEntities.add(entity);
+	}
+
+	private void trackConfigurableEntities(ModelNode entity, ConfigurableTag tag) {
+		allConfigurableEntities.add(entity);
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
@@ -178,7 +187,7 @@ public final class ModelActionSystem implements Action<Project> {
 	// ComponentFromEntity<ActionSelectorComponent> (readonly) all
 	// ComponentFromEntity<ExecutedActionComponent> (read-write) all
 	private void onActionAdded(ModelNode entity, ModelSpecComponent identity, ModelActionComponent component) {
-		allEntities(lookup, filter(onlyMatching(identity),
+		allEntities(filter(onlyMatching(identity),
 			it -> it.forEach(reentrant.ifPossible(entity, updateExecutedAfter(entity, executeAction(component))))));
 	}
 
@@ -186,8 +195,8 @@ public final class ModelActionSystem implements Action<Project> {
 		return it -> component.get().execute(it);
 	}
 
-	private static void allEntities(ModelLookup lookup, Consumer<? super Iterable<ModelNode>> action) {
-		action.accept(lookup.query(it -> it.hasComponent(componentOf(ConfigurableTag.class))).get());
+	private void allEntities(Consumer<? super Iterable<ModelNode>> action) {
+		action.accept(ImmutableList.copyOf(allConfigurableEntities));
 	}
 
 	private static Predicate<ModelNode> onlyMatching(ModelSpecComponent component) {
