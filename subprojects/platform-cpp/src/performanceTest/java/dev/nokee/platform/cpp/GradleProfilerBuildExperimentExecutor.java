@@ -81,6 +81,7 @@ final class GradleProfilerBuildExperimentExecutor implements BuildExperimentExec
 
 	@Override
 	public BuildExperimentExecutionResult run(BuildExperimentExecutionContext<GradleInvocationSpec> parameters) {
+		System.out.println("> " + context.getDisplayName() + " -> " + parameters.getWorkingDirectory().get());
 		List<String> additionalJvmOpts = new ArrayList<>();
 		List<String> additionalArgs = new ArrayList<>();
 		additionalArgs.add("-PbuildExperimentDisplayName=" + context.getDisplayName());
