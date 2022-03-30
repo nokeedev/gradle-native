@@ -38,11 +38,11 @@ public final class XmlScenarioDataReporter implements DataReporter<PerformanceTe
 	public void report(PerformanceTestResult results) {
 		final Path testResultsDirectory = Optional.ofNullable(System.getProperty(TEST_RESULTS_DIRECTORY_PROP_KEY)).map(File::new).map(File::toPath).orElseThrow(RuntimeException::new);
 
-		try (Writer outWriter = new FileWriter(createParentDirectories(testResultsDirectory.resolve("SCENARIO-dev.nokee.platform.cpp.RealWorldCppBuildPerformanceTest.xml")).toFile())) {
+		try (Writer outWriter = new FileWriter(createParentDirectories(testResultsDirectory.resolve("SCENARIO-" + results.getPerformanceExperiment().getScenario().getClassName() + ".xml")).toFile())) {
 			XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(outWriter);
 			writer.writeStartDocument();
 			writer.writeStartElement("scenario");
-			writer.writeAttribute("name", "dev.nokee.platform.cpp.RealWorldCppBuildPerformanceTest");
+			writer.writeAttribute("name", results.getPerformanceExperiment().getScenario().getClassName());
 			writer.writeAttribute("hostname", InetAddress.getLocalHost().getHostName());
 
 			results.forEach((name, result) -> {
