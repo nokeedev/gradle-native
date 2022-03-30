@@ -169,7 +169,7 @@ final class GradleProfilerBuildExperimentExecutor implements BuildExperimentExec
 			GradleConnector connector = GradleConnector.newConnector();
 			try {
 				connector.forProjectDirectory(parameters.getWorkingDirectory().get());
-				connector.useGradleVersion("7.4.1");
+				connector.useGradleVersion("7.4.1"); // TODO: Use invocation spec
 				return probe(connector, initScript, buildDetails, daemonControl);
 			} finally {
 				connector.disconnect();
