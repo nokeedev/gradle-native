@@ -55,13 +55,15 @@ import java.util.stream.Stream;
 public final class ModelNode {
 	private final ModelEntityId id = ModelEntityId.nextId();
 	private final Map<ModelComponentType<?>, Object> components = new LinkedHashMap<>();
+	private ModelNodeListener listener = null;
 
 	// Represent all components this entity has.
 	private Bits componentBits = Bits.empty();
 
 	public ModelNode() {}
 
-	private ModelNode(ModelNodeListener listener) {
+	public ModelNode(ModelNodeListener listener) {
+		this.listener = listener;
 		addComponent(listener);
 	}
 
@@ -89,7 +91,17 @@ public final class ModelNode {
 	}
 
 	private void notifyComponentAdded(Object newComponent) {
-		findComponent(ModelNodeListener.class).ifPresent(listener -> listener.projectionAdded(this, newComponent));
+		if (listener == null) {
+			for (Object component : components.values()) {
+				if (component instanceof ModelNodeListener) {
+					listener = (ModelNodeListener) component;
+					listener.projectionAdded(this, newComponent);
+					return;
+				}
+			}
+		} else {
+			listener.projectionAdded(this, newComponent);
+		}
 	}
 
 	public ModelComponentTypes getComponentTypes() {

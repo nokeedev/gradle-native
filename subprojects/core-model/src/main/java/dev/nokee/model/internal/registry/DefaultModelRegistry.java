@@ -116,7 +116,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	@Override
 	public ModelNode instantiate(ModelRegistration registration) {
 		registration.getActions().forEach(this::configure);
-		val node = new ModelNode();
+		val node = new ModelNode(nodeStateListener);
 		entities.add(node);
 		return newNode(node, registration);
 	}
@@ -133,7 +133,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private ModelNode newNode(ModelNode entity, ModelRegistration registration) {
 		entity.addComponent(elementFactory);
-		entity.addComponent(nodeStateListener);
 		for (Object component : registration.getComponents()) {
 			if (component instanceof ModelProjection) {
 				entity.addComponent(bindingService.bindManagedProjectionWithInstantiator((ModelProjection) component));
