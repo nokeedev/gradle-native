@@ -5,4 +5,11 @@ include 'test-directory-junit-jupiter'
 
 gradle.allprojects {
 	group = 'net.nokeedev.testing'
+
+	pluginManager.withPlugin('java-base') {
+		java {
+			sourceCompatibility = JavaVersion.VERSION_1_8
+			targetCompatibility = JavaVersion.VERSION_1_8
+		}
+	}
 }
