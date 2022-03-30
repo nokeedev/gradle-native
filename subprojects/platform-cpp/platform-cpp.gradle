@@ -67,6 +67,8 @@ dependencies {
 	performanceTestRuntimeOnly 'org.gradle:gradle-tooling-api:6.9.2'
 	performanceTestImplementation 'org.gradle.profiler:gradle-profiler:0.18.0'
 	performanceTestImplementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
+
+	performanceTestImplementation project(':coreExec')
 }
 
 configurations.register('performanceTestLocalRepository') {
