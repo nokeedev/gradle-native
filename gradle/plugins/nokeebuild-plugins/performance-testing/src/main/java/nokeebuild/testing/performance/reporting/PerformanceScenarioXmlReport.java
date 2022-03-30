@@ -35,7 +35,6 @@ public abstract class PerformanceScenarioXmlReport implements DirectoryReport {
 		this.name = name;
 		this.displayName = calculateDisplayName(name, task);
 		getRequired().convention(true);
-		getOutputLocation().set(new File("bob"));
 	}
 
 	private static String calculateDisplayName(String name, Task task) {
