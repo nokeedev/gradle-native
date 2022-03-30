@@ -46,7 +46,6 @@ import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
@@ -149,7 +148,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 
 	private static List<File> extractFrameworkSearchPaths(List<String> args) {
 		val result = new ArrayList<File>();
-		var nextArgIsFrameworkSearchPath = false;
+		boolean nextArgIsFrameworkSearchPath = false;
 		for (String arg : args) {
 			if (nextArgIsFrameworkSearchPath) {
 				result.add(new File(arg));

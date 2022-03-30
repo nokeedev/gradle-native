@@ -26,7 +26,6 @@ import dev.nokee.runtime.core.Coordinate;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 import org.gradle.util.Path;
@@ -182,7 +181,7 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 			if (buildVariant instanceof DefaultBuildVariant) {
 				return new VariantIdentifier<T>(variantType, componentIdentifier, (DefaultBuildVariant) buildVariant);
 			}
-			var allDimensions = this.allDimensions;
+			Dimensions allDimensions = this.allDimensions;
 			if (allDimensions.size() == dimensions.size()) {
 				allDimensions = Dimensions.empty();
 			}

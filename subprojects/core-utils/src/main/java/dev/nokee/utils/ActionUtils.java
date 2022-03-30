@@ -21,7 +21,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.specs.Spec;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -89,7 +89,13 @@ public final class ActionUtils {
 	@SafeVarargs
 	@SuppressWarnings("varargs")
 	public static <T> Action<T> composite(org.gradle.api.Action<? super T>... actions) {
-		return composite(Arrays.stream(actions).filter(ActionUtils::doesSomething).collect(Collectors.toList()));
+		List<org.gradle.api.Action<? super T>> filtered = new ArrayList<>(actions.length);
+		for (org.gradle.api.Action<? super T> action : actions) {
+			if (doesSomething(action)) {
+				filtered.add(action);
+			}
+		}
+		return composite(filtered);
 	}
 
 	public static <T> Action<T> composite(Iterable<? extends org.gradle.api.Action<? super T>> actions) {

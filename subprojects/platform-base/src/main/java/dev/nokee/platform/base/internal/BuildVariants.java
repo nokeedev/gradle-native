@@ -23,11 +23,11 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateSet;
 import dev.nokee.runtime.core.CoordinateSpace;
 import dev.nokee.utils.TransformerUtils;
 import lombok.val;
-import lombok.var;
 import org.gradle.api.Transformer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.HasMultipleValues;
@@ -105,9 +105,9 @@ public final class BuildVariants {
 		private Transformer<CoordinateSet<Object>, Iterable<Object>> asCoordinateSet(ModelNode entity, String componentName) {
 			val axis = entity.getComponent(componentOf(VariantDimensionAxisComponent.class)).get();
 
-			var axisValues = assertNonEmpty(axis.getDisplayName(), componentName);
+			TransformerUtils.Transformer<Iterable<Object>, Iterable<Object>> axisValues = assertNonEmpty(axis.getDisplayName(), componentName);
 
-			var axisCoordinates = axisValues.andThen(transformEach(axis::create));
+			TransformerUtils.Transformer<Iterable<Coordinate<Object>>, Iterable<Object>> axisCoordinates = axisValues.andThen(transformEach(axis::create));
 
 			val axisValidator = entity.findComponent(componentOf(VariantDimensionAxisValidatorComponent.class))
 				.map(VariantDimensionAxisValidatorComponent::get);

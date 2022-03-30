@@ -17,7 +17,6 @@ package dev.nokee.model.internal;
 
 import com.google.common.collect.Iterators;
 import lombok.EqualsAndHashCode;
-import lombok.var;
 import org.gradle.api.Project;
 import org.gradle.util.Path;
 
@@ -56,7 +55,7 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 	}
 
 	public static ProjectIdentifier ofChildProject(String... projectNames) {
-		var path = Path.ROOT;
+		Path path = Path.ROOT;
 		for (String projectName : projectNames) {
 			path = path.child(projectName);
 		}
