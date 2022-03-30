@@ -46,6 +46,7 @@ subproject('core-utils')
 subproject('distributions')
 subproject('distributions/all')
 subproject('distributions/bom')
+subproject('distributions-local')
 subproject('docs')
 subproject('docs/exemplar-kit') {
 	buildFileName = 'exemplar-kit.gradle'
