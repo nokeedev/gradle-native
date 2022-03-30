@@ -18,7 +18,6 @@ package dev.nokee.language.base.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.val;
-import lombok.var;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileTreeElement;
@@ -115,7 +114,7 @@ final class BridgedLanguageSourceSetStrategy implements LanguageSourceSetStrateg
 		@Override
 		public boolean isSatisfiedBy(FileTreeElement element) {
 			val files = delegate.getFiles();
-			var file = element.getFile();
+			File file = element.getFile();
 			while (file != null) {
 				if (files.contains(file)) {
 					return true;

@@ -90,6 +90,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Provider;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 
 import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
@@ -174,8 +175,8 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(DependencyBucket.class)).build())
 				.withComponent(createdUsing(of(type), () -> {
 					try {
-						return type.newInstance();
-					} catch (InstantiationException | IllegalAccessException e) {
+						return type.getConstructor().newInstance();
+					} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 						throw new RuntimeException(e);
 					}
 				}))

@@ -19,6 +19,7 @@ import dev.nokee.model.DomainObjectIdentifier;
 import lombok.val;
 import org.gradle.api.Action;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class AbstractDomainObjectConfigurer<T> implements DomainObjectConfigurer<T> {
@@ -41,7 +42,7 @@ public abstract class AbstractDomainObjectConfigurer<T> implements DomainObjectC
 	}
 
 	public <S extends T> void configureEach(DomainObjectIdentifier owner, Class<S> type, Action<? super S> action) {
-		val filteringConfigureAction = DomainObjectActions.onlyIf(owner, action);
+		final BiConsumer<? super DomainObjectIdentifier, ? super S> filteringConfigureAction = DomainObjectActions.onlyIf(owner, action);
 		Consumer<S> lookupConfigureAction = object -> {
 			filteringConfigureAction.accept(objects.lookupIdentifier(object), object);
 		};

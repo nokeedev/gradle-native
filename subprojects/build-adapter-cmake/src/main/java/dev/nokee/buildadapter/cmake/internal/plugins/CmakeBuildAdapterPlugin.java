@@ -32,7 +32,6 @@ import dev.nokee.runtime.nativebase.internal.locators.VswhereLocator;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
-import lombok.var;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Action;
@@ -122,7 +121,7 @@ public abstract class CmakeBuildAdapterPlugin implements Plugin<Settings> {
 							return;
 						}
 
-						var compileAction = configurationUtils.asOutgoingHeaderSearchPathFrom();
+						ConfigurationUtils.VariantAwareOutgoingConfigurationAction compileAction = configurationUtils.asOutgoingHeaderSearchPathFrom();
 						// A typical static library
 						if (targetModel.getCompileGroups() != null) {
 							val compileGroup = targetModel.getCompileGroups().iterator().next(); // Assuming only one

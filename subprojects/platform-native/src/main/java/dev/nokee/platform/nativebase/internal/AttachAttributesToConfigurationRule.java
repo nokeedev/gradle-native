@@ -25,7 +25,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
-import jdk.nashorn.internal.runtime.regexp.joni.Config;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 
