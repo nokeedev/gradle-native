@@ -131,6 +131,8 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 				extensionContext.getStore(NAMESPACE) //
 					.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(extensionContext.getRequiredTestClass()), TestDirectoryProvider.class));
 
+		extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put(KEY, provider.getTestDirectory());
+
 		if (type == Path.class) {
 			return provider.getTestDirectory();
 		} else if (type == File.class) {
