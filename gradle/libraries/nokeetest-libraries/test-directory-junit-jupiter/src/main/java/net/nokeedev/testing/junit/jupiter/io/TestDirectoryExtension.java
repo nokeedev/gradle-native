@@ -124,8 +124,12 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 	}
 
 	private Object getPathOrFileOrProvider(Class<?> type, ExtensionContext extensionContext) {
-		TestDirectoryProvider provider = extensionContext.getStore(NAMESPACE) //
-			.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(extensionContext.getRequiredTestMethod().getName(), extensionContext.getRequiredTestClass()), TestDirectoryProvider.class);
+		TestDirectoryProvider provider = extensionContext.getTestMethod().map(testMethod ->
+			extensionContext.getStore(NAMESPACE) //
+				.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(testMethod.getName(), extensionContext.getRequiredTestClass()), TestDirectoryProvider.class))
+			.orElseGet(() ->
+				extensionContext.getStore(NAMESPACE) //
+					.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(extensionContext.getRequiredTestClass()), TestDirectoryProvider.class));
 
 		if (type == Path.class) {
 			return provider.getTestDirectory();

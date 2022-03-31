@@ -36,7 +36,13 @@ public final class TestNameTestDirectoryProvider extends AbstractTestDirectoryPr
 	}
 
 	public static TestNameTestDirectoryProvider newInstance(String methodName, Object target) {
-		final TestNameTestDirectoryProvider testDirectoryProvider =	new TestNameTestDirectoryProvider(target.getClass());
+		final TestNameTestDirectoryProvider testDirectoryProvider = new TestNameTestDirectoryProvider(target.getClass());
+		testDirectoryProvider.init(methodName);
+		return testDirectoryProvider;
+	}
+
+	public static TestNameTestDirectoryProvider newInstance(String methodName, Class<?> testClass) {
+		final TestNameTestDirectoryProvider testDirectoryProvider = new TestNameTestDirectoryProvider(testClass);
 		testDirectoryProvider.init(methodName);
 		return testDirectoryProvider;
 	}
