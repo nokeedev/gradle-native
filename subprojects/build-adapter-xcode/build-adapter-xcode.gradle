@@ -43,5 +43,6 @@ functionalTest {
 		implementation project(':platformNative')
 		implementation project(':testingBase')
 		implementation 'dev.nokee:templates:latest.integration'
+		implementation project(':xcodeIdeKit')
 	}
 }

@@ -15,22 +15,28 @@
  */
 package dev.nokee.xcode;
 
-import lombok.Getter;
+import com.google.common.base.Preconditions;
+import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
-class XCWorkspaceLayout {
-	@Getter private final Path location;
+@EqualsAndHashCode
+public final class XCProjectReference implements Serializable {
+	private /*final*/ Path location;
 
-	public XCWorkspaceLayout(Path location) {
+	private XCProjectReference(Path location) {
 		this.location = location;
 	}
 
-	public Path getContentFile() {
-		return location.resolve("contents.xcworkspacedata");
+	public Path getLocation() {
+		return location;
 	}
 
-	public Path getBaseDirectory() {
-		return location.getParent();
+	public static XCProjectReference of(Path location) {
+		Preconditions.checkArgument(Files.exists(location), "Xcode project '%s' does not exists", location);
+		Preconditions.checkArgument(Files.isDirectory(location), "Xcode project '%s' is not valid", location);
+		return new XCProjectReference(location);
 	}
 }

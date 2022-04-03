@@ -15,16 +15,17 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.xcode.XCWorkspaceReference;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 import org.gradle.api.tasks.Input;
 
 import javax.annotation.Nullable;
-import java.nio.file.Path;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class AllXCWorkspaceLocationsValueSource implements ValueSource<Iterable<Path>, AllXCWorkspaceLocationsValueSource.Parameters> {
+public abstract class AllXCWorkspaceLocationsValueSource implements ValueSource<Iterable<XCWorkspaceReference>, AllXCWorkspaceLocationsValueSource.Parameters> {
 	private static final XCWorkspaceLocator XCODE_WORKSPACE_LOCATOR = new XCWorkspaceLocator();
 
 	interface Parameters extends ValueSourceParameters {
@@ -34,7 +35,7 @@ public abstract class AllXCWorkspaceLocationsValueSource implements ValueSource<
 
 	@Nullable
 	@Override
-	public Iterable<Path> obtain() {
-		return XCODE_WORKSPACE_LOCATOR.findWorkspaces(getParameters().getSearchDirectory().get().getAsFile().toPath());
+	public Iterable<XCWorkspaceReference> obtain() {
+		return XCODE_WORKSPACE_LOCATOR.findWorkspaces(getParameters().getSearchDirectory().get().getAsFile().toPath()).stream().map(XCWorkspaceReference::of).collect(Collectors.toList());
 	}
 }
