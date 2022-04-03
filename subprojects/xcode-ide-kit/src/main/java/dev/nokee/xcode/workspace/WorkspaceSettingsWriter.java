@@ -16,6 +16,7 @@
 package dev.nokee.xcode.workspace;
 
 import com.google.common.collect.Iterables;
+import dev.nokee.xcode.PropertyListVersion;
 import dev.nokee.xcode.PropertyListWriter;
 
 import java.io.Closeable;
@@ -29,7 +30,7 @@ public final class WorkspaceSettingsWriter implements Closeable {
 	}
 
 	public void write(WorkspaceSettings o) {
-		delegate.writeStartDocument();
+		delegate.writeStartDocument(PropertyListVersion.VERSION_00);
 		if (Iterables.isEmpty(o)) {
 			delegate.writeEmptyDictionary();
 		} else {

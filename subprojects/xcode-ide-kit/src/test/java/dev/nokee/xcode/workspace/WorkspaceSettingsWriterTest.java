@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.workspace;
 
+import dev.nokee.xcode.PropertyListVersion;
 import dev.nokee.xcode.PropertyListWriter;
 import dev.nokee.xcode.workspace.WorkspaceSettingsTestOptions.BooleanOption;
 import dev.nokee.xcode.workspace.WorkspaceSettingsTestOptions.StringOption;
@@ -35,7 +36,7 @@ class WorkspaceSettingsWriterTest {
 	void canWriteWorkspaceSettingsWithoutOptions() {
 		subject.write(WorkspaceSettings.builder().build());
 		val inOrder = Mockito.inOrder(writer);
-		inOrder.verify(writer).writeStartDocument();
+		inOrder.verify(writer).writeStartDocument(PropertyListVersion.VERSION_00);
 		inOrder.verify(writer).writeEmptyDictionary();
 		inOrder.verify(writer).writeEndDocument();
 		inOrder.verifyNoMoreInteractions();
@@ -45,7 +46,7 @@ class WorkspaceSettingsWriterTest {
 	void canWriteWorkspaceSettingsWithBooleanOption() {
 		subject.write(WorkspaceSettings.builder().put(BooleanOption.TRUE).build());
 		val inOrder = Mockito.inOrder(writer);
-		inOrder.verify(writer).writeStartDocument();
+		inOrder.verify(writer).writeStartDocument(PropertyListVersion.VERSION_00);
 		inOrder.verify(writer).writeStartDictionary(1);
 		inOrder.verify(writer).writeDictionaryKey("BooleanOption");
 		inOrder.verify(writer).writeBoolean(true);
@@ -58,7 +59,7 @@ class WorkspaceSettingsWriterTest {
 	void canWriteWorkspaceSettingsWithStringOption() {
 		subject.write(WorkspaceSettings.builder().put(StringOption.Value).build());
 		val inOrder = Mockito.inOrder(writer);
-		inOrder.verify(writer).writeStartDocument();
+		inOrder.verify(writer).writeStartDocument(PropertyListVersion.VERSION_00);
 		inOrder.verify(writer).writeStartDictionary(1);
 		inOrder.verify(writer).writeDictionaryKey("StringOption");
 		inOrder.verify(writer).writeString("Value");
@@ -71,7 +72,7 @@ class WorkspaceSettingsWriterTest {
 	void canWriteWorkspaceSettingsWithMultipleOptions() {
 		subject.write(WorkspaceSettings.builder().put(StringOption.OtherValue).put(BooleanOption.FALSE).build());
 		val inOrder = Mockito.inOrder(writer);
-		inOrder.verify(writer).writeStartDocument();
+		inOrder.verify(writer).writeStartDocument(PropertyListVersion.VERSION_00);
 		inOrder.verify(writer).writeStartDictionary(2);
 		inOrder.verify(writer).writeDictionaryKey("StringOption");
 		inOrder.verify(writer).writeString("OtherValue");

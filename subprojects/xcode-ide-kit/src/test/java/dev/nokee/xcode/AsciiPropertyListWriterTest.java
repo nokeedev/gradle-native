@@ -36,7 +36,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesUTF8HeaderOnDocumentStart() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeEndDocument();
 
 		assertThat(output(), equalTo("// !$*UTF8*$!\n"));
@@ -44,7 +44,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesNonAlphanumericStringWithQuotes() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeString("a.-?()");
 		subject.writeEndDocument();
 
@@ -53,7 +53,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesStringContainingTabCharacterWithQuotes() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeString("alpha\t567");
 		subject.writeEndDocument();
 
@@ -62,7 +62,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesStringContainingSpaceCharacterWithQuotes() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeString("alpha 567");
 		subject.writeEndDocument();
 
@@ -71,7 +71,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesStringContainingNewLineCharacterWithQuotes() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeString("alpha\n567");
 		subject.writeEndDocument();
 
@@ -80,7 +80,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesDictionaryWithSingleStringItem() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeStartDictionary(1);
 		subject.writeDictionaryKey("myKey");
 		subject.writeString("my value");
@@ -92,7 +92,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesDictionaryWithMultipleItems() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeStartDictionary(2);
 		subject.writeDictionaryKey("myKey1");
 		subject.writeInteger(42);
@@ -106,7 +106,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void canWriteDictionaryAsDictionaryItem() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeStartDictionary(1);
 		subject.writeDictionaryKey("myKey1");
 		subject.writeStartDictionary(1);
@@ -121,7 +121,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesArrayWithSingleStringItem() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeStartArray(1);
 		subject.writeString("my value");
 		subject.writeEndArray();
@@ -132,7 +132,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesArrayWithMultipleItems() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeStartArray(1);
 		subject.writeInteger(42);
 		subject.writeString("my value");
@@ -144,7 +144,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void canWriteArrayAsArrayItem() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeStartArray(2);
 		subject.writeReal(4.2f);
 		subject.writeStartArray(1);

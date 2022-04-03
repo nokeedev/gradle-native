@@ -39,7 +39,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	// TODO: Figure out how comments can be supported
 
 	@Override
-	public void writeStartDocument() {
+	public void writeStartDocument(PropertyListVersion version) {
 		run(() -> {
 			contexts.push(Context.DOC);
 			delegate.write("// !$*UTF8*$!");

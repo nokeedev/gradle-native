@@ -40,7 +40,7 @@ public final class XmlPropertyListWriter implements PropertyListWriter, AutoClos
 	}
 
 	@Override
-	public void writeStartDocument() {
+	public void writeStartDocument(PropertyListVersion version) {
 		run(() -> {
 			delegate.writeStartDocument();
 			delegate.writeDTD("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">");

@@ -34,7 +34,7 @@ abstract class PropertyListWriterTester {
 	class BooleanTest {
 		@Test
 		void writesTrueBooleanValue() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeBoolean(true);
 			subject().writeEndDocument();
 
@@ -43,7 +43,7 @@ abstract class PropertyListWriterTester {
 
 		@Test
 		void writesFalseBooleanValue() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeBoolean(false);
 			subject().writeEndDocument();
 
@@ -58,7 +58,7 @@ abstract class PropertyListWriterTester {
 	class IntegerTest {
 		@Test
 		void writesIntegerValue() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeInteger(42);
 			subject().writeEndDocument();
 
@@ -72,7 +72,7 @@ abstract class PropertyListWriterTester {
 	class RealTest {
 		@Test
 		void writesRealValue() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeReal(4.2f);
 			subject().writeEndDocument();
 
@@ -86,7 +86,7 @@ abstract class PropertyListWriterTester {
 	class StringTest {
 		@Test
 		void writesAlphanumericWithoutSpaceString() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha567");
 			subject().writeEndDocument();
 
@@ -96,7 +96,7 @@ abstract class PropertyListWriterTester {
 		@ParameterizedTest
 		@ValueSource(chars = {'.', '-', '_', '?', '!', '(', ')'})
 		void writesStringContainingNonAlphanumericCharacter(char specialChar) {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha" + specialChar + "567");
 			subject().writeEndDocument();
 
@@ -105,7 +105,7 @@ abstract class PropertyListWriterTester {
 
 		@Test
 		void writesAlphanumericStringContainingSpace() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha 567");
 			subject().writeEndDocument();
 
@@ -121,7 +121,7 @@ abstract class PropertyListWriterTester {
 	class DictionaryTest {
 		@Test
 		void writesEmptyDictionary() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeEmptyDictionary();
 			subject().writeEndDocument();
 
@@ -130,7 +130,7 @@ abstract class PropertyListWriterTester {
 
 		@Test
 		void writesSingleIntegerElementDictionary() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeStartDictionary(1);
 			subject().writeDictionaryKey("myKey");
 			subject().writeInteger(42);
@@ -149,7 +149,7 @@ abstract class PropertyListWriterTester {
 	class ArrayTest {
 		@Test
 		void writesEmptyArray() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeEmptyArray();
 			subject().writeEndDocument();
 
@@ -158,7 +158,7 @@ abstract class PropertyListWriterTester {
 
 		@Test
 		void writesSingleIntegerElementArray() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeStartArray(1);
 			subject().writeInteger(42);
 			subject().writeEndArray();
@@ -176,7 +176,7 @@ abstract class PropertyListWriterTester {
 	class DateTest {
 		@Test
 		void writesDateAsFormattedInISO8601() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeDate(LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC));
 			subject().writeEndDocument();
 
@@ -190,7 +190,7 @@ abstract class PropertyListWriterTester {
 	class DataTest {
 		@Test
 		void writesDataAsLowerCaseHexString() {
-			subject().writeStartDocument();
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeData(new byte[] { (byte) 0xB0, 0x0B});
 			subject().writeEndDocument();
 
