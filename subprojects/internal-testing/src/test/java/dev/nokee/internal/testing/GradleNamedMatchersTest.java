@@ -57,9 +57,22 @@ class GradleNamedMatchersTest {
 		assertThat(objectFactory().named(Named.class, "somethingSomethingDarkSide"), named(containsString("Dark")));
 	}
 
+	@Test
+	void canCheckGetNameObject() {
+		assertThat(GetNameObject.Instance, named("my-name"));
+	}
+
 	private static Description description(Consumer<? super Description> action) {
 		val description = new StringDescription();
 		action.accept(description);
 		return description;
+	}
+
+	private enum GetNameObject {
+		Instance;
+
+		public String getName() {
+			return "my-name";
+		}
 	}
 }
