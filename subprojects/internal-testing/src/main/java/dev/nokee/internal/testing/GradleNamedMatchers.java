@@ -24,6 +24,9 @@ import org.gradle.api.tasks.SourceSet;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import static java.util.Objects.requireNonNull;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -55,7 +58,7 @@ public final class GradleNamedMatchers {
 					return ((SourceSet) actual).getName();
 				}
 
-				// NamedDomainObjectProvider class somewhare behave like a Named class
+				// NamedDomainObjectProvider class somewhat behave like a Named class
 				//   in theory, all default implementation implements Named class
 				else if (actual instanceof NamedDomainObjectProvider) {
 					return ((NamedDomainObjectProvider) actual).getName();
@@ -64,6 +67,20 @@ public final class GradleNamedMatchers {
 				// NamedDomainObjectSchema class somewhat behave like a Named class
 				else if (actual instanceof NamedDomainObjectCollectionSchema.NamedDomainObjectSchema) {
 					return ((NamedDomainObjectCollectionSchema.NamedDomainObjectSchema) actual).getName();
+				}
+
+				// Class with getName() returning String somewhat behave like a Named class
+				try {
+					final Method getNameMethod = actual.getClass().getMethod("getName");
+					if (String.class.isAssignableFrom(getNameMethod.getReturnType())) {
+						try {
+							return (String) getNameMethod.invoke(actual);
+						} catch (InvocationTargetException | IllegalAccessException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				} catch (NoSuchMethodException e) {
+					// do nothing, no getName() methods
 				}
 
 				throw new UnsupportedOperationException(String.format("Object '%s' of type %s is not named-able.", actual, actual.getClass().getCanonicalName()));
