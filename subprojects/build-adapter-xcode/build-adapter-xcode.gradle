@@ -17,6 +17,7 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.8.6'
 	implementation 'org.simpleframework:simple-xml:2.7.1'
 	implementation "com.googlecode.plist:dd-plist:${ddPlist}"
+	implementation project(':xcodeIdeKit')
 
 	implementation 'org.eclipse.jgit:org.eclipse.jgit:5.8.0.202006091008-r'
 }

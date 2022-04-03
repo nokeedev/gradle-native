@@ -1,0 +1,14 @@
+plugins {
+	id 'nokeebuild.java-gradle-library'
+	id 'nokeebuild.gradle-plugin-unit-test'
+}
+
+dependencies {
+	implementation "com.google.guava:guava:${guavaVersion}"
+}
+
+test {
+	dependencies {
+		implementation "nl.jqno.equalsverifier:equalsverifier:${equalsverifierVersion}"
+	}
+}
