@@ -25,14 +25,14 @@ public interface PropertyListWriter extends Closeable {
 	void writeEndDocument();
 
 	// TODO: Test for negative count
-	void writeStartDictionary(int elementCount);
+	void writeStartDictionary(long elementCount);
 	// TODO: What happen if key has spaces?
 	void writeDictionaryKey(String key);
 	void writeEndDictionary();
 	void writeEmptyDictionary();
 
 	// TODO: Test for negative count
-	void writeStartArray(int elementCount);
+	void writeStartArray(long elementCount);
 	void writeEndArray();
 	void writeEmptyArray();
 

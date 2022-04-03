@@ -56,7 +56,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	}
 
 	@Override
-	public void writeStartDictionary(int elementCount) {
+	public void writeStartDictionary(long elementCount) {
 		run(() -> {
 			contexts.push(doEnterContext(Context.DICT));
 
@@ -98,7 +98,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	}
 
 	@Override
-	public void writeStartArray(int elementCount) {
+	public void writeStartArray(long elementCount) {
 		run(() -> {
 			contexts.push(doEnterContext(Context.EMPTY_ARRAY));
 			delegate.write("(");
