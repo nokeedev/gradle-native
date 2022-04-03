@@ -15,28 +15,37 @@
  */
 package dev.nokee.ide.xcode.internal.tasks;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import dev.nokee.ide.xcode.XcodeIdeProjectReference;
-import lombok.NonNull;
-import lombok.Value;
+import dev.nokee.xcode.XmlPropertyListWriter;
+import dev.nokee.xcode.workspace.WorkspaceSettings;
+import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
+import dev.nokee.xcode.workspace.XCFileReference;
+import dev.nokee.xcode.workspace.XCWorkspaceData;
+import dev.nokee.xcode.workspace.XCWorkspaceDataWriter;
+import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static dev.nokee.xcode.workspace.WorkspaceSettings.BuildLocationStyle.UseAppPreferences;
+import static dev.nokee.xcode.workspace.WorkspaceSettings.CustomBuildLocationType.RelativeToDerivedData;
+import static dev.nokee.xcode.workspace.WorkspaceSettings.DerivedDataLocationStyle.WorkspaceRelativePath;
+import static dev.nokee.xcode.workspace.WorkspaceSettings.IssueFilterStyle.ShowActiveSchemeOnly;
 
 public abstract class GenerateXcodeIdeWorkspaceTask extends DefaultTask {
 	@Internal
@@ -64,65 +73,30 @@ public abstract class GenerateXcodeIdeWorkspaceTask extends DefaultTask {
 		FileUtils.deleteDirectory(workspaceDirectory);
 		workspaceDirectory.mkdirs();
 
-		List<Workspace.FileRef> fileReferences = getProjectReferences().get().stream().map(it -> new Workspace.FileRef(it.getLocation().get().getAsFile().getAbsolutePath())).collect(Collectors.toList());
-		XmlMapper xmlMapper = new XmlMapper();
-		xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-		xmlMapper.writeValue(new File(workspaceDirectory, "contents.xcworkspacedata"), new Workspace(fileReferences));
+		try (val writer = new XCWorkspaceDataWriter(new FileWriter(new File(workspaceDirectory, "contents.xcworkspacedata")))) {
+			val builder = XCWorkspaceData.builder();
+			getProjectReferences().get().stream().map(it -> XCFileReference.of("absolute:" + it.getLocation().get().getAsFile().getAbsolutePath())).forEach(builder::fileRef);
+			writer.write(builder.build());
+		}
 
 		File sharedWorkspaceSettingsFile = new File(workspaceDirectory, "xcshareddata/WorkspaceSettings.xcsettings");
 		sharedWorkspaceSettingsFile.getParentFile().mkdirs();
-		FileUtils.writeStringToFile(sharedWorkspaceSettingsFile, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
-			"<plist version=\"1.0\">\n" +
-			"<dict>\n" +
-			"\t<key>IDEWorkspaceSharedSettings_AutocreateContextsIfNeeded</key>\n" +
-			"\t<false/>\n" +
-			"</dict>\n" +
-			"</plist>", Charset.defaultCharset());
+		try (val writer = new WorkspaceSettingsWriter(new XmlPropertyListWriter(new FileWriter(sharedWorkspaceSettingsFile)))) {
+			writer.write(WorkspaceSettings.builder().put(WorkspaceSettings.AutoCreateSchemes.Disabled).build());
+		}
 
 		File userWorkspaceSettingsFile = new File(workspaceDirectory, "xcuserdata/" + System.getProperty("user.name") + ".xcuserdatad/WorkspaceSettings.xcsettings");
 		userWorkspaceSettingsFile.getParentFile().mkdirs();
-		FileUtils.writeStringToFile(userWorkspaceSettingsFile, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
-			"<plist version=\"1.0\">\n" +
-			"<dict>\n" +
-			"\t<key>BuildLocationStyle</key>\n" +
-			"\t<string>UseAppPreferences</string>\n" +
-			"\t<key>CustomBuildLocationType</key>\n" +
-			"\t<string>RelativeToDerivedData</string>\n" +
-			"\t<key>DerivedDataCustomLocation</key>\n" +
-			"\t<string>" + getDerivedDataLocation().get() + "</string>\n" +
-			"\t<key>DerivedDataLocationStyle</key>\n" +
-			"\t<string>WorkspaceRelativePath</string>\n" +
-			"\t<key>IssueFilterStyle</key>\n" +
-			"\t<string>ShowActiveSchemeOnly</string>\n" +
-			"\t<key>LiveSourceIssuesEnabled</key>\n" +
-			"\t<true/>\n" +
-			"\t<key>ShowSharedSchemesAutomaticallyEnabled</key>\n" +
-			"\t<true/>\n" +
-			"</dict>\n" +
-			"</plist>", Charset.defaultCharset());
-	}
-
-	@Value
-	private static class Workspace {
-		@JacksonXmlElementWrapper(useWrapping = false)
-		@JacksonXmlProperty(localName = "FileRef")
-		@NonNull Collection<FileRef> fileRef;
-
-		@JacksonXmlProperty(isAttribute = true)
-		public String getVersion() {
-			return "1.0";
-		}
-
-		@Value
-		static class FileRef {
-			@JacksonXmlProperty(isAttribute = true)
-			String location;
-
-			public FileRef(String location) {
-				this.location = "absolute:" + location;
-			}
+		try (val writer = new WorkspaceSettingsWriter(new XmlPropertyListWriter(new FileWriter(userWorkspaceSettingsFile)))) {
+			writer.write(WorkspaceSettings.builder()
+				.put(UseAppPreferences)
+				.put(RelativeToDerivedData)
+				.put(new WorkspaceSettings.DerivedDataCustomLocation(getDerivedDataLocation().get()))
+				.put(WorkspaceRelativePath)
+				.put(ShowActiveSchemeOnly)
+				.put(WorkspaceSettings.LiveSourceIssues.Enabled)
+				.put(WorkspaceSettings.ShowSharedSchemesAutomatically.Enabled)
+				.build());
 		}
 	}
 }
