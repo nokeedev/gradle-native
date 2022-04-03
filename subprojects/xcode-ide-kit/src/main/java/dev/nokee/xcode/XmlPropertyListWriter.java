@@ -128,7 +128,7 @@ public final class XmlPropertyListWriter implements PropertyListWriter, AutoClos
 		});
 	}
 
-	public void writeReal(float n) {
+	public void writeReal(double n) {
 		run(() -> {
 			delegate.writeStartElement("real");
 			delegate.writeCharacters(String.valueOf(n));
