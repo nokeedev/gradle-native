@@ -16,18 +16,17 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.Iterables;
+import dev.nokee.xcode.XCWorkspaceReference;
 import org.gradle.api.Transformer;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
-import java.nio.file.Path;
-
-public final class SelectXCWorkspaceLocationTransformation implements Transformer<Path, Iterable<Path>> {
+public final class SelectXCWorkspaceLocationTransformation implements Transformer<XCWorkspaceReference, Iterable<XCWorkspaceReference>> {
 	private static final Logger LOGGER = Logging.getLogger(SelectXCWorkspaceLocationTransformation.class);
 
 	@Override
-	public Path transform(Iterable<Path> workspaceLocations) {
-		Path result = null;
+	public XCWorkspaceReference transform(Iterable<XCWorkspaceReference> workspaceLocations) {
+		XCWorkspaceReference result = null;
 		switch (Iterables.size(workspaceLocations)) {
 			case 0: break;
 			case 1:
@@ -35,7 +34,7 @@ public final class SelectXCWorkspaceLocationTransformation implements Transforme
 				break;
 			default:
 				result = workspaceLocations.iterator().next();
-				LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '%s' because multiple Xcode workspace were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", result, result.getParent()));
+				LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '%s' because multiple Xcode workspace were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", result, result.getLocation().getParent()));
 				break;
 		}
 		return result;
