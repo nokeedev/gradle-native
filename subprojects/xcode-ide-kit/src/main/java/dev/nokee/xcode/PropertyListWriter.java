@@ -42,7 +42,7 @@ public interface PropertyListWriter extends Closeable {
 	void writeDate(LocalDateTime date);
 	void writeBoolean(boolean b);
 	void writeString(CharSequence s);
-	void writeInteger(int n); // TODO: Should be long
+	void writeInteger(long n);
 	void writeReal(float n); // TODO: Should be double
 
 	void flush();
