@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 // TODO: Maybe we should use AutoClosable
 // TODO: We should have our own PropertyListException or something similar
 public interface PropertyListWriter extends Closeable {
-	void writeStartDocument(); // TODO: We should take the version as input
+	void writeStartDocument(PropertyListVersion version);
 	void writeEndDocument();
 
 	// TODO: Test for negative count

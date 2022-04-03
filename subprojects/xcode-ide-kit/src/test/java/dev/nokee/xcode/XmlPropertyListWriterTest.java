@@ -35,7 +35,7 @@ class XmlPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesPropertyListDTDOnDocumentStart() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeEndDocument();
 
 		assertThat(output(), startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"));
@@ -43,7 +43,7 @@ class XmlPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesPropertyListRootElementOnDocumentStart() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeEndDocument();
 
 		assertThat(output(), endsWith("<plist version=\"1.0\"></plist>"));
@@ -51,7 +51,7 @@ class XmlPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesDictionaryWithSingleItem() {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeStartDictionary(1);
 		subject.writeDictionaryKey("my-key");
 		subject.writeBoolean(true);
@@ -63,7 +63,7 @@ class XmlPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Test
 	void writesDictionaryWithMultipleItems() throws XMLStreamException {
-		subject.writeStartDocument();
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeStartDictionary(2);
 		subject.writeDictionaryKey("my-int");
 		subject.writeInteger(42);
