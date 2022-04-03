@@ -59,7 +59,7 @@ public final class XmlPropertyListWriter implements PropertyListWriter, AutoClos
 	}
 
 	@Override
-	public void writeStartDictionary(int elementCount) {
+	public void writeStartDictionary(long elementCount) {
 		run(() -> {
 			delegate.writeStartElement("dict");
 		});
@@ -89,7 +89,7 @@ public final class XmlPropertyListWriter implements PropertyListWriter, AutoClos
 	}
 
 	@Override
-	public void writeStartArray(int elementCount) {
+	public void writeStartArray(long elementCount) {
 		run(() -> {
 			delegate.writeStartElement("array");
 		});
