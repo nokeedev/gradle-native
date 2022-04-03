@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.internal;
+package dev.nokee.xcode.workspace;
 
-public final class XCFileReference {
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+
+@EqualsAndHashCode
+public final class XCFileReference implements Serializable {
 	private final String location;
 
 	private XCFileReference(String location) {

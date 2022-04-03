@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.internal;
+package dev.nokee.xcode.workspace;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Reader;
 
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
-public final class XCWorkspaceDataReader implements AutoCloseable {
+public final class XCWorkspaceDataReader implements Closeable {
 	private final XMLStreamReader delegate;
 
 	public XCWorkspaceDataReader(Reader reader) {
@@ -55,7 +57,11 @@ public final class XCWorkspaceDataReader implements AutoCloseable {
 	}
 
 	@Override
-	public void close() throws Exception {
-		delegate.close();
+	public void close() throws IOException {
+		try {
+			delegate.close();
+		} catch (XMLStreamException e) {
+			throw new IOException(e);
+		}
 	}
 }

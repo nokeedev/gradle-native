@@ -13,39 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.internal;
+package dev.nokee.xcode.workspace;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Writer;
 
-public final class XCWorkspaceDataWriter implements AutoCloseable {
+public final class XCWorkspaceDataWriter implements Closeable {
 	private final XMLStreamWriter delegate;
+
+	public XCWorkspaceDataWriter(XMLStreamWriter delegate) {
+		this.delegate = delegate;
+	}
 
 	public XCWorkspaceDataWriter(Writer writer) {
 		try {
-			delegate = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
+			this.delegate = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
 		} catch (XMLStreamException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public void write(XCWorkspaceData o) throws Exception {
-		delegate.writeStartDocument();
-		delegate.writeStartElement("Workspace");
-		delegate.writeAttribute("version", "1.0");
+	public void write(XCWorkspaceData o) {
+		try {
+			delegate.writeStartDocument();
+			delegate.writeStartElement("Workspace");
+			delegate.writeAttribute("version", "1.0");
 
-		for (XCFileReference fileRef : o.getFileRefs()) {
-			delegate.writeStartElement("FileRef");
-			delegate.writeAttribute("location", fileRef.getLocation());
+			for (XCFileReference fileRef : o.getFileRefs()) {
+				delegate.writeStartElement("FileRef");
+				delegate.writeAttribute("location", fileRef.getLocation());
+				delegate.writeEndElement();
+			}
 			delegate.writeEndElement();
+			delegate.writeEndDocument();
+		} catch (XMLStreamException e) {
+			throw new RuntimeException(e);
 		}
-		delegate.writeEndElement();
 	}
 
 	@Override
-	public void close() throws Exception {
-		delegate.close();
+	public void close() throws IOException {
+		try {
+			delegate.close();
+		} catch (XMLStreamException e) {
+			throw new IOException(e);
+		}
 	}
 }
