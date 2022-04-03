@@ -178,7 +178,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	}
 
 	@Override
-	public void writeReal(float n) {
+	public void writeReal(double n) {
 		writeString(String.valueOf(n)); // handle numbers as strings
 	}
 
