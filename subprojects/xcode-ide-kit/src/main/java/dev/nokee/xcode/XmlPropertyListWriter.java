@@ -142,7 +142,7 @@ public final class XmlPropertyListWriter implements PropertyListWriter, AutoClos
 	}
 
 	@Override
-	public void writeInteger(int n) {
+	public void writeInteger(long n) {
 		run(() -> {
 			delegate.writeStartElement("integer");
 			delegate.writeCharacters(String.valueOf(n));

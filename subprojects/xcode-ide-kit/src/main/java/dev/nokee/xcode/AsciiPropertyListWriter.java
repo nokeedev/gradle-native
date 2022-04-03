@@ -173,7 +173,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	}
 
 	@Override
-	public void writeInteger(int n) {
+	public void writeInteger(long n) {
 		writeString(String.valueOf(n)); // handle numbers as strings
 	}
 
