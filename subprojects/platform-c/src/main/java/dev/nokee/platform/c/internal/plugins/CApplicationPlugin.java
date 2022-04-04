@@ -62,6 +62,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 
 	@Override
 	public void apply(Project project) {
+		project.getLogger().debug("Some debug info");
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		// Create the component
