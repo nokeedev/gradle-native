@@ -83,3 +83,7 @@ subproject('runtime-windows')
 subproject('testing-base')
 subproject('testing-native')
 subproject('testing-xctest')
+
+buildCache {
+	local { enabled = false }
+}
