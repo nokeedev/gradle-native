@@ -26,7 +26,6 @@ import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.testing.Test;
 
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -62,7 +61,7 @@ class OperatingSystemFamilyTestTasksMapper implements GradlePluginDevelopmentTes
 				}
 				return matches(DevelopmentTestingStrategy.class::isInstance).negate().and(matches(currentOsFamily())).isSatisfiedBy(testingStrategy(task).getOrNull());
 			} else {
-				return matches(Objects::isNull).or(matches(DevelopmentTestingStrategy.class::isInstance)).isSatisfiedBy(testingStrategy(task).getOrNull());
+				return matches(isEqual(agnostic)).or(matches(DevelopmentTestingStrategy.class::isInstance).negate().and(matches(currentOsFamily()))).isSatisfiedBy(testingStrategy(task).getOrNull());
 			}
 		}
 
