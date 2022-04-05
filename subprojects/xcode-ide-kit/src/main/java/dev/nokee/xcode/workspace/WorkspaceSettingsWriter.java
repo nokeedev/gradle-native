@@ -18,15 +18,21 @@ package dev.nokee.xcode.workspace;
 import com.google.common.collect.Iterables;
 import dev.nokee.xcode.PropertyListVersion;
 import dev.nokee.xcode.PropertyListWriter;
+import dev.nokee.xcode.XmlPropertyListWriter;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Writer;
 
 public final class WorkspaceSettingsWriter implements Closeable {
 	private final PropertyListWriter delegate;
 
 	public WorkspaceSettingsWriter(PropertyListWriter delegate) {
 		this.delegate = delegate;
+	}
+
+	public WorkspaceSettingsWriter(Writer delegate) {
+		this.delegate = new XmlPropertyListWriter(delegate);
 	}
 
 	public void write(WorkspaceSettings o) {
