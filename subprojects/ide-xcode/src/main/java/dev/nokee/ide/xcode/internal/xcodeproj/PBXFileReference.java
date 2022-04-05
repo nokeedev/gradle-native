@@ -65,7 +65,11 @@ public class PBXFileReference extends PBXReference {
         this.explicitFileType = explicitFileType;
     }
 
-    @Override
+	public Optional<String> getLastKnownFileType() {
+		return lastKnownFileType;
+	}
+
+	@Override
     public String isa() {
         return "PBXFileReference";
     }

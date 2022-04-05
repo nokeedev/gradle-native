@@ -54,7 +54,15 @@ public class XCConfigurationList extends PBXProjectItem {
         return buildConfigurationsByName;
     }
 
-    @Override
+	public Optional<String> getDefaultConfigurationName() {
+		return defaultConfigurationName;
+	}
+
+	public boolean isDefaultConfigurationIsVisible() {
+		return defaultConfigurationIsVisible;
+	}
+
+	@Override
     public String isa() {
         return "XCConfigurationList";
     }

@@ -20,7 +20,6 @@ import com.dd.plist.NSDictionary;
 import com.dd.plist.NSNumber;
 import com.dd.plist.NSObject;
 import com.dd.plist.NSString;
-import com.dd.plist.PropertyListParser;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -51,11 +50,11 @@ import dev.nokee.ide.xcode.internal.xcodeproj.PBXFileReference;
 import dev.nokee.ide.xcode.internal.xcodeproj.PBXLegacyTarget;
 import dev.nokee.ide.xcode.internal.xcodeproj.PBXNativeTarget;
 import dev.nokee.ide.xcode.internal.xcodeproj.PBXProject;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXProjectWriter;
 import dev.nokee.ide.xcode.internal.xcodeproj.PBXReference;
 import dev.nokee.ide.xcode.internal.xcodeproj.PBXShellScriptBuildPhase;
 import dev.nokee.ide.xcode.internal.xcodeproj.PBXSourcesBuildPhase;
 import dev.nokee.ide.xcode.internal.xcodeproj.PBXTarget;
-import dev.nokee.ide.xcode.internal.xcodeproj.XcodeprojSerializer;
 import dev.nokee.xcode.workspace.WorkspaceSettings;
 import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
 import lombok.Value;
@@ -190,10 +189,9 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		// Lastly, create the indexing target
 		project.getTargets().addAll(xcodeProject.getTargets().stream().filter(this::isIndexableTarget).map(this::toIndexTarget).collect(Collectors.toList()));
 
-		XcodeprojSerializer serializer = new XcodeprojSerializer(getGidGenerator().get(), project);
-		NSDictionary rootObject = serializer.toPlist();
-		PropertyListParser.saveAsASCII(rootObject, new File(projectDirectory, "project.pbxproj"));
-
+		try (val writer = new PBXProjectWriter(getGidGenerator().get(), new FileWriter(new File(projectDirectory, "project.pbxproj")))) {
+			writer.write(project);
+		}
 
 		// Write the WorkspaceSettings file
 		File workspaceSettingsFile = new File(projectDirectory, "project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings");
