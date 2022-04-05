@@ -13,27 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project;
-
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
+package dev.nokee.xcode.objects;
 
 /**
- * Superclass of build phases. Each build phase represents one step in building a target.
+ * Superclass in Xcode's object hierarchy, has no non-structural functionality here.
  */
-public abstract class PBXBuildPhase extends PBXProjectItem {
-    private final ImmutableList<PBXBuildFile> files;
-
-    public PBXBuildPhase() {
-        this.files = ImmutableList.of();
-    }
-
-	protected PBXBuildPhase(ImmutableList<PBXBuildFile> files) {
-		this.files = files;
-	}
-
-	public List<PBXBuildFile> getFiles() {
-        return files;
-    }
+public abstract class PBXContainerItem extends PBXObject {
 }

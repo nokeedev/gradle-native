@@ -13,38 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project;
+package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.xcode.objects.PBXProjectItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Lists the files to be compiled for the containing {@link PBXTarget}.
- *
- * A target should contain at most one of this build phase.
+ * Superclass of build phases. Each build phase represents one step in building a target.
  */
-public final class PBXSourcesBuildPhase extends PBXBuildPhase {
+public abstract class PBXBuildPhase extends PBXProjectItem {
+    private final ImmutableList<PBXBuildFile> files;
 
-	private PBXSourcesBuildPhase(ImmutableList<PBXBuildFile> files) {
-		super(files);
+    public PBXBuildPhase() {
+        this.files = ImmutableList.of();
+    }
+
+	protected PBXBuildPhase(ImmutableList<PBXBuildFile> files) {
+		this.files = files;
 	}
 
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	public static final class Builder {
-		private final List<PBXBuildFile> files = new ArrayList<>();
-
-		public Builder file(PBXBuildFile file) {
-			files.add(file);
-			return this;
-		}
-
-		public PBXSourcesBuildPhase build() {
-			return new PBXSourcesBuildPhase(ImmutableList.copyOf(files));
-		}
-	}
+	public List<PBXBuildFile> getFiles() {
+        return files;
+    }
 }

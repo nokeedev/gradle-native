@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project;
+package dev.nokee.xcode.objects;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import dev.nokee.xcode.objects.configuration.XCConfigurationList;
+import dev.nokee.xcode.objects.files.PBXGroup;
+import dev.nokee.xcode.objects.targets.PBXTarget;
 
 import java.util.List;
 import java.util.Objects;
