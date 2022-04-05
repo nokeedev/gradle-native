@@ -15,7 +15,12 @@
  */
 package dev.nokee.ide.xcode.internal.tasks;
 
-import com.dd.plist.*;
+import com.dd.plist.NSArray;
+import com.dd.plist.NSDictionary;
+import com.dd.plist.NSNumber;
+import com.dd.plist.NSObject;
+import com.dd.plist.NSString;
+import com.dd.plist.PropertyListParser;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -33,12 +38,28 @@ import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import dev.nokee.ide.xcode.*;
+import dev.nokee.ide.xcode.XcodeIdeBuildConfiguration;
+import dev.nokee.ide.xcode.XcodeIdeProductType;
+import dev.nokee.ide.xcode.XcodeIdeProductTypes;
+import dev.nokee.ide.xcode.XcodeIdeProject;
+import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildSettings;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
-import dev.nokee.ide.xcode.internal.xcodeproj.*;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXBuildFile;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXFileReference;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXLegacyTarget;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXNativeTarget;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXProject;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXReference;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXShellScriptBuildPhase;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXSourcesBuildPhase;
+import dev.nokee.ide.xcode.internal.xcodeproj.PBXTarget;
+import dev.nokee.ide.xcode.internal.xcodeproj.XcodeprojSerializer;
+import dev.nokee.xcode.workspace.WorkspaceSettings;
+import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
 import lombok.Value;
+import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
@@ -54,9 +75,14 @@ import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -172,14 +198,9 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		// Write the WorkspaceSettings file
 		File workspaceSettingsFile = new File(projectDirectory, "project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings");
 		workspaceSettingsFile.getParentFile().mkdirs();
-		FileUtils.writeStringToFile(workspaceSettingsFile, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n" +
-			"<plist version=\"1.0\">\n" +
-			"<dict>\n" +
-			"\t<key>IDEWorkspaceSharedSettings_AutocreateContextsIfNeeded</key>\n" +
-			"\t<false/>\n" +
-			"</dict>\n" +
-			"</plist>", Charset.defaultCharset());
+		try (val writer = new WorkspaceSettingsWriter(new FileWriter(workspaceSettingsFile))) {
+			writer.write(WorkspaceSettings.builder().put(WorkspaceSettings.AutoCreateSchemes.Disabled).build());
+		}
 	}
 
 	private boolean isTestingTarget(PBXTarget xcodeTarget) {
