@@ -28,12 +28,12 @@ import javax.annotation.Nullable;
 public class PBXReference extends PBXContainerItem {
     private final String name;
     @Nullable
-    private String path;
+    private final String path;
     /**
      * The "base" path of the reference. The absolute path is resolved by prepending the resolved
      * base path.
      */
-    private SourceTree sourceTree;
+    private final SourceTree sourceTree;
 
     public PBXReference(String name, @Nullable String path, SourceTree sourceTree) {
         this.name = Preconditions.checkNotNull(name);
@@ -50,16 +50,8 @@ public class PBXReference extends PBXContainerItem {
         return path;
     }
 
-    public void setPath(String v) {
-        path = v;
-    }
-
     public SourceTree getSourceTree() {
         return sourceTree;
-    }
-
-    public void setSourceTree(SourceTree v) {
-        sourceTree = v;
     }
 
     @Override

@@ -18,20 +18,21 @@ package dev.nokee.xcode.project;
 import com.google.common.base.MoreObjects;
 import com.google.common.io.Files;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
  * Reference to a concrete file.
  */
 public final class PBXFileReference extends PBXReference {
-    private Optional<String> explicitFileType;
-    private Optional<String> lastKnownFileType;
+    @Nullable private final String explicitFileType;
+    @Nullable private final String lastKnownFileType;
 
     public PBXFileReference(String name, String path, SourceTree sourceTree) {
-    	this(name, path, sourceTree, Optional.empty());
+    	this(name, path, sourceTree, null);
 	}
 
-    public PBXFileReference(String name, String path, SourceTree sourceTree, Optional<String> defaultType) {
+    public PBXFileReference(String name, String path, SourceTree sourceTree, @Nullable String defaultType) {
         super(name, path, sourceTree);
 
 		// PBXVariantGroups create file references where the name doesn't contain the file
@@ -46,27 +47,23 @@ public final class PBXFileReference extends PBXReference {
 			FileTypes.FILE_EXTENSION_TO_IDENTIFIER.get(Files.getFileExtension(pathOrName));
 		if (fileType != null && (FileTypes.EXPLICIT_FILE_TYPE_BROKEN_IDENTIFIERS.contains(fileType))
 			|| FileTypes.MODIFIABLE_FILE_TYPE_IDENTIFIERS.contains(fileType)) {
-			explicitFileType = Optional.empty();
-			lastKnownFileType = Optional.of(fileType);
+			explicitFileType = null;
+			lastKnownFileType = fileType;
 		} else if (fileType != null) {
-			explicitFileType = Optional.of(fileType);
-			lastKnownFileType = Optional.empty();
+			explicitFileType = fileType;
+			lastKnownFileType = null;
 		} else {
 			explicitFileType = defaultType;
-			lastKnownFileType = Optional.empty();
+			lastKnownFileType = null;
 		}
     }
 
     public Optional<String> getExplicitFileType() {
-        return explicitFileType;
-    }
-
-    public void setExplicitFileType(Optional<String> explicitFileType) {
-        this.explicitFileType = explicitFileType;
+        return Optional.ofNullable(explicitFileType);
     }
 
 	public Optional<String> getLastKnownFileType() {
-		return lastKnownFileType;
+		return Optional.ofNullable(lastKnownFileType);
 	}
 
     @Override

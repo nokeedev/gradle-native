@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -61,10 +60,6 @@ public final class PBXGroup extends PBXReference {
 
     public SortPolicy getSortPolicy() {
         return sortPolicy;
-    }
-
-    public void setSortPolicy(SortPolicy sortPolicy) {
-        this.sortPolicy = Preconditions.checkNotNull(sortPolicy);
     }
 
     /**

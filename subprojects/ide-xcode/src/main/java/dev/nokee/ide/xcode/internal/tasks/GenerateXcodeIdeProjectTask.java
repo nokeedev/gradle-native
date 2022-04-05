@@ -435,11 +435,11 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	 * @return a new sources build phase, never null.
 	 */
 	private PBXSourcesBuildPhase newSourcesBuildPhase(FileCollection sourceFiles) {
-		PBXSourcesBuildPhase result = new PBXSourcesBuildPhase();
+		PBXSourcesBuildPhase.Builder builder = PBXSourcesBuildPhase.builder();
 		for (File file : sourceFiles.filter(GenerateXcodeIdeProjectTask::keepingOnlyCompilationUnits)) {
-			result.getFiles().add(new PBXBuildFile(toAbsoluteFileReference(file)));
+			builder.file(new PBXBuildFile(toAbsoluteFileReference(file)));
 		}
-		return result;
+		return builder.build();
 	}
 	private static Set<String> COMPILATION_UNITS_EXTENSIONS = ImmutableSet.<String>builder()
 		.add("m")
@@ -503,19 +503,19 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		return targetBuilder.build();
 	}
 	private PBXShellScriptBuildPhase newGradleBuildPhase() {
-		PBXShellScriptBuildPhase result = new PBXShellScriptBuildPhase();
+		PBXShellScriptBuildPhase.Builder builder = PBXShellScriptBuildPhase.builder();
 
 		// Gradle startup script is sh compatible.
-		result.setShellPath("/bin/sh");
+		builder.shellPath("/bin/sh");
 
 		// We nullify the stdin as Xcode console is non-interactive.
-		result.setShellScript("exec \"" + getGradleCommand().get() + "\" " + getGradleBuildArgumentsString() + " < /dev/null");
+		builder.shellScript("exec \"" + getGradleCommand().get() + "\" " + getGradleBuildArgumentsString() + " < /dev/null");
 
 		// When using a native target, Xcode process the Info.plist files to the same destination than Nokee.
 		// To ensure we always use Nokee's artifact, we use the Info.plist as an input which force Xcode process the Info.plist before us.
-		result.getInputPaths().add("$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)");
+		builder.inputPaths(ImmutableList.of("$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)"));
 
-		return result;
+		return builder.build();
 	}
 	private String getGradleBuildArgumentsString() {
 		return String.join(" ", Iterables.concat(XcodeIdePropertyAdapter.getAdapterCommandLine(), getAdditionalGradleArguments().get())) + " " + XcodeIdePropertyAdapter.adapt("GRADLE_IDE_PROJECT_NAME", xcodeProject.getName()) + " " + getBridgeTaskPath().get();

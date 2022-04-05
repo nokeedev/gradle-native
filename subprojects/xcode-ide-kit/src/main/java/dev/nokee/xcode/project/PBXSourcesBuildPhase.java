@@ -15,10 +15,34 @@
  */
 package dev.nokee.xcode.project;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Lists the files to be compiled for the containing {@link PBXTarget}.
  *
  * A target should contain at most one of this build phase.
  */
 public final class PBXSourcesBuildPhase extends PBXBuildPhase {
+
+	private PBXSourcesBuildPhase(List<PBXBuildFile> files) {
+		super(files);
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private final List<PBXBuildFile> files = new ArrayList<>();
+
+		public Builder file(PBXBuildFile file) {
+			files.add(file);
+			return this;
+		}
+
+		public PBXSourcesBuildPhase build() {
+			return new PBXSourcesBuildPhase(files);
+		}
+	}
 }

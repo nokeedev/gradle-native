@@ -29,7 +29,11 @@ public abstract class PBXBuildPhase extends PBXProjectItem {
         this.files = Lists.newArrayList();
     }
 
-    public List<PBXBuildFile> getFiles() {
+	protected PBXBuildPhase(List<PBXBuildFile> files) {
+		this.files = files;
+	}
+
+	public List<PBXBuildFile> getFiles() {
         return files;
     }
 }
