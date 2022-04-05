@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project;
+package dev.nokee.xcode.objects.files;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import dev.nokee.xcode.objects.PBXReference;
 
 import javax.annotation.Nullable;
 import java.util.List;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project;
+package dev.nokee.xcode.objects;
 
 /**
  * Superclass of all container types. This is here to reflect Xcode's object hierarchy, and does
