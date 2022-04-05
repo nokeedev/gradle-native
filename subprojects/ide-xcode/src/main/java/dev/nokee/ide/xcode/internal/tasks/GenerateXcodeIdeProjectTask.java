@@ -15,11 +15,6 @@
  */
 package dev.nokee.ide.xcode.internal.tasks;
 
-import com.dd.plist.NSArray;
-import com.dd.plist.NSDictionary;
-import com.dd.plist.NSNumber;
-import com.dd.plist.NSObject;
-import com.dd.plist.NSString;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -45,16 +40,16 @@ import dev.nokee.ide.xcode.XcodeIdeTarget;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildSettings;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
+import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.objects.PBXReference;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
+import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
+import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
-import dev.nokee.xcode.objects.PBXProject;
-import dev.nokee.xcode.project.PBXProjectWriter;
-import dev.nokee.xcode.objects.PBXReference;
-import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
-import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.targets.PBXTarget;
+import dev.nokee.xcode.project.PBXProjectWriter;
 import dev.nokee.xcode.workspace.WorkspaceSettings;
 import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
 import lombok.Value;
@@ -77,8 +72,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -334,11 +329,11 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 				// TODO: Set default PRODUCT_NAME if not set
 				builder.buildConfiguration(buildConfigBuilder -> {
 					buildConfigBuilder.name(buildConfiguration.getName());
-					NSDictionary settings = new NSDictionary();
+					Map<String, Object> settings = new LinkedHashMap<>();
 					settings.put("__DO_NOT_CHANGE_ANY_VALUE_HERE__", "Instead, use the build.gradle[.kts] files.");
 
 					for (Map.Entry<String, Object> entry : buildConfiguration.getBuildSettings().getElements().get().entrySet()) {
-						settings.put(entry.getKey(), toValue(entry.getValue()));
+						settings.put(entry.getKey(), entry.getValue());
 					}
 
 					// Prevent Xcode from attempting to create a fat binary with lipo from artifacts that were
@@ -401,10 +396,10 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			xcodeTarget.getBuildConfigurations().forEach(buildConfiguration -> {
 				builder.buildConfiguration(buildConfigBuilder -> {
 					buildConfigBuilder.name(buildConfiguration.getName());
-					NSDictionary settings = new NSDictionary();
+					Map<String, Object> settings = new LinkedHashMap<>();
 					settings.put("__DO_NOT_CHANGE_ANY_VALUE_HERE__", "Instead, use the build.gradle[.kts] files.");
 					for (Map.Entry<String, Object> entry : buildConfiguration.getBuildSettings().getElements().get().entrySet()) {
-						settings.put(entry.getKey(), toValue(entry.getValue()));
+						settings.put(entry.getKey(), entry.getValue());
 					}
 
 					// TODO: Set default PRODUCT_NAME if not set
@@ -478,10 +473,10 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			xcodeTarget.getBuildConfigurations().forEach(buildConfiguration -> {
 				builder.buildConfiguration(buildConfigBuilder -> {
 					buildConfigBuilder.name(buildConfiguration.getName());
-					NSDictionary settings = new NSDictionary();
+					Map<String, Object> settings = new LinkedHashMap<>();
 					settings.put("__DO_NOT_CHANGE_ANY_VALUE_HERE__", "Instead, use the build.gradle[.kts] files.");
 					for (Map.Entry<String, Object> entry : buildConfiguration.getBuildSettings().getElements().get().entrySet()) {
-						settings.put(entry.getKey(), toValue(entry.getValue()));
+						settings.put(entry.getKey(), entry.getValue());
 					}
 
 					// We use the product reference here because Xcode uses the product type on PBXNativeTarget to infer an extension.
@@ -530,25 +525,6 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 				jgen.writeString("NO");
 			}
 		}
-	}
-
-	private static NSObject toValue(Object o) {
-		if (o instanceof Integer) {
-			return new NSNumber((Integer) o);
-		} else if (o instanceof Long) {
-			return new NSNumber((Long) o);
-		} else if (o instanceof Double) {
-			return new NSNumber((Double) o);
-		} else if (o instanceof Collection) {
-			NSArray result = new NSArray(((Collection<?>) o).size());
-			int key = 0;
-			for (Object obj : (Collection<?>)o) {
-				result.setValue(key, toValue(obj));
-				key++;
-			}
-			return result;
-		}
-		return new NSString(o.toString());
 	}
 
 	private PBXFileReference toAbsoluteFileReference(File file) {
