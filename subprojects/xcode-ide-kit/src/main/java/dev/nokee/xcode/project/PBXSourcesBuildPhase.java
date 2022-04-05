@@ -15,6 +15,8 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,7 @@ import java.util.List;
  */
 public final class PBXSourcesBuildPhase extends PBXBuildPhase {
 
-	private PBXSourcesBuildPhase(List<PBXBuildFile> files) {
+	private PBXSourcesBuildPhase(ImmutableList<PBXBuildFile> files) {
 		super(files);
 	}
 
@@ -42,7 +44,7 @@ public final class PBXSourcesBuildPhase extends PBXBuildPhase {
 		}
 
 		public PBXSourcesBuildPhase build() {
-			return new PBXSourcesBuildPhase(files);
+			return new PBXSourcesBuildPhase(ImmutableList.copyOf(files));
 		}
 	}
 }

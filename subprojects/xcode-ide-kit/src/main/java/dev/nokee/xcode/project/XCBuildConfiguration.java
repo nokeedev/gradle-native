@@ -17,7 +17,6 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -25,7 +24,7 @@ import java.util.Map;
  * settings.
  */
 public final class XCBuildConfiguration extends PBXBuildStyle {
-	private XCBuildConfiguration(String name, Map<String, ?> buildSettings) {
+	private XCBuildConfiguration(String name, ImmutableMap<String, ?> buildSettings) {
 		super(name, buildSettings);
 	}
 
@@ -35,7 +34,7 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 
 	public static final class Builder {
 		private String name;
-		private Map<String, ?> buildSettings = Collections.emptyMap();
+		private ImmutableMap<String, ?> buildSettings = ImmutableMap.of();
 
 		private Builder() {}
 

@@ -15,9 +15,10 @@
  */
 package dev.nokee.xcode.project;
 
-import com.dd.plist.NSDictionary;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 /**
  * File referenced by a build phase, unique to each build phase.
@@ -30,23 +31,23 @@ import com.google.common.base.Preconditions;
  */
 public final class PBXBuildFile extends PBXProjectItem {
     private final PBXReference fileRef;
-    private Optional<NSDictionary> settings;
+    private final ImmutableMap<String, ?> settings;
 
-    public PBXBuildFile(PBXReference fileRef) {
+	public PBXBuildFile(PBXReference fileRef) {
+		this(fileRef, ImmutableMap.of());
+	}
+
+    public PBXBuildFile(PBXReference fileRef, ImmutableMap<String, ?> settings) {
         this.fileRef = Preconditions.checkNotNull(fileRef);
-        this.settings = Optional.absent();
+        this.settings = settings;
     }
 
     public PBXReference getFileRef() {
         return fileRef;
     }
 
-    public Optional<NSDictionary> getSettings() {
+    public Map<String, ?> getSettings() {
         return settings;
-    }
-
-    public void setSettings(Optional<NSDictionary> v) {
-        settings = v;
     }
 
     @Override
