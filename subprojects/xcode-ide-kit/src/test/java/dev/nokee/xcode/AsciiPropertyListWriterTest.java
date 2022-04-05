@@ -268,6 +268,11 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Override
+	void verifyEmptyString() {
+		assertThat(output(), equalTo(withUTF8Header("\"\"")));
+	}
+
+	@Override
 	void verifyEmptyDictionary() {
 		assertThat(output(), equalTo(withUTF8Header("{}")));
 	}
