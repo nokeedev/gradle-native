@@ -155,7 +155,7 @@ public final class PBXProjectWriter implements Closeable {
 		return db.newObjectIfAbsent(gid, obj -> {
 			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
-			val buildConfigurations = new ArrayList<>(o.getBuildConfigurationsByName().asMap().values());
+			val buildConfigurations = new ArrayList<>(o.getBuildConfigurationsByName().values());
 			Collections.sort(buildConfigurations, new Comparator<XCBuildConfiguration>() {
 				@Override
 				public int compare(XCBuildConfiguration o1, XCBuildConfiguration o2) {
