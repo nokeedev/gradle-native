@@ -15,7 +15,6 @@
  */
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
-import com.dd.plist.NSArray;
 import com.dd.plist.NSString;
 import com.google.common.collect.Lists;
 
@@ -90,38 +89,5 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
      */
     public void setShellScript(String shellScript) {
         this.shellScript = shellScript;
-    }
-
-    @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        NSArray inputPathsArray = new NSArray(inputPaths.size());
-        for (int i = 0; i < inputPaths.size(); i++) {
-            inputPathsArray.setValue(i, new NSString(inputPaths.get(i)));
-        }
-        s.addField("inputPaths", inputPathsArray);
-
-        NSArray outputPathsArray = new NSArray(outputPaths.size());
-        for (int i = 0; i < outputPaths.size(); i++) {
-            outputPathsArray.setValue(i, new NSString(outputPaths.get(i)));
-        }
-        s.addField("outputPaths", outputPathsArray);
-
-        NSString shellPathString;
-        if (shellPath == null) {
-            shellPathString = DEFAULT_SHELL_PATH;
-        } else {
-            shellPathString = new NSString(shellPath);
-        }
-        s.addField("shellPath", shellPathString);
-
-        NSString shellScriptString;
-        if (shellScript == null) {
-            shellScriptString = DEFAULT_SHELL_SCRIPT;
-        } else {
-            shellScriptString = new NSString(shellScript);
-        }
-        s.addField("shellScript", shellScriptString);
     }
 }

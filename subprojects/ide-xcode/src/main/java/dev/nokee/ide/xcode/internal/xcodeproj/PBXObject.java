@@ -37,12 +37,6 @@ public abstract class PBXObject {
     public abstract String isa();
 
     /**
-     * Populates the serializer with the fields of this object.
-     */
-    public void serializeInto(@SuppressWarnings("unused") XcodeprojSerializer serializer) {
-    }
-
-    /**
      * This method is used to generate stable GIDs and must be stable for identical contents.
      * Returning a constant value is ok but will make the generated project order-dependent.
      */

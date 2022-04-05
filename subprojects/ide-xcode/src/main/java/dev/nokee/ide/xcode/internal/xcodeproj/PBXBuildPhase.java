@@ -32,11 +32,4 @@ public abstract class PBXBuildPhase extends PBXProjectItem {
     public List<PBXBuildFile> getFiles() {
         return files;
     }
-
-    @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        s.addField("files", files);
-    }
 }

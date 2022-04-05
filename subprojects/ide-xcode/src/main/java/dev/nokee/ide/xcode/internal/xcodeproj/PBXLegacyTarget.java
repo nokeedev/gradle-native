@@ -67,16 +67,4 @@ public final class PBXLegacyTarget extends PBXTarget {
     public void setPassBuildSettingsInEnvironment(boolean passBuildSettingsInEnvironment) {
         this.passBuildSettingsInEnvironment = passBuildSettingsInEnvironment;
     }
-
-    @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        s.addField("buildArgumentsString", buildArgumentsString);
-        s.addField("buildToolPath", buildToolPath);
-        if (buildWorkingDirectory != null) {
-            s.addField("buildWorkingDirectory", buildWorkingDirectory);
-        }
-        s.addField("passBuildSettingsInEnvironment", passBuildSettingsInEnvironment ? "1" : "0");
-    }
 }

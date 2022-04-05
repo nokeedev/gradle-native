@@ -84,24 +84,4 @@ public abstract class PBXTarget extends PBXProjectItem {
     public int stableHash() {
         return name.hashCode();
     }
-
-    @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        s.addField("name", name);
-        if (productType != null) {
-            s.addField("productType", productType.toString());
-        }
-        if (productName != null) {
-            s.addField("productName", productName);
-        }
-        if (productReference != null) {
-            s.addField("productReference", productReference);
-        }
-        s.addField("buildPhases", buildPhases);
-        if (buildConfigurationList != null) {
-            s.addField("buildConfigurationList", buildConfigurationList);
-        }
-    }
 }
