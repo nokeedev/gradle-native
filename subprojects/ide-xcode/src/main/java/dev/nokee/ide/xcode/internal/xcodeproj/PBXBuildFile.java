@@ -50,11 +50,6 @@ public final class PBXBuildFile extends PBXProjectItem {
     }
 
     @Override
-    public String isa() {
-        return "PBXBuildFile";
-    }
-
-    @Override
     public int stableHash() {
         return fileRef.stableHash();
     }

@@ -20,8 +20,4 @@ package dev.nokee.ide.xcode.internal.xcodeproj;
  * not implement any special functionality.
  */
 public abstract class PBXContainer extends PBXObject {
-    @Override
-    public String isa() {
-        return "PBXContainer";
-    }
 }

@@ -23,9 +23,4 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
     public XCBuildConfiguration(String name) {
         super(name);
     }
-
-    @Override
-    public String isa() {
-        return "XCBuildConfiguration";
-    }
 }

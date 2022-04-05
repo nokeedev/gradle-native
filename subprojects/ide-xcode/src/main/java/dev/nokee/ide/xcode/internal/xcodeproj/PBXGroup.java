@@ -67,11 +67,6 @@ public final class PBXGroup extends PBXReference {
         this.sortPolicy = Preconditions.checkNotNull(sortPolicy);
     }
 
-    @Override
-    public String isa() {
-        return "PBXGroup";
-    }
-
     /**
      * Method by which group contents will be sorted.
      */

@@ -59,9 +59,4 @@ public final class XCConfigurationList extends PBXProjectItem {
 	public boolean isDefaultConfigurationIsVisible() {
 		return defaultConfigurationIsVisible;
 	}
-
-	@Override
-    public String isa() {
-        return "XCConfigurationList";
-    }
 }

@@ -31,11 +31,6 @@ public final class PBXLegacyTarget extends PBXTarget {
         super(name, productType);
     }
 
-    @Override
-    public String isa() {
-        return "PBXLegacyTarget";
-    }
-
     public String getBuildArgumentsString() {
         return buildArgumentsString;
     }

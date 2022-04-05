@@ -69,11 +69,6 @@ public final class PBXFileReference extends PBXReference {
 		return lastKnownFileType;
 	}
 
-	@Override
-    public String isa() {
-        return "PBXFileReference";
-    }
-
     @Override
     public String toString() {
         return String.format(
