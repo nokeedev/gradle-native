@@ -35,6 +35,78 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Test
+	void escapesUnicodeCharacters_heartEyeEmoji() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("\uD83D\uDE0D");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"\\ud83d\\ude0d\"")));
+	}
+
+	@Test
+	void escapesUnicodeCharacters_plusMinus() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("\u00B1");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"\\u00b1\"")));
+	}
+
+	@Test
+	void escapesUnicodeCharacters_backslash() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("c:\\my\\path.txt");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"c:\\\\my\\\\path.txt\"")));
+	}
+
+	@Test
+	void escapesUnicodeCharacters_newline() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("My multi\nline text");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"My multi\\nline text\"")));
+	}
+
+	@Test
+	void escapesUnicodeCharacters_carriageReturn() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("My multi\rline text");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"My multi\\rline text\"")));
+	}
+
+	@Test
+	void escapesUnicodeCharacters_tab() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("Name\tValue");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"Name\\tValue\"")));
+	}
+
+	@Test
+	void escapesUnicodeCharacters_backspace() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("Hey\b\b\bOh");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"Hey\\b\\b\\bOh\"")));
+	}
+
+	@Test
+	void escapesUnicodeCharacters_doubleQuote() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("Mister \"the man\" X.");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"Mister \\\"the man\\\" X.\"")));
+	}
+
+	@Test
 	void writesUTF8HeaderOnDocumentStart() {
 		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeEndDocument();
