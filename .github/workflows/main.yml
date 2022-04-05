@@ -25,6 +25,7 @@ jobs:
             -   uses: actions/checkout@v2
                 with:
                     submodules: true
+                    fetch-depth: '0' # will fetch the entire history for auto-version plugin
             -   name: Deploy to snapshot
                 uses: ./.github/actions/gradle
                 with:
