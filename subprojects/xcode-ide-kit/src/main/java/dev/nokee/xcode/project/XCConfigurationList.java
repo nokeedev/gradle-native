@@ -16,9 +16,6 @@
 package dev.nokee.xcode.project;
 
 import com.google.common.base.Optional;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -30,7 +27,7 @@ import java.util.function.Consumer;
  * List of build configurations.
  */
 public final class XCConfigurationList extends PBXProjectItem {
-    private final LoadingCache<String, XCBuildConfiguration> buildConfigurationsByName;
+    private final Map<String, XCBuildConfiguration> buildConfigurationsByName;
     private List<XCBuildConfiguration> buildConfigurations;
     private Optional<String> defaultConfigurationName;
     private boolean defaultConfigurationIsVisible;
@@ -40,22 +37,12 @@ public final class XCConfigurationList extends PBXProjectItem {
 		this.defaultConfigurationName = Optional.fromNullable(defaultConfigurationName);
 		defaultConfigurationIsVisible = defaultConfigurationVisibility == DefaultConfigurationVisibility.VISIBLE;
 
-		buildConfigurationsByName = CacheBuilder.newBuilder().build(
-			new CacheLoader<String, XCBuildConfiguration>() {
-				@Override
-				public XCBuildConfiguration load(String key) throws Exception {
-					XCBuildConfiguration configuration = new XCBuildConfiguration(key);
-					XCConfigurationList.this.buildConfigurations.add(configuration);
-					return configuration;
-				}
-			});
-
-		buildConfigurationsByName.putAll(buildConfigurations);
+		this.buildConfigurationsByName = buildConfigurations;
 		this.buildConfigurations.addAll(buildConfigurations.values());
 	}
 
     public Map<String, XCBuildConfiguration> getBuildConfigurationsByName() {
-        return buildConfigurationsByName.asMap();
+        return buildConfigurationsByName;
     }
 
 	public Optional<String> getDefaultConfigurationName() {
