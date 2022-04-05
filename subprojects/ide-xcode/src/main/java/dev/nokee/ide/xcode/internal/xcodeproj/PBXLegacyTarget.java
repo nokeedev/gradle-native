@@ -21,7 +21,7 @@ import dev.nokee.ide.xcode.XcodeIdeProductType;
  * Concrete target type representing targets built by xcode itself, rather than an external build
  * system.
  */
-public class PBXLegacyTarget extends PBXTarget {
+public final class PBXLegacyTarget extends PBXTarget {
     private String buildArgumentsString = "$(ACTION)";
     private String buildToolPath = "/usr/bin/make";
     private String buildWorkingDirectory;

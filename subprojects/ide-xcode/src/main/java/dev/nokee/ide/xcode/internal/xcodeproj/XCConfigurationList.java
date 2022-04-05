@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * List of build configurations.
  */
-public class XCConfigurationList extends PBXProjectItem {
+public final class XCConfigurationList extends PBXProjectItem {
     private final LoadingCache<String, XCBuildConfiguration> buildConfigurationsByName;
     private List<XCBuildConfiguration> buildConfigurations;
     private Optional<String> defaultConfigurationName;

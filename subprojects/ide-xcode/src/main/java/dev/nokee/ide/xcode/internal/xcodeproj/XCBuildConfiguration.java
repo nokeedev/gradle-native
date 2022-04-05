@@ -19,7 +19,7 @@ package dev.nokee.ide.xcode.internal.xcodeproj;
  * Build configuration containing a file reference ton an xcconfig file and additional inline
  * settings.
  */
-public class XCBuildConfiguration extends PBXBuildStyle {
+public final class XCBuildConfiguration extends PBXBuildStyle {
     public XCBuildConfiguration(String name) {
         super(name);
     }

@@ -28,7 +28,7 @@ import com.google.common.base.Preconditions;
  * - {@link PBXSourcesBuildPhase } may read <code>{"COMPILER_FLAGS": "-foo"}</code> and interpret
  * that this file should be compiled with the additional flag {@code "-foo" }.
  */
-public class PBXBuildFile extends PBXProjectItem {
+public final class PBXBuildFile extends PBXProjectItem {
     private final PBXReference fileRef;
     private Optional<NSDictionary> settings;
 

@@ -21,7 +21,7 @@ import dev.nokee.ide.xcode.XcodeIdeProductType;
  * Concrete target type representing targets built by xcode itself, rather than an external build
  * system.
  */
-public class PBXNativeTarget extends PBXTarget {
+public final class PBXNativeTarget extends PBXTarget {
     public PBXNativeTarget(String name, XcodeIdeProductType productType) {
         super(name, productType);
     }

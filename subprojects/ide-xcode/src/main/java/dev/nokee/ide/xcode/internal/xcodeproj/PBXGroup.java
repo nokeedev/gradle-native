@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * A collection of files in Xcode's virtual filesystem hierarchy.
  */
-public class PBXGroup extends PBXReference {
+public final class PBXGroup extends PBXReference {
     private final List<PBXReference> children;
     private final LoadingCache<String, PBXGroup> childGroupsByName;
 
