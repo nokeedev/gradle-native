@@ -31,7 +31,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 	private final AsciiPropertyListWriter subject = new AsciiPropertyListWriter(new OutputStreamWriter(outStream));
 
 	private String output() {
-		return outStream.toString().replaceAll("\n\r?", "\n");
+		return outStream.toString().replaceAll("\r?\n", "\n");
 	}
 
 	@Test
