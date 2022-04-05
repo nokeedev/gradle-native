@@ -15,8 +15,6 @@
  */
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
-import dev.nokee.ide.xcode.XcodeIdeProductType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -26,7 +24,7 @@ import java.util.function.Consumer;
  * system.
  */
 public final class PBXNativeTarget extends PBXTarget {
-	public PBXNativeTarget(String name, XcodeIdeProductType productType, List<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
+	public PBXNativeTarget(String name, String productType, List<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
 		super(name, productType, buildPhases, buildConfigurationList, productName, productReference);
 	}
 
@@ -36,7 +34,7 @@ public final class PBXNativeTarget extends PBXTarget {
 
 	public static final class Builder {
 		private String name;
-		private XcodeIdeProductType productType;
+		private String productType;
 		private List<PBXBuildPhase> buildPhases = new ArrayList<>();
 		private XCConfigurationList buildConfigurationList;
 		private String productName;
@@ -47,7 +45,7 @@ public final class PBXNativeTarget extends PBXTarget {
 			return this;
 		}
 
-		public Builder productType(XcodeIdeProductType productType) {
+		public Builder productType(String productType) {
 			this.productType = productType;
 			return this;
 		}

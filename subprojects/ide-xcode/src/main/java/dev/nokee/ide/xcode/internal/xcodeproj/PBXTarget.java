@@ -16,7 +16,6 @@
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
 import com.google.common.collect.Lists;
-import dev.nokee.ide.xcode.XcodeIdeProductType;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.List;
  */
 public abstract class PBXTarget extends PBXProjectItem {
     private final String name;
-    private final XcodeIdeProductType productType;
+    private final String productType;
     private final List<PBXBuildPhase> buildPhases;
     private final XCConfigurationList buildConfigurationList;
     @Nullable
@@ -34,7 +33,7 @@ public abstract class PBXTarget extends PBXProjectItem {
     @Nullable
     private PBXFileReference productReference;
 
-	protected PBXTarget(String name, XcodeIdeProductType productType, List<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
+	protected PBXTarget(String name, String productType, List<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
 		this.name = name;
 		this.productType = productType;
 		this.buildPhases = Lists.newArrayList(buildPhases);
@@ -47,7 +46,7 @@ public abstract class PBXTarget extends PBXProjectItem {
         return name;
     }
 
-    public XcodeIdeProductType getProductType() {
+    public String getProductType() {
         return productType;
     }
 

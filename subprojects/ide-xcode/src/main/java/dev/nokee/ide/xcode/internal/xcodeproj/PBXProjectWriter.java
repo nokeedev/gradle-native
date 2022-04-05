@@ -218,7 +218,7 @@ public final class PBXProjectWriter implements Closeable {
 
 			obj.putField("name", o.getName());
 			if (o.getProductType() != null) {
-				obj.putField("productType", o.getProductType().toString());
+				obj.putField("productType", o.getProductType());
 			}
 			if (o.getProductName() != null) {
 				obj.putField("productName", o.getProductName());

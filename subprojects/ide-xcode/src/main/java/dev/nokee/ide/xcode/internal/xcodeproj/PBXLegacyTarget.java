@@ -15,8 +15,6 @@
  */
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
-import dev.nokee.ide.xcode.XcodeIdeProductType;
-
 import java.util.Collections;
 import java.util.function.Consumer;
 
@@ -30,7 +28,7 @@ public final class PBXLegacyTarget extends PBXTarget {
     private String buildWorkingDirectory;
     private boolean passBuildSettingsInEnvironment;
 
-	private PBXLegacyTarget(String name, XcodeIdeProductType productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
+	private PBXLegacyTarget(String name, String productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
 		super(name, productType, Collections.emptyList(), buildConfigurationList, productName, productReference);
 		this.buildArgumentsString = buildArgumentsString;
 		this.buildToolPath = buildToolPath;
@@ -76,7 +74,7 @@ public final class PBXLegacyTarget extends PBXTarget {
 
 	public static final class Builder {
 		private String name;
-		private XcodeIdeProductType productType;
+		private String productType;
 		private String buildArgumentsString = "$(ACTION)";
 		private String buildToolPath = "/usr/bin/make";
 		private String buildWorkingDirectory;
@@ -90,7 +88,7 @@ public final class PBXLegacyTarget extends PBXTarget {
 			return this;
 		}
 
-		public Builder productType(XcodeIdeProductType productType) {
+		public Builder productType(String productType) {
 			this.productType = productType;
 			return this;
 		}

@@ -186,7 +186,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			xmlMapper.writeValue(new File(schemesDirectory, xcodeTarget.getName() + ".xcscheme"), new Scheme(
 				new Scheme.BuildAction(buildActionBuilder.build()),
 				new Scheme.TestAction(testActionBuilder.build()),
-				new Scheme.LaunchAction(xcodeTarget.getProductType().equals(XcodeIdeProductTypes.DYNAMIC_LIBRARY) ? null : new Scheme.LaunchAction.BuildableProductRunnable(newBuildableReference(xcodeTarget)))
+				new Scheme.LaunchAction(XcodeIdeProductType.of(xcodeTarget.getProductType()).equals(XcodeIdeProductTypes.DYNAMIC_LIBRARY) ? null : new Scheme.LaunchAction.BuildableProductRunnable(newBuildableReference(xcodeTarget)))
 			));
 		}
 
@@ -207,7 +207,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	}
 
 	private boolean isTestingTarget(PBXTarget xcodeTarget) {
-		return isTestingProductType(xcodeTarget.getProductType());
+		return isTestingProductType(XcodeIdeProductType.of(xcodeTarget.getProductType()));
 	}
 
 	private boolean isTestingProductType(XcodeIdeProductType productType) {
@@ -314,7 +314,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	private PBXTarget toGradleXCTestTarget(XcodeIdeTarget xcodeTarget) {
 		PBXNativeTarget.Builder targetBuilder = PBXNativeTarget.builder();
 		targetBuilder.name(xcodeTarget.getName());
-		targetBuilder.productType(xcodeTarget.getProductType().get());
+		targetBuilder.productType(xcodeTarget.getProductType().get().toString());
 
 		// Configure build phases
 		targetBuilder.buildPhase(newGradleBuildPhase());
@@ -392,7 +392,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		PBXNativeTarget.Builder targetBuilder = PBXNativeTarget.builder();
 		targetBuilder.name("__indexer_" + xcodeTarget.getName());
-		targetBuilder.productType(INDEXER_PRODUCT_TYPE);
+		targetBuilder.productType(INDEXER_PRODUCT_TYPE.toString());
 		targetBuilder.productName(xcodeTarget.getProductName().get());
 		targetBuilder.buildPhase(newSourcesBuildPhase(xcodeTarget.getSources()));
 		targetBuilder.productReference(productReference);
@@ -457,7 +457,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		PBXLegacyTarget.Builder targetBuilder = PBXLegacyTarget.builder();
 		targetBuilder.name(xcodeTarget.getName());
-		targetBuilder.productType(xcodeTarget.getProductType().get());
+		targetBuilder.productType(xcodeTarget.getProductType().get().toString());
 		targetBuilder.productName(xcodeTarget.getProductName().get());
 		targetBuilder.buildToolPath(getGradleCommand().get());
 		targetBuilder.buildArguments(getGradleBuildArgumentsString());
