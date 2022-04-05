@@ -75,19 +75,6 @@ public final class PBXFileReference extends PBXReference {
     }
 
     @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        if (explicitFileType.isPresent()) {
-            s.addField("explicitFileType", explicitFileType.get());
-        }
-
-        if (lastKnownFileType.isPresent()) {
-            s.addField("lastKnownFileType", lastKnownFileType.get());
-        }
-    }
-
-    @Override
     public String toString() {
         return String.format(
             "%s explicitFileType=%s",

@@ -15,13 +15,9 @@
  */
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
-import com.dd.plist.NSDictionary;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -72,25 +68,4 @@ public final class PBXProject extends PBXContainer {
         return name.hashCode();
     }
 
-    @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        s.addField("mainGroup", mainGroup);
-
-        Collections.sort(targets, Ordering.natural().onResultOf(new Function<PBXTarget, String>() {
-            @Override
-            public String apply(PBXTarget input) {
-                return input.getName();
-            }
-        }));
-        s.addField("targets", targets);
-        s.addField("buildConfigurationList", buildConfigurationList);
-        s.addField("compatibilityVersion", compatibilityVersion);
-
-        NSDictionary d = new NSDictionary();
-        d.put("LastUpgradeCheck", "0610");
-
-        s.addField("attributes", d);
-    }
 }

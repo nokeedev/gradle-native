@@ -73,17 +73,6 @@ public class PBXReference extends PBXContainerItem {
     }
 
     @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        s.addField("name", name);
-        if (path != null) {
-            s.addField("path", path);
-        }
-        s.addField("sourceTree", sourceTree.toString());
-    }
-
-    @Override
     public String toString() {
         return String.format(
             "%s name=%s path=%s sourceTree=%s",

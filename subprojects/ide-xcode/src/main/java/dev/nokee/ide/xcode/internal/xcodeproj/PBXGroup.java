@@ -22,8 +22,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -72,22 +70,6 @@ public final class PBXGroup extends PBXReference {
     @Override
     public String isa() {
         return "PBXGroup";
-    }
-
-    @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        if (sortPolicy == SortPolicy.BY_NAME) {
-            Collections.sort(children, new Comparator<PBXReference>() {
-                @Override
-                public int compare(PBXReference o1, PBXReference o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
-        }
-
-        s.addField("children", children);
     }
 
     /**

@@ -60,16 +60,6 @@ public final class PBXBuildFile extends PBXProjectItem {
     }
 
     @Override
-    public void serializeInto(XcodeprojSerializer s) {
-        super.serializeInto(s);
-
-        s.addField("fileRef", fileRef);
-        if (settings.isPresent()) {
-            s.addField("settings", settings.get());
-        }
-    }
-
-    @Override
     public String toString() {
         return String.format("%s fileRef=%s settings=%s", super.toString(), fileRef, settings);
     }
