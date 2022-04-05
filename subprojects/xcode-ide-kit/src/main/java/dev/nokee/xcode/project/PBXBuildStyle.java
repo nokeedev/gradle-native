@@ -15,25 +15,24 @@
  */
 package dev.nokee.xcode.project;
 
-import com.dd.plist.NSDictionary;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
 public class PBXBuildStyle extends PBXProjectItem {
     private final String name;
-    private final NSDictionary buildSettings;
+    private final ImmutableMap<String, ?> buildSettings;
 
-	public PBXBuildStyle(String name, Map<String, ?> buildSettings) {
+	public PBXBuildStyle(String name, ImmutableMap<String, ?> buildSettings) {
 		this.name = name;
-		this.buildSettings = new NSDictionary();
-		buildSettings.forEach(this.buildSettings::put);
+		this.buildSettings = buildSettings;
 	}
 
     public String getName() {
         return name;
     }
 
-    public NSDictionary getBuildSettings() {
+    public Map<String, ?> getBuildSettings() {
         return buildSettings;
     }
 

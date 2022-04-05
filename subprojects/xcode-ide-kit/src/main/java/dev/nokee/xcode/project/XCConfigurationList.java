@@ -26,11 +26,11 @@ import java.util.function.Consumer;
  * List of build configurations.
  */
 public final class XCConfigurationList extends PBXProjectItem {
-    private final Map<String, XCBuildConfiguration> buildConfigurationsByName;
+    private final ImmutableMap<String, XCBuildConfiguration> buildConfigurationsByName;
     @Nullable private final String defaultConfigurationName;
     private final boolean defaultConfigurationIsVisible;
 
-	private XCConfigurationList(Map<String, XCBuildConfiguration> buildConfigurations, @Nullable String defaultConfigurationName, DefaultConfigurationVisibility defaultConfigurationVisibility) {
+	private XCConfigurationList(ImmutableMap<String, XCBuildConfiguration> buildConfigurations, @Nullable String defaultConfigurationName, DefaultConfigurationVisibility defaultConfigurationVisibility) {
 		this.defaultConfigurationName = defaultConfigurationName;
 		defaultConfigurationIsVisible = defaultConfigurationVisibility == DefaultConfigurationVisibility.VISIBLE;
 

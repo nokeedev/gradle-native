@@ -27,8 +27,7 @@ import javax.annotation.Nullable;
  */
 public class PBXReference extends PBXContainerItem {
     private final String name;
-    @Nullable
-    private final String path;
+    @Nullable private final String path;
     /**
      * The "base" path of the reference. The absolute path is resolved by prepending the resolved
      * base path.

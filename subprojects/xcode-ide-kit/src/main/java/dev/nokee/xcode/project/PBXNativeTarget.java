@@ -15,6 +15,8 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -24,7 +26,7 @@ import java.util.function.Consumer;
  * system.
  */
 public final class PBXNativeTarget extends PBXTarget {
-	public PBXNativeTarget(String name, String productType, List<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
+	public PBXNativeTarget(String name, String productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
 		super(name, productType, buildPhases, buildConfigurationList, productName, productReference);
 	}
 
@@ -79,7 +81,7 @@ public final class PBXNativeTarget extends PBXTarget {
 		}
 
 		public PBXNativeTarget build() {
-			return new PBXNativeTarget(name, productType, buildPhases, buildConfigurationList, productName, productReference);
+			return new PBXNativeTarget(name, productType, ImmutableList.copyOf(buildPhases), buildConfigurationList, productName, productReference);
 		}
 	}
 }

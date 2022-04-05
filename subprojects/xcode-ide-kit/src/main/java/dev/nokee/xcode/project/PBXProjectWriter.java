@@ -250,7 +250,7 @@ public final class PBXProjectWriter implements Closeable {
 			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 			obj.putField("name", o.getName());
-			obj.putField("buildSettings", ImmutableMap.copyOf(o.getBuildSettings()));
+			obj.putField("buildSettings", o.getBuildSettings());
 		}).id;
 	}
 
@@ -288,8 +288,8 @@ public final class PBXProjectWriter implements Closeable {
 			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 			obj.putField("fileRef", objects(db, o.getFileRef()));
-			if (o.getSettings().isPresent()) {
-				obj.putField("settings", ImmutableMap.copyOf(o.getSettings().get()));
+			if (!o.getSettings().isEmpty()) {
+				obj.putField("settings", o.getSettings());
 			}
 		}).id;
 	}

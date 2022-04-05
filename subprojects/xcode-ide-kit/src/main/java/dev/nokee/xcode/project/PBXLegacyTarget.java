@@ -15,7 +15,8 @@
  */
 package dev.nokee.xcode.project;
 
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
+
 import java.util.function.Consumer;
 
 /**
@@ -23,13 +24,13 @@ import java.util.function.Consumer;
  * system.
  */
 public final class PBXLegacyTarget extends PBXTarget {
-    private String buildArgumentsString;
-    private String buildToolPath;
-    private String buildWorkingDirectory;
-    private boolean passBuildSettingsInEnvironment;
+    private final String buildArgumentsString;
+    private final String buildToolPath;
+    private final String buildWorkingDirectory;
+    private final boolean passBuildSettingsInEnvironment;
 
 	private PBXLegacyTarget(String name, String productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
-		super(name, productType, Collections.emptyList(), buildConfigurationList, productName, productReference);
+		super(name, productType, ImmutableList.of(), buildConfigurationList, productName, productReference);
 		this.buildArgumentsString = buildArgumentsString;
 		this.buildToolPath = buildToolPath;
 		this.buildWorkingDirectory = buildWorkingDirectory;
@@ -40,32 +41,16 @@ public final class PBXLegacyTarget extends PBXTarget {
         return buildArgumentsString;
     }
 
-    public void setBuildArgumentsString(String buildArgumentsString) {
-        this.buildArgumentsString = buildArgumentsString;
-    }
-
     public String getBuildToolPath() {
         return buildToolPath;
-    }
-
-    public void setBuildToolPath(String buildToolPath) {
-        this.buildToolPath = buildToolPath;
     }
 
     public String getBuildWorkingDirectory() {
         return buildWorkingDirectory;
     }
 
-    public void setBuildWorkingDirectory(String buildWorkingDirectory) {
-        this.buildWorkingDirectory = buildWorkingDirectory;
-    }
-
     public boolean isPassBuildSettingsInEnvironment() {
         return passBuildSettingsInEnvironment;
-    }
-
-    public void setPassBuildSettingsInEnvironment(boolean passBuildSettingsInEnvironment) {
-        this.passBuildSettingsInEnvironment = passBuildSettingsInEnvironment;
     }
 
 	public static Builder builder() {
