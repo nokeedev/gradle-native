@@ -25,10 +25,6 @@ import java.util.Map;
  * settings.
  */
 public final class XCBuildConfiguration extends PBXBuildStyle {
-    public XCBuildConfiguration(String name) {
-        super(name);
-    }
-
 	private XCBuildConfiguration(String name, Map<String, ?> buildSettings) {
 		super(name, buildSettings);
 	}
