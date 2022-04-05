@@ -132,6 +132,7 @@ public final class PBXProjectWriter implements Closeable {
 	private String objects(Bob db, PBXProject o) {
 		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
 		return db.newObjectIfAbsent(gid, obj -> {
+			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 			obj.putField("mainGroup", objects(db, o.getMainGroup()));
 
@@ -152,6 +153,7 @@ public final class PBXProjectWriter implements Closeable {
 	private String objects(Bob db, XCConfigurationList o) {
 		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
 		return db.newObjectIfAbsent(gid, obj -> {
+			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 			val buildConfigurations = new ArrayList<>(o.getBuildConfigurationsByName().asMap().values());
 			Collections.sort(buildConfigurations, new Comparator<XCBuildConfiguration>() {
@@ -172,6 +174,7 @@ public final class PBXProjectWriter implements Closeable {
 	private String objects(Bob db, PBXReference o) {
 		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
 		return db.newObjectIfAbsent(gid, obj -> {
+			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 			obj.putField("name", o.getName());
 			if (o.getPath() != null) {
@@ -210,6 +213,7 @@ public final class PBXProjectWriter implements Closeable {
 	private String objects(Bob db, PBXTarget o) {
 		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
 		return db.newObjectIfAbsent(gid, obj -> {
+			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 
 			obj.putField("name", o.getName());
@@ -243,6 +247,7 @@ public final class PBXProjectWriter implements Closeable {
 	private String objects(Bob db, PBXBuildStyle o) {
 		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
 		return db.newObjectIfAbsent(gid, obj -> {
+			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 			obj.putField("name", o.getName());
 			obj.putField("buildSettings", ImmutableMap.copyOf(o.getBuildSettings()));
@@ -252,6 +257,7 @@ public final class PBXProjectWriter implements Closeable {
 	private String objects(Bob db, PBXBuildPhase o) {
 		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
 		return db.newObjectIfAbsent(gid, obj -> {
+			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 			obj.putField("files", o.getFiles().stream().map(it -> objects(db, it)).collect(Collectors.toList()));
 
@@ -279,6 +285,7 @@ public final class PBXProjectWriter implements Closeable {
 	private String objects(Bob db, PBXBuildFile o) {
 		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
 		return db.newObjectIfAbsent(gid, obj -> {
+			o.setGlobalID(gid);
 			obj.putField("isa", isa(o));
 			obj.putField("fileRef", objects(db, o.getFileRef()));
 			if (o.getSettings().isPresent()) {
