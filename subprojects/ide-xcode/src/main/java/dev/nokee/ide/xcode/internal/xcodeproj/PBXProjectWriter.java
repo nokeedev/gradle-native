@@ -292,12 +292,6 @@ public final class PBXProjectWriter implements Closeable {
 	private static final class Bob {
 		private final Map<String, Obj> objects = new LinkedHashMap<>();
 
-		public Obj newObjectIfAbsent(String id) {
-			val result = new Obj(id);
-			objects.put(id, result);
-			return result;
-		}
-
 		public Obj newObjectIfAbsent(String id, Consumer<? super Obj> action) {
 			if (objects.containsKey(id)) {
 				return objects.get(id);
@@ -307,9 +301,6 @@ public final class PBXProjectWriter implements Closeable {
 				objects.put(id, result);
 				return result;
 			}
-//			val result = objects.computeIfAbsent(id, Obj::new);
-//			action.accept(result);
-//			return result;
 		}
 	}
 
