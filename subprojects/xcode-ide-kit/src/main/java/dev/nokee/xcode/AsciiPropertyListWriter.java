@@ -20,6 +20,7 @@ import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Stack;
 import java.util.stream.IntStream;
 
@@ -27,9 +28,17 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	private static final char NEW_LINE_CHAR = '\n';
 	private final Stack<Context> contexts = new Stack<>();
 	private final Writer delegate;
+	private final boolean pretty;
 
 	public AsciiPropertyListWriter(Writer delegate) {
+		this(delegate, false);
+	}
+
+	// NOTE: pretty flag is a gross approximation for making the resulting file pretty, we should consider several cases:
+	//  Compact (no new lines), indent before dict/array (similar to bracket in code, indent char (tab by default... may be a hard requirement of the format), inline array on x entry or less, pad inline arrays with spaces, i.e. ( v1, v2 ), quote all string
+	public AsciiPropertyListWriter(Writer delegate, boolean pretty) {
 		this.delegate = delegate;
+		this.pretty = pretty;
 	}
 
 	private enum Context {
@@ -52,6 +61,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	public void writeEndDocument() {
 		// nothing to do
 		run(() -> {
+			delegate.write(NEW_LINE_CHAR);
 			delegate.flush();
 		});
 	}
@@ -63,8 +73,11 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 
 			delegate.write("{");
 
-			delegate.write(" ");
-//			delegate.write(NEW_LINE_CHAR);
+			if (pretty) {
+				delegate.write(NEW_LINE_CHAR);
+			} else {
+				delegate.write(" ");
+			}
 		});
 	}
 
@@ -72,6 +85,10 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	public void writeDictionaryKey(String key) {
 		assert contexts.peek() == Context.DICT;
 		run(() -> {
+			if (pretty) {
+				delegate.write(indent(level()));
+			}
+
 			contexts.push(Context.DICT_KEY);
 			// TODO: Maybe does not support spaces in keys...
 			delegate.write(key);
@@ -84,6 +101,9 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	@Override
 	public void writeEndDictionary() {
 		run(() -> {
+			if (pretty) {
+				delegate.write(indent(level() - 1));
+			}
 			delegate.write("}");
 
 			doExitContext(assertDictContext(contexts.pop()));
@@ -104,15 +124,34 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 			contexts.push(doEnterContext(Context.EMPTY_ARRAY));
 			delegate.write("(");
 
-			delegate.write(" ");
+			if (pretty) {
+				delegate.write(NEW_LINE_CHAR);
+			} else {
+				delegate.write(" ");
+			}
 			// TODO: Write comma after element, even last element
 		});
+	}
+
+	private int level() {
+		return (int) contexts.stream().filter(it -> it == Context.DICT || it == Context.ARRAY).count();
+	}
+
+	private static char[] indent(int level) {
+		char[] result = new char[level];
+		Arrays.fill(result, '\t');
+		return result;
 	}
 
 	@Override
 	public void writeEndArray() {
 		run(() -> {
-			delegate.write(" ");
+			if (pretty) {
+				delegate.write(NEW_LINE_CHAR);
+				delegate.write(indent(level() - 1));
+			} else {
+				delegate.write(" ");
+			}
 			delegate.write(")");
 
 			doExitContext(assertArrayContext(contexts.pop()));
@@ -219,8 +258,17 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 			// Replace array context to notify it's not empty
 			contexts.pop();
 			contexts.push(Context.ARRAY);
+
+			if (pretty) {
+				delegate.write(indent(level()));
+			}
 		} else if (contexts.peek() == Context.ARRAY) {
 			delegate.write(", ");
+
+			if (pretty) {
+				delegate.write(NEW_LINE_CHAR);
+				delegate.write(indent(level()));
+			}
 		}
 		return enteringContext;
 	}
@@ -240,7 +288,11 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 			delegate.write(";");
 
 			// TODO: formating
-			delegate.write(" ");
+			if (pretty) {
+				delegate.write(NEW_LINE_CHAR);
+			} else {
+				delegate.write(" ");
+			}
 
 			contexts.pop();
 //		} else if (contexts.peek() == Context.ARRAY) {
