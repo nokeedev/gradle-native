@@ -17,6 +17,10 @@ package dev.nokee.ide.xcode.internal.xcodeproj;
 
 import dev.nokee.ide.xcode.XcodeIdeProductType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build
  * system.
@@ -25,4 +29,63 @@ public final class PBXNativeTarget extends PBXTarget {
     public PBXNativeTarget(String name, XcodeIdeProductType productType) {
         super(name, productType);
     }
+
+	public PBXNativeTarget(String name, XcodeIdeProductType productType, List<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
+		super(name, productType, buildPhases, buildConfigurationList, productName, productReference);
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private String name;
+		private XcodeIdeProductType productType;
+		private List<PBXBuildPhase> buildPhases = new ArrayList<>();
+		private XCConfigurationList buildConfigurationList;
+		private String productName;
+		private PBXFileReference productReference;
+
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
+
+		public Builder productType(XcodeIdeProductType productType) {
+			this.productType = productType;
+			return this;
+		}
+
+		public Builder buildPhase(PBXBuildPhase buildPhase) {
+			this.buildPhases.add(buildPhase);
+			return this;
+		}
+
+		public Builder buildPhases(List<PBXBuildPhase> buildPhases) {
+			this.buildPhases.clear();
+			this.buildPhases.addAll(buildPhases);
+			return this;
+		}
+
+		public Builder buildConfigurations(Consumer<? super XCConfigurationList.Builder> builderConsumer) {
+			final XCConfigurationList.Builder builder = XCConfigurationList.builder();
+			builderConsumer.accept(builder);
+			this.buildConfigurationList = builder.build();
+			return this;
+		}
+
+		public Builder productName(String productName) {
+			this.productName = productName;
+			return this;
+		}
+
+		public Builder productReference(PBXFileReference productReference) {
+			this.productReference = productReference;
+			return this;
+		}
+
+		public PBXNativeTarget build() {
+			return new PBXNativeTarget(name, productType, buildPhases, buildConfigurationList, productName, productReference);
+		}
+	}
 }

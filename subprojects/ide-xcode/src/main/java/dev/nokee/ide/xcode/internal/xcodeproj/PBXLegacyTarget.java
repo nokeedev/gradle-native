@@ -17,6 +17,9 @@ package dev.nokee.ide.xcode.internal.xcodeproj;
 
 import dev.nokee.ide.xcode.XcodeIdeProductType;
 
+import java.util.Collections;
+import java.util.function.Consumer;
+
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build
  * system.
@@ -31,7 +34,15 @@ public final class PBXLegacyTarget extends PBXTarget {
         super(name, productType);
     }
 
-    public String getBuildArgumentsString() {
+	private PBXLegacyTarget(String name, XcodeIdeProductType productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
+		super(name, productType, Collections.emptyList(), buildConfigurationList, productName, productReference);
+		this.buildArgumentsString = buildArgumentsString;
+		this.buildToolPath = buildToolPath;
+		this.buildWorkingDirectory = buildWorkingDirectory;
+		this.passBuildSettingsInEnvironment = passBuildSettingsInEnvironment;
+	}
+
+	public String getBuildArgumentsString() {
         return buildArgumentsString;
     }
 
@@ -62,4 +73,71 @@ public final class PBXLegacyTarget extends PBXTarget {
     public void setPassBuildSettingsInEnvironment(boolean passBuildSettingsInEnvironment) {
         this.passBuildSettingsInEnvironment = passBuildSettingsInEnvironment;
     }
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private String name;
+		private XcodeIdeProductType productType;
+		private String buildArgumentsString = "$(ACTION)";
+		private String buildToolPath = "/usr/bin/make";
+		private String buildWorkingDirectory;
+		private boolean passBuildSettingsInEnvironment = true;
+		private XCConfigurationList buildConfigurationList;
+		private String productName;
+		private PBXFileReference productReference;
+
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
+
+		public Builder productType(XcodeIdeProductType productType) {
+			this.productType = productType;
+			return this;
+		}
+
+		public Builder buildConfigurations(Consumer<? super XCConfigurationList.Builder> builderConsumer) {
+			final XCConfigurationList.Builder builder = XCConfigurationList.builder();
+			builderConsumer.accept(builder);
+			this.buildConfigurationList = builder.build();
+			return this;
+		}
+
+		public Builder productName(String productName) {
+			this.productName = productName;
+			return this;
+		}
+
+		public Builder productReference(PBXFileReference productReference) {
+			this.productReference = productReference;
+			return this;
+		}
+
+		public Builder buildArguments(String buildArguments) {
+			this.buildArgumentsString = buildArguments;
+			return this;
+		}
+
+		public Builder buildToolPath(String buildToolPath) {
+			this.buildToolPath = buildToolPath;
+			return this;
+		}
+
+		public Builder buildWorkingDirectory(String buildWorkingDirectory) {
+			this.buildWorkingDirectory = buildWorkingDirectory;
+			return this;
+		}
+
+		public Builder passBuildSettingsInEnvironment(boolean passBuildSettingsInEnvironment) {
+			this.passBuildSettingsInEnvironment = passBuildSettingsInEnvironment;
+			return this;
+		}
+
+		public PBXLegacyTarget build() {
+			return new PBXLegacyTarget(name, productType, productName, productReference, buildConfigurationList, buildArgumentsString, buildToolPath, buildWorkingDirectory, passBuildSettingsInEnvironment);
+		}
+	}
 }

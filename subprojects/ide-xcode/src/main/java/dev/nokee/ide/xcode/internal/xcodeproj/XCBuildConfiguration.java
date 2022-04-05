@@ -15,6 +15,11 @@
  */
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * Build configuration containing a file reference ton an xcconfig file and additional inline
  * settings.
@@ -23,4 +28,33 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
     public XCBuildConfiguration(String name) {
         super(name);
     }
+
+	private XCBuildConfiguration(String name, Map<String, ?> buildSettings) {
+		super(name, buildSettings);
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private String name;
+		private Map<String, ?> buildSettings = Collections.emptyMap();
+
+		private Builder() {}
+
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
+
+		public Builder buildSettings(Map<String, ?> buildSettings) {
+			this.buildSettings = ImmutableMap.copyOf(buildSettings);
+			return this;
+		}
+
+		public XCBuildConfiguration build() {
+			return new XCBuildConfiguration(name, buildSettings);
+		}
+	}
 }
