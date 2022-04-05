@@ -15,7 +15,7 @@
  */
 package dev.nokee.ide.xcode.internal.services;
 
-import dev.nokee.ide.xcode.internal.xcodeproj.GidGenerator;
+import dev.nokee.xcode.project.GidGenerator;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.ide.xcode.internal.xcodeproj;
+package dev.nokee.xcode.project;
 
 /**
- * Superclass of all container types. This is here to reflect Xcode's object hierarchy, and does
- * not implement any special functionality.
+ * Superclass in Xcode's object hierarchy, has no non-structural functionality here.
  */
-public abstract class PBXContainer extends PBXObject {
+public abstract class PBXContainerItem extends PBXObject {
 }

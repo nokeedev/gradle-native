@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.ide.xcode.internal.xcodeproj;
+package dev.nokee.xcode.project;
 
 import com.dd.plist.NSNumber;
 import com.dd.plist.NSString;
