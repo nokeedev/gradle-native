@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Stack;
+import java.util.stream.IntStream;
 
 public final class AsciiPropertyListWriter implements PropertyListWriter {
 	private static final char NEW_LINE_CHAR = '\n';
@@ -164,12 +165,38 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 				delegate.write(s.toString());
 			} else {
 				delegate.write("\"");
-				delegate.write(s.toString()); // TODO: What do we do with embedded new lines?
+
+				// According to https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/PropertyLists/OldStylePlists/OldStylePLists.html
+				// unicode characters should be written as-is which would violate the ASCII plain format.
+				//   "You may see strings containing unreadable sequences of ASCII characters; these are used to represent Unicode characters"
+				// Based on experience, Xcode escape unicode characters when writing ASCII property list.
+				delegate.write(escapeUnicodeCharacters(s));
 				delegate.write("\"");
 			}
 
 			doExitContext(Context.STRING);
 		});
+	}
+
+	private static String escapeUnicodeCharacters(CharSequence s) {
+		return s.chars().flatMap(it -> {
+			if (it > 127) {
+				return IntStream.concat(IntStream.of('\\', 'u'), String.format("%04x", it).chars());
+			} else if (it == '\\') {
+				return IntStream.of('\\', '\\');
+			} else if (it == '"') {
+				return IntStream.of('\\', '"');
+			} else if (it == '\b') {
+				return IntStream.of('\\', 'b');
+			} else if (it == '\n') {
+				return IntStream.of('\\', 'n');
+			} else if (it == '\r') {
+				return IntStream.of('\\', 'r');
+			} else if (it == '\t') {
+				return IntStream.of('\\', 't');
+			}
+			return IntStream.of(it);
+		}).collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
 	}
 
 	@Override
