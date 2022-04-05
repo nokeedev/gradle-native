@@ -15,6 +15,7 @@
  */
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
+import com.dd.plist.NSNumber;
 import com.dd.plist.NSString;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -92,6 +93,8 @@ public final class PBXProjectWriter implements Closeable {
 			writer.writeReal((Double) value);
 		} else if (value instanceof Number) {
 			writer.writeInteger(((Number) value).longValue());
+		} else if (value instanceof NSNumber) {
+			writer.writeInteger(((NSNumber) value).longValue()); // because we have copy of NSDictionary with NSNumber
 		} else if (value instanceof String) {
 			writer.writeString((String) value);
 		} else if (value instanceof NSString) {

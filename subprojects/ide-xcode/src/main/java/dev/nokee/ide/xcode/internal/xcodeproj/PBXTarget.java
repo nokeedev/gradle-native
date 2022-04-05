@@ -41,7 +41,16 @@ public abstract class PBXTarget extends PBXProjectItem {
         this.buildConfigurationList = new XCConfigurationList();
     }
 
-    public String getName() {
+	protected PBXTarget(String name, XcodeIdeProductType productType, List<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
+		this.name = name;
+		this.productType = productType;
+		this.buildPhases = Lists.newArrayList(buildPhases);
+		this.buildConfigurationList = buildConfigurationList;
+		this.productName = productName;
+		this.productReference = productReference;
+	}
+
+	public String getName() {
         return name;
     }
 

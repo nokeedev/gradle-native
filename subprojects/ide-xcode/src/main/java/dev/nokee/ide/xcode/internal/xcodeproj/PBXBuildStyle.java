@@ -18,6 +18,8 @@ package dev.nokee.ide.xcode.internal.xcodeproj;
 import com.dd.plist.NSDictionary;
 import com.google.common.base.Preconditions;
 
+import java.util.Map;
+
 public class PBXBuildStyle extends PBXProjectItem {
     private final String name;
     private NSDictionary buildSettings;
@@ -26,6 +28,12 @@ public class PBXBuildStyle extends PBXProjectItem {
         this.name = Preconditions.checkNotNull(name);
         this.buildSettings = new NSDictionary();
     }
+
+	public PBXBuildStyle(String name, Map<String, ?> buildSettings) {
+		this.name = Preconditions.checkNotNull(name);
+		this.buildSettings = new NSDictionary();
+		buildSettings.forEach((k, v) -> this.buildSettings.put(k, v));
+	}
 
     public String getName() {
         return name;
