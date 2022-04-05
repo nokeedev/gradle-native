@@ -20,7 +20,7 @@ package dev.nokee.ide.xcode.internal.xcodeproj;
  *
  * A target should contain at most one of this build phase.
  */
-public class PBXSourcesBuildPhase extends PBXBuildPhase {
+public final class PBXSourcesBuildPhase extends PBXBuildPhase {
     @Override
     public String isa() {
         return "PBXSourcesBuildPhase";

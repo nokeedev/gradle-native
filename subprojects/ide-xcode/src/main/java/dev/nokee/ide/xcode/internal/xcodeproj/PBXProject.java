@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * The root object representing the project itself.
  */
-public class PBXProject extends PBXContainer {
+public final class PBXProject extends PBXContainer {
     private final PBXGroup mainGroup;
     private final List<PBXTarget> targets;
     private final XCConfigurationList buildConfigurationList;

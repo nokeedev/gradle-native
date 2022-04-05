@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Build phase which represents running a shell script.
  */
-public class PBXShellScriptBuildPhase extends PBXBuildPhase {
+public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
     private List<String> inputPaths;
     private List<String> outputPaths;
     @Nullable private String shellPath;
