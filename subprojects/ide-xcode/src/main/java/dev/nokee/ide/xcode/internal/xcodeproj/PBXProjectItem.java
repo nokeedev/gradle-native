@@ -16,8 +16,4 @@
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
 public abstract class PBXProjectItem extends PBXContainerItem {
-    @Override
-    public String isa() {
-        return "PBXProjectItem";
-    }
 }

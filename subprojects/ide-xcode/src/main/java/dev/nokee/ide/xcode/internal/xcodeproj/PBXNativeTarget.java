@@ -25,9 +25,4 @@ public final class PBXNativeTarget extends PBXTarget {
     public PBXNativeTarget(String name, XcodeIdeProductType productType) {
         super(name, productType);
     }
-
-    @Override
-    public String isa() {
-        return "PBXNativeTarget";
-    }
 }

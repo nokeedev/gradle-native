@@ -59,11 +59,6 @@ public final class PBXProject extends PBXContainer {
     }
 
     @Override
-    public String isa() {
-        return "PBXProject";
-    }
-
-    @Override
     public int stableHash() {
         return name.hashCode();
     }

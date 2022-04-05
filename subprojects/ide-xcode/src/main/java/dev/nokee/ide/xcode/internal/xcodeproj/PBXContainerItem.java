@@ -19,8 +19,4 @@ package dev.nokee.ide.xcode.internal.xcodeproj;
  * Superclass in Xcode's object hierarchy, has no non-structural functionality here.
  */
 public abstract class PBXContainerItem extends PBXObject {
-    @Override
-    public String isa() {
-        return "PBXContainerItem";
-    }
 }

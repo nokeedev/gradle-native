@@ -76,11 +76,6 @@ public abstract class PBXTarget extends PBXProjectItem {
     }
 
     @Override
-    public String isa() {
-        return "PBXTarget";
-    }
-
-    @Override
     public int stableHash() {
         return name.hashCode();
     }

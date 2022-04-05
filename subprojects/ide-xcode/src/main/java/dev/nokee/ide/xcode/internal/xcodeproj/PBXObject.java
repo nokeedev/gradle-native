@@ -17,6 +17,8 @@ package dev.nokee.ide.xcode.internal.xcodeproj;
 
 import javax.annotation.Nullable;
 
+import static dev.nokee.ide.xcode.internal.xcodeproj.PBXProjectWriter.isa;
+
 
 public abstract class PBXObject {
     @Nullable
@@ -32,11 +34,6 @@ public abstract class PBXObject {
     }
 
     /**
-     * @return Type name of the serialized object.
-     */
-    public abstract String isa();
-
-    /**
      * This method is used to generate stable GIDs and must be stable for identical contents.
      * Returning a constant value is ok but will make the generated project order-dependent.
      */
@@ -46,13 +43,13 @@ public abstract class PBXObject {
 
     @Override
     public String toString() {
-        return String.format("%s isa=%s gid=%s", super.toString(), isa(), getGlobalID());
+        return String.format("%s isa=%s gid=%s", super.toString(), isa(this), getGlobalID());
     }
 
     /**
      * Generate a stable GID.
      */
     public final String generateGid(GidGenerator generator) {
-        return generator.generateGid(isa(), stableHash());
+        return generator.generateGid(isa(this), stableHash());
     }
 }

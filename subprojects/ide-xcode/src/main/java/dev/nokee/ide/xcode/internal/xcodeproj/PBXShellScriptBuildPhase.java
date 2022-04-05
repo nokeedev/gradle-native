@@ -38,11 +38,6 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
         this.outputPaths = Lists.newArrayList();
     }
 
-    @Override
-    public String isa() {
-        return "PBXShellScriptBuildPhase";
-    }
-
     /**
      * Returns the list (possibly empty) of files passed as input to the shell script.
      * May not be actual paths, because they can have variable interpolations.

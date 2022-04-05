@@ -63,11 +63,6 @@ public class PBXReference extends PBXContainerItem {
     }
 
     @Override
-    public String isa() {
-        return "PBXReference";
-    }
-
-    @Override
     public int stableHash() {
         return name.hashCode();
     }

@@ -40,11 +40,6 @@ public class PBXBuildStyle extends PBXProjectItem {
     }
 
     @Override
-    public String isa() {
-        return "PBXBuildStyle";
-    }
-
-    @Override
     public int stableHash() {
         return name.hashCode();
     }
