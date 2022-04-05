@@ -35,22 +35,6 @@ public final class XCConfigurationList extends PBXProjectItem {
     private Optional<String> defaultConfigurationName;
     private boolean defaultConfigurationIsVisible;
 
-    public XCConfigurationList() {
-        buildConfigurations = Lists.newArrayList();
-        defaultConfigurationName = Optional.absent();
-        defaultConfigurationIsVisible = false;
-
-        buildConfigurationsByName = CacheBuilder.newBuilder().build(
-            new CacheLoader<String, XCBuildConfiguration>() {
-                @Override
-                public XCBuildConfiguration load(String key) throws Exception {
-                    XCBuildConfiguration configuration = new XCBuildConfiguration(key);
-                    buildConfigurations.add(configuration);
-                    return configuration;
-                }
-            });
-    }
-
 	private XCConfigurationList(Map<String, XCBuildConfiguration> buildConfigurations, String defaultConfigurationName, DefaultConfigurationVisibility defaultConfigurationVisibility) {
 		this.buildConfigurations = Lists.newArrayList();
 		this.defaultConfigurationName = Optional.fromNullable(defaultConfigurationName);

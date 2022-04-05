@@ -15,7 +15,6 @@
  */
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import dev.nokee.ide.xcode.XcodeIdeProductType;
 
@@ -34,12 +33,6 @@ public abstract class PBXTarget extends PBXProjectItem {
     private String productName;
     @Nullable
     private PBXFileReference productReference;
-    public PBXTarget(String name, XcodeIdeProductType productType) {
-        this.name = Preconditions.checkNotNull(name);
-        this.productType = Preconditions.checkNotNull(productType);
-        this.buildPhases = Lists.newArrayList();
-        this.buildConfigurationList = new XCConfigurationList();
-    }
 
 	protected PBXTarget(String name, XcodeIdeProductType productType, List<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
 		this.name = name;
