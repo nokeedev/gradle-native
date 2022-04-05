@@ -15,12 +15,11 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
-import java.util.List;
+import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -28,17 +27,14 @@ import java.util.function.Consumer;
  */
 public final class XCConfigurationList extends PBXProjectItem {
     private final Map<String, XCBuildConfiguration> buildConfigurationsByName;
-    private List<XCBuildConfiguration> buildConfigurations;
-    private Optional<String> defaultConfigurationName;
-    private boolean defaultConfigurationIsVisible;
+    @Nullable private final String defaultConfigurationName;
+    private final boolean defaultConfigurationIsVisible;
 
-	private XCConfigurationList(Map<String, XCBuildConfiguration> buildConfigurations, String defaultConfigurationName, DefaultConfigurationVisibility defaultConfigurationVisibility) {
-		this.buildConfigurations = Lists.newArrayList();
-		this.defaultConfigurationName = Optional.fromNullable(defaultConfigurationName);
+	private XCConfigurationList(Map<String, XCBuildConfiguration> buildConfigurations, @Nullable String defaultConfigurationName, DefaultConfigurationVisibility defaultConfigurationVisibility) {
+		this.defaultConfigurationName = defaultConfigurationName;
 		defaultConfigurationIsVisible = defaultConfigurationVisibility == DefaultConfigurationVisibility.VISIBLE;
 
 		this.buildConfigurationsByName = buildConfigurations;
-		this.buildConfigurations.addAll(buildConfigurations.values());
 	}
 
     public Map<String, XCBuildConfiguration> getBuildConfigurationsByName() {
@@ -46,7 +42,7 @@ public final class XCConfigurationList extends PBXProjectItem {
     }
 
 	public Optional<String> getDefaultConfigurationName() {
-		return defaultConfigurationName;
+		return Optional.ofNullable(defaultConfigurationName);
 	}
 
 	public boolean isDefaultConfigurationIsVisible() {

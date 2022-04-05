@@ -15,30 +15,27 @@
  */
 package dev.nokee.xcode.project;
 
-import com.dd.plist.NSString;
-import com.google.common.collect.Lists;
-
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Build phase which represents running a shell script.
  */
 public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
-    private List<String> inputPaths;
-    private List<String> outputPaths;
-    @Nullable private String shellPath;
-    @Nullable private String shellScript;
+    private final List<String> inputPaths;
+    private final List<String> outputPaths;
+    @Nullable private final String shellPath;
+    @Nullable private final String shellScript;
 
-    private static final NSString DEFAULT_SHELL_PATH = new NSString("/bin/sh");
-    private static final NSString DEFAULT_SHELL_SCRIPT = new NSString("");
+	private PBXShellScriptBuildPhase(@Nullable String shellScript, @Nullable String shellPath, List<String> inputPaths, List<String> outputPaths) {
+		this.shellPath = shellPath;
+		this.shellScript = shellScript;
+		this.inputPaths = inputPaths;
+		this.outputPaths = outputPaths;
+	}
 
-    public PBXShellScriptBuildPhase() {
-        this.inputPaths = Lists.newArrayList();
-        this.outputPaths = Lists.newArrayList();
-    }
-
-    /**
+	/**
      * Returns the list (possibly empty) of files passed as input to the shell script.
      * May not be actual paths, because they can have variable interpolations.
      */
@@ -64,13 +61,6 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
     }
 
     /**
-     * Sets the path to the shell under which the script is to be executed.
-     */
-    public void setShellPath(String shellPath) {
-        this.shellPath = shellPath;
-    }
-
-    /**
      * Gets the contents of the shell script to execute under the shell
      * returned by {@link #getShellPath()}.
      */
@@ -79,10 +69,43 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
         return shellScript;
     }
 
-    /**
-     * Sets the contents of the script to execute.
-     */
-    public void setShellScript(String shellScript) {
-        this.shellScript = shellScript;
-    }
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private static final String DEFAULT_SHELL_PATH = "/bin/sh";
+		private static final String DEFAULT_SHELL_SCRIPT = "";
+
+		private String shellScript = DEFAULT_SHELL_SCRIPT;
+		private String shellPath = DEFAULT_SHELL_PATH;
+		private final List<String> outputPaths = new ArrayList<>();
+		private final List<String> inputPaths = new ArrayList<>();
+
+		public Builder shellScript(String shellScript) {
+			this.shellScript = shellScript;
+			return this;
+		}
+
+		public Builder shellPath(String shellPath) {
+			this.shellPath = shellPath;
+			return this;
+		}
+
+		public Builder outputPaths(Iterable<String> outputPaths) {
+			this.outputPaths.clear();
+			outputPaths.forEach(this.outputPaths::add);
+			return this;
+		}
+
+		public Builder inputPaths(Iterable<String> inputPaths) {
+			this.inputPaths.clear();
+			inputPaths.forEach(this.inputPaths::add);
+			return this;
+		}
+
+		public PBXShellScriptBuildPhase build() {
+			return new PBXShellScriptBuildPhase(shellScript, shellPath, inputPaths, outputPaths);
+		}
+	}
 }
