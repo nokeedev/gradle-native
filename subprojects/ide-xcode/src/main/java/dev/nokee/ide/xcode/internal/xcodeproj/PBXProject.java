@@ -15,7 +15,6 @@
  */
 package dev.nokee.ide.xcode.internal.xcodeproj;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -32,14 +31,6 @@ public final class PBXProject extends PBXContainer {
     private final XCConfigurationList buildConfigurationList;
     private final String compatibilityVersion;
     private final String name;
-
-    public PBXProject(String name) {
-        this.name = Preconditions.checkNotNull(name);
-        this.mainGroup = new PBXGroup("mainGroup", null, PBXReference.SourceTree.GROUP);
-        this.targets = Lists.newArrayList();
-        this.buildConfigurationList = new XCConfigurationList();
-        this.compatibilityVersion = "Xcode 3.2";
-    }
 
 	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList) {
 		this.name = name;

@@ -25,14 +25,10 @@ import java.util.function.Consumer;
  * system.
  */
 public final class PBXLegacyTarget extends PBXTarget {
-    private String buildArgumentsString = "$(ACTION)";
-    private String buildToolPath = "/usr/bin/make";
+    private String buildArgumentsString;
+    private String buildToolPath;
     private String buildWorkingDirectory;
-    private boolean passBuildSettingsInEnvironment = true;
-
-    public PBXLegacyTarget(String name, XcodeIdeProductType productType) {
-        super(name, productType);
-    }
+    private boolean passBuildSettingsInEnvironment;
 
 	private PBXLegacyTarget(String name, XcodeIdeProductType productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
 		super(name, productType, Collections.emptyList(), buildConfigurationList, productName, productReference);
