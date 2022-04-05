@@ -119,6 +119,11 @@ class XmlPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Override
+	void verifyEmptyString() {
+		assertThat(output(), equalTo(withHeader("<string></string>")));
+	}
+
+	@Override
 	void verifyEmptyDictionary() {
 		assertThat(output(), equalTo(withHeader("<dict/>")));
 	}

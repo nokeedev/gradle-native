@@ -111,11 +111,22 @@ abstract class PropertyListWriterTester {
 
 			verifyNonAlphanumericWithoutSpaceString("alpha 567");
 		}
+
+		@Test
+		void writesEmptyString() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeString("");
+			subject().writeEndDocument();
+
+			verifyEmptyString();
+		}
 	}
 
 	abstract void verifyAlphanumericWithoutSpaceString(String expected);
 
 	abstract void verifyNonAlphanumericWithoutSpaceString(String expected);
+
+	abstract void verifyEmptyString();
 
 	@Nested
 	class DictionaryTest {

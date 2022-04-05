@@ -161,7 +161,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 		run(() -> {
 			doEnterContext(Context.STRING);
 
-			if (s.chars().allMatch(it -> Character.isAlphabetic(it) || Character.isDigit(it))) {
+			if (s.length() > 0 && s.chars().allMatch(it -> Character.isAlphabetic(it) || Character.isDigit(it))) {
 				delegate.write(s.toString());
 			} else {
 				delegate.write("\"");
