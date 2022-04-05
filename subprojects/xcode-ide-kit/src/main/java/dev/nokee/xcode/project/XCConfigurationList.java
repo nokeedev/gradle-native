@@ -54,8 +54,8 @@ public final class XCConfigurationList extends PBXProjectItem {
 		this.buildConfigurations.addAll(buildConfigurations.values());
 	}
 
-    public LoadingCache<String, XCBuildConfiguration> getBuildConfigurationsByName() {
-        return buildConfigurationsByName;
+    public Map<String, XCBuildConfiguration> getBuildConfigurationsByName() {
+        return buildConfigurationsByName.asMap();
     }
 
 	public Optional<String> getDefaultConfigurationName() {
