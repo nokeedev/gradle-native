@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.ide.xcode.internal.tasks;
+package dev.nokee.xcode.scheme;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -34,7 +34,7 @@ import java.util.List;
  */
 @Value
 @JacksonXmlRootElement(localName = "Scheme")
-class XCScheme {
+public class XCScheme {
 	@JacksonXmlProperty(localName = "BuildAction")
 	BuildAction buildAction;
 
