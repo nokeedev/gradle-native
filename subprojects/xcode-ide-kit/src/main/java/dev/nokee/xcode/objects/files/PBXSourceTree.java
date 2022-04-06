@@ -16,7 +16,8 @@
 package dev.nokee.xcode.objects.files;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Optional;
+
+import java.util.Optional;
 
 /**
  * Represents the "Location" dropdown in Xcode's File Inspector.
@@ -76,7 +77,7 @@ public enum PBXSourceTree {
 			case "DEVELOPER_DIR":
 				return Optional.of(DEVELOPER_DIR);
 			default:
-				return Optional.absent();
+				return Optional.empty();
 		}
 	}
 
