@@ -16,7 +16,6 @@
 package dev.nokee.xcode.objects.files;
 
 import com.google.common.collect.Lists;
-import dev.nokee.xcode.objects.PBXReference;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

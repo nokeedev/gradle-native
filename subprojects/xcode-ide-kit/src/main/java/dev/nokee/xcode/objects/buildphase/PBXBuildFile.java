@@ -18,7 +18,7 @@ package dev.nokee.xcode.objects.buildphase;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.objects.PBXProjectItem;
-import dev.nokee.xcode.objects.PBXReference;
+import dev.nokee.xcode.objects.files.PBXReference;
 
 import java.util.Map;
 

@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 
 import java.util.ArrayList;

@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import dev.nokee.xcode.objects.PBXObject;
 import dev.nokee.xcode.objects.PBXProject;
-import dev.nokee.xcode.objects.PBXReference;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;

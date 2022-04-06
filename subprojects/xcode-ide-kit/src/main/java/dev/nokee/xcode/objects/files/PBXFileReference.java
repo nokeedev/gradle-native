@@ -18,7 +18,6 @@ package dev.nokee.xcode.objects.files;
 import com.google.common.base.MoreObjects;
 import com.google.common.io.Files;
 import dev.nokee.xcode.objects.FileTypes;
-import dev.nokee.xcode.objects.PBXReference;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
