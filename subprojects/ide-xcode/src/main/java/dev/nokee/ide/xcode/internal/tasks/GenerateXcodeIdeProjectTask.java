@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -52,7 +51,7 @@ import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.project.PBXConverter;
 import dev.nokee.xcode.project.PBXObjectReference;
-import dev.nokee.xcode.project.PBXProjectWriter;
+import dev.nokee.xcode.project.PBXProjWriter;
 import dev.nokee.xcode.workspace.WorkspaceSettings;
 import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
 import lombok.Value;
@@ -200,7 +199,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		});
 
 		// Write the PBXProj file
-		try (val writer = new PBXProjectWriter(new FileWriter(new File(projectDirectory, "project.pbxproj")))) {
+		try (val writer = new PBXProjWriter(new FileWriter(new File(projectDirectory, "project.pbxproj")))) {
 			writer.write(pbxproj);
 		}
 
