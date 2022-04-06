@@ -39,11 +39,10 @@ public final class PBXProject extends PBXContainer {
 
 	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, List<PBXReference> mainGroupChildren) {
 		this.name = name;
-		this.mainGroup = new PBXGroup("mainGroup", null, PBXReference.SourceTree.GROUP);
+		this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXReference.SourceTree.GROUP).children(mainGroupChildren).build();
 		this.targets = Lists.newArrayList(targets);
 		this.buildConfigurationList = buildConfigurationList;
 		this.compatibilityVersion = "Xcode 3.2";
-		this.mainGroup.getChildren().addAll(mainGroupChildren);
 	}
 
     public String getName() {
