@@ -15,27 +15,20 @@
  */
 package dev.nokee.xcode.objects.configuration;
 
-import dev.nokee.xcode.objects.PBXProjectItem;
+import org.junit.jupiter.api.Test;
 
-public abstract class PBXBuildStyle extends PBXProjectItem {
-    private final String name;
-    private final BuildSettings buildSettings;
+import static dev.nokee.xcode.objects.configuration.BuildSettings.builder;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 
-	protected PBXBuildStyle(String name, BuildSettings buildSettings) {
-		this.name = name;
-		this.buildSettings = buildSettings;
+class BuildSettingsOrderTest {
+	@Test
+	void ordersBuildSettingsAsAdded() {
+		assertThat(builder().put("b", 2).put("a", 1).put("0", "9").build().asMap().keySet(), contains("b", "a", "0"));
 	}
 
-    public String getName() {
-        return name;
-    }
-
-    public BuildSettings getBuildSettings() {
-        return buildSettings;
-    }
-
-    @Override
-    public int stableHash() {
-        return name.hashCode();
-    }
+	@Test
+	void ordersOverwrittenBuildSettingsAsFirstAdded() {
+		assertThat(builder().put("b", 2).put("a", 1).put("b", 0).build().asMap().keySet(), contains("b", "a"));
+	}
 }
