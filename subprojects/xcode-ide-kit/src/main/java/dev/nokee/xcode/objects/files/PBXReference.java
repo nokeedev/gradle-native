@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.objects;
+package dev.nokee.xcode.objects.files;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import dev.nokee.xcode.objects.PBXContainerItem;
 
 import javax.annotation.Nullable;
 

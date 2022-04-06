@@ -27,7 +27,7 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildSettings;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.xcode.objects.PBXProject;
-import dev.nokee.xcode.objects.PBXReference;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
@@ -64,11 +64,9 @@ import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	public static final XcodeIdeProductType INDEXER_PRODUCT_TYPE = XcodeIdeProductType.of("dev.nokee.product-type.indexer");
