@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import dev.nokee.xcode.objects.PBXReference;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,7 +52,12 @@ public final class PBXGroup extends PBXReference {
             });
     }
 
-    public PBXGroup getOrCreateChildGroupByName(String name) {
+	private PBXGroup(String name, @Nullable String path, SourceTree sourceTree, List<PBXReference> children) {
+		this(name, path, sourceTree);
+		this.children.addAll(children);
+	}
+
+	public PBXGroup getOrCreateChildGroupByName(String name) {
         return childGroupsByName.getUnchecked(name);
     }
 
@@ -78,4 +84,39 @@ public final class PBXGroup extends PBXReference {
          */
         UNSORTED;
     }
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private String name;
+		private String path;
+		private SourceTree sourceTree = SourceTree.GROUP;
+		private final List<PBXReference> children = new ArrayList<>();
+
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
+
+		public Builder path(String path) {
+			this.path = path;
+			return this;
+		}
+
+		public Builder child(PBXReference reference) {
+			children.add(reference);
+			return this;
+		}
+
+		public Builder sourceTree(SourceTree sourceTree) {
+			this.sourceTree = sourceTree;
+			return this;
+		}
+
+		public PBXGroup build() {
+			return new PBXGroup(name, path, sourceTree, children);
+		}
+	}
 }
