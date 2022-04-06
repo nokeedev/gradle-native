@@ -31,7 +31,7 @@ public final class PBXGroup extends PBXReference {
     // calls our constructor and it's not easy to pass arguments to it.
     private SortPolicy sortPolicy;
 
-	private PBXGroup(String name, @Nullable String path, SourceTree sourceTree, List<PBXReference> children) {
+	private PBXGroup(String name, @Nullable String path, PBXSourceTree sourceTree, List<PBXReference> children) {
 		super(name, path, sourceTree);
 
 		this.sortPolicy = SortPolicy.BY_NAME;
@@ -70,7 +70,7 @@ public final class PBXGroup extends PBXReference {
 	public static final class Builder {
 		private String name;
 		private String path;
-		private SourceTree sourceTree = SourceTree.GROUP;
+		private PBXSourceTree sourceTree = PBXSourceTree.GROUP;
 		private final List<PBXReference> children = new ArrayList<>();
 
 		public Builder name(String name) {
@@ -88,7 +88,7 @@ public final class PBXGroup extends PBXReference {
 			return this;
 		}
 
-		public Builder sourceTree(SourceTree sourceTree) {
+		public Builder sourceTree(PBXSourceTree sourceTree) {
 			this.sourceTree = sourceTree;
 			return this;
 		}
