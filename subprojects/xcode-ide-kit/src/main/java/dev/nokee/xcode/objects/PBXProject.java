@@ -18,9 +18,11 @@ package dev.nokee.xcode.objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
+import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -35,12 +37,13 @@ public final class PBXProject extends PBXContainer {
     private final String compatibilityVersion;
     private final String name;
 
-	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList) {
+	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, List<PBXReference> mainGroupChildren) {
 		this.name = name;
 		this.mainGroup = new PBXGroup("mainGroup", null, PBXReference.SourceTree.GROUP);
 		this.targets = Lists.newArrayList(targets);
 		this.buildConfigurationList = buildConfigurationList;
 		this.compatibilityVersion = "Xcode 3.2";
+		this.mainGroup.getChildren().addAll(mainGroupChildren);
 	}
 
     public String getName() {
@@ -76,6 +79,7 @@ public final class PBXProject extends PBXContainer {
 		private String name;
 		private final ImmutableList.Builder<PBXTarget> targets = ImmutableList.builder();
 		private XCConfigurationList buildConfigurations;
+		private final List<PBXReference> mainGroupChildren = new ArrayList<>();
 
 		public Builder name(String name) {
 			this.name = name;
@@ -94,8 +98,20 @@ public final class PBXProject extends PBXContainer {
 			return this;
 		}
 
+		public Builder file(PBXFileReference fileReference) {
+			mainGroupChildren.add(fileReference);
+			return this;
+		}
+
+		public Builder group(Consumer<? super PBXGroup.Builder> builderConsumer) {
+			final PBXGroup.Builder builder = PBXGroup.builder();
+			builderConsumer.accept(builder);
+			mainGroupChildren.add(builder.build());
+			return this;
+		}
+
 		public PBXProject build() {
-			return new PBXProject(Objects.requireNonNull(name), targets.build(), buildConfigurations);
+			return new PBXProject(Objects.requireNonNull(name), targets.build(), buildConfigurations, mainGroupChildren);
 		}
 	}
 }

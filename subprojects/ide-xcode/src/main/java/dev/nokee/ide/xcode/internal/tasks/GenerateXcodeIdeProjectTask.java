@@ -130,22 +130,27 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 			});
 		});
 
-		PBXProject project = projectBuilder.build();
-
 		// Configure sources
 		xcodeProject.getSources().forEach(file -> {
-			project.getMainGroup().getChildren().add(toAbsoluteFileReference(file));
+			projectBuilder.file(toAbsoluteFileReference(file));
 		});
 		xcodeProject.getGroups().forEach(group -> {
-			List<PBXReference> fileReferences = project.getMainGroup().getOrCreateChildGroupByName(group.getName()).getChildren();
-			group.getSources().forEach(file -> fileReferences.add(toAbsoluteFileReference(file)));
+			projectBuilder.group(builder -> {
+				builder.name(group.getName());
+				group.getSources().forEach(file -> builder.child(toAbsoluteFileReference(file)));
+			});
 		});
 
 		// Add all target product reference to Products source group
-		project.getMainGroup().getOrCreateChildGroupByName(PRODUCTS_GROUP_NAME).getChildren().addAll(project.getTargets().stream().map(PBXTarget::getProductReference).collect(Collectors.toList()));
+		projectBuilder.group(builder -> {
+			builder.name(PRODUCTS_GROUP_NAME);
+			xcodeProject.getTargets().stream().map(it -> pathToFileReferenceMapping.get(it.getProductReference().get())).forEach(builder::child);
+		});
 
 		// Lastly, create the indexing target
-		project.getTargets().addAll(xcodeProject.getTargets().stream().filter(this::isIndexableTarget).map(this::toIndexTarget).collect(Collectors.toList()));
+		xcodeProject.getTargets().stream().filter(this::isIndexableTarget).map(this::toIndexTarget).forEach(projectBuilder::target);
+
+		PBXProject project = projectBuilder.build();
 
 		// Convert to PBXProj model
 		val pbxproj = new PBXConverter(getGidGenerator().get()).convert(project);
@@ -322,7 +327,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		// Configures the product reference.
 		// We only configure the .xctest, the -Runner.app and co. are an implementation detail.
-		PBXFileReference productReference = new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXReference.SourceTree.BUILT_PRODUCTS_DIR);
+		PBXFileReference productReference = pathToFileReferenceMapping.computeIfAbsent(xcodeTarget.getProductReference().get(), ignored -> new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXReference.SourceTree.BUILT_PRODUCTS_DIR));
 		targetBuilder.productReference(productReference);
 
 		targetBuilder.buildConfigurations(builder -> {
