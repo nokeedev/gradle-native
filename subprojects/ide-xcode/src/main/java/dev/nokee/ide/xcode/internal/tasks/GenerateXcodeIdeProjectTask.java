@@ -47,6 +47,7 @@ import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.project.PBXConverter;
 import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProjWriter;
+import dev.nokee.xcode.scheme.XCScheme;
 import dev.nokee.xcode.workspace.WorkspaceSettings;
 import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
 import lombok.val;
