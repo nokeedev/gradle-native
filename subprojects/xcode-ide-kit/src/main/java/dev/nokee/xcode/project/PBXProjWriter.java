@@ -16,132 +16,67 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.AsciiPropertyListWriter;
+import dev.nokee.xcode.JavaPropertyListWriter;
 import dev.nokee.xcode.PropertyListVersion;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayDeque;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public final class PBXProjWriter implements Closeable {
-	private final AsciiPropertyListWriter writer;
+	private final JavaPropertyListWriter writer;
 
 	public PBXProjWriter(Writer writer) {
-		this.writer = new AsciiPropertyListWriter(writer, true);
+		this.writer = new JavaPropertyListWriter(new AsciiPropertyListWriter(writer, true), PBXProjWriter::writePBXObjectReferenceAsGlobalID);
+	}
+
+	private static void writePBXObjectReferenceAsGlobalID(JavaPropertyListWriter.ValueWriter writer, Object obj) {
+		if (obj instanceof PBXObjectReference) {
+			writer.writeObject(((PBXObjectReference) obj).getGlobalID());
+		} else {
+			throw new UnsupportedOperationException(String.format("Unknown object of type %s", obj.getClass().getSimpleName()));
+		}
 	}
 
 	public void write(PBXProj o) {
-		writer.writeStartDocument(PropertyListVersion.VERSION_00);
-		writeDict(5, () -> {
-			writeKey("archiveVersion", 1);
-			writeKey("classes", Collections.emptyMap());
-			writeKey("objectVersion",46);
-			writeKey("objects", () -> {
-				writeDict(o.getObjects().size(), () -> {
-					for (PBXObjectReference object : o.getObjects()) {
-						writeKey(object.getGlobalID(), () -> {
-							writeDict(object.getFields().size(), () -> {
-								for (Map.Entry<String, Object> field : object.getFields().entrySet()) {
-									writeKey(field.getKey(), field.getValue());
-								}
-							});
-						});
-					}
-				});
+		writer.writeDocument(PropertyListVersion.VERSION_00, doc -> {
+			doc.writeDict(5, dict -> {
+				dict.writeKey("archiveVersion", 1);
+				dict.writeKey("classes", Collections.emptyMap());
+				dict.writeKey("objectVersion",46);
+				dict.writeKey("objects", writeObjects(o.getObjects()));
+				dict.writeKey("rootObject", o.getRootObject());
 			});
-			writeKey("rootObject", o.getRootObject());
 		});
-
-		writer.writeEndDocument();
 
 		writer.flush();
 	}
 
-	private void writeDict(int size, Runnable action) {
-		writer.writeStartDictionary(size);
-		action.run();
-		writer.writeEndDictionary();
-	}
-
-	private final ContextPath contextPath = new ContextPath();
-	private void writeKey(String key, Runnable run) {
-		contextPath.with(key, ignored -> {
-			writer.writeDictionaryKey(key);
-			run.run();
-		});
-	}
-
-	private void writeKey(String key, Object value) {
-		contextPath.with(key, ignored -> {
-			writer.writeDictionaryKey(key);
-			write(value);
-		});
-	}
-
-	private void writeArrayElement(int index, Object value) {
-		contextPath.with(index, ignored -> write(value));
-	}
-
-	private void write(Object value) {
-		if (value instanceof Double) {
-			writer.writeReal((Double) value);
-		} else if (value instanceof Number) {
-			writer.writeInteger(((Number) value).longValue());
-		} else if (value instanceof String) {
-			writer.writeString((String) value);
-		} else if (value instanceof Boolean) {
-			writer.writeBoolean((Boolean) value);
-		} else if (value instanceof List) {
-			if (((List<?>) value).isEmpty()) {
-				writer.writeEmptyArray();
-			} else {
-				writer.writeStartArray(((List<?>) value).size());
-				int i = 0;
-				for (Object v : ((List<?>) value)) {
-					writeArrayElement(i, v);
+	private static Consumer<JavaPropertyListWriter.ValueWriter> writeObjects(PBXObjects objects) {
+		return writer -> {
+			writer.writeDict(objects.size(), entryWriter -> {
+				for (PBXObjectReference object : objects) {
+					entryWriter.writeKey(object.getGlobalID(), writeObject(object.getFields()));
 				}
-				writer.writeEndArray();
-			}
-		} else if (value instanceof Map) {
-			if (((Map<?, ?>) value).isEmpty()) {
-				writer.writeEmptyDictionary();
-			} else {
-				writer.writeStartDictionary(((Map<?, ?>) value).size());
-				for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
-					writeKey(entry.getKey().toString(), () -> write(entry.getValue()));
+			});
+		};
+	}
+
+	private static Consumer<JavaPropertyListWriter.ValueWriter> writeObject(PBXObjectFields fields) {
+		return writer -> {
+			writer.writeDict(fields.size(), tt -> {
+				for (Map.Entry<String, Object> field : fields.entrySet()) {
+					tt.writeKey(field.getKey(), field.getValue());
 				}
-				writer.writeEndDictionary();
-			}
-		} else {
-			throw new RuntimeException(contextPath.get() + " - " + value.getClass().toString());
-		}
+			});
+		};
 	}
 
 	@Override
 	public void close() throws IOException {
 		writer.close();
-	}
-
-	private static class ContextPath {
-		private final Queue<Object> contextPath = new ArrayDeque<>();
-
-		public <T> void with(T pathSegment, Consumer<? super T> action) {
-			contextPath.add(pathSegment);
-			try {
-				action.accept(pathSegment);
-			} finally {
-				contextPath.remove();
-			}
-		}
-
-		public String get() {
-			return contextPath.stream().map(Object::toString).collect(Collectors.joining("."));
-		}
 	}
 }

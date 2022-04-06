@@ -62,7 +62,7 @@ public final class PBXConverter {
 	private PBXObjectReference objects(ConvertContext db, PBXProject o) {
 		return db.newObjectIfAbsent(o, obj -> {
 			obj.putField("isa", isa(o));
-			obj.putField("mainGroup", objects(db, o.getMainGroup()).getGlobalID());
+			obj.putField("mainGroup", objects(db, o.getMainGroup()));
 
 			val targets = new ArrayList<>(o.getTargets());
 			Collections.sort(targets, Ordering.natural().onResultOf(new Function<PBXTarget, String>() {
@@ -71,8 +71,8 @@ public final class PBXConverter {
 					return input.getName();
 				}
 			}));
-			obj.putField("targets", targets.stream().map(it -> objects(db, it).getGlobalID()).collect(Collectors.toList()));
-			obj.putField("buildConfigurationList", objects(db, o.getBuildConfigurationList()).getGlobalID());
+			obj.putField("targets", targets.stream().map(it -> objects(db, it)).collect(Collectors.toList()));
+			obj.putField("buildConfigurationList", objects(db, o.getBuildConfigurationList()));
 			obj.putField("compatibilityVersion", o.getCompatibilityVersion());
 			obj.putField("attributes", ImmutableMap.of("LastUpgradeCheck", "0610"));
 		});
@@ -88,7 +88,7 @@ public final class PBXConverter {
 					return o1.getName().compareTo(o2.getName());
 				}
 			});
-			obj.putField("buildConfigurations", buildConfigurations.stream().map(it -> objects(db, it).getGlobalID()).collect(Collectors.toList()));
+			obj.putField("buildConfigurations", buildConfigurations.stream().map(it -> objects(db, it)).collect(Collectors.toList()));
 
 			if (o.getDefaultConfigurationName().isPresent()) {
 				obj.putField("defaultConfigurationName", o.getDefaultConfigurationName().get());
@@ -127,7 +127,7 @@ public final class PBXConverter {
 
 				val childs = ImmutableList.builder();
 				for (PBXReference child : children) {
-					childs.add(objects(db, child).getGlobalID());
+					childs.add(objects(db, child));
 				}
 				obj.putField("children", childs.build());
 			}
@@ -146,11 +146,11 @@ public final class PBXConverter {
 				obj.putField("productName", o.getProductName());
 			}
 			if (o.getProductReference() != null) {
-				obj.putField("productReference", objects(db, o.getProductReference()).getGlobalID());
+				obj.putField("productReference", objects(db, o.getProductReference()));
 			}
-			obj.putField("buildPhases", o.getBuildPhases().stream().map(it -> objects(db, it).getGlobalID()).collect(Collectors.toList()));
+			obj.putField("buildPhases", o.getBuildPhases().stream().map(it -> objects(db, it)).collect(Collectors.toList()));
 			if (o.getBuildConfigurationList() != null) {
-				obj.putField("buildConfigurationList", objects(db, o.getBuildConfigurationList()).getGlobalID());
+				obj.putField("buildConfigurationList", objects(db, o.getBuildConfigurationList()));
 			}
 
 			if (o instanceof PBXLegacyTarget) {
@@ -177,7 +177,7 @@ public final class PBXConverter {
 	private PBXObjectReference objects(ConvertContext db, PBXBuildPhase o) {
 		return db.newObjectIfAbsent(o, obj -> {
 			obj.putField("isa", isa(o));
-			obj.putField("files", o.getFiles().stream().map(it -> objects(db, it).getGlobalID()).collect(Collectors.toList()));
+			obj.putField("files", o.getFiles().stream().map(it -> objects(db, it)).collect(Collectors.toList()));
 
 			if (o instanceof PBXShellScriptBuildPhase) {
 				obj.putField("inputPaths", ((PBXShellScriptBuildPhase) o).getInputPaths());
@@ -203,7 +203,7 @@ public final class PBXConverter {
 	private PBXObjectReference objects(ConvertContext db, PBXBuildFile o) {
 		return db.newObjectIfAbsent(o, obj -> {
 			obj.putField("isa", isa(o));
-			obj.putField("fileRef", objects(db, o.getFileRef()).getGlobalID());
+			obj.putField("fileRef", objects(db, o.getFileRef()));
 			if (!o.getSettings().isEmpty()) {
 				obj.putField("settings", o.getSettings());
 			}
