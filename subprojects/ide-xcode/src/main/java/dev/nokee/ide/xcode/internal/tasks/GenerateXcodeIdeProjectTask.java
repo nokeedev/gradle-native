@@ -15,19 +15,14 @@
  */
 package dev.nokee.ide.xcode.internal.tasks;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -54,7 +49,6 @@ import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProjWriter;
 import dev.nokee.xcode.workspace.WorkspaceSettings;
 import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
-import lombok.Value;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -176,22 +170,22 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
 		pbxproj.getObjects().stream().filter(this::isPBXTarget).filter(this::notTestingOrIndexingTarget).forEach(targetRef -> {
-			ImmutableList.Builder<Scheme.BuildAction.BuildActionEntry> buildActionBuilder = ImmutableList.builder();
-			buildActionBuilder.add(new Scheme.BuildAction.BuildActionEntry(false, true, false, false, false, newBuildableReference(targetRef)));
+			ImmutableList.Builder<XCScheme.BuildAction.BuildActionEntry> buildActionBuilder = ImmutableList.builder();
+			buildActionBuilder.add(new XCScheme.BuildAction.BuildActionEntry(false, true, false, false, false, newBuildableReference(targetRef)));
 
-			ImmutableList.Builder<Scheme.TestAction.TestableReference> testActionBuilder = ImmutableList.builder();
+			ImmutableList.Builder<XCScheme.TestAction.TestableReference> testActionBuilder = ImmutableList.builder();
 
 			pbxproj.getObjects().stream().filter(this::isPBXTarget).filter(this::isTestingTarget).forEach(it -> {
-				buildActionBuilder.add(new Scheme.BuildAction.BuildActionEntry(true, false, false, false, false, newBuildableReference(it)));
+				buildActionBuilder.add(new XCScheme.BuildAction.BuildActionEntry(true, false, false, false, false, newBuildableReference(it)));
 
-				testActionBuilder.add(new Scheme.TestAction.TestableReference(newBuildableReference(it)));
+				testActionBuilder.add(new XCScheme.TestAction.TestableReference(newBuildableReference(it)));
 			});
 
 			try {
-				xmlMapper.writeValue(new File(schemesDirectory, targetRef.getFields().get("name") + ".xcscheme"), new Scheme(
-					new Scheme.BuildAction(buildActionBuilder.build()),
-					new Scheme.TestAction(testActionBuilder.build()),
-					new Scheme.LaunchAction(XcodeIdeProductType.of(targetRef.getFields().get("productType").toString()).equals(XcodeIdeProductTypes.DYNAMIC_LIBRARY) ? null : new Scheme.LaunchAction.BuildableProductRunnable(newBuildableReference(targetRef)))
+				xmlMapper.writeValue(new File(schemesDirectory, targetRef.getFields().get("name") + ".xcscheme"), new XCScheme(
+					new XCScheme.BuildAction(buildActionBuilder.build()),
+					new XCScheme.TestAction(testActionBuilder.build()),
+					new XCScheme.LaunchAction(XcodeIdeProductType.of(targetRef.getFields().get("productType").toString()).equals(XcodeIdeProductTypes.DYNAMIC_LIBRARY) ? null : new XCScheme.LaunchAction.BuildableProductRunnable(newBuildableReference(targetRef)))
 				));
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
@@ -231,8 +225,8 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		return productType.equals(XcodeIdeProductTypes.UNIT_TEST) || productType.equals(XcodeIdeProductTypes.UI_TEST);
 	}
 
-	private Scheme.BuildableReference newBuildableReference(PBXObjectReference xcodeTarget) {
-		return new Scheme.BuildableReference(xcodeTarget.getGlobalID(), xcodeTarget.getFields().get("productName").toString(), xcodeTarget.getFields().get("name").toString(), "container:" + getProjectLocation().get().getAsFile().getName());
+	private XCScheme.BuildableReference newBuildableReference(PBXObjectReference xcodeTarget) {
+		return new XCScheme.BuildableReference(xcodeTarget.getGlobalID(), xcodeTarget.getFields().get("productName").toString(), xcodeTarget.getFields().get("name").toString(), "container:" + getProjectLocation().get().getAsFile().getName());
 	}
 
 	private boolean isIndexableTarget(XcodeIdeTarget xcodeTarget) {
@@ -564,253 +558,4 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		return pathToFileReferenceMapping.computeIfAbsent(key, provider);
 	}
 
-	/**
-	 * <Scheme
-	 *   LastUpgradeVersion = "0830"
-	 *   version = "1.3">
-	 *   ...
-	 * </Scheme>
-	 */
-	@Value
-	private static class Scheme {
-		@JacksonXmlProperty(localName = "BuildAction")
-		BuildAction buildAction;
-
-		@JacksonXmlProperty(localName = "TestAction")
-		TestAction testAction;
-
-		@JacksonXmlProperty(localName = "LaunchAction")
-		LaunchAction launchAction;
-
-		@JacksonXmlProperty(localName = "ProfileAction")
-		ProfileAction profileAction = new ProfileAction();
-
-		@JacksonXmlProperty(localName = "AnalyzeAction")
-		AnalyzeAction analyzeAction = new AnalyzeAction();
-
-		@JacksonXmlProperty(localName = "ArchiveAction")
-		ArchiveAction archiveAction = new ArchiveAction();
-
-		@JacksonXmlProperty( localName = "LastUpgradeVersion", isAttribute = true)
-		public String getLastUpgradeVersion() {
-			return "0830";
-		}
-		@JacksonXmlProperty(isAttribute = true)
-		public String getVersion() {
-			return "1.3";
-		}
-
-		/**
-		 * <BuildAction
-		 *   parallelizeBuildables = "YES"
-		 *   buildImplicitDependencies = "YES">
-		 *    <BuildActionEntries>
-		 *    </BuildActionEntries>
-		 * </BuildAction>
-		 */
-		@Value
-		public static class BuildAction {
-			@JacksonXmlElementWrapper(localName = "BuildActionEntries")
-			@JacksonXmlProperty(localName = "BuildActionEntry")
-			List<BuildActionEntry> buildActionEntries;
-
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getParallelizeBuildables() {
-				// Gradle takes care of executing the build in parallel.
-				return false;
-			}
-
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getBuildImplicitDependencies() {
-				// Gradle takes care of the project dependencies.
-				return false;
-			}
-
-			@Value
-			public static class BuildActionEntry {
-				@JacksonXmlProperty(isAttribute = true)
-				boolean buildForTesting;
-
-				@JacksonXmlProperty(isAttribute = true)
-				boolean buildForRunning;
-
-				@JacksonXmlProperty(isAttribute = true)
-				boolean buildForProfiling;
-
-				@JacksonXmlProperty(isAttribute = true)
-				boolean buildForArchiving;
-
-				@JacksonXmlProperty(isAttribute = true)
-				boolean buildForAnalyzing;
-
-				@JacksonXmlProperty(localName = "BuildableReference")
-				BuildableReference buildableReference;
-			}
-		}
-
-		@Value
-		public static class TestAction {
-			@JacksonXmlElementWrapper(localName = "Testables")
-			@JacksonXmlProperty(localName = "TestableReference")
-			List<TestableReference> testables;
-
-			@JacksonXmlProperty(isAttribute = true)
-			public String getBuildConfiguration() {
-				return "Default";
-			}
-
-			@JacksonXmlProperty(isAttribute = true)
-			public String getSelectedDebuggerIdentifier() {
-				return "Xcode.DebuggerFoundation.Debugger.LLDB";
-			}
-
-			@JacksonXmlProperty(isAttribute = true)
-			public String getSelectedLauncherIdentifier() {
-				return "Xcode.DebuggerFoundation.Launcher.LLDB";
-			}
-
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getShouldUseLaunchSchemeArgsEnv() {
-				return true;
-			}
-			// TODO: AdditionalOptions
-
-			/**
-			 * Note: The attributes are lowerCamelCase.
-			 */
-			@Value
-			public static class TestableReference {
-				@JacksonXmlProperty(localName = "BuildableReference")
-				BuildableReference buildableReference;
-
-				@JacksonXmlProperty(isAttribute = true)
-				public boolean getSkipped() {
-					return false;
-				}
-			}
-		}
-
-		@Value
-		public static class LaunchAction {
-			@JsonInclude(JsonInclude.Include.NON_NULL)
-			@JacksonXmlProperty(localName = "BuildableProductRunnable")
-			BuildableProductRunnable buildableProductRunnable;
-
-			@JacksonXmlProperty(isAttribute = true)
-			public String getBuildConfiguration() {
-				return "Default";
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public String getSelectedDebuggerIdentifier() {
-				return "Xcode.DebuggerFoundation.Debugger.LLDB";
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public String getSelectedLauncherIdentifier() {
-				return "Xcode.DebuggerFoundation.Launcher.LLDB";
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public String getLaunchStyle() {
-				return "0";
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getUseCustomWorkingDirectory() {
-				return false;
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getIgnoresPersistentStateOnLaunch() {
-				return false;
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getDebugDocumentVersioning() {
-				return true;
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public String getDebugServiceExtension() {
-				return "internal";
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getAllowLocationSimulation() {
-				return true;
-			}
-
-			// TODO: AdditionalOptions
-
-			@Value
-			public static class BuildableProductRunnable {
-				@JacksonXmlProperty(localName = "BuildableReference")
-				BuildableReference buildableReference;
-
-				@JacksonXmlProperty(isAttribute = true)
-				public String getRunnableDebuggingMode() {
-					return "0";
-				}
-
-			}
-		}
-
-		@Value
-		public static class ProfileAction {
-			@JacksonXmlProperty(isAttribute = true)
-			public String getBuildConfiguration() {
-				return "Default";
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getShouldUseLaunchSchemeArgsEnv() {
-				return true;
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public String getSavedToolIdentifier() {
-				return "";
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getUseCustomWorkingDirectory() {
-				return false;
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getDebugDocumentVersioning() {
-				return true;
-			}
-		}
-
-		@Value
-		public static class AnalyzeAction {
-			@JacksonXmlProperty(isAttribute = true)
-			public String getBuildConfiguration() {
-				return "Default";
-			}
-		}
-
-		@Value
-		public static class ArchiveAction {
-			@JacksonXmlProperty(isAttribute = true)
-			public String getBuildConfiguration() {
-				return "Default";
-			}
-			@JacksonXmlProperty(isAttribute = true)
-			public boolean getRevealArchiveInOrganizer() {
-				return true;
-			}
-		}
-
-		@Value
-		@JsonNaming(PropertyNamingStrategy.UpperCamelCaseStrategy.class)
-		public static class BuildableReference {
-			@JacksonXmlProperty(isAttribute = true)
-			String blueprintIdentifier;
-
-			@JacksonXmlProperty(isAttribute = true)
-			String buildableName;
-
-			@JacksonXmlProperty(isAttribute = true)
-			String blueprintName;
-
-			@JacksonXmlProperty(isAttribute = true)
-			String referencedContainer;
-
-			@JacksonXmlProperty(isAttribute = true)
-			public String getBuildableIdentifier() {
-				return "primary";
-			}
-		}
-	}
 }
