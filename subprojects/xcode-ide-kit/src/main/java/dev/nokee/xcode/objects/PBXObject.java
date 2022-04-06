@@ -15,26 +15,10 @@
  */
 package dev.nokee.xcode.objects;
 
-import dev.nokee.xcode.project.GidGenerator;
-
-import javax.annotation.Nullable;
-
 import static dev.nokee.xcode.project.PBXConverter.isa;
 
 
 public abstract class PBXObject {
-    @Nullable
-    private String globalID;
-
-    @Nullable
-    public String getGlobalID() {
-        return globalID;
-    }
-
-    public void setGlobalID(String gid) {
-        globalID = gid;
-    }
-
     /**
      * This method is used to generate stable GIDs and must be stable for identical contents.
      * Returning a constant value is ok but will make the generated project order-dependent.
@@ -45,13 +29,6 @@ public abstract class PBXObject {
 
     @Override
     public String toString() {
-        return String.format("%s isa=%s gid=%s", super.toString(), isa(this), getGlobalID());
-    }
-
-    /**
-     * Generate a stable GID.
-     */
-    public final String generateGid(GidGenerator generator) {
-        return generator.generateGid(isa(this), stableHash());
+        return String.format("%s isa=%s", super.toString(), isa(this));
     }
 }

@@ -224,11 +224,7 @@ public final class PBXConverter {
 		}
 
 		public PBXObjectReference newObjectIfAbsent(PBXObject o, Consumer<? super PBXObjectFields.Builder> action) {
-			return newObjectIfAbsent(knownGlobalIds.computeIfAbsent(o, it -> {
-				val gid = gidGenerator.generateGid(isa(o), o.stableHash());
-				o.setGlobalID(gid);
-				return gid;
-			}), action);
+			return newObjectIfAbsent(knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash())), action);
 		}
 
 		public PBXObjectReference newObjectIfAbsent(String id, Consumer<? super PBXObjectFields.Builder> action) {
