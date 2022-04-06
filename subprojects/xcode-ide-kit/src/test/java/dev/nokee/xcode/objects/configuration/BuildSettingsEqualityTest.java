@@ -15,27 +15,20 @@
  */
 package dev.nokee.xcode.objects.configuration;
 
-import dev.nokee.xcode.objects.PBXProjectItem;
+import com.google.common.testing.EqualsTester;
+import org.junit.jupiter.api.Test;
 
-public abstract class PBXBuildStyle extends PBXProjectItem {
-    private final String name;
-    private final BuildSettings buildSettings;
+import static dev.nokee.xcode.objects.configuration.BuildSettings.builder;
 
-	protected PBXBuildStyle(String name, BuildSettings buildSettings) {
-		this.name = name;
-		this.buildSettings = buildSettings;
+class BuildSettingsEqualityTest {
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkEquals() {
+		new EqualsTester()
+			.addEqualityGroup(builder().put("a", 2).put("b", 1).build(), builder().put("b", 1).put("a", 2).build())
+			.addEqualityGroup(builder().put("a", 5).build())
+			.addEqualityGroup(builder().put("a", 2).build())
+			.addEqualityGroup(builder().put("b", 2).build())
+			.testEquals();
 	}
-
-    public String getName() {
-        return name;
-    }
-
-    public BuildSettings getBuildSettings() {
-        return buildSettings;
-    }
-
-    @Override
-    public int stableHash() {
-        return name.hashCode();
-    }
 }

@@ -15,16 +15,14 @@
  */
 package dev.nokee.xcode.objects.configuration;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
- * Build configuration containing a file reference ton an xcconfig file and additional inline
- * settings.
+ * Build configuration containing a file reference to a xcconfig file and additional inline settings.
  */
 public final class XCBuildConfiguration extends PBXBuildStyle {
-	private XCBuildConfiguration(String name, ImmutableMap<String, ?> buildSettings) {
+	private XCBuildConfiguration(String name, BuildSettings buildSettings) {
 		super(name, buildSettings);
 	}
 
@@ -34,17 +32,19 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 
 	public static final class Builder {
 		private String name;
-		private ImmutableMap<String, ?> buildSettings = ImmutableMap.of();
+		private BuildSettings buildSettings = BuildSettings.empty();
 
 		private Builder() {}
 
 		public Builder name(String name) {
-			this.name = name;
+			this.name = Objects.requireNonNull(name);
 			return this;
 		}
 
-		public Builder buildSettings(Map<String, ?> buildSettings) {
-			this.buildSettings = ImmutableMap.copyOf(buildSettings);
+		public Builder buildSettings(Consumer<? super BuildSettings.Builder> builderConsumer) {
+			final BuildSettings.Builder builder = BuildSettings.builder();
+			builderConsumer.accept(builder);
+			this.buildSettings = builder.build();
 			return this;
 		}
 

@@ -170,7 +170,7 @@ public final class PBXConverter {
 		return db.newObjectIfAbsent(o, obj -> {
 			obj.putField("isa", isa(o));
 			obj.putField("name", o.getName());
-			obj.putField("buildSettings", o.getBuildSettings());
+			obj.putField("buildSettings", o.getBuildSettings().asMap());
 		});
 	}
 
