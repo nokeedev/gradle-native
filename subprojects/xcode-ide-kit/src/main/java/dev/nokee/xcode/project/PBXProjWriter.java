@@ -29,10 +29,10 @@ import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public final class PBXProjectWriter implements Closeable {
+public final class PBXProjWriter implements Closeable {
 	private final AsciiPropertyListWriter writer;
 
-	public PBXProjectWriter(Writer writer) {
+	public PBXProjWriter(Writer writer) {
 		this.writer = new AsciiPropertyListWriter(writer, true);
 	}
 
