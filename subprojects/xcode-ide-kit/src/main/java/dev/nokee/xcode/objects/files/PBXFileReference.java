@@ -29,11 +29,11 @@ public final class PBXFileReference extends PBXReference {
     @Nullable private final String explicitFileType;
     @Nullable private final String lastKnownFileType;
 
-    public PBXFileReference(String name, String path, SourceTree sourceTree) {
+    public PBXFileReference(String name, String path, PBXSourceTree sourceTree) {
     	this(name, path, sourceTree, null);
 	}
 
-    public PBXFileReference(String name, String path, SourceTree sourceTree, @Nullable String defaultType) {
+    public PBXFileReference(String name, String path, PBXSourceTree sourceTree, @Nullable String defaultType) {
         super(name, path, sourceTree);
 
 		// PBXVariantGroups create file references where the name doesn't contain the file

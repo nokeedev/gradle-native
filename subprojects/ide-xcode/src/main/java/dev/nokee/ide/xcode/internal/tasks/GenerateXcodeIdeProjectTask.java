@@ -27,11 +27,11 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildSettings;
 import dev.nokee.ide.xcode.internal.XcodeIdePropertyAdapter;
 import dev.nokee.ide.xcode.internal.services.XcodeIdeGidGeneratorService;
 import dev.nokee.xcode.objects.PBXProject;
-import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
@@ -325,7 +325,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		// Configures the product reference.
 		// We only configure the .xctest, the -Runner.app and co. are an implementation detail.
-		PBXFileReference productReference = pathToFileReferenceMapping.computeIfAbsent(xcodeTarget.getProductReference().get(), ignored -> new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXReference.SourceTree.BUILT_PRODUCTS_DIR));
+		PBXFileReference productReference = pathToFileReferenceMapping.computeIfAbsent(xcodeTarget.getProductReference().get(), ignored -> new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXSourceTree.BUILT_PRODUCTS_DIR));
 		targetBuilder.productReference(productReference);
 
 		targetBuilder.buildConfigurations(builder -> {
@@ -387,7 +387,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	}
 
 	private PBXTarget toIndexTarget(XcodeIdeTarget xcodeTarget) {
-		PBXFileReference productReference = new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXReference.SourceTree.BUILT_PRODUCTS_DIR);
+		PBXFileReference productReference = new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXSourceTree.BUILT_PRODUCTS_DIR);
 
 		PBXNativeTarget.Builder targetBuilder = PBXNativeTarget.builder();
 		targetBuilder.name("__indexer_" + xcodeTarget.getName());
@@ -522,12 +522,12 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 	private PBXFileReference toAbsoluteFileReference(File file) {
 		return computeFileReferenceIfAbsent(file.getAbsolutePath(),
-			path -> new PBXFileReference(file.getName(), file.getAbsolutePath(), PBXReference.SourceTree.ABSOLUTE));
+			path -> new PBXFileReference(file.getName(), file.getAbsolutePath(), PBXSourceTree.ABSOLUTE));
 	}
 
 	private PBXFileReference toBuildProductFileReference(String name) {
 		return computeFileReferenceIfAbsent(name,
-			key -> new PBXFileReference(name, name, PBXReference.SourceTree.BUILT_PRODUCTS_DIR));
+			key -> new PBXFileReference(name, name, PBXSourceTree.BUILT_PRODUCTS_DIR));
 	}
 
 	// FIXME: Multiple group using the same code is only included in one place...
