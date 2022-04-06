@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
  * Superclass for file, directories, and groups. Xcode's virtual file hierarchy are made of these
  * objects.
  */
-public class PBXReference extends PBXContainerItem {
+public abstract class PBXReference extends PBXContainerItem {
     private final String name;
     @Nullable private final String path;
     /**
