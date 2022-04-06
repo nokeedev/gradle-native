@@ -33,6 +33,13 @@ public final class XCSchemeWriter implements Closeable {
 		}
 	}
 
+	/**
+	 * <Scheme
+	 * LastUpgradeVersion = "0830"
+	 * version = "1.3">
+	 * ...
+	 * </Scheme>
+	 */
 	public void write(XCScheme scheme) {
 		run(() -> {
 			writer.writeStartDocument();
@@ -121,6 +128,14 @@ public final class XCSchemeWriter implements Closeable {
 		writer.writeEndElement();
 	}
 
+	/**
+	 * <BuildAction
+	 * parallelizeBuildables = "YES"
+	 * buildImplicitDependencies = "YES">
+	 * <BuildActionEntries>
+	 * </BuildActionEntries>
+	 * </BuildAction>
+	 */
 	private void writeBuildAction(XCScheme.BuildAction action) throws XMLStreamException {
 		writer.writeStartElement("BuildAction");
 		writer.writeAttribute("parallelizeBuildables", toYesNo(action.getParallelizeBuildables()));
