@@ -15,15 +15,6 @@
  */
 package dev.nokee.ide.xcode.internal.tasks;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -48,6 +39,7 @@ import dev.nokee.xcode.project.PBXConverter;
 import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProjWriter;
 import dev.nokee.xcode.scheme.XCScheme;
+import dev.nokee.xcode.scheme.XCSchemeWriter;
 import dev.nokee.xcode.workspace.WorkspaceSettings;
 import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
 import lombok.val;
@@ -162,14 +154,6 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		// Do the schemes... using PBXProj model as it has GlobalIDs
 		File schemesDirectory = new File(projectDirectory, "xcshareddata/xcschemes");
 		schemesDirectory.mkdirs();
-		XmlMapper xmlMapper = new XmlMapper();
-		SimpleModule simpleModule = new SimpleModule("BooleanAsYesNoString", new Version(1, 0, 0, null, null, null));
-		simpleModule.addSerializer(Boolean.class,new XcodeIdeBooleanSerializer());
-		simpleModule.addSerializer(boolean.class,new XcodeIdeBooleanSerializer());
-		xmlMapper.registerModule(simpleModule);
-		xmlMapper.enable(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
-		xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
-
 		pbxproj.getObjects().stream().filter(this::isPBXTarget).filter(this::notTestingOrIndexingTarget).forEach(targetRef -> {
 			ImmutableList.Builder<XCScheme.BuildAction.BuildActionEntry> buildActionBuilder = ImmutableList.builder();
 			buildActionBuilder.add(new XCScheme.BuildAction.BuildActionEntry(false, true, false, false, false, newBuildableReference(targetRef)));
@@ -182,8 +166,8 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 				testActionBuilder.add(new XCScheme.TestAction.TestableReference(newBuildableReference(it)));
 			});
 
-			try {
-				xmlMapper.writeValue(new File(schemesDirectory, targetRef.getFields().get("name") + ".xcscheme"), new XCScheme(
+			try (val writer = new XCSchemeWriter(new FileWriter(new File(schemesDirectory, targetRef.getFields().get("name") + ".xcscheme")))) {
+				writer.write(new XCScheme(
 					new XCScheme.BuildAction(buildActionBuilder.build()),
 					new XCScheme.TestAction(testActionBuilder.build()),
 					new XCScheme.LaunchAction(XcodeIdeProductType.of(targetRef.getFields().get("productType").toString()).equals(XcodeIdeProductTypes.DYNAMIC_LIBRARY) ? null : new XCScheme.LaunchAction.BuildableProductRunnable(newBuildableReference(targetRef)))
@@ -531,17 +515,6 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	}
 	private String getGradleBuildArgumentsString() {
 		return String.join(" ", Iterables.concat(XcodeIdePropertyAdapter.getAdapterCommandLine(), getAdditionalGradleArguments().get())) + " " + XcodeIdePropertyAdapter.adapt("GRADLE_IDE_PROJECT_NAME", xcodeProject.getName()) + " " + getBridgeTaskPath().get();
-	}
-
-	private static class XcodeIdeBooleanSerializer extends JsonSerializer<Boolean> {
-		@Override
-		public void serialize(Boolean value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-			if (value) {
-				jgen.writeString("YES");
-			} else {
-				jgen.writeString("NO");
-			}
-		}
 	}
 
 	private PBXFileReference toAbsoluteFileReference(File file) {
