@@ -52,7 +52,7 @@ public interface XcodeIdeBuildSettings {
 	 * @param value the value provider of the build setting to put, must not be null.
 	 * @return this instance for chaining multiple configuration together.
 	 */
-	XcodeIdeBuildSettings put(String name, Provider<Object> value);
+	XcodeIdeBuildSettings put(String name, Provider<? extends Object> value);
 
 	/**
 	 * Puts a new build setting entry for the specified name and value.

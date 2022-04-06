@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -49,6 +50,8 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
+import dev.nokee.xcode.project.PBXConverter;
+import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProjectWriter;
 import dev.nokee.xcode.workspace.WorkspaceSettings;
 import dev.nokee.xcode.workspace.WorkspaceSettingsWriter;
@@ -71,6 +74,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -154,8 +158,14 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		// Add all target product reference to Products source group
 		project.getMainGroup().getOrCreateChildGroupByName(PRODUCTS_GROUP_NAME).getChildren().addAll(project.getTargets().stream().map(PBXTarget::getProductReference).collect(Collectors.toList()));
 
+		// Lastly, create the indexing target
+		project.getTargets().addAll(xcodeProject.getTargets().stream().filter(this::isIndexableTarget).map(this::toIndexTarget).collect(Collectors.toList()));
 
-		// Do the schemes...
+		// Convert to PBXProj model
+		val pbxproj = new PBXConverter(getGidGenerator().get()).convert(project);
+
+
+		// Do the schemes... using PBXProj model as it has GlobalIDs
 		File schemesDirectory = new File(projectDirectory, "xcshareddata/xcschemes");
 		schemesDirectory.mkdirs();
 		XmlMapper xmlMapper = new XmlMapper();
@@ -166,31 +176,32 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		xmlMapper.enable(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
 		xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-		for (PBXTarget xcodeTarget : project.getTargets().stream().filter(it -> !isTestingTarget(it)).collect(Collectors.toList())) {
+		pbxproj.getObjects().stream().filter(this::isPBXTarget).filter(this::notTestingOrIndexingTarget).forEach(targetRef -> {
 			ImmutableList.Builder<Scheme.BuildAction.BuildActionEntry> buildActionBuilder = ImmutableList.builder();
-			buildActionBuilder.add(new Scheme.BuildAction.BuildActionEntry(false, true, false, false, false, newBuildableReference(xcodeTarget)));
+			buildActionBuilder.add(new Scheme.BuildAction.BuildActionEntry(false, true, false, false, false, newBuildableReference(targetRef)));
 
 			ImmutableList.Builder<Scheme.TestAction.TestableReference> testActionBuilder = ImmutableList.builder();
 
-			project.getTargets().stream().filter(this::isTestingTarget).forEach(it -> {
+			pbxproj.getObjects().stream().filter(this::isPBXTarget).filter(this::isTestingTarget).forEach(it -> {
 				buildActionBuilder.add(new Scheme.BuildAction.BuildActionEntry(true, false, false, false, false, newBuildableReference(it)));
 
 				testActionBuilder.add(new Scheme.TestAction.TestableReference(newBuildableReference(it)));
 			});
 
-			xmlMapper.writeValue(new File(schemesDirectory, xcodeTarget.getName() + ".xcscheme"), new Scheme(
-				new Scheme.BuildAction(buildActionBuilder.build()),
-				new Scheme.TestAction(testActionBuilder.build()),
-				new Scheme.LaunchAction(XcodeIdeProductType.of(xcodeTarget.getProductType()).equals(XcodeIdeProductTypes.DYNAMIC_LIBRARY) ? null : new Scheme.LaunchAction.BuildableProductRunnable(newBuildableReference(xcodeTarget)))
-			));
-		}
+			try {
+				xmlMapper.writeValue(new File(schemesDirectory, targetRef.getFields().get("name") + ".xcscheme"), new Scheme(
+					new Scheme.BuildAction(buildActionBuilder.build()),
+					new Scheme.TestAction(testActionBuilder.build()),
+					new Scheme.LaunchAction(XcodeIdeProductType.of(targetRef.getFields().get("productType").toString()).equals(XcodeIdeProductTypes.DYNAMIC_LIBRARY) ? null : new Scheme.LaunchAction.BuildableProductRunnable(newBuildableReference(targetRef)))
+				));
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		});
 
-
-		// Lastly, create the indexing target
-		project.getTargets().addAll(xcodeProject.getTargets().stream().filter(this::isIndexableTarget).map(this::toIndexTarget).collect(Collectors.toList()));
-
-		try (val writer = new PBXProjectWriter(getGidGenerator().get(), new FileWriter(new File(projectDirectory, "project.pbxproj")))) {
-			writer.write(project);
+		// Write the PBXProj file
+		try (val writer = new PBXProjectWriter(new FileWriter(new File(projectDirectory, "project.pbxproj")))) {
+			writer.write(pbxproj);
 		}
 
 		// Write the WorkspaceSettings file
@@ -201,16 +212,28 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		}
 	}
 
-	private boolean isTestingTarget(PBXTarget xcodeTarget) {
-		return isTestingProductType(XcodeIdeProductType.of(xcodeTarget.getProductType()));
+	private boolean notTestingOrIndexingTarget(PBXObjectReference reference) {
+		return !reference.getFields().get("productType").equals(XcodeIdeProductTypes.UNIT_TEST.toString())
+			&& !reference.getFields().get("productType").equals(XcodeIdeProductTypes.UI_TEST.toString())
+			&& !reference.getFields().get("productType").equals(INDEXER_PRODUCT_TYPE.toString());
+	}
+
+	private boolean isTestingTarget(PBXObjectReference reference) {
+		return reference.getFields().get("productType").equals(XcodeIdeProductTypes.UNIT_TEST.toString())
+			|| reference.getFields().get("productType").equals(XcodeIdeProductTypes.UI_TEST.toString());
+	}
+
+	public boolean isPBXTarget(PBXObjectReference reference) {
+		return reference.isa().equals(PBXLegacyTarget.class.getSimpleName())
+			|| reference.isa().equals(PBXNativeTarget.class.getSimpleName());
 	}
 
 	private boolean isTestingProductType(XcodeIdeProductType productType) {
 		return productType.equals(XcodeIdeProductTypes.UNIT_TEST) || productType.equals(XcodeIdeProductTypes.UI_TEST);
 	}
 
-	private Scheme.BuildableReference newBuildableReference(PBXTarget xcodeTarget) {
-		return new Scheme.BuildableReference(xcodeTarget.getGlobalID(), xcodeTarget.getProductName(), xcodeTarget.getName(), "container:" + getProjectLocation().get().getAsFile().getName());
+	private Scheme.BuildableReference newBuildableReference(PBXObjectReference xcodeTarget) {
+		return new Scheme.BuildableReference(xcodeTarget.getGlobalID(), xcodeTarget.getFields().get("productName").toString(), xcodeTarget.getFields().get("name").toString(), "container:" + getProjectLocation().get().getAsFile().getName());
 	}
 
 	private boolean isIndexableTarget(XcodeIdeTarget xcodeTarget) {

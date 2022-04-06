@@ -19,7 +19,7 @@ import dev.nokee.xcode.project.GidGenerator;
 
 import javax.annotation.Nullable;
 
-import static dev.nokee.xcode.project.PBXProjectWriter.isa;
+import static dev.nokee.xcode.project.PBXConverter.isa;
 
 
 public abstract class PBXObject {

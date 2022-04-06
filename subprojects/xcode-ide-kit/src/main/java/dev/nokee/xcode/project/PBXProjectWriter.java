@@ -15,93 +15,80 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Ordering;
 import dev.nokee.xcode.AsciiPropertyListWriter;
 import dev.nokee.xcode.PropertyListVersion;
-import dev.nokee.xcode.objects.PBXObject;
-import dev.nokee.xcode.objects.PBXProject;
-import dev.nokee.xcode.objects.PBXReference;
-import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
-import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
-import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
-import dev.nokee.xcode.objects.configuration.PBXBuildStyle;
-import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
-import dev.nokee.xcode.objects.configuration.XCConfigurationList;
-import dev.nokee.xcode.objects.files.PBXFileReference;
-import dev.nokee.xcode.objects.files.PBXGroup;
-import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
-import dev.nokee.xcode.objects.targets.PBXNativeTarget;
-import dev.nokee.xcode.objects.targets.PBXTarget;
-import lombok.val;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class PBXProjectWriter implements Closeable {
-	private final GidGenerator gidGenerator;
 	private final AsciiPropertyListWriter writer;
 
-	public PBXProjectWriter(GidGenerator gidGenerator, Writer writer) {
-		this.gidGenerator = gidGenerator;
+	public PBXProjectWriter(Writer writer) {
 		this.writer = new AsciiPropertyListWriter(writer, true);
 	}
 
-	public void write(PBXProject o) {
+	public void write(PBXProj o) {
 		writer.writeStartDocument(PropertyListVersion.VERSION_00);
-		writer.writeStartDictionary(5);
+		writeDict(5, () -> {
+			writeKey("archiveVersion", 1);
+			writeKey("classes", Collections.emptyMap());
+			writeKey("objectVersion",46);
+			writeKey("objects", () -> {
+				writeDict(o.getObjects().size(), () -> {
+					for (PBXObjectReference object : o.getObjects()) {
+						writeKey(object.getGlobalID(), () -> {
+							writeDict(object.getFields().size(), () -> {
+								for (Map.Entry<String, Object> field : object.getFields().entrySet()) {
+									writeKey(field.getKey(), field.getValue());
+								}
+							});
+						});
+					}
+				});
+			});
+			writeKey("rootObject", o.getRootObject());
+		});
 
-		writer.writeDictionaryKey("archiveVersion");
-		writer.writeInteger(1);
-
-		writer.writeDictionaryKey("classes");
-		writer.writeEmptyDictionary();
-
-		writer.writeDictionaryKey("objectVersion");
-		writer.writeInteger(46);
-
-
-		writer.writeDictionaryKey("objects");
-		val db = new Bob();
-		val gid = objects(db, o);
-		writer.writeStartDictionary(db.objects.size());
-		for (Map.Entry<String, Obj> object : db.objects.entrySet()) {
-			writer.writeDictionaryKey(object.getValue().id);
-			writer.writeStartDictionary(object.getValue().fields.size());
-
-			for (Map.Entry<String, Object> field : object.getValue().fields.entrySet()) {
-				writer.writeDictionaryKey(field.getKey());
-				write(writer, field.getValue());
-			}
-
-			writer.writeEndDictionary();
-		}
-		writer.writeEndDictionary();
-
-
-		writer.writeDictionaryKey("rootObject");
-		writer.writeString(gid);
-
-		writer.writeEndDictionary();
 		writer.writeEndDocument();
 
 		writer.flush();
 	}
 
-	private void write(AsciiPropertyListWriter writer, Object value) {
+	private void writeDict(int size, Runnable action) {
+		writer.writeStartDictionary(size);
+		action.run();
+		writer.writeEndDictionary();
+	}
+
+	private final ContextPath contextPath = new ContextPath();
+	private void writeKey(String key, Runnable run) {
+		contextPath.with(key, ignored -> {
+			writer.writeDictionaryKey(key);
+			run.run();
+		});
+	}
+
+	private void writeKey(String key, Object value) {
+		contextPath.with(key, ignored -> {
+			writer.writeDictionaryKey(key);
+			write(value);
+		});
+	}
+
+	private void writeArrayElement(int index, Object value) {
+		contextPath.with(index, ignored -> write(value));
+	}
+
+	private void write(Object value) {
 		if (value instanceof Double) {
 			writer.writeReal((Double) value);
 		} else if (value instanceof Number) {
@@ -115,8 +102,9 @@ public final class PBXProjectWriter implements Closeable {
 				writer.writeEmptyArray();
 			} else {
 				writer.writeStartArray(((List<?>) value).size());
+				int i = 0;
 				for (Object v : ((List<?>) value)) {
-					write(writer, v);
+					writeArrayElement(i, v);
 				}
 				writer.writeEndArray();
 			}
@@ -126,185 +114,13 @@ public final class PBXProjectWriter implements Closeable {
 			} else {
 				writer.writeStartDictionary(((Map<?, ?>) value).size());
 				for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
-					writer.writeDictionaryKey(entry.getKey().toString());
-					write(writer, entry.getValue());
+					writeKey(entry.getKey().toString(), () -> write(entry.getValue()));
 				}
 				writer.writeEndDictionary();
 			}
 		} else {
-			throw new RuntimeException(value.getClass().toString());
+			throw new RuntimeException(contextPath.get() + " - " + value.getClass().toString());
 		}
-	}
-
-	private final Map<PBXObject, String> knownGlobalIds = new HashMap<>();
-
-	private String objects(Bob db, PBXProject o) {
-		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
-		return db.newObjectIfAbsent(gid, obj -> {
-			o.setGlobalID(gid);
-			obj.putField("isa", isa(o));
-			obj.putField("mainGroup", objects(db, o.getMainGroup()));
-
-			val targets = new ArrayList<>(o.getTargets());
-			Collections.sort(targets, Ordering.natural().onResultOf(new Function<PBXTarget, String>() {
-				@Override
-				public String apply(PBXTarget input) {
-					return input.getName();
-				}
-			}));
-			obj.putField("targets", targets.stream().map(it -> objects(db, it)).collect(Collectors.toList()));
-			obj.putField("buildConfigurationList", objects(db, o.getBuildConfigurationList()));
-			obj.putField("compatibilityVersion", o.getCompatibilityVersion());
-			obj.putField("attributes", ImmutableMap.of("LastUpgradeCheck", "0610"));
-		}).id;
-	}
-
-	private String objects(Bob db, XCConfigurationList o) {
-		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
-		return db.newObjectIfAbsent(gid, obj -> {
-			o.setGlobalID(gid);
-			obj.putField("isa", isa(o));
-			val buildConfigurations = new ArrayList<>(o.getBuildConfigurationsByName().values());
-			Collections.sort(buildConfigurations, new Comparator<XCBuildConfiguration>() {
-				@Override
-				public int compare(XCBuildConfiguration o1, XCBuildConfiguration o2) {
-					return o1.getName().compareTo(o2.getName());
-				}
-			});
-			obj.putField("buildConfigurations", buildConfigurations.stream().map(it -> objects(db, it)).collect(Collectors.toList()));
-
-			if (o.getDefaultConfigurationName().isPresent()) {
-				obj.putField("defaultConfigurationName", o.getDefaultConfigurationName().get());
-			}
-			obj.putField("defaultConfigurationIsVisible", o.isDefaultConfigurationIsVisible() ? "YES" : "NO");
-		}).id;
-	}
-
-	private String objects(Bob db, PBXReference o) {
-		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
-		return db.newObjectIfAbsent(gid, obj -> {
-			o.setGlobalID(gid);
-			obj.putField("isa", isa(o));
-			obj.putField("name", o.getName());
-			if (o.getPath() != null) {
-				obj.putField("path", o.getPath());
-			}
-			obj.putField("sourceTree", o.getSourceTree().toString());
-
-			if (o instanceof PBXFileReference) {
-				if (((PBXFileReference) o).getExplicitFileType().isPresent()) {
-					obj.putField("explicitFileType", ((PBXFileReference) o).getExplicitFileType().get());
-				}
-
-				if (((PBXFileReference) o).getLastKnownFileType().isPresent()) {
-					obj.putField("lastKnownFileType", ((PBXFileReference) o).getLastKnownFileType().get());
-				}
-			} else if (o instanceof PBXGroup) {
-				List<PBXReference> children = new ArrayList<>(((PBXGroup) o).getChildren());
-				if (((PBXGroup) o).getSortPolicy() == PBXGroup.SortPolicy.BY_NAME) {
-					Collections.sort(children, new Comparator<PBXReference>() {
-						@Override
-						public int compare(PBXReference o1, PBXReference o2) {
-							return o1.getName().compareTo(o2.getName());
-						}
-					});
-				}
-
-				val childs = ImmutableList.builder();
-				for (PBXReference child : children) {
-					childs.add(objects(db, child));
-				}
-				obj.putField("children", childs.build());
-			}
-		}).id;
-	}
-
-	private String objects(Bob db, PBXTarget o) {
-		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
-		return db.newObjectIfAbsent(gid, obj -> {
-			o.setGlobalID(gid);
-			obj.putField("isa", isa(o));
-
-			obj.putField("name", o.getName());
-			if (o.getProductType() != null) {
-				obj.putField("productType", o.getProductType());
-			}
-			if (o.getProductName() != null) {
-				obj.putField("productName", o.getProductName());
-			}
-			if (o.getProductReference() != null) {
-				obj.putField("productReference", objects(db, o.getProductReference()));
-			}
-			obj.putField("buildPhases", o.getBuildPhases().stream().map(it -> objects(db, it)).collect(Collectors.toList()));
-			if (o.getBuildConfigurationList() != null) {
-				obj.putField("buildConfigurationList", objects(db, o.getBuildConfigurationList()));
-			}
-
-			if (o instanceof PBXLegacyTarget) {
-				obj.putField("buildArgumentsString", ((PBXLegacyTarget) o).getBuildArgumentsString());
-				obj.putField("buildToolPath", ((PBXLegacyTarget) o).getBuildToolPath());
-				if (((PBXLegacyTarget) o).getBuildWorkingDirectory() != null) {
-					obj.putField("buildWorkingDirectory", ((PBXLegacyTarget) o).getBuildWorkingDirectory());
-				}
-				obj.putField("passBuildSettingsInEnvironment", ((PBXLegacyTarget) o).isPassBuildSettingsInEnvironment() ? "1" : "0");
-			} else if (o instanceof PBXNativeTarget) {
-				// nothing special
-			}
-		}).id;
-	}
-
-	private String objects(Bob db, PBXBuildStyle o) {
-		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
-		return db.newObjectIfAbsent(gid, obj -> {
-			o.setGlobalID(gid);
-			obj.putField("isa", isa(o));
-			obj.putField("name", o.getName());
-			obj.putField("buildSettings", o.getBuildSettings());
-		}).id;
-	}
-
-	private String objects(Bob db, PBXBuildPhase o) {
-		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
-		return db.newObjectIfAbsent(gid, obj -> {
-			o.setGlobalID(gid);
-			obj.putField("isa", isa(o));
-			obj.putField("files", o.getFiles().stream().map(it -> objects(db, it)).collect(Collectors.toList()));
-
-			if (o instanceof PBXShellScriptBuildPhase) {
-				obj.putField("inputPaths", ((PBXShellScriptBuildPhase) o).getInputPaths());
-				obj.putField("outputPaths", ((PBXShellScriptBuildPhase) o).getOutputPaths());
-
-				if (((PBXShellScriptBuildPhase) o).getShellPath() == null) {
-					obj.putField("shellPath", "/bin/sh");
-				} else {
-					obj.putField("shellPath", ((PBXShellScriptBuildPhase) o).getShellPath());
-				}
-
-				if (((PBXShellScriptBuildPhase) o).getShellScript() == null) {
-					obj.putField("shellScript", "");
-				} else {
-					obj.putField("shellScript", ((PBXShellScriptBuildPhase) o).getShellScript());
-				}
-			} else if (o instanceof PBXSourcesBuildPhase) {
-				// nothing more to serialize
-			}
-		}).id;
-	}
-
-	private String objects(Bob db, PBXBuildFile o) {
-		String gid = knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), o.stableHash()));
-		return db.newObjectIfAbsent(gid, obj -> {
-			o.setGlobalID(gid);
-			obj.putField("isa", isa(o));
-			obj.putField("fileRef", objects(db, o.getFileRef()));
-			if (!o.getSettings().isEmpty()) {
-				obj.putField("settings", o.getSettings());
-			}
-		}).id;
-	}
-
-	public static String isa(PBXObject o) {
-		return o.getClass().getSimpleName();
 	}
 
 	@Override
@@ -312,31 +128,20 @@ public final class PBXProjectWriter implements Closeable {
 		writer.close();
 	}
 
-	private static final class Bob {
-		private final Map<String, Obj> objects = new LinkedHashMap<>();
+	private static class ContextPath {
+		private final Queue<Object> contextPath = new ArrayDeque<>();
 
-		public Obj newObjectIfAbsent(String id, Consumer<? super Obj> action) {
-			if (objects.containsKey(id)) {
-				return objects.get(id);
-			} else {
-				val result = new Obj(id);
-				action.accept(result);
-				objects.put(id, result);
-				return result;
+		public <T> void with(T pathSegment, Consumer<? super T> action) {
+			contextPath.add(pathSegment);
+			try {
+				action.accept(pathSegment);
+			} finally {
+				contextPath.remove();
 			}
 		}
-	}
 
-	private static final class Obj {
-		private final String id;
-		private final Map<String, Object> fields = new LinkedHashMap<>();
-
-		private Obj(String id) {
-			this.id = id;
-		}
-
-		public void putField(String name, Object value) {
-			fields.put(name, value);
+		public String get() {
+			return contextPath.stream().map(Object::toString).collect(Collectors.joining("."));
 		}
 	}
 }

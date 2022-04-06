@@ -26,11 +26,11 @@ import java.util.List;
 
 public abstract class DefaultXcodeIdeBuildSettings implements XcodeIdeBuildSettings {
 	// Workaround for https://github.com/gradle/gradle/issues/13405
-	@Getter private final List<Provider<Object>> providers = new ArrayList<>();
+	@Getter private final List<Provider<? extends Object>> providers = new ArrayList<>();
 	public abstract MapProperty<String, Object> getElements();
 
 	@Override
-	public XcodeIdeBuildSettings put(@NonNull String name, @NonNull Provider<Object> value) {
+	public XcodeIdeBuildSettings put(@NonNull String name, @NonNull Provider<? extends Object> value) {
 		providers.add(value);
 		getElements().put(name, value);
 		return this;
