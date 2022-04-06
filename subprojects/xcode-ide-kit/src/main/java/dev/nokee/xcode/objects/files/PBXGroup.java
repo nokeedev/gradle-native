@@ -15,9 +15,6 @@
  */
 package dev.nokee.xcode.objects.files;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import dev.nokee.xcode.objects.PBXReference;
 
@@ -30,36 +27,18 @@ import java.util.List;
  */
 public final class PBXGroup extends PBXReference {
     private final List<PBXReference> children;
-    private final LoadingCache<String, PBXGroup> childGroupsByName;
 
     // Unfortunately, we can't determine this at constructor time, because CacheBuilder
     // calls our constructor and it's not easy to pass arguments to it.
     private SortPolicy sortPolicy;
-    public PBXGroup(String name, @Nullable String path, SourceTree sourceTree) {
-        super(name, path, sourceTree);
-
-        sortPolicy = SortPolicy.BY_NAME;
-        children = Lists.newArrayList();
-
-        childGroupsByName = CacheBuilder.newBuilder().build(
-            new CacheLoader<String, PBXGroup>() {
-                @Override
-                public PBXGroup load(String key) throws Exception {
-                    PBXGroup group = new PBXGroup(key, null, SourceTree.GROUP);
-                    children.add(group);
-                    return group;
-                }
-            });
-    }
 
 	private PBXGroup(String name, @Nullable String path, SourceTree sourceTree, List<PBXReference> children) {
-		this(name, path, sourceTree);
+		super(name, path, sourceTree);
+
+		this.sortPolicy = SortPolicy.BY_NAME;
+		this.children = Lists.newArrayList();
 		this.children.addAll(children);
 	}
-
-	public PBXGroup getOrCreateChildGroupByName(String name) {
-        return childGroupsByName.getUnchecked(name);
-    }
 
     public List<PBXReference> getChildren() {
         return children;
@@ -112,6 +91,12 @@ public final class PBXGroup extends PBXReference {
 
 		public Builder sourceTree(SourceTree sourceTree) {
 			this.sourceTree = sourceTree;
+			return this;
+		}
+
+		public Builder children(List<PBXReference> references) {
+			this.children.clear();
+			this.children.addAll(references);
 			return this;
 		}
 
