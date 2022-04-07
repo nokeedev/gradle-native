@@ -56,20 +56,20 @@ public final class JavaPropertyListWriter implements Closeable {
 
 	public final class ArrayWriter {
 		public void writeArrayElement(int index, Object value) {
-			contextPath.with(index, ignored -> valueWriter.writeObject(value));
+			contextPath.with(index, () -> valueWriter.writeObject(value));
 		}
 	}
 
 	public final class DictWriter {
 		public void writeKey(String key, Consumer<? super ValueWriter> run) {
-			contextPath.with(key, ignored -> {
+			contextPath.with(key, () -> {
 				writer.writeDictionaryKey(key);
 				run.accept(valueWriter);
 			});
 		}
 
 		public void writeKey(String key, Object value) {
-			contextPath.with(key, ignored -> {
+			contextPath.with(key, () -> {
 				writer.writeDictionaryKey(key);
 				valueWriter.writeObject(value);
 			});
@@ -143,10 +143,10 @@ public final class JavaPropertyListWriter implements Closeable {
 	private static class ContextPath {
 		private final Deque<Object> contextPath = new ArrayDeque<>();
 
-		public <T> void with(T pathSegment, Consumer<? super T> action) {
+		public void with(Object pathSegment, Runnable action) {
 			contextPath.addLast(pathSegment);
 			try {
-				action.accept(pathSegment);
+				action.run();
 			} finally {
 				contextPath.removeLast();
 			}
