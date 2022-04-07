@@ -35,6 +35,8 @@ import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
+import dev.nokee.xcode.objects.targets.ProductType;
+import dev.nokee.xcode.objects.targets.ProductTypes;
 import dev.nokee.xcode.project.PBXConverter;
 import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProjWriter;
@@ -312,7 +314,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	private PBXTarget toGradleXCTestTarget(XcodeIdeTarget xcodeTarget) {
 		PBXNativeTarget.Builder targetBuilder = PBXNativeTarget.builder();
 		targetBuilder.name(xcodeTarget.getName());
-		targetBuilder.productType(xcodeTarget.getProductType().get().toString());
+		targetBuilder.productType(ProductTypes.valueOf(xcodeTarget.getProductType().get().toString()));
 
 		// Configure build phases
 		targetBuilder.buildPhase(newGradleBuildPhase());
@@ -388,7 +390,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		PBXNativeTarget.Builder targetBuilder = PBXNativeTarget.builder();
 		targetBuilder.name("__indexer_" + xcodeTarget.getName());
-		targetBuilder.productType(INDEXER_PRODUCT_TYPE.toString());
+		targetBuilder.productType(ProductType.of(INDEXER_PRODUCT_TYPE.toString(), null));
 		targetBuilder.productName(xcodeTarget.getProductName().get());
 		targetBuilder.buildPhase(newSourcesBuildPhase(xcodeTarget.getSources()));
 		targetBuilder.productReference(productReference);
@@ -451,7 +453,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		PBXLegacyTarget.Builder targetBuilder = PBXLegacyTarget.builder();
 		targetBuilder.name(xcodeTarget.getName());
-		targetBuilder.productType(xcodeTarget.getProductType().get().toString());
+		targetBuilder.productType(ProductTypes.valueOf(xcodeTarget.getProductType().get().toString()));
 		targetBuilder.productName(xcodeTarget.getProductName().get());
 		targetBuilder.buildToolPath(getGradleCommand().get());
 		targetBuilder.buildArguments(getGradleBuildArgumentsString());

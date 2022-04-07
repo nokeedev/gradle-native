@@ -29,13 +29,13 @@ import java.util.List;
  */
 public abstract class PBXTarget extends PBXProjectItem {
     private final String name;
-    private final String productType;
+    private final ProductType productType;
     private final ImmutableList<PBXBuildPhase> buildPhases;
     private final XCConfigurationList buildConfigurationList;
     @Nullable private final String productName;
     @Nullable private final PBXFileReference productReference;
 
-	protected PBXTarget(String name, String productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, @Nullable String productName, @Nullable PBXFileReference productReference) {
+	protected PBXTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, @Nullable String productName, @Nullable PBXFileReference productReference) {
 		this.name = name;
 		this.productType = productType;
 		this.buildPhases = buildPhases;
@@ -48,7 +48,7 @@ public abstract class PBXTarget extends PBXProjectItem {
         return name;
     }
 
-    public String getProductType() {
+    public ProductType getProductType() {
         return productType;
     }
 

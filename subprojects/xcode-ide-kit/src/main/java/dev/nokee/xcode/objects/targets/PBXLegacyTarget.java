@@ -31,7 +31,7 @@ public final class PBXLegacyTarget extends PBXTarget {
     private final String buildWorkingDirectory;
     private final boolean passBuildSettingsInEnvironment;
 
-	private PBXLegacyTarget(String name, String productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
+	private PBXLegacyTarget(String name, ProductType productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
 		super(name, productType, ImmutableList.of(), buildConfigurationList, productName, productReference);
 		this.buildArgumentsString = buildArgumentsString;
 		this.buildToolPath = buildToolPath;
@@ -61,7 +61,7 @@ public final class PBXLegacyTarget extends PBXTarget {
 
 	public static final class Builder {
 		private String name;
-		private String productType;
+		private ProductType productType;
 		private String buildArgumentsString = "$(ACTION)";
 		private String buildToolPath = "/usr/bin/make";
 		private String buildWorkingDirectory;
@@ -75,7 +75,7 @@ public final class PBXLegacyTarget extends PBXTarget {
 			return this;
 		}
 
-		public Builder productType(String productType) {
+		public Builder productType(ProductType productType) {
 			this.productType = productType;
 			return this;
 		}
