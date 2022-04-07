@@ -26,10 +26,6 @@ import java.util.List;
 public abstract class PBXBuildPhase extends PBXProjectItem {
     private final ImmutableList<PBXBuildFile> files;
 
-    public PBXBuildPhase() {
-        this.files = ImmutableList.of();
-    }
-
 	protected PBXBuildPhase(ImmutableList<PBXBuildFile> files) {
 		this.files = files;
 	}

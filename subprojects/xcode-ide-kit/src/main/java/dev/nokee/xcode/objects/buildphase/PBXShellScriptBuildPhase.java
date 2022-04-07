@@ -15,6 +15,8 @@
  */
 package dev.nokee.xcode.objects.buildphase;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,7 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
     @Nullable private final String shellScript;
 
 	private PBXShellScriptBuildPhase(@Nullable String shellScript, @Nullable String shellPath, List<String> inputPaths, List<String> outputPaths) {
+		super(ImmutableList.of());
 		this.shellPath = shellPath;
 		this.shellScript = shellScript;
 		this.inputPaths = inputPaths;
