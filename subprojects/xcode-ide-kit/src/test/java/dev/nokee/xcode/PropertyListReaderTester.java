@@ -19,6 +19,8 @@ import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.NoSuchElementException;
+
 import static dev.nokee.xcode.PropertyListReader.Event.ARRAY_END;
 import static dev.nokee.xcode.PropertyListReader.Event.ARRAY_START;
 import static dev.nokee.xcode.PropertyListReader.Event.BOOLEAN;
@@ -32,6 +34,7 @@ import static dev.nokee.xcode.PropertyListReader.Event.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 abstract class PropertyListReaderTester {
 	@Nested
@@ -191,4 +194,26 @@ abstract class PropertyListReaderTester {
 
 	abstract PropertyListReader newSingleDict_empty();
 	abstract PropertyListReader newSingleDict__myKey_to_hex78();
+
+	@Nested
+	class DocumentTest {
+		@Test
+		void canReadEmptyDocument() {
+			val subject = newDocument_empty();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void throwsNoSuchElementExceptionAfterDocumentEndEvent() {
+			val subject = newDocument_empty();
+			subject.next(); // DOCUMENT_START
+			subject.next(); // DOCUMENT_END
+			assertThat(subject.hasNext(), equalTo(false));
+			val ex = assertThrows(NoSuchElementException.class, () -> subject.next());
+			assertThat(ex.getMessage(), equalTo("DOCUMENT_END reached: no more elements on the stream."));
+		}
+	}
+
+	abstract PropertyListReader newDocument_empty();
 }

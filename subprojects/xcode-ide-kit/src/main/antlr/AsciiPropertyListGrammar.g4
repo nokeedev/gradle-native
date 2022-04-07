@@ -4,7 +4,7 @@ grammar AsciiPropertyListGrammar;
 package dev.nokee.xcode.internal;
 }
 
-document: value;
+document: value?;
 
 // Note: date, real, integer and boolean are considered as string
 // Apple mention that "numbers are handled as strings" (see https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/PropertyLists/OldStylePlists/OldStylePLists.html#//apple_ref/doc/uid/20001012-BBCBDBJE)
