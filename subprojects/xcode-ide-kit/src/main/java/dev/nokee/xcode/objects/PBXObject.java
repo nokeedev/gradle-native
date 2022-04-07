@@ -15,7 +15,7 @@
  */
 package dev.nokee.xcode.objects;
 
-import static dev.nokee.xcode.project.PBXConverter.isa;
+import static dev.nokee.xcode.project.ToPBXProjConverter.isa;
 
 
 public abstract class PBXObject {

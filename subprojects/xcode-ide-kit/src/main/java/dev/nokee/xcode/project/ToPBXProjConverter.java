@@ -46,10 +46,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public final class PBXConverter {
+public final class ToPBXProjConverter {
 	private final GidGenerator gidGenerator;
 
-	public PBXConverter(GidGenerator gidGenerator) {
+	public ToPBXProjConverter(GidGenerator gidGenerator) {
 		this.gidGenerator = gidGenerator;
 	}
 
