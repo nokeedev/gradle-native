@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * system.
  */
 public final class PBXNativeTarget extends PBXTarget {
-	public PBXNativeTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
+	private PBXNativeTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
 		super(name, productType, buildPhases, buildConfigurationList, productName, productReference);
 	}
 
