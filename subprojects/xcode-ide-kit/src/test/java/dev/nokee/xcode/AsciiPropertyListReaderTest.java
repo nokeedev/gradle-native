@@ -148,4 +148,9 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	PropertyListReader newSingleDict__myKey_to_hex78() {
 		return newReader(withUTF8Header("{myKey = 120;}"));
 	}
+
+	@Override
+	PropertyListReader newDocument_empty() {
+		return newReader(withUTF8Header());
+	}
 }

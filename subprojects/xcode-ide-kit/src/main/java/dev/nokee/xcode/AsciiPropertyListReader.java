@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 public final class AsciiPropertyListReader implements PropertyListReader {
 	private final Reader delegate;
@@ -209,6 +210,9 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 
 	@Override
 	public Event next() {
+		if (next == null) {
+			throw new NoSuchElementException("DOCUMENT_END reached: no more elements on the stream.");
+		}
 		final Context result = next;
 		context = result;
 		next = findNext();
