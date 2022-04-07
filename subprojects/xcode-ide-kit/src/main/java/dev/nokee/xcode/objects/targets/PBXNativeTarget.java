@@ -22,6 +22,7 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -29,7 +30,7 @@ import java.util.function.Consumer;
  * system.
  */
 public final class PBXNativeTarget extends PBXTarget {
-	public PBXNativeTarget(String name, String productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
+	public PBXNativeTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
 		super(name, productType, buildPhases, buildConfigurationList, productName, productReference);
 	}
 
@@ -39,7 +40,7 @@ public final class PBXNativeTarget extends PBXTarget {
 
 	public static final class Builder {
 		private String name;
-		private String productType;
+		private ProductType productType;
 		private List<PBXBuildPhase> buildPhases = new ArrayList<>();
 		private XCConfigurationList buildConfigurationList;
 		private String productName;
@@ -50,8 +51,8 @@ public final class PBXNativeTarget extends PBXTarget {
 			return this;
 		}
 
-		public Builder productType(String productType) {
-			this.productType = productType;
+		public Builder productType(ProductType productType) {
+			this.productType = Objects.requireNonNull(productType);
 			return this;
 		}
 

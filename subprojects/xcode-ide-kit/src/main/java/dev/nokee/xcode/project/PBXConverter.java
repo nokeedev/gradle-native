@@ -140,7 +140,7 @@ public final class PBXConverter {
 
 			obj.putField("name", o.getName());
 			if (o.getProductType() != null) {
-				obj.putField("productType", o.getProductType());
+				obj.putField("productType", o.getProductType().toString());
 			}
 			if (o.getProductName() != null) {
 				obj.putField("productName", o.getProductName());
