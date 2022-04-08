@@ -136,13 +136,31 @@ abstract class PropertyListWriterTester {
 		}
 
 		@ParameterizedTest
-		@ValueSource(chars = {'.', '-', '?', '!', '(', ')'})
+		@ValueSource(chars = {'-', '?', '!', '(', ')'})
 		void canWriteDocumentWithSingleSpecialCharacterString(char specialChar) {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha" + specialChar + "567");
 			subject().writeEndDocument();
 
 			verifyDocumentWithString__alpha_special_567(specialChar);
+		}
+
+		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithForwardSlashCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeString("alpha/567");
+			subject().writeEndDocument();
+
+			verifyDocumentWithString__alpha_slash_567();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithDotCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeString("alpha.567");
+			subject().writeEndDocument();
+
+			verifyDocumentWithString__alpha_dot_567();
 		}
 
 		@Test
@@ -175,6 +193,8 @@ abstract class PropertyListWriterTester {
 
 	abstract void verifyDocumentWithString__alpha567();
 	abstract void verifyDocumentWithString__alpha_special_567(char special);
+	abstract void verifyDocumentWithString__alpha_slash_567();
+	abstract void verifyDocumentWithString__alpha_dot_567();
 	abstract void verifyDocumentWithString__alpha_underscore_567();
 	abstract void verifyDocumentWithString__alpha_space_567();
 	abstract void verifyDocumentWithString__empty();

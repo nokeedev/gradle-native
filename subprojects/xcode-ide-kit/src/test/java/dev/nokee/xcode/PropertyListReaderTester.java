@@ -168,12 +168,39 @@ abstract class PropertyListReaderTester {
 		}
 
 		@ParameterizedTest
-		@ValueSource(chars = {'.', '-', '_', '?', '!', '(', ')'})
+		@ValueSource(chars = {'-', '?', '!', '(', ')'})
 		void canReadDocumentWithSingleSpecialCharacterString(char specialChar) {
 			val subject = newDocumentWithString__beta_special_456(specialChar);
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(STRING));
 			assertThat(subject.readString(), equalTo("beta" + specialChar + "456"));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithForwardSlashCharacter() {
+			val subject = newDocumentWithString__beta_slash_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("beta/456"));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithDotCharacter() {
+			val subject = newDocumentWithString__beta_dot_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("beta.456"));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithUnderscoreCharacter() {
+			val subject = newDocumentWithString__beta_underscore_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("beta_456"));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 
@@ -198,6 +225,9 @@ abstract class PropertyListReaderTester {
 
 	abstract PropertyListReader newDocumentWithString__beta456();
 	abstract PropertyListReader newDocumentWithString__beta_special_456(char special);
+	abstract PropertyListReader newDocumentWithString__beta_slash_456();
+	abstract PropertyListReader newDocumentWithString__beta_dot_456();
+	abstract PropertyListReader newDocumentWithString__beta_underscore_456();
 	abstract PropertyListReader newDocumentWithString__beta_space_456();
 	abstract PropertyListReader newDocumentWithString__empty();
 

@@ -171,6 +171,18 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Override
+	void verifyDocumentWithString__alpha_slash_567() {
+		// slash in string does not require quoting
+		assertThat(output(), equalTo(withUTF8Header("alpha/567")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha_dot_567() {
+		// dot in string does not require quoting
+		assertThat(output(), equalTo(withUTF8Header("alpha.567")));
+	}
+
+	@Override
 	void verifyDocumentWithString__alpha_underscore_567() {
 		// underscore in string does not require quoting
 		assertThat(output(), equalTo(withUTF8Header("alpha_567")));
