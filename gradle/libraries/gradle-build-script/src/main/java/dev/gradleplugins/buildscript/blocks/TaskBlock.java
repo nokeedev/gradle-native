@@ -18,9 +18,13 @@ package dev.gradleplugins.buildscript.blocks;
 import dev.gradleplugins.buildscript.Visitor;
 import dev.gradleplugins.buildscript.statements.BlockStatement;
 import dev.gradleplugins.buildscript.statements.EmptyAwareSection;
+import dev.gradleplugins.buildscript.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.statements.GroupStatement;
 import dev.gradleplugins.buildscript.statements.Statement;
 import dev.gradleplugins.buildscript.syntax.Expression;
+import lombok.val;
+
+import java.util.function.Consumer;
 
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 
@@ -39,6 +43,13 @@ public final class TaskBlock extends AbstractBlock {
 
 		public Builder doLast() {
 			builder.add(BlockStatement.of(literal("doLast"), new EmptyStatement()));
+			return this;
+		}
+
+		public Builder doLast(Consumer<? super GroupStatement.Builder> builderConsumer) {
+			final GroupStatement.Builder builder = GroupStatement.builder();
+			builderConsumer.accept(builder);
+			this.builder.add(BlockStatement.of(literal("doLast"), builder.build()));
 			return this;
 		}
 

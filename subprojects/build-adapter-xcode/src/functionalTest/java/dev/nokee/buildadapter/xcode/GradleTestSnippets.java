@@ -18,11 +18,32 @@ package dev.nokee.buildadapter.xcode;
 import dev.gradleplugins.buildscript.blocks.TaskBlock;
 import dev.gradleplugins.buildscript.blocks.TasksBlock;
 import dev.gradleplugins.buildscript.statements.Statement;
+import org.gradle.api.Action;
+
+import static dev.gradleplugins.buildscript.statements.Statement.expressionOf;
+import static dev.gradleplugins.buildscript.syntax.Syntax.invoke;
+import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 
 public final class GradleTestSnippets {
 	private GradleTestSnippets() {}
 
 	public static Statement doSomethingVerifyTask() {
 		return TasksBlock.tasks(it -> it.register("verify", TaskBlock.Builder::doLast));
+	}
+
+	/**
+	 * Creates a task named {@literal verify} where the {@literal doLast} action executes the specified assertions.
+	 *
+	 * Note the assertions are assumed to be DSL agnostic.
+	 *
+	 * @param assertions  DSL agnostic boolean assertion, must not be null
+	 * @return a statement for the verify task registration, never null
+	 */
+	public static Statement assertVerifyTask(String... assertions) {
+		return TasksBlock.tasks(it -> it.register("verify", task -> task.doLast(builder -> {
+			for (String assertion : assertions) {
+				builder.add(expressionOf(invoke("assert", literal(assertion))));
+			}
+		})));
 	}
 }
