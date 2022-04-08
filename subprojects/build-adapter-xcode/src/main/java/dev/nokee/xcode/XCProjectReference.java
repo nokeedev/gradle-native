@@ -39,4 +39,9 @@ public final class XCProjectReference implements Serializable {
 		Preconditions.checkArgument(Files.isDirectory(location), "Xcode project '%s' is not valid", location);
 		return new XCProjectReference(location);
 	}
+
+	@Override
+	public String toString() {
+		return location.toString();
+	}
 }

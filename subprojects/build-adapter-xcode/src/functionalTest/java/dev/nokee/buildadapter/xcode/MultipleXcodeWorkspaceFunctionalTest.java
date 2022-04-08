@@ -54,7 +54,7 @@ class MultipleXcodeWorkspaceFunctionalTest {
 
 	@Test
 	void mentionIssue() {
-		assertThat(result.getOutput(), containsStringIgnoringCase("Multiple Xcode workspace were found"));
+		assertThat(result.getOutput(), containsStringIgnoringCase("multiple Xcode workspace were found"));
 	}
 
 	@Test
