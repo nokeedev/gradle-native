@@ -32,7 +32,9 @@ public class ContextualGradleRunnerParameterResolver implements ParameterResolve
 
 	@Override
 	public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-		System.out.println("Using Gradle v" + System.getProperty("dev.gradleplugins.defaultGradleVersion"));
-		return GradleRunner.create(gradleTestKit()).inDirectory(() -> extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).get("temp.dir")).withPluginClasspath().withGradleVersion(System.getProperty("dev.gradleplugins.defaultGradleVersion"));
+		return GradleRunner.create(gradleTestKit()).inDirectory(() -> extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).get("temp.dir")).withPluginClasspath().withGradleVersion(System.getProperty("dev.gradleplugins.defaultGradleVersion")).beforeExecute(it -> {
+			System.out.println("Using Gradle v" + System.getProperty("dev.gradleplugins.defaultGradleVersion") + " in '" + it.getWorkingDirectory().getAbsolutePath() + "'");
+			return it;
+		});
 	}
 }
