@@ -50,7 +50,7 @@ class ConfigurationCacheDetectsXcodeWorkspaceChangesFunctionalTest {
 
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
-		new EmptyXCWorkspace("Test").writeToProject(testDirectory.toFile());
+		new EmptyXCWorkspace("Test").writeToProject(testDirectory);
 		Files.createDirectories(testDirectory.resolve("Test.xcworkspace/xcuserdata/foo.xcuserdatad"));
 		Files.write(testDirectory.resolve("Test.xcworkspace/xcuserdata/foo.xcuserdatad/UserInterfaceState.xcuserstate"), new byte[] {0xF, 0x0, 0x0}, StandardOpenOption.CREATE_NEW);
 		doSomethingVerifyTask().writeTo(testDirectory.resolve("build.gradle"));
@@ -77,13 +77,13 @@ class ConfigurationCacheDetectsXcodeWorkspaceChangesFunctionalTest {
 		try (val writer = new XCWorkspaceDataWriter(Files.newBufferedWriter(testDirectory.resolve("Test.xcworkspace/contents.xcworkspacedata")))) {
 			writer.write(XCWorkspaceData.builder().fileRef(XCFileReference.of("group:Pods/Pods.xcodeproj")).build());
 		}
-		new EmptyXCProject("Pods").writeToProject(testDirectory.resolve("Pods").toFile());
+		new EmptyXCProject("Pods").writeToProject(testDirectory.resolve("Pods"));
 		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 
 	@Test
 	void doesNotReuseConfigurationCacheWhenNewWorkspaceFound() {
-		new EmptyXCWorkspace("App").writeToProject(testDirectory.toFile());
+		new EmptyXCWorkspace("App").writeToProject(testDirectory);
 		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 }

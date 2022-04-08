@@ -40,8 +40,8 @@ class MultipleXcodeWorkspaceFunctionalTest {
 
 	@BeforeAll
 	static void setup(GradleRunner runner) throws IOException {
-		new EmptyXCWorkspace("App").writeToProject(testDirectory.toFile());
-		new EmptyXCWorkspace("Lib").writeToProject(testDirectory.toFile());
+		new EmptyXCWorkspace("App").writeToProject(testDirectory);
+		new EmptyXCWorkspace("Lib").writeToProject(testDirectory);
 		doSomethingVerifyTask().writeTo(testDirectory.resolve("build.gradle"));
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
 		result = runner.withTasks("verify").build();

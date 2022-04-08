@@ -50,7 +50,7 @@ class ConfigurationCacheDetectsXcodeProjectInitializationFunctionalTest {
 
 	@Test
 	void doesNotReuseConfigurationCacheWhenProjectAppears() {
-		new EmptyXCProject("Test").writeToProject(testDirectory.toFile());
+		new EmptyXCProject("Test").writeToProject(testDirectory);
 		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 }

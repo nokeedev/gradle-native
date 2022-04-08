@@ -42,7 +42,7 @@ class ConfigurationCacheDetectsXcodeWorkspaceInitializationOverridingXcodeProjec
 
 	@BeforeAll
 	static void setup(GradleRunner runner) throws IOException {
-		new EmptyXCProject("Test").writeToProject(testDirectory.toFile());
+		new EmptyXCProject("Test").writeToProject(testDirectory);
 		doSomethingVerifyTask().writeTo(testDirectory.resolve("build.gradle"));
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
 		executer = runner.withArgument("verify").withArgument("--configuration-cache");
@@ -51,7 +51,7 @@ class ConfigurationCacheDetectsXcodeWorkspaceInitializationOverridingXcodeProjec
 
 	@Test
 	void doesNotReuseConfigurationCacheWhenWorkspaceAppearsSupersedingProject() {
-		new EmptyXCWorkspace("Test").writeToProject(testDirectory.toFile());
+		new EmptyXCWorkspace("Test").writeToProject(testDirectory);
 		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 }

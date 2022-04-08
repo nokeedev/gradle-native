@@ -42,8 +42,8 @@ class MultipleXcodeProjectInRootWithoutWorkspaceFunctionalTest {
 
 	@BeforeAll
 	static void setup(GradleRunner runner) throws IOException {
-		new EmptyXCProject("App").writeToProject(testDirectory.toFile());
-		new EmptyXCProject("Lib").writeToProject(testDirectory.toFile());
+		new EmptyXCProject("App").writeToProject(testDirectory);
+		new EmptyXCProject("Lib").writeToProject(testDirectory);
 		doSomethingVerifyTask().writeTo(testDirectory.resolve("build.gradle"));
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
 		result = runner.withTasks("verify").build();
