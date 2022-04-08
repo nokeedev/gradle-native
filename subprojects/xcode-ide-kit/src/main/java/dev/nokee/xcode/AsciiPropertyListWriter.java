@@ -42,7 +42,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	}
 
 	private enum Context {
-		DOC, INTEGER, REAL, STRING, DATA, EMPTY_ARRAY, ARRAY, DICT, DICT_KEY;
+		EMPTY_DOC, DOC, INTEGER, REAL, STRING, DATA, EMPTY_ARRAY, ARRAY, DICT, DICT_KEY;
 	}
 
 	// TODO: indentation should be tabs and newline most likely unix new line
@@ -51,7 +51,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	@Override
 	public void writeStartDocument(PropertyListVersion version) {
 		run(() -> {
-			contexts.push(Context.DOC);
+			contexts.push(Context.EMPTY_DOC);
 			delegate.write("// !$*UTF8*$!");
 			delegate.write(NEW_LINE_CHAR);
 		});
@@ -61,7 +61,9 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	public void writeEndDocument() {
 		// nothing to do
 		run(() -> {
-			delegate.write(NEW_LINE_CHAR);
+			if (contexts.peek() == Context.DOC) {
+				delegate.write(NEW_LINE_CHAR);
+			}
 			delegate.flush();
 		});
 	}
@@ -113,6 +115,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	@Override
 	public void writeEmptyDictionary() {
 		run(() -> {
+			doEnterContext(Context.DICT);
 			delegate.write("{}");
 			doExitContext(Context.DICT);
 		});
@@ -161,8 +164,8 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	@Override
 	public void writeEmptyArray() {
 		run(() -> {
+			doEnterContext(Context.EMPTY_ARRAY);
 			delegate.write("()");
-
 			doExitContext(Context.ARRAY);
 		});
 	}
@@ -269,6 +272,10 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 				delegate.write(NEW_LINE_CHAR);
 				delegate.write(indent(level()));
 			}
+		} else if (contexts.peek() == Context.EMPTY_DOC) {
+			// Replace array context to notify it's not empty
+			contexts.pop();
+			contexts.push(Context.DOC);
 		}
 		return enteringContext;
 	}
