@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,165 +22,290 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 abstract class PropertyListWriterTester {
 	abstract PropertyListWriter subject();
 
 	@Nested
+	class DocumentTest {
+		@Test
+		void canWriteEmptyDocument() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeEndDocument();
+
+			verifyDocument__empty();
+		}
+	}
+
+	abstract void verifyDocument__empty();
+
+	@Nested
 	class BooleanTest {
 		@Test
-		void writesTrueBooleanValue() {
+		void canWriteDocumentWithSingleTrueBoolean() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeBoolean(true);
 			subject().writeEndDocument();
 
-			verifySingleTrueValue();
+			verifyDocumentWithBoolean__true();
 		}
 
 		@Test
-		void writesFalseBooleanValue() {
+		void canWriteDocumentWithSingleFalseBoolean() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeBoolean(false);
 			subject().writeEndDocument();
 
-			verifySingleFalseValue();
+			verifyDocumentWithBoolean__false();
 		}
 	}
 
-	abstract void verifySingleTrueValue();
-	abstract void verifySingleFalseValue();
+	abstract void verifyDocumentWithBoolean__true();
+	abstract void verifyDocumentWithBoolean__false();
 
 	@Nested
 	class IntegerTest {
 		@Test
-		void writesIntegerValue() {
+		void canWriteDocumentWithSingleInt8() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
-			subject().writeInteger(42);
+			subject().writeInteger(34);
 			subject().writeEndDocument();
 
-			verifySingleIntegerValue(42);
+			verifyDocumentWithInteger__34();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleInt16() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeInteger(9216);
+			subject().writeEndDocument();
+
+			verifyDocumentWithInteger__9216();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleInt32() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeInteger(541069328);
+			subject().writeEndDocument();
+
+			verifyDocumentWithInteger__541069328();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleInt64() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeInteger(2306142076443623952L);
+			subject().writeEndDocument();
+
+			verifyDocumentWithInteger__2306142076443623952();
 		}
 	}
 
-	abstract void verifySingleIntegerValue(int expected);
+	abstract void verifyDocumentWithInteger__34();
+	abstract void verifyDocumentWithInteger__9216();
+	abstract void verifyDocumentWithInteger__541069328();
+	abstract void verifyDocumentWithInteger__2306142076443623952();
 
 	@Nested
 	class RealTest {
 		@Test
-		void writesRealValue() {
+		void canWriteDocumentWithSingleReal() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeReal(4.2f);
 			subject().writeEndDocument();
 
-			verifySingleRealValue(4.2f);
+			verifyDocumentWithReal__4_2();
 		}
 	}
 
-	abstract void verifySingleRealValue(float expected);
+	abstract void verifyDocumentWithReal__4_2();
 
 	@Nested
 	class StringTest {
 		@Test
-		void writesAlphanumericWithoutSpaceString() {
+		void canWriteDocumentWithSingleAlphanumericStringWithoutSpaces() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha567");
 			subject().writeEndDocument();
 
-			verifyAlphanumericWithoutSpaceString("alpha567");
+			verifyDocumentWithString__alpha567();
 		}
 
 		@ParameterizedTest
-		@ValueSource(chars = {'.', '-', '_', '?', '!', '(', ')'})
-		void writesStringContainingNonAlphanumericCharacter(char specialChar) {
+		@ValueSource(chars = {'.', '-', '?', '!', '(', ')'})
+		void canWriteDocumentWithSingleSpecialCharacterString(char specialChar) {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha" + specialChar + "567");
 			subject().writeEndDocument();
 
-			verifyNonAlphanumericWithoutSpaceString("alpha" + specialChar + "567");
+			verifyDocumentWithString__alpha_special_567(specialChar);
 		}
 
 		@Test
-		void writesAlphanumericStringContainingSpace() {
+		void canWriteDocumentWithSingleAlphanumericStringWithUnderscoreCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeString("alpha_567");
+			subject().writeEndDocument();
+
+			verifyDocumentWithString__alpha_underscore_567();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithSpace() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha 567");
 			subject().writeEndDocument();
 
-			verifyNonAlphanumericWithoutSpaceString("alpha 567");
+			verifyDocumentWithString__alpha_space_567();
 		}
 
 		@Test
-		void writesEmptyString() {
+		void canWriteDocumentWithSingleEmptyString() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("");
 			subject().writeEndDocument();
 
-			verifyEmptyString();
+			verifyDocumentWithString__empty();
 		}
 	}
 
-	abstract void verifyAlphanumericWithoutSpaceString(String expected);
-
-	abstract void verifyNonAlphanumericWithoutSpaceString(String expected);
-
-	abstract void verifyEmptyString();
-
-	@Nested
-	class DictionaryTest {
-		@Test
-		void writesEmptyDictionary() {
-			subject().writeStartDocument(PropertyListVersion.VERSION_00);
-			subject().writeEmptyDictionary();
-			subject().writeEndDocument();
-
-			verifyEmptyDictionary();
-		}
-
-		@Test
-		void writesSingleIntegerElementDictionary() {
-			subject().writeStartDocument(PropertyListVersion.VERSION_00);
-			subject().writeStartDictionary(1);
-			subject().writeDictionaryKey("myKey");
-			subject().writeInteger(42);
-			subject().writeEndDictionary();
-			subject().writeEndDocument();
-
-			verifySingleIntegerElementDictionary(ImmutableMap.of("myKey", 42));
-		}
-	}
-
-	abstract void verifyEmptyDictionary();
-
-	abstract void verifySingleIntegerElementDictionary(Map<String, Object> expected);
+	abstract void verifyDocumentWithString__alpha567();
+	abstract void verifyDocumentWithString__alpha_special_567(char special);
+	abstract void verifyDocumentWithString__alpha_underscore_567();
+	abstract void verifyDocumentWithString__alpha_space_567();
+	abstract void verifyDocumentWithString__empty();
 
 	@Nested
 	class ArrayTest {
 		@Test
-		void writesEmptyArray() {
+		void canWriteDocumentWithSingleEmptyArray() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeEmptyArray();
 			subject().writeEndDocument();
 
-			verifyEmptyArray();
+			verifyDocumentWithArray__empty();
 		}
 
 		@Test
-		void writesSingleIntegerElementArray() {
+		void canWriteDocumentWithSingleArrayOfIntegerElement() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeStartArray(1);
-			subject().writeInteger(42);
+			subject().writeInteger(17440);
 			subject().writeEndArray();
 			subject().writeEndDocument();
 
-			verifyArray(42);
+			verifyDocumentWithArray__17440();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleArrayOfIntegerAndStringElements() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartArray(1);
+			subject().writeInteger(384);
+			subject().writeString("aString");
+			subject().writeEndArray();
+			subject().writeEndDocument();
+
+			verifyDocumentWithArray__384_aString();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleArrayOfArrayOfIntegers() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartArray(1);
+			subject().writeStartArray(3);
+			subject().writeInteger(0);
+			subject().writeInteger(1);
+			subject().writeInteger(2);
+			subject().writeEndArray();
+			subject().writeEndArray();
+			subject().writeEndDocument();
+
+			verifyDocumentWithArray__arrayOf_0_1_2();
 		}
 	}
 
-	abstract void verifyEmptyArray();
+	abstract void verifyDocumentWithArray__empty();
+	abstract void verifyDocumentWithArray__17440();
+	abstract void verifyDocumentWithArray__384_aString();
+	abstract void verifyDocumentWithArray__arrayOf_0_1_2();
 
-	abstract void verifyArray(Object... expectedElements);
+	@Nested
+	class DictionaryTest {
+		@Test
+		void canWriteDocumentWithSingleEmptyDictionary() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeEmptyDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionary__empty();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleIntegerElementDictionary() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("aKey");
+			subject().writeInteger(4608);
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionary__aKey_to_4608();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleStringElementDictionary() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("aKey");
+			subject().writeString("myValue");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionary__aKey_to_myValue();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleDictionaryWithMultipleElements() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(3);
+			subject().writeDictionaryKey("k0");
+			subject().writeString("first");
+			subject().writeDictionaryKey("k1");
+			subject().writeInteger(2);
+			subject().writeDictionaryKey("k2");
+			subject().writeBoolean(false);
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionary__k0_to_first__k1_to_2__k2_to_false();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleDictionaryWithNestedDictionary() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("aKey");
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("myKey");
+			subject().writeString("myValue");
+			subject().writeEndDictionary();
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionary__aKey_to_dictOf_myKey_to_myValue();
+		}
+	}
+
+	abstract void verifyDocumentWithDictionary__empty();
+	abstract void verifyDocumentWithDictionary__aKey_to_4608();
+	abstract void verifyDocumentWithDictionary__aKey_to_myValue();
+	abstract void verifyDocumentWithDictionary__k0_to_first__k1_to_2__k2_to_false();
+	abstract void verifyDocumentWithDictionary__aKey_to_dictOf_myKey_to_myValue();
 
 	@Nested
 	class DateTest {
@@ -191,11 +315,11 @@ abstract class PropertyListWriterTester {
 			subject().writeDate(LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC));
 			subject().writeEndDocument();
 
-			verifyEpochDate();
+			verifyDocumentWithDate__epoch();
 		}
 	}
 
-	abstract void verifyEpochDate();
+	abstract void verifyDocumentWithDate__epoch();
 
 	@Nested
 	class DataTest {
@@ -205,9 +329,9 @@ abstract class PropertyListWriterTester {
 			subject().writeData(new byte[] { (byte) 0xB0, 0x0B});
 			subject().writeEndDocument();
 
-			verifyData_BOOB();
+			verifyDocumentWithData__b00b();
 		}
 	}
 
-	abstract void verifyData_BOOB();
+	abstract void verifyDocumentWithData__b00b();
 }

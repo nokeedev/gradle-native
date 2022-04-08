@@ -48,7 +48,7 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	}
 
 	@Test
-	void canReadQuotedBoolean() {
+	void canReadDocumentWithQuotedBoolean() {
 		val subject = newReader("\"true\"");
 		assertThat(subject.next(), is(DOCUMENT_START));
 		assertThat(subject.next(), is(STRING));
@@ -57,7 +57,7 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	}
 
 	@Test
-	void canReadQuotedInteger() {
+	void canReadDocumentWithQuotedInteger() {
 		val subject = newReader("\"42\"");
 		assertThat(subject.next(), is(DOCUMENT_START));
 		assertThat(subject.next(), is(STRING));
@@ -66,7 +66,7 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	}
 
 	@Test
-	void canReadArraySplitAcrossMultipleLinesWithTagIndentation() {
+	void canReadDocumentWhenArraySplitAcrossMultipleLinesWithTagIndentation() {
 		val subject = newReader("(", "\ta,", "\tb,", "\tc,", ")");
 		assertThat(subject.next(), is(DOCUMENT_START));
 		assertThat(subject.next(), is(ARRAY_START));
@@ -86,12 +86,12 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	}
 
 	@Override
-	PropertyListReader newSingleTrueBooleanReader() {
+	PropertyListReader newDocumentWithBoolean__true() {
 		return newReader(withUTF8Header("true"));
 	}
 
 	@Override
-	PropertyListReader newSingleFalseBooleanReader() {
+	PropertyListReader newDocumentWithBoolean__false() {
 		return newReader(withUTF8Header("false"));
 	}
 
@@ -100,57 +100,102 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	}
 
 	@Override
-	PropertyListReader newSingleUInt8Reader_Hex42() {
-		return newReader(withUTF8Header("66"));
+	PropertyListReader newDocumentWithInteger__26() {
+		return newReader(withUTF8Header("26"));
 	}
 
 	@Override
-	PropertyListReader newSingleUInt16Reader_Hex4241() {
-		return newReader(withUTF8Header("16961"));
+	PropertyListReader newDocumentWithInteger__12612() {
+		return newReader(withUTF8Header("12612"));
 	}
 
 	@Override
-	PropertyListReader newSingleUInt32Reader_Hex4241999() {
-		return newReader(withUTF8Header("69474713"));
+	PropertyListReader newDocumentWithInteger__272760970() {
+		return newReader(withUTF8Header("272760970"));
 	}
 
 	@Override
-	PropertyListReader newSingleAlphanumericString_alpha456() {
-		return newReader(withUTF8Header("alpha456"));
+	PropertyListReader newDocumentWithInteger__2380154602107442436() {
+		return newReader(withUTF8Header("2380154602107442436"));
 	}
 
 	@Override
-	PropertyListReader newSingleAlphanumericStringWithSpaces_alpha_space_456() {
-		return newReader(withUTF8Header("\"alpha 456\""));
+	PropertyListReader newDocumentWithString__beta456() {
+		return newReader(withUTF8Header("beta456"));
 	}
 
 	@Override
-	PropertyListReader newSingleArray_empty() {
+	PropertyListReader newDocumentWithString__beta_special_456(char special) {
+		return newReader(withUTF8Header("\"beta" + special + "456\""));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithString__beta_space_456() {
+		return newReader(withUTF8Header("\"beta 456\""));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithString__empty() {
+		return newReader(withUTF8Header("\"\""));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithArray__empty() {
 		return newReader(withUTF8Header("()"));
 	}
 
 	@Override
-	PropertyListReader newSingleArray_hex52() {
-		return newReader(withUTF8Header("(82)"));
+	PropertyListReader newDocumentWithArray__8706() {
+		return newReader(withUTF8Header("( 8706 )"));
 	}
 
 	@Override
-	PropertyListReader newSingleArray__myString_hex98() {
-		return newReader(withUTF8Header("(myString, 152)"));
+	PropertyListReader newDocumentWithArray__myString_9762() {
+		return newReader(withUTF8Header("( myString, 9762 )"));
 	}
 
 	@Override
-	PropertyListReader newSingleDict_empty() {
+	PropertyListReader newDocumentWithArray__arrayOf_4_5_6() {
+		return newReader(withUTF8Header("( 4, 5, 6 )"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionary__empty() {
 		return newReader(withUTF8Header("{}"));
 	}
 
 	@Override
-	PropertyListReader newSingleDict__myKey_to_hex78() {
-		return newReader(withUTF8Header("{myKey = 120;}"));
+	PropertyListReader newDocumentWithDictionary__myKey_to_2098176() {
+		return newReader(withUTF8Header("{ myKey = 2098176; }"));
 	}
 
 	@Override
-	PropertyListReader newDocument_empty() {
+	PropertyListReader newDocumentWithDictionary__myKey_to_aValue() {
+		return newReader(withUTF8Header("{ myKey = aValue; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionary__k0_to_true__k1_to_second__k2_to_3() {
+		return newReader(withUTF8Header("{ k0 = true; k1 = second; k2 = 3; }"));
+	}
+
+	@Override
+	PropertyListReader newDocument__empty() {
 		return newReader(withUTF8Header());
+	}
+
+	@Override
+	PropertyListReader.Event dateType() {
+		return STRING;
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDate__epoch() {
+		return newReader(withUTF8Header("\"1970-01-01 00:00:00+00:00\""));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithData__c0ffee() {
+		return newReader(withUTF8Header("<c0ffee>"));
 	}
 }

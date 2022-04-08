@@ -18,12 +18,18 @@ package dev.nokee.xcode;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.NoSuchElementException;
 
 import static dev.nokee.xcode.PropertyListReader.Event.ARRAY_END;
 import static dev.nokee.xcode.PropertyListReader.Event.ARRAY_START;
 import static dev.nokee.xcode.PropertyListReader.Event.BOOLEAN;
+import static dev.nokee.xcode.PropertyListReader.Event.DATA;
+import static dev.nokee.xcode.PropertyListReader.Event.DATE;
 import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_END;
 import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_KEY;
 import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_START;
@@ -32,16 +38,39 @@ import static dev.nokee.xcode.PropertyListReader.Event.DOCUMENT_START;
 import static dev.nokee.xcode.PropertyListReader.Event.INTEGER;
 import static dev.nokee.xcode.PropertyListReader.Event.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 abstract class PropertyListReaderTester {
 	@Nested
+	class DocumentTest {
+		@Test
+		void canReadEmptyDocument() {
+			val subject = newDocument__empty();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void throwsNoSuchElementExceptionAfterDocumentEndEvent() {
+			val subject = newDocument__empty();
+			subject.next(); // DOCUMENT_START
+			subject.next(); // DOCUMENT_END
+			assertThat(subject.hasNext(), equalTo(false));
+			val ex = assertThrows(NoSuchElementException.class, () -> subject.next());
+			assertThat(ex.getMessage(), equalTo("DOCUMENT_END reached: no more elements on the stream."));
+		}
+	}
+
+	abstract PropertyListReader newDocument__empty();
+
+	@Nested
 	class BooleanTest {
 		@Test
-		void canReadSingleTrueBoolean() {
-			val subject = newSingleTrueBooleanReader();
+		void canReadDocumentWithSingleTrueBoolean() {
+			val subject = newDocumentWithBoolean__true();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(booleanType()));
 			assertThat(subject.readBoolean(), equalTo(true));
@@ -49,8 +78,8 @@ abstract class PropertyListReaderTester {
 		}
 
 		@Test
-		void canReadSingleFalseBoolean() {
-			val subject = newSingleFalseBooleanReader();
+		void canReadDocumentWithSingleFalseBoolean() {
+			val subject = newDocumentWithBoolean__false();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(booleanType()));
 			assertThat(subject.readBoolean(), equalTo(false));
@@ -62,35 +91,44 @@ abstract class PropertyListReaderTester {
 		return BOOLEAN;
 	}
 
-	abstract PropertyListReader newSingleTrueBooleanReader();
-	abstract PropertyListReader newSingleFalseBooleanReader();
+	abstract PropertyListReader newDocumentWithBoolean__true();
+	abstract PropertyListReader newDocumentWithBoolean__false();
 
 	@Nested
 	class IntegerTest {
 		@Test
-		void canReadSingleUInt8() {
-			val subject = newSingleUInt8Reader_Hex42();
+		void canReadDocumentWithSingleInt8() {
+			val subject = newDocumentWithInteger__26();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(integerType()));
-			assertThat(subject.readInteger(), equalTo(0x42L));
+			assertThat(subject.readInteger(), equalTo(26L));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 
 		@Test
-		void canReadSingleUInt16() {
-			val subject = newSingleUInt16Reader_Hex4241();
+		void canReadDocumentWithSingleInt16() {
+			val subject = newDocumentWithInteger__12612();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(integerType()));
-			assertThat(subject.readInteger(), equalTo(0x4241L));
+			assertThat(subject.readInteger(), equalTo(12612L));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 
 		@Test
-		void canReadSingleUInt32() {
-			val subject = newSingleUInt32Reader_Hex4241999();
+		void canReadDocumentWithSingleInt32() {
+			val subject = newDocumentWithInteger__272760970();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(integerType()));
-			assertThat(subject.readInteger(), equalTo(0x4241999L));
+			assertThat(subject.readInteger(), equalTo(272760970L));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithSingleInt64() {
+			val subject = newDocumentWithInteger__2380154602107442436();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(integerType()));
+			assertThat(subject.readInteger(), equalTo(2380154602107442436L));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 	}
@@ -99,39 +137,75 @@ abstract class PropertyListReaderTester {
 		return INTEGER;
 	}
 
-	abstract PropertyListReader newSingleUInt8Reader_Hex42();
-	abstract PropertyListReader newSingleUInt16Reader_Hex4241();
-	abstract PropertyListReader newSingleUInt32Reader_Hex4241999();
+	abstract PropertyListReader newDocumentWithInteger__26();
+	abstract PropertyListReader newDocumentWithInteger__12612();
+	abstract PropertyListReader newDocumentWithInteger__272760970();
+	abstract PropertyListReader newDocumentWithInteger__2380154602107442436();
+
+//	@Nested
+//	class RealTest {
+//		@Test
+//		void canReadDocumentWithSingleReal() {
+//			val subject = newDocumentWithReal__26();
+//			assertThat(subject.next(), is(DOCUMENT_START));
+//			assertThat(subject.next(), is(integerType()));
+//			assertThat(subject.readInteger(), equalTo(26L));
+//			assertThat(subject.next(), is(DOCUMENT_END));
+//		}
+//	}
+//
+//	abstract PropertyListReader newDocumentWithReal__26();
 
 	@Nested
 	class StringTest {
 		@Test
-		void canReadSingleAlphanumericStringWithoutSpaces() {
-			val subject = newSingleAlphanumericString_alpha456();
+		void canReadDocumentWithSingleAlphanumericStringWithoutSpaces() {
+			val subject = newDocumentWithString__beta456();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(STRING));
-			assertThat(subject.readString(), equalTo("alpha456"));
+			assertThat(subject.readString(), equalTo("beta456"));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@ParameterizedTest
+		@ValueSource(chars = {'.', '-', '_', '?', '!', '(', ')'})
+		void canReadDocumentWithSingleSpecialCharacterString(char specialChar) {
+			val subject = newDocumentWithString__beta_special_456(specialChar);
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("beta" + specialChar + "456"));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 
 		@Test
-		void canReadSingleAlphanumericStringWithSpaces() {
-			val subject = newSingleAlphanumericStringWithSpaces_alpha_space_456();
+		void canReadDocumentWithSingleAlphanumericStringWithSpace() {
+			val subject = newDocumentWithString__beta_space_456();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(STRING));
-			assertThat(subject.readString(), equalTo("alpha 456"));
+			assertThat(subject.readString(), equalTo("beta 456"));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithSingleEmptyString() {
+			val subject = newDocumentWithString__empty();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo(""));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 	}
 
-	abstract PropertyListReader newSingleAlphanumericString_alpha456();
-	abstract PropertyListReader newSingleAlphanumericStringWithSpaces_alpha_space_456();
+	abstract PropertyListReader newDocumentWithString__beta456();
+	abstract PropertyListReader newDocumentWithString__beta_special_456(char special);
+	abstract PropertyListReader newDocumentWithString__beta_space_456();
+	abstract PropertyListReader newDocumentWithString__empty();
 
 	@Nested
 	class ArrayTest {
 		@Test
-		void canReadEmptyArray() {
-			val subject = newSingleArray_empty();
+		void canReadDocumentWithSingleEmptyArray() {
+			val subject = newDocumentWithArray__empty();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(ARRAY_START));
 			assertThat(subject.next(), is(ARRAY_END));
@@ -139,39 +213,57 @@ abstract class PropertyListReaderTester {
 		}
 
 		@Test
-		void canReadSingleArrayWithInteger() {
-			val subject = newSingleArray_hex52();
+		void canReadDocumentWithSingleArrayOfIntegerElement() {
+			val subject = newDocumentWithArray__8706();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(ARRAY_START));
 			assertThat(subject.next(), is(integerType()));
-			assertThat(subject.readInteger(), equalTo(0x52L));
+			assertThat(subject.readInteger(), equalTo(8706L));
 			assertThat(subject.next(), is(ARRAY_END));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 
 		@Test
-		void canReadSingleArrayWithStringAndIntegerElement() {
-			val subject = newSingleArray__myString_hex98();
+		void canReadDocumentWithSingleArrayOfStringAndIntegerElements() {
+			val subject = newDocumentWithArray__myString_9762();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(ARRAY_START));
 			assertThat(subject.next(), is(STRING));
 			assertThat(subject.readString(), equalTo("myString"));
 			assertThat(subject.next(), is(integerType()));
-			assertThat(subject.readInteger(), equalTo(0x98L));
+			assertThat(subject.readInteger(), equalTo(9762L));
+			assertThat(subject.next(), is(ARRAY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canDocumentDocumentWithSingleArrayOfArrayOfIntegerElements() {
+			val subject = newDocumentWithArray__arrayOf_4_5_6();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(ARRAY_START));
+			assertThat(subject.next(), is(ARRAY_START));
+			assertThat(subject.next(), is(integerType()));
+			assertThat(subject.readInteger(), equalTo(4L));
+			assertThat(subject.next(), is(integerType()));
+			assertThat(subject.readInteger(), equalTo(5L));
+			assertThat(subject.next(), is(integerType()));
+			assertThat(subject.readInteger(), equalTo(6L));
+			assertThat(subject.next(), is(ARRAY_END));
 			assertThat(subject.next(), is(ARRAY_END));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 	}
 
-	abstract PropertyListReader newSingleArray_empty();
-	abstract PropertyListReader newSingleArray_hex52();
-	abstract PropertyListReader newSingleArray__myString_hex98();
+	abstract PropertyListReader newDocumentWithArray__empty();
+	abstract PropertyListReader newDocumentWithArray__8706();
+	abstract PropertyListReader newDocumentWithArray__myString_9762();
+	abstract PropertyListReader newDocumentWithArray__arrayOf_4_5_6();
 
 	@Nested
 	class DictTest {
 		@Test
-		void canReadEmptyDict() {
-			val subject = newSingleDict_empty();
+		void canReadDocumentWithSingleEmptyDictionary() {
+			val subject = newDocumentWithDictionary__empty();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(DICTIONARY_START));
 			assertThat(subject.next(), is(DICTIONARY_END));
@@ -179,41 +271,89 @@ abstract class PropertyListReaderTester {
 		}
 
 		@Test
-		void canReadSingleDictWithInteger() {
-			val subject = newSingleDict__myKey_to_hex78();
+		void canReadDocumentWithSingleDictionaryOfIntegerEntry() {
+			val subject = newDocumentWithDictionary__myKey_to_2098176();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(DICTIONARY_START));
 			assertThat(subject.next(), is(DICTIONARY_KEY));
 			assertThat(subject.readDictionaryKey(), equalTo("myKey"));
 			assertThat(subject.next(), is(integerType()));
-			assertThat(subject.readInteger(), equalTo(0x78L));
+			assertThat(subject.readInteger(), equalTo(2098176L));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithSingleDictionaryOfStringEntry() {
+			val subject = newDocumentWithDictionary__myKey_to_aValue();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("myKey"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("aValue"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithSingleDictionaryOfMultipleElements() {
+			val subject = newDocumentWithDictionary__k0_to_true__k1_to_second__k2_to_3();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("k0"));
+			assertThat(subject.next(), is(booleanType()));
+			assertThat(subject.readBoolean(), equalTo(true));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("k1"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("second"));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("k2"));
+			assertThat(subject.next(), is(integerType()));
+			assertThat(subject.readInteger(), equalTo(3));
 			assertThat(subject.next(), is(DICTIONARY_END));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 	}
 
-	abstract PropertyListReader newSingleDict_empty();
-	abstract PropertyListReader newSingleDict__myKey_to_hex78();
+	abstract PropertyListReader newDocumentWithDictionary__empty();
+	abstract PropertyListReader newDocumentWithDictionary__myKey_to_2098176();
+	abstract PropertyListReader newDocumentWithDictionary__myKey_to_aValue();
+	abstract PropertyListReader newDocumentWithDictionary__k0_to_true__k1_to_second__k2_to_3();
 
 	@Nested
-	class DocumentTest {
+	class DateTest {
 		@Test
-		void canReadEmptyDocument() {
-			val subject = newDocument_empty();
+		void canReadDocumentWithSingleEpochDate() {
+			val subject = newDocumentWithDate__epoch();
 			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(dateType()));
+			assertThat(subject.readDate(), equalTo(LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC)));
+			assertThat(subject.next(), is(DICTIONARY_END));
 			assertThat(subject.next(), is(DOCUMENT_END));
-		}
-
-		@Test
-		void throwsNoSuchElementExceptionAfterDocumentEndEvent() {
-			val subject = newDocument_empty();
-			subject.next(); // DOCUMENT_START
-			subject.next(); // DOCUMENT_END
-			assertThat(subject.hasNext(), equalTo(false));
-			val ex = assertThrows(NoSuchElementException.class, () -> subject.next());
-			assertThat(ex.getMessage(), equalTo("DOCUMENT_END reached: no more elements on the stream."));
 		}
 	}
 
-	abstract PropertyListReader newDocument_empty();
+	PropertyListReader.Event dateType() {
+		return DATE;
+	}
+
+	abstract PropertyListReader newDocumentWithDate__epoch();
+
+	@Nested
+	class DataTest {
+		@Test
+		void canReadDocumentWithSingleData() {
+			val subject = newDocumentWithData__c0ffee();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DATA));
+//			assertThat(subject.readData(), arrayContaining(Byte.valueOf((byte) 0xc0), Byte.valueOf((byte) 0xff), Byte.valueOf((byte) 0xee)));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+	}
+
+	abstract PropertyListReader newDocumentWithData__c0ffee();
 }

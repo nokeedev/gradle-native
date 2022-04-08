@@ -19,9 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -107,129 +104,15 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Test
-	void writesUTF8HeaderOnDocumentStart() {
+	void writesUTF8HeaderAtBeginningOfDocument() {
 		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeEndDocument();
 
 		assertThat(output(), equalTo("// !$*UTF8*$!\n"));
 	}
 
-	@Test
-	void writesNonAlphanumericStringWithQuotes() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeString("a.-?()");
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("\"a.-?()\"")));
-	}
-
-	@Test
-	void writesStringContainingTabCharacterWithQuotes() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeString("alpha\t567");
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("\"alpha\t567\"")));
-	}
-
-	@Test
-	void writesStringContainingSpaceCharacterWithQuotes() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeString("alpha 567");
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("\"alpha 567\"")));
-	}
-
-	@Test
-	void writesStringContainingNewLineCharacterWithQuotes() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeString("alpha\n567");
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("\"alpha\n567\"")));
-	}
-
-	@Test
-	void writesDictionaryWithSingleStringItem() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeStartDictionary(1);
-		subject.writeDictionaryKey("myKey");
-		subject.writeString("my value");
-		subject.writeEndDictionary();
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("{ myKey = \"my value\"; }")));
-	}
-
-	@Test
-	void writesDictionaryWithMultipleItems() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeStartDictionary(2);
-		subject.writeDictionaryKey("myKey1");
-		subject.writeInteger(42);
-		subject.writeDictionaryKey("myKey2");
-		subject.writeString("my value");
-		subject.writeEndDictionary();
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("{ myKey1 = 42; myKey2 = \"my value\"; }")));
-	}
-
-	@Test
-	void canWriteDictionaryAsDictionaryItem() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeStartDictionary(1);
-		subject.writeDictionaryKey("myKey1");
-		subject.writeStartDictionary(1);
-		subject.writeDictionaryKey("myKey2");
-		subject.writeString("my value");
-		subject.writeEndDictionary();
-		subject.writeEndDictionary();
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("{ myKey1 = { myKey2 = \"my value\"; }; }")));
-	}
-
-	@Test
-	void writesArrayWithSingleStringItem() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeStartArray(1);
-		subject.writeString("my value");
-		subject.writeEndArray();
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("( \"my value\" )")));
-	}
-
-	@Test
-	void writesArrayWithMultipleItems() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeStartArray(1);
-		subject.writeInteger(42);
-		subject.writeString("my value");
-		subject.writeEndArray();
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("( 42, \"my value\" )")));
-	}
-
-	@Test
-	void canWriteArrayAsArrayItem() {
-		subject.writeStartDocument(PropertyListVersion.VERSION_00);
-		subject.writeStartArray(2);
-		subject.writeReal(4.2f);
-		subject.writeStartArray(1);
-		subject.writeString("my value");
-		subject.writeEndArray();
-		subject.writeEndArray();
-		subject.writeEndDocument();
-
-		assertThat(output(), equalTo(withUTF8Header("( \"4.2\", ( \"my value\" ) )")));
-	}
-
 	private static String withUTF8Header(String content) {
-		return "// !$*UTF8*$!\n" + content;
+		return "// !$*UTF8*$!\n" + content + "\n";
 	}
 
 	@Override
@@ -238,74 +121,123 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Override
-	void verifySingleTrueValue() {
+	void verifyDocument__empty() {
+		assertThat(output(), equalTo("// !$*UTF8*$!\n"));
+	}
+
+	@Override
+	void verifyDocumentWithBoolean__true() {
 		assertThat(output(), equalTo(withUTF8Header("true")));
 	}
 
 	@Override
-	void verifySingleFalseValue() {
+	void verifyDocumentWithBoolean__false() {
 		assertThat(output(), equalTo(withUTF8Header("false")));
 	}
 
 	@Override
-	void verifySingleIntegerValue(int expected) {
-		assertThat(output(), equalTo(withUTF8Header(String.valueOf(expected))));
+	void verifyDocumentWithInteger__34() {
+		assertThat(output(), equalTo(withUTF8Header("34")));
 	}
 
 	@Override
-	void verifySingleRealValue(float expected) {
-		assertThat(output(), equalTo(withUTF8Header("\"" + expected + "\"")));
+	void verifyDocumentWithInteger__9216() {
+		assertThat(output(), equalTo(withUTF8Header("9216")));
 	}
 
 	@Override
-	void verifyAlphanumericWithoutSpaceString(String expected) {
-		assertThat(output(), equalTo(withUTF8Header(expected)));
+	void verifyDocumentWithInteger__541069328() {
+		assertThat(output(), equalTo(withUTF8Header("541069328")));
 	}
 
 	@Override
-	void verifyNonAlphanumericWithoutSpaceString(String expected) {
-		assertThat(output(), equalTo(withUTF8Header("\"" + expected + "\"")));
+	void verifyDocumentWithInteger__2306142076443623952() {
+		assertThat(output(), equalTo(withUTF8Header("2306142076443623952")));
 	}
 
 	@Override
-	void verifyEmptyString() {
+	void verifyDocumentWithReal__4_2() {
+		assertThat(output(), equalTo(withUTF8Header("\"4.2\"")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha567() {
+		assertThat(output(), equalTo(withUTF8Header("alpha567")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha_special_567(char special) {
+		assertThat(output(), equalTo(withUTF8Header("\"alpha" + special + "567\"")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha_underscore_567() {
+		// underscore in string does not require quoting
+		assertThat(output(), equalTo(withUTF8Header("alpha_567")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha_space_567() {
+		assertThat(output(), equalTo(withUTF8Header("\"alpha 567\"")));
+	}
+
+	@Override
+	void verifyDocumentWithString__empty() {
 		assertThat(output(), equalTo(withUTF8Header("\"\"")));
 	}
 
 	@Override
-	void verifyEmptyDictionary() {
+	void verifyDocumentWithDictionary__empty() {
 		assertThat(output(), equalTo(withUTF8Header("{}")));
 	}
 
 	@Override
-	void verifySingleIntegerElementDictionary(Map<String, Object> expected) {
-		assertThat(output(), equalTo(withUTF8Header("{ " + expected.entrySet().stream().map(it -> it.getKey() + " = " + value(it.getValue()) + ";").collect(Collectors.joining(" ")) + " }")));
+	void verifyDocumentWithDictionary__aKey_to_4608() {
+		assertThat(output(), equalTo(withUTF8Header("{ aKey = 4608; }")));
 	}
 
 	@Override
-	void verifyEmptyArray() {
+	void verifyDocumentWithDictionary__aKey_to_myValue() {
+		assertThat(output(), equalTo(withUTF8Header("{ aKey = myValue; }")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionary__k0_to_first__k1_to_2__k2_to_false() {
+		assertThat(output(), equalTo(withUTF8Header("{ k0 = first; k1 = 2; k2 = false; }")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionary__aKey_to_dictOf_myKey_to_myValue() {
+		assertThat(output(), equalTo(withUTF8Header("{ aKey = { myKey = myValue; }; }")));
+	}
+
+	@Override
+	void verifyDocumentWithArray__empty() {
 		assertThat(output(), equalTo(withUTF8Header("()")));
 	}
 
 	@Override
-	void verifyArray(Object... expectedElements) {
-		assertThat(output(), equalTo(withUTF8Header("( " + Arrays.stream(expectedElements).map(it -> value(it)).collect(Collectors.joining(", ")) + " )")));
+	void verifyDocumentWithArray__17440() {
+		assertThat(output(), equalTo(withUTF8Header("( 17440 )")));
 	}
 
 	@Override
-	void verifyEpochDate() {
+	void verifyDocumentWithArray__384_aString() {
+		assertThat(output(), equalTo(withUTF8Header("( 384, aString )")));
+	}
+
+	@Override
+	void verifyDocumentWithArray__arrayOf_0_1_2() {
+		assertThat(output(), equalTo(withUTF8Header("( ( 0, 1, 2 ) )")));
+	}
+
+	@Override
+	void verifyDocumentWithDate__epoch() {
 		assertThat(output(), equalTo(withUTF8Header("\"1970-01-01T00:00:00\"")));
 	}
 
 	@Override
-	void verifyData_BOOB() {
+	void verifyDocumentWithData__b00b() {
 		assertThat(output(), equalTo(withUTF8Header("<b00b>")));
-	}
-
-	private static String value(Object value) {
-		if (value.getClass().equals(Integer.class)) {
-			return value.toString();
-		}
-		throw new UnsupportedOperationException();
 	}
 }
