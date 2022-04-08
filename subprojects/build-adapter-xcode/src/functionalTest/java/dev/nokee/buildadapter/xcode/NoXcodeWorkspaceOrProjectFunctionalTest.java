@@ -51,7 +51,7 @@ class NoXcodeWorkspaceOrProjectFunctionalTest {
 
 	@Test
 	void mentionIssue() {
-		assertThat(result.getOutput(), containsStringIgnoringCase("no Xcode workspace were found"));
+		assertThat(result.getOutput(), containsStringIgnoringCase("no Xcode workspace or project were found"));
 	}
 
 	@Test
