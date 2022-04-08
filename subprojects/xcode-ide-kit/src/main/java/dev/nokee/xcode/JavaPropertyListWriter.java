@@ -91,8 +91,8 @@ public final class JavaPropertyListWriter implements Closeable {
 		}
 
 		public void writeObject(Object value) {
-			if (value instanceof Double) {
-				writer.writeReal((Double) value);
+			if (value instanceof Float) {
+				writer.writeReal((Float) value);
 			} else if (value instanceof Number) {
 				writer.writeInteger(((Number) value).longValue());
 			} else if (value instanceof String) {

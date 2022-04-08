@@ -155,21 +155,11 @@ class JavaPropertyListWriterJavaObjectSerializationTest {
 
 	@Test
 	void writesJavaFloatAsReal() {
-		subject.writeDocument(VERSION_00, it -> it.writeObject(Float.valueOf(2.2f)));
+		subject.writeDocument(VERSION_00, it -> it.writeObject(2.2f));
 
 		val inOrder = Mockito.inOrder(writer);
 		inOrder.verify(writer).writeStartDocument(VERSION_00);
 		inOrder.verify(writer).writeReal(2.2f);
-		inOrder.verify(writer).writeEndDocument();
-	}
-
-	@Test
-	void writesJavaDoubleAsReal() {
-		subject.writeDocument(VERSION_00, it -> it.writeObject(Double.valueOf(3.2)));
-
-		val inOrder = Mockito.inOrder(writer);
-		inOrder.verify(writer).writeStartDocument(VERSION_00);
-		inOrder.verify(writer).writeReal(3.2);
 		inOrder.verify(writer).writeEndDocument();
 	}
 

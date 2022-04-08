@@ -255,7 +255,7 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 	}
 
 	@Override
-	public double readReal() {
+	public float readReal() {
 		throw new UnsupportedOperationException();
 	}
 
