@@ -48,5 +48,5 @@ public interface PropertyListReader extends Closeable {
 	boolean readBoolean();
 	String readString();
 	long readInteger();
-	double readReal();
+	float readReal();
 }
