@@ -20,9 +20,6 @@ import org.junit.jupiter.api.Test;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
@@ -89,78 +86,122 @@ class XmlPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Override
-	void verifySingleTrueValue() {
+	void verifyDocument__empty() {
+		assertThat(output(), equalTo(withHeader("")));
+	}
+
+	@Override
+	void verifyDocumentWithBoolean__true() {
 		assertThat(output(), equalTo(withHeader("<true/>")));
 	}
 
 	@Override
-	void verifySingleFalseValue() {
+	void verifyDocumentWithBoolean__false() {
 		assertThat(output(), equalTo(withHeader("<false/>")));
 	}
 
 	@Override
-	void verifySingleIntegerValue(int expected) {
-		assertThat(output(), equalTo(withHeader("<integer>" + expected + "</integer>")));
+	void verifyDocumentWithInteger__34() {
+		assertThat(output(), equalTo(withHeader("<integer>34</integer>")));
 	}
 
 	@Override
-	void verifySingleRealValue(float expected) {
-		assertThat(output(), equalTo(withHeader("<real>" + expected + "</real>")));
+	void verifyDocumentWithInteger__9216() {
+		assertThat(output(), equalTo(withHeader("<integer>9216</integer>")));
 	}
 
 	@Override
-	void verifyAlphanumericWithoutSpaceString(String expected) {
-		assertThat(output(), equalTo(withHeader("<string>" + expected + "</string>")));
+	void verifyDocumentWithInteger__541069328() {
+		assertThat(output(), equalTo(withHeader("<integer>541069328</integer>")));
 	}
 
 	@Override
-	void verifyNonAlphanumericWithoutSpaceString(String expected) {
-		assertThat(output(), equalTo(withHeader("<string>" + expected + "</string>")));
+	void verifyDocumentWithInteger__2306142076443623952() {
+		assertThat(output(), equalTo(withHeader("<integer>2306142076443623952</integer>")));
 	}
 
 	@Override
-	void verifyEmptyString() {
+	void verifyDocumentWithReal__4_2() {
+		assertThat(output(), equalTo(withHeader("<real>4.2</real>")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha567() {
+		assertThat(output(), equalTo(withHeader("<string>alpha567</string>")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha_special_567(char special) {
+		assertThat(output(), equalTo(withHeader("<string>alpha" + special + "567</string>")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha_underscore_567() {
+		assertThat(output(), equalTo(withHeader("<string>alpha_567</string>")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha_space_567() {
+		assertThat(output(), equalTo(withHeader("<string>alpha 567</string>")));
+	}
+
+	@Override
+	void verifyDocumentWithString__empty() {
 		assertThat(output(), equalTo(withHeader("<string></string>")));
 	}
 
 	@Override
-	void verifyEmptyDictionary() {
+	void verifyDocumentWithDictionary__empty() {
 		assertThat(output(), equalTo(withHeader("<dict/>")));
 	}
 
 	@Override
-	void verifySingleIntegerElementDictionary(Map<String, Object> expected) {
-		assertThat(output(), equalTo(withHeader("<dict>" + expected.entrySet().stream().map(it -> key(it.getKey()) + value(it.getValue())).collect(Collectors.joining()) + "</dict>")));
+	void verifyDocumentWithDictionary__aKey_to_4608() {
+		assertThat(output(), equalTo(withHeader("<dict><key>aKey</key><integer>4608</integer></dict>")));
 	}
 
 	@Override
-	void verifyEmptyArray() {
+	void verifyDocumentWithDictionary__aKey_to_myValue() {
+		assertThat(output(), equalTo(withHeader("<dict><key>aKey</key><string>myValue</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionary__k0_to_first__k1_to_2__k2_to_false() {
+		assertThat(output(), equalTo(withHeader("<dict><key>k0</key><string>first</string><key>k1</key><integer>2</integer><key>k2</key><false/></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionary__aKey_to_dictOf_myKey_to_myValue() {
+		assertThat(output(), equalTo(withHeader("<dict><key>aKey</key><dict><key>myKey</key><string>myValue</string></dict></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithArray__empty() {
 		assertThat(output(), equalTo(withHeader("<array/>")));
 	}
 
 	@Override
-	void verifyArray(Object... expectedElements) {
-		assertThat(output(), equalTo(withHeader("<array>" + Arrays.stream(expectedElements).map(it -> value(it)).collect(Collectors.joining()) + "</array>")));
+	void verifyDocumentWithArray__17440() {
+		assertThat(output(), equalTo(withHeader("<array><integer>17440</integer></array>")));
 	}
 
 	@Override
-	void verifyEpochDate() {
+	void verifyDocumentWithArray__384_aString() {
+		assertThat(output(), equalTo(withHeader("<array><integer>384</integer><string>aString</string></array>")));
+	}
+
+	@Override
+	void verifyDocumentWithArray__arrayOf_0_1_2() {
+		assertThat(output(), equalTo(withHeader("<array><array><integer>0</integer><integer>1</integer><integer>2</integer></array></array>")));
+	}
+
+	@Override
+	void verifyDocumentWithDate__epoch() {
 		assertThat(output(), equalTo(withHeader("<date>1970-01-01T00:00:00</date>")));
 	}
 
 	@Override
-	void verifyData_BOOB() {
+	void verifyDocumentWithData__b00b() {
 		assertThat(output(), equalTo(withHeader("<data>sAs=</data>")));
-	}
-
-	private static String key(String value) {
-		return "<key>" + value + "</key>";
-	}
-
-	private static String value(Object value) {
-		if (value.getClass().equals(Integer.class)) {
-			return "<integer>" + value + "</integer>";
-		}
-		throw new UnsupportedOperationException();
 	}
 }
