@@ -136,6 +136,16 @@ class XmlPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Override
+	void verifyDocumentWithString__alpha_slash_567() {
+		assertThat(output(), equalTo(withHeader("<string>alpha/567</string>")));
+	}
+
+	@Override
+	void verifyDocumentWithString__alpha_dot_567() {
+		assertThat(output(), equalTo(withHeader("<string>alpha.567</string>")));
+	}
+
+	@Override
 	void verifyDocumentWithString__alpha_underscore_567() {
 		assertThat(output(), equalTo(withHeader("<string>alpha_567</string>")));
 	}

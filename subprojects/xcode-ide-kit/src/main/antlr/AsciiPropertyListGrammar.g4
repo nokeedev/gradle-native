@@ -22,11 +22,13 @@ arrayElementList: value (',' value)* ','?;
 // TODO: Add support for data field
 
 string: STRING | QUOTED_STRING;
-STRING: (AlphaLetter | Underscore | Digit)+;
+STRING: (AlphaLetter | Underscore | Dot | ForwardSlash | Digit)+;
 QUOTED_STRING: '"' .*? '"';
 fragment Underscore: '_';
 fragment AlphaLetter: [a-zA-Z];
 fragment Digit: [0-9];
+fragment Dot: '.';
+fragment ForwardSlash: '/';
 
 // We ignore comments as we don't have a need to understand them
 COMMENT: '/*' .*? '*/' -> skip;

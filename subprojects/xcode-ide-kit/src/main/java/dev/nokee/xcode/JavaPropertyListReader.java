@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.val;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
@@ -35,7 +37,7 @@ import static dev.nokee.xcode.PropertyListReader.Event.DOCUMENT_END;
 import static dev.nokee.xcode.PropertyListReader.Event.DOCUMENT_START;
 import static dev.nokee.xcode.PropertyListReader.Event.STRING;
 
-public final class JavaPropertyListReader {
+public final class JavaPropertyListReader implements Closeable {
 	private final PropertyListReader reader;
 	private final ValueReader valueReader = new ValueReader();
 	private final ContextPath contextPath = new ContextPath();
@@ -48,6 +50,11 @@ public final class JavaPropertyListReader {
 		assertNextTag(DOCUMENT_START);
 		action.accept(valueReader);
 		assertNextTag(DOCUMENT_END);
+	}
+
+	@Override
+	public void close() throws IOException {
+		reader.close();
 	}
 
 	public final class ValueReader {
