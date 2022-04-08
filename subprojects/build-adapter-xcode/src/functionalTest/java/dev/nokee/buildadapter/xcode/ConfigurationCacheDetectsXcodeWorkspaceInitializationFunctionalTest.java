@@ -49,7 +49,7 @@ class ConfigurationCacheDetectsXcodeWorkspaceInitializationFunctionalTest {
 
 	@Test
 	void doesNotReuseConfigurationCacheWhenWorkspaceAppears() {
-		new EmptyXCWorkspace("Test").writeToProject(testDirectory.toFile());
+		new EmptyXCWorkspace("Test").writeToProject(testDirectory);
 		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 }

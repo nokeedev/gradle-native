@@ -19,6 +19,7 @@ import dev.gradleplugins.fixtures.sources.SourceElement;
 import dev.gradleplugins.fixtures.sources.SourceFile;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,5 +56,9 @@ public final class EmptyXCWorkspace extends SourceElement {
 		for (SourceFile sourceFile : getFiles()) {
 			sourceFile.writeToDirectory(projectDir);
 		}
+	}
+
+	public void writeToProject(Path projectDirectory) {
+		writeToProject(projectDirectory.toFile());
 	}
 }

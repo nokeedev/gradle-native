@@ -43,8 +43,8 @@ class XcodeWorkspaceToGradleProjectMappingFunctionalTest {
 
 	@Test
 	void canIncludeSingleXcodeProject() throws IOException {
-		new XCWorkspaceElement("App", "App").writeToProject(testDirectory.toFile());
-		new EmptyXCProject("App").writeToProject(testDirectory.toFile());
+		new XCWorkspaceElement("App", "App").writeToProject(testDirectory);
+		new EmptyXCProject("App").writeToProject(testDirectory);
 		assertVerifyTask(
 			"project.allprojects.size() == 2", // rootProject + :App
 			"project.allprojects.stream().anyMatch { it.path.equals(\":App\") }"
@@ -54,9 +54,9 @@ class XcodeWorkspaceToGradleProjectMappingFunctionalTest {
 
 	@Test
 	void canIncludeMultipleXcodeProjects() throws IOException {
-		new XCWorkspaceElement("App", "App", "Lib").writeToProject(testDirectory.toFile());
-		new EmptyXCProject("App").writeToProject(testDirectory.toFile());
-		new EmptyXCProject("Lib").writeToProject(testDirectory.toFile());
+		new XCWorkspaceElement("App", "App", "Lib").writeToProject(testDirectory);
+		new EmptyXCProject("App").writeToProject(testDirectory);
+		new EmptyXCProject("Lib").writeToProject(testDirectory);
 		assertVerifyTask(
 			"project.allprojects.size() == 3", // rootProject + :App + :Lib
 			"project.allprojects.stream().anyMatch { it.path.equals(\":App\") }",
@@ -67,9 +67,9 @@ class XcodeWorkspaceToGradleProjectMappingFunctionalTest {
 
 	@Test
 	void canIncludeNestedXcodeProjects() throws IOException {
-		new XCWorkspaceElement("App", "App", "libs/Common").writeToProject(testDirectory.toFile());
-		new EmptyXCProject("App").writeToProject(testDirectory.toFile());
-		new EmptyXCProject("Common").writeToProject(testDirectory.resolve("libs").toFile());
+		new XCWorkspaceElement("App", "App", "libs/Common").writeToProject(testDirectory);
+		new EmptyXCProject("App").writeToProject(testDirectory);
+		new EmptyXCProject("Common").writeToProject(testDirectory.resolve("libs"));
 		assertVerifyTask(
 			"project.allprojects.size() == 4", // rootProject + :App + :libs + :libs:Common
 			"project.allprojects.stream().anyMatch { it.path.equals(\":App\") }",
