@@ -20,6 +20,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -42,7 +43,7 @@ public final class XmlPropertyListWriter implements PropertyListWriter, AutoClos
 	@Override
 	public void writeStartDocument(PropertyListVersion version) {
 		run(() -> {
-			delegate.writeStartDocument();
+			delegate.writeStartDocument(StandardCharsets.UTF_8.name(), "1.0");
 			delegate.writeDTD("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">");
 			delegate.writeStartElement("plist");
 			delegate.writeAttribute("version", "1.0");
