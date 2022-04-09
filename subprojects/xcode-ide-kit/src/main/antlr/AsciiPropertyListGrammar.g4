@@ -14,7 +14,7 @@ value: dict | string | array;
 
 dict: '{' dictKeyValuePair* '}';
 dictKeyValuePair: dictKey '=' value ';';
-dictKey: STRING COMMENT?;
+dictKey: (STRING | QUOTED_STRING);
 
 array: '(' arrayElementList* ')';
 arrayElementList: value (',' value)* ','?;

@@ -29,6 +29,9 @@ import java.util.stream.Stream;
 
 import static dev.nokee.xcode.PropertyListReader.Event.ARRAY_END;
 import static dev.nokee.xcode.PropertyListReader.Event.ARRAY_START;
+import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_END;
+import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_KEY;
+import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_START;
 import static dev.nokee.xcode.PropertyListReader.Event.DOCUMENT_END;
 import static dev.nokee.xcode.PropertyListReader.Event.DOCUMENT_START;
 import static dev.nokee.xcode.PropertyListReader.Event.STRING;
@@ -79,6 +82,19 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 		assertThat(subject.next(), is(STRING));
 		assertThat(subject.readString(), equalTo("c"));
 		assertThat(subject.next(), is(ARRAY_END));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void canReadDocumentWithDictionaryContainingQuotedKey() {
+		val subject = newReader("{ \"CODE_SIGN_IDENTITY[sdk=appletvos*]\" = \"iPhone Developer\"; }");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(DICTIONARY_START));
+		assertThat(subject.next(), is(DICTIONARY_KEY));
+		assertThat(subject.readDictionaryKey(), equalTo("CODE_SIGN_IDENTITY[sdk=appletvos*]"));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("iPhone Developer"));
+		assertThat(subject.next(), is(DICTIONARY_END));
 		assertThat(subject.next(), is(DOCUMENT_END));
 	}
 
