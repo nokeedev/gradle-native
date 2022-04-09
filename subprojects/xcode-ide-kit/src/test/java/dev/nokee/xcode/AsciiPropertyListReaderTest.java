@@ -344,7 +344,7 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 
 	@Override
 	PropertyListReader newDocumentWithArray__arrayOf_4_5_6() {
-		return newReader(withUTF8Header("( 4, 5, 6 )"));
+		return newReader(withUTF8Header("( ( 4, 5, 6 ) )"));
 	}
 
 	@Override
