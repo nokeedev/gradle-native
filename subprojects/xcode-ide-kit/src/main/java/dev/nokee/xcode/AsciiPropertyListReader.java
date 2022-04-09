@@ -25,8 +25,12 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public final class AsciiPropertyListReader implements PropertyListReader {
 	private final Reader delegate;
@@ -151,7 +155,103 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 
 		@Override
 		public String readString() {
-			return unquoteIfRequired(v.getText());
+			return unquoteIfRequired(unescapeString(v.getText()));
+		}
+	}
+
+	private static String unescapeString(String s) {
+		final StringBuilder builder = new StringBuilder();
+		new CodePointIterator(s).forEachRemaining(builder::appendCodePoint);
+		return builder.toString();
+	}
+
+	private static final class CodePointIterator implements Iterator<Integer> {
+		private final StringCharacterIterator iterator;
+		private Integer next;
+
+		public CodePointIterator(String s) {
+			iterator = new StringCharacterIterator(s);
+			next = findNext(iterator.current());
+		}
+
+		private Integer findNext(char c) {
+			if (c == CharacterIterator.DONE) {
+				return null;
+			}
+
+			if (c == '\\') {
+				return parseEscapeSequence();
+			} else {
+				return (int) c;
+			}
+		}
+
+		private int parseEscapeSequence() {
+			final char c = iterator.next();
+			switch (c) {
+				case '\\':
+				case '"':
+				case '\'':
+					return c;
+				case 'u':
+				case 'U':
+					return parseHexUnicodeSequence();
+				case 'b': return '\b';
+				case 'n': return '\n';
+				case 'r': return '\r';
+				case 't': return '\t';
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+					return parseOctalUnicodeSequence(c);
+				default:
+					throw new IllegalStateException("invalid escape sequence \\" + c);
+			}
+		}
+
+		private int parseHexUnicodeSequence() {
+			// grab 4 hex digit to build Unicode value
+			char unicodeValueOrHighSurrogate = parseHex(iterator.next(), iterator.next(), iterator.next(), iterator.next());
+			if (Character.isHighSurrogate(unicodeValueOrHighSurrogate)) {
+				char unicodeLowSurrogate = (char) Objects.requireNonNull(findNext(iterator.next())).intValue();
+				if (Character.isLowSurrogate(unicodeLowSurrogate)) {
+					return Character.toCodePoint(unicodeValueOrHighSurrogate, unicodeLowSurrogate);
+				} else {
+					throw new IllegalStateException("not low surrogate");
+				}
+			} else {
+				return unicodeValueOrHighSurrogate;
+			}
+		}
+
+		private static char parseHex(char d3, char d2, char d1, char d0) {
+			String digits = new String(new char[] { d3, d2, d1, d0 });
+			return (char) Integer.parseInt(digits, 16);
+		}
+
+		private char parseOctalUnicodeSequence(char firstDigit) {
+			// grab 3 octal digit to build Unicode value
+			String unicodeValue = new String(new char[] { firstDigit, iterator.next(), iterator.next() });
+			return (char) Integer.parseInt(unicodeValue, 8);
+		}
+
+		public boolean hasNext() {
+			return next != null;
+		}
+
+		@Override
+		public Integer next() {
+			if (next == null) {
+				throw new NoSuchElementException();
+			}
+			Integer result = next;
+			next = findNext(iterator.next());
+			return result;
 		}
 	}
 

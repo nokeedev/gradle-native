@@ -17,6 +17,8 @@ package dev.nokee.xcode;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
@@ -77,6 +79,161 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 		assertThat(subject.next(), is(STRING));
 		assertThat(subject.readString(), equalTo("c"));
 		assertThat(subject.next(), is(ARRAY_END));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@ParameterizedTest
+	@ValueSource(chars = { 'u', 'U' })
+	void unescapesUnicodeCharacters_heartEyeEmoji(char u) {
+		val subject = newReader("\"\\" + u + "d83d\\" + u + "de0d\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\ud83d\ude0d"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@ParameterizedTest
+	@ValueSource(chars = { 'u', 'U' })
+	void unescapesUnicodeCharacters_plusMinus(char u) {
+		val subject = newReader("\"\\" + u + "00b1\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\u00b1"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_backslash() {
+		val subject = newReader("\"c:\\\\my\\\\path.txt\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("c:\\my\\path.txt"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_newline() {
+		val subject = newReader("\"My multi\\nline text\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("My multi\nline text"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_carriageReturn() {
+		val subject = newReader("\"My multi\\rline text\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("My multi\rline text"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_tab() {
+		val subject = newReader("\"Name\\tValue\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("Name\tValue"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_backspace() {
+		val subject = newReader("\"Hey\\b\\b\\bOh\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("Hey\b\b\bOh"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_doubleQuote() {
+		val subject = newReader("\"Mister \\\"the man\\\" X.\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("Mister \"the man\" X."));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_singleQuote() {
+		val subject = newReader("\"Mister \\'the man\\' X.\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("Mister 'the man' X."));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_octalStartsWith0() {
+		val subject = newReader("\"\\010\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\b"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_octalStartsWith1() {
+		val subject = newReader("\"\\106\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("F"));
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_octalStartsWith2() {
+		val subject = newReader("\"\\220\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\u0090")); // capital letter e with acute
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_octalStartsWith3() {
+		val subject = newReader("\"\\317\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\u00cf")); // single up and double horizontal
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_octalStartsWith4() {
+		val subject = newReader("\"\\447\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\u0127")); // latin small letter h with stroke
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_octalStartsWith5() {
+		val subject = newReader("\"\\556\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\u016e")); // latin capital letter u with ring above
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_octalStartsWith6() {
+		val subject = newReader("\"\\612\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\u018a")); // latin capital letter d with hook
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_octalStartsWith7() {
+		val subject = newReader("\"\\735\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\u01dd")); // latin small letter turned e
 		assertThat(subject.next(), is(DOCUMENT_END));
 	}
 
