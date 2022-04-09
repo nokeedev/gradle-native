@@ -306,6 +306,11 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 		public String readDictionaryKey() {
 			return unquoteIfRequired(v.getText());
 		}
+
+		@Override
+		public String readString() {
+			throw new UnsupportedOperationException("Use readDictionaryKey instead of readString because although a dictionary key in ASCII format are string, both differ in meaning.");
+		}
 	}
 
 	@Override
