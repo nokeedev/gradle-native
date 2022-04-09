@@ -341,7 +341,7 @@ abstract class PropertyListReaderTester {
 			assertThat(subject.next(), is(DICTIONARY_KEY));
 			assertThat(subject.readDictionaryKey(), equalTo("k2"));
 			assertThat(subject.next(), is(integerType()));
-			assertThat(subject.readInteger(), equalTo(3));
+			assertThat(subject.readInteger(), equalTo(3L));
 			assertThat(subject.next(), is(DICTIONARY_END));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
