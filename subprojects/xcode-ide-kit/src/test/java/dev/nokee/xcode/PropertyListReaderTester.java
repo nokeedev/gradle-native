@@ -38,7 +38,6 @@ import static dev.nokee.xcode.PropertyListReader.Event.DOCUMENT_START;
 import static dev.nokee.xcode.PropertyListReader.Event.INTEGER;
 import static dev.nokee.xcode.PropertyListReader.Event.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -178,7 +177,7 @@ abstract class PropertyListReaderTester {
 		}
 
 		@Test
-		void canWriteDocumentWithSingleAlphanumericStringWithForwardSlashCharacter() {
+		void canReadDocumentWithSingleAlphanumericStringWithForwardSlashCharacter() {
 			val subject = newDocumentWithString__beta_slash_456();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(STRING));
@@ -187,7 +186,7 @@ abstract class PropertyListReaderTester {
 		}
 
 		@Test
-		void canWriteDocumentWithSingleAlphanumericStringWithDotCharacter() {
+		void canReadDocumentWithSingleAlphanumericStringWithDotCharacter() {
 			val subject = newDocumentWithString__beta_dot_456();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(STRING));
@@ -196,7 +195,7 @@ abstract class PropertyListReaderTester {
 		}
 
 		@Test
-		void canWriteDocumentWithSingleAlphanumericStringWithUnderscoreCharacter() {
+		void canReadDocumentWithSingleAlphanumericStringWithUnderscoreCharacter() {
 			val subject = newDocumentWithString__beta_underscore_456();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(STRING));
