@@ -23,7 +23,7 @@ arrayElementList: value (',' value)* ','?;
 
 string: STRING | QUOTED_STRING;
 STRING: (AlphaLetter | Underscore | Dot | ForwardSlash | Digit)+;
-QUOTED_STRING: '"' .*? '"';
+QUOTED_STRING: '"' ( '\\"' | . )*? '"';
 fragment Underscore: '_';
 fragment AlphaLetter: [a-zA-Z];
 fragment Digit: [0-9];
