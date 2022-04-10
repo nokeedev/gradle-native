@@ -4,34 +4,153 @@ grammar AsciiPropertyListGrammar;
 package dev.nokee.xcode.internal;
 }
 
-document: value?;
+document
+	:	value?
+	;
 
 // Note: date, real, integer and boolean are considered as string
 // Apple mention that "numbers are handled as strings" (see https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/PropertyLists/OldStylePlists/OldStylePLists.html#//apple_ref/doc/uid/20001012-BBCBDBJE)
 // Nokee team expanded the mention and will also treat date, real, integer, and boolean as strings.
 // There is no example of those type used in the old-style ASCII property lists.
-value: dict | string | array;
+value
+	:	dict
+	|	data
+	|	string
+	|	array
+	;
 
-dict: '{' dictKeyValuePair* '}';
-dictKeyValuePair: dictKey '=' value ';';
-dictKey: (STRING | QUOTED_STRING);
+dict
+	:	'{' dictKeyValuePair* '}'
+	;
 
-array: '(' arrayElementList* ')';
-arrayElementList: value (',' value)* ','?;
+dictKeyValuePair
+	:	dictKey '=' value ';'
+	;
 
-// TODO: Add support for data field
+dictKey
+	:	StringLiteral
+	;
 
-string: STRING | QUOTED_STRING;
-STRING: (AlphaLetter | Underscore | Dot | ForwardSlash | Digit)+;
-QUOTED_STRING: '"' ( '\\"' | . )*? '"';
-fragment Underscore: '_';
-fragment AlphaLetter: [a-zA-Z];
-fragment Digit: [0-9];
-fragment Dot: '.';
-fragment ForwardSlash: '/';
+array
+	:	'(' (arrayElementList ','?)? ')'
+	;
+
+arrayElementList
+	:	value (',' value)*
+	;
+
+data
+	:	DataLiteral
+	;
+
+string
+	:	StringLiteral
+	;
+
+
+
+
+fragment
+HexDigits
+	:	HexDigit+
+	;
+
+fragment
+HexDigit
+	:	[0-9a-fA-F]
+	;
+
+fragment
+OctalDigit
+	:	[0-7]
+	;
+
+
+
+
+DataLiteral
+	:	'<' ByteCharacters? '>'
+	;
+
+fragment
+Bytes
+	:	HexDigits ( ' ' HexDigits )*
+	;
+
+fragment
+ByteCharacters
+	:	ByteCharacter+
+	;
+
+fragment
+ByteCharacter
+	:	HexDigit
+	|	' '
+	;
+
+
+
+
+StringLiteral
+	:	('"' QuoteRequireStringCharacters? '"')
+	|	QuoteOptionalStringCharacters+
+	;
+
+fragment
+QuoteRequireStringCharacters
+	:	QuoteRequireStringCharacter+
+	;
+
+// TODO: Test { "key" = "value"; }
+fragment
+QuoteRequireStringCharacter
+	:	~[\\\r\n"]
+	|	EscapeSequence
+	;
+
+fragment
+QuoteOptionalStringCharacters
+	:	QuoteOptionalStringCharacter+
+	;
+
+fragment
+QuoteOptionalStringCharacter
+	:	[a-zA-Z0-9./_]
+	;
+
+
+// NOTE: single quote escaping support is defensive only
+// TODO: Should support escaping \a
+// TODO: Should support escaping \v
+fragment
+EscapeSequence
+	:	'\\' [btnfr"'\\]
+	|	OctalEscape
+	|	UnicodeEscape
+	;
+
+fragment
+OctalEscape
+	:	'\\' OctalDigit
+	|	'\\' OctalDigit OctalDigit
+	|	'\\' ZeroToThree OctalDigit OctalDigit
+	;
+
+fragment
+ZeroToThree
+	:	[0-3]
+	;
+
+fragment
+UnicodeEscape
+	:	'\\' ('u' | 'U' ) HexDigit HexDigit HexDigit HexDigit
+	;
+
+
+
 
 // We ignore comments as we don't have a need to understand them
-COMMENT: '/*' .*? '*/' -> skip;
-LINE_COMMENT: '//' ~[\r\n]* -> skip;
+COMMENT:	'/*' .*? '*/' -> skip;
+LINE_COMMENT:	'//' ~[\r\n]* -> skip;
 
-OTHER: . -> skip;
+OTHER:	. -> skip;

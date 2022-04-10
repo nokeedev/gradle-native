@@ -1,0 +1,126 @@
+// This single file includes all data format the ASCII plist format should parse.
+// See unit tests for automatic testing of these data format.
+(
+	/* TEST: Dictionary */
+	(
+		{ "key" = "value"; },
+	),
+
+	/* TEST: Boolean */
+	(
+		/* TEST: boolean true */
+		(
+			true	/* string */,
+			yes		/* string */,
+			on		/* string */,
+			"true"	/* string */,
+			"YES"	/* string */,
+			"ON"	/* string */,
+			1		/* string */,
+		),
+
+		/* TEST: boolean false */
+		(
+			false	/* string */,
+			no		/* string */,
+			off		/* string */,
+			"false"	/* string */,
+			"NO"	/* string */,
+			"OFF"	/* string */,
+			0		/* string */,
+		),
+
+		/* TEST: boolean as dictionary key */
+		{
+			true 	/* string */ = ignored;
+			"false" /* string */ = ignored;
+			ON 		/* string */ = ignored;
+			"off" 	/* string */ = ignored;
+			1 		/* string */ = ignored;
+		},
+	),
+
+	/* TEST: Array */
+	(
+		()										/* empty */,
+		( 1, 2, 3, )							/* additional item separator */,
+		( ( a, b, c ), ( 1, 2, 3 ) )			/* nesting */,
+		( foo, "bar", 123, 4.56, <34224fbc> )	/* any value */,
+	),
+
+	/* TEST: Real */
+	(
+		4.2			/* string */,
+		"4.2"		/* string */,
+		"4.2e+20"	/* scientific notation */,
+	),
+
+	/* TEST: Integer */
+	(
+		3421	/* string */,
+		"3421"	/* string */,
+		-342	/* string */,
+		"-342"	/* string */,
+	),
+
+	/* TEST: Data */
+	(
+		<> 		/* empty */,
+
+		/* string vs data delimiter */
+		(
+			"0343 d34d f343 df34"	/* string */,
+			<0343 d34d f343 df34>	/* data */,
+		),
+		<012394857afbcde>	/* data */,
+		<01 23 42 94 cd fe>	/* data split by 2 bytes */,
+		<0 1 2 3 4 2 9 4 c>	/* data split by 1 bytes */,
+		<0 12 3429 4cd fe>	/* data split by uneven bytes */,
+		<  0123429 4cd	>	/* data with front and back spaces */,
+	),
+
+	/* TEST: String */
+	(
+		""			/* empty */,
+
+		/* TEST: Quote optional strings */
+		(
+			fooBar 	/* alpha only */,
+			foo456 	/* alpha followed by numeric */,
+			foo.bar /* with dot */,
+			foo_bar /* with underscore */,
+			foo/bar /* with forward slash */,
+			456foo 	/* numeric followed by alpha */,
+		),
+
+		/* TEST: Quote required strings */
+		(
+			"fooBar"			/* quoted alpha only */,
+			"foo456"			/* quoted alpha followed by numeric */,
+			"foo.bar"			/* quoted with dot */,
+			"foo_bar"			/* quoted with underscore */,
+			"foo/bar"			/* quoted with forward slash */,
+			"456foo"			/* quoted numeric followed by alpha */,
+			"foo bar"			/* with space */,
+			"foo()"				/* with parentheses */,
+			"foo[]"				/* with bracket */,
+			"foo?"				/* with question mark */,
+			"foo!"				/* with exclamation mark */,
+			"foo*"				/* with asterisk */,
+			"foo\\b"			/* with escaped backspace */,
+			"foo\\\\"			/* with escaped backslash */,
+			"foo\\r"			/* with escaped return cartage */,
+			"foo\\n"			/* with escaped new line */,
+			"foo\\t"			/* with escaped tab */,
+			"foo\\""			/* with escaped double quote */,
+			"foo\\'"			/* with escaped single quote */,
+			"foo\\f"			/* with escaped form feed */,
+			"foo\\u00e9"		/* with escaped UTF-16 1-byte character */,
+			"foo\\Ud83d\\uddfa"	/* with escaped UTF-16 2-bytes character */,
+			"foo\\012"			/* with escaped ASCII starting with octal-0 */,
+			"foo\\123"			/* with escaped ASCII starting with octal-1 */,
+			"foo\\234"			/* with escaped ASCII starting with octal-2 */,
+			"foo\\345"			/* with escaped ASCII starting with octal-3 */,
+		),
+	),
+)
