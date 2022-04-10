@@ -15,6 +15,7 @@
  */
 package nokeebuild;
 
+import org.gradle.api.Named;
 import org.gradle.api.Project;
 import org.gradle.api.file.Directory;
 import org.gradle.api.provider.Provider;
@@ -22,8 +23,9 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.process.CommandLineArgumentProvider;
 
 import java.util.Collections;
+import java.util.Objects;
 
-final class TestKitDirectoryArgumentProvider implements CommandLineArgumentProvider {
+final class TestKitDirectoryArgumentProvider implements CommandLineArgumentProvider, Named {
 	private final Provider<Directory> testKitDirectory;
 
 	TestKitDirectoryArgumentProvider(Project project) {
@@ -38,5 +40,23 @@ final class TestKitDirectoryArgumentProvider implements CommandLineArgumentProvi
 	@Override
 	public Iterable<String> asArguments() {
 		return Collections.singletonList("-Dorg.gradle.testkit.dir=" + testKitDirectory.get().getAsFile().getAbsolutePath());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		return o instanceof TestKitDirectoryArgumentProvider;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getClass());
+	}
+
+	@Override
+	public String getName() {
+		return "testKitDirectory";
 	}
 }
