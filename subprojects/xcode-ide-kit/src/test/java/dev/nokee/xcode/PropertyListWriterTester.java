@@ -23,9 +23,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-
 abstract class PropertyListWriterTester {
 	abstract PropertyListWriter subject();
 
@@ -136,7 +133,7 @@ abstract class PropertyListWriterTester {
 		}
 
 		@ParameterizedTest
-		@ValueSource(chars = {'-', '?', '!', '(', ')'})
+		@ValueSource(chars = {'?', '!', '(', ')', '[', ']', '{', '}'})
 		void canWriteDocumentWithSingleSpecialCharacterString(char specialChar) {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha" + specialChar + "567");
@@ -173,6 +170,33 @@ abstract class PropertyListWriterTester {
 		}
 
 		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithDollarSignCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeString("alpha$567");
+			subject().writeEndDocument();
+
+			verifyDocumentWithString__alpha_dollarSign_567();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithColonCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeString("alpha:567");
+			subject().writeEndDocument();
+
+			verifyDocumentWithString__alpha_colon_567();
+		}
+
+		@Test
+		void canWriteDocumentWithSingleAlphanumericStringWithDashCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeString("alpha-567");
+			subject().writeEndDocument();
+
+			verifyDocumentWithString__alpha_dash_567();
+		}
+
+		@Test
 		void canWriteDocumentWithSingleAlphanumericStringWithSpace() {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha 567");
@@ -196,6 +220,9 @@ abstract class PropertyListWriterTester {
 	abstract void verifyDocumentWithString__alpha_slash_567();
 	abstract void verifyDocumentWithString__alpha_dot_567();
 	abstract void verifyDocumentWithString__alpha_underscore_567();
+	abstract void verifyDocumentWithString__alpha_dollarSign_567();
+	abstract void verifyDocumentWithString__alpha_colon_567();
+	abstract void verifyDocumentWithString__alpha_dash_567();
 	abstract void verifyDocumentWithString__alpha_space_567();
 	abstract void verifyDocumentWithString__empty();
 

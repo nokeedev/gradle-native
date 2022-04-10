@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.Stack;
 import java.util.stream.IntStream;
 
+import static java.lang.Character.isAlphabetic;
+import static java.lang.Character.isDigit;
+
 public final class AsciiPropertyListWriter implements PropertyListWriter {
 	private static final char NEW_LINE_CHAR = '\n';
 	private final Stack<Context> contexts = new Stack<>();
@@ -198,13 +201,18 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 		writeString(String.valueOf(b)); // educated guess
 	}
 
+	private static boolean isValidUnquotedStringCharacter(int x) {
+		// see https://opensource.apple.com/source/CF/CF-1153.18/CFOldStylePList.c for a macro of the same name
+		return isAlphabetic(x) || isDigit(x) || x == '_' || x == '$' || x == '/' || x == ':' || x == '.' || x == '-';
+	}
+
 	@Override
 	public void writeString(CharSequence s) {
 		run(() -> {
 			doEnterContext(Context.STRING);
 
 			// Note: Quotes are optional around String if and only if the all chars are either alphanumeric or underscore
-			if (s.length() > 0 && s.chars().allMatch(it -> Character.isAlphabetic(it) || Character.isDigit(it) || it == '_')) {
+			if (s.length() > 0 && s.chars().allMatch(AsciiPropertyListWriter::isValidUnquotedStringCharacter)) {
 				delegate.write(s.toString());
 			} else {
 				delegate.write("\"");

@@ -205,6 +205,33 @@ abstract class PropertyListReaderTester {
 		}
 
 		@Test
+		void canReadDocumentWithSingleAlphanumericStringWithDollarSignCharacter() {
+			val subject = newDocumentWithString__beta_dollarSign_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("beta$456"));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithSingleAlphanumericStringWithDashCharacter() {
+			val subject = newDocumentWithString__beta_dash_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("beta-456"));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithSingleAlphanumericStringWithColonCharacter() {
+			val subject = newDocumentWithString__beta_colon_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("beta:456"));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
 		void canReadDocumentWithSingleAlphanumericStringWithSpace() {
 			val subject = newDocumentWithString__beta_space_456();
 			assertThat(subject.next(), is(DOCUMENT_START));
@@ -228,6 +255,9 @@ abstract class PropertyListReaderTester {
 	abstract PropertyListReader newDocumentWithString__beta_slash_456();
 	abstract PropertyListReader newDocumentWithString__beta_dot_456();
 	abstract PropertyListReader newDocumentWithString__beta_underscore_456();
+	abstract PropertyListReader newDocumentWithString__beta_dollarSign_456();
+	abstract PropertyListReader newDocumentWithString__beta_dash_456();
+	abstract PropertyListReader newDocumentWithString__beta_colon_456();
 	abstract PropertyListReader newDocumentWithString__beta_space_456();
 	abstract PropertyListReader newDocumentWithString__empty();
 
