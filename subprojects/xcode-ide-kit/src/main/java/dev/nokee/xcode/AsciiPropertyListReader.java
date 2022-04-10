@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
@@ -70,6 +71,8 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 						return new StartDictContext();
 					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_dictKey) {
 						return new DictKeyContext((AsciiPropertyListGrammarParser.DictKeyContext) rule);
+					} else if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_data) {
+						return new DataContext((AsciiPropertyListGrammarParser.DataContext) rule);
 					}
 				} else {
 					if (rule.getRuleContext().getRuleIndex() == AsciiPropertyListGrammarParser.RULE_document) {
@@ -92,6 +95,7 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 		long readInteger();
 		String readString();
 		String readDictionaryKey();
+		byte[] readData();
 	}
 
 	private static abstract class ContextAdapter implements Context {
@@ -107,12 +111,42 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 
 		@Override
 		public String readString() {
-			throw new UnsupportedOperationException();
+			throw new UnsupportedOperationException(getClass().getSimpleName());
 		}
 
 		@Override
 		public String readDictionaryKey() {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public byte[] readData() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static final class DataContext extends ContextAdapter {
+		private final AsciiPropertyListGrammarParser.DataContext ctx;
+
+		public DataContext(AsciiPropertyListGrammarParser.DataContext ctx) {
+			this.ctx = ctx;
+		}
+
+		@Override
+		public Event event() {
+			return Event.DATA;
+		}
+
+		@Override
+		public byte[] readData() {
+			final ByteArrayOutputStream result = ctx.getText().chars().filter(it -> '<' != it && '>' != it && !Character.isSpaceChar(it)).map(it -> Character.digit(it, 16)).collect(() -> new ByteArrayOutputStream(ctx.getText().length()), ByteArrayOutputStream::write, (a, b) -> {
+				try {
+					b.writeTo(a);
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+			});
+			return result.toByteArray();
 		}
 	}
 
@@ -336,7 +370,7 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 
 	@Override
 	public byte[] readData() {
-		throw new UnsupportedOperationException();
+		return context.readData();
 	}
 
 	@Override

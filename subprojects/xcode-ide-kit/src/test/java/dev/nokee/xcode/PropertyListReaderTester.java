@@ -40,6 +40,7 @@ import static dev.nokee.xcode.PropertyListReader.Event.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 abstract class PropertyListReaderTester {
@@ -378,8 +379,7 @@ abstract class PropertyListReaderTester {
 			val subject = newDocumentWithData__c0ffee();
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(DATA));
-//			assertThat(subject.readData(), arrayContaining(Byte.valueOf((byte) 0xc0), Byte.valueOf((byte) 0xff), Byte.valueOf((byte) 0xee)));
-			assertThat(subject.next(), is(DICTIONARY_END));
+			assertArrayEquals(new byte[] { (byte) 0xc, (byte) 0x0, (byte) 0xf, (byte) 0xf, (byte) 0xe, (byte) 0xe }, subject.readData());
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 	}
