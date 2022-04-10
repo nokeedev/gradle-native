@@ -378,6 +378,21 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	}
 
 	@Override
+	PropertyListReader newDocumentWithString__beta_dollarSign_456() {
+		return newReader(withUTF8Header("beta$456"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithString__beta_dash_456() {
+		return newReader(withUTF8Header("beta-456"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithString__beta_colon_456() {
+		return newReader(withUTF8Header("beta:456"));
+	}
+
+	@Override
 	PropertyListReader newDocumentWithString__beta_space_456() {
 		return newReader(withUTF8Header("\"beta 456\""));
 	}
