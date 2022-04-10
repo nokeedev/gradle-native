@@ -55,6 +55,7 @@ final class TestKitDirectoryArgumentProvider implements CommandLineArgumentProvi
 		return Objects.hash(getClass());
 	}
 
+	@Internal
 	@Override
 	public String getName() {
 		return "testKitDirectory";
