@@ -37,7 +37,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 		subject.writeString("\uD83D\uDE0D");
 		subject.writeEndDocument();
 
-		assertThat(output(), equalTo(withUTF8Header("\"\\ud83d\\ude0d\"")));
+		assertThat(output(), equalTo(withUTF8Header("\"\\Ud83d\\Ude0d\"")));
 	}
 
 	@Test
@@ -46,7 +46,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 		subject.writeString("\u00B1");
 		subject.writeEndDocument();
 
-		assertThat(output(), equalTo(withUTF8Header("\"\\u00b1\"")));
+		assertThat(output(), equalTo(withUTF8Header("\"\\U00b1\"")));
 	}
 
 	@Test

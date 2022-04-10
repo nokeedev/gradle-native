@@ -232,7 +232,8 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 	private static String escapeUnicodeCharacters(CharSequence s) {
 		return s.chars().flatMap(it -> {
 			if (it > 127) {
-				return IntStream.concat(IntStream.of('\\', 'u'), String.format("%04x", it).chars());
+				// According to CFOldStylePList.c, we should use upper case u in the escape sequence
+				return IntStream.concat(IntStream.of('\\', 'U'), String.format("%04x", it).chars());
 			} else if (it == '\\') {
 				return IntStream.of('\\', '\\');
 			} else if (it == '"') {
