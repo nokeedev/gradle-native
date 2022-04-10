@@ -281,7 +281,7 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 
 	@Override
 	void verifyDocumentWithDate__epoch() {
-		assertThat(output(), equalTo(withUTF8Header("\"1970-01-01T00:00:00\"")));
+		assertThat(output(), equalTo(withUTF8Header("1970-01-01T00:00:00")));
 	}
 
 	@Override

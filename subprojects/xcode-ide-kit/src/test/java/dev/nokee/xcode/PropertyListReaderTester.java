@@ -391,7 +391,6 @@ abstract class PropertyListReaderTester {
 			assertThat(subject.next(), is(DOCUMENT_START));
 			assertThat(subject.next(), is(dateType()));
 			assertThat(subject.readDate(), equalTo(LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC)));
-			assertThat(subject.next(), is(DICTIONARY_END));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
 	}

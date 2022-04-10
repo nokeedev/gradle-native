@@ -96,6 +96,7 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 		String readString();
 		String readDictionaryKey();
 		byte[] readData();
+		LocalDateTime readDate();
 	}
 
 	private static abstract class ContextAdapter implements Context {
@@ -121,6 +122,11 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 
 		@Override
 		public byte[] readData() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public LocalDateTime readDate() {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -190,6 +196,11 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 		@Override
 		public String readString() {
 			return unquoteIfRequired(unescapeString(v.getText()));
+		}
+
+		@Override
+		public LocalDateTime readDate() {
+			return LocalDateTime.parse(readString());
 		}
 	}
 
@@ -377,7 +388,7 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 
 	@Override
 	public LocalDateTime readDate() {
-		throw new UnsupportedOperationException();
+		return context.readDate();
 	}
 
 	@Override

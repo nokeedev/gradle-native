@@ -454,7 +454,7 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 
 	@Override
 	PropertyListReader newDocumentWithDate__epoch() {
-		return newReader(withUTF8Header("\"1970-01-01 00:00:00+00:00\""));
+		return newReader(withUTF8Header("\"1970-01-01T00:00:00.000\""));
 	}
 
 	@Override
