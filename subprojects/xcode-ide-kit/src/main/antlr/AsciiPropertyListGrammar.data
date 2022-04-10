@@ -76,7 +76,7 @@
 		<01 23 42 94 cd fe>	/* data split by 2 bytes */,
 		<0 1 2 3 4 2 9 4 c>	/* data split by 1 bytes */,
 		<0 12 3429 4cd fe>	/* data split by uneven bytes */,
-		<  0123429 4cd	>	/* data with front and back spaces */,
+		<  0123429 4cd   >	/* data with front and back spaces */,
 	),
 
 	/* TEST: String */
