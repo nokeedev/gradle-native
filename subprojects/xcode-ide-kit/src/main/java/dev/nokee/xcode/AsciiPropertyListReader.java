@@ -230,12 +230,12 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 				case 'u': // defensive only, according to CFOldStylePList.c, we should always use capital u
 				case 'U':
 					return parseHexUnicodeSequence();
-				case 'a': return '\u0007';
-				case 'b': return '\b';
-				case 'n': return '\n';
-				case 'r': return '\r';
-				case 't': return '\t';
-				case 'v': return '\u000b';
+				case 'a': return '\u0007'; // alert bell
+				case 'b': return '\b'; // backslash
+				case 'n': return '\n'; // new line
+				case 'r': return '\r'; // return carriage
+				case 't': return '\t'; // horizontal tab
+				case 'v': return '\u000b'; // vertical tab
 				case '0':
 				case '1':
 				case '2':
