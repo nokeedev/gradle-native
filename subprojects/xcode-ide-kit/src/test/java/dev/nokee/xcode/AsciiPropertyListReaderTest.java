@@ -87,19 +87,6 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 		assertThat(subject.next(), is(DOCUMENT_END));
 	}
 
-	@Test
-	void canReadDocumentWithDictionaryContainingQuotedKey() {
-		val subject = newReader("{ \"CODE_SIGN_IDENTITY[sdk=appletvos*]\" = \"iPhone Developer\"; }");
-		assertThat(subject.next(), is(DOCUMENT_START));
-		assertThat(subject.next(), is(DICTIONARY_START));
-		assertThat(subject.next(), is(DICTIONARY_KEY));
-		assertThat(subject.readDictionaryKey(), equalTo("CODE_SIGN_IDENTITY[sdk=appletvos*]"));
-		assertThat(subject.next(), is(STRING));
-		assertThat(subject.readString(), equalTo("iPhone Developer"));
-		assertThat(subject.next(), is(DICTIONARY_END));
-		assertThat(subject.next(), is(DOCUMENT_END));
-	}
-
 	@ParameterizedTest
 	@ValueSource(chars = { 'u', 'U' })
 	void unescapesUnicodeCharacters_heartEyeEmoji(char u) {
@@ -310,6 +297,19 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 		assertThat(subject.next(), is(DOCUMENT_START));
 		assertThat(subject.next(), is(DATA));
 		assertArrayEquals(new byte[] { (byte) 0xb, (byte) 0x0, (byte) 0xb }, subject.readData());
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void canReadDictionaryWithQuotedKeyAndValue() {
+		val subject = newReader("{ \"key\" = \"value\"; }");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(DICTIONARY_START));
+		assertThat(subject.next(), is(DICTIONARY_KEY));
+		assertThat(subject.readDictionaryKey(), equalTo("key"));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("value"));
+		assertThat(subject.next(), is(DICTIONARY_END));
 		assertThat(subject.next(), is(DOCUMENT_END));
 	}
 
