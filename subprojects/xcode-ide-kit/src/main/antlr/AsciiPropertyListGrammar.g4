@@ -120,11 +120,9 @@ QuoteOptionalStringCharacter
 
 
 // NOTE: single quote escaping support is defensive only
-// TODO: Should support escaping \a
-// TODO: Should support escaping \v
 fragment
 EscapeSequence
-	:	'\\' [btnfr"'\\]
+	:	'\\' [abtnfrv"'\\]
 	|	OctalEscape
 	|	UnicodeEscape
 	;
