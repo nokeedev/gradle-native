@@ -225,9 +225,9 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 			switch (c) {
 				case '\\':
 				case '"':
-				case '\'':
+				case '\'': // defensive only, according to CFOldStylePList.c, single quote escaping are not supported
 					return c;
-				case 'u':
+				case 'u': // defensive only, according to CFOldStylePList.c, we should always use capital u
 				case 'U':
 					return parseHexUnicodeSequence();
 				case 'a': return '\u0007';
