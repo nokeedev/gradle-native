@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 
 import static dev.nokee.xcode.PropertyListReader.Event.ARRAY_END;
 import static dev.nokee.xcode.PropertyListReader.Event.ARRAY_START;
+import static dev.nokee.xcode.PropertyListReader.Event.DATA;
 import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_END;
 import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_KEY;
 import static dev.nokee.xcode.PropertyListReader.Event.DICTIONARY_START;
@@ -38,6 +39,7 @@ import static dev.nokee.xcode.PropertyListReader.Event.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	private static AsciiPropertyListReader newReader(String... lines) {
@@ -250,6 +252,42 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 		assertThat(subject.next(), is(DOCUMENT_START));
 		assertThat(subject.next(), is(STRING));
 		assertThat(subject.readString(), equalTo("\u01dd")); // latin small letter turned e
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void canReadDataWithSpaces() {
+		val subject = newReader("<b00b b0b c0ffee>");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(DATA));
+		assertArrayEquals(new byte[] { (byte) 0xb, (byte) 0x0, (byte) 0x0, (byte) 0xb, (byte) 0xb, (byte) 0x0, (byte) 0xb, (byte) 0xc, (byte) 0x0, (byte) 0xf, (byte) 0xf, (byte) 0xe, (byte) 0xe }, subject.readData());
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void canReadDataWithUpperCaseHexDigit() {
+		val subject = newReader("<B0B>");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(DATA));
+		assertArrayEquals(new byte[] { (byte) 0xb, (byte) 0x0, (byte) 0xb }, subject.readData());
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void canReadDataWithFrontSpaces() {
+		val subject = newReader("<   B0B>");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(DATA));
+		assertArrayEquals(new byte[] { (byte) 0xb, (byte) 0x0, (byte) 0xb }, subject.readData());
+		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void canReadDataWithTailSpaces() {
+		val subject = newReader("<B0B   >");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(DATA));
+		assertArrayEquals(new byte[] { (byte) 0xb, (byte) 0x0, (byte) 0xb }, subject.readData());
 		assertThat(subject.next(), is(DOCUMENT_END));
 	}
 
