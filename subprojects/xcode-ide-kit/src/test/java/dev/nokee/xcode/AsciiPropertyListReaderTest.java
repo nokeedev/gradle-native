@@ -121,6 +121,28 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	}
 
 	@Test
+	void unescapesUnicodeCharacters_alertBell() {
+		val subject = newReader("\"MyBell\\a\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("MyBell\u0007")); // cannot use \a [1]
+		assertThat(subject.next(), is(DOCUMENT_END));
+
+		// [1] see https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.6
+	}
+
+	@Test
+	void unescapesUnicodeCharacters_verticalTab() {
+		val subject = newReader("\"\\vMyVerticalTab\"");
+		assertThat(subject.next(), is(DOCUMENT_START));
+		assertThat(subject.next(), is(STRING));
+		assertThat(subject.readString(), equalTo("\u000bMyVerticalTab")); // cannot use \v [2]
+		assertThat(subject.next(), is(DOCUMENT_END));
+
+		// [2] see https://docs.oracle.com/javase/specs/jls/se11/html/jls-3.html#jls-3.10.6
+	}
+
+	@Test
 	void unescapesUnicodeCharacters_backslash() {
 		val subject = newReader("\"c:\\\\my\\\\path.txt\"");
 		assertThat(subject.next(), is(DOCUMENT_START));

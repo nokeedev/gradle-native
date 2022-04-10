@@ -50,6 +50,24 @@ class AsciiPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Test
+	void escapesUnicodeCharacters_alertBell() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("MyBell\u0007");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"MyBell\\a\"")));
+	}
+
+	@Test
+	void escapesUnicodeCharacters_verticalTab() {
+		subject.writeStartDocument(PropertyListVersion.VERSION_00);
+		subject.writeString("\u000bMyVerticalTab");
+		subject.writeEndDocument();
+
+		assertThat(output(), equalTo(withUTF8Header("\"\\vMyVerticalTab\"")));
+	}
+
+	@Test
 	void escapesUnicodeCharacters_backslash() {
 		subject.writeStartDocument(PropertyListVersion.VERSION_00);
 		subject.writeString("c:\\my\\path.txt");

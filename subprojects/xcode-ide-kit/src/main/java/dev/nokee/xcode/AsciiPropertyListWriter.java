@@ -229,6 +229,8 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 				return IntStream.of('\\', '\\');
 			} else if (it == '"') {
 				return IntStream.of('\\', '"');
+			} else if (it == '\u0007') {
+				return IntStream.of('\\', 'a');
 			} else if (it == '\b') {
 				return IntStream.of('\\', 'b');
 			} else if (it == '\n') {
@@ -237,6 +239,8 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 				return IntStream.of('\\', 'r');
 			} else if (it == '\t') {
 				return IntStream.of('\\', 't');
+			} else if (it == '\u000b') {
+				return IntStream.of('\\', 'v');
 			}
 			return IntStream.of(it);
 		}).collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
