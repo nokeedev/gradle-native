@@ -101,7 +101,6 @@ QuoteRequireStringCharacters
 	:	QuoteRequireStringCharacter+
 	;
 
-// TODO: Test { "key" = "value"; }
 fragment
 QuoteRequireStringCharacter
 	:	~[\\\r\n"]
