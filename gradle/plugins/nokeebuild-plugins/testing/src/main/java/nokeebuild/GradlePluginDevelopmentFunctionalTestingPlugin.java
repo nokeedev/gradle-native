@@ -24,9 +24,11 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.tasks.testing.Test;
 
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -54,17 +56,37 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 				it.implementation(it.gradleFixtures());
 			});
 			testSuite.getTestTasks().configureEach(task -> {
-				final TestKitDirectoryArgumentProvider provider = new TestKitDirectoryArgumentProvider(project);
-				task.doFirst(new Action<Task>() {
-					@Override
-					public void execute(Task ignored) {
-						task.getJvmArgumentProviders().add(provider);
-					}
-				});
+				task.doFirst(new MyAction(project));
 			});
 		});
 		functionalTest(project, new UseJUnitJupiter(junitVersion(project)));
 		functionalTest(project, new UseSpockFramework(spockVersion(project)));
+	}
+
+	private static final class MyAction implements Action<Task> {
+		private final TestKitDirectoryArgumentProvider provider;
+
+		public MyAction(Project project) {
+			provider = new TestKitDirectoryArgumentProvider(project);
+		}
+
+		@Override
+		public void execute(Task task) {
+			((Test) task).getJvmArgumentProviders().add(provider);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			return o instanceof TestKitDirectoryArgumentProvider;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(getClass());
+		}
 	}
 
 	private static void functionalTest(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
