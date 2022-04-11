@@ -23,6 +23,7 @@ import nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategy;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
@@ -53,7 +54,13 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 				it.implementation(it.gradleFixtures());
 			});
 			testSuite.getTestTasks().configureEach(task -> {
-				task.getJvmArgumentProviders().add(new TestKitDirectoryArgumentProvider(project));
+				final TestKitDirectoryArgumentProvider provider = new TestKitDirectoryArgumentProvider(project);
+				task.doFirst(new Action<Task>() {
+					@Override
+					public void execute(Task ignored) {
+						task.getJvmArgumentProviders().add(provider);
+					}
+				});
 			});
 		});
 		functionalTest(project, new UseJUnitJupiter(junitVersion(project)));
