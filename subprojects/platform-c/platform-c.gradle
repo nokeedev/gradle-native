@@ -47,3 +47,21 @@ functionalTest {
 		implementation testFixtures(project(':languageC'))
 	}
 }
+
+def fingerprinter = services.get(org.gradle.internal.fingerprint.classpath.ClasspathFingerprinter)
+tasks.withType(Test).configureEach { task ->
+    doFirst {
+        ClassLoader classLoader = task.jvmArgumentProviders[0].getClass().classLoader
+        while (classLoader instanceof URLClassLoader) {
+            def fingerprints = [] as Set
+            def allFiles = [] as Set
+            classLoader.getURLs().each {
+                fingerprints.add(["${task.path}:${file(it.file).name}", "${fingerprinter.fingerprint(files(it.file)).hash}"])
+                allFiles.add(file(it.file))
+            }
+            fingerprints.each { buildScan.value it[0], it[1] }
+            buildScan.value "${task.path}:jvmArgumentProvider[0]:classpath", allFiles.join("\n")
+            classLoader = classLoader.parent
+        }
+    }
+}
