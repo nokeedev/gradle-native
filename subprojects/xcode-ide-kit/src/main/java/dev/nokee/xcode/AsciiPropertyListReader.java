@@ -16,8 +16,12 @@
 package dev.nokee.xcode;
 
 import dev.nokee.xcode.internal.AsciiPropertyListGrammarParser;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 
@@ -43,12 +47,27 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 		this.delegate = delegate;
 		try {
 			dev.nokee.xcode.internal.AsciiPropertyListGrammarLexer lexer = new dev.nokee.xcode.internal.AsciiPropertyListGrammarLexer(CharStreams.fromReader(delegate));
+			lexer.removeErrorListeners();
+			lexer.addErrorListener(ThrowingErrorListener.INSTANCE);
+
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			dev.nokee.xcode.internal.AsciiPropertyListGrammarParser parser = new dev.nokee.xcode.internal.AsciiPropertyListGrammarParser(tokens);
+			parser.removeErrorListeners();
+			parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 			this.iterator = new AntlrParserIterator(parser.document());
 			this.next = findNext();
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
+		}
+	}
+
+	private static class ThrowingErrorListener extends BaseErrorListener {
+		public static final ThrowingErrorListener INSTANCE = new ThrowingErrorListener();
+
+		@Override
+		public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e)
+			throws ParseCancellationException {
+			throw new RuntimeException("line " + line + ":" + charPositionInLine + " " + msg);
 		}
 	}
 

@@ -40,6 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	private static AsciiPropertyListReader newReader(String... lines) {
@@ -311,6 +312,12 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 		assertThat(subject.readString(), equalTo("value"));
 		assertThat(subject.next(), is(DICTIONARY_END));
 		assertThat(subject.next(), is(DOCUMENT_END));
+	}
+
+	@Test
+	void throwsExceptionOnParsingError() {
+		val ex = assertThrows(RuntimeException.class, () -> newReader("{ aKey = aValue;"));
+		assertThat(ex.getMessage(), equalTo("line 1:16 extraneous input '<EOF>' expecting {'}', StringLiteral}"));
 	}
 
 	@Override
