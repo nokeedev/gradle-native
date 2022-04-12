@@ -261,9 +261,9 @@ public final class AsciiPropertyListReader implements PropertyListReader {
 				case 'U':
 					return parseHexUnicodeSequence();
 				case 'a': return '\u0007'; // alert bell
-				case 'b': return '\b'; // backslash
+				case 'b': return '\b'; // backspace
 				case 'n': return '\n'; // new line
-				case 'r': return '\r'; // return carriage
+				case 'r': return '\r'; // carriage return
 				case 't': return '\t'; // horizontal tab
 				case 'v': return '\u000b'; // vertical tab
 				case '0':
