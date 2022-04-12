@@ -25,29 +25,29 @@ import java.util.Set;
  * The GID is a 96 bit identifier that's unique on a per-project basis.
  */
 public class GidGenerator {
-    private final Set<String> generatedAndReservedIds;
+	private final Set<String> generatedAndReservedIds;
 
-    public GidGenerator(Set<String> reservedIds) {
-        generatedAndReservedIds = Sets.newHashSet(reservedIds);
-    }
+	public GidGenerator(Set<String> reservedIds) {
+		generatedAndReservedIds = Sets.newHashSet(reservedIds);
+	}
 
-    /**
-     * Generate a stable GID based on the class name and hash of some object info.
-     *
-     * GIDs generated this way will be in the form of
-     * {@code <class-name-hash-32> <obj-hash-32> <counter-32>}
+	/**
+	 * Generate a stable GID based on the class name and hash of some object info.
+	 *
+	 * GIDs generated this way will be in the form of
+	 * {@code <class-name-hash-32> <obj-hash-32> <counter-32>}
 	 *
 	 * @param pbxClassName  PBX class name, must not be null
 	 * @param hash  stable hash
 	 * @return new global ID
-     */
-    public String generateGid(String pbxClassName, int hash) {
-        int counter = 0;
-        String gid;
-        do {
-            gid = String.format("%08X%08X%08X", pbxClassName.hashCode(), hash, counter++);
-        } while (generatedAndReservedIds.contains(gid));
-        generatedAndReservedIds.add(gid);
-        return gid;
-    }
+	 */
+	public String generateGid(String pbxClassName, int hash) {
+		int counter = 0;
+		String gid;
+		do {
+			gid = String.format("%08X%08X%08X", pbxClassName.hashCode(), hash, counter++);
+		} while (generatedAndReservedIds.contains(gid));
+		generatedAndReservedIds.add(gid);
+		return gid;
+	}
 }

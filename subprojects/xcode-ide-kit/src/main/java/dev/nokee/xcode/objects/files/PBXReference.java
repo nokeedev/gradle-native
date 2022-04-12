@@ -25,46 +25,46 @@ import javax.annotation.Nullable;
  * objects.
  */
 public abstract class PBXReference extends PBXContainerItem {
-    private final String name;
-    @Nullable private final String path;
-    /**
-     * The "base" path of the reference. The absolute path is resolved by prepending the resolved
-     * base path.
-     */
-    private final PBXSourceTree sourceTree;
+	private final String name;
+	@Nullable private final String path;
+	/**
+	 * The "base" path of the reference. The absolute path is resolved by prepending the resolved
+	 * base path.
+	 */
+	private final PBXSourceTree sourceTree;
 
-    public PBXReference(String name, @Nullable String path, PBXSourceTree sourceTree) {
-        this.name = Preconditions.checkNotNull(name);
-        this.path = path;
-        this.sourceTree = Preconditions.checkNotNull(sourceTree);
-    }
+	public PBXReference(String name, @Nullable String path, PBXSourceTree sourceTree) {
+		this.name = Preconditions.checkNotNull(name);
+		this.path = path;
+		this.sourceTree = Preconditions.checkNotNull(sourceTree);
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    @Nullable
-    public String getPath() {
-        return path;
-    }
+	@Nullable
+	public String getPath() {
+		return path;
+	}
 
-    public PBXSourceTree getSourceTree() {
-        return sourceTree;
-    }
+	public PBXSourceTree getSourceTree() {
+		return sourceTree;
+	}
 
-    @Override
-    public int stableHash() {
-        return name.hashCode();
-    }
+	@Override
+	public int stableHash() {
+		return name.hashCode();
+	}
 
-    @Override
-    public String toString() {
-        return String.format(
-            "%s name=%s path=%s sourceTree=%s",
-            super.toString(),
-            getName(),
-            getPath(),
-            getSourceTree());
-    }
+	@Override
+	public String toString() {
+		return String.format(
+			"%s name=%s path=%s sourceTree=%s",
+			super.toString(),
+			getName(),
+			getPath(),
+			getSourceTree());
+	}
 
 }

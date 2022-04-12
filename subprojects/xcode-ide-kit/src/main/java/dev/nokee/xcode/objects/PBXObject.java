@@ -18,18 +18,18 @@ package dev.nokee.xcode.objects;
 import static dev.nokee.xcode.project.ToPBXProjConverter.isa;
 
 public abstract class PBXObject {
-    /**
-     * This method is used to generate stable GIDs and must be stable for identical contents.
-     * Returning a constant value is ok but will make the generated project order-dependent.
+	/**
+	 * This method is used to generate stable GIDs and must be stable for identical contents.
+	 * Returning a constant value is ok but will make the generated project order-dependent.
 	 *
 	 * @return stable hash
-     */
-    public int stableHash() {
-        return 0;
-    }
+	 */
+	public int stableHash() {
+		return 0;
+	}
 
-    @Override
-    public String toString() {
-        return String.format("%s isa=%s", super.toString(), isa(this));
-    }
+	@Override
+	public String toString() {
+		return String.format("%s isa=%s", super.toString(), isa(this));
+	}
 }
