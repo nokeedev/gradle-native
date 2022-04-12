@@ -18,43 +18,36 @@ package dev.nokee.xcode.objects.files;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 
 class PBXSourceTreeTest {
 	@Test
 	void hasGroupSourceTree() {
 		assertThat(PBXSourceTree.GROUP, hasToString("<group>"));
-		assertThat(PBXSourceTree.GROUP.name(), equalTo("<group>"));
 	}
 
 	@Test
 	void hasAbsoluteSourceTree() {
 		assertThat(PBXSourceTree.ABSOLUTE, hasToString("<absolute>"));
-		assertThat(PBXSourceTree.ABSOLUTE.name(), equalTo("<absolute>"));
 	}
 
 	@Test
 	void hasBuiltProductDirSourceTree() {
-		assertThat(PBXSourceTree.ABSOLUTE, hasToString("BUILT_PRODUCTS_DIR"));
-		assertThat(PBXSourceTree.ABSOLUTE.name(), equalTo("BUILT_PRODUCTS_DIR"));
+		assertThat(PBXSourceTree.BUILT_PRODUCTS_DIR, hasToString("BUILT_PRODUCTS_DIR"));
 	}
 
 	@Test
 	void hasSdkRootSourceTree() {
 		assertThat(PBXSourceTree.SDKROOT, hasToString("SDKROOT"));
-		assertThat(PBXSourceTree.SDKROOT.name(), equalTo("SDKROOT"));
 	}
 
 	@Test
 	void hasSourceRootSourceTree() {
 		assertThat(PBXSourceTree.SOURCE_ROOT, hasToString("SOURCE_ROOT"));
-		assertThat(PBXSourceTree.SOURCE_ROOT.name(), equalTo("SOURCE_ROOT"));
 	}
 
 	@Test
 	void hasDeveloperDirSourceTree() {
 		assertThat(PBXSourceTree.DEVELOPER_DIR, hasToString("DEVELOPER_DIR"));
-		assertThat(PBXSourceTree.DEVELOPER_DIR.name(), equalTo("DEVELOPER_DIR"));
 	}
 }
