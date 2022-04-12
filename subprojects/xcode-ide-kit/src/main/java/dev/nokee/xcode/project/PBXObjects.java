@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.MoreCollectors;
 
 import java.util.Iterator;
 import java.util.stream.Stream;
@@ -46,6 +47,10 @@ public final class PBXObjects implements Iterable<PBXObjectReference> {
 
 	public static Builder builder() {
 		return new Builder();
+	}
+
+	public PBXObjectReference getById(String gid) {
+		return objects.stream().filter(it -> it.getGlobalID().equals(gid)).collect(MoreCollectors.onlyElement());
 	}
 
 	public static final class Builder {

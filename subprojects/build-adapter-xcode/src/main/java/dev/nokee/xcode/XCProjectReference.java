@@ -16,22 +16,31 @@
 package dev.nokee.xcode;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
+import dev.nokee.xcode.objects.targets.PBXTarget;
+import dev.nokee.xcode.project.PBXProjReader;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 public final class XCProjectReference implements Serializable {
-	private /*final*/ Path location;
+	private /*final*/ File location;
 
 	private XCProjectReference(Path location) {
-		this.location = location;
+		this.location = location.toFile();
 	}
 
 	public Path getLocation() {
-		return location;
+		return location.toPath();
 	}
 
 	public static XCProjectReference of(Path location) {
@@ -43,5 +52,16 @@ public final class XCProjectReference implements Serializable {
 	@Override
 	public String toString() {
 		return location.toString();
+	}
+
+	public XCProject load() {
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(getLocation().resolve("project.pbxproj"))))) {
+			val pbxproj = reader.read();
+			val targetIsa = ImmutableSet.of("PBXTarget", "PBXAggregateTarget", "PBXLegacyTarget", "PBXNativeTarget");
+			val targetNames = Streams.stream(pbxproj.getObjects()).filter(it -> targetIsa.contains(it.isa())).map(it -> it.getFields().get("name").toString()).collect(ImmutableSet.toImmutableSet());
+			return new XCProject(targetNames);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 }
