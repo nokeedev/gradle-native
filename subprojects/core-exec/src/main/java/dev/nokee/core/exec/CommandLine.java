@@ -22,6 +22,7 @@ import lombok.NonNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -81,6 +82,10 @@ public interface CommandLine {
 	 * @since 0.5
 	 */
 	ProcessBuilderEngine.Handle execute(@Nullable List<?> env, File workingDirectory);
+
+	default ProcessBuilderEngine.Handle execute(@Nullable List<?> env, Path workingDirectory) {
+		return execute(env, workingDirectory.toFile());
+	}
 
 	ProcessBuilderEngine.Handle execute();
 
