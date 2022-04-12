@@ -36,6 +36,10 @@ public class GidGenerator {
      *
      * GIDs generated this way will be in the form of
      * {@code <class-name-hash-32> <obj-hash-32> <counter-32>}
+	 *
+	 * @param pbxClassName  PBX class name, must not be null
+	 * @param hash  stable hash
+	 * @return new global ID
      */
     public String generateGid(String pbxClassName, int hash) {
         int counter = 0;

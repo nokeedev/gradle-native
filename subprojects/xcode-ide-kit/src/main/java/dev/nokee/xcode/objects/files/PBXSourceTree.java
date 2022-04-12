@@ -64,6 +64,9 @@ public enum PBXSourceTree {
 	 * Return a sourceTree given a build setting that is typically used as a source tree prefix.
 	 * <p>
 	 * The build setting may be optionally prefixed by '$' which will be stripped.
+	 *
+	 * @param buildSetting  build setting to convert into source tree, must not be null
+	 * @return source tree type from build setting or empty optional
 	 */
 	public static Optional<PBXSourceTree> fromBuildSetting(String buildSetting) {
 		String data = CharMatcher.is('$').trimLeadingFrom(buildSetting);
