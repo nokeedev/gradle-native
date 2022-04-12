@@ -453,7 +453,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		PBXLegacyTarget.Builder targetBuilder = PBXLegacyTarget.builder();
 		targetBuilder.name(xcodeTarget.getName());
-		targetBuilder.productType(ProductTypes.valueOf(xcodeTarget.getProductType().get().toString()));
+		targetBuilder.productType(toProductType(xcodeTarget.getProductType().get().toString()));
 		targetBuilder.productName(xcodeTarget.getProductName().get());
 		targetBuilder.buildToolPath(getGradleCommand().get());
 		targetBuilder.buildArguments(getGradleBuildArgumentsString());
@@ -496,6 +496,16 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		return targetBuilder.build();
 	}
+
+	private static ProductType toProductType(String identifier) {
+		for (ProductType value : ProductTypes.values()) {
+			if (value.getIdentifier().equals(identifier)) {
+				return value;
+			}
+		}
+		return ProductType.of(identifier, null);
+	}
+
 	private PBXShellScriptBuildPhase newGradleBuildPhase() {
 		PBXShellScriptBuildPhase.Builder builder = PBXShellScriptBuildPhase.builder();
 
