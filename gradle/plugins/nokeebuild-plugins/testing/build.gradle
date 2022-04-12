@@ -20,5 +20,9 @@ gradlePlugin {
 			id = 'nokeebuild.gradle-plugin-functional-test'
 			implementationClass = 'nokeebuild.GradlePluginDevelopmentFunctionalTestingPlugin'
 		}
+		smokeTesting {
+			id = 'nokeebuild.gradle-plugin-smoke-test'
+			implementationClass = 'nokeebuild.GradlePluginDevelopmentSmokeTestingPlugin'
+		}
 	}
 }
