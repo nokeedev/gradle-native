@@ -17,6 +17,7 @@ package dev.nokee.buildadapter.xcode;
 
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
+import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.nokee.platform.xcode.EmptyXCProject;
 import dev.nokee.platform.xcode.EmptyXCWorkspace;
 import dev.nokee.xcode.workspace.XCFileReference;
@@ -29,7 +30,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

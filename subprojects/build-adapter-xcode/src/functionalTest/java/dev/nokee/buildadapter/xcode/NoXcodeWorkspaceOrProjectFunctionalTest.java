@@ -17,6 +17,7 @@ package dev.nokee.buildadapter.xcode;
 
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
+import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeAll;
