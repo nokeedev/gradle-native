@@ -41,6 +41,8 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	/**
      * Returns the list (possibly empty) of files passed as input to the shell script.
      * May not be actual paths, because they can have variable interpolations.
+	 *
+	 * @return input paths, never null
      */
     public List<String> getInputPaths() {
         return inputPaths;
@@ -49,6 +51,8 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
     /**
      * Returns the list (possibly empty) of files created as output of the shell script.
      * May not be actual paths, because they can have variable interpolations.
+	 *
+	 * @return output paths, never null
      */
     public List<String> getOutputPaths() {
         return outputPaths;
@@ -57,6 +61,8 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
     /**
      * Returns the path to the shell under which the script is to be executed.
      * Defaults to "/bin/sh".
+	 *
+	 * @return shell path, may be null
      */
     @Nullable
     public String getShellPath() {
@@ -66,6 +72,8 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
     /**
      * Gets the contents of the shell script to execute under the shell
      * returned by {@link #getShellPath()}.
+	 *
+	 * @return shell script, may be null
      */
     @Nullable
     public String getShellScript() {

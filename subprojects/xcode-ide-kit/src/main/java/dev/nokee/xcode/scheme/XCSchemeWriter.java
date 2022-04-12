@@ -33,7 +33,7 @@ public final class XCSchemeWriter implements Closeable {
 		}
 	}
 
-	/**
+	/*
 	 * <Scheme
 	 * LastUpgradeVersion = "0830"
 	 * version = "1.3">

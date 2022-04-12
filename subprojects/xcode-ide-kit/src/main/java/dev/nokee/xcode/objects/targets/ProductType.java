@@ -49,7 +49,8 @@ public final class ProductType {
 	/**
 	 * Creates a product type of the specified identifier.
 	 *
-	 * @param identifier a identifier for the product type to create
+	 * @param identifier  an identifier for the product type to create, must not be null
+	 * @param fileExtension  file extension for the product type to create, may be null
 	 * @return a {@link ProductType} instance, never null
 	 */
 	public static ProductType of(String identifier, @Nullable String fileExtension) {
