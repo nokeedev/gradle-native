@@ -21,6 +21,7 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 public final class XCWorkspaceDataWriter implements Closeable {
 	private final XMLStreamWriter delegate;
@@ -39,7 +40,7 @@ public final class XCWorkspaceDataWriter implements Closeable {
 
 	public void write(XCWorkspaceData o) {
 		try {
-			delegate.writeStartDocument();
+			delegate.writeStartDocument(StandardCharsets.UTF_8.name(), "1.0");
 			delegate.writeStartElement("Workspace");
 			delegate.writeAttribute("version", "1.0");
 
@@ -50,6 +51,8 @@ public final class XCWorkspaceDataWriter implements Closeable {
 			}
 			delegate.writeEndElement();
 			delegate.writeEndDocument();
+
+			delegate.flush(); // ensure the data is available
 		} catch (XMLStreamException e) {
 			throw new RuntimeException(e);
 		}
