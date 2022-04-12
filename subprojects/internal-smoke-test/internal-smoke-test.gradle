@@ -1,24 +1,12 @@
 plugins {
 	id 'nokeebuild.jvm-base'
 	id 'nokeebuild.continuous-integration'
-	id 'java-base'
+	id 'nokeebuild.gradle-plugin-smoke-test'
 }
 
-def smokeTestSourceSet = sourceSets.create('smokeTest')
-def testTask = tasks.register(smokeTestSourceSet.name, Test) {
-	group = "Verification"
-	testClassesDirs = smokeTestSourceSet.output.classesDirs
-	classpath = smokeTestSourceSet.runtimeClasspath
-}
-tasks.named('check') { it.dependsOn(testTask) }
-
-dependencies {
-	smokeTestImplementation project(':internalTesting')
-	smokeTestImplementation gradleTestKit(minimumGradleVersion)
-
-	smokeTestImplementation 'dev.gradleplugins:gradle-build-script'
-}
-
-tasks.named("fullTest") {
-	dependsOn(testTask)
+smokeTest {
+	dependencies {
+		implementation gradleTestKit(minimumGradleVersion)
+		implementation 'dev.gradleplugins:gradle-build-script'
+	}
 }
