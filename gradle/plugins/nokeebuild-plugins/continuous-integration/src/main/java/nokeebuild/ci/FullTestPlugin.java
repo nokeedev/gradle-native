@@ -33,5 +33,6 @@ import static nokeebuild.ci.TaskUtils.useCiLifecycleGroup;
 		fullTest.configure(dependsOn(new AllPluginDevelopmentUnitTestsIfPresent(project)));
 		fullTest.configure(dependsOn(new AllPluginDevelopmentIntegrationTestsIfPresent(project)));
 		fullTest.configure(dependsOn(new AllPluginDevelopmentFunctionalTestsIfPresent(project)));
+		fullTest.configure(dependsOn(new AllPluginDevelopmentSmokeTestsIfPresent(project)));
 	}
 }
