@@ -1,0 +1,338 @@
+:toc:
+:wikipedia: https://en.wikipedia.org/wiki
+:apple-objc: https://developer.apple.com/documentation/objectivec
+:apple-foundation: https://developer.apple.com/documentation/foundation
+:apple-core-foundation: https://developer.apple.com/documentation/corefoundation
+:ref-danger-of-ascii-plist: https://pewpewthespells.com/blog/dangers_of_ascii_plists.html
+:ref-old-style-plist: https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/PropertyLists/OldStylePlists/OldStylePLists.html
+
+= Property List File Format
+
+== Introduction
+
+Property lists are an abstraction for expressing simple hierarchies of data.
+There are only a handful of data type natively supported in property lists which depends on their representation.
+
+== Representation
+
+The data represented by a property list is abstract allowing for various file format implementation.
+There are three main property list representation: an XML format, a binary format and an _old-style_ ASCII format inherited from OpenStep.
+
+=== ASCII Format
+
+The OpenStep frameworks, which Cocoa is derived from, used an ASCII format for storing property lists.
+Old-style plist support remains primarily for legacy reasons.
+Xcode still use this format for `project.pbxproj` in `.xcodeproj` bundles.
+
+=== XML Format
+
+To complete...
+
+=== Binary Format
+
+To complete...
+
+== Encoding
+
+ASCII and XML format file encoding should be UTF-8.
+However, in ASCII format, non-ASCII characters should be escaped.
+In XML format, characters should be escaped according to XML specification.
+
+== Comments
+
+Only XML and ASCII format supports comments.
+The comments are ignored by parsers but are useful to human reader.
+
+ASCII format supports two type of comment style: C-style (`/* This is a comment */`), and {cpp}-style (`// This is a comment`).
+
+XML format supports normal XML comment, e.g. `<!-- This is a comment -->` without any `--` anywhere in the comment.
+
+== Line endings
+
+ASCII and XML format should use *nix line ending, i.e. `\n`.
+Note that some parsers also support Windows line endings, i.e. `\r\n`.
+
+== Preambles
+
+ASCII format do not have any required preambles.
+However, a {cpp} comment with the file encoding is typically present:
+
+[source]
+----
+// !$*UTF8*$!
+----
+
+XML format has the normal XML preamble with the encoding as well as a `DOCTYPE` tag with the standard DTD specification:
+
+[source]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+----
+
+== Root Element
+
+Each property-list has a single root element.
+As container types are nestable, the root element is typically a dictionary allowing hierarchy of objects.
+However, the root property-list element can be any primitive or container type, i.e. <<data-type:string, string>>, <<data-type:dictionary, dictionary>>, or <<data-type:array, array>>.
+
+ASCII format writes the root object directly after the preamble, if any.
+
+XML format must use the `<plist>` tag as the root element.
+It can optionally include a version attribute, i.e. `<plist version="1.0">...</plist>`.
+
+== Data type
+
+There are 12 data types supported by property list divided in three groups: primary data types (supported by all formats), secondary data types (only supported by XML and binary format), and binary-only data types.
+
+There are 4 primary property list data types that are common to all plist format: <<data-type:string, strings>>, <<data-type:dictionary, key-value pairs>> (known as dictionaries), <<data-type:array, arrays>>, and <<data-type:data, binary data>>.
+
+The XML and binary format support an additional 4 secondary data types: <<data-type:integer, integers>>, <<data-type:real, floating-point values>>, <<data-type:date, dates>>, and <<data-type:boolean, booleans>>.
+ASCII format treats the secondary data types as <<data-type:string, strings>>, thus it's the responsibility of the application to execute the proper conversion.
+
+Finally, the binary format support an additional 4 data types: <<data-type:null, null objects>>, <<data-type:uuid, Universal Unique Identifier (UUID)>>, <<data-type:url, Uniform Resource Locator (URL)>>, and <<data-type:set, set (ordered/unordered)>>.
+
+The following table summarise all property list data types:
+
+:ascii-format-support: <<_ascii_format, ASCII>>
+:xml-format-support: <<_xml_format, XML>>
+:binary-format-support: <<_binary_format, Binary>>
+:all-format: {ascii-format-support}, {xml-format-support}, {binary-format-support}
+:xml-binary-format: {xml-format-support}, {binary-format-support}
+:binary-only-format: {binary-format-support}
+
+[cols="1,1,1"]
+|===
+|Abstract type
+|Summary
+|Supported format
+
+|<<data-type:array, Array>>
+|Indexed collection of values
+|{all-format}
+
+|<<data-type:dictionary, Dictionary>>
+|Collection of key/value pairs
+|{all-format}
+
+|<<data-type:string, String>>
+|UTF-8 encoded string primitive
+|{all-format}
+
+|<<data-type:data, Data>>
+|Binary data as bytes
+|{all-format}
+
+|<<data-type:date, Date>>
+|link:{wikipedia}/ISO_8601[ISO 8601] encoded date
+|{xml-binary-format}
+
+|<<data-type:integer, Integer>>
+|Whole number primitive
+|{xml-binary-format}
+
+|<<data-type:real, Floating-point value>>
+|Floating-point primitive (single or double precision)
+|{xml-binary-format}
+
+|<<data-type:boolean, Boolean>>
+|Boolean primitive
+|{xml-binary-format}
+
+|<<data-type:null, Null>>
+|Missing or invalid value
+|{binary-only-format}
+
+|<<data-type:url, URL>>
+|Uniform resource locator
+|{binary-only-format}
+
+|<<data-type:uuid, UUID>>
+|Universal unique identifier
+|{binary-only-format}
+
+|<<data-type:set, Set>> (ordered/unordered)
+|Collection of unique values
+|{binary-only-format}
+|===
+
+
+[[data-type:string]]
+=== String
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsstring[`NSString`]
+CoreFoundation type:: link:{apple-core-foundation}/cfstringref[`CFStringRef`]
+Java type:: String
+
+The String data type is the most versatile of all property list data types.
+Unsupported data type are usually downgraded as strings and rely on proper interpretation at the application level.
+
+ASCII format represent strings as C literal string, i.e. `"this is a plist string"`.
+The format allow for simpler, unquoted strings, as long as they consist of only alphanumerical and one of these special characters: `_` (underscore), `$` (dollar sign), `+` (plus sign), `/` (slash), `:` (colon), `.` (period), `-` (hyphen).
+Empty strings must be quoted.
+According to link:{ref-old-style-plist}[Apple's documentation], non-ASCII characters are written as-is, thus violating the ASCII plain text format.
+However, escaping for non-ASCII characters is recommended.
+Unprintable or non-ASCII characters are escapable using three formats:
+
+- **C-style escape (\\c)**: There are 8 supported escaping: `\a` (alert bell), `\b` (backspace), `\n` (line feed), `\r` (carriage return), `\t` (horizontal tab), `\v` (vertical tab), `\"` (double quote), and `\\` (backslash).
+Some 3rd party implementation will also escape single quote (`\'`).
+- **Unicode encoding (\Uxxxx)**: The escape sequence has to be a backslash (`\\`) followed by the capital letter `u` followed by 4 hex digit (case ignored).
+High/low surrogate as a single 32-bit hex or as two 16-bit hex are not exactly supported, thus should be avoided.
+Note that Cocoa uses Unicode meaning PList produced by Cocoa's serializer could contain unescaped Unicode characters.footnote:[{ref-danger-of-ascii-plist}]
+- **Octal encoding (\ddd)**: The escape sequence is a backslash (`\\`) followed by one to three octal digit (`0` to `7`).
+
+XML format surround strings with `<string>` tag, i.e. `<string>this is a plist string</string>`.
+All XML escaping rules still applies to the string content, e.g. `&#xxxx;`.
+
+Binary format makes a clear distinction between ASCII and Unicode strings.
+
+[[data-type:data]]
+=== Data
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsdata[NSData]
+CoreFoundation type:: link:{apple-core-foundation}/cfdataref[CFDataRef]
+Java type:: `byte[]` (array of primitive)
+
+Binary data
+
+ASCII format represent binary data as hexadecimal numbers enclosed inside angle brackets, i.e. `<53 6f 6d 65 20 64 61 74 61>`.
+Spaces can be arbitrarily inserted to create more readable pair of digits without changing the serialized data.
+
+XML format surround Base-64 encoded binary data with `<data>` tag, i.e. `<data>U29tZSBkYXRh</data>`.
+
+Binary format writes the bytes directly.
+
+[[data-type:integer]]
+=== Integer
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsnumber[NSNumber]
+CoreFoundation type:: link:{apple-core-foundation}/cfnumberref[CFNumberRef]
+Java type:: `long` (primitive)
+
+Integer is a whole number, positive or negative.
+
+ASCII format represent numbers as <<data-type:string, strings>> whose contents happen to be digits, i.e. `52`.
+An optional leading minus sign represent negative integers, i.e. `-42`.
+
+XML format surround integers with `<integer>` tag, i.e. `<integer>-42</integer>`.
+
+[[data-type:real]]
+=== Real
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsnumber[NSNumber]
+CoreFoundation type:: link:{apple-core-foundation}/cfnumberref[CFNumberRef]
+Java type:: `float` (primitive)
+
+ASCII format represent floating-point numbers as strings whose content represent a typical floating number, i.e. `4.2` or scientific notation, i.e. `1.05457148e-34`.
+
+XML format surround floating-point numbers with `<real>` tag, i.e. `<real>4.2</real>`.
+
+[[data-type:boolean]]
+=== Boolean
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsnumber[NSNumber]
+CoreFoundation type:: link:{apple-core-foundation}/cfbooleanref[CFBooleanRef]
+Java type:: `boolean` (primitive)
+
+ASCII format represent booleans as strings whose content represent a boolean value, e.g. `true`/`false` (Swift) or `YES`/`NO` (Objective-C).
+Interpreting the boolean value string should be done at the application level.
+
+XML format represent "true" boolean using `<true>` tag and "false" boolean using `<false>` tag.
+Both tags are typically written as a single empty tag, i.e. `<true/>`.
+
+[[data-type:array]]
+=== Array
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsarray[NSArray]
+CoreFoundation type:: link:{apple-core-foundation}/cfarrayref[CFArrayRef]
+Java type:: List<Object>
+
+Arrays are ordered list of element.
+Each element can be of any data type (including array).
+All elements don't have to be of the same type, but they normally are.
+
+ASCII format represent arrays as comma-separated element enclosed in parentheses, i.e. `( zero, true, 3.0, "4 th", 5)`.
+The last element may be followed by comma.
+
+XML format surround element tags with `<array>` tag, i.e. `<array><string>zero</string><true/><real>3.0</real><string>4 th</string><integer>5</integer></array>`.
+
+
+[[data-type:dictionary]]
+=== Dictionary
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsdictionary[NSDictionary]
+CoreFoundation type:: link:{apple-core-foundation}/cfdictionaryref[CFDictionaryRef]
+Java type:: Map<String, Object>
+
+Dictionary consists of key/value pairs where the key is always a <<data-type:string, string>> and the value is any data type (including dictionary).
+Each key must be unique but the uniqueness of the keys is verified at the application level.
+The order of pairs is not significant.
+
+ASCII format represent dictionaries as a list of key-value pairs enclosed in curly braces, i.e. `{ "key" = "value"; ... }`.
+Each pair ends with a mandatory semicolon (`;`).
+Within a pair, the key and value are separated by equal sign (`=`).
+
+XML format surround key-value pairs with `<dict>` tag where each pair's value is preceded by the key string surrounded by `<key>` tag, i.e. `<dict><key>key</key><string>value</string></dict>`.
+
+[[data-type:date]]
+=== Date
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsdate[NSDate]
+CoreFoundation type:: link:{apple-core-foundation}/cfdateref[CFDateRef]
+Java type:: LocalDateTime
+
+ASCII format represent date as <<data-type:string, strings>> whose content represent an ISO-8601 encoded date, i.e. `2008-12-20T22:13:56Z`.
+Interpreting the date value string should be done at the application level.
+
+XML format surround ISO-8601 encoded date with `<date>` tag, i.e. `<date>2008-12-20T22:13:56Z</date>`.
+
+[[data-type:null]]
+=== Null
+
+[horizontal]
+Foundation class:: link:{apple-objc}/nil-2gl[`nil`]
+CoreFoundation type:: link:{apple-objc}/nil-2gl[`nil`]
+Java type:: `null`
+
+Only supported in binary format.
+
+[[data-type:url]]
+=== URL
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsurl[NSURL]
+CoreFoundation type:: link:{apple-core-foundation}/cfurlref[CFURLRef]
+Java type:: URL
+
+Only supported in binary format.
+Other formats should degrade to string with application level interpretation.
+
+[[data-type:uuid]]
+=== UUID
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsuuid[NSUUID]
+CoreFoundation type:: link:{apple-core-foundation}/cfuuidref[CFUUID]
+Java type:: UUID
+
+Only supported in binary format.
+Other formats should degrade to string with application level interpretation.
+
+[[data-type:set]]
+=== Set
+
+[horizontal]
+Foundation class:: link:{apple-foundation}/nsset[NSSet] (or link:{apple-foundation}/nsorderedset[NSOrderedSet])
+CoreFoundation type:: link:{apple-core-foundation}/cfsetref[CFSetRef]
+Java type:: Set<Object>
+
+Only supported in binary format.
+Other formats should degrade to array with application level interpretation.
