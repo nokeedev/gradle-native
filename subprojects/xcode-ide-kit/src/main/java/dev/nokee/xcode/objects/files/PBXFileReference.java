@@ -26,15 +26,15 @@ import java.util.Optional;
  * Reference to a concrete file.
  */
 public final class PBXFileReference extends PBXReference {
-    @Nullable private final String explicitFileType;
-    @Nullable private final String lastKnownFileType;
+	@Nullable private final String explicitFileType;
+	@Nullable private final String lastKnownFileType;
 
-    public PBXFileReference(String name, String path, PBXSourceTree sourceTree) {
-    	this(name, path, sourceTree, null);
+	public PBXFileReference(String name, String path, PBXSourceTree sourceTree) {
+		this(name, path, sourceTree, null);
 	}
 
-    public PBXFileReference(String name, String path, PBXSourceTree sourceTree, @Nullable String defaultType) {
-        super(name, path, sourceTree);
+	public PBXFileReference(String name, String path, PBXSourceTree sourceTree, @Nullable String defaultType) {
+		super(name, path, sourceTree);
 
 		// PBXVariantGroups create file references where the name doesn't contain the file
 		// extension.
@@ -57,21 +57,21 @@ public final class PBXFileReference extends PBXReference {
 			explicitFileType = defaultType;
 			lastKnownFileType = null;
 		}
-    }
+	}
 
-    public Optional<String> getExplicitFileType() {
-        return Optional.ofNullable(explicitFileType);
-    }
+	public Optional<String> getExplicitFileType() {
+		return Optional.ofNullable(explicitFileType);
+	}
 
 	public Optional<String> getLastKnownFileType() {
 		return Optional.ofNullable(lastKnownFileType);
 	}
 
-    @Override
-    public String toString() {
-        return String.format(
-            "%s explicitFileType=%s",
-            super.toString(),
-            getExplicitFileType());
-    }
+	@Override
+	public String toString() {
+		return String.format(
+			"%s explicitFileType=%s",
+			super.toString(),
+			getExplicitFileType());
+	}
 }

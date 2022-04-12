@@ -18,24 +18,24 @@ package dev.nokee.xcode.objects.configuration;
 import dev.nokee.xcode.objects.PBXProjectItem;
 
 public abstract class PBXBuildStyle extends PBXProjectItem {
-    private final String name;
-    private final BuildSettings buildSettings;
+	private final String name;
+	private final BuildSettings buildSettings;
 
 	protected PBXBuildStyle(String name, BuildSettings buildSettings) {
 		this.name = name;
 		this.buildSettings = buildSettings;
 	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public BuildSettings getBuildSettings() {
-        return buildSettings;
-    }
+	public BuildSettings getBuildSettings() {
+		return buildSettings;
+	}
 
-    @Override
-    public int stableHash() {
-        return name.hashCode();
-    }
+	@Override
+	public int stableHash() {
+		return name.hashCode();
+	}
 }

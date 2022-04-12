@@ -33,11 +33,11 @@ import java.util.function.Consumer;
  * The root object representing the project itself.
  */
 public final class PBXProject extends PBXContainer {
-    private final PBXGroup mainGroup;
-    private final List<PBXTarget> targets;
-    private final XCConfigurationList buildConfigurationList;
-    private final String compatibilityVersion;
-    private final String name;
+	private final PBXGroup mainGroup;
+	private final List<PBXTarget> targets;
+	private final XCConfigurationList buildConfigurationList;
+	private final String compatibilityVersion;
+	private final String name;
 
 	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, List<PBXReference> mainGroupChildren) {
 		this.name = name;
@@ -47,30 +47,30 @@ public final class PBXProject extends PBXContainer {
 		this.compatibilityVersion = "Xcode 3.2";
 	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public PBXGroup getMainGroup() {
-        return mainGroup;
-    }
+	public PBXGroup getMainGroup() {
+		return mainGroup;
+	}
 
-    public List<PBXTarget> getTargets() {
-        return targets;
-    }
+	public List<PBXTarget> getTargets() {
+		return targets;
+	}
 
-    public XCConfigurationList getBuildConfigurationList() {
-        return buildConfigurationList;
-    }
+	public XCConfigurationList getBuildConfigurationList() {
+		return buildConfigurationList;
+	}
 
-    public String getCompatibilityVersion() {
-        return compatibilityVersion;
-    }
+	public String getCompatibilityVersion() {
+		return compatibilityVersion;
+	}
 
-    @Override
-    public int stableHash() {
-        return name.hashCode();
-    }
+	@Override
+	public int stableHash() {
+		return name.hashCode();
+	}
 
 	public static Builder builder() {
 		return new Builder();

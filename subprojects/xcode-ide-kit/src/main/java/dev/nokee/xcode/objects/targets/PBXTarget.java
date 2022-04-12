@@ -28,12 +28,12 @@ import java.util.List;
  * Information for building a specific artifact (a library, binary, or test).
  */
 public abstract class PBXTarget extends PBXProjectItem {
-    private final String name;
-    private final ProductType productType;
-    private final ImmutableList<PBXBuildPhase> buildPhases;
-    private final XCConfigurationList buildConfigurationList;
-    @Nullable private final String productName;
-    @Nullable private final PBXFileReference productReference;
+	private final String name;
+	private final ProductType productType;
+	private final ImmutableList<PBXBuildPhase> buildPhases;
+	private final XCConfigurationList buildConfigurationList;
+	@Nullable private final String productName;
+	@Nullable private final PBXFileReference productReference;
 
 	protected PBXTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, @Nullable String productName, @Nullable PBXFileReference productReference) {
 		this.name = name;
@@ -45,33 +45,33 @@ public abstract class PBXTarget extends PBXProjectItem {
 	}
 
 	public String getName() {
-        return name;
-    }
+		return name;
+	}
 
-    public ProductType getProductType() {
-        return productType;
-    }
+	public ProductType getProductType() {
+		return productType;
+	}
 
-    public List<PBXBuildPhase> getBuildPhases() {
-        return buildPhases;
-    }
+	public List<PBXBuildPhase> getBuildPhases() {
+		return buildPhases;
+	}
 
-    public XCConfigurationList getBuildConfigurationList() {
-        return buildConfigurationList;
-    }
+	public XCConfigurationList getBuildConfigurationList() {
+		return buildConfigurationList;
+	}
 
-    @Nullable
-    public String getProductName() {
-        return productName;
-    }
+	@Nullable
+	public String getProductName() {
+		return productName;
+	}
 
-    @Nullable
-    public PBXFileReference getProductReference() {
-        return productReference;
-    }
+	@Nullable
+	public PBXFileReference getProductReference() {
+		return productReference;
+	}
 
-    @Override
-    public int stableHash() {
-        return name.hashCode();
-    }
+	@Override
+	public int stableHash() {
+		return name.hashCode();
+	}
 }

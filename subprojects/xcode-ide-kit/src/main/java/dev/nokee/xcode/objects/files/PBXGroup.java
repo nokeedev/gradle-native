@@ -25,11 +25,11 @@ import java.util.List;
  * A collection of files in Xcode's virtual filesystem hierarchy.
  */
 public final class PBXGroup extends PBXReference {
-    private final List<PBXReference> children;
+	private final List<PBXReference> children;
 
-    // Unfortunately, we can't determine this at constructor time, because CacheBuilder
-    // calls our constructor and it's not easy to pass arguments to it.
-    private SortPolicy sortPolicy;
+	// Unfortunately, we can't determine this at constructor time, because CacheBuilder
+	// calls our constructor and it's not easy to pass arguments to it.
+	private SortPolicy sortPolicy;
 
 	private PBXGroup(String name, @Nullable String path, PBXSourceTree sourceTree, List<PBXReference> children) {
 		super(name, path, sourceTree);
@@ -39,29 +39,29 @@ public final class PBXGroup extends PBXReference {
 		this.children.addAll(children);
 	}
 
-    public List<PBXReference> getChildren() {
-        return children;
-    }
+	public List<PBXReference> getChildren() {
+		return children;
+	}
 
-    public SortPolicy getSortPolicy() {
-        return sortPolicy;
-    }
+	public SortPolicy getSortPolicy() {
+		return sortPolicy;
+	}
 
-    /**
-     * Method by which group contents will be sorted.
-     */
-    public enum SortPolicy {
-        /**
-         * By name, in default Java sort order.
-         */
-        BY_NAME,
+	/**
+	 * Method by which group contents will be sorted.
+	 */
+	public enum SortPolicy {
+		/**
+		 * By name, in default Java sort order.
+		 */
+		BY_NAME,
 
-        /**
-         * Group contents will not be sorted, and will remain in the
-         * order they were added.
-         */
-        UNSORTED;
-    }
+		/**
+		 * Group contents will not be sorted, and will remain in the
+		 * order they were added.
+		 */
+		UNSORTED;
+	}
 
 	public static Builder builder() {
 		return new Builder();

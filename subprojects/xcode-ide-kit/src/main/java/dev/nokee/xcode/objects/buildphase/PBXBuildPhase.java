@@ -24,13 +24,13 @@ import java.util.List;
  * Superclass of build phases. Each build phase represents one step in building a target.
  */
 public abstract class PBXBuildPhase extends PBXProjectItem {
-    private final ImmutableList<PBXBuildFile> files;
+	private final ImmutableList<PBXBuildFile> files;
 
 	protected PBXBuildPhase(ImmutableList<PBXBuildFile> files) {
 		this.files = files;
 	}
 
 	public List<PBXBuildFile> getFiles() {
-        return files;
-    }
+		return files;
+	}
 }

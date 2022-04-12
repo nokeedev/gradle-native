@@ -32,33 +32,33 @@ import java.util.Map;
  * that this file should be compiled with the additional flag {@code "-foo" }.
  */
 public final class PBXBuildFile extends PBXProjectItem {
-    private final PBXReference fileRef;
-    private final ImmutableMap<String, ?> settings;
+	private final PBXReference fileRef;
+	private final ImmutableMap<String, ?> settings;
 
 	public PBXBuildFile(PBXReference fileRef) {
 		this(fileRef, ImmutableMap.of());
 	}
 
-    public PBXBuildFile(PBXReference fileRef, ImmutableMap<String, ?> settings) {
-        this.fileRef = Preconditions.checkNotNull(fileRef);
-        this.settings = settings;
-    }
+	public PBXBuildFile(PBXReference fileRef, ImmutableMap<String, ?> settings) {
+		this.fileRef = Preconditions.checkNotNull(fileRef);
+		this.settings = settings;
+	}
 
-    public PBXReference getFileRef() {
-        return fileRef;
-    }
+	public PBXReference getFileRef() {
+		return fileRef;
+	}
 
-    public Map<String, ?> getSettings() {
-        return settings;
-    }
+	public Map<String, ?> getSettings() {
+		return settings;
+	}
 
-    @Override
-    public int stableHash() {
-        return fileRef.stableHash();
-    }
+	@Override
+	public int stableHash() {
+		return fileRef.stableHash();
+	}
 
-    @Override
-    public String toString() {
-        return String.format("%s fileRef=%s settings=%s", super.toString(), fileRef, settings);
-    }
+	@Override
+	public String toString() {
+		return String.format("%s fileRef=%s settings=%s", super.toString(), fileRef, settings);
+	}
 }

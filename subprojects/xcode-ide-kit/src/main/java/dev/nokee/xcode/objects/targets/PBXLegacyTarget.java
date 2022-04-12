@@ -26,10 +26,10 @@ import java.util.function.Consumer;
  * system.
  */
 public final class PBXLegacyTarget extends PBXTarget {
-    private final String buildArgumentsString;
-    private final String buildToolPath;
-    private final String buildWorkingDirectory;
-    private final boolean passBuildSettingsInEnvironment;
+	private final String buildArgumentsString;
+	private final String buildToolPath;
+	private final String buildWorkingDirectory;
+	private final boolean passBuildSettingsInEnvironment;
 
 	private PBXLegacyTarget(String name, ProductType productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
 		super(name, productType, ImmutableList.of(), buildConfigurationList, productName, productReference);
@@ -40,20 +40,20 @@ public final class PBXLegacyTarget extends PBXTarget {
 	}
 
 	public String getBuildArgumentsString() {
-        return buildArgumentsString;
-    }
+		return buildArgumentsString;
+	}
 
-    public String getBuildToolPath() {
-        return buildToolPath;
-    }
+	public String getBuildToolPath() {
+		return buildToolPath;
+	}
 
-    public String getBuildWorkingDirectory() {
-        return buildWorkingDirectory;
-    }
+	public String getBuildWorkingDirectory() {
+		return buildWorkingDirectory;
+	}
 
-    public boolean isPassBuildSettingsInEnvironment() {
-        return passBuildSettingsInEnvironment;
-    }
+	public boolean isPassBuildSettingsInEnvironment() {
+		return passBuildSettingsInEnvironment;
+	}
 
 	public static Builder builder() {
 		return new Builder();

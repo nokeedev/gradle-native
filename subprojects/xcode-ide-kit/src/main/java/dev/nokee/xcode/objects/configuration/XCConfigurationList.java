@@ -27,9 +27,9 @@ import java.util.function.Consumer;
  * List of build configurations.
  */
 public final class XCConfigurationList extends PBXProjectItem {
-    private final ImmutableMap<String, XCBuildConfiguration> buildConfigurationsByName;
-    @Nullable private final String defaultConfigurationName;
-    private final boolean defaultConfigurationIsVisible;
+	private final ImmutableMap<String, XCBuildConfiguration> buildConfigurationsByName;
+	@Nullable private final String defaultConfigurationName;
+	private final boolean defaultConfigurationIsVisible;
 
 	private XCConfigurationList(ImmutableMap<String, XCBuildConfiguration> buildConfigurations, @Nullable String defaultConfigurationName, DefaultConfigurationVisibility defaultConfigurationVisibility) {
 		this.defaultConfigurationName = defaultConfigurationName;
@@ -38,9 +38,9 @@ public final class XCConfigurationList extends PBXProjectItem {
 		this.buildConfigurationsByName = buildConfigurations;
 	}
 
-    public Map<String, XCBuildConfiguration> getBuildConfigurationsByName() {
-        return buildConfigurationsByName;
-    }
+	public Map<String, XCBuildConfiguration> getBuildConfigurationsByName() {
+		return buildConfigurationsByName;
+	}
 
 	public Optional<String> getDefaultConfigurationName() {
 		return Optional.ofNullable(defaultConfigurationName);

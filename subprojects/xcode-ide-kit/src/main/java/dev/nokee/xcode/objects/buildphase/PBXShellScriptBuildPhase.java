@@ -25,10 +25,10 @@ import java.util.List;
  * Build phase which represents running a shell script.
  */
 public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
-    private final List<String> inputPaths;
-    private final List<String> outputPaths;
-    @Nullable private final String shellPath;
-    @Nullable private final String shellScript;
+	private final List<String> inputPaths;
+	private final List<String> outputPaths;
+	@Nullable private final String shellPath;
+	@Nullable private final String shellScript;
 
 	private PBXShellScriptBuildPhase(@Nullable String shellScript, @Nullable String shellPath, List<String> inputPaths, List<String> outputPaths) {
 		super(ImmutableList.of());
@@ -39,46 +39,46 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	}
 
 	/**
-     * Returns the list (possibly empty) of files passed as input to the shell script.
-     * May not be actual paths, because they can have variable interpolations.
+	 * Returns the list (possibly empty) of files passed as input to the shell script.
+	 * May not be actual paths, because they can have variable interpolations.
 	 *
 	 * @return input paths, never null
-     */
-    public List<String> getInputPaths() {
-        return inputPaths;
-    }
+	 */
+	public List<String> getInputPaths() {
+		return inputPaths;
+	}
 
-    /**
-     * Returns the list (possibly empty) of files created as output of the shell script.
-     * May not be actual paths, because they can have variable interpolations.
+	/**
+	 * Returns the list (possibly empty) of files created as output of the shell script.
+	 * May not be actual paths, because they can have variable interpolations.
 	 *
 	 * @return output paths, never null
-     */
-    public List<String> getOutputPaths() {
-        return outputPaths;
-    }
+	 */
+	public List<String> getOutputPaths() {
+		return outputPaths;
+	}
 
-    /**
-     * Returns the path to the shell under which the script is to be executed.
-     * Defaults to "/bin/sh".
+	/**
+	 * Returns the path to the shell under which the script is to be executed.
+	 * Defaults to "/bin/sh".
 	 *
 	 * @return shell path, may be null
-     */
-    @Nullable
-    public String getShellPath() {
-        return shellPath;
-    }
+	 */
+	@Nullable
+	public String getShellPath() {
+		return shellPath;
+	}
 
-    /**
-     * Gets the contents of the shell script to execute under the shell
-     * returned by {@link #getShellPath()}.
+	/**
+	 * Gets the contents of the shell script to execute under the shell
+	 * returned by {@link #getShellPath()}.
 	 *
 	 * @return shell script, may be null
-     */
-    @Nullable
-    public String getShellScript() {
-        return shellScript;
-    }
+	 */
+	@Nullable
+	public String getShellScript() {
+		return shellScript;
+	}
 
 	public static Builder builder() {
 		return new Builder();
