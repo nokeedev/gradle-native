@@ -23,8 +23,12 @@ import java.nio.file.Path;
  */
 public final class TestNameTestDirectoryProvider extends AbstractTestDirectoryProvider {
 	public TestNameTestDirectoryProvider(Class<?> klass) {
+		this(klass, true);
+	}
+
+	public TestNameTestDirectoryProvider(Class<?> klass, boolean includeSpaces) {
 		// NOTE: the space in the directory name is intentional
-		super(new File("build/tmp/test files").toPath(), klass);
+		super(new File(includeSpaces ? "build/tmp/test files" : "build/tmp/test-files").toPath(), klass);
 	}
 
 	public TestNameTestDirectoryProvider(Path root, Class<?> klass) {
@@ -32,7 +36,11 @@ public final class TestNameTestDirectoryProvider extends AbstractTestDirectoryPr
 	}
 
 	public static TestNameTestDirectoryProvider newInstance(Class<?> testClass) {
-		return new TestNameTestDirectoryProvider(testClass);
+		return newInstance(testClass, true);
+	}
+
+	public static TestNameTestDirectoryProvider newInstance(Class<?> testClass, boolean includeSpaces) {
+		return new TestNameTestDirectoryProvider(testClass, includeSpaces);
 	}
 
 	public static TestNameTestDirectoryProvider newInstance(String methodName, Object target) {
@@ -42,7 +50,11 @@ public final class TestNameTestDirectoryProvider extends AbstractTestDirectoryPr
 	}
 
 	public static TestNameTestDirectoryProvider newInstance(String methodName, Class<?> testClass) {
-		final TestNameTestDirectoryProvider testDirectoryProvider = new TestNameTestDirectoryProvider(testClass);
+		return newInstance(methodName, testClass, true);
+	}
+
+	public static TestNameTestDirectoryProvider newInstance(String methodName, Class<?> testClass, boolean includeSpaces) {
+		final TestNameTestDirectoryProvider testDirectoryProvider = new TestNameTestDirectoryProvider(testClass, includeSpaces);
 		testDirectoryProvider.init(methodName);
 		return testDirectoryProvider;
 	}
