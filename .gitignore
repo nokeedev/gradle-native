@@ -10,3 +10,6 @@ build
 .project
 .settings/
 .vagrant/
+
+# Ignore Xcode user data
+xcuserdata/

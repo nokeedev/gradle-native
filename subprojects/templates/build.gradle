@@ -25,3 +25,19 @@ dependencies {
 	implementation 'dev.gradleplugins:gradle-fixtures-file-system:latest.release'
 	implementation 'com.google.guava:guava:28.2-jre'
 }
+
+tasks.named("processResources", ProcessResources) { task ->
+	def receipt = []
+	task.from('xcode-swift-application') {
+		into('xcode-swift-application')
+		exclude("**/*.xcuserdatad/**")
+		eachFile {
+			receipt.add(it.relativePath.toString())
+		}
+		includeEmptyDirs(false)
+	}
+
+	task.doLast {
+		new File(task.getDestinationDir(), "xcode-swift-application.sample").text = receipt.join('\n')
+	}
+}
