@@ -76,7 +76,7 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 		findAnnotatedFields(testClass, TestDirectory.class, predicate).forEach(field -> {
 			assertValidFieldCandidate(field);
 			try {
-				makeAccessible(field).set(testInstance, getPathOrFileOrProvider(field.getType(), context));
+				makeAccessible(field).set(testInstance, getPathOrFileOrProvider(field.getType(), context, field.getAnnotation(TestDirectory.class).includeSpaces()));
 			} catch (Throwable t) {
 				ExceptionUtils.throwAsUncheckedException(t);
 			}
@@ -113,7 +113,7 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 	public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
 		Class<?> parameterType = parameterContext.getParameter().getType();
 		assertSupportedType("parameter", parameterType);
-		return getPathOrFileOrProvider(parameterType, extensionContext);
+		return getPathOrFileOrProvider(parameterType, extensionContext, parameterContext.findAnnotation(TestDirectory.class).map(TestDirectory::includeSpaces).orElse(true));
 	}
 
 	private void assertSupportedType(String target, Class<?> type) {
@@ -123,13 +123,13 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 		}
 	}
 
-	private Object getPathOrFileOrProvider(Class<?> type, ExtensionContext extensionContext) {
+	private Object getPathOrFileOrProvider(Class<?> type, ExtensionContext extensionContext, boolean includeSpaces) {
 		TestDirectoryProvider provider = extensionContext.getTestMethod().map(testMethod ->
 			extensionContext.getStore(NAMESPACE) //
-				.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(testMethod.getName(), extensionContext.getRequiredTestClass()), TestDirectoryProvider.class))
+				.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(testMethod.getName(), extensionContext.getRequiredTestClass(), includeSpaces), TestDirectoryProvider.class))
 			.orElseGet(() ->
 				extensionContext.getStore(NAMESPACE) //
-					.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(extensionContext.getRequiredTestClass()), TestDirectoryProvider.class));
+					.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(extensionContext.getRequiredTestClass(), includeSpaces), TestDirectoryProvider.class));
 
 		extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put(KEY, provider.getTestDirectory());
 
