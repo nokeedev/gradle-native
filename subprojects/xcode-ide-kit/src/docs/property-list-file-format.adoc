@@ -20,6 +20,8 @@ There are three main property list representation: an XML format, a binary forma
 
 === ASCII Format
 
+// See https://opensource.apple.com/source/CF/CF-744.18/CFBinaryPList.c
+
 The OpenStep frameworks, which Cocoa is derived from, used an ASCII format for storing property lists.
 Old-style plist support remains primarily for legacy reasons.
 Xcode still use this format for `project.pbxproj` in `.xcodeproj` bundles.
@@ -29,6 +31,8 @@ Xcode still use this format for `project.pbxproj` in `.xcodeproj` bundles.
 To complete...
 
 === Binary Format
+
+// See https://medium.com/@karaiskc/understanding-apples-binary-property-list-format-281e6da00dbd
 
 To complete...
 
