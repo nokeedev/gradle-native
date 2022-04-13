@@ -88,7 +88,7 @@ class GradleNativePlatformBuildPerformanceTest {
 				.invocation(it -> it.withArguments("--dependency-verification=off"))
 				;
 
-			CommandLine.of("git", "clone", "--depth", "1", "--branch", "merged-migration", "https://github.com/gradle/native-platform.git", workingDirectory.toFile()).execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue();
+			CommandLine.of("git", "clone", "--depth", "1", "--branch", "nokee-migration", "https://github.com/gradle/native-platform.git", workingDirectory.toFile()).execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue();
 			Files.delete(workingDirectory.resolve("gradle/verification-metadata.xml"));
 			Files.write(workingDirectory.resolve("buildSrc/build.gradle"), Files.readAllLines(workingDirectory.resolve("buildSrc/build.gradle")).stream().map(it -> {
 				if (it.contains("https://repo.nokee.dev/snapshot")) {
