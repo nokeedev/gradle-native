@@ -55,6 +55,7 @@ import dev.nokee.platform.jni.internal.JvmJarArtifactComponent;
 import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
 import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
 import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
+import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
 import org.gradle.api.Action;
@@ -66,6 +67,7 @@ import org.gradle.api.tasks.bundling.Jar;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.jni.internal.actions.WhenPlugin.any;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
@@ -155,36 +157,29 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		}));
 
 		val registerJvmJarBinaryAction = new Action<AppliedPlugin>() {
-			private boolean alreadyExecuted = false;
-
 			@Override
 			public void execute(AppliedPlugin ignored) {
-				if (!alreadyExecuted) {
-					alreadyExecuted = true;
-					project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(ComponentIdentifier.class), (entity, projection, identifier) -> {
-						val registry = project.getExtensions().getByType(ModelRegistry.class);
-						val binaryIdentifier = BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"));
-						val jvmJar = registry.instantiate(ModelRegistration.builder()
-							.withComponent(binaryIdentifier)
-							.withComponent(new ElementNameComponent("jvmJar"))
-							.withComponent(new ParentComponent(entity))
-							.withComponent(IsBinary.tag())
-							.withComponent(ConfigurableTag.tag())
-							.withComponent(createdUsing(of(ModelBackedJvmJarBinary.class), ModelBackedJvmJarBinary::new))
-							.build());
-						registry.instantiate(configure(jvmJar.getId(), JvmJarBinary.class, binary -> {
-							binary.getJarTask().configure(task -> task.getArchiveBaseName().set(project.provider(() -> {
-								return ModelProperties.getProperty(entity, "baseName").as(String.class).get();
-							})));
-						}));
-						ModelStates.register(jvmJar);
-						entity.addComponent(new JvmJarArtifactComponent(jvmJar));
-					})));
-				}
+				project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(ComponentIdentifier.class), (entity, projection, identifier) -> {
+					val registry = project.getExtensions().getByType(ModelRegistry.class);
+					val binaryIdentifier = BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"));
+					val jvmJar = registry.instantiate(ModelRegistration.builder()
+						.withComponent(binaryIdentifier)
+						.withComponent(new ElementNameComponent("jvmJar"))
+						.withComponent(new ParentComponent(entity))
+						.withComponent(IsBinary.tag())
+						.withComponent(ConfigurableTag.tag())
+						.withComponent(createdUsing(of(ModelBackedJvmJarBinary.class), ModelBackedJvmJarBinary::new))
+						.build());
+					registry.instantiate(configure(jvmJar.getId(), JvmJarBinary.class, binary -> {
+						binary.getJarTask().configure(task -> task.getArchiveBaseName().set(project.provider(() -> {
+							return ModelProperties.getProperty(entity, "baseName").as(String.class).get();
+						})));
+					}));
+					ModelStates.register(jvmJar);
+					entity.addComponent(new JvmJarArtifactComponent(jvmJar));
+				})));
 			}
 		};
-		project.getPluginManager().withPlugin("java", registerJvmJarBinaryAction);
-		project.getPluginManager().withPlugin("groovy", registerJvmJarBinaryAction);
-		project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", registerJvmJarBinaryAction);
+		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), registerJvmJarBinaryAction).execute(project);
 	}
 }
