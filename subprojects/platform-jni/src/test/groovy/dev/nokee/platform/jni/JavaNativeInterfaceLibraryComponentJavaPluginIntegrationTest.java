@@ -39,6 +39,7 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.junit.jupiter.api.BeforeEach;
@@ -196,7 +197,9 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 	@Nested
 	class ApiElementsConfigurationTest {
 		public Configuration subject() {
-			return project.getConfigurations().getByName("qezuApiElements");
+			val result = project.getConfigurations().getByName("qezuApiElements");
+			((ConfigurationInternal) result).preventFromFurtherMutation(); // force realization
+			return result;
 		}
 
 		@Test

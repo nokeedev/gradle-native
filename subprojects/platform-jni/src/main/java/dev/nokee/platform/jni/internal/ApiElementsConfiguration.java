@@ -41,4 +41,8 @@ public final class ApiElementsConfiguration {
 	public void addAll(Provider<? extends Iterable<PublishArtifact>> values) {
 		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {})).configure(configuration -> configuration.getOutgoing().getArtifacts().addAllLater(values));
 	}
+
+	public ModelNode get() {
+		return entity;
+	}
 }

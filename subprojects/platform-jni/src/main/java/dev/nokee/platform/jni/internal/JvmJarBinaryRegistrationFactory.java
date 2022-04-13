@@ -16,73 +16,22 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import dev.nokee.platform.jni.JvmJarBinary;
-import dev.nokee.utils.TaskDependencyUtils;
-import org.gradle.api.Buildable;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
-import org.gradle.api.tasks.TaskDependency;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.bundling.Jar;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public final class JvmJarBinaryRegistrationFactory {
-	private final JarTaskRegistrationActionFactory jarTaskFactory;
-
-	public JvmJarBinaryRegistrationFactory(JarTaskRegistrationActionFactory jarTaskFactory) {
-		this.jarTaskFactory = jarTaskFactory;
-	}
-
 	public ModelRegistration create(BinaryIdentifier<?> identifier) {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
+			.withComponent(new ElementNameComponent(identifier.getName().get()))
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(createdUsing(of(JvmJarBinary.class), ModelBackedJvmJarBinary::new))
-			.action(jarTaskFactory.create(identifier))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(JarTask.class), (entity, id, jarTask) -> {
-				if (id.equals(identifier)) {
-					jarTask.configure(task -> task.getArchiveBaseName().convention(identifier.getName().get()));
-					jarTask.configure(configureDescription("Assembles a JAR archive containing the classes for %s.", identifier));
-				}
-			}))
+			.withComponent(createdUsing(of(ModelBackedJvmJarBinary.class), ModelBackedJvmJarBinary::new))
 			.build();
-	}
-
-	public static class ModelBackedJvmJarBinary implements JvmJarBinary, Buildable, ModelNodeAware, HasPublicType, ModelBackedNamedMixIn {
-		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
-		@Override
-		public TaskProvider<Jar> getJarTask() {
-			return (TaskProvider<Jar>) ModelElements.of(this).element("jar", Jar.class).asProvider();
-		}
-
-		@Override
-		public TaskDependency getBuildDependencies() {
-			return TaskDependencyUtils.of(getJarTask());
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return node;
-		}
-
-		@Override
-		public TypeOf<?> getPublicType() {
-			return TypeOf.typeOf(JvmJarBinary.class);
-		}
 	}
 }

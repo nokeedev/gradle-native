@@ -35,10 +35,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.description;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
