@@ -24,13 +24,11 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 public final class XCWorkspaceDataWriter implements Closeable {
+	private final Writer writer;
 	private final XMLStreamWriter delegate;
 
-	public XCWorkspaceDataWriter(XMLStreamWriter delegate) {
-		this.delegate = delegate;
-	}
-
 	public XCWorkspaceDataWriter(Writer writer) {
+		this.writer = writer;
 		try {
 			this.delegate = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
 		} catch (XMLStreamException e) {
@@ -62,6 +60,7 @@ public final class XCWorkspaceDataWriter implements Closeable {
 	public void close() throws IOException {
 		try {
 			delegate.close();
+			writer.close();
 		} catch (XMLStreamException e) {
 			throw new IOException(e);
 		}

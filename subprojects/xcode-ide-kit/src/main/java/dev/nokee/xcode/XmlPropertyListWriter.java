@@ -26,15 +26,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
 public final class XmlPropertyListWriter implements PropertyListWriter, AutoCloseable {
+	private final Writer writer;
 	private final XMLStreamWriter delegate;
 
-	public XmlPropertyListWriter(XMLStreamWriter delegate) {
-		this.delegate = delegate;
-	}
-
-	public XmlPropertyListWriter(Writer delegate) {
+	public XmlPropertyListWriter(Writer writer) {
+		this.writer = writer;
 		try {
-			this.delegate = XMLOutputFactory.newFactory().createXMLStreamWriter(delegate);
+			this.delegate = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
 		} catch (XMLStreamException e) {
 			throw new RuntimeException(e);
 		}
@@ -172,6 +170,7 @@ public final class XmlPropertyListWriter implements PropertyListWriter, AutoClos
 	public void close() throws IOException {
 		try {
 			delegate.close();
+			writer.close();
 		} catch (XMLStreamException e) {
 			throw new IOException(e);
 		}

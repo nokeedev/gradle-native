@@ -25,9 +25,11 @@ import java.io.Reader;
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
 public final class XCWorkspaceDataReader implements Closeable {
+	private final Reader reader;
 	private final XMLStreamReader delegate;
 
 	public XCWorkspaceDataReader(Reader reader) {
+		this.reader = reader;
 		try {
 			delegate = XMLInputFactory.newFactory().createXMLStreamReader(reader);
 		} catch (XMLStreamException e) {
@@ -60,6 +62,7 @@ public final class XCWorkspaceDataReader implements Closeable {
 	public void close() throws IOException {
 		try {
 			delegate.close();
+			reader.close();
 		} catch (XMLStreamException e) {
 			throw new IOException(e);
 		}

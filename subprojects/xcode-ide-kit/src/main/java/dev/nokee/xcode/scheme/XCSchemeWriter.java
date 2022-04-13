@@ -23,9 +23,11 @@ import java.io.IOException;
 import java.io.Writer;
 
 public final class XCSchemeWriter implements Closeable {
+	private final Writer writer;
 	private final XMLStreamWriter delegate;
 
 	public XCSchemeWriter(Writer writer) {
+		this.writer = writer;
 		try {
 			this.delegate = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
 		} catch (XMLStreamException e) {
@@ -185,6 +187,7 @@ public final class XCSchemeWriter implements Closeable {
 	public void close() throws IOException {
 		try {
 			delegate.close();
+			writer.close();
 		} catch (XMLStreamException e) {
 			throw new IOException(e);
 		}
