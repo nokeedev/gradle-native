@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.state.ModelStates;
@@ -24,10 +25,10 @@ import org.gradle.api.tasks.bundling.Jar;
 
 import java.util.concurrent.Callable;
 
-public final class JvmJarArtifact implements Callable<Object> {
+public final class JvmJarArtifactComponent implements Callable<Object>, ModelComponent {
 	public final ModelNode entity;
 
-	public JvmJarArtifact(ModelNode entity) {
+	public JvmJarArtifactComponent(ModelNode entity) {
 		this.entity = entity;
 	}
 
