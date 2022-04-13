@@ -25,13 +25,12 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class JvmJarBinaryRegistrationFactory {
-	public ModelRegistration create(BinaryIdentifier<?> identifier) {
+	public ModelRegistration.Builder create(BinaryIdentifier<?> identifier) {
 		return ModelRegistration.builder()
 			.withComponent(identifier)
 			.withComponent(new ElementNameComponent(identifier.getName().get()))
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(createdUsing(of(ModelBackedJvmJarBinary.class), ModelBackedJvmJarBinary::new))
-			.build();
+			.withComponent(createdUsing(of(ModelBackedJvmJarBinary.class), ModelBackedJvmJarBinary::new));
 	}
 }

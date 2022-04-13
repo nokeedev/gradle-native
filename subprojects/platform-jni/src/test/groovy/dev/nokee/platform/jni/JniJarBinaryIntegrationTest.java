@@ -57,7 +57,7 @@ class JniJarBinaryIntegrationTest extends AbstractPluginTest {
 		val variantIdentifier = VariantIdentifier.of("qile", Variant.class, componentIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(variantIdentifier).build());
 		val factory = project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class);
-		subject = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, BinaryIdentity.of("tuva", "Liha binary")))).as(JniJarBinary.class).get();
+		subject = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, BinaryIdentity.of("tuva", "Liha binary"))).build()).as(JniJarBinary.class).get();
 	}
 
 	@Nested
