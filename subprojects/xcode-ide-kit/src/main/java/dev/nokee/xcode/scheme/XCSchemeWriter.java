@@ -23,11 +23,11 @@ import java.io.IOException;
 import java.io.Writer;
 
 public final class XCSchemeWriter implements Closeable {
-	private final XMLStreamWriter writer;
+	private final XMLStreamWriter delegate;
 
-	public XCSchemeWriter(Writer delegate) {
+	public XCSchemeWriter(Writer writer) {
 		try {
-			writer = XMLOutputFactory.newFactory().createXMLStreamWriter(delegate);
+			this.delegate = XMLOutputFactory.newFactory().createXMLStreamWriter(writer);
 		} catch (XMLStreamException e) {
 			throw new RuntimeException(e);
 		}
@@ -42,10 +42,10 @@ public final class XCSchemeWriter implements Closeable {
 	 */
 	public void write(XCScheme scheme) {
 		run(() -> {
-			writer.writeStartDocument();
-			writer.writeStartElement("Scheme");
-			writer.writeAttribute("LastUpgradeVersion", scheme.getLastUpgradeVersion());
-			writer.writeAttribute("version", scheme.getVersion());
+			delegate.writeStartDocument();
+			delegate.writeStartElement("Scheme");
+			delegate.writeAttribute("LastUpgradeVersion", scheme.getLastUpgradeVersion());
+			delegate.writeAttribute("version", scheme.getVersion());
 
 			writeBuildAction(scheme.getBuildAction());
 
@@ -59,73 +59,73 @@ public final class XCSchemeWriter implements Closeable {
 
 			writeArchiveAction(scheme.getArchiveAction());
 
-			writer.writeEndElement();
-			writer.writeEndDocument();
+			delegate.writeEndElement();
+			delegate.writeEndDocument();
 		});
 	}
 
 	private void writeArchiveAction(XCScheme.ArchiveAction action) throws XMLStreamException {
-		writer.writeStartElement("ArchiveAction");
-		writer.writeAttribute("buildConfiguration", action.getBuildConfiguration());
-		writer.writeAttribute("revealArchiveInOrganizer", toYesNo(action.getRevealArchiveInOrganizer()));
-		writer.writeEndElement();
+		delegate.writeStartElement("ArchiveAction");
+		delegate.writeAttribute("buildConfiguration", action.getBuildConfiguration());
+		delegate.writeAttribute("revealArchiveInOrganizer", toYesNo(action.getRevealArchiveInOrganizer()));
+		delegate.writeEndElement();
 	}
 
 	private void writeAnalyzeAction(XCScheme.AnalyzeAction action) throws XMLStreamException {
-		writer.writeStartElement("AnalyzeAction");
-		writer.writeAttribute("buildConfiguration", action.getBuildConfiguration());
-		writer.writeEndElement();
+		delegate.writeStartElement("AnalyzeAction");
+		delegate.writeAttribute("buildConfiguration", action.getBuildConfiguration());
+		delegate.writeEndElement();
 	}
 
 	private void writeProfileAction(XCScheme.ProfileAction action) throws XMLStreamException {
-		writer.writeStartElement("ProfileAction");
-		writer.writeAttribute("buildConfiguration", action.getBuildConfiguration());
-		writer.writeAttribute("shouldUseLaunchSchemeArgsEnv", toYesNo(action.getShouldUseLaunchSchemeArgsEnv()));
-		writer.writeAttribute("savedToolIdentifier", action.getSavedToolIdentifier());
-		writer.writeAttribute("useCustomWorkingDirectory", toYesNo(action.getUseCustomWorkingDirectory()));
-		writer.writeAttribute("debugDocumentVersioning", toYesNo(action.getDebugDocumentVersioning()));
-		writer.writeEndElement();
+		delegate.writeStartElement("ProfileAction");
+		delegate.writeAttribute("buildConfiguration", action.getBuildConfiguration());
+		delegate.writeAttribute("shouldUseLaunchSchemeArgsEnv", toYesNo(action.getShouldUseLaunchSchemeArgsEnv()));
+		delegate.writeAttribute("savedToolIdentifier", action.getSavedToolIdentifier());
+		delegate.writeAttribute("useCustomWorkingDirectory", toYesNo(action.getUseCustomWorkingDirectory()));
+		delegate.writeAttribute("debugDocumentVersioning", toYesNo(action.getDebugDocumentVersioning()));
+		delegate.writeEndElement();
 	}
 
 	private void writeLaunchAction(XCScheme.LaunchAction action) throws XMLStreamException {
-		writer.writeStartElement("LaunchAction");
-		writer.writeAttribute("buildConfiguration", action.getBuildConfiguration());
-		writer.writeAttribute("selectedDebuggerIdentifier", action.getSelectedDebuggerIdentifier());
-		writer.writeAttribute("selectedLauncherIdentifier", action.getSelectedLauncherIdentifier());
-		writer.writeAttribute("launchStyle", action.getLaunchStyle());
-		writer.writeAttribute("useCustomWorkingDirectory", toYesNo(action.getUseCustomWorkingDirectory()));
-		writer.writeAttribute("ignoresPersistentStateOnLaunch", toYesNo(action.getIgnoresPersistentStateOnLaunch()));
-		writer.writeAttribute("debugDocumentVersioning", toYesNo(action.getDebugDocumentVersioning()));
-		writer.writeAttribute("debugServiceExtension", action.getDebugServiceExtension());
-		writer.writeAttribute("allowLocationSimulation", toYesNo(action.getAllowLocationSimulation()));
+		delegate.writeStartElement("LaunchAction");
+		delegate.writeAttribute("buildConfiguration", action.getBuildConfiguration());
+		delegate.writeAttribute("selectedDebuggerIdentifier", action.getSelectedDebuggerIdentifier());
+		delegate.writeAttribute("selectedLauncherIdentifier", action.getSelectedLauncherIdentifier());
+		delegate.writeAttribute("launchStyle", action.getLaunchStyle());
+		delegate.writeAttribute("useCustomWorkingDirectory", toYesNo(action.getUseCustomWorkingDirectory()));
+		delegate.writeAttribute("ignoresPersistentStateOnLaunch", toYesNo(action.getIgnoresPersistentStateOnLaunch()));
+		delegate.writeAttribute("debugDocumentVersioning", toYesNo(action.getDebugDocumentVersioning()));
+		delegate.writeAttribute("debugServiceExtension", action.getDebugServiceExtension());
+		delegate.writeAttribute("allowLocationSimulation", toYesNo(action.getAllowLocationSimulation()));
 
 		if (action.getBuildableProductRunnable() != null) {
-			writer.writeStartElement("BuildableProductRunnable");
-			writer.writeAttribute("runnableDebuggingMode", action.getBuildableProductRunnable().getRunnableDebuggingMode());
+			delegate.writeStartElement("BuildableProductRunnable");
+			delegate.writeAttribute("runnableDebuggingMode", action.getBuildableProductRunnable().getRunnableDebuggingMode());
 			writeBuildableReference(action.getBuildableProductRunnable().getBuildableReference());
-			writer.writeEndElement();
+			delegate.writeEndElement();
 		}
 
-		writer.writeEndElement();
+		delegate.writeEndElement();
 	}
 
 	private void writeTestAction(XCScheme.TestAction action) throws XMLStreamException {
-		writer.writeStartElement("TestAction");
-		writer.writeAttribute("buildConfiguration", action.getBuildConfiguration());
-		writer.writeAttribute("selectedDebuggerIdentifier", action.getSelectedDebuggerIdentifier());
-		writer.writeAttribute("selectedLauncherIdentifier", action.getSelectedLauncherIdentifier());
-		writer.writeAttribute("shouldUseLaunchSchemeArgsEnv", toYesNo(action.getShouldUseLaunchSchemeArgsEnv()));
+		delegate.writeStartElement("TestAction");
+		delegate.writeAttribute("buildConfiguration", action.getBuildConfiguration());
+		delegate.writeAttribute("selectedDebuggerIdentifier", action.getSelectedDebuggerIdentifier());
+		delegate.writeAttribute("selectedLauncherIdentifier", action.getSelectedLauncherIdentifier());
+		delegate.writeAttribute("shouldUseLaunchSchemeArgsEnv", toYesNo(action.getShouldUseLaunchSchemeArgsEnv()));
 
-		writer.writeStartElement("Testables");
+		delegate.writeStartElement("Testables");
 		for (XCScheme.TestAction.TestableReference testable : action.getTestables()) {
-			writer.writeStartElement("TestableReference");
-			writer.writeAttribute("skipped", toYesNo(testable.getSkipped()));
+			delegate.writeStartElement("TestableReference");
+			delegate.writeAttribute("skipped", toYesNo(testable.getSkipped()));
 			writeBuildableReference(testable.getBuildableReference());
-			writer.writeEndElement();
+			delegate.writeEndElement();
 		}
-		writer.writeEndElement();
+		delegate.writeEndElement();
 
-		writer.writeEndElement();
+		delegate.writeEndElement();
 	}
 
 	/**
@@ -137,40 +137,40 @@ public final class XCSchemeWriter implements Closeable {
 	 * </BuildAction>
 	 */
 	private void writeBuildAction(XCScheme.BuildAction action) throws XMLStreamException {
-		writer.writeStartElement("BuildAction");
-		writer.writeAttribute("parallelizeBuildables", toYesNo(action.getParallelizeBuildables()));
-		writer.writeAttribute("buildImplicitDependencies", toYesNo(action.getBuildImplicitDependencies()));
+		delegate.writeStartElement("BuildAction");
+		delegate.writeAttribute("parallelizeBuildables", toYesNo(action.getParallelizeBuildables()));
+		delegate.writeAttribute("buildImplicitDependencies", toYesNo(action.getBuildImplicitDependencies()));
 
-		writer.writeStartElement("BuildActionEntries");
+		delegate.writeStartElement("BuildActionEntries");
 		for (XCScheme.BuildAction.BuildActionEntry entry : action.getBuildActionEntries()) {
 			writeBuildActionEntry(entry);
 		}
-		writer.writeEndElement();
+		delegate.writeEndElement();
 
-		writer.writeEndElement();
+		delegate.writeEndElement();
 	}
 
 	private void writeBuildActionEntry(XCScheme.BuildAction.BuildActionEntry entry) throws XMLStreamException {
-		writer.writeStartElement("BuildActionEntry");
-		writer.writeAttribute("buildForTesting", toYesNo(entry.isBuildForTesting()));
-		writer.writeAttribute("buildForRunning", toYesNo(entry.isBuildForRunning()));
-		writer.writeAttribute("buildForProfiling", toYesNo(entry.isBuildForProfiling()));
-		writer.writeAttribute("buildForArchiving", toYesNo(entry.isBuildForArchiving()));
-		writer.writeAttribute("buildForAnalyzing", toYesNo(entry.isBuildForAnalyzing()));
+		delegate.writeStartElement("BuildActionEntry");
+		delegate.writeAttribute("buildForTesting", toYesNo(entry.isBuildForTesting()));
+		delegate.writeAttribute("buildForRunning", toYesNo(entry.isBuildForRunning()));
+		delegate.writeAttribute("buildForProfiling", toYesNo(entry.isBuildForProfiling()));
+		delegate.writeAttribute("buildForArchiving", toYesNo(entry.isBuildForArchiving()));
+		delegate.writeAttribute("buildForAnalyzing", toYesNo(entry.isBuildForAnalyzing()));
 
 		writeBuildableReference(entry.getBuildableReference());
 
-		writer.writeEndElement();
+		delegate.writeEndElement();
 	}
 
 	private void writeBuildableReference(XCScheme.BuildableReference buildableReference) throws XMLStreamException {
-		writer.writeStartElement("BuildableReference");
-		writer.writeAttribute("BuildableIdentifier", buildableReference.getBuildableIdentifier());
-		writer.writeAttribute("BlueprintIdentifier", buildableReference.getBlueprintIdentifier());
-		writer.writeAttribute("BuildableName", buildableReference.getBuildableName());
-		writer.writeAttribute("BlueprintName", buildableReference.getBlueprintName());
-		writer.writeAttribute("ReferencedContainer", buildableReference.getReferencedContainer());
-		writer.writeEndElement();
+		delegate.writeStartElement("BuildableReference");
+		delegate.writeAttribute("BuildableIdentifier", buildableReference.getBuildableIdentifier());
+		delegate.writeAttribute("BlueprintIdentifier", buildableReference.getBlueprintIdentifier());
+		delegate.writeAttribute("BuildableName", buildableReference.getBuildableName());
+		delegate.writeAttribute("BlueprintName", buildableReference.getBlueprintName());
+		delegate.writeAttribute("ReferencedContainer", buildableReference.getReferencedContainer());
+		delegate.writeEndElement();
 	}
 
 	private static String toYesNo(boolean value) {
@@ -178,13 +178,13 @@ public final class XCSchemeWriter implements Closeable {
 	}
 
 	public void flush() {
-		run(() -> writer.flush());
+		run(() -> delegate.flush());
 	}
 
 	@Override
 	public void close() throws IOException {
 		try {
-			writer.close();
+			delegate.close();
 		} catch (XMLStreamException e) {
 			throw new IOException(e);
 		}
