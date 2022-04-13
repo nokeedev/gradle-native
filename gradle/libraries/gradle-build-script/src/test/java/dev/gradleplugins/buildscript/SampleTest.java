@@ -105,9 +105,6 @@ class SampleTest {
 
 	@Test
 	void configurePluginManagementFromInitScript() {
-		System.out.println(GradleBlock.builder()
-			.settingsEvaluated(t -> t.pluginManagement(this::configureNokeePluginManagement))
-			.build());
 		assertThat(GradleBlock.builder()
 				.settingsEvaluated(t -> t.pluginManagement(this::configureNokeePluginManagement))
 				.build(),
