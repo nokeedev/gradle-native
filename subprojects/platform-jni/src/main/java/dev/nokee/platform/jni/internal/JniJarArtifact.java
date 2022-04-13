@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
 public final class JniJarArtifact implements Callable<Object> {
 	public final ModelNode entity;
 
-	JniJarArtifact(ModelNode entity) {
+	public JniJarArtifact(ModelNode entity) {
 		this.entity = entity;
 	}
 

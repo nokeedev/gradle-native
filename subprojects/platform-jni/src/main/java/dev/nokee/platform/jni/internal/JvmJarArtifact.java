@@ -27,7 +27,7 @@ import java.util.concurrent.Callable;
 public final class JvmJarArtifact implements Callable<Object> {
 	public final ModelNode entity;
 
-	JvmJarArtifact(ModelNode entity) {
+	public JvmJarArtifact(ModelNode entity) {
 		this.entity = entity;
 	}
 
@@ -39,5 +39,9 @@ public final class JvmJarArtifact implements Callable<Object> {
 	public Object call() throws Exception {
 		ModelStates.realize(entity);
 		return ModelNodeUtils.get(entity, JvmJarBinary.class);
+	}
+
+	public ModelNode get() {
+		return entity;
 	}
 }

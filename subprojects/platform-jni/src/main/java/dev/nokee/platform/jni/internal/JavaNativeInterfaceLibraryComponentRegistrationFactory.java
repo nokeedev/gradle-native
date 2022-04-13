@@ -36,8 +36,6 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElements;
@@ -54,8 +52,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantView;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -76,7 +72,6 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
-import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.runtime.core.Coordinate;
@@ -94,7 +89,6 @@ import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
-import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Provider;
 
 import java.util.Collections;
@@ -105,6 +99,7 @@ import java.util.stream.Collectors;
 import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.maven;
 import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
@@ -210,25 +205,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						assembleTask.configure(Task.class, configureDescription("Assembles the outputs of %s.", identifier));
 						entity.addComponent(new AssembleTask(ModelNodes.of(assembleTask)));
 
-						val registerJvmJarBinaryAction = new Action<AppliedPlugin>() {
-							private boolean alreadyExecuted = false;
-
-							@Override
-							public void execute(AppliedPlugin ignored) {
-								if (!alreadyExecuted) {
-									alreadyExecuted = true;
-									val jvmJar = registry.register(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"))));
-									jvmJar.configure(JvmJarBinary.class, binary -> {
-										binary.getJarTask().configure(task -> task.getArchiveBaseName().set(baseNameProperty.as(String.class).asProvider()));
-									});
-									entity.addComponent(new JvmJarArtifact(ModelNodes.of(jvmJar)));
-								}
-							}
-						};
-						project.getPluginManager().withPlugin("java", registerJvmJarBinaryAction);
-						project.getPluginManager().withPlugin("groovy", registerJvmJarBinaryAction);
-						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", registerJvmJarBinaryAction);
-
 						// TODO: This is an external dependency meaning we should go through the component dependencies.
 						//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 						//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
@@ -273,12 +249,18 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
 				if (id.equals(identifier)) {
-					apiElements.add(jvmJar.getJarTask());
+					val registry = project.getExtensions().getByType(ModelRegistry.class);
+					registry.instantiate(configure(apiElements.get().getId(), Configuration.class, configuration -> {
+						configuration.getOutgoing().artifact(jvmJar.getJarTask());
+					}));
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
 				if (id.equals(identifier)) {
-					runtimeElements.add(jvmJar.getJarTask());
+					val registry = project.getExtensions().getByType(ModelRegistry.class);
+					registry.instantiate(configure(runtimeElements.get().getId(), Configuration.class, configuration -> {
+						configuration.getOutgoing().artifact(jvmJar.getJarTask());
+					}));
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jvmJar, assemble) -> {
@@ -361,15 +343,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asDomainObject(), (entity, id, ignored, jvmJar, component) -> {
-				if (id.equals(identifier)) {
-					if (component.getBuildVariants().get().size() == 1) {
-						project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configureEach(ModelSpec.ownedBy(entity.getId()), JvmJarBinary.class, binary -> {
-								binary.getJarTask().configure(configureDescription("Assembles a JAR archive containing the classes and shared library for %s.", ModelNodes.of(binary).getComponent(BinaryIdentifier.class)));
-							}));
-					}
-				}
-			}));
+			;
 
 		if (identifier.isMainComponent()) {
 			builder.withComponent(ExcludeFromQualifyingNameTag.tag());

@@ -36,6 +36,7 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -190,9 +191,8 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					sharedLibraryTask.configure(Task.class, configureDescription("Assembles the shared library binary of %s.", identifier.getDisplayName()));
 					sharedLibraryTask.configure(Task.class, configureDependsOn(sharedLibrary.as(SharedLibraryBinary.class)));
 
-					val jniJar = registry.register(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"))));
 					val developmentBinaryProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentBinary"), Binary.class));
-					((ModelProperty<Binary>) developmentBinaryProperty).asProperty(property(of(Binary.class))).convention(jniJar.as(JniJarBinary.class).asProvider());
+					((ModelProperty<Binary>) developmentBinaryProperty).asProperty(property(of(Binary.class))).convention(project.provider(() -> new Object()).flatMap(it -> ModelElements.of(entity).element("jniJar", JniJarBinary.class).asProvider()));
 
 					project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 						private ModelElement compileOnly = null;
@@ -247,13 +247,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 
 					val resourcePathProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "resourcePath"), String.class));
 					((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
-
-					jniJar.configure(JniJarBinary.class, binary -> {
-						binary.getJarTask().configure(task -> {
-							task.getArchiveBaseName().set(baseNameProperty.as(String.class).map(baseName -> baseName + identifier.getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("")));
-						});
-					});
-					entity.addComponent(new JniJarArtifact(ModelNodes.of(jniJar)));
 
 					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).asProvider()));
 
