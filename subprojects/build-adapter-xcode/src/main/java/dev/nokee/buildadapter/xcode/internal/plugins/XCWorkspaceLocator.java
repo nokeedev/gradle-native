@@ -30,7 +30,10 @@ public final class XCWorkspaceLocator {
 		}
 
 		try (val stream = Files.newDirectoryStream(searchDirectory, this::filterXcodeWorkspace)) {
-			return ImmutableList.copyOf(stream);
+			// DirectoryStream returns element in no particular order.
+			// For deterministic reason, we will sort the paths according to their natural ordering.
+			// It's important to note the ordering should not be considered natural, only deterministic.
+			return ImmutableList.sortedCopyOf(stream);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Unable to locate Xcode workspace.", e);
 		}
