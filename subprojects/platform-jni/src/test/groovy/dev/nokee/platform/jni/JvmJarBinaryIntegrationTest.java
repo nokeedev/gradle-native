@@ -18,15 +18,11 @@ package dev.nokee.platform.jni;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
-import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.jni.internal.JarTaskRegistrationActionFactory;
 import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
 import lombok.val;
 import org.gradle.api.Project;
@@ -37,13 +33,15 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.description;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 class JvmJarBinaryIntegrationTest extends AbstractPluginTest {

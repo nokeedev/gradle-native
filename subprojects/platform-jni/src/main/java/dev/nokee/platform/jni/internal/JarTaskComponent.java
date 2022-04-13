@@ -15,9 +15,10 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 
-public final class JarTaskComponent {
+public final class JarTaskComponent implements ModelComponent {
 	private final ModelNode entity;
 
 	public JarTaskComponent(ModelNode entity) {

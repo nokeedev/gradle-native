@@ -264,7 +264,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path)));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(JniJarArtifact.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jniJar, assembleTask) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(JniJarArtifactComponent.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jniJar, assembleTask) -> {
 				if (id.equals(identifier) && !id.getUnambiguousName().isEmpty()) {
 					assembleTask.configure(configureDependsOn(jniJar));
 				}

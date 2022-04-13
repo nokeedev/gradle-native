@@ -247,7 +247,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
 				if (id.equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					registry.instantiate(configure(apiElements.get().getId(), Configuration.class, configuration -> {
@@ -255,7 +255,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
 				if (id.equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					registry.instantiate(configure(runtimeElements.get().getId(), Configuration.class, configuration -> {
@@ -263,7 +263,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifact.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jvmJar, assemble) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jvmJar, assemble) -> {
 				if (id.equals(identifier)) {
 					assemble.configure(configureDependsOn(jvmJar));
 				}
@@ -336,7 +336,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JvmJarArtifact.class), (entity, id, variants, jvmJar) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JvmJarArtifactComponent.class), (entity, id, variants, jvmJar) -> {
 				if (id.equals(identifier)) {
 					instantiate(entity, configureEach(ownedBy(entity.getId()), JniLibraryInternal.class, variant -> {
 						variant.getAssembleTask().configure(configureDependsOn(jvmJar));
