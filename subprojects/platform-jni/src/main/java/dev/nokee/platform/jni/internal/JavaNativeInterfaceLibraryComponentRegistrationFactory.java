@@ -155,11 +155,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-//						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "jni")));
-
-						// TODO: ONLY if applying include language plugin
-//						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "headers")));
-
 						val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
 						((ModelProperty<String>) baseNameProperty).asProperty(property(of(String.class))).convention(identifier.getName().get());
 
