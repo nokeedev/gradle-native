@@ -31,8 +31,10 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.NamingScheme;
 import dev.nokee.model.internal.names.NamingSchemeSystem;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
@@ -58,6 +60,7 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
@@ -67,6 +70,7 @@ import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactor
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
@@ -85,6 +89,7 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.InvocationTargetException;
@@ -212,6 +217,20 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
 				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "variants"));
 			}
+		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasBaseNameMixIn.class), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
+			if (identifier instanceof ModelPropertyIdentifier) {
+				return; // ignore
+			}
+			val baseNameProperty = modeRegistry.instantiate(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
+			ModelStates.register(baseNameProperty);
+			entity.addComponent(new BaseNamePropertyComponent(baseNameProperty));
+		})));
+
+		// ComponentFromEntity<GradlePropertyComponent> on BaseNamePropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, property, elementName) -> {
+			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(elementName.get().toString());
 		}));
 	}
 

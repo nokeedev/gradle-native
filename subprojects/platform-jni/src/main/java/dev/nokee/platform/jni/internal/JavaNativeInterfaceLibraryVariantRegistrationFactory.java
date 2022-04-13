@@ -241,14 +241,12 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from(sharedLibrary.as(SharedLibraryBinary.class).flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile));
 					((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from((Callable<Object>) () -> ModelNodes.of(sharedLibrary).getComponent(DependentRuntimeLibraries.class));
 
-					val baseNameProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
-					((ModelProperty<String>) baseNameProperty).asProperty(property(of(String.class))).convention(identifier.getUnambiguousName());
-					ModelProperties.getProperty(sharedLibrary, "baseName").asProperty(property(of(String.class))).convention(baseNameProperty.as(String.class).asProvider());
+					ModelProperties.getProperty(sharedLibrary, "baseName").asProperty(property(of(String.class))).convention(project.provider(() -> new Object()).flatMap(it -> ModelProperties.getProperty(entity, "baseName").as(String.class).asProvider()));
 
 					val resourcePathProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "resourcePath"), String.class));
 					((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
 
-					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(baseNameProperty.as(String.class).asProvider()));
+					sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(project.provider(() -> new Object()).flatMap(it -> ModelProperties.getProperty(entity, "baseName").as(String.class).asProvider())));
 
 					entity.addComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects())));
 
