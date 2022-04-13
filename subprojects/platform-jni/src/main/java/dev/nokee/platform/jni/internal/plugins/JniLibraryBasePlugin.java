@@ -18,14 +18,12 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -35,7 +33,6 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
@@ -65,8 +62,6 @@ import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.tasks.bundling.Jar;
 
 import static dev.nokee.model.internal.actions.ModelAction.configure;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.jni.internal.actions.WhenPlugin.any;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDescription;
@@ -89,13 +84,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(VariantIdentifier.class), (entity, projection, identifier) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val binaryIdentifier = BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
-			val jniJar = registry.instantiate(ModelRegistration.builder()
-				.withComponent(binaryIdentifier)
-				.withComponent(new ElementNameComponent("jniJar"))
+			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 				.withComponent(new ParentComponent(entity))
-				.withComponent(IsBinary.tag())
-				.withComponent(ConfigurableTag.tag())
-				.withComponent(createdUsing(of(ModelBackedJniJarBinary.class), ModelBackedJniJarBinary::new))
 				.build());
 			registry.instantiate(configure(jniJar.getId(), JniJarBinary.class, binary -> {
 				binary.getJarTask().configure(task -> {
@@ -162,13 +152,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(ComponentIdentifier.class), (entity, projection, identifier) -> {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					val binaryIdentifier = BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"));
-					val jvmJar = registry.instantiate(ModelRegistration.builder()
-						.withComponent(binaryIdentifier)
-						.withComponent(new ElementNameComponent("jvmJar"))
+					val jvmJar = registry.instantiate(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 						.withComponent(new ParentComponent(entity))
-						.withComponent(IsBinary.tag())
-						.withComponent(ConfigurableTag.tag())
-						.withComponent(createdUsing(of(ModelBackedJvmJarBinary.class), ModelBackedJvmJarBinary::new))
 						.build());
 					registry.instantiate(configure(jvmJar.getId(), JvmJarBinary.class, binary -> {
 						binary.getJarTask().configure(task -> task.getArchiveBaseName().set(project.provider(() -> {
