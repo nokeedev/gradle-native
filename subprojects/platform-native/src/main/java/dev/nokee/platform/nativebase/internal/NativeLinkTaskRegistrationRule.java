@@ -15,9 +15,8 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.MoreCollectors;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.base.HasDestinationDirectory;
@@ -25,11 +24,16 @@ import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.ComponentDependencies;
+import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -55,43 +59,48 @@ import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.util.GUtil;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProperty;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-@AutoFactory
-public final class NativeLinkTaskRegistrationAction extends ModelActionWithInputs.ModelAction2<BinaryIdentifier<?>, ModelState.IsAtLeastRegistered> {
-	private final BinaryIdentifier<?> identifier;
-	private final Class<? extends ObjectLink> publicType;
-	private final Class<? extends ObjectLink> implementationType;
+@SuppressWarnings("rawtypes")
+public final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<BinaryIdentifier, ModelProjection> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
-	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
-	public <T extends ObjectLink> NativeLinkTaskRegistrationAction(BinaryIdentifier<?> identifier, Class<T> publicType, Class<? extends T> implementationType, @Provided ModelRegistry registry, @Provided TaskRegistrationFactory taskRegistrationFactory, @Provided ModelPropertyRegistrationFactory propertyRegistrationFactory, @Provided NativeToolChainSelector toolChainSelector) {
-		this.identifier = identifier;
-		this.publicType = publicType;
-		this.implementationType = implementationType;
+	public NativeLinkTaskRegistrationRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
+		super(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.ofProjection(HasLinkTask.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
-		this.propertyRegistrationFactory = propertyRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("link"), publicType, identifier), implementationType).build());
-			linkTask.configure(publicType, configureDescription("Links the %s.", identifier));
-			linkTask.configure(publicType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
-			linkTask.configure(publicType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-			linkTask.configure(publicType, configureDestinationDirectory(convention(forLibrary(identifier))));
-			entity.addComponent(new NativeLinkTask(linkTask));
-		}
+	protected void execute(ModelNode entity, BinaryIdentifier identifier, ModelProjection projection) {
+		@SuppressWarnings("unchecked")
+		val implementationType = taskType((ModelType<? extends HasLinkTask<? extends ObjectLink, ? extends ObjectLink>>) projection.getType());
+
+		val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("link"), implementationType, identifier), implementationType).build());
+		linkTask.configure(implementationType, configureDescription("Links the %s.", identifier));
+		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
+		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
+		linkTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier))));
+		entity.addComponent(new NativeLinkTask(linkTask));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Class<? extends ObjectLink> taskType(ModelType<? extends HasLinkTask<? extends ObjectLink, ? extends ObjectLink>> type) {
+		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(HasLinkTask.class)).map(it -> (ModelType<Task>) it).collect(MoreCollectors.onlyElement());
+		return (Class<? extends ObjectLink>) ((ParameterizedType) t.getType()).getActualTypeArguments()[1];
 	}
 
 	//region Destination directory
@@ -124,7 +133,7 @@ public final class NativeLinkTaskRegistrationAction extends ModelActionWithInput
 	//endregion
 
 	//region Linker arguments
-	private static Action<ObjectLink> configureLinkerArgs(BiConsumer<? super ObjectLink, ? super PropertyUtils.CollectionProperty<String>> action) {
+	private static Action<ObjectLink> configureLinkerArgs(BiConsumer<? super ObjectLink, ? super CollectionProperty<String>> action) {
 		return task -> action.accept(task, wrap(task.getLinkerArgs()));
 	}
 
