@@ -47,6 +47,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.Provider;
 import org.gradle.jvm.tasks.Jar;
@@ -710,7 +711,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 			@Override
 			public Configuration subject() {
-				return project().getConfigurations().getByName("quzuLinkLibraries");
+				return realize(project().getConfigurations().getByName("quzuLinkLibraries"));
 			}
 		}
 
@@ -718,7 +719,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 			@Override
 			public Configuration subject() {
-				return project().getConfigurations().getByName("quzuRuntimeLibraries");
+				return realize(project().getConfigurations().getByName("quzuRuntimeLibraries"));
 			}
 		}
 
@@ -922,7 +923,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuWindowsX64LinkLibraries");
+					return realize(project().getConfigurations().getByName("quzuWindowsX64LinkLibraries"));
 				}
 			}
 
@@ -930,7 +931,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuWindowsX64RuntimeLibraries");
+					return realize(project().getConfigurations().getByName("quzuWindowsX64RuntimeLibraries"));
 				}
 			}
 
@@ -1109,7 +1110,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuLinuxX86LinkLibraries");
+					return realize(project().getConfigurations().getByName("quzuLinuxX86LinkLibraries"));
 				}
 			}
 
@@ -1117,7 +1118,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuLinuxX86RuntimeLibraries");
+					return realize(project().getConfigurations().getByName("quzuLinuxX86RuntimeLibraries"));
 				}
 			}
 
@@ -1188,5 +1189,10 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				}
 			}
 		}
+	}
+
+	private static Configuration realize(Configuration configuration) {
+		((ConfigurationInternal) configuration).preventFromFurtherMutation();
+		return configuration;
 	}
 }

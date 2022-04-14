@@ -54,12 +54,10 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class SharedLibraryBinaryRegistrationFactory {
 	private final RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory;
-	private final AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory;
 	private final ObjectFactory objectFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory, ObjectFactory objectFactory) {
+	public SharedLibraryBinaryRegistrationFactory(RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, ObjectFactory objectFactory) {
 		this.compileTasksPropertyActionFactory = compileTasksPropertyActionFactory;
-		this.attachAttributesToConfigurationRuleFactory = attachAttributesToConfigurationRuleFactory;
 		this.objectFactory = objectFactory;
 	}
 
@@ -71,8 +69,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(compileTasksPropertyActionFactory.create(identifier))
 			.action(new AttachObjectFilesToLinkTaskRule(identifier))
 			.action(new ConfigureLinkTaskDefaultsRule(identifier))
-			.action(attachAttributesToConfigurationRuleFactory.create(identifier, LinkLibrariesConfiguration.class))
-			.action(attachAttributesToConfigurationRuleFactory.create(identifier, RuntimeLibrariesConfiguration.class))
 			.action(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {

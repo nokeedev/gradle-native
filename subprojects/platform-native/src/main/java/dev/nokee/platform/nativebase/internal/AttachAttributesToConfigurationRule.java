@@ -15,36 +15,31 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 
-@AutoFactory
-public final class AttachAttributesToConfigurationRule extends ModelActionWithInputs.ModelAction3<DomainObjectIdentifier, Configurable<Configuration>, BuildVariant> {
-	private final DomainObjectIdentifier identifier;
+public final class AttachAttributesToConfigurationRule<T extends LinkedEntity> extends ModelActionWithInputs.ModelAction2<T, BuildVariant> {
+	private final ModelRegistry registry;
 	private final ObjectFactory objects;
 
-	@SuppressWarnings("unchecked")
-	public AttachAttributesToConfigurationRule(DomainObjectIdentifier identifier, Class<? extends Configurable<Configuration>> configurationType, @Provided ObjectFactory objects) {
-		super(ModelComponentReference.of((Class<DomainObjectIdentifier>) identifier.getClass()), ModelComponentReference.of((Class<Configurable<Configuration>>) configurationType), ModelComponentReference.ofAny(ModelComponentType.componentOf(BuildVariant.class)));
-		this.identifier = identifier;
+	public AttachAttributesToConfigurationRule(Class<T> configurationType, ModelRegistry registry, ObjectFactory objects) {
+		super(ModelComponentReference.of(configurationType), ModelComponentReference.ofAny(ModelComponentType.componentOf(BuildVariant.class)));
+		this.registry = registry;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, DomainObjectIdentifier identifier, Configurable<Configuration> configuration, BuildVariant buildVariant) {
-		if (identifier.equals(this.identifier)) {
-			configuration.configure(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) buildVariant, objects));
-			configuration.configure(ConfigurationUtilsEx::configureAsGradleDebugCompatible);
-		}
+	protected void execute(ModelNode entity, T configuration, BuildVariant buildVariant) {
+		registry.instantiate(ModelAction.configure(configuration.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) buildVariant, objects)));
+		registry.instantiate(ModelAction.configure(configuration.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 	}
 }
