@@ -30,6 +30,7 @@ import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
+import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -42,8 +43,10 @@ import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.ios.tasks.internal.ProcessPropertyListTask;
 import dev.nokee.platform.ios.tasks.internal.SignIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.BundleBinary;
+import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.internal.NativeApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
@@ -69,6 +72,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
+	, ModelBackedSourceAwareComponentMixIn<NativeApplicationSources, NativeApplicationSourcesAdapter>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedNamedMixIn
