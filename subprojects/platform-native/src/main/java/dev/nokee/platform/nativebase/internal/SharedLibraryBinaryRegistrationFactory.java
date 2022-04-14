@@ -54,14 +54,12 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class SharedLibraryBinaryRegistrationFactory {
-	private final NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory;
 	private final BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory;
 	private final RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory;
 	private final AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory;
 	private final ObjectFactory objectFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory, BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory, RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory, ObjectFactory objectFactory) {
-		this.linkTaskRegistrationActionFactory = linkTaskRegistrationActionFactory;
+	public SharedLibraryBinaryRegistrationFactory(BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory, RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory, ObjectFactory objectFactory) {
 		this.baseNamePropertyRegistrationActionFactory = baseNamePropertyRegistrationActionFactory;
 		this.compileTasksPropertyActionFactory = compileTasksPropertyActionFactory;
 		this.attachAttributesToConfigurationRuleFactory = attachAttributesToConfigurationRuleFactory;
@@ -74,7 +72,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
 			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))
-			.action(linkTaskRegistrationActionFactory.create(identifier, LinkSharedLibrary.class, LinkSharedLibraryTask.class))
 			.action(baseNamePropertyRegistrationActionFactory.create(identifier))
 			.action(compileTasksPropertyActionFactory.create(identifier))
 			.action(new ConfigureLinkTaskFromBaseNameRule(identifier))
@@ -91,7 +88,13 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.build();
 	}
 
-	private static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware, ModelBackedNamedMixIn, HasHeaderSearchPaths, HasLinkLibrariesDependencyBucket, HasRuntimeLibrariesDependencyBucket {
+	private static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware
+		, ModelBackedNamedMixIn
+		, HasHeaderSearchPaths
+		, HasLinkLibrariesDependencyBucket
+		, HasRuntimeLibrariesDependencyBucket
+		, HasLinkTask<LinkSharedLibrary, LinkSharedLibraryTask>
+	{
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
 		private final ObjectFactory objectFactory;
