@@ -15,10 +15,6 @@
  */
 package dev.nokee.model.internal.type;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 import lombok.EqualsAndHashCode;
@@ -26,8 +22,13 @@ import lombok.val;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -38,14 +39,10 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 @SuppressWarnings("UnstableApiUsage")
 public final class ModelType<T> {
-	private static final LoadingCache<TypeToken<?>, Class<?>> rawTypes = CacheBuilder.newBuilder()
-		.build(
-			new CacheLoader<TypeToken<?>, Class<?>>() {
-				@Override
-				public Class<?> load(TypeToken<?> type) {
-					return type.getRawType();
-				}
-			});
+	private static final ConcurrentHashMap<TypeToken<?>, Class<?>> rawTypes = new ConcurrentHashMap<>();
+	private static Class<?> computeRawType(TypeToken<?> type) {
+		return type.getRawType();
+	}
 	private static final ModelType<Object> UNTYPED = ModelType.of(Object.class);
 	private static final Collection<ModelType<?>> OBJECT_TYPE = ImmutableList.of(of(Object.class));
 	private final TypeToken<T> type;
@@ -61,14 +58,14 @@ public final class ModelType<T> {
 	// TODO: It feels strange the method is about types but returns a class
 	public Class<? super T> getRawType() {
 		@SuppressWarnings("unchecked")
-		final Class<? super T> result = (Class<? super T>) rawTypes.getUnchecked(type);
+		final Class<? super T> result = (Class<? super T>) rawTypes.computeIfAbsent(type, ModelType::computeRawType);
 		return result;
 	}
 
 	// TODO: It feels strange the method is about types but returns a class
 	public Class<T> getConcreteType() {
 		@SuppressWarnings("unchecked")
-		final Class<T> result = (Class<T>) rawTypes.getUnchecked(type);
+		final Class<T> result = (Class<T>) rawTypes.computeIfAbsent(type, ModelType::computeRawType);
 		return result;
 	}
 
