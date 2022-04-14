@@ -15,10 +15,11 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
-public final class VariantDimensionTag {
+public final class VariantDimensionTag implements ModelComponent {
 	private static final VariantDimensionTag INSTANCE = new VariantDimensionTag();
 
 	private VariantDimensionTag() {}

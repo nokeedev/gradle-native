@@ -15,9 +15,10 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 
-public final class BuildVariantsPropertyComponent {
+public final class BuildVariantsPropertyComponent implements ModelComponent {
 	private final ModelNode entity;
 
 	public BuildVariantsPropertyComponent(ModelNode entity) {

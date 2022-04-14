@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
@@ -27,7 +28,7 @@ import org.gradle.api.provider.Provider;
 // TODO: We could set the classes directory as secondary variant.
 // TODO: We could maybe set the shared library directory as secondary variant.
 //  However, the shared library would requires the resource path to be taken into consideration...
-public final class ApiElementsConfiguration {
+public final class ApiElementsConfiguration implements ModelComponent {
 	private final ModelNode entity;
 
 	ApiElementsConfiguration(ModelNode entity) {

@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.ComponentVariants;
@@ -22,7 +23,7 @@ import dev.nokee.platform.base.ComponentVariants;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class Variants implements ComponentVariants, Iterable<ModelNode> {
+public final class Variants implements ComponentVariants, Iterable<ModelNode>, ModelComponent {
 	private final Map<BuildVariant, ModelNode> variants;
 
 	public Variants(Map<BuildVariant, ModelNode> variants) {

@@ -34,7 +34,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
 import static dev.nokee.model.internal.type.ModelType.of;
 

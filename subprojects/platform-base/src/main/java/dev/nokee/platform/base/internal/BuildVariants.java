@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.core.DescendantNodes;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.platform.base.BuildVariant;
@@ -47,7 +48,7 @@ import static dev.nokee.runtime.core.Coordinates.absentCoordinate;
 import static dev.nokee.utils.Cast.uncheckedCastBecauseOfTypeErasure;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public final class BuildVariants {
+public final class BuildVariants implements ModelComponent {
 	private final Provider<Iterable<CoordinateSet<?>>> dimensions;
 	private final Provider<CoordinateSpace> finalSpace;
 	private final SetProperty<BuildVariant> buildVariants;
@@ -55,7 +56,7 @@ public final class BuildVariants {
 	public BuildVariants(ModelNode entity, ProviderFactory providers, ObjectFactory objects) {
 		Provider<List<ModelNode>> dimensions = providers.provider(() -> {
 			val nodes = entity.getComponent(componentOf(DescendantNodes.class)).getDirectDescendants().stream();
-			val dimensionNodes = nodes.filter(it -> it.hasComponent(componentOf(VariantDimensionTag.class)));
+			val dimensionNodes = nodes.filter(it -> it.has(VariantDimensionTag.class));
 			return dimensionNodes.collect(Collectors.toList());
 		});
 		this.dimensions = dimensions
@@ -115,7 +116,7 @@ public final class BuildVariants {
 				axisCoordinates = axisCoordinates.andThen(new PeekTransformer<>(it -> axisValidator.get().accept(it)));
 			}
 
-			if (entity.hasComponent(componentOf(VariantDimensionAxisOptionalTag.class))) {
+			if (entity.has(VariantDimensionAxisOptionalTag.class)) {
 				axisCoordinates = axisCoordinates.andThen(prepended(absentCoordinate(axis)));
 			}
 

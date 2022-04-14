@@ -15,6 +15,8 @@
  */
 package dev.nokee.model.internal.state;
 
+import dev.nokee.model.internal.core.ModelComponent;
+
 public enum ModelState {
 	Created, // Node instance created, can now add projections
 	Initialized, // All projection added
@@ -28,9 +30,9 @@ public enum ModelState {
 		return this.compareTo(state) >= 0;
 	}
 
-	public static final class IsAtLeastCreated {}
-	public static final class IsAtLeastInitialized {}
-	public static final class IsAtLeastRegistered {}
-	public static final class IsAtLeastRealized {}
-	public static final class IsAtLeastFinalized {}
+	public static final class IsAtLeastCreated implements ModelComponent {}
+	public static final class IsAtLeastInitialized implements ModelComponent {}
+	public static final class IsAtLeastRegistered implements ModelComponent {}
+	public static final class IsAtLeastRealized implements ModelComponent {}
+	public static final class IsAtLeastFinalized implements ModelComponent {}
 }

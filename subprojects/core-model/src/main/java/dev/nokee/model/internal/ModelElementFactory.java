@@ -83,7 +83,7 @@ public final class ModelElementFactory {
 
 	public ModelElement createElement(ModelNode entity) {
 		Objects.requireNonNull(entity);
-		if (entity.hasComponent(ModelPropertyTag.class)) {
+		if (entity.has(ModelPropertyTag.class)) {
 			return createPropertyInternal(entity, entity.get(ModelPropertyTypeComponent.class).get());
 		} else {
 			return createElementInternal(entity);
@@ -140,7 +140,7 @@ public final class ModelElementFactory {
 	public <T> DomainObjectProvider<T> createObject(ModelNode entity, ModelType<T> type) {
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(type);
-		if (entity.hasComponent(ModelPropertyTag.class) && type.isSupertypeOf(propertyType(entity))) {
+		if (entity.has(ModelPropertyTag.class) && type.isSupertypeOf(propertyType(entity))) {
 			return createPropertyInternal(entity, propertyType(entity));
 		} else {
 			Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(entity, type), "node '%s' cannot be viewed as %s", entity, type);
@@ -276,14 +276,14 @@ public final class ModelElementFactory {
 
 	public ModelProperty<?> createProperty(ModelNode entity) {
 		Objects.requireNonNull(entity);
-		Preconditions.checkArgument(entity.hasComponent(ModelPropertyTag.class));
+		Preconditions.checkArgument(entity.has(ModelPropertyTag.class));
 		return createPropertyInternal(entity, entity.get(ModelPropertyTypeComponent.class).get());
 	}
 
 	public <T> ModelProperty<T> createProperty(ModelNode entity, ModelType<T> type) {
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(type);
-		Preconditions.checkArgument(entity.hasComponent(ModelPropertyTag.class));
+		Preconditions.checkArgument(entity.has(ModelPropertyTag.class));
 		Preconditions.checkArgument(type.isSupertypeOf(propertyType(entity)));
 		return createPropertyInternal(entity, propertyType(entity));
 	}

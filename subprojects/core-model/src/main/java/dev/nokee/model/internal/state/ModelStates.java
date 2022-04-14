@@ -28,7 +28,7 @@ public final class ModelStates {
 	private ModelStates() {}
 
 	public static ModelNode create(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastCreated.class)) {
+		if (!self.has(ModelState.IsAtLeastCreated.class)) {
 			if (self.hasComponent(ModelState.class)) {
 				self.setComponent(ModelState.class, ModelState.Created);
 			} else {
@@ -46,7 +46,7 @@ public final class ModelStates {
 	 * @return this model node, never null
 	 */
 	public static ModelNode realize(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastRealized.class)) {
+		if (!self.has(ModelState.IsAtLeastRealized.class)) {
 			register(self);
 			if (!isAtLeast(self, ModelState.Realized)) {
 				if (!self.hasComponent(Realizing.class)) {
@@ -71,7 +71,7 @@ public final class ModelStates {
 	}
 
 	public static ModelNode initialize(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastInitialized.class)) {
+		if (!self.has(ModelState.IsAtLeastInitialized.class)) {
 			create(self);
 			if (self.hasComponent(ModelState.class)) {
 				if (!self.getComponent(ModelState.class).isAtLeast(ModelState.Initialized)) {
@@ -86,7 +86,7 @@ public final class ModelStates {
 	}
 
 	public static ModelNode register(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastRegistered.class)) {
+		if (!self.has(ModelState.IsAtLeastRegistered.class)) {
 			initialize(self);
 			if (!isAtLeast(self, ModelState.Registered)) {
 				if (!self.hasComponent(Registering.class)) {
@@ -108,7 +108,7 @@ public final class ModelStates {
 	private static final class Registering {}
 
 	public static ModelNode finalize(ModelNode self) {
-		if (!self.hasComponent(ModelState.IsAtLeastFinalized.class)) {
+		if (!self.has(ModelState.IsAtLeastFinalized.class)) {
 			realize(self);
 			if (!isAtLeast(self, ModelState.Finalized)) {
 				if (self.hasComponent(ModelState.class)) {

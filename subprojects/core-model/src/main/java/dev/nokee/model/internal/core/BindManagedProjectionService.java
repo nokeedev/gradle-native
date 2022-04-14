@@ -20,7 +20,7 @@ import dev.nokee.model.internal.registry.ManagedModelProjection;
 
 import static java.util.Objects.requireNonNull;
 
-public final class BindManagedProjectionService {
+public final class BindManagedProjectionService implements ModelComponent {
 	private final Instantiator instantiator;
 
 	public BindManagedProjectionService(Instantiator instantiator) {
