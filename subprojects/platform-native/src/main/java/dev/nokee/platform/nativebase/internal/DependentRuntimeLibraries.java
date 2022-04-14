@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
@@ -23,7 +24,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-public final class DependentRuntimeLibraries implements Callable<Object> {
+public final class DependentRuntimeLibraries implements Callable<Object>, ModelComponent {
 	private final Provider<Set<FileSystemLocation>> delegate;
 
 	DependentRuntimeLibraries(Provider<Set<FileSystemLocation>> delegate) {

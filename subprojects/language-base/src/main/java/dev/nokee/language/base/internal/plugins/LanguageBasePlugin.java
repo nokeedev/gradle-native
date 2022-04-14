@@ -71,7 +71,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(SourceSetFactory.class), new SourcePropertyRegistrationActionFactory(() -> project.getExtensions().getByType(ModelRegistry.class))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(whenElementDiscovered(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(LanguageSourceSet.class).asKnownObject(), (entity, knownSourceSet) -> {
-			if (!entity.hasComponent(ModelPropertyTag.class)) {
+			if (!entity.has(ModelPropertyTag.class)) {
 				entity.addComponent(IsLanguageSourceSet.tag());
 				entity.addComponent(ConfigurableTag.tag());
 			}

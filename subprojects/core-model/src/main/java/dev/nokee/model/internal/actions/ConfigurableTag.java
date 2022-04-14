@@ -15,7 +15,9 @@
  */
 package dev.nokee.model.internal.actions;
 
-public final class ConfigurableTag {
+import dev.nokee.model.internal.core.ModelComponent;
+
+public final class ConfigurableTag implements ModelComponent {
 	private static final ConfigurableTag INSTANCE = new ConfigurableTag();
 
 	private ConfigurableTag() {}

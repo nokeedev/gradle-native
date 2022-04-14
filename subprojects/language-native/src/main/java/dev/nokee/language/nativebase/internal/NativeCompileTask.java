@@ -16,10 +16,11 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElement;
 import org.gradle.api.Action;
 
-public final class NativeCompileTask {
+public final class NativeCompileTask implements ModelComponent {
 	private final ModelElement delegate;
 
 	NativeCompileTask(ModelElement delegate) {

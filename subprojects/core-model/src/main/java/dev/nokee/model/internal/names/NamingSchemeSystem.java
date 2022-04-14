@@ -35,7 +35,7 @@ public final class NamingSchemeSystem extends ModelActionWithInputs.ModelAction2
 	@Override
 	protected void execute(ModelNode entity, ModelProjection projection, ElementNameComponent elementName) {
 		// Deduplication required because of the old component elements implementation
-		if (!entity.has(NamingSchemeComponent.class) && !entity.hasComponent(ModelComponentType.componentOf(ModelPropertyTag.class))) {
+		if (!entity.has(NamingSchemeComponent.class) && !entity.has(ModelPropertyTag.class)) {
 			entity.addComponent(new NamingSchemeComponent(namingSchemeFactory.apply(elementName.get())));
 		}
 	}

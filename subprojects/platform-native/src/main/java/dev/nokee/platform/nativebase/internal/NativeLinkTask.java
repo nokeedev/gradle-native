@@ -15,13 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import org.gradle.api.Action;
 
-public final class NativeLinkTask {
+public final class NativeLinkTask implements ModelComponent {
 	private final ModelElement delegate;
 
 	NativeLinkTask(ModelElement delegate) {

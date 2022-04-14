@@ -56,7 +56,7 @@ class ModelEntityTest {
 		@Test
 		void hasComponent() {
 			assertAll(
-				() -> assertTrue(subject.hasComponent(ModelEntityTest.TestComponent.class)),
+				() -> assertTrue(subject.has(ModelEntityTest.TestComponent.class)),
 				() -> assertThat(subject.getComponents().collect(toList()), hasItem(existingComponent))
 			);
 		}
@@ -86,7 +86,7 @@ class ModelEntityTest {
 	}
 
 	@Value
-	private static class TestComponent {
+	private static class TestComponent implements ModelComponent {
 		String value;
 	}
 }

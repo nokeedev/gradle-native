@@ -15,13 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import org.gradle.api.provider.Provider;
 
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-final class DependentLinkLibraries implements Callable<Object> {
+final class DependentLinkLibraries implements Callable<Object>, ModelComponent {
 	private final Provider<Set<Path>> delegate;
 
 	DependentLinkLibraries(Provider<Set<Path>> delegate) {

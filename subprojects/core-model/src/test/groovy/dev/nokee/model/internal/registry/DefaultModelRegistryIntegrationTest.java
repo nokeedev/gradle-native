@@ -18,6 +18,7 @@ package dev.nokee.model.internal.registry;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
@@ -359,7 +360,7 @@ public class DefaultModelRegistryIntegrationTest {
 	}
 
 	@Value
-	static class MyFooComponent {}
+	static class MyFooComponent implements ModelComponent {}
 
 //	@Test
 //	void canAccessModelNodeOnManagedType() {

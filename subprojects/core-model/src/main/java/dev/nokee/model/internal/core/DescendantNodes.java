@@ -22,7 +22,7 @@ import java.util.Optional;
 
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 
-public final class DescendantNodes {
+public final class DescendantNodes implements ModelComponent {
 	private final ModelLookup modelLookup;
 	private final ModelPath path;
 

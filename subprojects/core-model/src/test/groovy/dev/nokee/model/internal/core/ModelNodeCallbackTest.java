@@ -84,5 +84,5 @@ class ModelNodeCallbackTest {
 	}
 
 	public interface MyProjection {}
-	public static final class MyComponent {}
+	public static final class MyComponent implements ModelComponent {}
 }

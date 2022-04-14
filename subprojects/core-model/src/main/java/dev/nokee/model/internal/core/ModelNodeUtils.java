@@ -47,15 +47,15 @@ public final class ModelNodeUtils {
 	 * @return a list of directly descending nodes, never null.
 	 */
 	public static List<ModelNode> getDirectDescendants(ModelNode self) {
-		return self.getComponent(DescendantNodes.class).getDirectDescendants();
+		return self.get(DescendantNodes.class).getDirectDescendants();
 	}
 
 	public static ModelNode getDescendant(ModelNode self, String name) {
-		return self.getComponent(DescendantNodes.class).getDescendant(name);
+		return self.get(DescendantNodes.class).getDescendant(name);
 	}
 
 	public static boolean hasDescendant(ModelNode self, String name) {
-		return self.getComponent(DescendantNodes.class).hasDescendant(name);
+		return self.get(DescendantNodes.class).hasDescendant(name);
 	}
 
 	/**
@@ -160,15 +160,15 @@ public final class ModelNodeUtils {
 	//  We should not return a provider here, it's crossing wires in the implementation. It should return only the ModelNode
 	//  On ModelRegistry, we can return a provider for NodeRegistration which would be a convenience only to bridge with the ModelRegistration API.
 	public static ModelElement register(ModelNode self, NodeRegistration registration) {
-		return self.getComponent(RelativeRegistrationService.class).register(registration);
+		return self.get(RelativeRegistrationService.class).register(registration);
 	}
 
 	public static void applyTo(ModelNode self, NodeAction action) {
-		self.getComponent(RelativeConfigurationService.class).applyTo(action);
+		self.get(RelativeConfigurationService.class).applyTo(action);
 	}
 
 	public static ModelNode instantiate(ModelNode self, ModelRegistration registration) {
-		return self.getComponent(RelativeRegistrationService.class).instantiate(registration);
+		return self.get(RelativeRegistrationService.class).instantiate(registration);
 	}
 
 	/**

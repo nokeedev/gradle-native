@@ -18,7 +18,7 @@ package dev.nokee.model.internal.core;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
-public final class ModelPropertyTag {
+public final class ModelPropertyTag implements ModelComponent {
 	private static final ModelPropertyTag INSTANCE = new ModelPropertyTag();
 
 	public static ModelPropertyTag instance() {

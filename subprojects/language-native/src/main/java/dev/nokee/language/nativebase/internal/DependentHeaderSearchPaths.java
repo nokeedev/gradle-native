@@ -15,13 +15,14 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import org.gradle.api.provider.Provider;
 
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-final class DependentHeaderSearchPaths implements Callable<Object> {
+final class DependentHeaderSearchPaths implements Callable<Object>, ModelComponent {
 	private final Provider<Set<Path>> delegate;
 
 	DependentHeaderSearchPaths(Provider<Set<Path>> delegate) {

@@ -16,9 +16,10 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElement;
 
-public final class JavaLanguageSourceSet {
+public final class JavaLanguageSourceSet implements ModelComponent {
 	private final ModelElement delegate;
 
 	public JavaLanguageSourceSet(ModelElement delegate) {
