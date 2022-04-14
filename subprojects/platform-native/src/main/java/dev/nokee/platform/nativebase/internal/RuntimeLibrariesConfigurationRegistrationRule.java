@@ -15,13 +15,11 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
@@ -34,28 +32,25 @@ import org.gradle.api.model.ObjectFactory;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 
-@AutoFactory
-public final class RuntimeLibrariesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<BinaryIdentifier<?>, ModelState.IsAtLeastRegistered> {
-	private final BinaryIdentifier<?> identifier;
+@SuppressWarnings("rawtypes")
+public final class RuntimeLibrariesConfigurationRegistrationRule extends ModelActionWithInputs.ModelAction2<BinaryIdentifier, ModelProjection> {
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
-	RuntimeLibrariesConfigurationRegistrationAction(BinaryIdentifier<?> identifier, @Provided ModelRegistry registry, @Provided ResolvableDependencyBucketRegistrationFactory resolvableFactory, @Provided ObjectFactory objects) {
-		this.identifier = identifier;
+	public RuntimeLibrariesConfigurationRegistrationRule(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
+		super(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.ofProjection(HasRuntimeLibrariesDependencyBucket.class));
 		this.registry = registry;
 		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			val runtimeLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("runtimeLibraries"), identifier)));
-			runtimeLibraries.configure(Configuration.class, forNativeRuntimeUsage());
-			entity.addComponent(new RuntimeLibrariesConfiguration(runtimeLibraries.as(Configuration.class)));
-			entity.addComponent(new DependentRuntimeLibraries(runtimeLibraries.as(Configuration.class).flatMap(it -> it.getIncoming().getFiles().getElements())));
-		}
+	protected void execute(ModelNode entity, BinaryIdentifier identifier, ModelProjection projection) {
+		val runtimeLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("runtimeLibraries"), identifier)));
+		runtimeLibraries.configure(Configuration.class, forNativeRuntimeUsage());
+		entity.addComponent(new RuntimeLibrariesConfiguration(runtimeLibraries.as(Configuration.class)));
+		entity.addComponent(new DependentRuntimeLibraries(runtimeLibraries.as(Configuration.class).flatMap(it -> it.getIncoming().getFiles().getElements())));
 	}
 
 	private Action<Configuration> forNativeRuntimeUsage() {

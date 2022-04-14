@@ -19,8 +19,10 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -38,30 +40,27 @@ import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtif
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 
-@AutoFactory
-public final class LinkLibrariesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<BinaryIdentifier<?>, ModelState.IsAtLeastRegistered> {
-	private final BinaryIdentifier<?> identifier;
+@SuppressWarnings("rawtypes")
+public final class LinkLibrariesConfigurationRegistrationRule extends ModelActionWithInputs.ModelAction2<BinaryIdentifier, ModelProjection> {
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
-	LinkLibrariesConfigurationRegistrationAction(BinaryIdentifier<?> identifier, @Provided ModelRegistry registry, @Provided ResolvableDependencyBucketRegistrationFactory resolvableFactory, @Provided ObjectFactory objects) {
-		this.identifier = identifier;
+	public LinkLibrariesConfigurationRegistrationRule(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
+		super(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.ofProjection(HasLinkLibrariesDependencyBucket.class));
 		this.registry = registry;
 		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			val linkLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("linkLibraries"), identifier)));
-			linkLibraries.configure(Configuration.class, forNativeLinkUsage());
-			val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(linkLibraries));
-			entity.addComponent(new DependentFrameworks(incomingArtifacts.getAs(frameworks())));
-			entity.addComponent(new DependentLinkLibraries(incomingArtifacts.getAs(frameworks().negate())));
-			entity.addComponent(new LinkLibrariesConfiguration(linkLibraries.as(Configuration.class)));
-		}
+	protected void execute(ModelNode entity, BinaryIdentifier identifier, ModelProjection projection) {
+		val linkLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("linkLibraries"), identifier)));
+		linkLibraries.configure(Configuration.class, forNativeLinkUsage());
+		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(linkLibraries));
+		entity.addComponent(new DependentFrameworks(incomingArtifacts.getAs(frameworks())));
+		entity.addComponent(new DependentLinkLibraries(incomingArtifacts.getAs(frameworks().negate())));
+		entity.addComponent(new LinkLibrariesConfiguration(linkLibraries.as(Configuration.class)));
 	}
 
 	private Action<Configuration> forNativeLinkUsage() {
