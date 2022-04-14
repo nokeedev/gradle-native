@@ -67,7 +67,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
 			.action(compileTasksPropertyActionFactory.create(identifier))
-			.action(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
 					entity.addComponent(createdUsing(of(ModelBackedSharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)));
