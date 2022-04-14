@@ -251,11 +251,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jvmJar, assemble) -> {
-				if (id.equals(identifier)) {
-					assemble.configure(configureDependsOn(jvmJar));
-				}
-			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(AssembleTask.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, assemble, component) -> {
 				if (id.equals(identifier)) {
 					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> v.getSharedLibrary().isBuildable()));
@@ -321,13 +316,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						if (ss instanceof HasHeaders) {
 							((ConfigurableSourceSet) ((HasHeaders) ss).getHeaders()).convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
 						}
-					}));
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JvmJarArtifactComponent.class), (entity, id, variants, jvmJar) -> {
-				if (id.equals(identifier)) {
-					instantiate(entity, configureEach(ownedBy(entity.getId()), JniLibraryInternal.class, variant -> {
-						variant.getAssembleTask().configure(configureDependsOn(jvmJar));
 					}));
 				}
 			}))

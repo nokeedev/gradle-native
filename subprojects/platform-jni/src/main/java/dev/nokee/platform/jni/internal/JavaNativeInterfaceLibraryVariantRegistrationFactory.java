@@ -166,6 +166,10 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 				if (id.equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 
+					if (!id.getUnambiguousName().isEmpty()) {
+						entity.addComponent(MultiVariantTag.tag());
+					}
+
 					val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 					val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeImplementation"), identifier)));
 					val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeLinkOnly"), identifier)));
@@ -257,11 +261,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					}));
 
 					registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path)));
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(JniJarArtifactComponent.class), ModelComponentReference.of(AssembleTask.class), (entity, id, jniJar, assembleTask) -> {
-				if (id.equals(identifier) && !id.getUnambiguousName().isEmpty()) {
-					assembleTask.configure(configureDependsOn(jniJar));
 				}
 			}))
 			.build();

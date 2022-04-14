@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.type.ModelType;
@@ -23,7 +24,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-public final class AssembleTask {
+public final class AssembleTask implements ModelComponent {
 	private final ModelNode entity;
 
 	public AssembleTask(ModelNode entity) {
@@ -32,5 +33,9 @@ public final class AssembleTask {
 
 	public void configure(Action<? super Task> action) {
 		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<TaskProvider<Task>>() {})).configure(action);
+	}
+
+	public ModelNode get() {
+		return entity;
 	}
 }
