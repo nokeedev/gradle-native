@@ -42,6 +42,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.cpp.CppBinary;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,11 +62,17 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
 import static dev.nokee.internal.testing.TaskMatchers.group;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
-import static dev.nokee.utils.ConfigurationUtils.*;
+import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
+import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
+import static dev.nokee.utils.ConfigurationUtils.forUsage;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTest implements JavaNativeInterfaceLibraryVariantTester {
@@ -361,7 +368,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 		@Nested
 		class NativeLinkLibrariesConfigurationTest {
 			public Configuration subject() {
-				return project().getConfigurations().getByName("reqiWindowsX86LinkLibraries");
+				return realize(project().getConfigurations().getByName("reqiWindowsX86LinkLibraries"));
 			}
 
 			@Test
@@ -396,7 +403,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 		@Nested
 		class NativeRuntimeLibrariesConfigurationTest {
 			public Configuration subject() {
-				return project().getConfigurations().getByName("reqiWindowsX86RuntimeLibraries");
+				return realize(project().getConfigurations().getByName("reqiWindowsX86RuntimeLibraries"));
 			}
 
 			@Test
@@ -427,5 +434,10 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 				assertThat(subject(), attributes(hasKey(CppBinary.OPTIMIZED_ATTRIBUTE)));
 			}
 		}
+	}
+
+	private static Configuration realize(Configuration configuration) {
+		((ConfigurationInternal) configuration).preventFromFurtherMutation();
+		return configuration;
 	}
 }

@@ -18,28 +18,27 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 
-public final class AttachAttributesToConfigurationRule<T extends LinkedEntity> extends ModelActionWithInputs.ModelAction2<T, BuildVariant> {
+public final class AttachAttributesToConfigurationRule<T extends LinkedEntity> extends ModelActionWithInputs.ModelAction2<T, BuildVariantComponent> {
 	private final ModelRegistry registry;
 	private final ObjectFactory objects;
 
 	public AttachAttributesToConfigurationRule(Class<T> configurationType, ModelRegistry registry, ObjectFactory objects) {
-		super(ModelComponentReference.of(configurationType), ModelComponentReference.ofAny(ModelComponentType.componentOf(BuildVariant.class)));
+		super(ModelComponentReference.of(configurationType), ModelComponentReference.of(BuildVariantComponent.class));
 		this.registry = registry;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, T configuration, BuildVariant buildVariant) {
-		registry.instantiate(ModelAction.configure(configuration.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) buildVariant, objects)));
+	protected void execute(ModelNode entity, T configuration, BuildVariantComponent buildVariant) {
+		registry.instantiate(ModelAction.configure(configuration.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) buildVariant.get(), objects)));
 		registry.instantiate(ModelAction.configure(configuration.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 	}
 }

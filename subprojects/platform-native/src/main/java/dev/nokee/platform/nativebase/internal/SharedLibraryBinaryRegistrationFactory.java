@@ -18,15 +18,12 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -64,11 +61,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
-				if (id.equals(identifier)) {
-					entity.addComponent(createdUsing(of(ModelBackedSharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)));
-				}
-			}))
+			.withComponent(createdUsing(of(ModelBackedSharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)))
 			.build();
 	}
 
