@@ -24,6 +24,9 @@ gradlePlugin {
 		implementation project(':languageSwift')
 		implementation project(':testingNative')
 		implementation project(':platformObjectiveC')
+		implementation project(':languageC') // because of source set extensible interface
+		implementation project(':languageCpp') // because of source set extensible interface
+		implementation project(':languageObjectiveCpp') // because of source set extensible interface
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 		implementation "com.google.guava:guava:${guavaVersion}"
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
