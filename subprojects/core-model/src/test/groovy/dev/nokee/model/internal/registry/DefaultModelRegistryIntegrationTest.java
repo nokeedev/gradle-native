@@ -25,6 +25,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ModelTestActions;
@@ -298,11 +299,11 @@ public class DefaultModelRegistryIntegrationTest {
 	@Test
 	void honorsNestedConfigurationActionOrder() {
 		val executionOrder = new ArrayList<String>();
-		modelRegistry.configure(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), ModelComponentReference.of(RelativeConfigurationService.class), (n1, path1, state1, configurer1) -> {
+		modelRegistry.configure(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), ModelComponentReference.of(RelativeConfigurationService.class), (n1, path1, state1, configurer1) -> {
 			executionOrder.add("n1 - " + ModelNodeUtils.getPath(n1));
-			ModelNodeUtils.applyTo(n1, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), ModelComponentReference.of(RelativeConfigurationService.class), (n2, path2, state2, configurer2) -> {
+			ModelNodeUtils.applyTo(n1, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), ModelComponentReference.of(RelativeConfigurationService.class), (n2, path2, state2, configurer2) -> {
 				executionOrder.add("n2 - " + ModelNodeUtils.getPath(n2));
-				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (n3, path3, state3) -> executionOrder.add("n3 - " + ModelNodeUtils.getPath(n3))))));
+				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), (n3, path3, state3) -> executionOrder.add("n3 - " + ModelNodeUtils.getPath(n3))))));
 			}))));
 		})));
 
@@ -316,7 +317,7 @@ public class DefaultModelRegistryIntegrationTest {
 	void canRegisterNodeWhileDispatchingConfigurationActions() {
 		val paths = new ArrayList<ModelPath>();
 		registerNode("foo");
-		modelRegistry.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(RelativeRegistrationService.class),(node, path, stateTag, registry) -> {
+		modelRegistry.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(RelativeRegistrationService.class),(node, path, stateTag, registry) -> {
 			paths.add(ModelNodeUtils.getPath(node));
 			if (ModelNodeUtils.getPath(node).equals(path("foo"))) {
 				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
@@ -332,7 +333,7 @@ public class DefaultModelRegistryIntegrationTest {
 		val paths = new ArrayList<ModelPath>();
 		registerNode("foo");
 		registerNode("bar");
-		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(RelativeRegistrationService.class), (node, path, registry) -> {
+		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(RelativeRegistrationService.class), (node, path, registry) -> {
 			paths.add(ModelNodeUtils.getPath(node));
 			if (ModelNodeUtils.getPath(node).equals(path("foo"))) {
 				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
@@ -346,13 +347,13 @@ public class DefaultModelRegistryIntegrationTest {
 	@Test
 	void canExecuteActionWithComponentInputs() {
 		val result = new ArrayList<ModelPath>();
-		modelRegistry.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(MyFooComponent.class), (node, path, i) -> {
+		modelRegistry.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(MyFooComponent.class), (node, path, i) -> {
 			result.add(ModelNodeUtils.getPath(node));
 		}));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo", Object.class), new Object()));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.bar", Object.class), new Object()));
 		modelRegistry.register(ModelRegistration.unmanagedInstanceBuilder(ModelIdentifier.of("foo.far", Object.class), Object::new).action(entity -> {
-			if (entity.hasComponent(componentOf(ModelPath.class)) && ModelNodeUtils.getPath(entity).equals(ModelPath.path("foo.far"))) {
+			if (entity.has(ModelPathComponent.class) && ModelNodeUtils.getPath(entity).equals(ModelPath.path("foo.far"))) {
 				entity.addComponent(new MyFooComponent());
 			}
 		}).build());

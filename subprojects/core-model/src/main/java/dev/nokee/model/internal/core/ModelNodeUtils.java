@@ -178,6 +178,6 @@ public final class ModelNodeUtils {
 	 * @return a {@link ModelPath} representing this model node, never null.
 	 */
 	public static ModelPath getPath(ModelNode self) {
-		return self.getComponent(ModelPath.class);
+		return self.get(ModelPathComponent.class).get();
 	}
 }

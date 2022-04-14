@@ -262,8 +262,8 @@ public final class ModelTestUtils {
 			}
 
 			private Stream<ModelPath> findModelPath(Object component) {
-				if (component instanceof ModelPath) {
-					return Stream.of((ModelPath) component);
+				if (component instanceof ModelPathComponent) {
+					return Stream.of(((ModelPathComponent) component).get());
 				}
 				return Stream.empty();
 			}

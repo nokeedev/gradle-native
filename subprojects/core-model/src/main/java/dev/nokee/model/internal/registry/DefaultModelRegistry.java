@@ -35,6 +35,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpec;
@@ -69,27 +70,27 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		this.instantiator = instantiator;
 		this.elementFactory = new ModelElementFactory(instantiator);
 		this.bindingService = new BindManagedProjectionService(instantiator);
-		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
+		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 			if (state.equals(ModelState.Created)) {
-				if (!path.equals(ModelPath.root()) && (!path.getParent().isPresent() || !nodes.containsKey(path.getParent().get()))) {
+				if (!path.get().equals(ModelPath.root()) && (!path.get().getParent().isPresent() || !nodes.containsKey(path.get().getParent().get()))) {
 					throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path));
 				}
 
-				node.addComponent(new DescendantNodes(this, path));
-				node.addComponent(new RelativeRegistrationService(path, this));
-				node.addComponent(new RelativeConfigurationService(path, this));
+				node.addComponent(new DescendantNodes(this, path.get()));
+				node.addComponent(new RelativeRegistrationService(path.get(), this));
+				node.addComponent(new RelativeConfigurationService(path.get(), this));
 				node.addComponent(new BindManagedProjectionService(instantiator));
-				node.addComponent(new ElementNameComponent(path.getName()));
-				path.getParent().ifPresent(parentPath -> {
+				node.addComponent(new ElementNameComponent(path.get().getName()));
+				path.get().getParent().ifPresent(parentPath -> {
 					node.addComponent(new ParentComponent(this.get(parentPath)));
 				});
-				node.addComponent(new ElementNameComponent(path.getName()));
+				node.addComponent(new ElementNameComponent(path.get().getName()));
 				if (!node.has(DisplayNameComponent.class)) {
-					node.addComponent(new DisplayNameComponent(path.toString()));
+					node.addComponent(new DisplayNameComponent(path.get().toString()));
 				}
 			} else if (state.equals(ModelState.Registered)) {
 				assert !nodes.values().contains(node) : "duplicated registered notification";
-				nodes.put(path, node);
+				nodes.put(path.get(), node);
 			}
 		}));
 		rootNode = ModelStates.register(createRootNode());
@@ -100,7 +101,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val entity = new ModelNode();
 		entities.add(entity);
 		entity.addComponent(nodeStateListener);
-		entity.addComponent(path);
+		entity.addComponent(new ModelPathComponent(path));
 		return entity;
 	}
 

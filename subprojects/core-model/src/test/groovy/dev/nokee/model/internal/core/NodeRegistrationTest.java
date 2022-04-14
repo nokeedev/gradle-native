@@ -37,7 +37,7 @@ class NodeRegistrationTest {
 	void canCreateRegistrationOfManagedType() {
 		val registration = NodeRegistration.of("c", of(MyType.class)).scope(path("a.b"));
 		assertAll(() -> {
-			assertThat(registration.getComponents(), hasItem(path("a.b.c")));
+			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("a.b.c"))));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for projections
 		});
@@ -47,7 +47,7 @@ class NodeRegistrationTest {
 	void canCreateRegistrationOfUnmanagedType() {
 		val registration = NodeRegistration.unmanaged("z", of(MyType.class), alwaysThrow()).scope(path("x.y"));
 		assertAll(() -> {
-			assertThat(registration.getComponents(), hasItem(path("x.y.z")));
+			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("x.y.z"))));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for projections
 		});
@@ -57,14 +57,14 @@ class NodeRegistrationTest {
 	void whenNodeRegistrationAreScopedTheyAreEqualToAnEquivalentModelRegistration() {
 		assertThat(NodeRegistration.of("a", of(MyType.class)).scope(path("foo")), equalTo(ModelRegistration.of("foo.a", MyType.class)));
 		assertThat(NodeRegistration.of("b", of(MyType.class)).withComponent(ModelProjections.ofInstance("bar")).scope(path("bar")),
-			equalTo(ModelRegistration.builder().withComponent(path("bar.b")).withComponent(ModelProjections.managed(of(MyType.class))).withComponent(ModelProjections.ofInstance("bar")).build()));
+			equalTo(ModelRegistration.builder().withComponent(new ModelPathComponent(path("bar.b"))).withComponent(ModelProjections.managed(of(MyType.class))).withComponent(ModelProjections.ofInstance("bar")).build()));
 	}
 
 	@Test
 	void canAddProjection() {
 		val registration = NodeRegistration.of("c", of(MyType.class)).withComponent(ModelProjections.ofInstance("foo")).scope(path("ab"));
 		assertAll(() -> {
-			assertThat(registration.getComponents(), hasItem(path("ab.c")));
+			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("ab.c"))));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(3)); // for projections
 		});

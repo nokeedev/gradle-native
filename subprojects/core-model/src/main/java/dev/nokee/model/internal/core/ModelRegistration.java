@@ -41,7 +41,7 @@ public final class ModelRegistration {
 
 	public static ModelRegistration of(String path, Class<?> type) {
 		return builder()
-			.withComponent(ModelPath.path(path))
+			.withComponent(new ModelPathComponent(ModelPath.path(path)))
 			.withComponent(ModelProjections.managed(ModelType.of(type)))
 			.build();
 	}
@@ -54,21 +54,21 @@ public final class ModelRegistration {
 
 	public static <T> ModelRegistration bridgedInstance(ModelIdentifier<T> identifier, T instance) {
 		return builder()
-			.withComponent(identifier.getPath())
+			.withComponent(new ModelPathComponent(identifier.getPath()))
 			.withComponent(ModelProjections.ofInstance(instance))
 			.build();
 	}
 
 	public static <T> ModelRegistration unmanagedInstance(ModelIdentifier<T> identifier, Factory<T> factory) {
 		return builder()
-			.withComponent(identifier.getPath())
+			.withComponent(new ModelPathComponent(identifier.getPath()))
 			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory))
 			.build();
 	}
 
 	public static <T> Builder unmanagedInstanceBuilder(ModelIdentifier<T> identifier, Factory<T> factory) {
 		return builder()
-			.withComponent(identifier.getPath())
+			.withComponent(new ModelPathComponent(identifier.getPath()))
 			.withComponent(ModelProjections.createdUsing(identifier.getType(), factory));
 	}
 

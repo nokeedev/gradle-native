@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import lombok.val;
@@ -42,9 +43,9 @@ public final class ExtendsFromParentConfigurationAction implements ModelAction {
 
 	@Override
 	public void execute(ModelNode entity) {
-		val p = entity.getComponent(componentOf(ModelPath.class));
+		val p = entity.get(ModelPathComponent.class);
 		val configuration = ModelNodeUtils.get(entity, Configuration.class);
-		val parentConfigurationResult = project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withPath(path.getParent().get().child(p.getName()))));
+		val parentConfigurationResult = project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withPath(path.getParent().get().child(p.get().getName()))));
 		Optional.ofNullable(Iterables.getOnlyElement(parentConfigurationResult.get(), null)).ifPresent(parentConfigurationEntity -> {
 			val parentConfiguration = ModelNodeUtils.get(parentConfigurationEntity, Configuration.class);
 			if (!parentConfiguration.getName().equals(configuration.getName())) {

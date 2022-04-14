@@ -121,7 +121,7 @@ public final class ModelTestActions {
 		private final Bits inputBits;
 
 		public CaptureNodeTransitionAction() {
-			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class));
+			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class));
 			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 

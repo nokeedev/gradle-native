@@ -36,7 +36,7 @@ class NodePredicate_ApplyTest {
 	@Test
 	void canApplyPredicateToModelActionWhichCanBeScopedToAnyPaths() {
 		val paths = new ArrayList<ModelPath>();
-		val scopedAction = allDirectDescendants().apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (node, path) -> paths.add(ModelNodeUtils.getPath(node)))).scope(path("foo"));
+		val scopedAction = allDirectDescendants().apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (node, path) -> paths.add(ModelNodeUtils.getPath(node)))).scope(path("foo"));
 		scopedAction.execute(node("foo.bar"));
 		scopedAction.execute(node("bar"));
 

@@ -336,13 +336,14 @@ public final class ModelNodes {
 
 		public WithParentPredicate(ModelPath parentPath) {
 			this.parentPath = requireNonNull(parentPath);
-			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPath.class));
+			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPathComponent.class));
 			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
 		public boolean test(ModelNode node) {
-			return node.findComponent(componentOf(ModelPath.class))
+			return node.find(ModelPathComponent.class)
+				.map(ModelPathComponent::get)
 				.flatMap(ModelPath::getParent)
 				.map(parentPath::equals)
 				.orElse(false);
@@ -376,13 +377,14 @@ public final class ModelNodes {
 
 		public DescendantOfPredicate(ModelPath ancestorPath) {
 			this.ancestorPath = requireNonNull(ancestorPath);
-			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPath.class));
+			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPathComponent.class));
 			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
 		public boolean test(ModelNode node) {
-			return node.findComponent(componentOf(ModelPath.class))
+			return node.find(ModelPathComponent.class)
+				.map(ModelPathComponent::get)
 				.map(ancestorPath::isDescendant)
 				.orElse(false);
 		}
@@ -434,13 +436,13 @@ public final class ModelNodes {
 
 		public WithPathPredicate(ModelPath path) {
 			this.path = requireNonNull(path);
-			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPath.class));
+			this.inputs = ImmutableList.of(ModelComponentReference.of(ModelPathComponent.class));
 			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
 		@Override
 		public boolean test(ModelNode node) {
-			return node.findComponent(componentOf(ModelPath.class)).map(path::equals).orElse(false);
+			return node.find(ModelPathComponent.class).map(ModelPathComponent::get).map(path::equals).orElse(false);
 		}
 
 		@Override

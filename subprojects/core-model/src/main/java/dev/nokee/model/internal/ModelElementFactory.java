@@ -36,6 +36,7 @@ import dev.nokee.model.internal.core.ModelMixInStrategy;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyTag;
@@ -408,7 +409,7 @@ public final class ModelElementFactory {
 
 		@Override
 		public DomainObjectIdentifier get() {
-			return entity.findComponent(DomainObjectIdentifier.class).orElseGet(() -> ModelIdentifier.of(entity.getComponent(ModelPath.class), type));
+			return entity.findComponent(DomainObjectIdentifier.class).orElseGet(() -> ModelIdentifier.of(entity.get(ModelPathComponent.class).get(), type));
 		}
 	}
 

@@ -35,7 +35,7 @@ class ModelRegistrationTest {
 	void canCreateFromRawPathAndRawType() {
 		assertAll(() -> {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
-			assertThat(registration.getComponents(), hasItem(path("a.b.c")));
+			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("a.b.c"))));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
@@ -57,13 +57,13 @@ class ModelRegistrationTest {
 			.addEqualityGroup(ModelRegistration.of("to.ma.to", MyType.class))
 			.addEqualityGroup(
 				ModelRegistration.of("po.ta.to", MyOtherType.class),
-				builder().withComponent(path("po.ta.to")).withComponent(ModelProjections.managed(of(MyOtherType.class))).build())
+				builder().withComponent(new ModelPathComponent(path("po.ta.to"))).withComponent(ModelProjections.managed(of(MyOtherType.class))).build())
 			.addEqualityGroup(
-				builder().withComponent(path("po.ta.to")).build())
+				builder().withComponent(new ModelPathComponent(path("po.ta.to"))).build())
 			.addEqualityGroup(
-				builder().withComponent(path("po.ta.to")).withComponent(ModelProjections.ofInstance(new MyType())).build())
+				builder().withComponent(new ModelPathComponent(path("po.ta.to"))).withComponent(ModelProjections.ofInstance(new MyType())).build())
 			.addEqualityGroup(
-				builder().withComponent(path("po.ta.to")).action(doSomething()).build())
+				builder().withComponent(new ModelPathComponent(path("po.ta.to"))).action(doSomething()).build())
 			.testEquals();
 	}
 
@@ -71,7 +71,7 @@ class ModelRegistrationTest {
 	void canCreateRegistrationForInstance() {
 		assertAll(() -> {
 			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
-			assertThat(registration.getComponents(), hasItem(path("foo")));
+			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("foo"))));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
@@ -81,7 +81,7 @@ class ModelRegistrationTest {
 	void canCreateRegistrationForDeferredInstance() {
 		assertAll(() -> {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
-			assertThat(registration.getComponents(), hasItem(path("foo")));
+			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("foo"))));
 			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
@@ -91,7 +91,7 @@ class ModelRegistrationTest {
 	void canAddActionToRegistration() {
 		assertAll(() -> {
 			val registration = ModelRegistration.builder()
-				.withComponent(path("a.b.c"))
+				.withComponent(new ModelPathComponent(path("a.b.c")))
 				.action(doSomething())
 				.build();
 			assertThat(registration.getActions(), hasItem(doSomething())); // other are projections

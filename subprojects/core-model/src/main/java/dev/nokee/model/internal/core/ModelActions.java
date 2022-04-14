@@ -115,7 +115,7 @@ public final class ModelActions {
 		public OnceModelAction(ModelAction action) {
 			this.action = requireNonNull(action);
 			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			builder.add(ModelComponentReference.of(ModelPath.class));
+			builder.add(ModelComponentReference.of(ModelPathComponent.class));
 			if (action instanceof HasInputs) {
 				builder.addAll(((HasInputs) action).getInputs());
 			}
