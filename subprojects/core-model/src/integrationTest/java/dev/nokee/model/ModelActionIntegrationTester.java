@@ -17,6 +17,7 @@ package dev.nokee.model;
 
 import dev.nokee.internal.Factories;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedName;
@@ -144,25 +145,25 @@ abstract class ModelActionIntegrationTester {
 	enum B {
 		PROJECTION {
 			@Override
-			public Object g() {
+			public ModelComponent g() {
 				return createdUsing(of(MyOtherType.class), Factories.alwaysThrow());
 			}
 		},
 		OWNER {
 			@Override
-			public Object g() {
+			public ModelComponent g() {
 				return new ParentComponent(new ModelNode());
 			}
 		},
 		STATE {
 			@Override
-			public Object g() {
+			public ModelComponent g() {
 				return ModelState.Registered;
 			}
 		},
 		ANCESTOR {
 			@Override
-			public Object g() {
+			public ModelComponent g() {
 				final ModelNode g = new ModelNode();
 				g.addComponent(new ParentComponent(new ModelNode()));
 				return new ParentComponent(g);
@@ -170,19 +171,19 @@ abstract class ModelActionIntegrationTester {
 		},
 		ELEMENT_NAME {
 			@Override
-			public Object g() {
+			public ModelComponent g() {
 				return new ElementNameComponent(ElementName.of("lkew"));
 			}
 		},
 		FULLY_QUALIFIED_NAME {
 			@Override
-			public Object g() {
+			public ModelComponent g() {
 				return new FullyQualifiedNameComponent(FullyQualifiedName.of("peor"));
 			}
 		}
 		;
 
-		public abstract Object g();
+		public abstract ModelComponent g();
 	}
 
 	@Test
