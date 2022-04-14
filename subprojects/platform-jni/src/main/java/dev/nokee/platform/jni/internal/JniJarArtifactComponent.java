@@ -47,4 +47,8 @@ public final class JniJarArtifactComponent implements Callable<Object>, ModelCom
 		ModelStates.realize(entity);
 		return ModelNodeUtils.get(entity, JniJarBinary.class);
 	}
+
+	public ModelNode get() {
+		return entity;
+	}
 }

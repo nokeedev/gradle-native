@@ -23,6 +23,7 @@ import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -42,6 +43,7 @@ import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JvmJarBinary;
+import dev.nokee.platform.jni.internal.AssembleTask;
 import dev.nokee.platform.jni.internal.JarTaskComponent;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
@@ -53,18 +55,26 @@ import dev.nokee.platform.jni.internal.JvmJarArtifactComponent;
 import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
 import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
 import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
+import dev.nokee.platform.jni.internal.MultiVariantTag;
 import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.tasks.bundling.Jar;
 
+import java.util.concurrent.Callable;
+
 import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.model.internal.actions.ModelAction.configureEach;
+import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
+import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.platform.jni.internal.actions.WhenPlugin.any;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public class JniLibraryBasePlugin implements Plugin<Project> {
@@ -168,5 +178,23 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			}
 		};
 		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), registerJvmJarBinaryAction).execute(project);
+
+		// Assemble task configuration
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(AssembleTask.class), (entity, jvmJar, assembleTask) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(jvmJar.get(), JvmJarBinary.class))));
+		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of( ModelComponentReference.of(JniJarArtifactComponent.class), ModelComponentReference.of(AssembleTask.class), ModelComponentReference.of(MultiVariantTag.class), (entity, jniJar, assembleTask, tag) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(jniJar.get(), JniJarBinary.class))));
+		}));
+
+		new WhenPlugin(any("java", "groovy", "org.jetbrains.kotlin.jvm"), ignored -> {
+			// ComponentFromEntity<JvmJarArtifactComponent.class> read-only from ParentComponent
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(JniJarArtifactComponent.class), ModelComponentReference.of(AssembleTask.class), (entity, parent, jniJar, assembleTask) -> {
+				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn((Callable<Object>) () -> ModelNodeUtils.get(parent.get().get(JvmJarArtifactComponent.class).get(), JvmJarBinary.class))));
+			}));
+		}).execute(project);
 	}
 }
