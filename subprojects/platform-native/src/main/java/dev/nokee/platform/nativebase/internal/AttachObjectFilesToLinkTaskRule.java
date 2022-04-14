@@ -15,8 +15,10 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
@@ -31,17 +33,15 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
 public final class AttachObjectFilesToLinkTaskRule extends ModelActionWithInputs.ModelAction3<BinaryIdentifier<?>, ObjectFiles, NativeLinkTask> {
-	private final BinaryIdentifier<?> identifier;
+	private final ModelRegistry registry;
 
-	public AttachObjectFilesToLinkTaskRule(BinaryIdentifier<?> identifier) {
-		this.identifier = identifier;
+	public AttachObjectFilesToLinkTaskRule(ModelRegistry registry) {
+		this.registry = registry;
 	}
 
 	@Override
 	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ObjectFiles objectFiles, NativeLinkTask linkTask) {
-		if (identifier.equals(this.identifier)) {
-			linkTask.configure(ObjectLink.class, configureSource(from(objectFiles)));
-		}
+		registry.instantiate(ModelAction.configure(linkTask.get().getId(), ObjectLink.class, configureSource(from(objectFiles))));
 	}
 
 	//region Task sources
