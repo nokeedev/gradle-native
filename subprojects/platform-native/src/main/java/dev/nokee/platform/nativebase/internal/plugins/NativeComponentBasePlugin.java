@@ -44,7 +44,7 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.LinkLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.LinkLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.NativeLinkTaskRegistrationRule;
-import dev.nokee.platform.nativebase.internal.RegisterCompileTasksPropertyActionFactory;
+import dev.nokee.platform.nativebase.internal.RegisterCompileTasksPropertyRule;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
@@ -66,10 +66,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
-			new RegisterCompileTasksPropertyActionFactory(
-				() -> project.getExtensions().getByType(ModelRegistry.class),
-				() -> project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class)
-			),
 			project.getObjects()
 		));
 
@@ -83,6 +79,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachObjectFilesToLinkTaskRule(project.getExtensions().getByType(ModelRegistry.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ConfigureLinkTaskDefaultsRule(project.getExtensions().getByType(ModelRegistry.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(project.getExtensions().getByType(ModelRegistry.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterCompileTasksPropertyRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class))));
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {
