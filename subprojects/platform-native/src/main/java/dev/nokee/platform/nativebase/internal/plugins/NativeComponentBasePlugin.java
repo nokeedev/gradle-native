@@ -21,6 +21,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Component;
@@ -31,15 +32,16 @@ import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactor
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRuleFactory;
 import dev.nokee.platform.nativebase.internal.BaseNamePropertyRegistrationActionFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.LinkLibrariesConfigurationRegistrationActionFactory;
+import dev.nokee.platform.nativebase.internal.LinkLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.NativeLinkTaskRegistrationActionFactory;
 import dev.nokee.platform.nativebase.internal.RegisterCompileTasksPropertyActionFactory;
-import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationActionFactory;
+import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
@@ -59,16 +61,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
-			new LinkLibrariesConfigurationRegistrationActionFactory(
-				() -> project.getExtensions().getByType(ModelRegistry.class),
-				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
-				() -> project.getObjects()
-			),
-			new RuntimeLibrariesConfigurationRegistrationActionFactory(
-				() -> project.getExtensions().getByType(ModelRegistry.class),
-				() -> project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class),
-				() -> project.getObjects()
-			),
 			new NativeLinkTaskRegistrationActionFactory(
 				() -> project.getExtensions().getByType(ModelRegistry.class),
 				() -> project.getExtensions().getByType(TaskRegistrationFactory.class),
@@ -88,6 +80,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			),
 			project.getObjects()
 		));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new LinkLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {

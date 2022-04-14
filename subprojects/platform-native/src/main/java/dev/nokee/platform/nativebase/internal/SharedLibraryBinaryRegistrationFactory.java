@@ -54,17 +54,13 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class SharedLibraryBinaryRegistrationFactory {
-	private final LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory;
-	private final RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory;
 	private final NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory;
 	private final BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory;
 	private final RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory;
 	private final AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory;
 	private final ObjectFactory objectFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(LinkLibrariesConfigurationRegistrationActionFactory linkLibrariesRegistrationFactory, RuntimeLibrariesConfigurationRegistrationActionFactory runtimeLibrariesRegistrationFactory, NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory, BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory, RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory, ObjectFactory objectFactory) {
-		this.linkLibrariesRegistrationFactory = linkLibrariesRegistrationFactory;
-		this.runtimeLibrariesRegistrationFactory = runtimeLibrariesRegistrationFactory;
+	public SharedLibraryBinaryRegistrationFactory(NativeLinkTaskRegistrationActionFactory linkTaskRegistrationActionFactory, BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory, RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory, ObjectFactory objectFactory) {
 		this.linkTaskRegistrationActionFactory = linkTaskRegistrationActionFactory;
 		this.baseNamePropertyRegistrationActionFactory = baseNamePropertyRegistrationActionFactory;
 		this.compileTasksPropertyActionFactory = compileTasksPropertyActionFactory;
@@ -82,8 +78,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(baseNamePropertyRegistrationActionFactory.create(identifier))
 			.action(compileTasksPropertyActionFactory.create(identifier))
 			.action(new ConfigureLinkTaskFromBaseNameRule(identifier))
-			.action(linkLibrariesRegistrationFactory.create(identifier))
-			.action(runtimeLibrariesRegistrationFactory.create(identifier))
 			.action(new AttachObjectFilesToLinkTaskRule(identifier))
 			.action(new ConfigureLinkTaskDefaultsRule(identifier))
 			.action(attachAttributesToConfigurationRuleFactory.create(identifier, LinkLibrariesConfiguration.class))
@@ -91,13 +85,13 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.action(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
-					entity.addComponent(createdUsing(of(SharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)));
+					entity.addComponent(createdUsing(of(ModelBackedSharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)));
 				}
 			}))
 			.build();
 	}
 
-	private static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware, ModelBackedNamedMixIn, HasHeaderSearchPaths {
+	private static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware, ModelBackedNamedMixIn, HasHeaderSearchPaths, HasLinkLibrariesDependencyBucket, HasRuntimeLibrariesDependencyBucket {
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
 		private final ObjectFactory objectFactory;
