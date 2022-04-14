@@ -36,6 +36,7 @@ import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.platform.nativebase.internal.AttachLinkLibrariesToLinkTaskRule;
 import dev.nokee.platform.nativebase.internal.AttachObjectFilesToLinkTaskRule;
+import dev.nokee.platform.nativebase.internal.ConfigureLinkTaskDefaultsRule;
 import dev.nokee.platform.nativebase.internal.ConfigureLinkTaskFromBaseNameRule;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
@@ -79,6 +80,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachAttributesToConfigurationRule<>(LinkLibrariesConfiguration.class, project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachAttributesToConfigurationRule<>(RuntimeLibrariesConfiguration.class, project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachObjectFilesToLinkTaskRule(project.getExtensions().getByType(ModelRegistry.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ConfigureLinkTaskDefaultsRule(project.getExtensions().getByType(ModelRegistry.class)));
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {
