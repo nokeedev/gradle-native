@@ -16,12 +16,14 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
@@ -42,21 +44,18 @@ import org.gradle.util.GUtil;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-public final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction3<BinaryIdentifier<?>, BaseName, NativeLinkTask> {
-	private final BinaryIdentifier<?> identifier;
-
-	public ConfigureLinkTaskFromBaseNameRule(BinaryIdentifier<?> identifier) {
-		this.identifier = identifier;
-	}
-
+// ComponentFromEntity<GradlePropertyComponent>
+public final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction3<BinaryIdentifier<?>, BaseNamePropertyComponent, NativeLinkTask> {
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> objects, BaseName baseName, NativeLinkTask linkTask) {
-		if (identifier.equals(this.identifier)) {
-			linkTask.configure(ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName))));
-			linkTask.configure(ObjectLink.class, configureLinkedFile(convention(asSharedLibraryFile(baseName))));
-		}
+	protected void execute(ModelNode entity, BinaryIdentifier<?> objects, BaseNamePropertyComponent baseNameProperty, NativeLinkTask linkTask) {
+		@SuppressWarnings("unchecked")
+		val baseName = (Provider<String>) baseNameProperty.get().get(GradlePropertyComponent.class).get();
+		linkTask.configure(ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName))));
+		linkTask.configure(ObjectLink.class, configureLinkedFile(convention(asSharedLibraryFile(baseName))));
 	}
 
 	//region Linker arguments
@@ -64,7 +63,7 @@ public final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInpu
 		return task -> action.accept(task, wrap(task.getLinkerArgs()));
 	}
 
-	private static Function<ObjectLink, Object> forSwiftModuleName(BaseName baseName) {
+	private static Function<ObjectLink, Object> forSwiftModuleName(Provider<String> baseName) {
 		return task -> ((AbstractLinkTask) task).getToolChain().map(it -> {
 			if (it instanceof Swiftc) {
 				return ImmutableList.of("-module-name", baseName.map(toModuleName()).get());
@@ -84,7 +83,7 @@ public final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInpu
 		return task -> action.accept(task, PropertyUtils.wrap(linkedFileProperty(task)));
 	}
 
-	private static Function<ObjectLink, Object> asSharedLibraryFile(BaseName baseName) {
+	private static Function<ObjectLink, Object> asSharedLibraryFile(Provider<String> baseName) {
 		return task -> toolChainProperty(task)
 			.map(selectToolProvider(targetPlatformProperty(task)))
 			.map(it -> fileNamer(it))
@@ -130,7 +129,7 @@ public final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInpu
 		}
 	}
 
-	private static Transformer<Provider<RegularFile>, FileNamer> sharedLibraryLinkedFile(Provider<Directory> destinationDirectory, BaseName baseName) {
+	private static Transformer<Provider<RegularFile>, FileNamer> sharedLibraryLinkedFile(Provider<Directory> destinationDirectory, Provider<String> baseName) {
 		return toolProvider -> destinationDirectory.flatMap(dir -> dir.file(baseName.map(toolProvider::getSharedLibraryName)));
 	}
 

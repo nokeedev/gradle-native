@@ -20,7 +20,6 @@ import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
@@ -36,7 +35,7 @@ import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRuleFactory;
 import dev.nokee.platform.nativebase.internal.AttachLinkLibrariesToLinkTaskRule;
-import dev.nokee.platform.nativebase.internal.BaseNamePropertyRegistrationActionFactory;
+import dev.nokee.platform.nativebase.internal.ConfigureLinkTaskFromBaseNameRule;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.LinkLibrariesConfigurationRegistrationRule;
@@ -62,10 +61,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
-			new BaseNamePropertyRegistrationActionFactory(
-				() -> project.getExtensions().getByType(ModelRegistry.class),
-				() -> project.getExtensions().getByType(ModelPropertyRegistrationFactory.class)
-			),
 			new RegisterCompileTasksPropertyActionFactory(
 				() -> project.getExtensions().getByType(ModelRegistry.class),
 				() -> project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class)
@@ -80,6 +75,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new NativeLinkTaskRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(TaskRegistrationFactory.class), new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders()))));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachLinkLibrariesToLinkTaskRule(project.getExtensions().getByType(ModelRegistry.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new ConfigureLinkTaskFromBaseNameRule());
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {

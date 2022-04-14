@@ -30,6 +30,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
@@ -38,7 +39,6 @@ import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -49,18 +49,15 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class SharedLibraryBinaryRegistrationFactory {
-	private final BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory;
 	private final RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory;
 	private final AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory;
 	private final ObjectFactory objectFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(BaseNamePropertyRegistrationActionFactory baseNamePropertyRegistrationActionFactory, RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory, ObjectFactory objectFactory) {
-		this.baseNamePropertyRegistrationActionFactory = baseNamePropertyRegistrationActionFactory;
+	public SharedLibraryBinaryRegistrationFactory(RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, AttachAttributesToConfigurationRuleFactory attachAttributesToConfigurationRuleFactory, ObjectFactory objectFactory) {
 		this.compileTasksPropertyActionFactory = compileTasksPropertyActionFactory;
 		this.attachAttributesToConfigurationRuleFactory = attachAttributesToConfigurationRuleFactory;
 		this.objectFactory = objectFactory;
@@ -71,9 +68,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
-			.action(baseNamePropertyRegistrationActionFactory.create(identifier))
 			.action(compileTasksPropertyActionFactory.create(identifier))
-			.action(new ConfigureLinkTaskFromBaseNameRule(identifier))
 			.action(new AttachObjectFilesToLinkTaskRule(identifier))
 			.action(new ConfigureLinkTaskDefaultsRule(identifier))
 			.action(attachAttributesToConfigurationRuleFactory.create(identifier, LinkLibrariesConfiguration.class))
@@ -89,6 +84,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 
 	private static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware
 		, ModelBackedNamedMixIn
+		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
 		, HasLinkLibrariesDependencyBucket
 		, HasRuntimeLibrariesDependencyBucket
@@ -131,11 +127,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 		@Override
 		public ModelNode getNode() {
 			return node;
-		}
-
-		@Override
-		public Property<String> getBaseName() {
-			return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
 		}
 
 		@Override
