@@ -51,6 +51,7 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 
@@ -89,8 +90,17 @@ public class LanguageBasePlugin implements Plugin<Project> {
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(LanguageSourceSet.class)).build())
 				.withComponent(createdUsing(of(type), () -> {
 					try {
-						return type.getConstructor(View.class).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
-					} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+						for (Constructor<?> constructor : type.getConstructors()) {
+							if (constructor.getParameterTypes().length == 1) {
+								if (constructor.getParameterTypes()[0].equals(View.class)) {
+									return ((Constructor<ComponentSources>) constructor).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
+								} else if (constructor.getParameterTypes()[0].equals(ViewAdapter.class)) {
+									return ((Constructor<ComponentSources>) constructor).newInstance(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends LanguageSourceSet>>() {})));
+								}
+							}
+						}
+						throw new UnsupportedOperationException();
+					} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
 						throw new RuntimeException(e);
 					}
 				}))
