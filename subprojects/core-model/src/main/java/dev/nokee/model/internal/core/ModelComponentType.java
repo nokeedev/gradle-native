@@ -41,9 +41,14 @@ public abstract class ModelComponentType<T> {
 		return assignedComponentTypeFamilies.computeIfAbsent(type, ModelComponentType::computeComponentFamilyBits);
 	}
 	private static Bits computeComponentFamilyBits(Type type) {
-		val visitor = new TypeVisitor();
-		((ModelType<Object>) ModelType.of(type)).walkTypeHierarchy(visitor);
-		return visitor.result;
+		val modelType = ModelType.of(type);
+		if (modelType.isSubtypeOf(ModelComponent.class)) {
+			return componentBits(type);
+		} else {
+			val visitor = new TypeVisitor();
+			((ModelType<Object>) modelType).walkTypeHierarchy(visitor);
+			return visitor.result;
+		}
 	}
 	private static int typeIndex = 0;
 
@@ -72,10 +77,13 @@ public abstract class ModelComponentType<T> {
 		Objects.requireNonNull(component);
 		if (component instanceof ModelProjection) {
 			return (ModelComponentType<? super T>) projectionOf(((ModelProjection) component).getType().getRawType());
+		} else if (component instanceof ModelComponent) {
+			return (ModelComponentType<? super T>) componentOf(component.getClass());
 		} else {
 			return (ModelComponentType<? super T>) componentOf(toUndecoratedType(component.getClass()));
 		}
 	}
+
 
 	public static <T> ModelComponentType<T> componentOf(Class<T> type) {
 		Objects.requireNonNull(type);
