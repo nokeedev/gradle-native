@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
@@ -37,7 +38,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-public final class ConfigureLinkTaskTargetPlatformFromBuildVariantRule extends ModelActionWithInputs.ModelAction2<BuildVariant, NativeLinkTask> {
+public final class ConfigureLinkTaskTargetPlatformFromBuildVariantRule extends ModelActionWithInputs.ModelAction2<BuildVariantComponent, NativeLinkTask> {
 	private final ModelRegistry registry;
 
 	public ConfigureLinkTaskTargetPlatformFromBuildVariantRule(ModelRegistry registry) {
@@ -45,8 +46,8 @@ public final class ConfigureLinkTaskTargetPlatformFromBuildVariantRule extends M
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BuildVariant buildVariant, NativeLinkTask linkTask) {
-		registry.instantiate(ModelAction.configure(linkTask.get().getId(), ObjectLink.class, configureTargetPlatform(set(fromBuildVariant(buildVariant)).andThen(lockProperty()))));
+	protected void execute(ModelNode entity, BuildVariantComponent buildVariant, NativeLinkTask linkTask) {
+		registry.instantiate(ModelAction.configure(linkTask.get().getId(), ObjectLink.class, configureTargetPlatform(set(fromBuildVariant(buildVariant.get())).andThen(lockProperty()))));
 	}
 
 	//region Target platform
