@@ -16,18 +16,15 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
-import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.utils.Cast;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
@@ -36,21 +33,20 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import java.util.function.BiConsumer;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-public final class ConfigureLinkTaskTargetPlatformFromBuildVariantRule extends ModelActionWithInputs.ModelAction3<BinaryIdentifier<?>, BuildVariant, NativeLinkTask> {
-	private final DomainObjectIdentifier identifier;
+public final class ConfigureLinkTaskTargetPlatformFromBuildVariantRule extends ModelActionWithInputs.ModelAction2<BuildVariant, NativeLinkTask> {
+	private final ModelRegistry registry;
 
-	public ConfigureLinkTaskTargetPlatformFromBuildVariantRule(BinaryIdentifier<?> identifier) {
-		super(ModelComponentReference.of(Cast.uncheckedCastBecauseOfTypeErasure(BinaryIdentifier.class)), ModelComponentReference.ofAny(ModelComponentType.componentOf(BuildVariant.class)), ModelComponentReference.of(NativeLinkTask.class));
-		this.identifier = identifier;
+	public ConfigureLinkTaskTargetPlatformFromBuildVariantRule(ModelRegistry registry) {
+		this.registry = registry;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, BuildVariant buildVariant, NativeLinkTask linkTask) {
-		if (identifier.equals(this.identifier)) {
-			linkTask.configure(ObjectLink.class, configureTargetPlatform(set(fromBuildVariant(buildVariant)).andThen(lockProperty())));
-		}
+	protected void execute(ModelNode entity, BuildVariant buildVariant, NativeLinkTask linkTask) {
+		registry.instantiate(ModelAction.configure(linkTask.get().getId(), ObjectLink.class, configureTargetPlatform(set(fromBuildVariant(buildVariant)).andThen(lockProperty()))));
 	}
 
 	//region Target platform
