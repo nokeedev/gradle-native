@@ -40,7 +40,7 @@ public final class NodeRegistration {
 	}
 
 	ModelRegistration scope(ModelPath path) {
-		val builder = builder().withComponent(path.child(name));
+		val builder = builder().withComponent(new ModelPathComponent(path.child(name)));
 		components.forEach(builder::withComponent);
 		actionRegistrations.stream().map(it -> it.scope(path.child(name))).forEach(builder::action);
 		return builder.build();

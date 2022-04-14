@@ -27,6 +27,7 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
@@ -154,10 +155,10 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(identifier)
-			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
+			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+				entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))
-			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 				val bucketFactory = project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class);
@@ -201,7 +202,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 				val incoming = entity.getComponent(NativeIncomingDependencies.class);
 				entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(ModelProperties.getProperty(entity, "dependencies").as(NativeComponentDependencies.class)::get, incoming, outgoing));
 
-				registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path)));
+				registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path.get())));
 			})))
 			;
 	}

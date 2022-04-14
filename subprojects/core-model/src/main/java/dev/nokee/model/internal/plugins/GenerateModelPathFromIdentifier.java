@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelPathComponent;
 
 final class GenerateModelPathFromIdentifier extends ModelActionWithInputs.ModelAction1<DomainObjectIdentifier> {
 	public GenerateModelPathFromIdentifier() {
@@ -29,6 +30,6 @@ final class GenerateModelPathFromIdentifier extends ModelActionWithInputs.ModelA
 
 	@Override
 	protected void execute(ModelNode entity, DomainObjectIdentifier identifier) {
-		entity.addComponent(DomainObjectIdentifierUtils.toPath(identifier));
+		entity.addComponent(new ModelPathComponent(DomainObjectIdentifierUtils.toPath(identifier)));
 	}
 }

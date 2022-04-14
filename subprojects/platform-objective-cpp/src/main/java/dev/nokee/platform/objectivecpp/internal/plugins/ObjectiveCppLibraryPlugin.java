@@ -26,6 +26,7 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -117,8 +118,8 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "public")));
 			registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "headers")));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofProjection(ObjectiveCppSourceSet.class).asDomainObject(), (e, p, ignored, sourceSet) -> {
-				if (path.isDescendant(p)) {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.ofProjection(ObjectiveCppSourceSet.class).asDomainObject(), (e, p, ignored, sourceSet) -> {
+				if (path.isDescendant(p.get())) {
 					withConventionOf(maven(ComponentName.of(name)), defaultObjectiveCppGradle(ComponentName.of(name))).accept(sourceSet);
 				}
 			}));

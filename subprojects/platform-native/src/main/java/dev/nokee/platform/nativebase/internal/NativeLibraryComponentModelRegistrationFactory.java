@@ -34,6 +34,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
@@ -108,28 +109,28 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		val name = entityPath.getName();
 		val builder = ModelRegistration.builder()
-			.withComponent(entityPath)
+			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
 			.withComponent(identifier)
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			// TODO: Should configure FileCollection on CApplication
 			//   and link FileCollection to source sets
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
-				if (entityPath.isDescendant(path)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
+				if (entityPath.isDescendant(path.get())) {
 					withConventionOf(maven(ComponentName.of(name))).accept(sourceSet);
 				}
 			}))
 			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
 				private boolean alreadyExecuted = false;
 				@Override
-				public void execute(ModelNode entity, ModelPath path, ModelState state) {
-					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
+					if (entityPath.equals(path.get()) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-						sourceRegistration.accept(entity, path);
+						sourceRegistration.accept(entity, path.get());
 
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 
@@ -160,19 +161,19 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				}
 			}))
 			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
 				private boolean alreadyExecuted = false;
 				@Override
 				@SuppressWarnings("unchecked")
-				public void execute(ModelNode entity, ModelPath path, ModelState state) {
-					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
+					if (entityPath.equals(path.get()) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
-						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
+						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.get().getName());
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path.get())) {
 					new CalculateNativeLibraryVariantAction(project).execute(entity, path);
 				}
 			}));
@@ -184,7 +185,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		return builder.build();
 	}
 
-	private static class CalculateNativeLibraryVariantAction extends ModelActionWithInputs.ModelAction1<ModelPath> {
+	private static class CalculateNativeLibraryVariantAction extends ModelActionWithInputs.ModelAction1<ModelPathComponent> {
 		private final Project project;
 
 		private CalculateNativeLibraryVariantAction(Project project) {
@@ -192,7 +193,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		}
 
 		@Override
-		protected void execute(ModelNode entity, ModelPath path) {
+		protected void execute(ModelNode entity, ModelPathComponent path) {
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();

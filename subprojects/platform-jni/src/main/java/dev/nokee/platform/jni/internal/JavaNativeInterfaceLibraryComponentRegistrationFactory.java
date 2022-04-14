@@ -42,6 +42,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
@@ -135,21 +136,21 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		val entityPath = DomainObjectIdentifierUtils.toPath(identifier);
 		val builder = ModelRegistration.builder()
 			.withComponent(identifier)
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
-				if (entityPath.isDirectDescendant(path)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+				if (entityPath.isDirectDescendant(path.get())) {
 					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
 				}
 			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup), project.getObjects())))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
 				private boolean alreadyExecuted = false;
 
 				@Override
 				@SuppressWarnings({"unchecked", "rawtypes"})
-				public void execute(ModelNode entity, ModelPath path, ModelState state) {
-					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
+					if (entityPath.equals(path.get()) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 

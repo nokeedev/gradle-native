@@ -20,6 +20,7 @@ import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
@@ -45,7 +46,7 @@ class ModelPathFromDomainObjectIdentifierIntegrationTest {
 
 	@Test
 	void hasModelPath() {
-		assertThat(subject.getComponent(ModelComponentType.componentOf(ModelPath.class)),
+		assertThat(subject.get(ModelPathComponent.class).get(),
 			equalTo(ModelPath.path("peow.keju.ewol")));
 	}
 }

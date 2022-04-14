@@ -38,16 +38,16 @@ class ModelPropertiesTest {
 		.withComponent(ModelPropertyTag.instance())
 		.withComponent(new ModelPropertyTypeComponent(of(MyType.class)))
 		.withComponent(new GradlePropertyComponent(objectFactory().property(MyType.class).value(new MyType("valueA"))))
-		.withComponent(ModelPath.path("propA"))
+		.withComponent(new ModelPathComponent(ModelPath.path("propA")))
 		.build()));
 	private final ModelNode propertyB = ModelNodes.of(registry.register(ModelRegistration.builder()
 		.withComponent(ModelPropertyTag.instance())
 		.withComponent(new ModelPropertyTypeComponent(of(MyType.class)))
 		.withComponent(new GradlePropertyComponent(objectFactory().property(MyType.class).value(new MyType("valueB"))))
-		.withComponent(ModelPath.path("propB"))
+		.withComponent(new ModelPathComponent(ModelPath.path("propB")))
 		.build()));
 	private final ModelNode notProperty = ModelNodes.of(registry.register(ModelRegistration.builder()
-		.withComponent(ModelPath.path("propC"))
+		.withComponent(new ModelPathComponent(ModelPath.path("propC")))
 		.withComponent(ofInstance(new MyType("valueC")))
 		.build()));
 

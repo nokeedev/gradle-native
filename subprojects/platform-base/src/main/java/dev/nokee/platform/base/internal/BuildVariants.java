@@ -23,6 +23,7 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.runtime.core.Coordinate;
 import dev.nokee.runtime.core.CoordinateSet;
@@ -60,7 +61,7 @@ public final class BuildVariants implements ModelComponent {
 			return dimensionNodes.collect(Collectors.toList());
 		});
 		this.dimensions = dimensions
-			.map(transformEach(new ToCoordinateSet(entity.getComponent(ModelPath.class).getName())))
+			.map(transformEach(new ToCoordinateSet(entity.get(ModelPathComponent.class).get().getName())))
 			.flatMap(new ToProviderOfIterableTransformer<>(() -> uncheckedCastBecauseOfTypeErasure(objects.listProperty(CoordinateSet.class))));
 		this.finalSpace = this.dimensions.map(CoordinateSpace::cartesianProduct);
 		this.buildVariants = objects.setProperty(BuildVariant.class);

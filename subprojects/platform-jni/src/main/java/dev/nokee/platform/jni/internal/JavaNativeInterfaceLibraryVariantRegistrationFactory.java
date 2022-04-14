@@ -38,6 +38,7 @@ import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
@@ -158,12 +159,12 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					});
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {
 				if (id.equals(identifier)) {
-					entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
+					entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPath.class), (entity, id, state, path) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPathComponent.class), (entity, id, state, path) -> {
 				if (id.equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 
@@ -252,7 +253,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					entity.addComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects())));
 
 
-					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (e, i, s, p, library) -> {
+					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (e, i, s, p, library) -> {
 						if (i.equals(identifier)) {
 							val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
 
@@ -260,7 +261,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 						}
 					}));
 
-					registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path)));
+					registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path.get())));
 				}
 			}))
 			.build();

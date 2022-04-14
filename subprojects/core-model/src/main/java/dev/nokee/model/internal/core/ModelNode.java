@@ -177,7 +177,7 @@ public final class ModelNode {
 
 	@Override
 	public String toString() {
-		return findComponent(ModelPath.class).map(Objects::toString).orElseGet(() -> "entity '" + id + "'");
+		return find(ModelPathComponent.class).map(ModelPathComponent::get).map(Objects::toString).orElseGet(() -> "entity '" + id + "'");
 	}
 
 	/**
@@ -233,7 +233,7 @@ public final class ModelNode {
 			entity.addComponent(new RelativeRegistrationService(path, registry));
 			entity.addComponent(new RelativeConfigurationService(path, configurer));
 			entity.addComponent(new BindManagedProjectionService(instantiator));
-			entity.addComponent(path);
+			entity.addComponent(new ModelPathComponent(path));
 			path.getParent().ifPresent(parentPath -> {
 				entity.addComponent(new ParentComponent(lookup.get(parentPath)));
 			});

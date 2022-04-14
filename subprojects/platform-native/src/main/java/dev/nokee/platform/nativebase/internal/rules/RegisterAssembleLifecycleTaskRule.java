@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -80,7 +81,7 @@ public final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInpu
 		val taskIdentifier = TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier);
 		val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(taskIdentifier.getTaskName(), Task.class);
 		val task = modelRegistry.register(ModelRegistration.builder()
-				.withComponent(ModelPath.path(identifier.getName() + "." + taskIdentifier.getName()))
+				.withComponent(new ModelPathComponent(ModelPath.path(identifier.getName() + "." + taskIdentifier.getName())))
 				.withComponent(taskIdentifier)
 				.withComponent(IsTask.tag())
 				.withComponent(ConfigurableTag.tag())

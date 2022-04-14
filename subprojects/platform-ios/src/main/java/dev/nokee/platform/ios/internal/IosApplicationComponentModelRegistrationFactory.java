@@ -32,6 +32,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -119,27 +120,27 @@ public final class IosApplicationComponentModelRegistrationFactory {
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		val builder = ModelRegistration.builder()
-			.withComponent(entityPath)
+			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(identifier)
 			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
-				if (entityPath.isDescendant(path)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
+				if (entityPath.isDescendant(path.get())) {
 					withConventionOf(maven(identifier.getName())).accept(sourceSet);
 				}
 			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(identifier.getName().get(), project)))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
 				private boolean alreadyExecuted = false;
 
 				@Override
-				public void execute(ModelNode entity, ModelPath path, ModelState state) {
-					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
+					if (entityPath.equals(path.get()) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-						sourceRegistration.accept(entity, path);
+						sourceRegistration.accept(entity, path.get());
 
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 
@@ -169,19 +170,19 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				}
 			}))
 			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPath, ModelState>() {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
 				private boolean alreadyExecuted = false;
 				@Override
 				@SuppressWarnings("unchecked")
-				public void execute(ModelNode entity, ModelPath path, ModelState state) {
-					if (entityPath.equals(path) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
+					if (entityPath.equals(path.get()) && state.equals(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
-						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.getName());
+						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.get().getName());
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
+				if (entityPath.equals(path.get())) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					val component = ModelNodeUtils.get(entity, DefaultIosApplicationComponent.class);
 
@@ -221,10 +222,10 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
-			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
-				entity.addComponent(new ModelBackedNativeIncomingDependencies(path, project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
+			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+				entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 			}))))
-			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), (entity, path) -> {
+			.action(self(discover()).apply(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 				val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)));
@@ -268,7 +269,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				val incoming = entity.getComponent(NativeIncomingDependencies.class);
 				entity.addComponent(new VariantComponentDependencies<NativeComponentDependencies>(ModelProperties.getProperty(entity, "dependencies").as(NativeComponentDependencies.class)::get, incoming, outgoing));
 
-				registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path)));
+				registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path.get())));
 			})))
 			;
 	}
