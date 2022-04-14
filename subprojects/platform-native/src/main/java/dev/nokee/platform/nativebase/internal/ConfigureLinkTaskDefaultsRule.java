@@ -15,8 +15,10 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -27,21 +29,21 @@ import org.gradle.api.provider.Provider;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class ConfigureLinkTaskDefaultsRule extends ModelActionWithInputs.ModelAction2<BinaryIdentifier<?>, NativeLinkTask> {
-	private final BinaryIdentifier<?> identifier;
+public final class ConfigureLinkTaskDefaultsRule extends ModelActionWithInputs.ModelAction2<BinaryIdentifier<?>, NativeLinkTask> {
+	private final ModelRegistry registry;
 
-	public ConfigureLinkTaskDefaultsRule(BinaryIdentifier<?> identifier) {
-		this.identifier = identifier;
+	public ConfigureLinkTaskDefaultsRule(ModelRegistry registry) {
+		this.registry = registry;
 	}
 
 	@Override
 	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, NativeLinkTask linkTask) {
-		if (identifier.equals(this.identifier)) {
-			linkTask.configure(LinkSharedLibraryTask.class, configureInstallName(convention(ofLinkedFileFileName())));
-			linkTask.configure(LinkSharedLibraryTask.class, configureImportLibrary(lockProperty())); // Already has sensible default in task implementation)
-		}
+		registry.instantiate(ModelAction.configure(linkTask.get().getId(), LinkSharedLibraryTask.class, configureInstallName(convention(ofLinkedFileFileName()))));
+		registry.instantiate(ModelAction.configure(linkTask.get().getId(), LinkSharedLibraryTask.class, configureImportLibrary(lockProperty()))); // Already has sensible default in task implementation)
 	}
 
 	//region Install name
