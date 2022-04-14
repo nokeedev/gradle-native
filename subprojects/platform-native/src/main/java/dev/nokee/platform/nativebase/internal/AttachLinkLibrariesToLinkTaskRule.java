@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
@@ -33,22 +34,23 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
 public final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction4<BinaryIdentifier<?>, DependentLinkLibraries, DependentFrameworks, NativeLinkTask> {
-	private final BinaryIdentifier<?> identifier;
+	private final ModelRegistry registry;
 
-	public AttachLinkLibrariesToLinkTaskRule(BinaryIdentifier<?> identifier) {
-		this.identifier = identifier;
+	public AttachLinkLibrariesToLinkTaskRule(ModelRegistry registry) {
+		this.registry = registry;
 	}
 
 	@Override
 	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, DependentLinkLibraries incomingLibraries, DependentFrameworks incomingFrameworks, NativeLinkTask linkTask) {
-		if (identifier.equals(this.identifier)) {
-			linkTask.configure(ObjectLink.class, configureLibraries(from(incomingLibraries)));
-			linkTask.configure(ObjectLink.class, configureLinkerArgs(addAll(asFrameworkFlags(incomingFrameworks))));
-		}
+		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLibraries(from(incomingLibraries))));
+		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(asFrameworkFlags(incomingFrameworks)))));
 	}
 
 	//region Link libraries
