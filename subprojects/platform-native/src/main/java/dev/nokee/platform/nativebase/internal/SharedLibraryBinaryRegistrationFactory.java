@@ -71,7 +71,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
-			.action(new AttachLinkLibrariesToLinkTaskRule(identifier))
 			.action(baseNamePropertyRegistrationActionFactory.create(identifier))
 			.action(compileTasksPropertyActionFactory.create(identifier))
 			.action(new ConfigureLinkTaskFromBaseNameRule(identifier))
