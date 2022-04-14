@@ -48,30 +48,25 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static dev.nokee.utils.TransformerUtils.onlyInstanceOf;
 import static dev.nokee.utils.TransformerUtils.stream;
 
-@AutoFactory
-public final class RegisterCompileTasksPropertyAction extends ModelActionWithInputs.ModelAction2<BinaryIdentifier<?>, ModelState.IsAtLeastRegistered> {
+public final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction1<BinaryIdentifier<?>> {
 	private static final ModelType<TaskView<SourceCompile>> TASK_VIEW_MODEL_TYPE = ModelType.of(new TypeOf<TaskView<SourceCompile>>() {});
-	private final BinaryIdentifier<?> identifier;
 	private final ModelRegistry registry;
 	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
 
-	public RegisterCompileTasksPropertyAction(BinaryIdentifier<?> identifier, @Provided ModelRegistry registry, @Provided ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory) {
-		this.identifier = identifier;
+	public RegisterCompileTasksPropertyRule(ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory) {
 		this.registry = registry;
 		this.tasksPropertyRegistrationFactory = tasksPropertyRegistrationFactory;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			val compileTasks = registry.register(ModelRegistration.builder()
-				.mergeFrom(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class))
-				.withComponent(new ViewConfigurationBaseComponent(entity.get(ParentComponent.class).get()))
-				.withComponent(new BaseModelSpecComponent(ModelSpec.isEqual(CompileTaskTag.tag())))
-				.build()
-			);
-			entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
-		}
+	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier) {
+		val compileTasks = registry.register(ModelRegistration.builder()
+			.mergeFrom(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class))
+			.withComponent(new ViewConfigurationBaseComponent(entity.get(ParentComponent.class).get()))
+			.withComponent(new BaseModelSpecComponent(ModelSpec.isEqual(CompileTaskTag.tag())))
+			.build()
+		);
+		entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
 	}
 
 	private static Transformer<Provider<Set<Path>>, TaskView<SourceCompile>> toObjectFiles() {

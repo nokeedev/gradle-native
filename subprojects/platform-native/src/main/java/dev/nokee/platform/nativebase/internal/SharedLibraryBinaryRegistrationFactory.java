@@ -53,11 +53,9 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class SharedLibraryBinaryRegistrationFactory {
-	private final RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory;
 	private final ObjectFactory objectFactory;
 
-	public SharedLibraryBinaryRegistrationFactory(RegisterCompileTasksPropertyActionFactory compileTasksPropertyActionFactory, ObjectFactory objectFactory) {
-		this.compileTasksPropertyActionFactory = compileTasksPropertyActionFactory;
+	public SharedLibraryBinaryRegistrationFactory(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
 	}
 
@@ -66,7 +64,6 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(identifier)
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
-			.action(compileTasksPropertyActionFactory.create(identifier))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, ignored) -> {
 				if (id.equals(identifier)) {
 					entity.addComponent(createdUsing(of(ModelBackedSharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)));
