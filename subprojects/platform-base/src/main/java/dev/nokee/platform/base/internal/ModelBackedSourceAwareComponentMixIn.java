@@ -22,7 +22,7 @@ import dev.nokee.platform.base.SourceAwareComponent;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 
-public interface ModelBackedSourceAwareComponentMixIn<T extends ComponentSources> extends SourceAwareComponent<T> {
+public interface ModelBackedSourceAwareComponentMixIn<T extends ComponentSources, S extends T> extends SourceAwareComponent<T> {
 	@Override
 	@SuppressWarnings("unchecked")
 	default T getSources() {

@@ -16,6 +16,7 @@
 package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.Iterables;
+import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.actions.ModelAction;
@@ -70,6 +71,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply("lifecycle-base");
+		project.getPluginManager().apply(LanguageBasePlugin.class);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(JvmLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);

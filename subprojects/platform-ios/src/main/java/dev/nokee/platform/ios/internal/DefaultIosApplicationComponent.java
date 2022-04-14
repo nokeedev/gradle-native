@@ -98,7 +98,7 @@ import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdk
 
 public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements Component
 	, DependencyAwareComponent<NativeComponentDependencies>
-	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
+	, ModelBackedSourceAwareComponentMixIn<ComponentSources, ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<DefaultIosApplicationVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn

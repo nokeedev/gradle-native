@@ -59,7 +59,7 @@ import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public class DefaultNativeApplicationComponent extends BaseNativeComponent<DefaultNativeApplicationVariant> implements Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
-	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
+	, ModelBackedSourceAwareComponentMixIn<ComponentSources, NativeApplicationSourcesAdapter>
 	, ModelBackedVariantAwareComponentMixIn<DefaultNativeApplicationVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn

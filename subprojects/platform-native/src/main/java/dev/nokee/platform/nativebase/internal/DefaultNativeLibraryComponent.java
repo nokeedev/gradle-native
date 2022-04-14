@@ -59,7 +59,7 @@ import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
-	, ModelBackedSourceAwareComponentMixIn<ComponentSources>
+	, ModelBackedSourceAwareComponentMixIn<ComponentSources, NativeLibrarySourcesAdapter>
 	, ModelBackedVariantAwareComponentMixIn<DefaultNativeLibraryVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
