@@ -16,6 +16,7 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import com.google.common.base.Suppliers;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -48,7 +49,7 @@ import java.util.stream.Collectors;
 import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.ARTIFACT_COMPRESSION_STATE_ATTRIBUTE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactCompressionState.UNCOMPRESSED;
 
-public class ModelBackedNativeIncomingDependencies implements NativeIncomingDependencies {
+public class ModelBackedNativeIncomingDependencies implements NativeIncomingDependencies, ModelComponent {
 	private static final Logger LOGGER = Logger.getLogger(ModelBackedNativeIncomingDependencies.class.getCanonicalName());
 	private final Supplier<IncomingHeaders> headers;
 	private final Supplier<IncomingSwiftModules> swiftModules;
