@@ -53,6 +53,6 @@ public abstract class ModelNodeBackedNamedDomainObjectCollectionDynamicObject ex
 
 	@Override
 	protected DomainObjectProvider<?> doRegister(String name, ModelType<?> type) {
-		return ModelNodeUtils.get(node, BaseNamedDomainObjectContainerProjection.class).register(name, type);
+		throw new UnsupportedOperationException();
 	}
 }

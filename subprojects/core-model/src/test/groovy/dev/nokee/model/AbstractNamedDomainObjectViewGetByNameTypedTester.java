@@ -20,7 +20,6 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -67,7 +66,6 @@ public abstract class AbstractNamedDomainObjectViewGetByNameTypedTester<T> exten
 	}
 
 	@Test
-	@DisabledIf("isTestingContainerType")
 	void throwsExceptionWhenGettingUnknownElements() {
 		val ex = assertThrows(IllegalArgumentException.class, () -> get(subject, "e4", getSubElementType()));
 		assertThat(ex.getMessage(), equalTo("Element at 'myTypes.e4' wasn't found."));

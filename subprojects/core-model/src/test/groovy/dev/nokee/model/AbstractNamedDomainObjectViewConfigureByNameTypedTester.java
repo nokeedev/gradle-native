@@ -19,13 +19,14 @@ import lombok.val;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.internal.Cast;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 import org.mockito.ArgumentCaptor;
 
 import java.util.function.Consumer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -59,7 +60,6 @@ public abstract class AbstractNamedDomainObjectViewConfigureByNameTypedTester<T>
 	}
 
 	@Test
-	@DisabledIf("isTestingContainerType")
 	void canConfigureKnownElementByBaseType() {
 		element("e2", getSubElementType()).get();
 		val captor = configure(subject, "e2", getElementType());
