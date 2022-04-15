@@ -39,6 +39,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import groovy.lang.Closure;
@@ -92,7 +93,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
-		return node.getComponent(NativeIncomingDependencies.class);
+		return node.get(ModelBackedNativeIncomingDependencies.class);
 	}
 
 	@Override
