@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -37,7 +38,7 @@ import java.util.function.BiPredicate;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
 import static dev.nokee.model.internal.type.ModelType.of;
 
-public final class ModelBackedVariantDimensions implements VariantDimensions {
+public final class ModelBackedVariantDimensions implements VariantDimensions, ModelComponent {
 	private final DomainObjectIdentifier owner;
 	private final ModelRegistry registry;
 	private final DimensionPropertyRegistrationFactory dimensionsPropertyFactory;
