@@ -140,7 +140,7 @@ public abstract class ModelComponentReference<T> {
 		private final class AsConfigurableProvider extends ModelComponentReference<NamedDomainObjectProvider<T>> implements ModelComponentReferenceInternal {
 			@Override
 			public NamedDomainObjectProvider<T> get(ModelNode entity) {
-				return entity.getComponent(ModelElementFactory.class).createObject(entity, ModelType.of(projectionType)).asProvider();
+				return entity.get(ModelElementFactory.class).createObject(entity, ModelType.of(projectionType)).asProvider();
 			}
 
 			@Override
@@ -184,7 +184,7 @@ public abstract class ModelComponentReference<T> {
 		private final class AsProviderReference extends ModelComponentReference<Provider<T>> implements ModelComponentReferenceInternal {
 			@Override
 			public Provider<T> get(ModelNode entity) {
-				return entity.getComponent(ModelElementFactory.class).createObject(entity, ModelType.of(projectionType)).asProvider();
+				return entity.get(ModelElementFactory.class).createObject(entity, ModelType.of(projectionType)).asProvider();
 			}
 
 			@Override

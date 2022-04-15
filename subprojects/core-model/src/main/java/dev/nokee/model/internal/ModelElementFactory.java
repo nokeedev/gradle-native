@@ -29,6 +29,7 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelBackedModelCastableStrategy;
 import dev.nokee.model.internal.core.ModelBackedModelElementLookupStrategy;
 import dev.nokee.model.internal.core.ModelBackedModelPropertyLookupStrategy;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelIdentifier;
@@ -69,7 +70,7 @@ import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
-public final class ModelElementFactory {
+public final class ModelElementFactory implements ModelComponent {
 	private final Instantiator instantiator;
 	private final boolean useLegacyModelAction;
 
