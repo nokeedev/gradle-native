@@ -15,21 +15,22 @@
  */
 package dev.nokee.model.internal.state;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 
 public final class ModelStates {
-	private static final Object CREATED_TAG = new ModelState.IsAtLeastCreated();
-	private static final Object REALIZED_TAG = new ModelState.IsAtLeastRealized();
-	private static final Object INITIALIZED_TAG = new ModelState.IsAtLeastInitialized();
-	private static final Object REGISTERED_TAG = new ModelState.IsAtLeastRegistered();
-	private static final Object FINALIZED_TAG = new ModelState.IsAtLeastFinalized();
+	private static final ModelState.IsAtLeastCreated CREATED_TAG = new ModelState.IsAtLeastCreated();
+	private static final ModelState.IsAtLeastRealized REALIZED_TAG = new ModelState.IsAtLeastRealized();
+	private static final ModelState.IsAtLeastInitialized INITIALIZED_TAG = new ModelState.IsAtLeastInitialized();
+	private static final ModelState.IsAtLeastRegistered REGISTERED_TAG = new ModelState.IsAtLeastRegistered();
+	private static final ModelState.IsAtLeastFinalized FINALIZED_TAG = new ModelState.IsAtLeastFinalized();
 
 	private ModelStates() {}
 
 	public static ModelNode create(ModelNode self) {
 		if (!self.has(ModelState.IsAtLeastCreated.class)) {
-			if (self.hasComponent(ModelState.class)) {
+			if (self.has(ModelState.class)) {
 				self.setComponent(ModelState.class, ModelState.Created);
 			} else {
 				self.addComponent(ModelState.Created);
@@ -49,7 +50,7 @@ public final class ModelStates {
 		if (!self.has(ModelState.IsAtLeastRealized.class)) {
 			register(self);
 			if (!isAtLeast(self, ModelState.Realized)) {
-				if (!self.hasComponent(Realizing.class)) {
+				if (!self.has(Realizing.class)) {
 					self.addComponent(new Realizing());
 					useRealizingComponentBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(self);
 				}
@@ -59,11 +60,11 @@ public final class ModelStates {
 		return self;
 	}
 
-	private static final class Realizing {}
+	private static final class Realizing implements ModelComponent {}
 
 	private static void useRealizingComponentBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(ModelNode self) {
 		ModelNodeUtils.getParent(self).ifPresent(ModelStates::realize);
-		if (self.hasComponent(ModelState.class)) {
+		if (self.has(ModelState.class)) {
 			self.setComponent(ModelState.class, ModelState.Realized);
 		} else {
 			self.addComponent(ModelState.Realized);
@@ -73,8 +74,8 @@ public final class ModelStates {
 	public static ModelNode initialize(ModelNode self) {
 		if (!self.has(ModelState.IsAtLeastInitialized.class)) {
 			create(self);
-			if (self.hasComponent(ModelState.class)) {
-				if (!self.getComponent(ModelState.class).isAtLeast(ModelState.Initialized)) {
+			if (self.has(ModelState.class)) {
+				if (!self.get(ModelState.class).isAtLeast(ModelState.Initialized)) {
 					self.setComponent(ModelState.class, ModelState.Initialized);
 				}
 			} else {
@@ -89,10 +90,10 @@ public final class ModelStates {
 		if (!self.has(ModelState.IsAtLeastRegistered.class)) {
 			initialize(self);
 			if (!isAtLeast(self, ModelState.Registered)) {
-				if (!self.hasComponent(Registering.class)) {
+				if (!self.has(Registering.class)) {
 					self.addComponent(new Registering());
-					if (self.hasComponent(ModelState.class)) {
-						if (!self.getComponent(ModelState.class).isAtLeast(ModelState.Registered)) {
+					if (self.has(ModelState.class)) {
+						if (!self.get(ModelState.class).isAtLeast(ModelState.Registered)) {
 							self.setComponent(ModelState.class, ModelState.Registered);
 						}
 					} else {
@@ -105,13 +106,13 @@ public final class ModelStates {
 		return self;
 	}
 
-	private static final class Registering {}
+	private static final class Registering implements ModelComponent {}
 
 	public static ModelNode finalize(ModelNode self) {
 		if (!self.has(ModelState.IsAtLeastFinalized.class)) {
 			realize(self);
 			if (!isAtLeast(self, ModelState.Finalized)) {
-				if (self.hasComponent(ModelState.class)) {
+				if (self.has(ModelState.class)) {
 					self.setComponent(ModelState.class, ModelState.Finalized);
 				} else {
 					self.addComponent(ModelState.Finalized);
@@ -140,6 +141,6 @@ public final class ModelStates {
 	 * @return a {@link ModelState} representing the state of this model node, never null.
 	 */
 	public static ModelState getState(ModelNode self) {
-		return self.findComponent(ModelState.class).orElse(ModelState.Created);
+		return self.find(ModelState.class).orElse(ModelState.Created);
 	}
 }
