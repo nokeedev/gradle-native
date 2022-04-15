@@ -15,11 +15,12 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.runtime.core.Coordinate;
 
 import java.util.function.Consumer;
 
-public final class VariantDimensionAxisValidatorComponent {
+public final class VariantDimensionAxisValidatorComponent implements ModelComponent {
 	private final Consumer<Iterable<? extends Coordinate<Object>>> value;
 
 	public VariantDimensionAxisValidatorComponent(Consumer<Iterable<? extends Coordinate<Object>>> value) {

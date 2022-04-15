@@ -15,10 +15,12 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
+
 import java.util.List;
 import java.util.function.Predicate;
 
-public final class VariantDimensionAxisFilterComponent {
+public final class VariantDimensionAxisFilterComponent implements ModelComponent {
 	private final Predicate<BuildVariantInternal> value;
 
 	public VariantDimensionAxisFilterComponent(List<Predicate<? super BuildVariantInternal>> filters) {
