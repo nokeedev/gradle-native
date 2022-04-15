@@ -15,6 +15,10 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.model.DomainObjectContainer;
+import org.gradle.api.NamedDomainObjectProvider;
 
-public interface ComponentContainer extends DomainObjectContainer<Component> {}
+public interface ComponentContainer extends View<Component> {
+	<U extends Component> NamedDomainObjectProvider<U> register(String name, Class<U> type);
+
+	NamedDomainObjectProvider<Component> named(String name);
+}
