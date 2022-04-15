@@ -29,10 +29,23 @@ import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.DependencyBucketTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
+import dev.nokee.platform.base.testers.HasDevelopmentVariantTester;
+import dev.nokee.platform.base.testers.TaskAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -61,7 +74,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.*;
+import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
+import static dev.nokee.internal.testing.ConfigurationMatchers.consumable;
+import static dev.nokee.internal.testing.ConfigurationMatchers.extendsFrom;
+import static dev.nokee.internal.testing.ConfigurationMatchers.hasPublishArtifact;
+import static dev.nokee.internal.testing.ConfigurationMatchers.ofFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileBaseNamed;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
@@ -73,7 +90,16 @@ import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
 @PluginRequirement.Require(type = CLanguageBasePlugin.class)
