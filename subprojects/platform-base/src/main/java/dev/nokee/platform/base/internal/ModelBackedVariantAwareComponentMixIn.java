@@ -49,7 +49,7 @@ public interface ModelBackedVariantAwareComponentMixIn<T extends Variant> extend
 
 	@Override
 	default VariantDimensions getDimensions() {
-		return ModelNodes.of(this).getComponent(VariantDimensions.class);
+		return ModelNodes.of(this).get(ModelBackedVariantDimensions.class);
 	}
 
 	@Override
