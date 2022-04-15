@@ -15,9 +15,10 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.runtime.core.CoordinateAxis;
 
-public final class VariantDimensionAxisComponent {
+public final class VariantDimensionAxisComponent implements ModelComponent {
 	private final CoordinateAxis<?> value;
 
 	public VariantDimensionAxisComponent(CoordinateAxis<?> value) {
