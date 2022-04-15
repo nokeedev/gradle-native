@@ -43,6 +43,6 @@ public final class ModelProperties {
 	}
 
 	private static ModelProperty<?> newElement(ModelNode entity) {
-		return entity.getComponent(ModelElementFactory.class).createProperty(entity);
+		return entity.get(ModelElementFactory.class).createProperty(entity);
 	}
 }

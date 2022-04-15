@@ -25,7 +25,7 @@ import java.util.List;
 public final class ModelElements {
 	public static ModelElement of(Object target) {
 		val entity = ModelNodes.of(target);
-		return entity.getComponent(ModelElementFactory.class).createElement(entity);
+		return entity.get(ModelElementFactory.class).createElement(entity);
 	}
 
 	public static ModelAction whenElementDiscovered(ModelAction action) {
