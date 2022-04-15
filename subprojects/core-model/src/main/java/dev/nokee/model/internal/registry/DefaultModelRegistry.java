@@ -33,6 +33,7 @@ import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
+import dev.nokee.model.internal.core.ModelNodeListenerComponent;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
@@ -100,7 +101,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val path = ModelPath.root();
 		val entity = new ModelNode();
 		entities.add(entity);
-		entity.addComponent(nodeStateListener);
+		entity.addComponent(new ModelNodeListenerComponent(nodeStateListener));
 		entity.addComponent(new ModelPathComponent(path));
 		return entity;
 	}

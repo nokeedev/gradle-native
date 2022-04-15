@@ -49,7 +49,7 @@ class ModelEntityTest {
 		@BeforeEach
 		void addComponent() {
 			subject.addComponent(existingComponent);
-			subject.addComponent(listener);
+			subject.addComponent(new ModelNodeListenerComponent(listener));
 			Mockito.reset(listener);
 		}
 

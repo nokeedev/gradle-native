@@ -64,7 +64,7 @@ public final class ModelNode {
 
 	public ModelNode(ModelNodeListener listener) {
 		this.listener = listener;
-		addComponent(listener);
+		addComponent(new ModelNodeListenerComponent(listener));
 	}
 
 	public ModelEntityId getId() {
@@ -93,8 +93,8 @@ public final class ModelNode {
 	private void notifyComponentAdded(Object newComponent) {
 		if (listener == null) {
 			for (Object component : components.values()) {
-				if (component instanceof ModelNodeListener) {
-					listener = (ModelNodeListener) component;
+				if (component instanceof ModelNodeListenerComponent) {
+					listener = ((ModelNodeListenerComponent) component).get();
 					listener.projectionAdded(this, newComponent);
 					return;
 				}
