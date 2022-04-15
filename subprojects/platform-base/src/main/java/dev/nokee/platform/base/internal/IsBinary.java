@@ -15,13 +15,14 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class IsBinary {
+public class IsBinary implements ModelComponent {
 	private static final IsBinary INSTANCE = new IsBinary();
 
 	public static IsBinary tag() {

@@ -15,13 +15,14 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class IsTask {
+public class IsTask implements ModelComponent {
 	private static final IsTask INSTANCE = new IsTask();
 
 	public static IsTask tag() {
