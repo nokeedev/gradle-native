@@ -31,9 +31,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.NamingScheme;
 import dev.nokee.model.internal.names.NamingSchemeSystem;
@@ -63,10 +61,10 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
+import dev.nokee.platform.base.internal.ComponentContainerAdapter;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -77,7 +75,6 @@ import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.ViewAdapter;
-import dev.nokee.platform.base.internal.components.DefaultComponentContainer;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
@@ -93,7 +90,6 @@ import org.gradle.api.provider.Provider;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 
-import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -106,15 +102,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TaskBasePlugin.class);
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
-		val components = modeRegistry.register(components()).as(DefaultComponentContainer.class).get();
-		project.getExtensions().add(ComponentContainer.class, "components", components);
-
-		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsComponent.class), ModelComponentReference.ofProjection(Component.class), (e, p, ignored1, ignored2, projection) -> {
-			if (ModelPath.root().isDirectDescendant(p)) {
-				modeRegistry.register(propertyFactory.create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ProjectIdentifier.of(project),"components"), p.getName()), e));
-			}
-		}));
 
 		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory(project.getExtensions().getByType(ModelLookup.class)));
 
@@ -191,6 +178,17 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
 
+		val components = modeRegistry.register(ModelRegistration.builder()
+			.withComponent(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "components"))
+			.mergeFrom(elementsPropertyFactory.newProperty()
+				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
+				.elementType(of(Component.class))
+				.build())
+			.withComponent(createdUsing(of(ComponentContainer.class), () -> new ComponentContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<Component>>() {})))))
+			.build()
+		);
+		project.getExtensions().add(ComponentContainer.class, "components", components.as(ComponentContainer.class).get());
+
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(BinaryAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
 			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
 				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "binaries"));
@@ -231,9 +229,5 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	private static Class<? extends ComponentDependencies> dependenciesType(ModelType<? extends DependencyAwareComponent<? extends ComponentDependencies>> type) {
 		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(ModelBackedDependencyAwareComponentMixIn.class)).map(it -> (ModelType<ComponentDependencies>) it).collect(MoreCollectors.onlyElement());
 		return (Class<? extends ComponentDependencies>) ((ParameterizedType) t.getType()).getActualTypeArguments()[1];
-	}
-
-	private static NodeRegistration components() {
-		return namedContainer("components", of(DefaultComponentContainer.class));
 	}
 }

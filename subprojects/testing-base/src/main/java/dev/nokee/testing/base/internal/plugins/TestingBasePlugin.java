@@ -17,24 +17,29 @@ package dev.nokee.testing.base.internal.plugins;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ModelSpecs;
+import dev.nokee.model.internal.core.NodeRegistrationFactories;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.IsComponent;
+import dev.nokee.model.internal.type.TypeOf;
+import dev.nokee.platform.base.internal.ViewAdapter;
+import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.base.TestSuiteContainer;
-import dev.nokee.testing.base.internal.DefaultTestSuiteContainer;
-import dev.nokee.testing.base.internal.IsTestComponent;
+import dev.nokee.testing.base.internal.TestSuiteContainerAdapter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static dev.nokee.model.internal.BaseNamedDomainObjectContainer.namedContainer;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public class TestingBasePlugin implements Plugin<Project> {
@@ -43,23 +48,23 @@ public class TestingBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
-		val components = modeRegistry.register(testSuites()).as(DefaultTestSuiteContainer.class).get();
-		project.getExtensions().add(TestSuiteContainer.class, "testSuites", components);
 
-		val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), ModelComponentReference.of(IsTestComponent.class), ModelComponentReference.ofProjection(TestSuiteComponent.class), (e, p, ignored1, ignored2, projection) -> {
-			if (ModelPath.root().isDirectDescendant(p)) {
-				modeRegistry.register(propertyFactory.create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "testSuites"), p.getName()), e));
-			}
-		}));
+		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
+		val testSuites = modeRegistry.register(ModelRegistration.builder()
+			.withComponent(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "testSuites"))
+			.mergeFrom(elementsPropertyFactory.newProperty()
+				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
+				.elementType(of(TestSuiteComponent.class))
+				.build())
+			.withComponent(createdUsing(of(TestSuiteContainer.class), () -> new TestSuiteContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<TestSuiteComponent>>() {})))))
+			.withComponent(ofInstance(new NodeRegistrationFactories()))
+			.build()
+		);
+		project.getExtensions().add(TestSuiteContainer.class, "testSuites", testSuites.as(TestSuiteContainer.class).get());
 
 		project.afterEvaluate(proj -> {
 			// Force realize all test suite... until we solve the differing problem.
 			project.getExtensions().getByType(ModelLookup.class).query(ModelSpecs.of(ModelNodes.withType(of(TestSuiteComponent.class)))).forEach(ModelStates::realize);
 		});
-	}
-
-	private static NodeRegistration testSuites() {
-		return namedContainer("testSuites", of(DefaultTestSuiteContainer.class));
 	}
 }

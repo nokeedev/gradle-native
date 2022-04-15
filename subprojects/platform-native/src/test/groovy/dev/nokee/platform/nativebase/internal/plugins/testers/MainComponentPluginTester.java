@@ -40,7 +40,7 @@ public abstract class MainComponentPluginTester {
 
 	@Test
 	void createMainComponent() {
-		Component mainComponent = project.getExtensions().getByType(ComponentContainer.class).get("main").get();
+		Component mainComponent = project.getExtensions().getByType(ComponentContainer.class).named("main").get();
 
 		assertThat(mainComponent, isA(getComponentType()));
 	}
