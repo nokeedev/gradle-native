@@ -15,7 +15,9 @@
  */
 package dev.nokee.model.internal.actions;
 
-final class ModelActionTag {
+import dev.nokee.model.internal.core.ModelComponent;
+
+final class ModelActionTag implements ModelComponent {
 	private static final ModelActionTag INSTANCE = new ModelActionTag();
 
 	private ModelActionTag() {}
