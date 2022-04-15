@@ -17,6 +17,7 @@ package dev.nokee.model.internal.state;
 
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
+import dev.nokee.model.internal.core.ModelNodeListenerComponent;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -34,7 +35,7 @@ class ModelStateTest {
 
 	@BeforeEach
 	void setUpListener() {
-		subject.addComponent(listener);
+		subject.addComponent(new ModelNodeListenerComponent(listener));
 	}
 
 	@Test
