@@ -53,7 +53,7 @@ public interface ModelStateTester {
 
 		@Test
 		default void doesNotHaveStateComponent() {
-			assertFalse(subject().hasComponent(ModelState.class));
+			assertFalse(subject().has(ModelState.class));
 		}
 
 		@Test
@@ -95,7 +95,7 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelState.class));
+			assertTrue(subject().has(ModelState.class));
 		}
 
 		@Test
@@ -137,7 +137,7 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelState.class));
+			assertTrue(subject().has(ModelState.class));
 		}
 
 		@Test
@@ -179,7 +179,7 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelState.class));
+			assertTrue(subject().has(ModelState.class));
 		}
 
 		@Test
@@ -221,7 +221,7 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelState.class));
+			assertTrue(subject().has(ModelState.class));
 		}
 
 		@Test
@@ -268,7 +268,7 @@ public interface ModelStateTester {
 
 		@Test
 		default void hasStateComponent() {
-			assertTrue(subject().hasComponent(ModelState.class));
+			assertTrue(subject().has(ModelState.class));
 		}
 
 		@Test

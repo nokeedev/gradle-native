@@ -17,7 +17,8 @@ package dev.nokee.model.internal.state;
 
 import dev.nokee.model.internal.core.ModelComponent;
 
-public enum ModelState {
+// FIXME: It should not be a model component
+public enum ModelState implements ModelComponent {
 	Created, // Node instance created, can now add projections
 	Initialized, // All projection added
 	Registered, // Node attached to registry
