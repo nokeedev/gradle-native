@@ -25,10 +25,11 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.names.RelativeName;
+import dev.nokee.platform.base.internal.elements.ComponentElementTypeComponent;
+import dev.nokee.platform.base.internal.elements.ComponentElementsFilterComponent;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -76,9 +77,13 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 	public <T> Provider<Set<T>> getElements(Class<T> elementType) {
 		return providerFactory.provider(() -> {
 			realize.run(); // TODO: Should move to some provider source or something
-			return ((MapProperty<String, T>) entity.get(GradlePropertyComponent.class).get()).map(it -> {
-				return it.values().stream().filter(elementType::isInstance).collect(ImmutableSet.toImmutableSet());
-			});
+
+			// FIXME: We should accumulate the elements in another component so can put ad-hoc View element
+			if (entity.get(ComponentElementTypeComponent.class).get().getType().equals(elementType)) {
+				return ((MapProperty<String, T>) entity.get(GradlePropertyComponent.class).get())
+					.map(it -> ImmutableSet.copyOf(it.values()));
+			}
+			return entity.get(ComponentElementsFilterComponent.class).get(elementType);
 		}).flatMap(noOpTransformer());
 	}
 

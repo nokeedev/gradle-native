@@ -28,9 +28,7 @@ import dev.nokee.model.internal.names.RelativeNamesComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
-import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import lombok.val;
@@ -94,6 +92,7 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 					});
 				return result;
 			}).flatMap(it -> it));
+			entity.addComponent(new ComponentElementsFilterComponent(providers, objects, target.getExtensions().getByType(ModelLookup.class), base.get()));
 		}));
 	}
 }
