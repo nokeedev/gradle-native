@@ -39,7 +39,7 @@ trait TaskFixture {
 	}
 
     KnownDomainObjectFactory<Task> newEntityFactory() {
-		return new KnownTaskFactory({ entityRepository }, { entityConfigurer })
+		throw new UnsupportedOperationException()
 	}
 
     DomainObjectViewFactory<Task> newEntityViewFactory() {

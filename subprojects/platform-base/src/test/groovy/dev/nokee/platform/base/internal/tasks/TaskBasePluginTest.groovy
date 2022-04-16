@@ -47,12 +47,4 @@ class TaskBasePluginTest extends Specification {
 		then:
 		project.extensions.findByType(TaskRepository) != null
 	}
-
-	def "registers known task factory"() {
-		when:
-		project.apply plugin: TaskBasePlugin
-
-		then:
-		project.extensions.findByType(KnownTaskFactory) != null
-	}
 }
