@@ -51,7 +51,7 @@ trait TaskFixture {
 	}
 
 	TaskRegistry newTaskRegistry() {
-		return new TaskRegistryImpl(ProjectIdentifier.of(project), eventPublisher, project.getTasks())
+		throw new UnsupportedOperationException()
 	}
 
 	Class<Task> getEntityType() {
