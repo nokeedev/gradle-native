@@ -129,15 +129,41 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
 		return getObjects().fileCollection()
-			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getIncludes()))
+			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getIncludes().getElements()).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(FileSystemLocation.class)))))
 			.from(getDependencies().getHeaderSearchPaths())
-			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes()))
+			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes().getElements()).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(FileSystemLocation.class)))))
 			.getElements();
+	}
+
+	public static final class ToProviderOfIterableTransformer<T, C extends Provider<? extends Iterable<T>> & HasMultipleValues<T>> implements Transformer<Provider<? extends Iterable<T>>, Iterable<Provider<T>>> {
+		private final Supplier<C> containerSupplier;
+
+		public ToProviderOfIterableTransformer(Supplier<C> containerSupplier) {
+			this.containerSupplier = containerSupplier;
+		}
+
+		@Override
+		public Provider<? extends Iterable<T>> transform(Iterable<Provider<T>> providers) {
+			final C container = containerSupplier.get();
+			for (Provider<T> provider : providers) {
+				((HasMultipleValues<T>) container).addAll(provider.map(this::ensureList));
+			}
+			return container;
+		}
+
+		@SuppressWarnings("unchecked")
+		private <OUT, IN> Iterable<OUT> ensureList(IN g) {
+			if (g instanceof Iterable) {
+				return (Iterable<OUT>) g;
+			} else {
+				return (Iterable<OUT>) ImmutableList.of(g);
+			}
+		}
 	}
 
 	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
 		return getObjects().fileCollection()
-			.from(getCompileTasks().withType(SwiftCompileTask.class).getElements().map(tasks -> tasks.stream().map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).collect(Collectors.toList())))
+			.from(getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(File.class)))))
 			.from(getDependencies().getSwiftModules().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
 			.getElements();
 	}
@@ -146,7 +172,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 		return getObjects().fileCollection()
 			.from(getDependencies().getFrameworkSearchPaths())
 			.from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
-			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> extractFrameworkSearchPaths(it.getCompilerArgs().get())))
+			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> extractFrameworkSearchPaths(it.getCompilerArgs().get())).flatMap(it -> providers.provider(() -> it)))
 			.getElements();
 	}
 
