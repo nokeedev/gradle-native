@@ -67,8 +67,6 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketR
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
@@ -256,7 +254,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(Project project) {
 		return identifier -> {
-			return new DefaultUnitTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
+			return new DefaultUnitTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelRegistry.class));
 		};
 	}
 
@@ -350,7 +348,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(Project project) {
 		return identifier -> {
-			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
+			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelRegistry.class));
 		};
 	}
 

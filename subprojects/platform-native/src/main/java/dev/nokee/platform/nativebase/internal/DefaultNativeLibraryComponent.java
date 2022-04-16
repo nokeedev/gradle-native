@@ -35,7 +35,6 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateNativeBinaryLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
@@ -70,8 +69,8 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
-		super(identifier, DefaultNativeLibraryVariant.class, objects, taskRegistry, taskViewFactory, registry);
+	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry) {
+		super(identifier, DefaultNativeLibraryVariant.class, objects, taskRegistry, registry);
 		this.taskRegistry = taskRegistry;
 	}
 

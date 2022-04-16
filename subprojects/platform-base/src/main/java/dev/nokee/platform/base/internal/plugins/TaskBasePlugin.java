@@ -41,9 +41,6 @@ public class TaskBasePlugin implements Plugin<Project> {
 		val taskConfigurer = new TaskConfigurer(eventPublisher, project.getTasks());
 		project.getExtensions().add(TaskConfigurer.class, "__NOKEE_taskConfigurer", taskConfigurer);
 
-		val taskViewFactory = new TaskViewFactory(taskRepository, taskConfigurer);
-		project.getExtensions().add(TaskViewFactory.class, "__NOKEE_taskViewFactory", taskViewFactory);
-
 		val knownTaskFactory = new KnownTaskFactory(() -> taskRepository, () -> taskConfigurer);
 		project.getExtensions().add(KnownTaskFactory.class, "__NOKEE_knownTaskFactory", knownTaskFactory);
 	}

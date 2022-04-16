@@ -61,8 +61,6 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketR
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
@@ -277,7 +275,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 	private static DefaultIosApplicationComponent create(String name, Project project) {
 		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-		val result = new DefaultIosApplicationComponent(Cast.uncheckedCast(identifier), project.getObjects(), project.getProviders(), project.getLayout(), project.getConfigurations(), project.getDependencies(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
+		val result = new DefaultIosApplicationComponent(Cast.uncheckedCast(identifier), project.getObjects(), project.getProviders(), project.getLayout(), project.getConfigurations(), project.getDependencies(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelRegistry.class));
 		result.getDevelopmentVariant().convention(project.getProviders().provider(new DevelopmentVariantConvention<>(() -> result.getVariants().get())));
 		return result;
 	}
