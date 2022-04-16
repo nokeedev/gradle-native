@@ -56,6 +56,11 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 		return new TaskIdentifier<>(name, type, ownerIdentifier);
 	}
 
+	public static <T extends Task> TaskIdentifier<T> of(String name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+		Preconditions.checkArgument(type != null, "Cannot construct a task identifier because the task type is null.");
+		return new TaskIdentifier<>(TaskName.of(name), type, ownerIdentifier);
+	}
+
 	public static TaskIdentifier<Task> of(TaskName name, DomainObjectIdentifier ownerIdentifier) {
 		return new TaskIdentifier<>(name, Task.class, ownerIdentifier);
 	}

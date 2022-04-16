@@ -93,20 +93,20 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 		TaskNamer namer = TaskNamer.INSTANCE;
 
 		// XCTest Unit Testing
-		val processUnitTestPropertyListTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, TaskName.of("process", "propertyList"))), ProcessPropertyListTask.class, task -> {
+		val processUnitTestPropertyListTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("process", "propertyList"), ProcessPropertyListTask.class, variantIdentifier), task -> {
 			task.getIdentifier().set(providers.provider(() -> getGroupId().get().get().get() + "." + moduleName));
 			task.getModule().set(moduleName);
 			task.getSources().from("src/unitTest/resources/Info.plist");
 			task.getOutputFile().set(layout.getBuildDirectory().file("ios/unitTest/Info.plist"));
 		});
 
-		val createUnitTestXCTestBundle = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, TaskName.of("create", "xCTestBundle"))), CreateIosXCTestBundleTask.class, task -> {
+		val createUnitTestXCTestBundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("create", "xCTestBundle"), CreateIosXCTestBundleTask.class, variantIdentifier), task -> {
 			task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + moduleName + "-unsigned.xctest"));
 			task.getSources().from(processUnitTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 			task.getSources().from(variant.flatMap(testSuite -> testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().get().getLinkedFile()).collect(Collectors.toList()))));
 		});
 		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/codesign")));
-		val signUnitTestXCTestBundle = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, TaskName.of("sign", "xCTestBundle"))), SignIosApplicationBundleTask.class, task -> {
+		val signUnitTestXCTestBundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("sign", "xCTestBundle"), SignIosApplicationBundleTask.class, variantIdentifier), task -> {
 			task.getUnsignedApplicationBundle().set(createUnitTestXCTestBundle.flatMap(CreateIosXCTestBundleTask::getXCTestBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + moduleName + ".xctest"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
@@ -124,7 +124,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 		// We could use signed bundle as development binary but right now it's only used in Xcode which Xcode will perform the signing so no need to provide a signed bundle
 		variant.configure(it -> it.getDevelopmentBinary().set(xcTestBundle));
 
-		val createUnitTestApplicationBundleTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, TaskName.of("create", "launcherApplicationBundle"))), CreateIosApplicationBundleTask.class, task -> {
+		val createUnitTestApplicationBundleTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create", "launcherApplicationBundle"), CreateIosApplicationBundleTask.class, variantIdentifier), task -> {
 			task.getApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + "-unsigned.app"));
 			task.getSources().from(getTestedComponent().flatMap(c -> c.getVariants().getElements().map(it -> it.iterator().next().getBinaries().withType(IosApplicationBundleInternal.class).get().iterator().next().getBundleTask().map(t -> t.getSources()))));
 			task.getPlugIns().from(signUnitTestXCTestBundle.flatMap(SignIosApplicationBundleTask::getSignedApplicationBundle));
@@ -133,7 +133,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 			task.getSwiftSupportRequired().set(false);
 		});
 
-		val signTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, TaskName.of("sign", "launcherApplicationBundle"))), SignIosApplicationBundleTask.class, task -> {
+		val signTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("sign", "launcherApplicationBundle"), SignIosApplicationBundleTask.class, variantIdentifier), task -> {
 			task.getUnsignedApplicationBundle().set(createUnitTestApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/unitTest/" + getTestedComponent().get().getBaseName().get() + ".app"));
 			task.getCodeSignatureTool().set(codeSignatureTool);

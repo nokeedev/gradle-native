@@ -232,7 +232,7 @@ class TaskIdentifierTest extends Specification {
 		def ownerIdentifier = ProjectIdentifier.ofRootProject()
 
 		when:
-        TaskIdentifier.of(null, TestableTask, ownerIdentifier)
+        TaskIdentifier.of((TaskName) null, TestableTask, ownerIdentifier)
 
 		then:
 		def ex = thrown(IllegalArgumentException)

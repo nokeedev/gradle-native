@@ -24,6 +24,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.HasName;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -211,7 +212,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		});
 
 		// Ensure the task is registered before configuring
-		taskRegistry.registerIfAbsent("check").configure(task -> {
+		taskRegistry.registerIfAbsent(TaskIdentifier.of(ProjectIdentifier.of(project), "check")).configure(task -> {
 			// TODO: To eliminate access to the TaskContainer, we should have a getter on the variant for the relevant task in question
 			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(TaskIdentifier.ofLifecycle(it.getIdentifier()).getTaskName())));
 		});
