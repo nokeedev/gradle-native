@@ -169,7 +169,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	protected void onEachVariant(KnownDomainObject<DefaultIosApplicationVariant> variant) {
 		val variantIdentifier = (VariantIdentifier<?>) variant.getIdentifier();
 		ConfigurationNamer configurationNamer = ConfigurationNamer.INSTANCE;
-		TaskNamer namer = TaskNamer.INSTANCE;
 		// Create iOS application specific tasks
 		Configuration interfaceBuilderToolConfiguration = configurations.create(configurationNamer.determineName(DependencyBucketIdentifier.of(DependencyBucketIdentity.resolvable("interfaceBuilderTool"), variantIdentifier)));
 		interfaceBuilderToolConfiguration.getDependencies().add(dependencyHandler.create("dev.nokee.tool:ibtool:latest.release"));
@@ -182,7 +181,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
 		val resources = sourceViewOf(this).named("resources", IosResourceSet.class).get();
 
-		val compileStoryboardTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "compileStoryboard")), StoryboardCompileTask.class, task -> {
+		val compileStoryboardTask = taskRegistry.register(TaskIdentifier.of("compileStoryboard", StoryboardCompileTask.class, variantIdentifier), task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/compiled/main"));
 			task.getModule().set(moduleName);
 			task.getSources().from(resources.getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")));
@@ -190,7 +189,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			task.getInterfaceBuilderTool().finalizeValueOnRead();
 		});
 
-		val linkStoryboardTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "linkStoryboard")), StoryboardLinkTask.class, task -> {
+		val linkStoryboardTask = taskRegistry.register(TaskIdentifier.of("linkStoryboard", StoryboardLinkTask.class, variantIdentifier), task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/linked/main"));
 			task.getModule().set(moduleName);
 			task.getSources().from(compileStoryboardTask.flatMap(StoryboardCompileTask::getDestinationDirectory));
@@ -198,14 +197,14 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			task.getInterfaceBuilderTool().finalizeValueOnRead();
 		});
 
-		val assetCatalogCompileTaskTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "compileAssetCatalog")), AssetCatalogCompileTask.class, task -> {
+		val assetCatalogCompileTaskTask = taskRegistry.register(TaskIdentifier.of("compileAssetCatalog", AssetCatalogCompileTask.class, variantIdentifier), task -> {
 			task.getSource().set(new File(resources.getSourceDirectories().getSingleFile(), "Assets.xcassets"));
 			task.getIdentifier().set(identifier);
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/assets/main"));
 			task.getAssetCompilerTool().set(assetCompilerTool);
 		});
 
-		val processPropertyListTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "processPropertyList")), ProcessPropertyListTask.class, task -> {
+		val processPropertyListTask = taskRegistry.register(TaskIdentifier.of("processPropertyList", ProcessPropertyListTask.class, variantIdentifier), task -> {
 			task.dependsOn(resources.getSourceDirectories());
 			task.getIdentifier().set(identifier);
 			task.getModule().set(moduleName);
@@ -222,7 +221,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			task.getOutputFile().set(layout.getBuildDirectory().file("ios/Info.plist"));
 		});
 
-		val createApplicationBundleTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "createApplicationBundle")), CreateIosApplicationBundleTask.class, task -> {
+		val createApplicationBundleTask = taskRegistry.register(TaskIdentifier.of("createApplicationBundle", CreateIosApplicationBundleTask.class, variantIdentifier), task -> {
 			Provider<List<? extends Provider<RegularFile>>> binaries = variant.flatMap(application -> application.getBinaries().withType(ExecutableBinaryInternal.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile)));
 
 			task.getExecutable().set(binaries.flatMap(it -> it.iterator().next())); // TODO: Fix this approximation
@@ -244,7 +243,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			}))
 			.build());
 
-		val signApplicationBundleTask = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "signApplicationBundle")), SignIosApplicationBundleTask.class, task -> {
+		val signApplicationBundleTask = taskRegistry.register(TaskIdentifier.of("signApplicationBundle", SignIosApplicationBundleTask.class, variantIdentifier), task -> {
 			task.getUnsignedApplicationBundle().set(createApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/main/" + moduleName + ".app"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
@@ -294,7 +293,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			});
 		});
 
-		val bundle = taskRegistry.register(namer.determineName(TaskIdentifier.of(variantIdentifier, "bundle")), task -> {
+		val bundle = taskRegistry.register(TaskIdentifier.of(variantIdentifier, "bundle"), task -> {
 			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}
