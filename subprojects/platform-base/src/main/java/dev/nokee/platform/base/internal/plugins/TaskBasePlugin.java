@@ -16,12 +16,9 @@
 package dev.nokee.platform.base.internal.plugins;
 
 import dev.nokee.model.internal.DomainObjectEventPublisher;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.RealizableDomainObjectRealizer;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.platform.base.internal.tasks.TaskConfigurer;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskRegistryImpl;
 import dev.nokee.platform.base.internal.tasks.TaskRepository;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -34,9 +31,6 @@ public class TaskBasePlugin implements Plugin<Project> {
 
 		val eventPublisher = project.getExtensions().getByType(DomainObjectEventPublisher.class);
 		val realizer = project.getExtensions().getByType(RealizableDomainObjectRealizer.class);
-
-		val taskRegistry = new TaskRegistryImpl(ProjectIdentifier.of(project), eventPublisher, project.getTasks());
-		project.getExtensions().add(TaskRegistry.class, "__NOKEE_taskRegistry", taskRegistry);
 
 		val taskRepository = new TaskRepository(eventPublisher, realizer, project.getProviders());
 		project.getExtensions().add(TaskRepository.class, "__NOKEE_taskRepository", taskRepository);
