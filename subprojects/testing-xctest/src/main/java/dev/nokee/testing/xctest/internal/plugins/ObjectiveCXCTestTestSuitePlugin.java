@@ -357,8 +357,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static NodeRegistration xcTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> identifier, BaseXCTestTestSuiteComponent component, Project project) {
 		val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
-		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(DefaultXCTestTestSuiteVariant.class), () -> {
+			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 			return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);
 		})
 			.withComponent(identifier)
