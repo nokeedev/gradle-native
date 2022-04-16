@@ -41,7 +41,6 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
@@ -64,13 +63,11 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final Class<T> variantType;
 	private final TaskRegistry taskRegistry;
 	private final ObjectFactory objects;
-	private final TaskViewFactory taskViewFactory;
 	private final ModelRegistry registry;
 
-	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
+	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry) {
 		super(identifier, objects);
 		this.objects = objects;
-		this.taskViewFactory = taskViewFactory;
 		this.registry = registry;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
 		this.variantType = variantType;
@@ -103,7 +100,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					.withComponent(binaryIdentifier)
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
-						val binary = objects.newInstance(ExecutableBinaryInternal.class, ModelNodeContext.getCurrentModelNode().get(FullyQualifiedNameComponent.class).get(), binaryIdentifier, objectSourceSets, targetMachineInternal, linkTask, incomingDependencies.get(), taskViewFactory, taskView.get());
+						val binary = objects.newInstance(ExecutableBinaryInternal.class, ModelNodeContext.getCurrentModelNode().get(FullyQualifiedNameComponent.class).get(), binaryIdentifier, objectSourceSets, targetMachineInternal, linkTask, incomingDependencies.get(), taskView.get());
 						binary.getBaseName().convention(getBaseName());
 						return binary;
 					}))
@@ -117,7 +114,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					.withComponent(binaryIdentifier)
 					.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
 						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
-						val binary = objects.newInstance(SharedLibraryBinaryInternal.class, ModelNodeContext.getCurrentModelNode().get(FullyQualifiedNameComponent.class).get(), binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies.get(), taskViewFactory, taskView.get());
+						val binary = objects.newInstance(SharedLibraryBinaryInternal.class, ModelNodeContext.getCurrentModelNode().get(FullyQualifiedNameComponent.class).get(), binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies.get(), taskView.get());
 						binary.getBaseName().convention(getBaseName());
 						return binary;
 					}))
@@ -131,7 +128,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					.withComponent(binaryIdentifier)
 					.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
 						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
-						val binary = objects.newInstance(BundleBinaryInternal.class, ModelNodeContext.getCurrentModelNode().get(FullyQualifiedNameComponent.class).get(), binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies.get(), taskViewFactory, taskView.get());
+						val binary = objects.newInstance(BundleBinaryInternal.class, ModelNodeContext.getCurrentModelNode().get(FullyQualifiedNameComponent.class).get(), binaryIdentifier, targetMachineInternal, objectSourceSets, linkTask, incomingDependencies.get(), taskView.get());
 						binary.getBaseName().convention(getBaseName());
 						return binary;
 					}))
@@ -145,7 +142,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					.withComponent(binaryIdentifier)
 					.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
 						val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));
-						val binary = objects.newInstance(StaticLibraryBinaryInternal.class, ModelNodeContext.getCurrentModelNode().get(FullyQualifiedNameComponent.class).get(), binaryIdentifier, objectSourceSets, targetMachineInternal, createTask, incomingDependencies.get(), taskViewFactory, taskView.get());
+						val binary = objects.newInstance(StaticLibraryBinaryInternal.class, ModelNodeContext.getCurrentModelNode().get(FullyQualifiedNameComponent.class).get(), binaryIdentifier, objectSourceSets, targetMachineInternal, createTask, incomingDependencies.get(), taskView.get());
 						binary.getBaseName().convention(getBaseName());
 						return binary;
 					}))

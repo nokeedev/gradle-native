@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal.tasks
 import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.*
-import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
 import org.apache.commons.lang3.RandomStringUtils
@@ -44,7 +43,7 @@ trait TaskFixture {
 	}
 
     DomainObjectViewFactory<Task> newEntityViewFactory() {
-		return new TaskViewFactory(entityRepository, entityConfigurer)
+		throw new UnsupportedOperationException()
 	}
 
 	DomainObjectProviderFactory<Task> newEntityProviderFactory() {

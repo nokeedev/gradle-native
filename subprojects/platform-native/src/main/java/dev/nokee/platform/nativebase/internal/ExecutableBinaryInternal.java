@@ -23,7 +23,6 @@ import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
@@ -59,8 +58,8 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public ExecutableBinaryInternal(FullyQualifiedName name, BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskViewFactory taskViewFactory, TaskView<Task> compileTasks) {
-		super(name, identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, taskViewFactory, compileTasks);
+	public ExecutableBinaryInternal(FullyQualifiedName name, BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
+		super(name, identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
 		this.linkTask = linkTask;
 		this.tasks = tasks;
 

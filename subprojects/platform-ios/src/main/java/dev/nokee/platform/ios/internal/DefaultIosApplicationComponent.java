@@ -46,13 +46,11 @@ import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.TaskNamer;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -117,8 +115,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelRegistry registry) {
-		super(identifier, DefaultIosApplicationVariant.class, objects, taskRegistry, taskViewFactory, registry);
+	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, TaskRegistry taskRegistry, ModelRegistry registry) {
+		super(identifier, DefaultIosApplicationVariant.class, objects, taskRegistry, registry);
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;

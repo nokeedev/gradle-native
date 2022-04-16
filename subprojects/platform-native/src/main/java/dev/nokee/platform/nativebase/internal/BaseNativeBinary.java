@@ -36,7 +36,6 @@ import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
@@ -96,7 +95,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(FullyQualifiedName name, BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory, TaskView<Task> compileTasks) {
+	public BaseNativeBinary(FullyQualifiedName name, BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskView<Task> compileTasks) {
 		this.name = name;
 		this.identifier = identifier;
 		this.compileTasks = compileTasks;

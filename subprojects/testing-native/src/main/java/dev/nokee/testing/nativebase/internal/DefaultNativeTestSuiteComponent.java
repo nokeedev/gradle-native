@@ -25,8 +25,8 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.HasName;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.actions.ModelAction;
+import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -54,7 +54,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -92,6 +91,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static com.google.common.base.Predicates.instanceOf;
+import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
@@ -99,7 +99,6 @@ import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
@@ -118,8 +117,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	private final ModelLookup modelLookup;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, TaskViewFactory taskViewFactory, ModelLookup modelLookup, ModelRegistry registry) {
-		super(identifier, DefaultNativeTestSuiteVariant.class, objects, taskRegistry, taskViewFactory, registry);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup, ModelRegistry registry) {
+		super(identifier, DefaultNativeTestSuiteVariant.class, objects, taskRegistry, registry);
 		this.objects = objects;
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
