@@ -53,6 +53,7 @@ import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketR
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -147,7 +148,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 	public static NodeRegistration nativeApplicationVariant(VariantIdentifier<DefaultNativeApplicationVariant> identifier, DefaultNativeApplicationComponent component, Project project) {
 		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(DefaultNativeApplicationVariant.class), () -> {
-				val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
+				val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 
 				val result = project.getObjects().newInstance(DefaultNativeApplicationVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);

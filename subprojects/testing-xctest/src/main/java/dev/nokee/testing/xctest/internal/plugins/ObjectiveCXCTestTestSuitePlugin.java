@@ -64,6 +64,7 @@ import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFact
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -233,8 +234,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPath.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path)) {
-					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
 					val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
@@ -257,7 +256,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(Project project) {
 		return identifier -> {
-			return new DefaultUnitTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
+			return new DefaultUnitTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
 		};
 	}
 
@@ -351,12 +350,12 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(Project project) {
 		return identifier -> {
-			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), project.getExtensions().getByType(TaskRegistry.class), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
+			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(TaskViewFactory.class), project.getExtensions().getByType(ModelRegistry.class));
 		};
 	}
 
 	private static NodeRegistration xcTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> identifier, BaseXCTestTestSuiteComponent component, Project project) {
-		val taskRegistry = project.getExtensions().getByType(TaskRegistry.class);
+		val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(DefaultXCTestTestSuiteVariant.class), () -> {
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 			return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);

@@ -43,17 +43,20 @@ import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.Cast;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
+import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.HasMultipleValues;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -75,6 +78,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -92,10 +96,10 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(FullyQualifiedName name, BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory) {
+	public BaseNativeBinary(FullyQualifiedName name, BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskViewFactory taskViewFactory, TaskView<Task> compileTasks) {
 		this.name = name;
 		this.identifier = identifier;
-		this.compileTasks = taskViewFactory.create(identifier.getOwnerIdentifier(), Task.class);
+		this.compileTasks = compileTasks;
 		this.objectSourceSets = objectSourceSets;
 		this.targetMachine = targetMachine;
 		this.dependencies = dependencies;

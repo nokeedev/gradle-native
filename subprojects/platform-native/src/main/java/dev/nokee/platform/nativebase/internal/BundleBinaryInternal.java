@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.names.FullyQualifiedName;
+import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskViewFactory;
 import dev.nokee.platform.nativebase.BundleBinary;
@@ -31,6 +32,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
@@ -49,8 +51,8 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public BundleBinaryInternal(FullyQualifiedName name, BinaryIdentifier<?> identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskViewFactory taskViewFactory) {
-		super(name, identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, taskViewFactory);
+	public BundleBinaryInternal(FullyQualifiedName name, BinaryIdentifier<?> identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskViewFactory taskViewFactory, TaskView<Task> compileTasks) {
+		super(name, identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, taskViewFactory, compileTasks);
 
 		this.linkTask = linkTask;
 		this.tasks = tasks;

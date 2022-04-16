@@ -32,7 +32,8 @@ public final class TaskNamer implements Namer<TaskIdentifier<?>> {
 
 	@Override
 	public String determineName(TaskIdentifier<?> identifier) {
-		return identifier.getName().getVerb() + Streams.stream(identifier)
+		// Uncapitalize to support TaskIdentifier.ofLifecycle(...) which should be phase out in the future
+		return StringUtils.uncapitalize(identifier.getName().getVerb() + Streams.stream(identifier)
 			.flatMap(it -> {
 				if (it instanceof ProjectIdentifier) {
 					return Stream.empty();
@@ -64,6 +65,6 @@ public final class TaskNamer implements Namer<TaskIdentifier<?>> {
 				}
 			})
 			.map(StringUtils::capitalize)
-			.collect(Collectors.joining());
+			.collect(Collectors.joining()));
 	}
 }
