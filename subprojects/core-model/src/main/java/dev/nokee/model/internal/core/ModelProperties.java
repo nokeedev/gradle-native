@@ -19,13 +19,14 @@ import dev.nokee.model.internal.ModelElementFactory;
 import lombok.val;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class ModelProperties {
 	private ModelProperties() {}
 
 	public static ModelProperty<?> getProperty(Object self, String name) {
-		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(ModelPropertyTag.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(ModelProperties::newElement).orElseThrow(() -> new IllegalArgumentException("No property of name '" + name + "'"));
+		return ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(ModelPropertyTag.class)).filter(it -> it.getComponent(ModelPath.class).getName().equals(name)).findFirst().map(ModelProperties::newElement).orElseThrow(() -> new IllegalArgumentException("No property of name '" + name + "'. Possible property name '" + ModelNodes.of(self).getComponent(ModelPath.class) + "' are: " + ModelNodes.of(self).getComponent(ModelComponentType.componentOf(DescendantNodes.class)).getDirectDescendants().stream().filter(it -> it.hasComponent(ModelPropertyTag.class)).map(it -> it.getComponent(ModelPath.class).getName()).collect(Collectors.joining(", "))));
 	}
 
 	public static Optional<ModelProperty<?>> findProperty(Object self, String name) {
