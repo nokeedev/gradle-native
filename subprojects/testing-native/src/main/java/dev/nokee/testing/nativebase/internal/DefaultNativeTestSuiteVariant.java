@@ -25,6 +25,7 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
@@ -50,6 +51,7 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<ObjectiveCApplicationSources>
 	, ModelBackedNamedMixIn
+	, ModelBackedTaskAwareComponentMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
