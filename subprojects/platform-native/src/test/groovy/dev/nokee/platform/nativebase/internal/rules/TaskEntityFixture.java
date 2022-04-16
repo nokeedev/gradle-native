@@ -20,7 +20,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskRepository;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 
@@ -29,10 +28,6 @@ public interface TaskEntityFixture extends NokeeEntitiesFixture {
 
 	default TaskRegistry getTaskRegistry() {
 		throw new UnsupportedOperationException();
-	}
-
-	default TaskRepository getTaskRepository() {
-		return new TaskRepository(getEventPublisher(), getEntityRealizer(), getProject().getProviders());
 	}
 
 	static TaskIdentifier<Task> aTaskOfVariant(String name, VariantIdentifier<?> owner) {
