@@ -99,7 +99,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		project.getPluginManager().apply("lifecycle-base");
-		project.getPluginManager().apply(TaskBasePlugin.class);
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
 
