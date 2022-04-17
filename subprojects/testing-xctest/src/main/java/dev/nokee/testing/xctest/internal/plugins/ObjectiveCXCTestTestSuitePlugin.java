@@ -151,7 +151,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				component.getProductBundleIdentifier().set(project.getGroup().toString() + "." + GUtil.toCamelCase(project.getName()) + StringUtils.capitalize(component.getIdentifier().getName().get()));
 			});
 			val unitTestComponent = unitTestComponentProvider.get();
-			project.afterEvaluate(finalizeModelNodeOf(unitTestComponentProvider));
+			project.afterEvaluate(finalizeModelNodeOf(unitTestComponent));
 
 			val uiTestComponentProvider = testSuites.register("uiTest", DefaultUiTestXCTestTestSuiteComponent.class, component -> {
 				component.getTestedComponent().value(application).disallowChanges();
