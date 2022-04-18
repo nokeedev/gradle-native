@@ -16,11 +16,12 @@
 package dev.nokee.platform.nativebase.internal.dependencies;
 
 import com.google.common.base.Suppliers;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 
 import java.util.function.Supplier;
 
-public final class VariantComponentDependencies<T extends NativeComponentDependencies> {
+public final class VariantComponentDependencies<T extends NativeComponentDependencies> implements ModelComponent {
 	private final Supplier<T> dependencies;
 	private final NativeIncomingDependencies incoming;
 	private final NativeOutgoingDependencies outgoing;
