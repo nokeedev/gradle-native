@@ -15,13 +15,14 @@
  */
 package dev.nokee.testing.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class IsTestComponent {
+public class IsTestComponent implements ModelComponent {
 	private static final IsTestComponent INSTANCE = new IsTestComponent();
 
 	public static IsTestComponent tag() {
