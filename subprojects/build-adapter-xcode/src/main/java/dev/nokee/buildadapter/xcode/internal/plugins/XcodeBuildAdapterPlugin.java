@@ -83,7 +83,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	}
 
 	private String asProjectPath(Path relativePath) {
-		return FilenameUtils.removeExtension(relativePath.toString()).replace('/', ':');
+		return FilenameUtils.separatorsToUnix(FilenameUtils.removeExtension(relativePath.toString())).replace('/', ':');
 	}
 
 	private static Action<Project> forXcodeProject(XCProjectReference reference) {
