@@ -31,19 +31,19 @@ class ModelComponentTypesTest {
 		assertTrue(subject.contains(componentOf(MyComponent.class)));
 		assertTrue(subject.contains(projectionOf(IMyProjection.class)));
 
-		assertFalse(subject.contains(componentOf(IMyComponent.class)));
+		assertFalse(subject.contains(componentOf(MyOtherComponent.class)));
 		assertFalse(subject.contains(projectionOf(MyProjection.class)));
 	}
 
 	@Test
 	void canCheckIfAnyComponentTypeMatches() {
-		assertTrue(subject.anyMatch(componentOf(IMyComponent.class)::isSupertypeOf));
+		assertTrue(subject.anyMatch(componentOf(MyComponent.class)::isSupertypeOf));
 		assertTrue(subject.anyMatch(projectionOf(IMyProjection.class)::isSupertypeOf));
 		assertFalse(subject.anyMatch(projectionOf(MyProjection.class)::isSupertypeOf));
 	}
 
-	private interface IMyComponent {}
-	private interface MyComponent extends IMyComponent {}
+	private interface MyComponent extends ModelComponent {}
+	private interface MyOtherComponent extends ModelComponent {}
 	private interface IMyProjection {}
 	private interface MyProjection extends IMyProjection {}
 }

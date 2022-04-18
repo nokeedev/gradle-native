@@ -55,7 +55,7 @@ class ModelNodeTest {
 	private final ModelNode subject = node("po.ta.to", projection1, projection2, projection3);
 
 	private static ModelProjection mockProjectionOf(ModelType<?> type) {
-		val result = mock(ModelProjection.class);
+		val result = spy(ModelProjection.class);
 		when(result.getType()).thenReturn(Cast.uncheckedCast(type));
 		return result;
 	}

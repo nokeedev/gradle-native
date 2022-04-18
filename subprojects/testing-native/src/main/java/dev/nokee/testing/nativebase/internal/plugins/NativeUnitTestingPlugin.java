@@ -148,19 +148,19 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(new IdentifierComponent(identifier))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path.get())) {
-					withConventionOf(maven(identifier.getName())).accept(sourceSet);
+					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(ObjectiveCSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(ObjectiveCSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path.get())) {
-					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(sourceSet);
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, ObjectiveCSourceSet.class));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(ObjectiveCppSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(ObjectiveCppSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path.get())) {
-					withConventionOf(maven(identifier.getName()), defaultObjectiveCppGradle(identifier.getName())).accept(sourceSet);
+					withConventionOf(maven(identifier.getName()), defaultObjectiveCppGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, ObjectiveCppSourceSet.class));
 				}
 			}))
 			// TODO: Choose a better component sources

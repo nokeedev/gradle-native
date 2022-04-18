@@ -253,8 +253,9 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(AssembleTask.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, assemble, component) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(AssembleTask.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class), (entity, id, assemble, projection) -> {
 				if (id.get().equals(identifier)) {
+					val component = project.provider(() -> projection.get(of(JavaNativeInterfaceLibrary.class)));
 					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> v.getSharedLibrary().isBuildable()));
 					assemble.configure(configureDependsOn(component.flatMap(JavaNativeInterfaceLibrary::getDevelopmentVariant).map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList())));
 					assemble.configure(task -> {
@@ -269,8 +270,9 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					});
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, runtimeElements, component) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class), (entity, id, runtimeElements, projection) -> {
 				if (id.get().equals(identifier)) {
+					val component = project.provider(() -> projection.get(of(JavaNativeInterfaceLibrary.class)));
 					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
 					val values = project.getObjects().listProperty(PublishArtifact.class);
 					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine())));

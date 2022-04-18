@@ -19,10 +19,15 @@ import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.SourceSet;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.SourceSetFactory;
-import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelPropertyTag;
+import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
@@ -33,19 +38,19 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
-public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasConfigurableHeadersMixIn>, IsLanguageSourceSet> {
+public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, IsLanguageSourceSet> {
 	private final ModelRegistry registry;
 	private final SourceSetFactory sourceSetFactory;
 
 	HasConfigurableHeadersMixInRule(ModelRegistry registry, SourceSetFactory sourceSetFactory) {
-		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class));
+		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.sourceSetFactory = sourceSetFactory;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableHeadersMixIn> knownObject, IsLanguageSourceSet ignored) {
-		val propertyIdentifier = ModelPropertyIdentifier.of(knownObject.getIdentifier(), "headers");
+	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
+		val propertyIdentifier = ModelPropertyIdentifier.of(identifier.get(), "headers");
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(propertyIdentifier))
 			.withComponent(ModelPropertyTag.instance())

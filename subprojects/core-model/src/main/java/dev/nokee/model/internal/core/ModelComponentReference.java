@@ -28,7 +28,7 @@ public abstract class ModelComponentReference<T> {
 
 	public abstract Bits componentBits();
 
-	public static <T> ModelComponentReference<T> of(Class<T> componentType) {
+	public static <T extends ModelComponent> ModelComponentReference<T> of(Class<T> componentType) {
 		return ofInstance(ModelComponentType.componentOf(componentType));
 	}
 

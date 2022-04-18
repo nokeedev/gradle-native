@@ -16,11 +16,12 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
@@ -42,21 +43,21 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasConfigurableHeadersMixIn>, IsLanguageSourceSet> {
+public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, IsLanguageSourceSet> {
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
 	HeaderSearchPathsConfigurationRegistrationAction(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class));
+		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<HasConfigurableHeadersMixIn> knownObject, IsLanguageSourceSet ignored) {
-		val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), knownObject.getIdentifier())));
+	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
+		val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier.get())));
 		headerSearchPaths.configure(Configuration.class, forCPlusPlusApiUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));
 		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));

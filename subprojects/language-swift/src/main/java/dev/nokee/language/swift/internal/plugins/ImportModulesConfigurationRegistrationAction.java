@@ -15,14 +15,14 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.internal.DependentFrameworkSearchPaths;
 import dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts;
-import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
@@ -45,21 +45,21 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction2<KnownDomainObject<SwiftSourceSetSpec>, ModelState.IsAtLeastRegistered> {
+final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, ModelState.IsAtLeastRegistered> {
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
 	ImportModulesConfigurationRegistrationAction(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class).asKnownObject(), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
+		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
 		this.registry = registry;
 		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<SwiftSourceSetSpec> knownSourceSet, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("importModules"), knownSourceSet.getIdentifier())));
+	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+		val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("importModules"), identifier.get())));
 		importModules.configure(Configuration.class, forSwiftApiUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));
 		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));

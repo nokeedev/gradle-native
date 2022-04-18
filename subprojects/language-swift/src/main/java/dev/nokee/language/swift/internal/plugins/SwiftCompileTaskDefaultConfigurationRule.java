@@ -18,18 +18,17 @@ package dev.nokee.language.swift.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
-import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
-import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
@@ -45,17 +44,21 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction3<KnownDomainObject<SwiftSourceSetSpec>, NativeCompileTask, SourceFiles> {
+final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction4<ModelProjection, IdentifierComponent, NativeCompileTask, SourceFiles> {
 	public SwiftCompileTaskDefaultConfigurationRule() {
-		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class).asKnownObject(), ModelComponentReference.of(NativeCompileTask.class), ModelComponentReference.of(SourceFiles.class));
+		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeCompileTask.class), ModelComponentReference.of(SourceFiles.class));
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<SwiftSourceSetSpec> knownSourceSet, NativeCompileTask compileTask, SourceFiles sourceFiles) {
-		compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(knownSourceSet.getIdentifier(), asModuleFileOfModuleName()))));
-		compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName((LanguageSourceSetName) ((HasName) knownSourceSet.getIdentifier()).getName()))));
+	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
+		compileTask.configure(SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier.get(), asModuleFileOfModuleName()))));
+		compileTask.configure(SwiftCompileTask.class, configureModuleName(convention(toModuleName((LanguageSourceSetName) ((HasName) identifier.get()).getName()))));
 		compileTask.configure(SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5)));
 		compileTask.configure(SwiftCompileTask.class, configureSources(from(sourceFiles)));
 		compileTask.configure(SwiftCompileTask.class, configureDebuggable(convention(false)));

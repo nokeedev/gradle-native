@@ -17,6 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -26,7 +27,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 
-public final class AttachAttributesToConfigurationRule<T extends LinkedEntity> extends ModelActionWithInputs.ModelAction2<T, BuildVariantComponent> {
+public final class AttachAttributesToConfigurationRule<T extends LinkedEntity & ModelComponent> extends ModelActionWithInputs.ModelAction2<T, BuildVariantComponent> {
 	private final ModelRegistry registry;
 	private final ObjectFactory objects;
 

@@ -43,6 +43,7 @@ import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -125,9 +126,9 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path.get())) {
-					withConventionOf(maven(identifier.getName())).accept(sourceSet);
+					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
 				}
 			}))
 			.withComponent(IsComponent.tag())
