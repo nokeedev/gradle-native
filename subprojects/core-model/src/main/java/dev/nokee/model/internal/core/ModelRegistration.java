@@ -18,7 +18,6 @@ package dev.nokee.model.internal.core;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
@@ -89,11 +88,19 @@ public final class ModelRegistration {
 		private final List<Object> components = new ArrayList<>();
 		private final List<ModelAction> actions = new ArrayList<>();
 
-		public Builder withComponent(Object component) {
+		Builder withComponent(Object component) {
 			if (!components.contains(component)) {
 				components.add(Objects.requireNonNull(component));
 			}
 			return this;
+		}
+
+		public Builder withComponent(ModelComponent component) {
+			return withComponent((Object) component);
+		}
+
+		public Builder withComponent(ModelProjection component) {
+			return withComponent((Object) component);
 		}
 
 		public Builder action(ModelAction action) {
