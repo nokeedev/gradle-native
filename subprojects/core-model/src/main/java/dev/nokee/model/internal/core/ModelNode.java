@@ -75,7 +75,22 @@ public final class ModelNode {
 		return componentBits;
 	}
 
-	public <T> T addComponent(T component) {
+	public <T extends ModelComponent> T addComponent(T component) {
+		ModelComponentType<? super Object> componentType = ModelComponentType.ofInstance(component);
+		val oldComponent = components.get(componentType);
+		if (oldComponent == null || !oldComponent.equals(component)) {
+			components.put(componentType, component);
+			if (oldComponent == null) {
+				componentBits = componentBits.or(componentType.familyBits());
+			} else {
+				componentBits = components.keySet().stream().map(ModelComponentType::familyBits).reduce(Bits.empty(), Bits::or);
+			}
+			notifyComponentAdded(component);
+		}
+		return component;
+	}
+
+	public <T extends ModelProjection> T addComponent(T component) {
 		ModelComponentType<? super Object> componentType = ModelComponentType.ofInstance(component);
 		val oldComponent = components.get(componentType);
 		if (oldComponent == null || !oldComponent.equals(component)) {
