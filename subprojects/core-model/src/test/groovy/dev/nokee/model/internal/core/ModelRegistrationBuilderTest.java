@@ -34,8 +34,8 @@ class ModelRegistrationBuilderTest {
 
 	@Test
 	void doesNotModifyComponentsOnBuiltRegistrationViaBuilder() {
-		val registration = subject.withComponent(new Object()).build();
-		subject.withComponent(new Object()); // no effect on registration
+		val registration = subject.withComponent(new ModelComponent() {}).build();
+		subject.withComponent(new ModelComponent() {}); // no effect on registration
 		assertThat(registration.getComponents(), iterableWithSize(1));
 	}
 
@@ -48,25 +48,25 @@ class ModelRegistrationBuilderTest {
 
 	@Test
 	void doesNotIncludeDuplicateComponents() {
-		val component = new Object();
+		val component = new ModelComponent() {};
 		val registration = subject.withComponent(component).withComponent(component).build();
 		assertThat(registration.getComponents(), contains(component));
 	}
 
 	@Test
 	void ordersComponentsAccordingToBuilderWithComponentInvocation() {
-		val componentA = new Object();
-		val componentB = new Object();
-		val componentC = new Object();
+		val componentA = new ModelComponent() {};
+		val componentB = new ModelComponent() {};
+		val componentC = new ModelComponent() {};
 		val registration = subject.withComponent(componentA).withComponent(componentB).withComponent(componentC).build();
 		assertThat(registration.getComponents(), contains(componentA, componentB, componentC));
 	}
 
 	@Test
 	void canIncludeAnotherModelRegistrationInCurrentBuilder() {
-		val componentA = new Object();
-		val componentB = new Object();
-		val componentC = new Object();
+		val componentA = new ModelComponent() {};
+		val componentB = new ModelComponent() {};
+		val componentC = new ModelComponent() {};
 		val action = Mockito.mock(ModelAction.class);
 		val registration = subject.withComponent(componentC)
 			.mergeFrom(builder().withComponent(componentA).withComponent(componentB).build()).action(action).build();
@@ -96,7 +96,7 @@ class ModelRegistrationBuilderTest {
 
 	@Nested
 	class WithComponentTest implements ModelRegistrationTester {
-		private final Object component = new Object();
+		private final ModelComponent component = new ModelComponent() {};
 		private final ModelRegistration subject = ModelRegistrationBuilderTest.this.subject.withComponent(component).build();
 
 		@Override

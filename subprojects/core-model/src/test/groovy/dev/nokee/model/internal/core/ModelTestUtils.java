@@ -246,7 +246,13 @@ public final class ModelTestUtils {
 			public ModelNode instantiate(ModelRegistration registration) {
 				val path = registration.getComponents().stream().flatMap(this::findModelPath).findFirst().get();
 				val childNode = childNode(nodeProvider.getValue(), path.getName(), registration.getActions(), builder -> {});
-				registration.getComponents().forEach(childNode::addComponent);
+				registration.getComponents().forEach(it -> {
+					if (it instanceof ModelProjection) {
+						childNode.addComponent((ModelProjection) it);
+					} else {
+						childNode.addComponent((ModelComponent) it);
+					}
+				});
 				children.put(path, childNode);
 				return childNode;
 			}
