@@ -18,6 +18,7 @@ package dev.nokee.model;
 import dev.nokee.internal.Factories;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedName;
@@ -136,7 +137,11 @@ abstract class ModelActionIntegrationTester {
 	@EnumSource(B.class)
 	void throwsExceptionIfEntityChangeWhileExecutingAction(B provider) {
 		doAnswer(args -> {
-			args.getArgument(0, ModelNode.class).addComponent(provider.g());
+			if (provider.g() instanceof ModelProjection) {
+				args.getArgument(0, ModelNode.class).addComponent((ModelProjection) provider.g());
+			} else {
+				args.getArgument(0, ModelNode.class).addComponent((ModelComponent) provider.g());
+			}
 			return null;
 		}).when(firstAction).execute(any());
 		Assertions.assertThrows(IllegalStateException.class, () -> registry.instantiate(newEntityMatchingSpec()));
@@ -145,7 +150,7 @@ abstract class ModelActionIntegrationTester {
 	enum B {
 		PROJECTION {
 			@Override
-			public ModelComponent g() {
+			public ModelProjection g() {
 				return createdUsing(of(MyOtherType.class), Factories.alwaysThrow());
 			}
 		},
@@ -183,7 +188,7 @@ abstract class ModelActionIntegrationTester {
 		}
 		;
 
-		public abstract ModelComponent g();
+		public abstract Object g();
 	}
 
 	@Test

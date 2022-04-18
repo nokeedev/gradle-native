@@ -43,7 +43,7 @@ class ModelEntityTest {
 
 	@Nested
 	class ExistingComponentTest {
-		private final Object existingComponent = new ModelEntityTest.TestComponent("foo");
+		private final ModelComponent existingComponent = new ModelEntityTest.TestComponent("foo");
 		private final ModelNodeListener listener = Mockito.mock(ModelNodeListener.class);
 
 		@BeforeEach

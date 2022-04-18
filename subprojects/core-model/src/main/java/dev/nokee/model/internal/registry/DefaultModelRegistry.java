@@ -26,6 +26,7 @@ import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelElement;
@@ -137,7 +138,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			if (component instanceof ModelProjection) {
 				entity.addComponent(bindingService.bindManagedProjectionWithInstantiator((ModelProjection) component));
 			} else {
-				entity.addComponent(component);
+				entity.addComponent((ModelComponent) component);
 			}
 		}
 		return entity;

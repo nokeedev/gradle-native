@@ -17,8 +17,8 @@ package dev.nokee.model.internal.core;
 
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class ModeNodeComponentBitsTest {
 	private final ModelNode subject = new ModelNode();
@@ -30,28 +30,12 @@ class ModeNodeComponentBitsTest {
 
 	@Test
 	void hasBitsOfAddedComponent() {
-		subject.addComponent(objectFactory().newInstance(MyBaseComponent.class));
-		assertEquals(ModelComponentType.componentBits(MyBaseComponent.class),
+		subject.addComponent(new MyComponent());
+		assertEquals(ModelComponentType.componentBits(MyComponent.class),
 			subject.getComponentBits());
+		assertNotEquals(ModelComponentType.componentBits(MyOtherComponent.class), subject.getComponentBits());
 	}
 
-	@Test
-	void hasBitsOfAddedComponentFamily() {
-		subject.addComponent(objectFactory().newInstance(MyComponent.class));
-		assertEquals(ModelComponentType.componentFamilyBits(MyComponent.class),
-			subject.getComponentBits());
-	}
-
-	@Test
-	void hasBitsOfAllComponentFamilies() {
-		subject.addComponent(objectFactory().newInstance(MyComponent.class));
-		subject.addComponent(objectFactory().newInstance(MyOtherComponent.class));
-		assertEquals(ModelComponentType.componentFamilyBits(MyComponent.class)
-				.or(ModelComponentType.componentFamilyBits(MyOtherComponent.class)),
-			subject.getComponentBits());
-	}
-
-	interface MyBaseComponent {}
-	interface MyComponent extends MyBaseComponent {}
-	interface MyOtherComponent {}
+	static final class MyComponent implements ModelComponent {}
+	static final class MyOtherComponent implements ModelComponent {}
 }
