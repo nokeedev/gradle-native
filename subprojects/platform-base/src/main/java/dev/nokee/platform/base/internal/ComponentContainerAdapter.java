@@ -17,7 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.base.Preconditions;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -72,7 +72,7 @@ public class ComponentContainerAdapter extends GroovyObjectSupport implements Co
 	@Override
 	public <U extends Component> NamedDomainObjectProvider<U> register(String name, Class<U> type) {
 		Preconditions.checkArgument(!isTestSuiteComponent(type), "Cannot register test suite components in this container, use a TestSuiteContainer instead.");
-		return ModelNodeUtils.register(entity.get(ViewConfigurationBaseComponent.class).get(), NodeRegistration.of(name, of(type)).withComponent(ComponentIdentifier.of(name, entity.get(ViewConfigurationBaseComponent.class).get().getComponent(ModelComponentType.componentOf(ProjectIdentifier.class))))).as(type).asProvider();
+		return ModelNodeUtils.register(entity.get(ViewConfigurationBaseComponent.class).get(), NodeRegistration.of(name, of(type)).withComponent(new IdentifierComponent(ComponentIdentifier.of(name, (ProjectIdentifier) entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get())))).as(type).asProvider();
 	}
 
 	@Override

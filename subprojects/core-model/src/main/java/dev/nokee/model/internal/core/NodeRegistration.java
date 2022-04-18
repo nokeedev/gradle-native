@@ -54,8 +54,12 @@ public final class NodeRegistration {
 		return new NodeRegistration(name, ModelProjections.createdUsing(type, factory));
 	}
 
-	public NodeRegistration withComponent(Object component) {
-		assert !(component instanceof ModelAction) && !(component instanceof NodeAction): "Use action(...) instead.";
+	public NodeRegistration withComponent(ModelProjection component) {
+		components.add(component);
+		return this;
+	}
+
+	public NodeRegistration withComponent(ModelComponent component) {
 		components.add(component);
 		return this;
 	}
