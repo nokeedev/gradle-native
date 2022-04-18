@@ -29,8 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static dev.nokee.model.internal.core.ModelComponentReference.ofAny;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
+import static dev.nokee.model.internal.core.ModelComponentReference.ofProjection;
 import static java.util.Objects.requireNonNull;
 
 public final class ModelActions {
@@ -68,7 +67,7 @@ public final class ModelActions {
 		private ExecuteUsingProjectionModelAction(ModelType<T> type, Action<? super T> action) {
 			this.type = requireNonNull(type);
 			this.action = requireNonNull(action);
-			this.inputs = ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
+			this.inputs = ImmutableList.of(ofProjection(type.getConcreteType()));
 			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
@@ -284,7 +283,7 @@ public final class ModelActions {
 		public ExecuteAsKnownProjectionModelAction(ModelType<T> type, Action<? super KnownDomainObject<T>> action) {
 			this.type = requireNonNull(type);
 			this.action = requireNonNull(action);
-			this.inputs = ImmutableList.of(ofAny(projectionOf(type.getConcreteType())));
+			this.inputs = ImmutableList.of(ofProjection(type.getConcreteType()));
 			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 

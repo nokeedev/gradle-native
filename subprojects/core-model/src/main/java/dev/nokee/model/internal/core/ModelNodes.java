@@ -27,8 +27,6 @@ import org.gradle.api.specs.Spec;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.model.internal.state.ModelState.Registered;
 import static java.util.Objects.requireNonNull;
@@ -161,7 +159,7 @@ public final class ModelNodes {
 
 		private WithTypePredicate(ModelType<?> type) {
 			this.type = requireNonNull(type);
-			this.inputs = ImmutableList.of(ModelComponentReference.ofAny(projectionOf(type.getConcreteType())));
+			this.inputs = ImmutableList.of(ModelComponentReference.ofProjection(type.getConcreteType()));
 			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
 		}
 
@@ -288,7 +286,7 @@ public final class ModelNodes {
 			this.type = requireNonNull(type);
 			this.spec = requireNonNull(spec);
 			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			builder.add(ModelComponentReference.ofAny(projectionOf(type.getConcreteType())));
+			builder.add(ModelComponentReference.ofProjection(type.getConcreteType()));
 			if (spec instanceof HasInputs) {
 				builder.addAll(((HasInputs) spec).getInputs());
 			}
