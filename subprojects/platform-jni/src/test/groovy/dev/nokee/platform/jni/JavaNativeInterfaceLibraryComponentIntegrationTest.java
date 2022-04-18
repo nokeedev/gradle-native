@@ -701,7 +701,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class WhenCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuCHeaderSearchPaths");
+					return realize(project().getConfigurations().getByName("quzuCHeaderSearchPaths"));
 				}
 			}
 
@@ -710,7 +710,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class WhenCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuCppHeaderSearchPaths");
+					return realize(project().getConfigurations().getByName("quzuCppHeaderSearchPaths"));
 				}
 			}
 
@@ -719,7 +719,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class WhenObjectiveCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuObjectiveCHeaderSearchPaths");
+					return realize(project().getConfigurations().getByName("quzuObjectiveCHeaderSearchPaths"));
 				}
 			}
 
@@ -728,7 +728,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class WhenObjectiveCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
-					return project().getConfigurations().getByName("quzuObjectiveCppHeaderSearchPaths");
+					return realize(project().getConfigurations().getByName("quzuObjectiveCppHeaderSearchPaths"));
 				}
 			}
 		}
@@ -913,7 +913,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
-						return project().getConfigurations().getByName("quzuWindowsX64CHeaderSearchPaths");
+						return realize(project().getConfigurations().getByName("quzuWindowsX64CHeaderSearchPaths"));
 					}
 				}
 
@@ -922,7 +922,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
-						return project().getConfigurations().getByName("quzuWindowsX64CppHeaderSearchPaths");
+						return realize(project().getConfigurations().getByName("quzuWindowsX64CppHeaderSearchPaths"));
 					}
 				}
 
@@ -931,7 +931,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenObjectiveCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
-						return project().getConfigurations().getByName("quzuWindowsX64ObjectiveCHeaderSearchPaths");
+						return realize(project().getConfigurations().getByName("quzuWindowsX64ObjectiveCHeaderSearchPaths"));
 					}
 				}
 
@@ -940,7 +940,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenObjectiveCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
-						return project().getConfigurations().getByName("quzuWindowsX64ObjectiveCppHeaderSearchPaths");
+						return realize(project().getConfigurations().getByName("quzuWindowsX64ObjectiveCppHeaderSearchPaths"));
 					}
 				}
 			}
@@ -1100,7 +1100,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
-						return project().getConfigurations().getByName("quzuLinuxX86CHeaderSearchPaths");
+						return realize(project().getConfigurations().getByName("quzuLinuxX86CHeaderSearchPaths"));
 					}
 				}
 
@@ -1109,7 +1109,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
-						return project().getConfigurations().getByName("quzuLinuxX86CppHeaderSearchPaths");
+						return realize(project().getConfigurations().getByName("quzuLinuxX86CppHeaderSearchPaths"));
 					}
 				}
 
@@ -1118,7 +1118,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenObjectiveCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
-						return project().getConfigurations().getByName("quzuLinuxX86ObjectiveCHeaderSearchPaths");
+						return realize(project().getConfigurations().getByName("quzuLinuxX86ObjectiveCHeaderSearchPaths"));
 					}
 				}
 
@@ -1127,7 +1127,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenObjectiveCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
-						return project().getConfigurations().getByName("quzuLinuxX86ObjectiveCppHeaderSearchPaths");
+						return realize(project().getConfigurations().getByName("quzuLinuxX86ObjectiveCppHeaderSearchPaths"));
 					}
 				}
 			}
@@ -1217,7 +1217,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		}
 	}
 
-	private static Configuration realize(Configuration configuration) {
+	public static Configuration realize(Configuration configuration) {
 		((ConfigurationInternal) configuration).preventFromFurtherMutation();
 		return configuration;
 	}

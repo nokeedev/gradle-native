@@ -44,6 +44,7 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
+import static dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentIntegrationTest.realize;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -95,7 +96,7 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 	@Nested
 	class HeaderSearchPathsConfigurationTest implements NativeHeaderSearchPathsConfigurationTester {
 		public Configuration subject() {
-			return project.getConfigurations().getByName("vedaWindowsX64ObjectiveCHeaderSearchPaths");
+			return realize(project.getConfigurations().getByName("vedaWindowsX64ObjectiveCHeaderSearchPaths"));
 		}
 
 		@Override
