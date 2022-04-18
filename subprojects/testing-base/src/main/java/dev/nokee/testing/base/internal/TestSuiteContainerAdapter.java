@@ -99,7 +99,7 @@ public final class TestSuiteContainerAdapter extends GroovyObjectSupport impleme
 			if (factory instanceof NodeRegistrationFactory) {
 				return ModelNodeUtils.register(entity, ((NodeRegistrationFactory) factory).create(name)).as(type).asProvider();
 			} else {
-				return entity.getComponent(RelativeRegistrationService.class).modelRegistry.register(((ModelRegistrationFactory) factory).create(name)).as(type).asProvider();
+				return entity.get(RelativeRegistrationService.class).modelRegistry.register(((ModelRegistrationFactory) factory).create(name)).as(type).asProvider();
 			}
 		}
 		return ModelNodeUtils.register(entity.get(ViewConfigurationBaseComponent.class).get(), NodeRegistration.of(name, type).withComponent(new IdentifierComponent(ComponentIdentifier.of(name, (ProjectIdentifier) entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get())))).as(type).asProvider();
