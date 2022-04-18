@@ -16,6 +16,7 @@
 package dev.nokee.platform.ios.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.model.ObjectFactory;
@@ -32,7 +33,7 @@ public final class IosResourceSetRegistrationFactory {
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(ModelType.of(IosResourceSetSpec.class), () -> objectFactory.newInstance(IosResourceSetSpec.class)))
 			.build();
 	}

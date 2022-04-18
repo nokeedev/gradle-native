@@ -16,7 +16,7 @@
 package dev.nokee.testing.base.internal;
 
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -102,7 +102,7 @@ public final class TestSuiteContainerAdapter extends GroovyObjectSupport impleme
 				return entity.getComponent(RelativeRegistrationService.class).modelRegistry.register(((ModelRegistrationFactory) factory).create(name)).as(type).asProvider();
 			}
 		}
-		return ModelNodeUtils.register(entity.get(ViewConfigurationBaseComponent.class).get(), NodeRegistration.of(name, type).withComponent(ComponentIdentifier.of(name, entity.get(ViewConfigurationBaseComponent.class).get().getComponent(ModelComponentType.componentOf(ProjectIdentifier.class))))).as(type).asProvider();
+		return ModelNodeUtils.register(entity.get(ViewConfigurationBaseComponent.class).get(), NodeRegistration.of(name, type).withComponent(new IdentifierComponent(ComponentIdentifier.of(name, (ProjectIdentifier) entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get())))).as(type).asProvider();
 	}
 
 	@Override

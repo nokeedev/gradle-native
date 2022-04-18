@@ -15,15 +15,16 @@
  */
 package dev.nokee.model.internal.plugins;
 
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.DisplayName;
 import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelPropertyTag;
 
-final class UseModelPropertyIdentifierAsDisplayName extends ModelActionWithInputs.ModelAction1<ModelPropertyIdentifier> {
+final class UseModelPropertyIdentifierAsDisplayName extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelPropertyTag> {
 	@Override
-	protected void execute(ModelNode entity, ModelPropertyIdentifier identifier) {
-		entity.addComponent(new DisplayNameComponent(new DisplayName(identifier.toString())));
+	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelPropertyTag tag) {
+		entity.addComponent(new DisplayNameComponent(new DisplayName(identifier.get().toString())));
 	}
 }

@@ -20,9 +20,10 @@ import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.DisplayName;
 import dev.nokee.model.internal.core.DisplayNameComponent;
-import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.Project;
@@ -41,8 +42,9 @@ class ModelPropertyIdentifierAsDisplayNameIntegrationTest {
 	@BeforeEach
 	void setUp() {
 		project.getPluginManager().apply(ModelBasePlugin.class);
-		subject = ModelNodes.of(project.getExtensions().getByType(ModelRegistry.class).register(builder()
-			.withComponent(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "myProperty"))
+		subject = ModelNodes.of(project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
+			.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "myProperty")))
+			.withComponent(ModelPropertyTag.instance())
 			.build()));
 	}
 

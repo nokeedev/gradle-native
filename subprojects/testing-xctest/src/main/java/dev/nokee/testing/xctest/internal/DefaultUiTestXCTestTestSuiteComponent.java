@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
@@ -147,7 +148,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(binaryIdentifierApplicationBundle)
+			.withComponent(new IdentifierComponent(binaryIdentifierApplicationBundle))
 			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> new IosApplicationBundleInternal(createUiTestApplicationBundleTask)))
 			.build());
 
@@ -163,7 +164,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(binaryIdentifierSignedApplicationBundle)
+			.withComponent(new IdentifierComponent(binaryIdentifierSignedApplicationBundle))
 			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> signedLauncherApplicationBundle))
 			.build());
 

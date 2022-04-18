@@ -26,6 +26,7 @@ import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.DefaultModelElement;
 import dev.nokee.model.internal.core.DefaultModelProperty;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelBackedModelCastableStrategy;
 import dev.nokee.model.internal.core.ModelBackedModelElementLookupStrategy;
 import dev.nokee.model.internal.core.ModelBackedModelPropertyLookupStrategy;
@@ -410,7 +411,7 @@ public final class ModelElementFactory implements ModelComponent {
 
 		@Override
 		public DomainObjectIdentifier get() {
-			return entity.findComponent(DomainObjectIdentifier.class).orElseGet(() -> ModelIdentifier.of(entity.get(ModelPathComponent.class).get(), type));
+			return entity.find(IdentifierComponent.class).map(IdentifierComponent::get).orElseGet(() -> ModelIdentifier.of(entity.get(ModelPathComponent.class).get(), type));
 		}
 	}
 

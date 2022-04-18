@@ -18,21 +18,20 @@ package dev.nokee.platform.base.internal.plugins;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -66,7 +65,6 @@ import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentContainerAdapter;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -118,17 +116,17 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory(project.getTasks(), PolymorphicDomainObjectRegistry.of(project.getTasks()), TaskNamer.INSTANCE));
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ParentComponent.class), (entity, component, identifier, parent) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, component, identifier, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 			val buildVariants = entity.addComponent(new BuildVariants(entity, project.getProviders(), project.getObjects()));
-			entity.addComponent(new ModelBackedVariantDimensions(identifier, registry, dimensions));
+			entity.addComponent(new ModelBackedVariantDimensions(identifier.get(), registry, dimensions));
 
-			val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier, "buildVariants"), buildVariants.get()));
+			val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier.get(), "buildVariants"), buildVariants.get()));
 			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
 
 			registry.register(ModelRegistration.builder()
-				.withComponent(ModelPropertyIdentifier.of(identifier, "variants"))
+				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "variants")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(parent.get()).elementType(of(variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType()))).build())
 				.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends Variant>>() {})))))
 				.build());
@@ -137,33 +135,33 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			// TODO: Each plugins should just map the build variants into the variants.
 			((Provider<?>) buildVariants.get().get(GradlePropertyComponent.class).get()).get();
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedTaskAwareComponentMixIn.class)), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
-			if (identifier instanceof ModelPropertyIdentifier) {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedTaskAwareComponentMixIn.class)), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
+			if (identifier.get() instanceof ModelPropertyIdentifier) {
 				return;
 			}
 			modeRegistry.register(ModelRegistration.builder()
-				.withComponent(ModelPropertyIdentifier.of(identifier, "tasks"))
+				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "tasks")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(Task.class)).build())
 				.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
 				.build());
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedBinaryAwareComponentMixIn.class)), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
-			if (identifier instanceof ModelPropertyIdentifier) {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedBinaryAwareComponentMixIn.class)), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
+			if (identifier.get() instanceof ModelPropertyIdentifier) {
 				return;
 			}
 			modeRegistry.register(ModelRegistration.builder()
-				.withComponent(ModelPropertyIdentifier.of(identifier, "binaries"))
+				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "binaries")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(Binary.class)).build())
 				.withComponent(createdUsing(of(BinaryView.class), () -> new BinaryViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Binary>>() {})))))
 				.build());
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedDependencyAwareComponentMixIn<? extends ComponentDependencies, ? extends ComponentDependencies>>() {})), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
-			if (identifier instanceof ModelPropertyIdentifier) {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedDependencyAwareComponentMixIn<? extends ComponentDependencies, ? extends ComponentDependencies>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
+			if (identifier.get() instanceof ModelPropertyIdentifier) {
 				return;
 			}
 			Class<ComponentDependencies> type = (Class<ComponentDependencies>) dependenciesType((ModelType<DependencyAwareComponent<? extends ComponentDependencies>>)projection.getType());
 			modeRegistry.register(ModelRegistration.builder()
-				.withComponent(ModelPropertyIdentifier.of(identifier, "dependencies"))
+				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "dependencies")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(DependencyBucket.class)).build())
 				.withComponent(createdUsing(of(type), () -> {
 					try {
@@ -184,7 +182,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
 
 		val components = modeRegistry.register(ModelRegistration.builder()
-			.withComponent(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "components"))
+			.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "components")))
 			.mergeFrom(elementsPropertyFactory.newProperty()
 				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
 				.elementType(of(Component.class))
@@ -195,36 +193,36 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ComponentContainer.class, "components", components.as(ComponentContainer.class).get());
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(BinaryAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+			if (!entity.has(ModelPropertyTag.class)) {
 				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "binaries"));
 			}
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(SourceAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+			if (!entity.has(ModelPropertyTag.class)) {
 				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "sources"));
 			}
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+			if (!entity.has(ModelPropertyTag.class)) {
 				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "dependencies"));
 			}
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(TaskAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+			if (!entity.has(ModelPropertyTag.class)) {
 				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "tasks"));
 			}
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(VariantAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.hasComponent(ModelPropertyIdentifier.class)) {
+			if (!entity.has(ModelPropertyTag.class)) {
 				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "variants"));
 			}
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasBaseNameMixIn.class), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
-			if (identifier instanceof ModelPropertyIdentifier) {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasBaseNameMixIn.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
+			if (entity.has(ModelPropertyTag.class)) {
 				return; // ignore
 			}
-			val baseNameProperty = modeRegistry.instantiate(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "baseName"), String.class));
+			val baseNameProperty = modeRegistry.instantiate(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "baseName"), String.class));
 			ModelStates.register(baseNameProperty);
 			entity.addComponent(new BaseNamePropertyComponent(baseNameProperty));
 		})));

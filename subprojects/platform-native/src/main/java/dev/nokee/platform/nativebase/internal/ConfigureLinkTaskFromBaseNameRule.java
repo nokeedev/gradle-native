@@ -20,7 +20,7 @@ import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import lombok.val;
@@ -49,9 +49,9 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
 // ComponentFromEntity<GradlePropertyComponent>
-public final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction3<BinaryIdentifier<?>, BaseNamePropertyComponent, NativeLinkTask> {
+public final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction3<IsBinary, BaseNamePropertyComponent, NativeLinkTask> {
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> objects, BaseNamePropertyComponent baseNameProperty, NativeLinkTask linkTask) {
+	protected void execute(ModelNode entity, IsBinary tag, BaseNamePropertyComponent baseNameProperty, NativeLinkTask linkTask) {
 		@SuppressWarnings("unchecked")
 		val baseName = (Provider<String>) baseNameProperty.get().get(GradlePropertyComponent.class).get();
 		linkTask.configure(ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName))));

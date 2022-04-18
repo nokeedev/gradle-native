@@ -34,7 +34,7 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
 @AutoFactory
-public final class SourcePropertyRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
+public final class SourcePropertyRegistrationAction extends ModelActionWithInputs.ModelAction3<IdentifierComponent, IsLanguageSourceSet, ModelState.IsAtLeastRegistered> {
 	private final LanguageSourceSetIdentifier identifier;
 	private final Factory<ConfigurableSourceSet> sourceSetFactory;
 	private final ModelRegistry registry;
@@ -46,11 +46,11 @@ public final class SourcePropertyRegistrationAction extends ModelActionWithInput
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			val propertyIdentifier = ModelPropertyIdentifier.of(identifier, "source");
+	protected void execute(ModelNode entity, IdentifierComponent identifier, IsLanguageSourceSet tag, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+		if (identifier.get().equals(this.identifier)) {
+			val propertyIdentifier = ModelPropertyIdentifier.of(identifier.get(), "source");
 			val element = registry.register(ModelRegistration.builder()
-				.withComponent(propertyIdentifier)
+				.withComponent(new IdentifierComponent(propertyIdentifier))
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 				.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory))

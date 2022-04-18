@@ -22,6 +22,7 @@ import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPathComponent;
@@ -47,7 +48,7 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 		modelConfigurer.configure(matching(discoveringInstanceOf(CSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "c"), true));
+			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().get(IdentifierComponent.class).get(), "c"), true));
 		}))));
 
 		project.getExtensions().add("__nokee_defaultCSourceSetFactory", new DefaultCSourceSetRegistrationFactory(project.getExtensions().getByType(CSourceSetRegistrationFactory.class)));

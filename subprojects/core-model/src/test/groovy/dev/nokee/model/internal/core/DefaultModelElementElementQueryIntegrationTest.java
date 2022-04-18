@@ -45,10 +45,10 @@ class DefaultModelElementElementQueryIntegrationTest extends AbstractPluginTest 
 	@BeforeEach
 	void createObject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		element = registry.register(builder().withComponent(identifier("a")).withComponent(ofInstance(new Object())).build());
-		registry.register(builder().withComponent(i0).withComponent(createdUsing(of(MyType.class), () -> objectFactory().newInstance(MyType.class))).build());
-		registry.register(builder().withComponent(i1).withComponent(ofInstance("dalo")).build());
-		registry.register(builder().withComponent(i2).withComponent(ofInstance(Boolean.TRUE)).build());
+		element = registry.register(builder().withComponent(new IdentifierComponent(identifier("a"))).withComponent(ofInstance(new Object())).build());
+		registry.register(builder().withComponent(new IdentifierComponent(i0)).withComponent(createdUsing(of(MyType.class), () -> objectFactory().newInstance(MyType.class))).build());
+		registry.register(builder().withComponent(new IdentifierComponent(i1)).withComponent(ofInstance("dalo")).build());
+		registry.register(builder().withComponent(new IdentifierComponent(i2)).withComponent(ofInstance(Boolean.TRUE)).build());
 	}
 
 	@Nested
@@ -116,7 +116,7 @@ class DefaultModelElementElementQueryIntegrationTest extends AbstractPluginTest 
 		@BeforeEach
 		void createConflictingElement() {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.register(builder().withComponent(identifier("a.b")).withComponent(ofInstance("cere")).build());
+			registry.register(builder().withComponent(new IdentifierComponent(identifier("a.b"))).withComponent(ofInstance("cere")).build());
 		}
 
 		@Test

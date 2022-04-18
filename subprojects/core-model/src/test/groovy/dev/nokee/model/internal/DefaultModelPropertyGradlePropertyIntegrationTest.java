@@ -49,7 +49,7 @@ class DefaultModelPropertyGradlePropertyIntegrationTest {
 		entity.addComponent(ModelPropertyTag.instance());
 		entity.addComponent(new GradlePropertyComponent(property));
 		entity.addComponent(new ModelPropertyTypeComponent(of(MyType.class)));
-		entity.addComponent(ModelIdentifier.of("beho", Object.class));
+		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("beho", Object.class)));
 		return entity;
 	}
 

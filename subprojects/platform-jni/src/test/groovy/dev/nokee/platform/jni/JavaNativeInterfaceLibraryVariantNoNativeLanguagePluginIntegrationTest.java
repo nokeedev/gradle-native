@@ -23,6 +23,7 @@ import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Variant;
@@ -48,7 +49,7 @@ class JavaNativeInterfaceLibraryVariantNoNativeLanguagePluginIntegrationTest ext
 	void createSubject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("zoko", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).build());
+		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
 		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(of("unix-arm")), Variant.class, componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();

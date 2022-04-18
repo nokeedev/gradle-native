@@ -18,6 +18,7 @@ package dev.nokee.platform.jni;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -51,7 +52,7 @@ class JvmJarBinaryIntegrationTest extends AbstractPluginTest {
 	void createSubject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("rina", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).build());
+		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val factory = project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class);
 		subject = registry.register(factory.create(BinaryIdentifier.of(componentIdentifier, BinaryIdentity.of("wuke", "FASI binary"))).build()).as(JvmJarBinary.class).get();
 	}

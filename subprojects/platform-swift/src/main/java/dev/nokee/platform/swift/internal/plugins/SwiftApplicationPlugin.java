@@ -20,6 +20,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -97,7 +98,7 @@ public class SwiftApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(SwiftApplication.class, DefaultSwiftApplication.class, project, (entity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.getComponent(ComponentIdentifier.class), "swift"), true));
+			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "swift"), true));
 		}).create(identifier);
 	}
 

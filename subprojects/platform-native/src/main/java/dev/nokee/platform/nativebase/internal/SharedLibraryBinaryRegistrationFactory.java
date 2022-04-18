@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -58,7 +59,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 
 	public ModelRegistration create(BinaryIdentifier<?> identifier) {
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(createdUsing(of(ModelBackedSharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)))

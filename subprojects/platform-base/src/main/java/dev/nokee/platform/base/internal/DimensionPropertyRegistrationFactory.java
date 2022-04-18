@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -140,7 +141,7 @@ public final class DimensionPropertyRegistrationFactory {
 			val result = ModelRegistration.builder();
 
 			if (identifier != null) {
-				result.withComponent(identifier);
+				result.withComponent(new IdentifierComponent(identifier));
 			}
 
 			result
@@ -172,7 +173,7 @@ public final class DimensionPropertyRegistrationFactory {
 		property.finalizeValueOnRead();
 		property.disallowChanges();
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))
 			.withComponent(new GradlePropertyComponent(property))

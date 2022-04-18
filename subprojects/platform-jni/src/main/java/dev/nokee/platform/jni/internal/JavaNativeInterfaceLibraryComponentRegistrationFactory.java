@@ -35,6 +35,7 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElements;
@@ -135,8 +136,8 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val entityPath = DomainObjectIdentifierUtils.toPath(identifier);
 		val builder = ModelRegistration.builder()
-			.withComponent(identifier)
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofAny(projectionOf(LanguageSourceSet.class)), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
+			.withComponent(new IdentifierComponent(identifier))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
 				if (entityPath.isDirectDescendant(path.get())) {
 					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
 				}
@@ -236,24 +237,24 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
+				if (id.get().equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					registry.instantiate(configure(apiElements.get().getId(), Configuration.class, configuration -> {
 						configuration.getOutgoing().artifact(jvmJar.getJarTask());
 					}));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
+				if (id.get().equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 					registry.instantiate(configure(runtimeElements.get().getId(), Configuration.class, configuration -> {
 						configuration.getOutgoing().artifact(jvmJar.getJarTask());
 					}));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(AssembleTask.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, assemble, component) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(AssembleTask.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, assemble, component) -> {
+				if (id.get().equals(identifier)) {
 					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> v.getSharedLibrary().isBuildable()));
 					assemble.configure(configureDependsOn(component.flatMap(JavaNativeInterfaceLibrary::getDevelopmentVariant).map(JniLibrary::getJavaNativeInterfaceJar).map(Collections::singletonList).orElse(Collections.emptyList())));
 					assemble.configure(task -> {
@@ -268,8 +269,8 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					});
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, runtimeElements, component) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), ModelComponentReference.ofProjection(JavaNativeInterfaceLibrary.class).asProvider(), (entity, id, runtimeElements, component) -> {
+				if (id.get().equals(identifier)) {
 					val toolChainSelector = project.getObjects().newInstance(ToolChainSelectorInternal.class);
 					val values = project.getObjects().listProperty(PublishArtifact.class);
 					Provider<List<JniLibrary>> allBuildableVariants = component.flatMap(it -> it.getVariants().filter(v -> toolChainSelector.canBuild(v.getTargetMachine())));
@@ -287,8 +288,8 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					runtimeElements.addAll(values);
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, id, ignored) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, id, ignored) -> {
+				if (id.get().equals(identifier)) {
 					val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
@@ -311,8 +312,8 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					entity.addComponent(new Variants(variants.build()));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ComponentIdentifier.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JavaLanguageSourceSet.class), (entity, id, variants, sourceSet) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JavaLanguageSourceSet.class), (entity, id, variants, sourceSet) -> {
+				if (id.get().equals(identifier)) {
 					instantiate(entity, configureEach(descendantOf(entity.getId()), LanguageSourceSet.class, ss -> {
 						if (ss instanceof HasHeaders) {
 							((ConfigurableSourceSet) ((HasHeaders) ss).getHeaders()).convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));

@@ -23,6 +23,7 @@ import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
@@ -33,6 +34,7 @@ import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -71,29 +73,28 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-@SuppressWarnings("rawtypes")
-public final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<BinaryIdentifier, ModelProjection> {
+public final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, IsBinary, ModelProjection> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public NativeLinkTaskRegistrationRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.ofProjection(HasLinkTask.class));
+		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofProjection(HasLinkTask.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier identifier, ModelProjection projection) {
+	protected void execute(ModelNode entity, IdentifierComponent identifier, IsBinary tag, ModelProjection projection) {
 		@SuppressWarnings("unchecked")
 		val implementationType = taskType((ModelType<? extends HasLinkTask<? extends ObjectLink, ? extends ObjectLink>>) projection.getType());
 
-		val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("link"), implementationType, identifier), implementationType).build());
-		linkTask.configure(implementationType, configureDescription("Links the %s.", identifier));
+		val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("link"), implementationType, identifier.get()), implementationType).build());
+		linkTask.configure(implementationType, configureDescription("Links the %s.", identifier.get()));
 		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-		linkTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier))));
+		linkTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier.get()))));
 		entity.addComponent(new NativeLinkTask(linkTask));
 	}
 

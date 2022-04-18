@@ -16,6 +16,7 @@
 package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -27,7 +28,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 public final class JvmJarBinaryRegistrationFactory {
 	public ModelRegistration.Builder create(BinaryIdentifier<?> identifier) {
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(new ElementNameComponent(identifier.getName().get()))
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())

@@ -52,7 +52,7 @@ class DefaultModelElementBackedByModelEntityIntegrationTest implements ModelElem
 	static ModelNode newEntity(ModelRegistry modelRegistry) {
 		val entity = node("foru", ModelProjections.createdUsing(of(MyType.class), () -> myTypeInstance), builder -> builder.withRegistry(modelRegistry));
 		entity.addComponent(new ElementNameComponent("tare"));
-		entity.addComponent(Mockito.mock(DomainObjectIdentifier.class));
+		entity.addComponent(new IdentifierComponent(Mockito.mock(DomainObjectIdentifier.class)));
 		entity.addComponent(new DisplayNameComponent("entity 'foru.tare'"));
 		return entity;
 	}

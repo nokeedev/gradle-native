@@ -15,21 +15,15 @@
  */
 package dev.nokee.model.internal.plugins;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPathComponent;
 
-final class GenerateModelPathFromIdentifier extends ModelActionWithInputs.ModelAction1<DomainObjectIdentifier> {
-	public GenerateModelPathFromIdentifier() {
-		super(ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)));
-	}
-
+final class GenerateModelPathFromIdentifier extends ModelActionWithInputs.ModelAction1<IdentifierComponent> {
 	@Override
-	protected void execute(ModelNode entity, DomainObjectIdentifier identifier) {
-		entity.addComponent(new ModelPathComponent(DomainObjectIdentifierUtils.toPath(identifier)));
+	protected void execute(ModelNode entity, IdentifierComponent identifier) {
+		entity.addComponent(new ModelPathComponent(DomainObjectIdentifierUtils.toPath(identifier.get())));
 	}
 }

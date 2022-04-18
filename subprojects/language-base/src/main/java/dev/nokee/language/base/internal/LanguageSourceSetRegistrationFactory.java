@@ -16,6 +16,7 @@
 package dev.nokee.language.base.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -52,7 +53,7 @@ public final class LanguageSourceSetRegistrationFactory {
 
 	private ModelRegistration.Builder create(LanguageSourceSetIdentifier identifier, ModelAction sourcePropertyAction) {
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.action(sourcePropertyAction);
 	}
 }

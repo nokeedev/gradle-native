@@ -18,6 +18,7 @@ package dev.nokee.model.internal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.KnownDomainObjectTester;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
@@ -50,7 +51,7 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 
 	private static ModelNode newEntity(ModelRegistry modelRegistry) {
 		val entity = node("laqu", ModelProjections.ofInstance(myTypeInstance), builder -> builder.withRegistry(modelRegistry));
-		entity.addComponent(ModelIdentifier.of("laqu", Object.class));
+		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("laqu", Object.class)));
 		entity.addComponent(new FullyQualifiedNameComponent("testLaqu"));
 		return entity;
 	}
@@ -119,7 +120,7 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 
 	@Test
 	void returnsIdentifierFromEntity() {
-		assertEquals(node.getComponent(DomainObjectIdentifier.class), subject.getIdentifier());
+		assertEquals(node.get(IdentifierComponent.class).get(), subject.getIdentifier());
 	}
 
 	@Test

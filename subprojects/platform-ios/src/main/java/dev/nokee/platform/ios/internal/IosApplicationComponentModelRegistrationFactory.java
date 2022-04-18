@@ -25,6 +25,7 @@ import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
@@ -121,7 +122,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		val builder = ModelRegistration.builder()
 			.withComponent(new ModelPathComponent(entityPath))
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asDomainObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
 				if (entityPath.isDescendant(path.get())) {
@@ -219,7 +220,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
 			return variant;
 		})
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
 			.action(self().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {

@@ -27,6 +27,7 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
@@ -111,7 +112,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		val builder = ModelRegistration.builder()
 			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			// TODO: Should configure FileCollection on CApplication

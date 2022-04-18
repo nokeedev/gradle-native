@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.ConfigurableSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
@@ -32,6 +33,7 @@ import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
@@ -55,6 +57,9 @@ import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.CompileTaskTag;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.IsDependencyBucket;
+import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -138,37 +143,37 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(identifier)
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asKnownObject(), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, knownSourceSet, ignored) -> {
-				if (DomainObjectIdentifierUtils.isDescendent(id, identifier) && HasHeaders.class.isAssignableFrom(knownSourceSet.getType())) {
+			.withComponent(new IdentifierComponent(identifier))
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asKnownObject(), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, tag, knownSourceSet, ignored) -> {
+				if (DomainObjectIdentifierUtils.isDescendent(id.get(), identifier) && HasHeaders.class.isAssignableFrom(knownSourceSet.getType())) {
 					knownSourceSet.configure(sourceSet -> {
 						((ConfigurableSourceSet) ((HasHeaders) sourceSet).getHeaders()).convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");
 					});
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(LanguageSourceSetIdentifier.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asKnownObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, knownSourceSet, ignored) -> {
-				if (DomainObjectIdentifierUtils.isDescendent(id, identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class).asKnownObject(), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, tag, knownSourceSet, ignored) -> {
+				if (DomainObjectIdentifierUtils.isDescendent(id.get(), identifier)) {
 					knownSourceSet.configure(sourceSet -> {
 						if (sourceSet instanceof ObjectiveCSourceSet) {
-							sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objc"));
+							sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + ((LanguageSourceSetIdentifier) id.get()).getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objc"));
 						} else if (sourceSet instanceof ObjectiveCppSourceSet) {
-							sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objcpp"));
+							sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + ((LanguageSourceSetIdentifier) id.get()).getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objcpp"));
 						} else {
-							sourceSet.convention("src/" + identifier.getComponentIdentifier().getName() + "/" + id.getName().get());
+							sourceSet.convention("src/" + identifier.getComponentIdentifier().getName() + "/" + ((LanguageSourceSetIdentifier) id.get()).getName().get());
 						}
 					});
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, ignored) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, id, tag, ignored) -> {
+				if (id.get().equals(identifier)) {
 					entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPathComponent.class), (entity, id, state, path) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(ModelPathComponent.class), (entity, id, tag, state, path) -> {
+				if (id.get().equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-					if (!id.getUnambiguousName().isEmpty()) {
+					if (!((VariantIdentifier<?>) id.get()).getUnambiguousName().isEmpty()) {
 						entity.addComponent(MultiVariantTag.tag());
 					}
 
@@ -178,13 +183,13 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeRuntimeOnly"), identifier)));
 
 					val sharedLibrary = registry.register(ModelRegistration.builder().mergeFrom(project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("sharedLibrary", "shared library binary")))).withComponent(ExcludeFromQualifyingNameTag.tag()).withComponent(new BuildVariantComponent(identifier.getBuildVariant())).build());
-					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(LinkLibrariesConfiguration.class), (e, idd, linkLibraries) -> {
-						if (idd.equals(ModelNodes.of(sharedLibrary).getComponent(DomainObjectIdentifier.class))) {
+					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.of(LinkLibrariesConfiguration.class), (e, idd, t, linkLibraries) -> {
+						if (idd.get().equals(ModelNodes.of(sharedLibrary).get(IdentifierComponent.class).get())) {
 							linkLibraries.configure(configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class)));
 						}
 					}));
-					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BinaryIdentifier.class), ModelComponentReference.of(RuntimeLibrariesConfiguration.class), (e, idd, runtimeLibraries) -> {
-						if (idd.equals(ModelNodes.of(sharedLibrary).getComponent(DomainObjectIdentifier.class))) {
+					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.of(RuntimeLibrariesConfiguration.class), (e, idd, t, runtimeLibraries) -> {
+						if (idd.get().equals(ModelNodes.of(sharedLibrary).get(IdentifierComponent.class).get())) {
 							runtimeLibraries.configure(configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class)));
 						}
 					}));
@@ -205,21 +210,21 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 								compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier)));
 							}
 							val sourceSet = registry.register(project.getExtensions().getByType(appliedPlugin.getRegistrationFactoryType()).create(identifier));
-							val sourceSetIdentifier = ModelNodes.of(sourceSet).getComponent(LanguageSourceSetIdentifier.class);
+							val sourceSetIdentifier = (LanguageSourceSetIdentifier) ModelNodes.of(sourceSet).get(IdentifierComponent.class).get();
 							val configurer = project.getExtensions().getByType(ModelConfigurer.class);
-							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(DependencyBucketIdentifier.class), ModelComponentReference.ofProjection(Configuration.class).asConfigurableProvider(), (e, i, configuration) -> {
-								if (i.getOwnerIdentifier().equals(sourceSetIdentifier)) {
+							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsDependencyBucket.class), ModelComponentReference.ofProjection(Configuration.class).asConfigurableProvider(), (e, i, tag, configuration) -> {
+								if (((DependencyBucketIdentifier) i.get()).getOwnerIdentifier().equals(sourceSetIdentifier)) {
 									configuration.configure(configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class)));
 									configuration.configure(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) identifier.getBuildVariant(), project.getObjects()));
 									configuration.configure(ConfigurationUtilsEx::configureAsGradleDebugCompatible);
 								}
 							}));
-							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(TaskIdentifier.class), ModelComponentReference.ofInstance(projectionOf(TaskProvider.class)), (e, i, p) -> {
-								if (i.getOwnerIdentifier().equals(sourceSetIdentifier)) {
+							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsTask.class), ModelComponentReference.ofInstance(projectionOf(TaskProvider.class)), (e, i, t, p) -> {
+								if (((TaskIdentifier<?>) i.get()).getOwnerIdentifier().equals(sourceSetIdentifier)) {
 									e.addComponent(CompileTaskTag.tag());
 									NamedDomainObjectProvider<Task> compileTask = p.get(of(NamedDomainObjectProvider.class));
 									compileTask.configure(configureTargetPlatform(set(fromBuildVariant(identifier.getBuildVariant()))));
-									registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ModelNodes.of(sharedLibrary).getComponent(BinaryIdentifier.class), "compileTasks"), "compile" + capitalize(sourceSetIdentifier.getName().get())), e));
+									registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ModelNodes.of(sharedLibrary).get(IdentifierComponent.class).get(), "compileTasks"), "compile" + capitalize(sourceSetIdentifier.getName().get())), e));
 								}
 							}));
 						}
@@ -253,8 +258,8 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 					entity.addComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects())));
 
 
-					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(VariantIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (e, i, s, p, library) -> {
-						if (i.equals(identifier)) {
+					project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(JniLibrary.class).asProvider(), (e, i, t, s, p, library) -> {
+						if (i.get().equals(identifier)) {
 							val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
 
 							library.get().getJavaNativeInterfaceJar().getJarTask().configure(configureJarTaskUsing(library, unbuildableMainComponentLogger));
