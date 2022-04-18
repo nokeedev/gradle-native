@@ -20,42 +20,29 @@ import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.Factories;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.model.internal.core.ModelComponentType.*;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelComponentType.ofInstance;
+import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ModelComponentTypeTest {
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void noEqualityBetweenProjectionAndComponentOfSameType() {
 		new EqualsTester()
-			.addEqualityGroup(componentOf(MyType.class))
+			.addEqualityGroup(componentOf(MyComponent.class))
 			.addEqualityGroup(projectionOf(MyType.class))
 			.testEquals();
 	}
 
 	@Test
 	void checkComponentTypeAgainstComponentInstance() {
-		assertThat(ofInstance(new MyType()), equalTo(componentOf(MyType.class)));
-	}
-
-	@Test
-	void checkComponentTypeClassInstantiatedUsingObjectFactory() {
-		assertThat(ofInstance(objectFactory().newInstance(MyType.class)), equalTo(componentOf(MyType.class)));
-	}
-
-	@Test
-	void checkComponentTypeInterfaceInstantiatedUsingObjectFactory() {
-		assertThat(ofInstance(objectFactory().newInstance(IMyType.class)), equalTo(componentOf(IMyType.class)));
-	}
-
-	@Test
-	void canTestSuperComponentType() {
-		assertTrue(componentOf(IMyType.class).isSupertypeOf(componentOf(MyType.class)));
-		assertFalse(componentOf(MyType.class).isSupertypeOf(componentOf(IMyType.class)));
+		assertThat(ofInstance(new MyComponent()), equalTo(componentOf(MyComponent.class)));
 	}
 
 	@Test
@@ -66,18 +53,19 @@ class ModelComponentTypeTest {
 
 	@Test
 	void projectionTypesCannotBeSuperTypeOfComponentTypes() {
-		assertFalse(projectionOf(IMyType.class).isSupertypeOf(componentOf(MyType.class)));
-		assertFalse(projectionOf(MyType.class).isSupertypeOf(componentOf(IMyType.class)));
+		assertFalse(projectionOf(IMyType.class).isSupertypeOf(componentOf(MyComponent.class)));
+		assertFalse(projectionOf(MyType.class).isSupertypeOf(componentOf(MyComponent.class)));
 	}
 
 	@Test
 	void componentTypesCannotBeSuperTypeOfProjectionTypes() {
-		assertFalse(componentOf(IMyType.class).isSupertypeOf(projectionOf(MyType.class)));
-		assertFalse(componentOf(MyType.class).isSupertypeOf(projectionOf(IMyType.class)));
+		assertFalse(componentOf(MyComponent.class).isSupertypeOf(projectionOf(MyType.class)));
+		assertFalse(componentOf(MyComponent.class).isSupertypeOf(projectionOf(IMyType.class)));
 	}
 
 	public interface IMyType {}
 	public static class MyType implements IMyType {}
+	public static class MyComponent implements ModelComponent {}
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -100,8 +88,8 @@ class ModelComponentTypeTest {
 			.testEquals();
 	}
 
-	private interface ComponentA {}
-	private interface ComponentB {}
+	private interface ComponentA extends ModelComponent {}
+	private interface ComponentB extends ModelComponent {}
 
 	@Test
 	void checkProjectionTypeAgainstProjectionInstance() {

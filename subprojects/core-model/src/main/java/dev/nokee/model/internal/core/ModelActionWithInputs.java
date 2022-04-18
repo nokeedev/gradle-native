@@ -34,7 +34,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	public abstract List<? extends ModelComponentReference<?>> getInputs();
 
 
-	public static <I0> ModelAction of(ModelComponentReference<I0> i0, A1<? super I0> action) {
+	public static <I0 extends ModelComponent> ModelAction of(ModelComponentReference<I0> i0, A1<? super I0> action) {
 		return new ModelAction1<I0>(i0) {
 			@Override
 			protected void execute(ModelNode entity, I0 i0) {
@@ -48,7 +48,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction1<I0> implements ModelAction, HasInputs {
+	public static abstract class ModelAction1<I0 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final List<ModelComponentReference<I0>> inputs;
 		private final Bits inputBits;
@@ -85,7 +85,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		}
 	}
 
-	public static <I0, I1> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, A2<? super I0, ? super I1> action) {
+	public static <I0 extends ModelComponent, I1 extends ModelComponent> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, A2<? super I0, ? super I1> action) {
 		return new ModelAction2<I0, I1>(i0, i1) {
 			@Override
 			protected void execute(ModelNode entity, I0 i0, I1 i1) {
@@ -99,7 +99,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction2<I0, I1> implements ModelAction, HasInputs {
+	public static abstract class ModelAction2<I0 extends ModelComponent, I1 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
 		private final List<ModelComponentReference<?>> inputs;
@@ -139,7 +139,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		}
 	}
 
-	public static <I0, I1, I2> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, A3<? super I0, ? super I1, ? super I2> action) {
+	public static <I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, A3<? super I0, ? super I1, ? super I2> action) {
 		return new ModelAction3<I0, I1, I2>(i0, i1, i2) {
 			@Override
 			protected void execute(ModelNode entity, I0 i0, I1 i1, I2 i2) {
@@ -153,7 +153,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction3<I0, I1, I2> implements ModelAction, HasInputs {
+	public static abstract class ModelAction3<I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
 		private final ModelComponentReference<I2> i2;
@@ -196,7 +196,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		}
 	}
 
-	public static <I0, I1, I2, I3> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, ModelComponentReference<I3> i3, A4<? super I0, ? super I1, ? super I2, ? super I3> action) {
+	public static <I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent, I3 extends ModelComponent> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, ModelComponentReference<I3> i3, A4<? super I0, ? super I1, ? super I2, ? super I3> action) {
 		return new ModelAction4<I0, I1, I2, I3>(i0, i1, i2, i3) {
 			@Override
 			protected void execute(ModelNode entity, I0 i0, I1 i1, I2 i2, I3 i3) {
@@ -210,7 +210,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction4<I0, I1, I2, I3> implements ModelAction, HasInputs {
+	public static abstract class ModelAction4<I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent, I3 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
 		private final ModelComponentReference<I2> i2;
@@ -256,7 +256,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		}
 	}
 
-	public static <I0, I1, I2, I3, I4> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, ModelComponentReference<I3> i3, ModelComponentReference<I4> i4, A5<? super I0, ? super I1, ? super I2, ? super I3, ? super I4> action) {
+	public static <I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent, I3 extends ModelComponent, I4 extends ModelComponent> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, ModelComponentReference<I2> i2, ModelComponentReference<I3> i3, ModelComponentReference<I4> i4, A5<? super I0, ? super I1, ? super I2, ? super I3, ? super I4> action) {
 		return new ModelAction5<I0, I1, I2, I3, I4>(i0, i1, i2, i3, i4) {
 			@Override
 			protected void execute(ModelNode entity, I0 i0, I1 i1, I2 i2, I3 i3, I4 i4) {
@@ -270,7 +270,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static abstract class ModelAction5<I0, I1, I2, I3, I4> implements ModelAction, HasInputs {
+	public static abstract class ModelAction5<I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent, I3 extends ModelComponent, I4 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
 		private final ModelComponentReference<I2> i2;

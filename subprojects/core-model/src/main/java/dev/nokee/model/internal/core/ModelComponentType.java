@@ -79,7 +79,7 @@ public abstract class ModelComponentType<T> {
 	}
 
 
-	public static <T> ModelComponentType<T> componentOf(Class<T> type) {
+	public static <T extends ModelComponent> ModelComponentType<T> componentOf(Class<T> type) {
 		Objects.requireNonNull(type);
 		return new ComponentType<>(type);
 	}

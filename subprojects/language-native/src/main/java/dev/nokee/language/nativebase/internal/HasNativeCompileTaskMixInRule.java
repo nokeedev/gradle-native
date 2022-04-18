@@ -21,10 +21,11 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
@@ -50,17 +51,20 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction2<KnownDomainObject<HasNativeCompileTaskMixIn<? extends SourceCompile>>, IsLanguageSourceSet> {
+public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, IsLanguageSourceSet> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, ModelPropertyRegistrationFactory propertyRegistrationFactory, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<HasNativeCompileTaskMixIn<? extends SourceCompile>>() {})).asKnownObject(), ModelComponentReference.of(IsLanguageSourceSet.class));
+		super(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<HasNativeCompileTaskMixIn<? extends SourceCompile>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.propertyRegistrationFactory = propertyRegistrationFactory;
@@ -68,13 +72,13 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	}
 
 	@Override
-	protected void execute(ModelNode entity, KnownDomainObject<HasNativeCompileTaskMixIn<? extends SourceCompile>> knownObject, IsLanguageSourceSet ignored) {
+	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
 		@SuppressWarnings("unchecked")
-		val implementationType = (Class<? extends SourceCompile>) TypeToken.of(knownObject.getType()).resolveType(HasNativeCompileTaskMixIn.class.getTypeParameters()[0]).getRawType();
+		val implementationType = (Class<? extends SourceCompile>) TypeToken.of(knownObject.getType().getType()).resolveType(HasNativeCompileTaskMixIn.class.getTypeParameters()[0]).getRawType();
 
-		val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, knownObject.getIdentifier()), implementationType).build());
-		compileTask.configure(implementationType, configureDescription("Compiles the %s.", knownObject.getIdentifier()));
-		compileTask.configure(implementationType, configureDestinationDirectory(convention(forObjects(knownObject.getIdentifier()))));
+		val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, identifier.get()), implementationType).build());
+		compileTask.configure(implementationType, configureDescription("Compiles the %s.", identifier.get()));
+		compileTask.configure(implementationType, configureDestinationDirectory(convention(forObjects(identifier.get()))));
 		compileTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
 		compileTask.configure(implementationType, configureObjectFiles(from(objectFilesInDestinationDirectory())));
 		entity.addComponent(new NativeCompileTask(compileTask));

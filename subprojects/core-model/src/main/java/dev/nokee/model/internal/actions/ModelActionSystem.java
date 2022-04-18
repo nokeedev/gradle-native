@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelNode;
@@ -207,7 +208,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	public static <T> ModelAction updateSelectorForTag(Class<T> componentType) {
+	public static <T extends ModelComponent> ModelAction updateSelectorForTag(Class<T> componentType) {
 		return ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(componentType), new ModelActionWithInputs.A2<ConfigurableTag, T>() {
 			@Override
 			public void execute(ModelNode entity, ConfigurableTag tag, T component) {
