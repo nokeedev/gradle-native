@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal.core;
 
+import com.google.common.base.Preconditions;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -23,8 +24,6 @@ import lombok.val;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static dev.nokee.model.internal.type.ModelTypeUtils.toUndecoratedType;
 
 @SuppressWarnings("unchecked")
 public abstract class ModelComponentType<T> {
@@ -75,13 +74,8 @@ public abstract class ModelComponentType<T> {
 	@SuppressWarnings("unchecked")
 	public static <T> ModelComponentType<? super T> ofInstance(T component) {
 		Objects.requireNonNull(component);
-		if (component instanceof ModelProjection) {
-			return (ModelComponentType<? super T>) projectionOf(((ModelProjection) component).getType().getRawType());
-		} else if (component instanceof ModelComponent) {
-			return (ModelComponentType<? super T>) componentOf(component.getClass());
-		} else {
-			return (ModelComponentType<? super T>) componentOf(toUndecoratedType(component.getClass()));
-		}
+		Preconditions.checkArgument(component instanceof ModelComponent);
+		return (ModelComponentType<? super T>) ((ModelComponent) component).getComponentType();
 	}
 
 
