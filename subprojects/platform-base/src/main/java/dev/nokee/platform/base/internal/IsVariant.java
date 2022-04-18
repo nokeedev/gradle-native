@@ -15,13 +15,14 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelComponent;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class IsVariant {
+public class IsVariant implements ModelComponent {
 	private static final IsVariant INSTANCE = new IsVariant();
 
 	public static IsVariant tag() {
