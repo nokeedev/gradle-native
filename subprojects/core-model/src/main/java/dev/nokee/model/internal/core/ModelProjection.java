@@ -17,7 +17,7 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.type.ModelType;
 
-public interface ModelProjection {
+public interface ModelProjection extends ModelComponent {
 
 	ModelType<?> getType();
 
@@ -28,4 +28,9 @@ public interface ModelProjection {
 
 	// Use only for reporting
 	Iterable<String> getTypeDescriptions();
+
+	@Override
+	default ModelComponentType<?> getComponentType() {
+		return ModelComponentType.projectionOf(getType().getRawType());
+	}
 }
