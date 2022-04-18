@@ -28,7 +28,6 @@ import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
@@ -39,7 +38,6 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelProperty;
@@ -224,7 +222,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 									e.addComponent(CompileTaskTag.tag());
 									NamedDomainObjectProvider<Task> compileTask = p.get(of(NamedDomainObjectProvider.class));
 									compileTask.configure(configureTargetPlatform(set(fromBuildVariant(identifier.getBuildVariant()))));
-									registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).create(ModelPropertyIdentifier.of(ModelPropertyIdentifier.of(ModelNodes.of(sharedLibrary).get(IdentifierComponent.class).get(), "compileTasks"), "compile" + capitalize(sourceSetIdentifier.getName().get())), e));
 								}
 							}));
 						}

@@ -70,34 +70,7 @@ public final class ModelNodeUtils {
 	}
 
 	public static Stream<ModelProjection> getProjections(ModelNode self) {
-		return self.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast).flatMap(projection -> {
-			if (projection instanceof DelegatedModelProjection) {
-				return getProjections(((DelegatedModelProjection) projection).getDelegate()).map(it -> new ModelProjection() {
-					@Override
-					public ModelType<?> getType() {
-						return it.getType();
-					}
-
-					@Override
-					public <T> boolean canBeViewedAs(ModelType<T> type) {
-						return it.canBeViewedAs(type);
-					}
-
-					@Override
-					public <T> T get(ModelType<T> type) {
-						return ModelNodeContext.of(((DelegatedModelProjection) projection).getDelegate()).execute(ignored -> {
-							return it.get(type);
-						});
-					}
-
-					@Override
-					public Iterable<String> getTypeDescriptions() {
-						return it.getTypeDescriptions();
-					}
-				});
-			}
-			return Stream.of(projection);
-		});
+		return self.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast);
 	}
 
 	/**
