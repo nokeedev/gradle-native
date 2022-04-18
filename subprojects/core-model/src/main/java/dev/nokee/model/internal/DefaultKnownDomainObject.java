@@ -22,6 +22,7 @@ import dev.nokee.internal.provider.ProviderConvertibleInternal;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ModelAction;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -98,7 +99,7 @@ public final class DefaultKnownDomainObject<T> implements KnownDomainObject<T>, 
 
 		@Override
 		public DomainObjectIdentifier get() {
-			return entity.findComponent(DomainObjectIdentifier.class).orElseGet(() -> ModelIdentifier.of(entity.get(ModelPathComponent.class).get(), type));
+			return entity.find(IdentifierComponent.class).map(IdentifierComponent::get).orElseGet(() -> ModelIdentifier.of(entity.get(ModelPathComponent.class).get(), type));
 		}
 	}
 

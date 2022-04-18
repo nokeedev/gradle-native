@@ -16,6 +16,7 @@
 package dev.nokee.model;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -40,7 +41,7 @@ class ModelPathFromDomainObjectIdentifierIntegrationTest {
 	void setUp() {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		subject = ModelNodes.of(project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(identifier("peow.keju.ewol"))
+			.withComponent(new IdentifierComponent(identifier("peow.keju.ewol")))
 			.build()));
 	}
 

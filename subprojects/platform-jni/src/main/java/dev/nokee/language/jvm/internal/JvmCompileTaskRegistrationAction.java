@@ -17,8 +17,10 @@ package dev.nokee.language.jvm.internal;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
@@ -30,7 +32,7 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import org.gradle.api.Task;
 
 @AutoFactory
-public final class JvmCompileTaskRegistrationAction extends ModelActionWithInputs.ModelAction2<LanguageSourceSetIdentifier, ModelState.IsAtLeastRegistered> {
+public final class JvmCompileTaskRegistrationAction extends ModelActionWithInputs.ModelAction3<IdentifierComponent, IsLanguageSourceSet, ModelState.IsAtLeastRegistered> {
 	private final LanguageSourceSetIdentifier identifier;
 	private final Class<? extends Task> compileTaskType;
 	private final ModelRegistry registry;
@@ -46,9 +48,9 @@ public final class JvmCompileTaskRegistrationAction extends ModelActionWithInput
 	}
 
 	@Override
-	protected void execute(ModelNode entity, LanguageSourceSetIdentifier identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		if (identifier.equals(this.identifier)) {
-			registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), compileTaskType, identifier), compileTaskType).build());
+	protected void execute(ModelNode entity, IdentifierComponent identifier, IsLanguageSourceSet tag, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
+		if (identifier.get().equals(this.identifier)) {
+			registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), compileTaskType, identifier.get()), compileTaskType).build());
 		}
 	}
 }

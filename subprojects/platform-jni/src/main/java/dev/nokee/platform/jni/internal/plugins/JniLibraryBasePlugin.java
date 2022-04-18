@@ -21,6 +21,7 @@ import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelActionSystem;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -35,6 +36,8 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
@@ -93,9 +96,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(CompileTaskTag.class));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(VariantIdentifier.class), (entity, projection, identifier) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsVariant.class), (entity, projection, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val binaryIdentifier = BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
+			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
 			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 				.withComponent(new ParentComponent(entity))
 				.build());
@@ -103,7 +106,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				binary.getJarTask().configure(task -> {
 					task.getArchiveBaseName().set(project.provider(() -> {
 						val baseName = ModelProperties.getProperty(entity, "baseName").as(String.class).get();
-						return baseName + identifier.getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
+						return baseName + ((VariantIdentifier<?>) identifier.get()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
 					}));
 				});
 			}));
@@ -111,38 +114,38 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new JniJarArtifactComponent(jniJar));
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJniJarBinary.class), ModelComponentReference.of(BinaryIdentifier.class), (entity, projection, identifier) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJniJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), (entity, projection, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val taskRegistrationFactory = project.getExtensions().getByType(TaskRegistrationFactory.class);
-			val jarTask = registry.instantiate(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("jar"), identifier), Jar.class).withComponent(new ElementNameComponent("jar")).build());
+			val jarTask = registry.instantiate(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("jar"), identifier.get()), Jar.class).withComponent(new ElementNameComponent("jar")).build());
 			registry.instantiate(configure(jarTask.getId(), Jar.class, configureBuildGroup()));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs"));
 			}));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
-				task.getArchiveBaseName().convention(identifier.getName().get());
+				task.getArchiveBaseName().convention(((BinaryIdentifier<?>) identifier.get()).getName().get());
 			}));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				if (task.getDescription() == null) {
-					task.setDescription(String.format("Assembles a JAR archive containing the shared library for %s.", identifier));
+					task.setDescription(String.format("Assembles a JAR archive containing the shared library for %s.", identifier.get()));
 				}
 			}));
 			ModelStates.register(jarTask);
 			entity.addComponent(new JarTaskComponent(jarTask));
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJvmJarBinary.class), ModelComponentReference.of(BinaryIdentifier.class), (entity, projection, identifier) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJvmJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), (entity, projection, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val taskRegistrationFactory = project.getExtensions().getByType(TaskRegistrationFactory.class);
-			val jarTask = registry.instantiate(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("jar"), identifier), Jar.class).withComponent(new ElementNameComponent("jar")).build());
+			val jarTask = registry.instantiate(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("jar"), identifier.get()), Jar.class).withComponent(new ElementNameComponent("jar")).build());
 			registry.instantiate(configure(jarTask.getId(), Jar.class, configureBuildGroup()));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs"));
 			}));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> task.getArchiveBaseName().convention(identifier.getName().get())));
+			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> task.getArchiveBaseName().convention(((BinaryIdentifier<?>) identifier.get()).getName().get())));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				if (task.getDescription() == null) {
-					task.setDescription(String.format("Assembles a JAR archive containing the classes for %s.", identifier));
+					task.setDescription(String.format("Assembles a JAR archive containing the classes for %s.", identifier.get()));
 				}
 			}));
 			ModelStates.register(jarTask);
@@ -153,7 +156,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(Variants.class), ModelComponentReference.of(JvmJarArtifactComponent.class), (entity, variants, jvmJar) -> {
 			if (Iterables.size(variants) == 1) {
 				project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
-					binary.getJarTask().configure(configureDescription("Assembles a JAR archive containing the classes and shared library for %s.", ModelNodes.of(binary).getComponent(BinaryIdentifier.class)));
+					binary.getJarTask().configure(configureDescription("Assembles a JAR archive containing the classes and shared library for %s.", ModelNodes.of(binary).get(IdentifierComponent.class).get()));
 				}));
 			}
 		}));
@@ -161,9 +164,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		val registerJvmJarBinaryAction = new Action<AppliedPlugin>() {
 			@Override
 			public void execute(AppliedPlugin ignored) {
-				project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(ComponentIdentifier.class), (entity, projection, identifier) -> {
+				project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val binaryIdentifier = BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"));
+					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"));
 					val jvmJar = registry.instantiate(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 						.withComponent(new ParentComponent(entity))
 						.build());

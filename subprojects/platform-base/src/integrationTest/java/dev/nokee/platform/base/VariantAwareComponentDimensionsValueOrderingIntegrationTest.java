@@ -18,6 +18,7 @@ package dev.nokee.platform.base;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -46,7 +47,7 @@ class VariantAwareComponentDimensionsValueOrderingIntegrationTest {
 	void applyPlugins() {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 		subject = project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-			.withComponent(ofMain(ProjectIdentifier.of(project)))
+			.withComponent(new IdentifierComponent(ofMain(ProjectIdentifier.of(project))))
 			.withComponent(ModelProjections.managed(of(MyComponent.class))).build()).as(MyComponent.class).get();
 		subject.getDimensions().newAxis(OSFamily.class).value(asList(new OSFamily("windows"), new OSFamily("macOS"), new OSFamily("linux")));
 		subject.getDimensions().newAxis(MyAxis.class, it -> it.onlyIf(OSFamily.class, (a, b) -> !a.isPresent() || b.isWindows())).value(asList(new MyAxis("first"), new MyAxis("second")));

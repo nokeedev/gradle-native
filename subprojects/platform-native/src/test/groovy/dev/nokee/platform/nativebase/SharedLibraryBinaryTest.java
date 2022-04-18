@@ -28,6 +28,7 @@ import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -92,9 +93,9 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("nuli", projectIdentifier);
-		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).build());
+		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val variantIdentifier = VariantIdentifier.of("cuzu", Variant.class, componentIdentifier);
-		registry.register(ModelRegistration.builder().withComponent(variantIdentifier).build());
+		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(variantIdentifier)).build());
 		subject = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, "ruca"))).as(SharedLibraryBinary.class).get();
 	}
 

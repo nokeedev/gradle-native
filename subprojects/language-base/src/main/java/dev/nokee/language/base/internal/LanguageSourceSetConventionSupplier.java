@@ -17,6 +17,7 @@ package dev.nokee.language.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.internal.ComponentName;
 
@@ -49,7 +50,7 @@ public interface LanguageSourceSetConventionSupplier {
 
 	static <T extends LanguageSourceSet> Consumer<T> withConventionOf(LanguageSourceSetConventionSupplier... suppliers) {
 		return sourceSet -> {
-			sourceSet.convention((Callable<List<String>>) () -> Arrays.stream(suppliers).flatMap(it -> it.get(ModelNodes.of(sourceSet).getComponent(LanguageSourceSetIdentifier.class).getName().get()).stream()).collect(Collectors.toList()));
+			sourceSet.convention((Callable<List<String>>) () -> Arrays.stream(suppliers).flatMap(it -> it.get(((LanguageSourceSetIdentifier) ModelNodes.of(sourceSet).get(IdentifierComponent.class).get()).getName().get()).stream()).collect(Collectors.toList()));
 		};
 	}
 }

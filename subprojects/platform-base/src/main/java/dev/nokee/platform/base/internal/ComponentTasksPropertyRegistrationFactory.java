@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -44,7 +45,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 		assert path.getParent().isPresent();
 		val ownerPath = path.getParent().get();
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.mergeFrom(factory.newProperty().baseRef(modelLookup.get(ownerPath)).elementType(of(elementType)).build())
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
 			.build();

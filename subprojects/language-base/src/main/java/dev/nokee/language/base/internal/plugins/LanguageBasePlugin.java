@@ -25,6 +25,7 @@ import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
@@ -79,14 +80,14 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(LanguageSourceSet.class, NamingScheme::prefixTo));
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedSourceAwareComponentMixIn<? extends ComponentSources, ? extends ComponentSources>>() {})), ModelComponentReference.ofAny(ModelComponentType.componentOf(DomainObjectIdentifier.class)), (entity, projection, identifier) -> {
-			if (identifier instanceof ModelPropertyIdentifier) {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedSourceAwareComponentMixIn<? extends ComponentSources, ? extends ComponentSources>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
+			if (entity.has(ModelPropertyTag.class)) {
 				return;
 			}
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			Class<ComponentSources> type = (Class<ComponentSources>) sourcesType((ModelType<SourceAwareComponent<? extends ComponentSources>>)projection.getType());
 			registry.register(ModelRegistration.builder()
-				.withComponent(ModelPropertyIdentifier.of(identifier, "sources"))
+				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "sources")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(LanguageSourceSet.class)).build())
 				.withComponent(createdUsing(of(type), () -> {
 					try {

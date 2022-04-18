@@ -20,6 +20,7 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.utils.ActionUtils;
@@ -32,7 +33,7 @@ import java.util.function.BiConsumer;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-public final class AttachObjectFilesToLinkTaskRule extends ModelActionWithInputs.ModelAction3<BinaryIdentifier<?>, ObjectFiles, NativeLinkTask> {
+public final class AttachObjectFilesToLinkTaskRule extends ModelActionWithInputs.ModelAction3<IsBinary, ObjectFiles, NativeLinkTask> {
 	private final ModelRegistry registry;
 
 	public AttachObjectFilesToLinkTaskRule(ModelRegistry registry) {
@@ -40,7 +41,7 @@ public final class AttachObjectFilesToLinkTaskRule extends ModelActionWithInputs
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, ObjectFiles objectFiles, NativeLinkTask linkTask) {
+	protected void execute(ModelNode entity, IsBinary tag, ObjectFiles objectFiles, NativeLinkTask linkTask) {
 		registry.instantiate(ModelAction.configure(linkTask.get().getId(), ObjectLink.class, configureSource(from(objectFiles))));
 	}
 

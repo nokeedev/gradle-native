@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -23,14 +22,11 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 
 import java.io.File;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
@@ -46,14 +42,14 @@ public final class ModelPropertyRegistrationFactory {
 	}
 
 	public ModelRegistration create(ModelPropertyIdentifier identifier, ModelNode entity) {
-		assert entity.hasComponent(DomainObjectIdentifier.class);
+		assert entity.has(IdentifierComponent.class);
 		val path = toPath(identifier);
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(new OriginalEntityComponent(entity))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, id, ignored) -> {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelPropertyTag.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (e, id, tag, ignored) -> {
 				// When property is realized... realize the source entity
-				if (id.equals(identifier)) {
+				if (id.get().equals(identifier)) {
 					ModelStates.realize(entity);
 				}
 			}))
@@ -64,16 +60,16 @@ public final class ModelPropertyRegistrationFactory {
 					if (propertyNode.isPresent()) {
 						ModelStates.realize(propertyNode.get());
 					} else {
-						modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, ignored) -> {
-							if (id.equals(identifier)) {
+						modelConfigurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelPropertyTag.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (ee, id, tag, ignored) -> {
+							if (id.get().equals(identifier)) {
 								ModelStates.realize(ee);
 							}
 						}));
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPropertyIdentifier.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, id, ignored) -> {
-				if (id.equals(identifier)) {
+			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelPropertyTag.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (e, id, tag, ignored) -> {
+				if (id.get().equals(identifier)) {
 					e.addComponent(ModelPropertyTag.instance());
 					e.addComponent(new ModelPropertyTypeComponent(ModelType.untyped()));
 					e.addComponent(new DelegatedModelProjection(entity));
@@ -83,10 +79,9 @@ public final class ModelPropertyRegistrationFactory {
 	}
 
 	public <T> ModelRegistration createProperty(ModelPropertyIdentifier identifier, Class<T> type) {
-		val path = toPath(identifier);
 		val property = objects.property(type);
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(of(type)))
 			.withComponent(new GradlePropertyComponent(property))
@@ -94,10 +89,9 @@ public final class ModelPropertyRegistrationFactory {
 	}
 
 	public <T> ModelRegistration createFileCollectionProperty(ModelPropertyIdentifier identifier) {
-		val path = toPath(identifier);
 		val property = objects.fileCollection();
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.withComponent(new GradlePropertyComponent(property))

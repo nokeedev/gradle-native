@@ -16,10 +16,12 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.utils.ActionUtils;
@@ -40,7 +42,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
-public final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction4<BinaryIdentifier<?>, DependentLinkLibraries, DependentFrameworks, NativeLinkTask> {
+public final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction4< IsBinary, DependentLinkLibraries, DependentFrameworks, NativeLinkTask> {
 	private final ModelRegistry registry;
 
 	public AttachLinkLibrariesToLinkTaskRule(ModelRegistry registry) {
@@ -48,7 +50,7 @@ public final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInpu
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier, DependentLinkLibraries incomingLibraries, DependentFrameworks incomingFrameworks, NativeLinkTask linkTask) {
+	protected void execute(ModelNode entity, IsBinary tag, DependentLinkLibraries incomingLibraries, DependentFrameworks incomingFrameworks, NativeLinkTask linkTask) {
 		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLibraries(from(incomingLibraries))));
 		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(asFrameworkFlags(incomingFrameworks)))));
 	}

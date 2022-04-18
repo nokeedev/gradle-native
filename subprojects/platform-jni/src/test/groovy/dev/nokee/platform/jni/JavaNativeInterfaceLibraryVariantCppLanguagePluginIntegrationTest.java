@@ -22,6 +22,7 @@ import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Variant;
@@ -56,7 +57,7 @@ class JavaNativeInterfaceLibraryVariantCppLanguagePluginIntegrationTest extends 
 	void createSubject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("difi", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(componentIdentifier).build());
+		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
 		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(of("windows-x86")), Variant.class, componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();

@@ -21,6 +21,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ModelSpec;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -34,6 +35,7 @@ import dev.nokee.platform.base.internal.BaseModelSpecComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import lombok.val;
 import org.gradle.api.Transformer;
@@ -48,7 +50,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static dev.nokee.utils.TransformerUtils.onlyInstanceOf;
 import static dev.nokee.utils.TransformerUtils.stream;
 
-public final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction1<BinaryIdentifier<?>> {
+public final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, IsBinary> {
 	private static final ModelType<TaskView<SourceCompile>> TASK_VIEW_MODEL_TYPE = ModelType.of(new TypeOf<TaskView<SourceCompile>>() {});
 	private final ModelRegistry registry;
 	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
@@ -59,9 +61,9 @@ public final class RegisterCompileTasksPropertyRule extends ModelActionWithInput
 	}
 
 	@Override
-	protected void execute(ModelNode entity, BinaryIdentifier<?> identifier) {
+	protected void execute(ModelNode entity, IdentifierComponent identifier, IsBinary tag) {
 		val compileTasks = registry.register(ModelRegistration.builder()
-			.mergeFrom(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier, "compileTasks"), SourceCompile.class))
+			.mergeFrom(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier.get(), "compileTasks"), SourceCompile.class))
 			.withComponent(new ViewConfigurationBaseComponent(entity.get(ParentComponent.class).get()))
 			.withComponent(new BaseModelSpecComponent(ModelSpec.isEqual(CompileTaskTag.tag())))
 			.build()

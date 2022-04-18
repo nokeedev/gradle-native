@@ -27,6 +27,7 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelSpec;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -240,7 +241,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 				// If source set don't already exists on test suite
 				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(getNode())).and(withType(of(sourceSetType)))))) {
 					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
-					val identifier = getNode().getComponent(ComponentIdentifier.class);
+					val identifier = getNode().get(IdentifierComponent.class).get();
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
 						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, "headers"), sourceSetType).build());

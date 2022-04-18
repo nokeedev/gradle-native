@@ -19,6 +19,7 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,10 +46,10 @@ class DefaultModelObjectElementQueryIntegrationTest extends AbstractPluginTest {
 	@BeforeEach
 	void createObject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		object = registry.register(builder().withComponent(identifier("a")).withComponent(ofInstance(new Object())).build()).as(Object.class);
-		registry.register(builder().withComponent(i0).withComponent(ofInstance("peda")).build());
-		registry.register(builder().withComponent(i1).withComponent(createdUsing(of(MyType.class), () -> objectFactory().newInstance(MyType.class))).build());
-		registry.register(builder().withComponent(i2).withComponent(ofInstance(Boolean.TRUE)).build());
+		object = registry.register(builder().withComponent(new IdentifierComponent(identifier("a"))).withComponent(ofInstance(new Object())).build()).as(Object.class);
+		registry.register(builder().withComponent(new IdentifierComponent(i0)).withComponent(ofInstance("peda")).build());
+		registry.register(builder().withComponent(new IdentifierComponent(i1)).withComponent(createdUsing(of(MyType.class), () -> objectFactory().newInstance(MyType.class))).build());
+		registry.register(builder().withComponent(new IdentifierComponent(i2)).withComponent(ofInstance(Boolean.TRUE)).build());
 	}
 
 	@Nested
@@ -116,7 +117,7 @@ class DefaultModelObjectElementQueryIntegrationTest extends AbstractPluginTest {
 		@BeforeEach
 		void createConflictingElement() {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.register(builder().withComponent(identifier("a.b")).withComponent(ofInstance("vequ")).build());
+			registry.register(builder().withComponent(new IdentifierComponent(identifier("a.b"))).withComponent(ofInstance("vequ")).build());
 		}
 
 		@Test

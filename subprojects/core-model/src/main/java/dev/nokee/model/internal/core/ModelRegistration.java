@@ -47,8 +47,9 @@ public final class ModelRegistration {
 	}
 
 	public static Builder managedBuilder(DomainObjectIdentifier identifier, Class<?> type) {
+		Objects.requireNonNull(identifier);
 		return builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(ModelProjections.managed(ModelType.of(type)));
 	}
 

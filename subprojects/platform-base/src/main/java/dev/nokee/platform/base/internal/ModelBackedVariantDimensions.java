@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -53,7 +54,7 @@ public final class ModelBackedVariantDimensions implements VariantDimensions, Mo
 	public <T> SetProperty<T> newAxis(Class<T> axisType) {
 		val identifier = ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName()));
 		val result = registry.register(ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.mergeFrom(dimensionsPropertyFactory.newAxisProperty(CoordinateAxis.of(axisType)))
 			.build());
 		return ((ModelProperty<?>) result).asProperty(setProperty(of(axisType)));
@@ -65,7 +66,7 @@ public final class ModelBackedVariantDimensions implements VariantDimensions, Mo
 		Objects.requireNonNull(action);
 		val identifier = ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName()));
 		val builder = ModelRegistration.builder()
-			.withComponent(identifier);
+			.withComponent(new IdentifierComponent(identifier));
 		val axisBuilder = dimensionsPropertyFactory.newAxisProperty();
 		axisBuilder.axis(CoordinateAxis.of(axisType));
 

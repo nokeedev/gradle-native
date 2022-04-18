@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPath;
@@ -78,7 +79,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
 		val entityPath = toPath(identifier);
 		return ModelRegistration.builder()
-			.withComponent(identifier)
+			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsDependencyBucket.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))

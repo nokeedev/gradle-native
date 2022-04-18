@@ -43,7 +43,7 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLangua
 		modelConfigurer.configure(matching(discoveringInstanceOf(ObjectiveCppSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().getComponent(DomainObjectIdentifier.class), "objectiveCpp"), true));
+			registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().get(IdentifierComponent.class).get(), "objectiveCpp"), true));
 		}))));
 		project.getExtensions().add("__nokee_defaultObjectiveCppFactory", new DefaultObjectiveCppSourceSetRegistrationFactory(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class)));
 	}
