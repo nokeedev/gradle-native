@@ -160,7 +160,7 @@ public final class ModelElementFactory implements ModelComponent {
 		// TODO: Align exception with the one in ModelNode#get(ModelType). It's throwing an illegal state exception...
 		Preconditions.checkArgument(ModelNodeUtils.canBeViewedAs(entity, type), "node '%s' cannot be viewed as %s", entity, type);
 		@SuppressWarnings("unchecked")
-		val fullType = (ModelType<T>) entity.getComponents().filter(ModelProjection.class::isInstance).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(type)).map(ModelProjection::getType).findFirst().orElseThrow(RuntimeException::new);
+		val fullType = (ModelType<T>) ModelNodeUtils.getProjections(entity).filter(it -> it.canBeViewedAs(type)).map(ModelProjection::getType).findFirst().orElseThrow(RuntimeException::new);
 		val namedStrategy = new NamedStrategy() {
 			@Override
 			public String getAsString() {
