@@ -39,7 +39,7 @@ public class ModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
 		project.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		project.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
-		project.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory(modelRegistry, project.getObjects(), project.getExtensions().getByType(ModelConfigurer.class)));
+		project.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory(project.getObjects()));
 
 		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
 
