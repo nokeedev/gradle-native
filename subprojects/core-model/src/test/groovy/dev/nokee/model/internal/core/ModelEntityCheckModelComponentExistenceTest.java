@@ -37,12 +37,6 @@ class ModelEntityCheckModelComponentExistenceTest {
 	}
 
 	@Test
-	void throwsExceptionOnCheckModelComponentViaHasComponent() {
-		assertThrows(UnsupportedOperationException.class, () -> subject.hasComponent(MyComponent.class));
-		assertThrows(UnsupportedOperationException.class, () -> subject.hasComponent(MyOtherComponent.class));
-	}
-
-	@Test
 	void canCheckModelComponentByType() {
 		assertThat(subject.hasComponent(ModelComponentType.componentOf(MyComponent.class)), is(true));
 		assertThat(subject.hasComponent(ModelComponentType.componentOf(MyOtherComponent.class)), is(false));
