@@ -59,6 +59,11 @@ final class AndSpec implements Spec<DomainObjectIdentity>, ModelSpec {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean isSatisfiedBy(DomainObjectIdentity element) {
-		return specs.stream().allMatch(it -> ((Spec<DomainObjectIdentity>) it).isSatisfiedBy(element));
+		for (ModelSpec it : specs) {
+			if (!((Spec<DomainObjectIdentity>) it).isSatisfiedBy(element)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
