@@ -32,6 +32,11 @@ final class WithTypeSpec implements Spec<DomainObjectIdentity>, ModelSpec {
 
 	@Override
 	public boolean isSatisfiedBy(DomainObjectIdentity identity) {
-		return identity.getAll(ModelType.class).stream().anyMatch(type::isSupertypeOf);
+		for (ModelType<?> it : identity.getAll(ModelType.class)) {
+			if (type.isSupertypeOf(it)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
