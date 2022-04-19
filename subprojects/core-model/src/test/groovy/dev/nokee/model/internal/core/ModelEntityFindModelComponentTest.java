@@ -22,7 +22,6 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ModelEntityFindModelComponentTest {
 	private final ModelNode subject = new ModelNode();
@@ -51,12 +50,6 @@ class ModelEntityFindModelComponentTest {
 	@Test
 	void returnEmptyOptionalWhenModelComponentByClassDoesNotExistsOnEntity() {
 		assertThat(subject.find(MyOtherComponent.class), emptyOptional());
-	}
-
-	@Test
-	void throwsExceptionOnGetModelComponentViaGetComponent() {
-		assertThrows(UnsupportedOperationException.class, () -> subject.findComponent(MyComponent.class));
-		assertThrows(UnsupportedOperationException.class, () -> subject.findComponent(MyOtherComponent.class));
 	}
 
 	private static final class MyComponent implements ModelComponent {}

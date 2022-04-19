@@ -123,13 +123,6 @@ public final class ModelNode {
 		return new ModelComponentTypes(components.keySet());
 	}
 
-	public <T> T getComponent(Class<T> type) {
-		if (ModelComponent.class.isAssignableFrom(type)) {
-			throw new UnsupportedOperationException("Use get(Class) instead.");
-		}
-		return findComponent(type).orElseThrow(() -> new RuntimeException(String.format("No components of type '%s'. Available: %s", type.getSimpleName(), components.keySet().stream().map(Objects::toString).collect(Collectors.joining(", ")))));
-	}
-
 	public <T extends ModelComponent> T get(Class<T> type) {
 		return getComponent(ModelComponentType.componentOf(type));
 	}
@@ -140,13 +133,6 @@ public final class ModelNode {
 		});
 	}
 
-	public <T> Optional<T> findComponent(Class<T> type) {
-		if (ModelComponent.class.isAssignableFrom(type)) {
-			throw new UnsupportedOperationException("Use find(Class) instead.");
-		}
-		return components.values().stream().filter(type::isInstance).map(type::cast).findFirst();
-	}
-
 	public <T extends ModelComponent> Optional<T> find(Class<T> type) {
 		return findComponent(ModelComponentType.componentOf(type));
 	}
@@ -155,13 +141,6 @@ public final class ModelNode {
 		@SuppressWarnings("unchecked")
 		val result = (T) components.get(componentType);
 		return Optional.ofNullable(result);
-	}
-
-	public boolean hasComponent(Class<?> type) {
-		if (ModelComponent.class.isAssignableFrom(type)) {
-			throw new UnsupportedOperationException("Use has(Class) instead.");
-		}
-		return components.values().stream().anyMatch(type::isInstance);
 	}
 
 	public boolean hasComponent(ModelComponentType<?> componentType) {

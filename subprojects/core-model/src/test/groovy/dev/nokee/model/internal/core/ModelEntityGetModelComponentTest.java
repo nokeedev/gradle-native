@@ -55,12 +55,6 @@ class ModelEntityGetModelComponentTest {
 		assertThat(ex.getMessage(), equalTo("No components of type 'MyOtherComponent'. Available: MyComponent"));
 	}
 
-	@Test
-	void throwsExceptionOnGetModelComponentViaGetComponent() {
-		assertThrows(UnsupportedOperationException.class, () -> subject.getComponent(MyComponent.class));
-		assertThrows(UnsupportedOperationException.class, () -> subject.getComponent(MyOtherComponent.class));
-	}
-
 	private static final class MyComponent implements ModelComponent {}
 	private interface MyOtherComponent extends ModelComponent {}
 }
