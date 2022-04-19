@@ -62,7 +62,7 @@ public final class ModelActionSystem implements Action<Project> {
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelSpecComponent.class), ModelComponentReference.of(ModelActionComponent.class), this::onActionAdded));
 
 		// Rules to keep identity up-to-date
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.ofAny(componentOf(ModelProjection.class)), this::updateSelectorForProjection));
+		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ModelProjection.class), this::updateSelectorForProjection));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
