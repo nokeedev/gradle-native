@@ -65,12 +65,13 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final BindManagedProjectionService bindingService;
 	private final ModelNode rootNode;
 	private final ModelElementFactory elementFactory;
+	private final Multimap<ModelComponentType<?>, ModelAction> config = ArrayListMultimap.create();
 
 	public DefaultModelRegistry(Instantiator instantiator) {
 		this.instantiator = instantiator;
 		this.elementFactory = new ModelElementFactory(instantiator);
 		this.bindingService = new BindManagedProjectionService(instantiator);
-		configurations.add(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
 			if (state.equals(ModelState.Created)) {
 				if (!path.get().equals(ModelPath.root()) && (!path.get().getParent().isPresent() || !nodes.containsKey(path.get().getParent().get()))) {
 					throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path));
