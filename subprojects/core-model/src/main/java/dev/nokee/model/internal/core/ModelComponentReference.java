@@ -15,15 +15,10 @@
  */
 package dev.nokee.model.internal.core;
 
-import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DefaultKnownDomainObject;
-import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.provider.Provider;
 
-public abstract class ModelComponentReference<T> {
+public abstract class ModelComponentReference<T extends ModelComponent> {
 	public abstract T get(ModelNode entity);
 
 	public abstract Bits componentBits();
@@ -32,12 +27,12 @@ public abstract class ModelComponentReference<T> {
 		return ofInstance(ModelComponentType.componentOf(componentType));
 	}
 
-	public static <T> ModelComponentReference<T> ofInstance(ModelComponentType<T> componentType) {
+	public static <T extends ModelComponent> ModelComponentReference<T> ofInstance(ModelComponentType<T> componentType) {
 		return new OfInstanceReference<>(componentType);
 	}
 
 	@EqualsAndHashCode(callSuper = false)
-	private static final class OfInstanceReference<T> extends ModelComponentReference<T> implements ModelComponentReferenceInternal {
+	private static final class OfInstanceReference<T extends ModelComponent> extends ModelComponentReference<T> implements ModelComponentReferenceInternal {
 		private final ModelComponentType<T> componentType;
 
 		private OfInstanceReference(ModelComponentType<T> componentType) {
@@ -65,12 +60,12 @@ public abstract class ModelComponentReference<T> {
 		}
 	}
 
-	public static <T> ModelComponentReference<T> ofAny(ModelComponentType<T> componentType) {
+	public static <T extends ModelComponent> ModelComponentReference<T> ofAny(ModelComponentType<T> componentType) {
 		return new OfAnyReference<>(componentType);
 	}
 
 	@EqualsAndHashCode(callSuper = false)
-	private static final class OfAnyReference<T> extends ModelComponentReference<T> implements ModelComponentReferenceInternal {
+	private static final class OfAnyReference<T extends ModelComponent> extends ModelComponentReference<T> implements ModelComponentReferenceInternal {
 		private final ModelComponentType<T> componentType;
 
 		private OfAnyReference(ModelComponentType<T> componentType) {
@@ -103,132 +98,21 @@ public abstract class ModelComponentReference<T> {
 		}
 	}
 
-	public static <T> ModelProjectionReference<T> ofProjection(Class<T> projectionType) {
+	public static <T> ModelComponentReference<ModelProjection> ofProjection(Class<T> projectionType) {
 		return new OfProjectionReference<>(projectionType);
 	}
 
-	public static <T> ModelProjectionReference<T> ofProjection(ModelType<T> projectionType) {
+	public static <T> ModelComponentReference<ModelProjection> ofProjection(ModelType<T> projectionType) {
 		return new OfProjectionReference<>(projectionType.getConcreteType());
 	}
 
-	@EqualsAndHashCode(callSuper = false)
-	public static abstract class ModelProjectionReference<T> extends ModelComponentReference<ModelProjection> {
-		protected final ModelComponentReference<ModelProjection> delegate;
+	private static final class OfProjectionReference<T> extends ModelComponentReference<ModelProjection> implements ModelComponentReferenceInternal {
+		private final ModelComponentReference<ModelProjection> delegate;
 		private final Class<T> projectionType;
 
-		protected ModelProjectionReference(Class<T> projectionType) {
+		public OfProjectionReference(Class<T> projectionType) {
 			this.delegate = new OfAnyReference<>(ModelComponentType.projectionOf(projectionType));
 			this.projectionType = projectionType;
-		}
-
-		public ModelComponentReference<NamedDomainObjectProvider<T>> asConfigurableProvider() {
-			return new AsConfigurableProvider();
-		}
-
-		public ModelComponentReference<T> asDomainObject() {
-			return new AsDomainObjectReference();
-		}
-
-		public ModelComponentReference<Provider<T>> asProvider() {
-			return new AsProviderReference();
-		}
-
-		public ModelComponentReference<KnownDomainObject<T>> asKnownObject() {
-			return new AsKnownObjectReference();
-		}
-
-		private final class AsConfigurableProvider extends ModelComponentReference<NamedDomainObjectProvider<T>> implements ModelComponentReferenceInternal {
-			@Override
-			public NamedDomainObjectProvider<T> get(ModelNode entity) {
-				return entity.get(ModelElementFactory.class).createObject(entity, ModelType.of(projectionType)).asProvider();
-			}
-
-			@Override
-			public Bits componentBits() {
-				return delegate.componentBits();
-			}
-
-			@Override
-			public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
-				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(componentTypes);
-			}
-
-			@Override
-			public boolean isSatisfiedBy(ModelComponentType<?> otherComponentType) {
-				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(otherComponentType);
-			}
-		}
-
-		private final class AsDomainObjectReference extends ModelComponentReference<T> implements ModelComponentReferenceInternal {
-			@Override
-			public T get(ModelNode entity) {
-				return ModelNodeUtils.get(entity, projectionType);
-			}
-
-			@Override
-			public Bits componentBits() {
-				return delegate.componentBits();
-			}
-
-			@Override
-			public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
-				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(componentTypes);
-			}
-
-			@Override
-			public boolean isSatisfiedBy(ModelComponentType<?> otherComponentType) {
-				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(otherComponentType);
-			}
-		}
-
-		private final class AsProviderReference extends ModelComponentReference<Provider<T>> implements ModelComponentReferenceInternal {
-			@Override
-			public Provider<T> get(ModelNode entity) {
-				return entity.get(ModelElementFactory.class).createObject(entity, ModelType.of(projectionType)).asProvider();
-			}
-
-			@Override
-			public Bits componentBits() {
-				return delegate.componentBits();
-			}
-
-			@Override
-			public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
-				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(componentTypes);
-			}
-
-			@Override
-			public boolean isSatisfiedBy(ModelComponentType<?> otherComponentType) {
-				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(otherComponentType);
-			}
-		}
-
-		private final class AsKnownObjectReference extends ModelComponentReference<KnownDomainObject<T>> implements ModelComponentReferenceInternal {
-			@Override
-			public KnownDomainObject<T> get(ModelNode entity) {
-				return DefaultKnownDomainObject.of(ModelType.of(projectionType), entity);
-			}
-
-			@Override
-			public Bits componentBits() {
-				return delegate.componentBits();
-			}
-
-			@Override
-			public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
-				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(componentTypes);
-			}
-
-			@Override
-			public boolean isSatisfiedBy(ModelComponentType<?> otherComponentType) {
-				return ((ModelComponentReferenceInternal) delegate).isSatisfiedBy(otherComponentType);
-			}
-		}
-	}
-
-	private static final class OfProjectionReference<T> extends ModelProjectionReference<T> implements ModelComponentReferenceInternal {
-		public OfProjectionReference(Class<T> projectionType) {
-			super(projectionType);
 		}
 
 		@Override
