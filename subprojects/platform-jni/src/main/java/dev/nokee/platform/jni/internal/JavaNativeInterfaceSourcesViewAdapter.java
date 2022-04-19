@@ -19,9 +19,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
-import dev.nokee.model.HasName;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
@@ -37,9 +35,9 @@ import java.util.List;
 import java.util.Set;
 
 public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeInterfaceLibrarySources {
-	private final View<LanguageSourceSet> delegate;
+	private final ViewAdapter<LanguageSourceSet> delegate;
 
-	public JavaNativeInterfaceSourcesViewAdapter(View<LanguageSourceSet> delegate) {
+	public JavaNativeInterfaceSourcesViewAdapter(ViewAdapter<LanguageSourceSet> delegate) {
 		this.delegate = delegate;
 	}
 
@@ -168,46 +166,27 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 
 	@Override
 	public void configure(String name, Action<? super LanguageSourceSet> action) {
-		configureEach(it -> {
-			if (ModelNodes.of(it).getComponent(HasName.class).getName().toString().equals(name)) {
-				action.execute(it);
-			}
-		});
+		delegate.named(name, action);
 	}
 
 	@Override
 	public void configure(String name, @SuppressWarnings("rawtypes") Closure closure) {
-		configureEach(it -> {
-			if (ModelNodes.of(it).getComponent(HasName.class).getName().toString().equals(name)) {
-				ConfigureUtil.configureUsing(closure).execute(it);
-			}
-		});
+		delegate.named(name, closure);
 	}
 
 	@Override
 	public <S extends LanguageSourceSet> void configure(String name, Class<S> type, Action<? super S> action) {
-		configureEach(type, it -> {
-			if (ModelNodes.of(it).getComponent(HasName.class).getName().toString().equals(name)) {
-				action.execute(it);
-			}
-		});
+		delegate.named(name, type, action);
 	}
 
 	@Override
 	public <S extends LanguageSourceSet> void configure(String name, Class<S> type, @SuppressWarnings("rawtypes") Closure closure) {
-		configureEach(type, it -> {
-			if (ModelNodes.of(it).getComponent(HasName.class).getName().toString().equals(name)) {
-				ConfigureUtil.configureUsing(closure).execute(it);
-			}
-		});
+		delegate.named(name, type, closure);
 	}
 
 	@Override
 	public <S extends LanguageSourceSet> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
-		if (delegate instanceof ViewAdapter) {
-			return ((ViewAdapter<LanguageSourceSet>) delegate).named(name, type);
-		}
-		throw new UnsupportedOperationException();
+		return delegate.named(name, type);
 	}
 
 	@Override
