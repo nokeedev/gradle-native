@@ -53,6 +53,7 @@ import java.util.stream.Stream;
 //    Actually, we shouldn't allow attaching configuration (applyTo, applyToSelf).
 //    Instead users should go through the ModelRegistry for that and access a thin layer that gives access to the allowed query and apply methods
 public final class ModelNode {
+	private static final ModelComponentType<ModelNodeListenerComponent> LISTENER_COMPONENT_TYPE = ModelComponentType.componentOf(ModelNodeListenerComponent.class);
 	private final ModelEntityId id = ModelEntityId.nextId();
 	private final Map<ModelComponentType<?>, Object> components = new LinkedHashMap<>();
 	private ModelNodeListener listener = null;
@@ -107,12 +108,9 @@ public final class ModelNode {
 
 	private void notifyComponentAdded(ModelComponent newComponent) {
 		if (listener == null) {
-			for (Object component : components.values()) {
-				if (component instanceof ModelNodeListenerComponent) {
-					listener = ((ModelNodeListenerComponent) component).get();
-					listener.projectionAdded(this, newComponent);
-					return;
-				}
+			listener = ((ModelNodeListenerComponent) components.get(LISTENER_COMPONENT_TYPE)).get();
+			if (listener != null) {
+				listener.projectionAdded(this, newComponent);
 			}
 		} else {
 			listener.projectionAdded(this, newComponent);
