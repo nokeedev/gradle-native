@@ -50,7 +50,7 @@ public interface ModelAction {
 	 * @return a registration for model action, never null
 	 */
 	static <T> ModelRegistration configureEach(Class<T> type, Action<? super T> action) {
-		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Realized)),
+		return configureMatching(stateAtLeast(ModelState.Realized).and(subtypeOf(of(type))),
 			new ModelActionAdapter<>(of(type), action));
 	}
 
@@ -65,7 +65,7 @@ public interface ModelAction {
 	 * @return a registration for model action, never null
 	 */
 	static <T> ModelRegistration configureEach(ModelSpec spec, Class<T> type, Action<? super T> action) {
-		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Realized)).and(spec),
+		return configureMatching(stateAtLeast(ModelState.Realized).and(subtypeOf(of(type))).and(spec),
 			new ModelActionAdapter<>(of(type), action));
 	}
 
@@ -79,7 +79,7 @@ public interface ModelAction {
 	 * @return a registration for model action, never null
 	 */
 	static <T> ModelRegistration whenElementKnown(Class<T> type, Action<? super KnownDomainObject<T>> action) {
-		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Registered)),
+		return configureMatching(stateAtLeast(ModelState.Registered).and(subtypeOf(of(type))),
 			new ModelActionKnownDomainObjectAdapter<>(of(type), action));
 	}
 
@@ -93,7 +93,7 @@ public interface ModelAction {
 	 * @return a registration for model action, never null
 	 */
 	static <T> ModelRegistration whenElementKnown(ModelSpec spec, Class<T> type, Action<? super KnownDomainObject<T>> action) {
-		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Registered)).and(spec),
+		return configureMatching(stateAtLeast(ModelState.Registered).and(subtypeOf(of(type))).and(spec),
 			new ModelActionKnownDomainObjectAdapter<>(of(type), action));
 	}
 
@@ -108,7 +108,7 @@ public interface ModelAction {
 	 * @return a registration for model action, never null
 	 */
 	static <T> ModelRegistration configure(String name, Class<T> type, Action<? super T> action) {
-		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Realized)).and(isEqual(FullyQualifiedName.of(name))),
+		return configureMatching(stateAtLeast(ModelState.Realized).and(isEqual(FullyQualifiedName.of(name))).and(subtypeOf(of(type))),
 			new ModelActionAdapter<>(of(type), action));
 	}
 
@@ -123,7 +123,7 @@ public interface ModelAction {
 	 * @return a registration for model action, never null
 	 */
 	static <T> ModelRegistration configure(ModelEntityId id, Class<T> type, Action<? super T> action) {
-		return configureMatching(subtypeOf(of(type)).and(stateAtLeast(ModelState.Realized)).and(self(id)),
+		return configureMatching(self(id).and(stateAtLeast(ModelState.Realized)).and(subtypeOf(of(type))),
 			new ModelActionAdapter<>(of(type), action));
 	}
 
