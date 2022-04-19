@@ -19,6 +19,7 @@ import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 
 public abstract class ModelComponentReference<T extends ModelComponent> {
+	private static final ModelComponentType<ModelProjection> PROJECTION_COMPONENT_TYPE = ModelComponentType.componentOf(ModelProjection.class);
 	public abstract T get(ModelNode entity);
 
 	public abstract Bits componentBits();
@@ -30,7 +31,45 @@ public abstract class ModelComponentReference<T extends ModelComponent> {
 	}
 
 	public static <T extends ModelComponent> ModelComponentReference<T> ofInstance(ModelComponentType<T> componentType) {
-		return ofAny(componentType);
+		if (PROJECTION_COMPONENT_TYPE.equals(componentType)) {
+			return ofAny(componentType);
+		} else {
+			return new OfInstanceReference<>(componentType);
+		}
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class OfInstanceReference<T extends ModelComponent> extends ModelComponentReference<T> implements ModelComponentReferenceInternal {
+		private final ModelComponentType<T> componentType;
+
+		private OfInstanceReference(ModelComponentType<T> componentType) {
+			this.componentType = componentType;
+		}
+
+		@Override
+		public boolean isSatisfiedBy(ModelComponentTypes componentTypes) {
+			return componentTypes.contains(componentType);
+		}
+
+		@Override
+		public boolean isSatisfiedBy(ModelComponentType<?> otherComponentType) {
+			return componentType.equals(otherComponentType);
+		}
+
+		@Override
+		public T get(ModelNode entity) {
+			return entity.getComponent(componentType);
+		}
+
+		@Override
+		public Bits componentBits() {
+			return componentType.bits();
+		}
+
+		@Override
+		public ModelComponentType<T> getType() {
+			return componentType;
+		}
 	}
 
 	private static <T extends ModelComponent> ModelComponentReference<T> ofAny(ModelComponentType<T> componentType) {
