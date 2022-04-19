@@ -23,6 +23,8 @@ public abstract class ModelComponentReference<T extends ModelComponent> {
 
 	public abstract Bits componentBits();
 
+	public abstract ModelComponentType<T> getType();
+
 	public static <T extends ModelComponent> ModelComponentReference<T> of(Class<T> componentType) {
 		return ofInstance(ModelComponentType.componentOf(componentType));
 	}
@@ -67,6 +69,11 @@ public abstract class ModelComponentReference<T extends ModelComponent> {
 		public Bits componentBits() {
 			return componentType.bits();
 		}
+
+		@Override
+		public ModelComponentType<T> getType() {
+			return componentType;
+		}
 	}
 
 	public static <T> ModelComponentReference<ModelProjection> ofProjection(Class<T> projectionType) {
@@ -94,6 +101,11 @@ public abstract class ModelComponentReference<T extends ModelComponent> {
 		@Override
 		public Bits componentBits() {
 			return delegate.componentBits();
+		}
+
+		@Override
+		public ModelComponentType<ModelProjection> getType() {
+			return ModelComponentType.componentOf(ModelProjection.class);
 		}
 
 		@Override

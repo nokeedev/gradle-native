@@ -15,7 +15,10 @@
  */
 package dev.nokee.model.internal.registry;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import dev.nokee.internal.reflect.Instantiator;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ModelElementFactory;
@@ -179,7 +182,12 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	@Override
 	public void configure(ModelAction configuration) {
 		Objects.requireNonNull(configuration);
+		Preconditions.checkArgument(configuration instanceof HasInputs);
 		configurations.add(configuration);
+		((HasInputs) configuration).getInputs().stream().distinct().forEach(input -> {
+			config.put(input.getType(), configuration);
+		});
+
 		val size = entities.size();
 		for (int i = 0; i < size; i++) {
 			val node = entities.get(i);
@@ -190,14 +198,17 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	private final class NodeStateListener implements ModelNodeListener {
 		@Override
 		public void projectionAdded(ModelNode node, ModelComponent newComponent) {
+			List<ModelAction> c = null;
+			if (newComponent instanceof ModelProjection) {
+				c = ImmutableList.copyOf(config.get(ModelComponentType.componentOf(ModelProjection.class)));
+			} else {
+				c = ImmutableList.copyOf(config.get(newComponent.getComponentType()));
+			}
+
 			Bits newComponentBits = newComponent.getComponentType().familyBits();
-			for (int i = 0; i < configurations.size(); ++i) {
-				val configuration = configurations.get(i);
-				if (configuration instanceof HasInputs) {
-					if (newComponentBits.intersects(((HasInputs) configuration).getInputBits())) {
-						configuration.execute(node);
-					}
-				} else {
+			for (int i = 0; i < c.size(); ++i) {
+				val configuration = c.get(i);
+				if (newComponentBits.intersects(((HasInputs) configuration).getInputBits())) {
 					configuration.execute(node);
 				}
 			}
