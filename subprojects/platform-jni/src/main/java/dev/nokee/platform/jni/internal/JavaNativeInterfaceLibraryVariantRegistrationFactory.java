@@ -111,7 +111,6 @@ import java.util.function.Consumer;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -219,7 +218,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 									registry.instantiate(ModelAction.configure(e.getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 								}
 							}));
-							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsTask.class), ModelComponentReference.ofInstance(projectionOf(TaskProvider.class)), (e, i, t, p) -> {
+							configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsTask.class), ModelComponentReference.ofProjection(TaskProvider.class), (e, i, t, p) -> {
 								if (((TaskIdentifier<?>) i.get()).getOwnerIdentifier().equals(sourceSetIdentifier)) {
 									e.addComponent(CompileTaskTag.tag());
 									NamedDomainObjectProvider<Task> compileTask = p.get(of(NamedDomainObjectProvider.class));
