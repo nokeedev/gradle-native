@@ -105,7 +105,7 @@ public final class ModelNode {
 		return component;
 	}
 
-	private void notifyComponentAdded(Object newComponent) {
+	private void notifyComponentAdded(ModelComponent newComponent) {
 		if (listener == null) {
 			for (Object component : components.values()) {
 				if (component instanceof ModelNodeListenerComponent) {
@@ -172,11 +172,11 @@ public final class ModelNode {
 		return hasComponent(ModelComponentType.componentOf(type));
 	}
 
-	public <T> void setComponent(Class<T> componentType, T component) {
+	public <T extends ModelComponent> void setComponent(Class<T> componentType, T component) {
 		setComponent(component);
 	}
 
-	public <T> void setComponent(T component) {
+	public <T extends ModelComponent> void setComponent(T component) {
 		val componentType = ModelComponentType.ofInstance(component);
 		if (!components.containsKey(componentType)) {
 			throw new RuntimeException();

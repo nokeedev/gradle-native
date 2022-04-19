@@ -217,7 +217,7 @@ public final class ModelTestUtils {
 		});
 		builder.withListener(new ModelNodeListener() {
 			@Override
-			public void projectionAdded(ModelNode node, Object newComponent) {
+			public void projectionAdded(ModelNode node, ModelComponent newComponent) {
 				if (newComponent instanceof ModelState.IsAtLeastCreated) {
 					nodeProvider.setValue(node);
 				}

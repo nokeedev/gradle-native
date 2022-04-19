@@ -188,8 +188,8 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private final class NodeStateListener implements ModelNodeListener {
 		@Override
-		public void projectionAdded(ModelNode node, Object newComponent) {
-			Bits newComponentBits = ModelComponentType.ofInstance(newComponent).familyBits();
+		public void projectionAdded(ModelNode node, ModelComponent newComponent) {
+			Bits newComponentBits = newComponent.getComponentType().familyBits();
 			for (int i = 0; i < configurations.size(); ++i) {
 				val configuration = configurations.get(i);
 				if (configuration instanceof HasInputs) {

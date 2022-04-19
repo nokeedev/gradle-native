@@ -27,7 +27,7 @@ public interface ModelNodeListener {
 	static ModelNodeListener noOpListener() {
 		return new ModelNodeListener() {
 			@Override
-			public void projectionAdded(ModelNode node, Object newComponent) {
+			public void projectionAdded(ModelNode node, ModelComponent newComponent) {
 				// do nothing
 			}
 		};
@@ -39,5 +39,5 @@ public interface ModelNodeListener {
 	 * @param node  the model node that has a new projection
 	 * @param newComponent  the new added component to the entity
 	 */
-	void projectionAdded(ModelNode node, Object newComponent);
+	void projectionAdded(ModelNode node, ModelComponent newComponent);
 }
