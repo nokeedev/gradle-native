@@ -1,0 +1,19 @@
+= Gradle Build Script Model
+
+Authoring Gradle build script is a cross-cutting concern between several plugin development aspects: test fixtures, documentation samples, and build init template.
+Each of those aspects needs to craft build scripts or build snippets.
+Most users rely on a plain string representation either by using a multiline string or joining a list of _lines_.
+This approach force the user to think of a script as appending snippets together for a specific DSL.
+We feel this approach to be entirely wrong for several reasons:
+
+- Some build script blocks require to be in a specific order, i.e. `plugins` and `buildscript`.
+- Gradle DSL languages choice are primarily for style and are rarely a requirement in most tests.
+- Gradle DSL switching becomes complicated.
+
+We developed a Gradle Build Script model to be composable and DSL agnostic until we render the build script.
+We can then apply mutation to the build script, such as changing the applied plugin.
+We can also build higher abstraction specific to each use case.
+
+The API is soaking in Nokee before moving it to the `gradle-plugins` organization.
+We are only concerned by one issue, the `ProjectBuilder` vs `TestKit` setups are different.
+We don't believe those setups should be different, but we also don't think it's the responsibility of this modelling to solve.
