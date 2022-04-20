@@ -47,7 +47,6 @@ import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelActions.register;
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelNodes.stateOf;
@@ -352,11 +351,11 @@ public class DefaultModelRegistryIntegrationTest {
 		}));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo", Object.class), new Object()));
 		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.bar", Object.class), new Object()));
-		modelRegistry.register(ModelRegistration.unmanagedInstanceBuilder(ModelIdentifier.of("foo.far", Object.class), Object::new).action(entity -> {
-			if (entity.has(ModelPathComponent.class) && ModelNodeUtils.getPath(entity).equals(ModelPath.path("foo.far"))) {
+		modelRegistry.register(ModelRegistration.unmanagedInstanceBuilder(ModelIdentifier.of("foo.far", Object.class), Object::new).action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+			if (path.get().equals(ModelPath.path("foo.far"))) {
 				entity.addComponent(new MyFooComponent());
 			}
-		}).build());
+		})).build());
 		assertThat(result, contains(ModelPath.path("foo.far")));
 	}
 
