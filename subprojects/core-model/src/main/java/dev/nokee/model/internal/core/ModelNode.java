@@ -102,9 +102,10 @@ public final class ModelNode {
 
 	private void notifyComponentAdded(ModelComponent newComponent) {
 		if (listener == null) {
-			listener = ((ModelNodeListenerComponent) components.get(LISTENER_COMPONENT_TYPE)).get();
+			val listener = ((ModelNodeListenerComponent) components.get(LISTENER_COMPONENT_TYPE));
 			if (listener != null) {
-				listener.projectionAdded(this, newComponent);
+				this.listener = listener.get();
+				this.listener.projectionAdded(this, newComponent);
 			}
 		} else {
 			listener.projectionAdded(this, newComponent);
