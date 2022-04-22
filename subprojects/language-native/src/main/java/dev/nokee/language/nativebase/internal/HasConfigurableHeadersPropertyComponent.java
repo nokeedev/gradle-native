@@ -19,10 +19,10 @@ import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 
-public final class HeadersPropertyComponent implements ModelComponent, LinkedEntity {
+public final class HasConfigurableHeadersPropertyComponent implements ModelComponent, LinkedEntity {
 	private final ModelNode value;
 
-	public HeadersPropertyComponent(ModelNode value) {
+	public HasConfigurableHeadersPropertyComponent(ModelNode value) {
 		this.value = value;
 	}
 

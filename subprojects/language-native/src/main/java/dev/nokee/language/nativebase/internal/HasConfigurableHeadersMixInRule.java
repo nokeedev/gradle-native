@@ -68,7 +68,7 @@ public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs
 				return result;
 			}))
 			.build());
-		entity.addComponent(new HeadersPropertyComponent(ModelNodes.of(element)));
+		entity.addComponent(new HasConfigurableHeadersPropertyComponent(ModelNodes.of(element)));
 		entity.addComponent(new ProjectHeaderSearchPaths(element.as(SourceSet.class).flatMap(elementsOf(SourceSet::getSourceDirectories))));
 	}
 

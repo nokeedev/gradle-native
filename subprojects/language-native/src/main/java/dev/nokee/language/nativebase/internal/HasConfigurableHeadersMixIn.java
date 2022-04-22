@@ -20,6 +20,6 @@ import dev.nokee.model.internal.core.ModelElements;
 
 public interface HasConfigurableHeadersMixIn extends HasConfigurableHeaders {
 	default ConfigurableSourceSet getHeaders() {
-		return ModelElements.of(this, HeadersPropertyComponent.class).as(ConfigurableSourceSet.class).get();
+		return ModelElements.of(this, HasConfigurableHeadersPropertyComponent.class).as(ConfigurableSourceSet.class).get();
 	}
 }
