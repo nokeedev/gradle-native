@@ -21,11 +21,10 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.project.ProjectInternal;
-
-import static dev.nokee.model.internal.core.ModelElements.whenElementDiscovered;
 
 public class LanguageNativeBasePlugin implements Plugin<Project> {
 	@Override
@@ -33,7 +32,7 @@ public class LanguageNativeBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class); // TODO: Revisit if this is a good idea
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(whenElementDiscovered(new HasNativeCompileTaskMixInRule(
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasNativeCompileTaskMixInRule(
 			project.getExtensions().getByType(ModelRegistry.class),
 			project.getExtensions().getByType(TaskRegistrationFactory.class),
 			project.getExtensions().getByType(ModelPropertyRegistrationFactory.class),
