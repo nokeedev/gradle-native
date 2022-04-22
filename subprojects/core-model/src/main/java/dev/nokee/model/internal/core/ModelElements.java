@@ -15,54 +15,12 @@
  */
 package dev.nokee.model.internal.core;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.ModelElementFactory;
-import dev.nokee.model.internal.state.ModelState;
 import lombok.val;
-
-import java.util.List;
 
 public final class ModelElements {
 	public static ModelElement of(Object target) {
 		val entity = ModelNodes.of(target);
 		return entity.get(ModelElementFactory.class).createElement(entity);
-	}
-
-	public static ModelAction whenElementDiscovered(ModelAction action) {
-		return new WhenElementDiscoveredAction(ModelActions.once(action));
-	}
-
-	private static final class WhenElementDiscoveredAction implements ModelAction, HasInputs {
-		private final ModelAction delegate;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		private WhenElementDiscoveredAction(ModelAction delegate) {
-			this.delegate = delegate;
-			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			builder.add(ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
-			if (delegate instanceof HasInputs) {
-				builder.addAll(((HasInputs) delegate).getInputs());
-			}
-			this.inputs = builder.build();
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public void execute(ModelNode node) {
-			if (node.getComponentBits().containsAll(inputBits)) {
-				delegate.execute(node);
-			}
-		}
 	}
 }

@@ -22,13 +22,11 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.SourcePropertyRegistrationActionFactory;
 import dev.nokee.language.base.internal.SourceSetFactory;
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPropertyTag;
@@ -56,7 +54,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 
-import static dev.nokee.model.internal.core.ModelElements.whenElementDiscovered;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -70,7 +67,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_sourceSetFactory", new SourceSetFactory(project.getObjects()));
 		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(SourceSetFactory.class), new SourcePropertyRegistrationActionFactory(() -> project.getExtensions().getByType(ModelRegistry.class), () -> project.getObjects())));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(whenElementDiscovered(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(LanguageSourceSet.class), (entity, knownSourceSet) -> {
 			if (!entity.has(ModelPropertyTag.class)) {
 				entity.addComponent(IsLanguageSourceSet.tag());
