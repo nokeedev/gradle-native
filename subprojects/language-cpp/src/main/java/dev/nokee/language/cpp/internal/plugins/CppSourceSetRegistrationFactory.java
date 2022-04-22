@@ -16,6 +16,8 @@
 package dev.nokee.language.cpp.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
+import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 
 public final class CppSourceSetRegistrationFactory {
@@ -27,7 +29,7 @@ public final class CppSourceSetRegistrationFactory {
 		if (isLegacy) {
 			return ModelRegistration.managedBuilder(identifier, LegacyCppSourceSet.class).build();
 		} else {
-			return ModelRegistration.managedBuilder(identifier, CppSourceSetSpec.class).build();
+			return ModelRegistration.managedBuilder(identifier, CppSourceSetSpec.class).withComponent(new NativeCompileTypeComponent(CppCompileTask.class)).build();
 		}
 	}
 }
