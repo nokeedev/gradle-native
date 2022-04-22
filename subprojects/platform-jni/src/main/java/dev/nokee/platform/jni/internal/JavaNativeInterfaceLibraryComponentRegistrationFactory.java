@@ -224,6 +224,9 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 								it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(sourceSetIdentifier, project.getLayout()));
 							});
 
+							entity.addComponent(new GeneratedJniHeadersComponent(project.getObjects().fileCollection().from((Callable<?>) () -> {
+								return sourceSet.as(JavaSourceSet.class).flatMap(ss -> ss.getCompileTask().flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
+							})));
 							entity.addComponent(new JavaLanguageSourceSet(sourceSet));
 						});
 						project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
