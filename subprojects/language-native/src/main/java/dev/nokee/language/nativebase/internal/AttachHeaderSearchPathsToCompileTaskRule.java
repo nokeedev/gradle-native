@@ -20,6 +20,7 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -31,14 +32,23 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
 public final class AttachHeaderSearchPathsToCompileTaskRule extends ModelActionWithInputs.ModelAction4<DependentHeaderSearchPaths, DependentFrameworkSearchPaths, ProjectHeaderSearchPaths, NativeCompileTask> {
+	private final ModelRegistry registry;
+
+	public AttachHeaderSearchPathsToCompileTaskRule(ModelRegistry registry) {
+		this.registry = registry;
+	}
+
 	@Override
 	protected void execute(ModelNode entity, DependentHeaderSearchPaths incomingHeaders, DependentFrameworkSearchPaths incomingFrameworks, ProjectHeaderSearchPaths userHeaders, NativeCompileTask compileTask) {
-		compileTask.configure(NativeSourceCompile.class, configureIncludeRoots(from(userHeaders).andThen(from(incomingHeaders))));
-		compileTask.configure(NativeSourceCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks))));
+		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompile.class, configureIncludeRoots(from(userHeaders).andThen(from(incomingHeaders)))));
+		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks)))));
 	}
 
 	//region Includes
