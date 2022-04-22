@@ -23,6 +23,7 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
@@ -55,6 +56,7 @@ public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.
 			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory))
 			.build());
+		entity.addComponent(new SourcePropertyComponent(ModelNodes.of(element)));
 		entity.addComponent(new SourceFiles(element.as(SourceSet.class).map(SourceSet::getAsFileTree)));
 	}
 }
