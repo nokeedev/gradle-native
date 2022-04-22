@@ -27,6 +27,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.gradle.api.model.ObjectFactory;
 
 import java.io.File;
 
@@ -38,11 +39,13 @@ public final class SourcePropertyRegistrationAction extends ModelActionWithInput
 	private final LanguageSourceSetIdentifier identifier;
 	private final Factory<ConfigurableSourceSet> sourceSetFactory;
 	private final ModelRegistry registry;
+	private final ObjectFactory objects;
 
-	public SourcePropertyRegistrationAction(LanguageSourceSetIdentifier identifier, Factory<ConfigurableSourceSet> sourceSetFactory, @Provided ModelRegistry registry) {
+	public SourcePropertyRegistrationAction(LanguageSourceSetIdentifier identifier, Factory<ConfigurableSourceSet> sourceSetFactory, @Provided ModelRegistry registry, @Provided ObjectFactory objects) {
 		this.identifier = identifier;
 		this.sourceSetFactory = sourceSetFactory;
 		this.registry = registry;
+		this.objects = objects;
 	}
 
 	@Override
@@ -53,7 +56,12 @@ public final class SourcePropertyRegistrationAction extends ModelActionWithInput
 				.withComponent(new IdentifierComponent(propertyIdentifier))
 				.withComponent(ModelPropertyTag.instance())
 				.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
-				.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory))
+				.withComponent(new GradlePropertyComponent(objects.fileCollection()))
+				.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), () -> {
+					val result = sourceSetFactory.create();
+					result.from(ModelNodeContext.getCurrentModelNode().get(GradlePropertyComponent.class).get());
+					return result;
+				}))
 				.build());
 			entity.addComponent(new SourcePropertyComponent(ModelNodes.of(element)));
 			entity.addComponent(new SourceFiles(element.as(SourceSet.class).map(SourceSet::getAsFileTree)));
