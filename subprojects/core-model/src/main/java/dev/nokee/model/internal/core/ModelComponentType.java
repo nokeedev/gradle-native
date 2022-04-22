@@ -65,6 +65,8 @@ public abstract class ModelComponentType<T> {
 		}
 	}
 
+	private static final ConcurrentHashMap<Type, ModelComponentType<?>> knownComponentTypes = new ConcurrentHashMap<>();
+
 	public abstract boolean isSupertypeOf(ModelComponentType<?> componentType);
 
 	public abstract Bits familyBits();
@@ -81,25 +83,40 @@ public abstract class ModelComponentType<T> {
 
 	public static <T extends ModelComponent> ModelComponentType<T> componentOf(Class<T> type) {
 		Objects.requireNonNull(type);
-		return new ComponentType<>(type);
+		return (ModelComponentType<T>) knownComponentTypes.computeIfAbsent(type, t -> new ComponentType<>(type));
 	}
 
 	public static <T> ModelComponentType<ModelProjection> projectionOf(Class<T> type) {
 		Objects.requireNonNull(type);
-		return new ProjectionType<>(type);
+		return (ModelComponentType<ModelProjection>) knownComponentTypes.computeIfAbsent(type, t -> new ProjectionType<>(type));
 	}
 
-	@Value
-	@EqualsAndHashCode(callSuper = false)
+	private static int id = 0;
+	private final int hashCode = id++;
+
+	@Override
+	public boolean equals(Object o) {
+		return this == o;
+	}
+
+	@Override
+	public int hashCode() {
+		return hashCode;
+	}
+
 	private static class ComponentType<T> extends ModelComponentType<T> {
-		Class<T> value;
+		private final Class<T> value;
+
+		private ComponentType(Class<T> value) {
+			this.value = value;
+		}
 
 		@Override
 		public boolean isSupertypeOf(ModelComponentType<?> componentType) {
 			if (value.equals(ModelProjection.class) && componentType instanceof ProjectionType) {
 				return true;
 			} else if (componentType instanceof ComponentType) {
-				return value.isAssignableFrom(((ComponentType<?>) componentType).getValue());
+				return value.isAssignableFrom(((ComponentType<?>) componentType).value);
 			}
 			return false;
 		}
@@ -120,15 +137,17 @@ public abstract class ModelComponentType<T> {
 		}
 	}
 
-	@Value
-	@EqualsAndHashCode(callSuper = false)
 	private static class ProjectionType<T> extends ModelComponentType<ModelProjection> {
-		Class<T> value;
+		private final Class<T> value;
+
+		private ProjectionType(Class<T> value) {
+			this.value = value;
+		}
 
 		@Override
 		public boolean isSupertypeOf(ModelComponentType<?> componentType) {
 			if (componentType instanceof ProjectionType) {
-				return value.isAssignableFrom(((ProjectionType<?>) componentType).getValue());
+				return value.isAssignableFrom(((ProjectionType<?>) componentType).value);
 			}
 			return false;
 		}
