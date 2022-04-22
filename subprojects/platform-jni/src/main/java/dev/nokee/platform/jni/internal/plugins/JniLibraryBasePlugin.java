@@ -45,6 +45,7 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
@@ -94,6 +95,7 @@ import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
+import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
@@ -142,6 +144,7 @@ import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public class JniLibraryBasePlugin implements Plugin<Project> {
@@ -365,6 +368,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction(project, path.get())));
 		})));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, tag, ignored) -> {
+			entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
+		}));
 	}
 
 	// NOTE(daniel): I added the diagnostic because I lost about 2 hours debugging missing files from the generated JAR file.
