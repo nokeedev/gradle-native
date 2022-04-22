@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import com.google.common.reflect.TypeToken;
 import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.tasks.SourceCompile;
@@ -25,10 +24,7 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -56,22 +52,20 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, IsLanguageSourceSet> {
+public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<NativeCompileTypeComponent, IdentifierComponent, IsLanguageSourceSet> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<HasNativeCompileTaskMixIn<? extends SourceCompile>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
-		@SuppressWarnings("unchecked")
-		val implementationType = (Class<? extends SourceCompile>) TypeToken.of(knownObject.getType().getType()).resolveType(HasNativeCompileTaskMixIn.class.getTypeParameters()[0]).getRawType();
+	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
+		val implementationType = knownObject.getNativeCompileTaskType();
 
 		val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, identifier.get()), implementationType).build());
 		compileTask.configure(implementationType, configureDescription("Compiles the %s.", identifier.get()));
