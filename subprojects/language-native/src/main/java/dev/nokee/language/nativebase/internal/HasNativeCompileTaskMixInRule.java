@@ -26,7 +26,6 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
@@ -60,14 +59,12 @@ import static dev.nokee.utils.TaskUtils.configureDescription;
 public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, IsLanguageSourceSet> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
-	private final ModelPropertyRegistrationFactory propertyRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
-	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, ModelPropertyRegistrationFactory propertyRegistrationFactory, NativeToolChainSelector toolChainSelector) {
+	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
 		super(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<HasNativeCompileTaskMixIn<? extends SourceCompile>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
-		this.propertyRegistrationFactory = propertyRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
