@@ -21,8 +21,8 @@ import dev.nokee.model.internal.core.ModelElements;
 import org.gradle.api.tasks.TaskProvider;
 
 public interface HasNativeCompileTaskMixIn<T extends SourceCompile> extends HasCompileTask {
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") // IntelliJ is incompetent
 	default TaskProvider<T> getCompileTask() {
-		return (TaskProvider<T>) ModelElements.of(this).element("compile", SourceCompile.class).asProvider();
+		return (TaskProvider<T>) ModelElements.of(this, NativeCompileTask.class).as(SourceCompile.class).asProvider();
 	}
 }

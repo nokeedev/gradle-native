@@ -23,4 +23,9 @@ public final class ModelElements {
 		val entity = ModelNodes.of(target);
 		return entity.get(ModelElementFactory.class).createElement(entity);
 	}
+
+	public static <T extends ModelComponent & LinkedEntity> ModelElement of(Object target, Class<T> type) {
+		val entity = ModelNodes.of(target);
+		return entity.get(ModelElementFactory.class).createElement(entity.get(type).get());
+	}
 }

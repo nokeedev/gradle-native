@@ -15,10 +15,11 @@
  */
 package dev.nokee.language.nativebase.internal;
 
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 
-public final class HeadersPropertyComponent implements ModelComponent {
+public final class HeadersPropertyComponent implements ModelComponent, LinkedEntity {
 	private final ModelNode value;
 
 	public HeadersPropertyComponent(ModelNode value) {

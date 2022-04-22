@@ -16,10 +16,10 @@
 package dev.nokee.language.base.internal;
 
 import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelElements;
 
 public interface HasConfigurableSourceMixIn extends HasConfigurableSource {
 	default ConfigurableSourceSet getSource() {
-		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
+		return ModelElements.of(this, SourcePropertyComponent.class).as(ConfigurableSourceSet.class).get();
 	}
 }
