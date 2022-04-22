@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.base.internal;
+package dev.nokee.model.internal.core;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
-
-public final class SourcePropertyComponent implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
-
-	public SourcePropertyComponent(ModelNode value) {
-		this.value = value;
-	}
-
-	public ModelNode get() {
-		return value;
-	}
+/**
+ * Represents a component which link to another entity.
+ */
+public interface LinkedEntity {
+	ModelNode get();
 }

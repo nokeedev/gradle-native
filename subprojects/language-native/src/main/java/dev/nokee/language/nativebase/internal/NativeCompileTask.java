@@ -16,11 +16,14 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
 import org.gradle.api.Action;
 
-public final class NativeCompileTask implements ModelComponent {
+public final class NativeCompileTask implements ModelComponent, LinkedEntity {
 	private final ModelElement delegate;
 
 	NativeCompileTask(ModelElement delegate) {
@@ -29,5 +32,10 @@ public final class NativeCompileTask implements ModelComponent {
 
 	public <T extends SourceCompile> void configure(Class<T> type, Action<? super T> action) {
 		delegate.configure(type, action);
+	}
+
+	@Override
+	public ModelNode get() {
+		return ModelNodes.of(delegate);
 	}
 }
