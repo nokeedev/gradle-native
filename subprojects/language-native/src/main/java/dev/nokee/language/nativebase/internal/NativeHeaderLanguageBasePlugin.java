@@ -31,7 +31,7 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasConfigurableHeadersMixInRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(SourceSetFactory.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HeaderSearchPathsConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachHeaderSearchPathsToCompileTaskRule());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachHeaderSearchPathsToCompileTaskRule(project.getExtensions().getByType(ModelRegistry.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NativeCompileTaskDefaultConfigurationRule());
 	}
 }
