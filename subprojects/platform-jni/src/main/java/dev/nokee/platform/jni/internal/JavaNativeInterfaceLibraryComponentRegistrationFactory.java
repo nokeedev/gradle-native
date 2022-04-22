@@ -19,14 +19,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
-import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.internal.GroovySourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
-import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
@@ -42,7 +39,6 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelProperty;
@@ -96,16 +92,11 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.maven;
-import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
-import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
-import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -137,11 +128,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		val entityPath = DomainObjectIdentifierUtils.toPath(identifier);
 		val builder = ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, projection, ignored) -> {
-				if (entityPath.isDirectDescendant(path.get())) {
-					withConventionOf(maven(identifier.getName())).accept(ModelNodeUtils.get(entity, LanguageSourceSet.class));
-				}
-			}))
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup), project.getObjects())))
@@ -315,15 +301,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						variants.put(buildVariant, ModelNodes.of(variant));
 					});
 					entity.addComponent(new Variants(variants.build()));
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(Variants.class), ModelComponentReference.of(JavaLanguageSourceSet.class), (entity, id, variants, sourceSet) -> {
-				if (id.get().equals(identifier)) {
-					instantiate(entity, configureEach(descendantOf(entity.getId()), LanguageSourceSet.class, ss -> {
-						if (ss instanceof HasHeaders) {
-							((ConfigurableSourceSet) ((HasHeaders) ss).getHeaders()).convention("src/" + identifier.getName() + "/headers", sourceSet.as(JavaSourceSet.class).flatMap(JavaSourceSet::getCompileTask).flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
-						}
-					}));
 				}
 			}))
 			;

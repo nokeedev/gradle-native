@@ -24,6 +24,7 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -58,7 +59,7 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 	void createSubject() {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("veda", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
+		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).withComponent(new FullyQualifiedNameComponent("veda")).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
 		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(of("windows-x64")), Variant.class, componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();

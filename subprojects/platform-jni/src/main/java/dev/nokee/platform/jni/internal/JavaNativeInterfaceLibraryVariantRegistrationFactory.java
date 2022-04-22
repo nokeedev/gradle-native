@@ -16,23 +16,9 @@
 package dev.nokee.platform.jni.internal;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.nativebase.HasHeaders;
-import dev.nokee.language.objectivec.ObjectiveCSourceSet;
-import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -48,7 +34,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 		this.project = project;
 	}
 
-	@SuppressWarnings("unchecked")
 	public ModelRegistration create(VariantIdentifier<?> identifier) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
@@ -57,26 +42,6 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(new IdentifierComponent(identifier))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, tag, knownSourceSet, ignored) -> {
-				if (DomainObjectIdentifierUtils.isDescendent(id.get(), identifier) && HasHeaders.class.isAssignableFrom(knownSourceSet.getType().getConcreteType())) {
-					project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(entity.getId(), LanguageSourceSet.class, sourceSet -> {
-						((ConfigurableSourceSet) ((HasHeaders) sourceSet).getHeaders()).convention("src/" + identifier.getComponentIdentifier().getName() + "/headers");
-					}));
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, id, tag, knownSourceSet, ignored) -> {
-				if (DomainObjectIdentifierUtils.isDescendent(id.get(), identifier)) {
-					project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(entity.getId(), LanguageSourceSet.class, sourceSet -> {
-						if (sourceSet instanceof ObjectiveCSourceSet) {
-							sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + ((LanguageSourceSetIdentifier) id.get()).getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objc"));
-						} else if (sourceSet instanceof ObjectiveCppSourceSet) {
-							sourceSet.convention(ImmutableList.of("src/" + identifier.getComponentIdentifier().getName() + "/" + ((LanguageSourceSetIdentifier) id.get()).getName().get(), "src/" + identifier.getComponentIdentifier().getName() + "/objcpp"));
-						} else {
-							sourceSet.convention("src/" + identifier.getComponentIdentifier().getName() + "/" + ((LanguageSourceSetIdentifier) id.get()).getName().get());
-						}
-					}));
-				}
-			}))
 			.build();
 	}
 }
