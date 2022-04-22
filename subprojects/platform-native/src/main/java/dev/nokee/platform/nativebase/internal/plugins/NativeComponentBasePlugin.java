@@ -16,10 +16,20 @@
 package dev.nokee.platform.nativebase.internal.plugins;
 
 import dev.nokee.internal.Factory;
+import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.core.ParentUtils;
+import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
@@ -48,15 +58,22 @@ import dev.nokee.platform.nativebase.internal.RegisterCompileTasksPropertyRule;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.rules.LanguageSourceLayoutConvention;
+import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCSourceLayoutConvention;
+import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCppSourceLayoutConvention;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.internal.project.ProjectInternal;
 
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -80,6 +97,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ConfigureLinkTaskDefaultsRule(project.getExtensions().getByType(ModelRegistry.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(project.getExtensions().getByType(ModelRegistry.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterCompileTasksPropertyRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class))));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new LanguageSourceLayoutConvention());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new LegacyObjectiveCSourceLayoutConvention());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new LegacyObjectiveCppSourceLayoutConvention());
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {
