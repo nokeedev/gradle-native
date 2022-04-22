@@ -19,6 +19,7 @@ import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -38,14 +39,23 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
 public final class NativeCompileTaskDefaultConfigurationRule extends ModelActionWithInputs.ModelAction2<NativeCompileTask, SourceFiles> {
+	private final ModelRegistry registry;
+
+	public NativeCompileTaskDefaultConfigurationRule(ModelRegistry registry) {
+		this.registry = registry;
+	}
+
 	@Override
 	protected void execute(ModelNode entity, NativeCompileTask compileTask, SourceFiles sourceFiles) {
-		compileTask.configure(NativeSourceCompileTask.class, configurePositionIndependentCode(set(true)));
-		compileTask.configure(NativeSourceCompileTask.class, configureSystemIncludes(from(platformTool())));
-		compileTask.configure(NativeSourceCompileTask.class, configureSources(from(sourceFiles)));
+		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompileTask.class, configurePositionIndependentCode(set(true))));
+		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompileTask.class, configureSystemIncludes(from(platformTool()))));
+		registry.instantiate(configure(compileTask.get().getId(), NativeSourceCompileTask.class, configureSources(from(sourceFiles))));
 	}
 
 	//region Position independent code

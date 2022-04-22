@@ -24,6 +24,7 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -46,6 +47,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
@@ -67,11 +69,11 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
 		val implementationType = knownObject.getNativeCompileTaskType();
 
-		val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, identifier.get()), implementationType).build());
-		compileTask.configure(implementationType, configureDescription("Compiles the %s.", identifier.get()));
-		compileTask.configure(implementationType, configureDestinationDirectory(convention(forObjects(identifier.get()))));
-		compileTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-		compileTask.configure(implementationType, configureObjectFiles(from(objectFilesInDestinationDirectory())));
+		val compileTask = ModelNodes.of(registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, identifier.get()), implementationType).build()));
+		registry.instantiate(configure(compileTask.getId(), implementationType, configureDescription("Compiles the %s.", identifier.get())));
+		registry.instantiate(configure(compileTask.getId(), implementationType, configureDestinationDirectory(convention(forObjects(identifier.get())))));
+		registry.instantiate(configure(compileTask.getId(), implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty()))));
+		registry.instantiate(configure(compileTask.getId(), implementationType, configureObjectFiles(from(objectFilesInDestinationDirectory()))));
 		entity.addComponent(new NativeCompileTask(compileTask));
 	}
 
