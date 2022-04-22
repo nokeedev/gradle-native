@@ -24,6 +24,7 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
@@ -57,6 +58,7 @@ public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs
 			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), sourceSetFactory::sourceSet))
 			.build());
+		entity.addComponent(new HeadersPropertyComponent(ModelNodes.of(element)));
 		entity.addComponent(new ProjectHeaderSearchPaths(element.as(SourceSet.class).flatMap(elementsOf(SourceSet::getSourceDirectories))));
 	}
 
