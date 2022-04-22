@@ -23,6 +23,7 @@ import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -33,14 +34,23 @@ import org.gradle.api.provider.Provider;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 
-import static dev.nokee.platform.base.internal.util.PropertyUtils.*;
+import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
 final class AttachImportModulesToCompileTaskRule extends ModelActionWithInputs.ModelAction3<DependentImportModules, DependentFrameworkSearchPaths, NativeCompileTask> {
+	private final ModelRegistry registry;
+
+	public AttachImportModulesToCompileTaskRule(ModelRegistry registry) {
+		this.registry = registry;
+	}
+
 	@Override
 	protected void execute(ModelNode entity, DependentImportModules incomingModules, DependentFrameworkSearchPaths incomingFrameworks, NativeCompileTask compileTask) {
-		compileTask.configure(SwiftCompile.class, configureImportModules(from(incomingModules)));
-		compileTask.configure(SwiftCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks))));
+		registry.instantiate(configure(compileTask.get().getId(), SwiftCompile.class, configureImportModules(from(incomingModules))));
+		registry.instantiate(configure(compileTask.get().getId(), SwiftCompile.class, configureCompilerArgs(addAll(asFrameworkSearchPathFlags(incomingFrameworks)))));
 	}
 
 	//region Import modules
