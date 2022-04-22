@@ -17,16 +17,12 @@ package dev.nokee.platform.jni.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
-import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
-import dev.nokee.language.nativebase.internal.HeadersPropertyComponent;
+import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -88,7 +84,6 @@ import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.platform.jni.internal.AssembleTask;
 import dev.nokee.platform.jni.internal.GeneratedJniHeadersComponent;
 import dev.nokee.platform.jni.internal.JarTaskComponent;
-import dev.nokee.platform.jni.internal.JavaLanguageSourceSet;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniJarArtifactComponent;
@@ -388,7 +383,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
 			// Configure headers according to convention
 			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
 				return ParentUtils.stream(parent).map(it -> it.find(FullyQualifiedNameComponent.class)).filter(Optional::isPresent).map(Optional::get).map(FullyQualifiedNameComponent::get).map(it -> "src/" + it + "/headers").collect(Collectors.toList());
