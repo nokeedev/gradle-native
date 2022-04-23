@@ -16,6 +16,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.actions.ModelAction;
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;

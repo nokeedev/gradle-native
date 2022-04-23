@@ -15,26 +15,19 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 
-public final class RuntimeLibrariesConfiguration implements Configurable<Configuration>, LinkedEntity, ModelComponent {
-	private final DomainObjectProvider<Configuration> delegate;
+public final class RuntimeLibrariesConfiguration implements LinkedEntity, ModelComponent {
+	private final ModelNode value;
 
-	public RuntimeLibrariesConfiguration(DomainObjectProvider<Configuration> delegate) {
-		this.delegate = delegate;
-	}
-
-	public void configure(Action<? super Configuration> action) {
-		delegate.configure(action);
+	public RuntimeLibrariesConfiguration(ModelNode value) {
+		this.value = value;
 	}
 
 	@Override
 	public ModelNode get() {
-		return ModelNodes.of(delegate);
+		return value;
 	}
 }
