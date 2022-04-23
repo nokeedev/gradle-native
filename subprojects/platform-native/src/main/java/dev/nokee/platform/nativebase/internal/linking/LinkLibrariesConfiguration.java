@@ -20,11 +20,10 @@ import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.nativebase.internal.Configurable;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 
-public final class LinkLibrariesConfiguration implements Configurable<Configuration>, LinkedEntity, ModelComponent {
+public final class LinkLibrariesConfiguration implements LinkedEntity, ModelComponent {
 	private final DomainObjectProvider<Configuration> delegate;
 
 	public LinkLibrariesConfiguration(DomainObjectProvider<Configuration> delegate) {
