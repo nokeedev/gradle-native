@@ -32,12 +32,12 @@ import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
-public class NativeLinkingCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
+public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 
 	@Inject
-	public NativeLinkingCapabilityPlugin(ObjectFactory objects, ProviderFactory providers) {
+	public NativeLinkCapabilityPlugin(ObjectFactory objects, ProviderFactory providers) {
 		this.objects = objects;
 		this.providers = providers;
 	}
