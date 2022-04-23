@@ -62,7 +62,9 @@ public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.
 			.withComponent(new GradlePropertyComponent(objects.fileCollection()))
 			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), () -> {
 				val result = sourceSetFactory.create();
-				result.from(ModelNodeContext.getCurrentModelNode().get(GradlePropertyComponent.class).get());
+				if (!entity.has(LegacySourceSetTag.class)) {
+					result.from(ModelNodeContext.getCurrentModelNode().get(GradlePropertyComponent.class).get());
+				}
 				return result;
 			}))
 			.build());

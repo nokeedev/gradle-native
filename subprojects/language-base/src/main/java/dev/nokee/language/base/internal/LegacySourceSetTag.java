@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp.internal.plugins;
+package dev.nokee.language.base.internal;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LegacySourceSetTag;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ModelComponent;
 
-public final class CppHeaderSetRegistrationFactory {
-	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return ModelRegistration.managedBuilder(identifier, DefaultCppHeaderSet.class).withComponent(LegacySourceSetTag.tag()).build();
+public final class LegacySourceSetTag implements ModelComponent {
+	private static final LegacySourceSetTag INSTANCE = new LegacySourceSetTag();
+
+	public static LegacySourceSetTag tag() {
+		return INSTANCE;
 	}
 }

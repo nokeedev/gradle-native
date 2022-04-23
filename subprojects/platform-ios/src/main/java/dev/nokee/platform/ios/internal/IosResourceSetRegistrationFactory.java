@@ -16,12 +16,12 @@
 package dev.nokee.platform.ios.internal;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.model.ObjectFactory;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 
 public final class IosResourceSetRegistrationFactory {
@@ -35,6 +35,7 @@ public final class IosResourceSetRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(ModelType.of(IosResourceSetSpec.class), () -> objectFactory.newInstance(IosResourceSetSpec.class)))
+			.withComponent(LegacySourceSetTag.tag())
 			.build();
 	}
 }
