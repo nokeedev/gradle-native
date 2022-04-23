@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.nativebase.internal.linking;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MoreCollectors;
@@ -73,7 +73,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, IsBinary, ModelProjection> {
+final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, IsBinary, ModelProjection> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;

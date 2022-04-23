@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.nativebase.internal.linking;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
@@ -49,7 +50,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
 // ComponentFromEntity<GradlePropertyComponent>
-public final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction3<IsBinary, BaseNamePropertyComponent, NativeLinkTask> {
+final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction3<IsBinary, BaseNamePropertyComponent, NativeLinkTask> {
 	@Override
 	protected void execute(ModelNode entity, IsBinary tag, BaseNamePropertyComponent baseNameProperty, NativeLinkTask linkTask) {
 		@SuppressWarnings("unchecked")
