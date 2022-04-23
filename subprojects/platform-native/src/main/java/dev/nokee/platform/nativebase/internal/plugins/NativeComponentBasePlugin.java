@@ -33,7 +33,6 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -41,10 +40,10 @@ import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
-import dev.nokee.platform.nativebase.internal.RegisterCompileTasksPropertyRule;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.rules.LanguageSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCSourceLayoutConvention;
@@ -81,12 +80,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachAttributesToConfigurationRule<>(RuntimeLibrariesConfiguration.class, project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterCompileTasksPropertyRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class))));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new LanguageSourceLayoutConvention());
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new LegacyObjectiveCSourceLayoutConvention());
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new LegacyObjectiveCppSourceLayoutConvention());
 
+		project.getPluginManager().apply(NativeCompileCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeLinkCapabilityPlugin.class);
 	}
 

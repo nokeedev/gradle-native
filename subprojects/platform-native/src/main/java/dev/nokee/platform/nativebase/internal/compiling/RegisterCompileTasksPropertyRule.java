@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.nativebase.internal.compiling;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
@@ -27,16 +25,15 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BaseModelSpecComponent;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
+import dev.nokee.platform.nativebase.internal.ObjectFiles;
 import lombok.val;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileCollection;
@@ -50,7 +47,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static dev.nokee.utils.TransformerUtils.onlyInstanceOf;
 import static dev.nokee.utils.TransformerUtils.stream;
 
-public final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, IsBinary> {
+final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, IsBinary> {
 	private static final ModelType<TaskView<SourceCompile>> TASK_VIEW_MODEL_TYPE = ModelType.of(new TypeOf<TaskView<SourceCompile>>() {});
 	private final ModelRegistry registry;
 	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
