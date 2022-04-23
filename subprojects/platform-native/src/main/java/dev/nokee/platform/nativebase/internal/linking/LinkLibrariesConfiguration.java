@@ -16,11 +16,11 @@
 package dev.nokee.platform.nativebase.internal.linking;
 
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.nativebase.internal.Configurable;
-import dev.nokee.platform.nativebase.internal.LinkedEntity;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 
