@@ -15,25 +15,18 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.platform.nativebase.tasks.ObjectLink;
-import org.gradle.api.Action;
 
-public final class NativeLinkTask implements ModelComponent {
-	private final ModelElement delegate;
+public final class NativeLinkTask implements ModelComponent, LinkedEntity {
+	private final ModelNode value;
 
-	NativeLinkTask(ModelElement delegate) {
-		this.delegate = delegate;
-	}
-
-	public <T extends ObjectLink> void configure(Class<T> type, Action<? super T> action) {
-		delegate.configure(type, action);
+	NativeLinkTask(ModelNode value) {
+		this.value = value;
 	}
 
 	public ModelNode get() {
-		return ModelNodes.of(delegate);
+		return value;
 	}
 }

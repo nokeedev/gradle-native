@@ -45,18 +45,25 @@ import org.gradle.util.GUtil;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
 // ComponentFromEntity<GradlePropertyComponent>
 final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction3<IsBinary, BaseNamePropertyComponent, NativeLinkTask> {
+	private final ModelRegistry registry;
+
+	public ConfigureLinkTaskFromBaseNameRule(ModelRegistry registry) {
+		this.registry = registry;
+	}
+
 	@Override
 	protected void execute(ModelNode entity, IsBinary tag, BaseNamePropertyComponent baseNameProperty, NativeLinkTask linkTask) {
 		@SuppressWarnings("unchecked")
 		val baseName = (Provider<String>) baseNameProperty.get().get(GradlePropertyComponent.class).get();
-		linkTask.configure(ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName))));
-		linkTask.configure(ObjectLink.class, configureLinkedFile(convention(asSharedLibraryFile(baseName))));
+		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName)))));
+		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asSharedLibraryFile(baseName)))));
 	}
 
 	//region Linker arguments

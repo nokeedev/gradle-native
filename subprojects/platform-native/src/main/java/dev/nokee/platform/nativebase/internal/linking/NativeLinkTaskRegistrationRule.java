@@ -27,15 +27,11 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.ComponentDependencies;
-import dev.nokee.platform.base.DependencyAwareComponent;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -95,7 +91,7 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
 		linkTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier.get()))));
-		entity.addComponent(new NativeLinkTask(linkTask));
+		entity.addComponent(new NativeLinkTask(ModelNodes.of(linkTask)));
 	}
 
 	@SuppressWarnings("unchecked")
