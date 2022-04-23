@@ -49,7 +49,7 @@ public class NativeLinkingCapabilityPlugin<T extends ExtensionAware & PluginAwar
 		configurer.configure(new OnDiscover(new LinkLibrariesConfigurationRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), target.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), objects)));
 		configurer.configure(new OnDiscover(new NativeLinkTaskRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), target.getExtensions().getByType(TaskRegistrationFactory.class), new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers))));
 		configurer.configure(new AttachLinkLibrariesToLinkTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
-		configurer.configure(new ConfigureLinkTaskFromBaseNameRule());
+		configurer.configure(new ConfigureLinkTaskFromBaseNameRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new AttachObjectFilesToLinkTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new ConfigureLinkTaskDefaultsRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(target.getExtensions().getByType(ModelRegistry.class)));
