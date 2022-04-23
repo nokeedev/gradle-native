@@ -22,6 +22,7 @@ import org.gradle.api.tasks.util.PatternFilterable;
 
 interface LanguageSourceSetStrategy {
 	void from(Object... paths);
+	void setFrom(Object... paths);
 	void convention(Object... paths);
 	FileCollection getSourceDirectories();
 	PatternFilterable getFilter();

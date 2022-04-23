@@ -47,6 +47,11 @@ final class DefaultConfigurableSourceSet implements ConfigurableSourceSet {
 	}
 
 	@Override
+	public void setFrom(Object... paths) {
+		strategy.setFrom(paths);
+	}
+
+	@Override
 	public ConfigurableSourceSet convention(Object... paths) {
 		strategy.convention(paths);
 		return this;

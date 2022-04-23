@@ -58,6 +58,7 @@ public interface ConfigurableSourceSet extends SourceSet {
 	 * @return this source set, never null
 	 */
 	ConfigurableSourceSet from(Object... paths);
+	void setFrom(Object... paths);
 
 	/**
 	 * Configures a set of source paths to use as a convention of this source set.

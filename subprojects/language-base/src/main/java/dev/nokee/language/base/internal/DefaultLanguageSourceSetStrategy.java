@@ -51,6 +51,12 @@ final class DefaultLanguageSourceSetStrategy implements LanguageSourceSetStrateg
 		sources.from(paths);
 	}
 
+	public void setFrom(Object... paths) {
+		hasValue = paths.length > 0;
+		sources.setFrom(conventionIfSourceAbsent());
+		sources.from(paths);
+	}
+
 	public void convention(Object... paths) {
 		this.conventionSources = objectFactory.fileCollection().from(paths);
 	}
