@@ -31,7 +31,6 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -69,20 +68,20 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, IsBinary, ModelProjection> {
+final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelProjection> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public NativeLinkTaskRegistrationRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.ofProjection(HasLinkTask.class));
+		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasLinkTask.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier, IsBinary tag, ModelProjection projection) {
+	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelProjection projection) {
 		@SuppressWarnings("unchecked")
 		val implementationType = taskType((ModelType<? extends HasLinkTask<? extends ObjectLink, ? extends ObjectLink>>) projection.getType());
 
