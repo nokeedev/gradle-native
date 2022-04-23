@@ -19,7 +19,6 @@ import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import org.gradle.api.Action;
@@ -33,7 +32,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class ConfigureLinkTaskDefaultsRule extends ModelActionWithInputs.ModelAction2<IsBinary, NativeLinkTask> {
+final class ConfigureLinkTaskDefaultsRule extends ModelActionWithInputs.ModelAction1<NativeLinkTask> {
 	private final ModelRegistry registry;
 
 	public ConfigureLinkTaskDefaultsRule(ModelRegistry registry) {
@@ -41,7 +40,7 @@ final class ConfigureLinkTaskDefaultsRule extends ModelActionWithInputs.ModelAct
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IsBinary tag, NativeLinkTask linkTask) {
+	protected void execute(ModelNode entity, NativeLinkTask linkTask) {
 		registry.instantiate(ModelAction.configure(linkTask.get().getId(), LinkSharedLibraryTask.class, configureInstallName(convention(ofLinkedFileFileName()))));
 		registry.instantiate(ModelAction.configure(linkTask.get().getId(), LinkSharedLibraryTask.class, configureImportLibrary(lockProperty()))); // Already has sensible default in task implementation)
 	}

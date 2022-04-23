@@ -40,7 +40,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
-final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction4< IsBinary, DependentLinkLibraries, DependentFrameworks, NativeLinkTask> {
+final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction3<DependentLinkLibraries, DependentFrameworks, NativeLinkTask> {
 	private final ModelRegistry registry;
 
 	public AttachLinkLibrariesToLinkTaskRule(ModelRegistry registry) {
@@ -48,7 +48,7 @@ final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.Mode
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IsBinary tag, DependentLinkLibraries incomingLibraries, DependentFrameworks incomingFrameworks, NativeLinkTask linkTask) {
+	protected void execute(ModelNode entity, DependentLinkLibraries incomingLibraries, DependentFrameworks incomingFrameworks, NativeLinkTask linkTask) {
 		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLibraries(from(incomingLibraries))));
 		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(asFrameworkFlags(incomingFrameworks)))));
 	}

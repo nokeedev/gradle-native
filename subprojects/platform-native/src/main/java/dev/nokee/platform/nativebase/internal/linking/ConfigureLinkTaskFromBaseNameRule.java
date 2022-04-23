@@ -21,7 +21,6 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import lombok.val;
@@ -51,7 +50,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
 // ComponentFromEntity<GradlePropertyComponent>
-final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction3<IsBinary, BaseNamePropertyComponent, NativeLinkTask> {
+final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.ModelAction2<BaseNamePropertyComponent, NativeLinkTask> {
 	private final ModelRegistry registry;
 
 	public ConfigureLinkTaskFromBaseNameRule(ModelRegistry registry) {
@@ -59,7 +58,7 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IsBinary tag, BaseNamePropertyComponent baseNameProperty, NativeLinkTask linkTask) {
+	protected void execute(ModelNode entity, BaseNamePropertyComponent baseNameProperty, NativeLinkTask linkTask) {
 		@SuppressWarnings("unchecked")
 		val baseName = (Provider<String>) baseNameProperty.get().get(GradlePropertyComponent.class).get();
 		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName)))));
