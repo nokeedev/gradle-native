@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal.plugins;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
+import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -86,6 +87,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			project.getObjects()
 		));
 
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
+			// Configure headers according to convention
+			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+				return ParentUtils.stream(parent).map(it -> it.find(FullyQualifiedNameComponent.class)).filter(Optional::isPresent).map(Optional::get).map(FullyQualifiedNameComponent::get).map(it -> "src/" + it + "/headers").collect(Collectors.toList());
+			});
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new LinkLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new NativeLinkTaskRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(TaskRegistrationFactory.class), new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders()))));

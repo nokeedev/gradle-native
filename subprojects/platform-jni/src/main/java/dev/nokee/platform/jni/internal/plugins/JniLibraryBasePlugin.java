@@ -47,7 +47,6 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -127,7 +126,6 @@ import org.gradle.nativeplatform.platform.NativePlatform;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
@@ -381,11 +379,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
-			// Configure headers according to convention
-			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(it -> it.find(FullyQualifiedNameComponent.class)).filter(Optional::isPresent).map(Optional::get).map(FullyQualifiedNameComponent::get).map(it -> "src/" + it + "/headers").collect(Collectors.toList());
-			});
-
 			// Attach generated JNI headers
 			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
 				return ParentUtils.stream(parent).filter(it -> it.has(GeneratedJniHeadersComponent.class)).map(it -> it.get(GeneratedJniHeadersComponent.class).get()).collect(Collectors.toList());
