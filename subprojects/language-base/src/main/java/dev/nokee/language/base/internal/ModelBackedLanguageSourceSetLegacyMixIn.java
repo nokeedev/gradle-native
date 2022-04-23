@@ -40,6 +40,11 @@ public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSo
 		return (SELF) this;
 	}
 
+	@Override
+	default void setFrom(Object... paths) {
+		ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().setFrom(paths);
+	}
+
 	default FileCollection getSourceDirectories() {
 		return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get().getSourceDirectories();
 	}

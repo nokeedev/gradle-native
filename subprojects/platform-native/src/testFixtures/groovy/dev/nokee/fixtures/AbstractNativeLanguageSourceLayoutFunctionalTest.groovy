@@ -113,7 +113,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			}
 
 			${componentUnderTestDsl}.sources.configureEach {
-				from(generatedSources)
+				setFrom(generatedSources)
 			}
 
 			import ${CSourceSet.canonicalName}
@@ -237,11 +237,14 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			import ${LanguageSourceSet.canonicalName}
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
-				${dsl}.sources.java { filter.include('**/*.java') }
-				${dsl}.sources.configureEach(CSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-				${dsl}.sources.configureEach(CppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-				${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-				${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+			}
+			afterEvaluate {
+				pluginManager.withPlugin('java') {
+					${dsl}.sources.configureEach(CSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+					${dsl}.sources.configureEach(CppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+					${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+					${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+				}
 			}
 			pluginManager.withPlugin('groovy') {
 				sourceSets.main.groovy.setSrcDirs([])
@@ -263,13 +266,13 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			${dsl} {
 				sources.configureEach(NativeHeaderSet) {
 					if (it.name == 'public') {
-						from('includes')
+						setFrom('includes')
 					} else {
-						from('headers')
+						setFrom('headers')
 					}
 				}
 				sources.configureEach({ !(it instanceof NativeHeaderSet) }) {
-					from('srcs')
+					setFrom('srcs')
 				}
 			}
 			${dsl}.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
@@ -278,11 +281,11 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			${dsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
 			${dsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
 		""" + (legacy ? '' : """
-			${dsl}.sources.configureEach(CSourceSet) { headers.from('headers', 'includes') }
-			${dsl}.sources.configureEach(CppSourceSet) { headers.from('headers', 'includes') }
-			${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from('headers', 'includes') }
-			${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from('headers', 'includes') }
-			${dsl}.sources.configureEach(SwiftSourceSet) { headers.from('headers', 'includes') }
+			${dsl}.sources.configureEach(CSourceSet) { headers.setFrom('headers', 'includes') }
+			${dsl}.sources.configureEach(CppSourceSet) { headers.setFrom('headers', 'includes') }
+			${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.setFrom('headers', 'includes') }
+			${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.setFrom('headers', 'includes') }
+			${dsl}.sources.configureEach(SwiftSourceSet) { headers.setFrom('headers', 'includes') }
 		""")
 	}
 
@@ -292,10 +295,14 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			pluginManager.withPlugin('java-base') {
 				sourceSets.main.java.setSrcDirs([])
 				${componentUnderTestDsl}.sources.java { filter.include('**/*.java') }
-				${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-				${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-				${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-				${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+			}
+			afterEvaluate {
+				pluginManager.withPlugin('java-base') {
+					${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+					${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+					${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+					${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+				}
 			}
 			pluginManager.withPlugin('groovy-base') {
 				sourceSets.main.groovy.setSrcDirs([])
@@ -311,13 +318,13 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			${componentUnderTestDsl} {
 				sources.configureEach(NativeHeaderSet) {
 					if (it.name == 'public') {
-						from('includes')
+						setFrom('includes')
 					} else {
-						from('headers')
+						setFrom('headers')
 					}
 				}
 				sources.configureEach({ !(it instanceof NativeHeaderSet) }) {
-					${ofSources(componentUnderTest).files.collect { "from('srcs/${it.name}')" }.join('\n')}
+					setFrom(${ofSources(componentUnderTest).files.collect { "'srcs/${it.name}'" }.join(',')})
 				}
 			}
 
@@ -332,11 +339,11 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
 			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
 		""" + (legacy ? '' : """
-			${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.from('headers', 'includes') }
-			${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.from('headers', 'includes') }
-			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from('headers', 'includes') }
-			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from('headers', 'includes') }
-			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { headers.from('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.setFrom('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.setFrom('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.setFrom('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.setFrom('headers', 'includes') }
+			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { headers.setFrom('headers', 'includes') }
 		""")
 	}
 }

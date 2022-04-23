@@ -46,6 +46,8 @@ public interface LanguageSourceSet extends Buildable, Named {
 	 */
 	LanguageSourceSet from(Object... paths);
 
+	void setFrom(Object... paths);
+
 	/**
 	 * Returns the source directories that make up this set, represented as a {@link FileCollection}.
 	 * Does not filter source directories that do not exist.

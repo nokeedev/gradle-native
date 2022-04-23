@@ -29,6 +29,7 @@ import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -95,6 +96,12 @@ final class BridgedLanguageSourceSetStrategy implements LanguageSourceSetStrateg
 		result.srcDir(delegate);
 		result.include(delegate);
 		return result;
+	}
+
+	@Override
+	public void setFrom(Object... paths) {
+		sourceSet.setSrcDirs(Collections.emptyList());
+		from(paths);
 	}
 
 	private static class FileCollectionAsSourceDirectorySet implements Callable<Iterable<File>>, Spec<FileTreeElement> {
