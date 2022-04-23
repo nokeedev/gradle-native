@@ -16,6 +16,7 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -27,7 +28,7 @@ public final class ObjectiveCSourceSetRegistrationFactory {
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
 		if (isLegacy) {
-			return ModelRegistration.managedBuilder(identifier, LegacyObjectiveCSourceSet.class).build();
+			return ModelRegistration.managedBuilder(identifier, LegacyObjectiveCSourceSet.class).withComponent(LegacySourceSetTag.tag()).build();
 		} else {
 			return ModelRegistration.managedBuilder(identifier, ObjectiveCSourceSetSpec.class).withComponent(new NativeCompileTypeComponent(ObjectiveCCompileTask.class)).build();
 		}
