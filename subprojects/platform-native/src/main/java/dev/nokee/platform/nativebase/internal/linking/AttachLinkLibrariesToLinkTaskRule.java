@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.nativebase.internal.linking;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
@@ -42,7 +40,7 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 
-public final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction4< IsBinary, DependentLinkLibraries, DependentFrameworks, NativeLinkTask> {
+final class AttachLinkLibrariesToLinkTaskRule extends ModelActionWithInputs.ModelAction4< IsBinary, DependentLinkLibraries, DependentFrameworks, NativeLinkTask> {
 	private final ModelRegistry registry;
 
 	public AttachLinkLibrariesToLinkTaskRule(ModelRegistry registry) {

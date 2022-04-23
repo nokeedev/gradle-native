@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 
-public final class LinkLibrariesConfiguration implements Configurable<Configuration>, LinkedEntity, ModelComponent {
-	private final DomainObjectProvider<Configuration> delegate;
+public final class NativeLinkTask implements ModelComponent {
+	private final ModelElement delegate;
 
-	public LinkLibrariesConfiguration(DomainObjectProvider<Configuration> delegate) {
+	NativeLinkTask(ModelElement delegate) {
 		this.delegate = delegate;
 	}
 
-	public void configure(Action<? super Configuration> action) {
-		delegate.configure(action);
+	public <T extends ObjectLink> void configure(Class<T> type, Action<? super T> action) {
+		delegate.configure(type, action);
 	}
 
-	@Override
 	public ModelNode get() {
 		return ModelNodes.of(delegate);
 	}

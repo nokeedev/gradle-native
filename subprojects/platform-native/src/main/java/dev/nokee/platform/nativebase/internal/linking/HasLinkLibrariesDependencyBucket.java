@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal;
+package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.platform.nativebase.tasks.ObjectLink;
-
-public interface HasLinkTask<T extends ObjectLink, S extends T> {
+public interface HasLinkLibrariesDependencyBucket {
 }
