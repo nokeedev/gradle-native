@@ -38,6 +38,7 @@ public final class ModelPropertyRegistrationFactory {
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(of(type)))
 			.withComponent(new GradlePropertyComponent(property))
+			.withComponent(new ModelElementProviderSourceComponent(property))
 			.build();
 	}
 
@@ -48,6 +49,7 @@ public final class ModelPropertyRegistrationFactory {
 			.withComponent(ModelPropertyTag.instance())
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.withComponent(new GradlePropertyComponent(property))
+			.withComponent(new ModelElementProviderSourceComponent(property.getElements()))
 			.build();
 	}
 }

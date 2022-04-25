@@ -60,18 +60,17 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelComponentType.projectionOf;
 import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 
 public final class ModelElementFactory implements ModelComponent {
+	private static final Object IGNORED_OBJECT = new Object();
 	private final Instantiator instantiator;
 	private final boolean useLegacyModelAction;
 
@@ -227,11 +226,15 @@ public final class ModelElementFactory implements ModelComponent {
 				return ModelNodeUtils.get(ModelStates.realize(entity), type);
 			}
 		};
-		val provider = entity.find(ModelElementProviderSourceComponent.class).map(it -> it.get().map(ignored -> ModelNodeUtils.get(entity, type))).orElseGet(() -> ProviderUtils.supplied(() -> ModelNodeUtils.get(entity, type))).map(it -> {
+		val provider = ProviderUtils.supplied(() -> {
 			if (!type.isSubtypeOf(Provider.class)) {
 				ModelStates.realize(entity);
 			}
-			return it;
+			return IGNORED_OBJECT;
+		}).flatMap(ignored0 -> {
+			return entity.find(ModelElementProviderSourceComponent.class)
+				.map(component -> component.get().map(ignored1 -> ModelNodeUtils.get(entity, type)))
+				.orElseGet(() -> ProviderUtils.supplied(() -> ModelNodeUtils.get(entity, type)));
 		});
 		val p = provider;
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
@@ -352,7 +355,16 @@ public final class ModelElementFactory implements ModelComponent {
 		};
 
 		val valueSupplier = new GradlePropertyBackedValueSupplier<T>(entity);
-		val provider = ProviderUtils.supplied(valueSupplier::get);
+		val provider = ProviderUtils.supplied(() -> {
+			if (!type.isSubtypeOf(Provider.class)) {
+				ModelStates.realize(entity);
+			}
+			return IGNORED_OBJECT;
+		}).flatMap(ignored0 -> {
+			return entity.find(ModelElementProviderSourceComponent.class)
+				.map(component -> component.get().map(ignored1 -> valueSupplier.get()))
+				.orElseGet(() -> ProviderUtils.supplied(valueSupplier::get));
+		});
 		val p = provider;
 		val factory = new NamedDomainObjectProviderFactory();
 		val propertyStrategy = new ModelBackedGradlePropertyConvertibleStrategy(entity);
