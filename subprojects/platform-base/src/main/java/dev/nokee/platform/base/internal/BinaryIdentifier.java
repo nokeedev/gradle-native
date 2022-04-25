@@ -18,6 +18,7 @@ package dev.nokee.platform.base.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
@@ -60,7 +61,7 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	}
 
 	private static boolean isValidOwner(DomainObjectIdentifier ownerIdentifier) {
-		return ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier;
+		return ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier || ownerIdentifier instanceof ProjectIdentifier;
 	}
 
 	public static <T extends Binary> BinaryIdentifier<T> of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
