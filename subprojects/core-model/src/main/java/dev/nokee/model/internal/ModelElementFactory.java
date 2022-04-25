@@ -239,21 +239,9 @@ public final class ModelElementFactory implements ModelComponent {
 		val p = provider;
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
-			@SuppressWarnings("unchecked")
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
 				assert fullType.equals(t);
-				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
-					@SuppressWarnings("rawtypes")
-					final NamedDomainObjectProvider provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
-					final Optional<Class<?>> ttype = ProviderUtils.getType(provider);
-					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
-						return provider;
-					} else {
-						return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
-					}
-				} else {
-					return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
-				}
+				return factoryFor(t).create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, fullType);
@@ -370,20 +358,8 @@ public final class ModelElementFactory implements ModelComponent {
 		val propertyStrategy = new ModelBackedGradlePropertyConvertibleStrategy(entity);
 		val providerStrategy = new ConfigurableProviderConvertibleStrategy() {
 			@Override
-			@SuppressWarnings("unchecked")
 			public <S> NamedDomainObjectProvider<S> asProvider(ModelType<S> t) {
-				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
-					@SuppressWarnings("rawtypes")
-					final NamedDomainObjectProvider provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
-					final Optional<Class<?>> ttype = ProviderUtils.getType(provider);
-					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
-						return provider;
-					} else {
-						return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
-					}
-				} else {
-					return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
-				}
+				return factory.create(NamedDomainObjectProviderSpec.builder().named(() -> entity.get(FullyQualifiedNameComponent.class).get().toString()).delegateTo(p).typedAs(t.getConcreteType()).configureUsing(action -> configurableStrategy.configure(t, action)).build());
 			}
 		};
 		val identifierSupplier = new IdentifierSupplier(entity, type);
