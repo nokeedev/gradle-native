@@ -20,7 +20,6 @@ import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 
 public final class LinkLibrariesConfiguration implements LinkedEntity, ModelComponent {
@@ -28,10 +27,6 @@ public final class LinkLibrariesConfiguration implements LinkedEntity, ModelComp
 
 	public LinkLibrariesConfiguration(DomainObjectProvider<Configuration> delegate) {
 		this.delegate = delegate;
-	}
-
-	public void configure(Action<? super Configuration> action) {
-		delegate.configure(action);
 	}
 
 	@Override

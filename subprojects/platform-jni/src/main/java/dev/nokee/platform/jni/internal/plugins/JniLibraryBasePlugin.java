@@ -297,7 +297,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val sharedLibrary = registry.register(ModelRegistration.builder().mergeFrom(project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("sharedLibrary", "shared library binary")))).withComponent(ExcludeFromQualifyingNameTag.tag()).withComponent(new BuildVariantComponent(identifier.getBuildVariant())).build());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.of(LinkLibrariesConfiguration.class), (e, idd, t, linkLibraries) -> {
 				if (idd.get().equals(ModelNodes.of(sharedLibrary).get(IdentifierComponent.class).get())) {
-					linkLibraries.configure(configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class)));
+					project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(linkLibraries.get().getId(), Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class))));
 				}
 			}));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.of(RuntimeLibrariesConfiguration.class), (e, idd, t, runtimeLibraries) -> {
