@@ -29,4 +29,8 @@ public final class DisplayName {
 	public String toString() {
 		return value;
 	}
+
+	public static DisplayName of(String value) {
+		return new DisplayName(value);
+	}
 }
