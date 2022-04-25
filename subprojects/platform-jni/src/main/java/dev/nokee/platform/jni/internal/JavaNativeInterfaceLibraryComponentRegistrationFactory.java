@@ -63,6 +63,10 @@ import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketR
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
+import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
@@ -152,14 +156,19 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 							public void execute(NativeLanguagePlugin appliedPlugin) {
 								if (!alreadyExecuted) {
 									alreadyExecuted = true;
-									registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier)));
+									val nativeCompileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier)));
+									entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(nativeCompileOnly)));
 								}
 							}
 						});
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeImplementation"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeLinkOnly"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeRuntimeOnly"), identifier)));
+						val nativeImplementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeImplementation"), identifier)));
+						val nativeLinkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeLinkOnly"), identifier)));
+						val nativeRuntimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeRuntimeOnly"), identifier)));
 						implementation.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
+
+						entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(nativeImplementation)));
+						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(nativeRuntimeOnly)));
+						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(nativeLinkOnly)));
 
 						val consumableFactory = project.getExtensions().getByType(ConsumableDependencyBucketRegistrationFactory.class);
 						val apiElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("apiElements"), identifier)));
