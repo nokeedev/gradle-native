@@ -27,7 +27,6 @@ import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.nativebase.internal.ObjectFiles;
 import lombok.val;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileCollection;
