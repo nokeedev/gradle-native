@@ -15,9 +15,7 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.core.ModelComponent;
-import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 
 import java.nio.file.Path;
