@@ -102,7 +102,7 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 
 		@Override
 		public String displayName() {
-			return "Objective-C sources ':veda:windowsX64:objectiveC'";
+			return "Objective-C sources ':veda:windowsX64:sharedLibrary:objectiveC'";
 		}
 
 		@Override
