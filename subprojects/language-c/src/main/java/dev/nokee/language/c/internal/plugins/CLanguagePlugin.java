@@ -22,6 +22,7 @@ import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -68,7 +69,7 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 
 		@Override
 		public ModelRegistration create(DomainObjectIdentifier owner) {
-			return factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("c", "C sources")));
+			return ModelRegistration.builder().mergeFrom(factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("c", "C sources")))).withComponent(new DisplayNameComponent("C sources")).build();
 		}
 	}
 }
