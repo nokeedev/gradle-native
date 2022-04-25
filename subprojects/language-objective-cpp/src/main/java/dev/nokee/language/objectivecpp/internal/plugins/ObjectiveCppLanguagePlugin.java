@@ -62,7 +62,7 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLangua
 
 		@Override
 		public ModelRegistration create(DomainObjectIdentifier owner) {
-			return factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("objectiveCpp", "Objective-C++ sources")));
+			return ModelRegistration.builder().mergeFrom(factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("objectiveCpp", "Objective-C++ sources")))).withComponent(new DisplayNameComponent("Objective-C++ sources")).build();
 		}
 	}
 }

@@ -63,7 +63,7 @@ public class CppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin 
 
 		@Override
 		public ModelRegistration create(DomainObjectIdentifier owner) {
-			return factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("cpp", "C++ sources")));
+			return ModelRegistration.builder().mergeFrom(factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("cpp", "C++ sources")))).withComponent(new DisplayNameComponent("C++ sources")).build();
 		}
 	}
 }

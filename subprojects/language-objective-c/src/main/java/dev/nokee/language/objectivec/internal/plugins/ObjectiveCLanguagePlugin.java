@@ -63,7 +63,7 @@ public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguage
 
 		@Override
 		public ModelRegistration create(DomainObjectIdentifier owner) {
-			return factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("objectiveC", "Objective-C sources")));
+			return ModelRegistration.builder().mergeFrom(factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("objectiveC", "Objective-C sources")))).withComponent(new DisplayNameComponent("Objective-C sources")).build();
 		}
 	}
 }
