@@ -20,7 +20,7 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
-import dev.nokee.platform.nativebase.internal.ObjectFiles;
+import dev.nokee.platform.nativebase.internal.compiling.ObjectFiles;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.utils.ActionUtils;
 import org.gradle.api.Task;
