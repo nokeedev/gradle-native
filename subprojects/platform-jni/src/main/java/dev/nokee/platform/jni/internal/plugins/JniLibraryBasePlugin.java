@@ -58,7 +58,9 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.CompileTaskTag;
+import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.IsTask;
@@ -70,6 +72,8 @@ import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketR
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
+import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -287,6 +291,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeImplementation"), identifier)));
 			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeLinkOnly"), identifier)));
 			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeRuntimeOnly"), identifier)));
+
+			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
 			val sharedLibrary = registry.register(ModelRegistration.builder().mergeFrom(project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("sharedLibrary", "shared library binary")))).withComponent(ExcludeFromQualifyingNameTag.tag()).withComponent(new BuildVariantComponent(identifier.getBuildVariant())).build());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsBinary.class), ModelComponentReference.of(LinkLibrariesConfiguration.class), (e, idd, t, linkLibraries) -> {

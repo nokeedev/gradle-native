@@ -57,6 +57,11 @@ import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
+import dev.nokee.platform.base.internal.dependencybuckets.ApiConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
@@ -135,11 +140,17 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
+						val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier)));
+						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
+						val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
+						val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
+						val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
+
+						entity.addComponent(new ApiConfigurationComponent(ModelNodes.of(api)));
+						entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
 						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeLibraryVariant.class));
 
