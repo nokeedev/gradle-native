@@ -20,6 +20,7 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -75,6 +76,7 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsDependencyBucket.tag())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(new ModelElementProviderSourceComponent(configurationProvider))
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
