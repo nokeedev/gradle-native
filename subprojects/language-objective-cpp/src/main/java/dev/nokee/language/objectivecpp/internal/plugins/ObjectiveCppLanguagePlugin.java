@@ -19,12 +19,14 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
+import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetExtensible;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.core.*;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -46,6 +48,10 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLangua
 			registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().get(IdentifierComponent.class).get(), "objectiveCpp"), true));
 		}))));
 		project.getExtensions().add("__nokee_defaultObjectiveCppFactory", new DefaultObjectiveCppSourceSetRegistrationFactory(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class)));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeLanguageSourceSetAwareTag.class), (entity, identifier, tag) -> {
+			val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(getRegistrationFactoryType()).create(identifier.get()));
+			entity.addComponent(new ObjectiveCppSourceSetComponent(ModelNodes.of(sourceSet)));
+		})));
 	}
 
 	@Override
