@@ -328,7 +328,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	@Nested
 	class JvmImplementationConfigurationTest {
 		public Configuration subject() {
-			return project().getConfigurations().getByName("quzuJvmImplementation");
+			return realize(project().getConfigurations().getByName("quzuJvmImplementation"));
 		}
 
 		@Test
@@ -418,7 +418,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	@Nested
 	class ApiElementsConfigurationTest {
 		public Configuration subject() {
-			return project().getConfigurations().getByName("quzuApiElements");
+			return realize(project().getConfigurations().getByName("quzuApiElements"));
 		}
 
 		@Test
@@ -440,7 +440,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	@Nested
 	class RuntimeElementsConfigurationTest {
 		public Configuration subject() {
-			return project().getConfigurations().getByName("quzuRuntimeElements");
+			return realize(project().getConfigurations().getByName("quzuRuntimeElements"));
 		}
 
 		@Test
@@ -499,7 +499,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	@Nested
 	class ApiElementsTest {
 		public Configuration subject() {
-			return project.getConfigurations().getByName("quzuApiElements");
+			return realize(project.getConfigurations().getByName("quzuApiElements"));
 		}
 
 		@Test
@@ -531,7 +531,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 	@Nested
 	class RuntimeElementsTest {
 		public Configuration subject() {
-			return project.getConfigurations().getByName("quzuRuntimeElements");
+			return realize(project.getConfigurations().getByName("quzuRuntimeElements"));
 		}
 
 		@Test
