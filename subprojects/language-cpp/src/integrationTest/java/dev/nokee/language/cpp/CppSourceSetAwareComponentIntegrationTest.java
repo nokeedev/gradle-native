@@ -38,7 +38,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-@PluginRequirement.Require(id = "dev.nokee.c-language")
+@PluginRequirement.Require(id = "dev.nokee.cpp-language")
 class CppSourceSetAwareComponentIntegrationTest extends AbstractPluginTest {
 	private ModelNode componentEntity;
 	private ModelNode sourceSetEntity;
