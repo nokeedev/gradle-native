@@ -55,7 +55,7 @@ import java.util.stream.Stream;
 public final class ModelNode {
 	private static final ModelComponentType<ModelNodeListenerComponent> LISTENER_COMPONENT_TYPE = ModelComponentType.componentOf(ModelNodeListenerComponent.class);
 	private final ModelEntityId id = ModelEntityId.nextId();
-	private final Map<ModelComponentType<?>, Object> components = new LinkedHashMap<>();
+	private final Map<ModelComponentType<?>, ModelComponent> components = new LinkedHashMap<>();
 	private ModelNodeListener listener = null;
 
 	// Represent all components this entity has.
@@ -158,7 +158,7 @@ public final class ModelNode {
 		notifyComponentAdded(component);
 	}
 
-	public Stream<Object> getComponents() {
+	public Stream<ModelComponent> getComponents() {
 		return components.values().stream();
 	}
 
