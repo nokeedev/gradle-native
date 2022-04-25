@@ -64,7 +64,7 @@ final class LinkLibrariesConfigurationRegistrationRule extends ModelActionWithIn
 		return configureAttributes(builder -> builder.usage(objects.named(Usage.class, Usage.NATIVE_LINK)));
 	}
 
-	private Provider<ResolvableDependencies> incomingArtifactsOf(ModelElement element) {
+	private static Provider<ResolvableDependencies> incomingArtifactsOf(ModelElement element) {
 		return element.as(Configuration.class).map(Configuration::getIncoming);
 	}
 }

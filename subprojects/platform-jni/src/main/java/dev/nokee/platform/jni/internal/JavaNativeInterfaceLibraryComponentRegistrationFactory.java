@@ -193,7 +193,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						// TODO: This is an external dependency meaning we should go through the component dependencies.
 						//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 						//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
-						registry.instantiate(configureEach(descendantOf(entity.getId()).and(isEqual(CompileTaskTag.tag())), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
+						registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						val toolChainSelectorInternal = project.getObjects().newInstance(ToolChainSelectorInternal.class);

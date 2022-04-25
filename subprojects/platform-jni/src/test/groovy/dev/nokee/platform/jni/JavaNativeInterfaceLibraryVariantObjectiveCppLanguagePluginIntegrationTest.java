@@ -102,7 +102,7 @@ class JavaNativeInterfaceLibraryVariantObjectiveCppLanguagePluginIntegrationTest
 
 		@Override
 		public String displayName() {
-			return "Objective-C++ sources ':xapi:linuxX64:objectiveCpp'";
+			return "Objective-C++ sources ':xapi:linuxX64:sharedLibrary:objectiveCpp'";
 		}
 
 		@Override

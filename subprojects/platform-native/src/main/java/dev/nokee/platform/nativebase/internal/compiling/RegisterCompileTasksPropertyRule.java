@@ -18,21 +18,15 @@ package dev.nokee.platform.nativebase.internal.compiling;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.BaseModelSpecComponent;
-import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
-import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 import dev.nokee.platform.nativebase.internal.ObjectFiles;
 import lombok.val;
 import org.gradle.api.Transformer;
@@ -59,12 +53,7 @@ final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.Model
 
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, IsBinary tag) {
-		val compileTasks = registry.register(ModelRegistration.builder()
-			.mergeFrom(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier.get(), "compileTasks"), SourceCompile.class))
-			.withComponent(new ViewConfigurationBaseComponent(entity.get(ParentComponent.class).get()))
-			.withComponent(new BaseModelSpecComponent(ModelSpec.isEqual(CompileTaskTag.tag())))
-			.build()
-		);
+		val compileTasks = registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier.get(), "compileTasks"), SourceCompile.class));
 		entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
 	}
 

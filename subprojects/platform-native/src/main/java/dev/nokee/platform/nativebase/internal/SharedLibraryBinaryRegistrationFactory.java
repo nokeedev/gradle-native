@@ -16,6 +16,7 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -64,6 +65,7 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(NativeLanguageSourceSetAwareTag.tag())
 			.withComponent(createdUsing(of(ModelBackedSharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)))
 			.build();
 	}

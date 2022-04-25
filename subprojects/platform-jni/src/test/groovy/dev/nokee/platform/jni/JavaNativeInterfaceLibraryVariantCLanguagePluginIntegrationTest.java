@@ -102,7 +102,7 @@ class JavaNativeInterfaceLibraryVariantCLanguagePluginIntegrationTest extends Ab
 
 		@Override
 		public String displayName() {
-			return "C sources ':liho:freebsdX86:c'";
+			return "C sources ':liho:freebsdX86:sharedLibrary:c'";
 		}
 
 		@Override

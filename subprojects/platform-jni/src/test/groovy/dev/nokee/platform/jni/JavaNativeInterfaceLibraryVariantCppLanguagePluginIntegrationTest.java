@@ -102,7 +102,7 @@ class JavaNativeInterfaceLibraryVariantCppLanguagePluginIntegrationTest extends 
 
 		@Override
 		public String displayName() {
-			return "C++ sources ':difi:windowsX86:cpp'";
+			return "C++ sources ':difi:windowsX86:sharedLibrary:cpp'";
 		}
 
 		@Override
