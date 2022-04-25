@@ -93,18 +93,6 @@ class BinaryIdentifierTest extends Specification {
 		ex.message == 'Cannot construct a task identifier because the owner identifier is null.'
 	}
 
-	def "throws exception if owner is anything other then component or variant"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-
-		when:
-		BinaryIdentifier.of(BinaryName.of('foo'), TestableBinary, projectIdentifier)
-
-		then:
-		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a task identifier because the owner identifier is invalid, only ComponentIdentifier and VariantIdentifier are accepted.'
-	}
-
 	def "has meaningful toString() implementation"() {
 		given:
 		def rootProject = ProjectBuilder.builder().withName('foo').build()
