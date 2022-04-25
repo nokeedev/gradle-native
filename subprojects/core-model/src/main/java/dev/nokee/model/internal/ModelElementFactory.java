@@ -37,7 +37,6 @@ import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelMixInStrategy;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelProperty;
@@ -169,37 +168,15 @@ public final class ModelElementFactory implements ModelComponent {
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
-			@SuppressWarnings("unchecked")
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
 				if (!ModelNodeUtils.canBeViewedAs(entity, type) && !type.isSupertypeOf(entity.get(ModelPropertyTypeComponent.class).get())) {
 					throw new RuntimeException("...");
 				}
 				assert fullType.equals(type);
-				@SuppressWarnings("rawtypes")
-				final Optional<NamedDomainObjectProvider> o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
-				if (o.isPresent() && ((Boolean) ProviderUtils.getType(o.get()).map(it -> it.equals(type.getConcreteType())).orElse(Boolean.FALSE))) {
-					o.get().configure(action);
-					return;
-				}
-				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
-					@SuppressWarnings("rawtypes")
-					final NamedDomainObjectProvider provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
-					final Optional<Class<?>> ttype = ProviderUtils.getType(provider);
-					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom((Class<?>) ttype.get())) {
-						provider.configure(action);
-					} else {
-						if (useLegacyModelAction) {
-							ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
-						} else {
-							ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
-						}
-					}
+				if (useLegacyModelAction) {
+					ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
 				} else {
-					if (useLegacyModelAction) {
-						ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
-					} else {
-						ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
-					}
+					ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
 				}
 			}
 		};
@@ -292,7 +269,6 @@ public final class ModelElementFactory implements ModelComponent {
 		val castableStrategy = new ModelBackedModelCastableStrategy(entity, this);
 		val configurableStrategy = new ConfigurableStrategy() {
 			@Override
-			@SuppressWarnings("unchecked")
 			public <S> void configure(ModelType<S> type, Action<? super S> action) {
 				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
 					throw new RuntimeException("...");
@@ -301,31 +277,10 @@ public final class ModelElementFactory implements ModelComponent {
 					action.execute(ModelNodeUtils.get(entity, type));
 					return;
 				}
-				@SuppressWarnings("rawtypes")
-				final Optional<NamedDomainObjectProvider> o = entity.getComponents().filter(it -> it instanceof ModelProjection).map(ModelProjection.class::cast).filter(it -> it.canBeViewedAs(ModelType.of(NamedDomainObjectProvider.class))).findFirst().map(it -> it.get(ModelType.of(NamedDomainObjectProvider.class)));
-				if (o.isPresent() && ((Boolean) ProviderUtils.getType(o.get()).map(it -> it.equals(type.getConcreteType())).orElse(Boolean.FALSE))) {
-					o.get().configure(action);
-					return;
-				}
-				if (entity.hasComponent(projectionOf(NamedDomainObjectProvider.class))) {
-					@SuppressWarnings("rawtypes")
-					final NamedDomainObjectProvider provider = entity.getComponent(projectionOf(NamedDomainObjectProvider.class)).get(ModelType.of(NamedDomainObjectProvider.class));
-					final Optional<Class<?>> ttype = ProviderUtils.getType(provider);
-					if (ttype.isPresent() && type.getConcreteType().isAssignableFrom(ttype.get())) {
-						provider.configure(action);
-					} else {
-						if (useLegacyModelAction) {
-							ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
-						} else {
-							ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
-						}
-					}
+				if (useLegacyModelAction) {
+					ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
 				} else {
-					if (useLegacyModelAction) {
-						ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
-					} else {
-						ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
-					}
+					ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
 				}
 			}
 		};
