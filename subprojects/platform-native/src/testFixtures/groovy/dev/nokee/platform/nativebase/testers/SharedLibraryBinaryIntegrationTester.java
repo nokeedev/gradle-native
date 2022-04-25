@@ -26,6 +26,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.junit.jupiter.api.Nested;
@@ -145,7 +146,7 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 	@Nested
 	class LinkLibrariesConfigurationTest {
 		public Configuration subject() {
-			return linkLibraries();
+			return realize(linkLibraries());
 		}
 
 		@Test
@@ -167,7 +168,7 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 	@Nested
 	class RuntimeLibrariesConfigurationTest {
 		public Configuration subject() {
-			return project().getConfigurations().getByName(variantName() + "RuntimeLibraries");
+			return realize(project().getConfigurations().getByName(variantName() + "RuntimeLibraries"));
 		}
 
 		@Test
@@ -184,5 +185,10 @@ public abstract class SharedLibraryBinaryIntegrationTester implements SharedLibr
 		void hasNativeRuntimeUsage() {
 			assertThat(subject(), ConfigurationMatchers.attributes(hasEntry(is(Usage.USAGE_ATTRIBUTE), named("native-runtime"))));
 		}
+	}
+
+	private static Configuration realize(Configuration self) {
+		((ConfigurationInternal) self).preventFromFurtherMutation();
+		return self;
 	}
 }
