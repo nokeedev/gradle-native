@@ -15,20 +15,21 @@
  */
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
-class StaticLibraryBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary> {
-	public StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary createSubject() {
-		val factory = project.getExtensions().getByType(StaticLibraryBinaryRegistrationFactory.class);
+class SharedLibraryBinarySpecBuildabilityIntegrationTest extends NativeBinaryBuildabilityIntegrationTester<SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary> {
+	public SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary createSubject() {
+		val factory = project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		return registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "liku"))).as(StaticLibraryBinaryRegistrationFactory.ModelBackedStaticLibraryBinary.class).get();
+		return registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "jecu"))).as(SharedLibraryBinaryRegistrationFactory.ModelBackedSharedLibraryBinary.class).get();
 	}
 }

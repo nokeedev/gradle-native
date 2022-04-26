@@ -70,13 +70,14 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			.build();
 	}
 
-	private static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware
+	public static final class ModelBackedSharedLibraryBinary implements SharedLibraryBinary, HasPublicType, ModelNodeAware
 		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
 		, HasLinkLibrariesDependencyBucket
 		, HasRuntimeLibrariesDependencyBucket
 		, HasLinkTask<LinkSharedLibrary, LinkSharedLibraryTask>
+		, HasObjectFilesToBinaryTask
 	{
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
@@ -122,6 +123,11 @@ public final class SharedLibraryBinaryRegistrationFactory {
 			val result = objectFactory.fileCollection();
 			result.from((Callable<Object>) getCompileTasks().withType(NativeSourceCompile.class).map(it -> it.getHeaderSearchPaths().map(transformEach(path -> path.getAsFile())))::get);
 			return result.getElements();
+		}
+
+		@Override
+		public TaskProvider<LinkSharedLibraryTask> getCreateOrLinkTask() {
+			return (TaskProvider<LinkSharedLibraryTask>) ModelElements.of(this).element("link", LinkSharedLibraryTask.class).asProvider();
 		}
 	}
 }
