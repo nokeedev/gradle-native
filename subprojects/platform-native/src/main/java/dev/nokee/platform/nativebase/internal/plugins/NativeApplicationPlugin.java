@@ -70,8 +70,6 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareCom
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSourcesAdapter;
-import dev.nokee.platform.nativebase.internal.TargetBuildTypeRule;
-import dev.nokee.platform.nativebase.internal.TargetMachineRule;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
@@ -129,8 +127,6 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		val extension = componentProvider.get();
 
 		// Other configurations
-		project.afterEvaluate(getObjects().newInstance(TargetMachineRule.class, extension.getTargetMachines(), EXTENSION_NAME));
-		project.afterEvaluate(getObjects().newInstance(TargetBuildTypeRule.class, extension.getTargetBuildTypes(), EXTENSION_NAME));
 		project.afterEvaluate(finalizeModelNodeOf(componentProvider));
 
 		project.getExtensions().add(NativeApplicationExtension.class, EXTENSION_NAME, extension);
