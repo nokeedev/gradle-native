@@ -20,8 +20,14 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 
+import java.io.File;
+
 @CacheableTask
 public class LinkExecutableTask extends org.gradle.nativeplatform.tasks.LinkExecutable implements LinkExecutable, ObjectFilesToBinaryTask {
+	public LinkExecutableTask() {
+		getDestinationDirectory().set((File) null);
+	}
+
 	@Override
 	public Provider<RegularFile> getBinaryFile() {
 		return getLinkedFile();

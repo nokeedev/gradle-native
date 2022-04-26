@@ -29,7 +29,7 @@ import org.gradle.nativeplatform.toolchain.NativeToolChain;
  *
  * @version 0.4
  */
-public interface LinkExecutable extends Task {
+public interface LinkExecutable extends ObjectLink {
 	/**
 	 * The tool chain used for the compilation.
 	 *

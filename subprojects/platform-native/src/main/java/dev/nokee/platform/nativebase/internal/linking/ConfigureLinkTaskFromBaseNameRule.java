@@ -19,9 +19,11 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import lombok.val;
 import org.gradle.api.Action;
@@ -45,6 +47,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
@@ -62,7 +65,11 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 		@SuppressWarnings("unchecked")
 		val baseName = (Provider<String>) baseNameProperty.get().get(GradlePropertyComponent.class).get();
 		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName)))));
-		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asSharedLibraryFile(baseName)))));
+		if (ModelNodeUtils.canBeViewedAs(entity, of(ExecutableBinary.class))) {
+			registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asExecutableFile(baseName)))));
+		} else {
+			registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asSharedLibraryFile(baseName)))));
+		}
 	}
 
 	//region Linker arguments
@@ -98,8 +105,17 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 			.flatMap(sharedLibraryLinkedFile(task.getDestinationDirectory(), baseName));
 	}
 
+	private static Function<ObjectLink, Object> asExecutableFile(Provider<String> baseName) {
+		return task -> toolChainProperty(task)
+			.map(selectToolProvider(targetPlatformProperty(task)))
+			.map(it -> fileNamer(it))
+			.orElse(targetPlatformProperty(task).map(it -> fileNamer(it)))
+			.flatMap(executableLinkedFile(task.getDestinationDirectory(), baseName));
+	}
+
 	private interface FileNamer {
 		String getSharedLibraryName(String libraryPath);
+		String getExecutableName(String executablePath);
 	}
 
 	private static FileNamer fileNamer(PlatformToolProvider toolProvider) {
@@ -121,6 +137,11 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 		public String getSharedLibraryName(String libraryPath) {
 			return toolProvider.getSharedLibraryName(libraryPath);
 		}
+
+		@Override
+		public String getExecutableName(String executablePath) {
+			return toolProvider.getExecutableName(executablePath);
+		}
 	}
 
 	private static final class TargetPlatformFileNamer implements FileNamer {
@@ -134,10 +155,19 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 		public String getSharedLibraryName(String libraryPath) {
 			return ((NativePlatformInternal) targetPlatform).getOperatingSystem().getInternalOs().getSharedLibraryName(libraryPath);
 		}
+
+		@Override
+		public String getExecutableName(String executablePath) {
+			return ((NativePlatformInternal) targetPlatform).getOperatingSystem().getInternalOs().getExecutableName(executablePath);
+		}
 	}
 
 	private static Transformer<Provider<RegularFile>, FileNamer> sharedLibraryLinkedFile(Provider<Directory> destinationDirectory, Provider<String> baseName) {
 		return toolProvider -> destinationDirectory.flatMap(dir -> dir.file(baseName.map(toolProvider::getSharedLibraryName)));
+	}
+
+	private static Transformer<Provider<RegularFile>, FileNamer> executableLinkedFile(Provider<Directory> destinationDirectory, Provider<String> baseName) {
+		return toolProvider -> destinationDirectory.flatMap(dir -> dir.file(baseName.map(toolProvider::getExecutableName)));
 	}
 
 	private static Transformer<PlatformToolProvider, NativeToolChain> selectToolProvider(Provider<NativePlatform> nativePlatform) {
