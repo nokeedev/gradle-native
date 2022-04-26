@@ -127,5 +127,10 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		public TaskProvider<CreateStaticLibraryTask> getCreateOrLinkTask() {
 			return (TaskProvider<CreateStaticLibraryTask>) ModelElements.of(this).element("create", CreateStaticLibraryTask.class).asProvider();
 		}
+
+		@Override
+		public String toString() {
+			return "static library binary '" + getName() + "'";
+		}
 	}
 }
