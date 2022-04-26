@@ -15,78 +15,21 @@
  */
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.language.c.tasks.CCompile;
-import dev.nokee.language.cpp.tasks.CppCompile;
-import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
-import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
-import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
-class SharedLibraryBinarySpecLanguagePluginsIntegrationTest extends AbstractPluginTest {
-	private NativeBinary subject;
-
-	@BeforeEach
-	void createSubject() {
+class SharedLibraryBinarySpecLanguagePluginsIntegrationTest extends NativeBinaryLanguagePluginsIntegrationTester {
+	@Override
+	public NativeBinary createSubject(String name) {
 		val factory = project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "nizo"))).as(NativeBinary.class).get();
-	}
-
-	@Test
-	void hasNoCompileTasksByDefault() {
-		assertThat(subject.getCompileTasks().get(), emptyIterable());
-	}
-
-	@Test
-	@PluginRequirement.Require(id = "dev.nokee.c-language")
-	void hasCCompileTask() {
-		assertThat(subject.getCompileTasks().get(),
-			hasItem(allOf(named("compileNizoC"), isA(CCompile.class))));
-	}
-
-	@Test
-	@PluginRequirement.Require(id = "dev.nokee.cpp-language")
-	void hasCppCompileTask() {
-		assertThat(subject.getCompileTasks().get(),
-			hasItem(allOf(named("compileNizoCpp"), isA(CppCompile.class))));
-	}
-
-	@Test
-	@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
-	void hasObjectiveCCompileTask() {
-		assertThat(subject.getCompileTasks().get(),
-			hasItem(allOf(named("compileNizoObjectiveC"), isA(ObjectiveCCompile.class))));
-	}
-
-	@Test
-	@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
-	void hasObjectiveCppCompileTask() {
-		assertThat(subject.getCompileTasks().get(),
-			hasItem(allOf(named("compileNizoObjectiveCpp"), isA(ObjectiveCppCompile.class))));
-	}
-
-	@Test
-	@PluginRequirement.Require(id = "dev.nokee.swift-language")
-	void hasSwiftCompileTask() {
-		assertThat(subject.getCompileTasks().get(),
-			hasItem(allOf(named("compileNizoSwift"), isA(SwiftCompile.class))));
+		return registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, name))).as(NativeBinary.class).get();
 	}
 }
