@@ -16,6 +16,13 @@
 package dev.nokee.platform.nativebase.tasks.internal;
 
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputDirectory;
 
 public abstract class CreateStaticLibraryTask extends org.gradle.nativeplatform.tasks.CreateStaticLibrary implements CreateStaticLibrary, ObjectFilesToBinaryTask {
+
+	@Optional
+	@OutputDirectory
+	public abstract DirectoryProperty getDestinationDirectory();
 }
