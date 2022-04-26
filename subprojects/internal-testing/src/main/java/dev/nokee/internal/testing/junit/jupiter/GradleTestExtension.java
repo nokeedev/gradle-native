@@ -19,22 +19,43 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import lombok.val;
 import org.gradle.api.Project;
-import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.util.AnnotationUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public final class GradleTestExtension implements BeforeEachCallback {
+public final class GradleTestExtension implements BeforeEachCallback, ParameterResolver {
+	private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(GradleTestExtension.class);
+	private static final String KEY = "project.root";
+
+	@Override
+	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext context) throws ParameterResolutionException {
+		return parameterContext.getParameter().getType() == Project.class;
+	}
+
+	@Override
+	public Object resolveParameter(ParameterContext parameterContext, ExtensionContext context) throws ParameterResolutionException {
+		return getOrCreateRootProject(context);
+	}
+
 	@Override
 	public void beforeEach(ExtensionContext context) throws Exception {
 		for (Object testInstance : context.getRequiredTestInstances().getAllInstances()) {
 			for (Field field : AnnotationUtils.findAnnotatedFields(testInstance.getClass(), GradleProject.class, it -> true)) {
 				field.setAccessible(true);
-				field.set(testInstance, createProject(context));
+				field.set(testInstance, getOrCreateRootProject(context));
 			}
 		}
+	}
+
+	private static Project getOrCreateRootProject(ExtensionContext context) {
+		return context.getStore(NAMESPACE).getOrComputeIfAbsent(KEY, ignored -> createProject(context), Project.class);
 	}
 
 	private static Project createProject(ExtensionContext context) {
