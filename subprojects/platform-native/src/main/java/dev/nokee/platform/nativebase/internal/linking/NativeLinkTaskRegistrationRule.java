@@ -27,6 +27,7 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -36,6 +37,7 @@ import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import lombok.val;
 import org.gradle.api.Action;
@@ -61,6 +63,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
@@ -89,7 +92,11 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 		linkTask.configure(implementationType, configureDescription("Links the %s.", identifier.get()));
 		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-		linkTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier.get()))));
+		if (ModelNodeUtils.canBeViewedAs(entity, of(ExecutableBinary.class))) {
+			linkTask.configure(implementationType, configureDestinationDirectory(convention(forExecutable(identifier.get()))));
+		} else {
+			linkTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier.get()))));
+		}
 		entity.addComponent(new NativeLinkTask(ModelNodes.of(linkTask)));
 	}
 
@@ -106,6 +113,10 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 
 	private static Function<Task, Provider<Directory>> forLibrary(DomainObjectIdentifier identifier) {
 		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier));
+	}
+
+	private static Function<Task, Provider<Directory>> forExecutable(DomainObjectIdentifier identifier) {
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("exes/" + OutputDirectoryPath.fromIdentifier(identifier));
 	}
 	//endregion
 
