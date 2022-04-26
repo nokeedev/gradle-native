@@ -15,7 +15,9 @@
  */
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import org.gradle.api.Buildable;
 import org.gradle.api.tasks.TaskProvider;
 
 /**
@@ -23,7 +25,7 @@ import org.gradle.api.tasks.TaskProvider;
  *
  * @since 0.4
  */
-public interface StaticLibraryBinary extends NativeBinary {
+public interface StaticLibraryBinary extends NativeBinary, Buildable, HasBaseName {
 	/**
 	 * Returns a provider for the task that creates the static archive from the object files.
 	 *
