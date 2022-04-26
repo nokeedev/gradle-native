@@ -20,7 +20,13 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.nativeplatform.tasks.LinkMachOBundle;
 
+import java.io.File;
+
 public abstract class LinkBundleTask extends LinkMachOBundle implements LinkBundle, ObjectFilesToBinaryTask {
+	public LinkBundleTask() {
+		getDestinationDirectory().set((File) null);
+	}
+
 	@Override
 	public Provider<RegularFile> getBinaryFile() {
 		return getLinkedFile();

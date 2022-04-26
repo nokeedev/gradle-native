@@ -23,6 +23,7 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import lombok.val;
@@ -67,6 +68,8 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 		registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkerArgs(addAll(forSwiftModuleName(baseName)))));
 		if (ModelNodeUtils.canBeViewedAs(entity, of(ExecutableBinary.class))) {
 			registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asExecutableFile(baseName)))));
+		} else if (ModelNodeUtils.canBeViewedAs(entity, of(BundleBinary.class))) {
+				registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asBundleFile(baseName)))));
 		} else {
 			registry.instantiate(configure(linkTask.get().getId(), ObjectLink.class, configureLinkedFile(convention(asSharedLibraryFile(baseName)))));
 		}
@@ -113,9 +116,18 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 			.flatMap(executableLinkedFile(task.getDestinationDirectory(), baseName));
 	}
 
+	private static Function<ObjectLink, Object> asBundleFile(Provider<String> baseName) {
+		return task -> toolChainProperty(task)
+			.map(selectToolProvider(targetPlatformProperty(task)))
+			.map(it -> fileNamer(it))
+			.orElse(targetPlatformProperty(task).map(it -> fileNamer(it)))
+			.flatMap(bundleLinkedFile(task.getDestinationDirectory(), baseName));
+	}
+
 	private interface FileNamer {
 		String getSharedLibraryName(String libraryPath);
 		String getExecutableName(String executablePath);
+		String getBundleName(String bundlePath);
 	}
 
 	private static FileNamer fileNamer(PlatformToolProvider toolProvider) {
@@ -142,6 +154,11 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 		public String getExecutableName(String executablePath) {
 			return toolProvider.getExecutableName(executablePath);
 		}
+
+		@Override
+		public String getBundleName(String bundlePath) {
+			return toolProvider.getExecutableName(bundlePath);
+		}
 	}
 
 	private static final class TargetPlatformFileNamer implements FileNamer {
@@ -160,6 +177,11 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 		public String getExecutableName(String executablePath) {
 			return ((NativePlatformInternal) targetPlatform).getOperatingSystem().getInternalOs().getExecutableName(executablePath);
 		}
+
+		@Override
+		public String getBundleName(String bundlePath) {
+			return ((NativePlatformInternal) targetPlatform).getOperatingSystem().getInternalOs().getExecutableName(bundlePath);
+		}
 	}
 
 	private static Transformer<Provider<RegularFile>, FileNamer> sharedLibraryLinkedFile(Provider<Directory> destinationDirectory, Provider<String> baseName) {
@@ -168,6 +190,10 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 
 	private static Transformer<Provider<RegularFile>, FileNamer> executableLinkedFile(Provider<Directory> destinationDirectory, Provider<String> baseName) {
 		return toolProvider -> destinationDirectory.flatMap(dir -> dir.file(baseName.map(toolProvider::getExecutableName)));
+	}
+
+	private static Transformer<Provider<RegularFile>, FileNamer> bundleLinkedFile(Provider<Directory> destinationDirectory, Provider<String> baseName) {
+		return toolProvider -> destinationDirectory.flatMap(dir -> dir.file(baseName.map(toolProvider::getBundleName)));
 	}
 
 	private static Transformer<PlatformToolProvider, NativeToolChain> selectToolProvider(Provider<NativePlatform> nativePlatform) {

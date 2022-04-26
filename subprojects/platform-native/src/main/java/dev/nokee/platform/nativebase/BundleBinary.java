@@ -15,7 +15,9 @@
  */
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
+import org.gradle.api.Buildable;
 import org.gradle.api.tasks.TaskProvider;
 
 /**
@@ -23,7 +25,7 @@ import org.gradle.api.tasks.TaskProvider;
  *
  * @since 0.4
  */
-public interface BundleBinary extends NativeBinary {
+public interface BundleBinary extends NativeBinary, Buildable, HasBaseName {
 	/**
 	 * Returns a provider for the task that links the object files into this binary.
 	 *

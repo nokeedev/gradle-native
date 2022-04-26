@@ -17,9 +17,13 @@ package dev.nokee.platform.nativebase.internal.linking;
 
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import org.gradle.api.Action;
 import org.gradle.api.file.RegularFile;
@@ -28,19 +32,21 @@ import org.gradle.api.provider.Provider;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 
-final class ConfigureLinkTaskDefaultsRule extends ModelActionWithInputs.ModelAction1<NativeLinkTask> {
+final class ConfigureLinkTaskDefaultsRule extends ModelActionWithInputs.ModelAction2<NativeLinkTask, ModelProjection> {
 	private final ModelRegistry registry;
 
 	public ConfigureLinkTaskDefaultsRule(ModelRegistry registry) {
+		super(ModelComponentReference.of(NativeLinkTask.class), ModelComponentReference.ofProjection(SharedLibraryBinary.class));
 		this.registry = registry;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, NativeLinkTask linkTask) {
+	protected void execute(ModelNode entity, NativeLinkTask linkTask, ModelProjection tag) {
 		registry.instantiate(ModelAction.configure(linkTask.get().getId(), LinkSharedLibraryTask.class, configureInstallName(convention(ofLinkedFileFileName()))));
 		registry.instantiate(ModelAction.configure(linkTask.get().getId(), LinkSharedLibraryTask.class, configureImportLibrary(lockProperty()))); // Already has sensible default in task implementation)
 	}

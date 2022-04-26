@@ -38,6 +38,7 @@ import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
+import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
@@ -78,6 +79,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			project.getObjects()
 		));
 		project.getExtensions().add("__nokee_executableFactory", new ExecutableBinaryRegistrationFactory(
+			project.getObjects()
+		));
+		project.getExtensions().add("__nokee_bundleFactory", new BundleBinaryRegistrationFactory(
 			project.getObjects()
 		));
 
