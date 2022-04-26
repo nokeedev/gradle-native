@@ -129,5 +129,10 @@ public final class ExecutableBinaryRegistrationFactory {
 		public TaskProvider<LinkExecutableTask> getCreateOrLinkTask() {
 			return (TaskProvider<LinkExecutableTask>) ModelElements.of(this).element("link", LinkExecutableTask.class).asProvider();
 		}
+
+		@Override
+		public String toString() {
+			return "executable binary '" + getName() + "'";
+		}
 	}
 }

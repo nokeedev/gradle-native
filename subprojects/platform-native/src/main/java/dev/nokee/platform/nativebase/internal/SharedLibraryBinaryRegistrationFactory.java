@@ -129,5 +129,10 @@ public final class SharedLibraryBinaryRegistrationFactory {
 		public TaskProvider<LinkSharedLibraryTask> getCreateOrLinkTask() {
 			return (TaskProvider<LinkSharedLibraryTask>) ModelElements.of(this).element("link", LinkSharedLibraryTask.class).asProvider();
 		}
+
+		@Override
+		public String toString() {
+			return "shared library binary '" + getName() + "'";
+		}
 	}
 }
