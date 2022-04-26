@@ -19,13 +19,10 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.NativeServicesInitializedOnWindows;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.HeaderSearchPath;
-import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -45,19 +42,15 @@ import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.file.RegularFile;
-import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
-import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
-import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.platform.base.ToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -72,9 +65,7 @@ import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
 import static dev.nokee.internal.testing.GradleProviderMatchers.absentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.presentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
-import static dev.nokee.runtime.nativebase.internal.TargetMachines.host;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -144,97 +135,6 @@ class SharedLibraryBinaryTest extends AbstractPluginTest {
 		void usesBinaryNameAsBaseNameByDefault() {
 			subject().getBaseName().set((String) null); // force convention
 			assertThat(subject().getBaseName(), providerOf("ruca"));
-		}
-
-		@Nested
-		@NativeServicesInitializedOnWindows
-		class BuildableTest {
-			@Test
-			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-			void isBuildableIfLinkTaskBuildable() {
-				linkTask().getTargetPlatform().set(create(host()));
-				assertThat(subject().isBuildable(), is(true));
-			}
-
-			@Test
-			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-			void isNotBuildableIfLinkTaskNotBuildable() {
-				linkTask().getTargetPlatform().set(create(of("unknown-unknown")));
-				assertThat(subject().isBuildable(), is(false));
-			}
-
-			@Test
-			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-			void isBuildableIfAllCompileTasksAreBuildable() {
-				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
-
-				linkTask().getTargetPlatform().set(create(host()));
-
-				val compileTask = project().getTasks().register("tovi", CCompileTask.class, task -> {
-					task.getTargetPlatform().set(create(host()));
-					task.getToolChain().set(toolChainSelector.select(task));
-				});
-				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("tovi", compileTask);
-
-				assertThat(subject().isBuildable(), is(true));
-			}
-
-			@Test
-			@DisabledOnOs(OS.WINDOWS)
-			@PluginRequirement.Require(type = SwiftCompilerPlugin.class)
-			void isBuildableIfSwiftCompileTasksAreBuildable() {
-				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
-
-				linkTask().getTargetPlatform().set(create(host()));
-
-				val compileTask = project().getTasks().register("vavu", SwiftCompileTask.class, task -> {
-					task.getTargetPlatform().set(create(host()));
-					task.getToolChain().set(toolChainSelector.select(task));
-				});
-				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("vavu", compileTask);
-
-				assertThat(subject().isBuildable(), is(true));
-			}
-
-			@Test
-			@PluginRequirement.Require(type = NokeeStandardToolChainsPlugin.class)
-			void isNotBuildableIfAnyCompileTasksAreNotBuildable() {
-				val toolChainSelector = new DefaultNativeToolChainSelector(((ProjectInternal) project).getModelRegistry(), project.getProviders());
-				project.getExtensions().getByType(NativeToolChainRegistry.class).withType(AbstractGccCompatibleToolChain.class, toolchain -> {
-					// Ensure toolchain is known but not buildable
-					toolchain.target("notbuildable", it -> {
-						it.getLinker().setExecutable("not-found");
-						it.getAssembler().setExecutable("not-found");
-						it.getcCompiler().setExecutable("not-found");
-						it.getCppCompiler().setExecutable("not-found");
-						it.getObjcCompiler().setExecutable("not-found");
-						it.getObjcppCompiler().setExecutable("not-found");
-						it.getStaticLibArchiver().setExecutable("not-found");
-					});
-				});
-
-				linkTask().getTargetPlatform().set(create(host()));
-
-				val compileTask = project().getTasks().create("qizo", CCompileTask.class);
-				compileTask.getTargetPlatform().set(create(of("not-buildable")));
-				compileTask.getToolChain().set(toolChainSelector.select(compileTask));
-
-				val compileTasks = ModelProperties.getProperty(binary(), "compileTasks");
-				((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("qizo", compileTask);
-
-				assertThat(subject().isBuildable(), is(false));
-			}
-		}
-
-		@Test
-		void includesAllCompileTasksAsBuildDependencies() {
-			val compileTask = project().getTasks().register("xuvi", MySourceCompileTask.class);
-			val compileTasks = ModelProperties.getProperty(subject(), "compileTasks");
-			((MapProperty<String, Object>) ModelNodes.of(compileTasks).get(GradlePropertyComponent.class).get()).put("xuvi", compileTask);
-
-			assertThat(subject(), buildDependencies(hasItem(compileTask.get())));
 		}
 
 		@Nested

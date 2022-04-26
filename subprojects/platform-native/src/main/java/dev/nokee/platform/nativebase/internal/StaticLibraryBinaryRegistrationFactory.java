@@ -34,6 +34,8 @@ import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.HasCreateTask;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
+import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
 import org.gradle.api.file.FileSystemLocation;
@@ -68,11 +70,12 @@ public final class StaticLibraryBinaryRegistrationFactory {
 			.build();
 	}
 
-	private static final class ModelBackedStaticLibraryBinary implements StaticLibraryBinary, HasPublicType, ModelNodeAware
+	public static final class ModelBackedStaticLibraryBinary implements StaticLibraryBinary, HasPublicType, ModelNodeAware
 		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
 		, HasCreateTask
+		, HasObjectFilesToBinaryTask
 	{
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 		private final NativeBinaryBuildable isBuildable = new NativeBinaryBuildable(this);
@@ -118,6 +121,11 @@ public final class StaticLibraryBinaryRegistrationFactory {
 			val result = objectFactory.fileCollection();
 			result.from((Callable<Object>) getCompileTasks().withType(NativeSourceCompile.class).map(it -> it.getHeaderSearchPaths().map(transformEach(path -> path.getAsFile())))::get);
 			return result.getElements();
+		}
+
+		@Override
+		public TaskProvider<CreateStaticLibraryTask> getCreateOrLinkTask() {
+			return (TaskProvider<CreateStaticLibraryTask>) ModelElements.of(this).element("create", CreateStaticLibraryTask.class).asProvider();
 		}
 	}
 }
