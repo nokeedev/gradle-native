@@ -41,7 +41,6 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
-import static dev.nokee.internal.testing.FileSystemMatchers.aFileBaseNamed;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
@@ -54,7 +53,6 @@ import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -125,11 +123,6 @@ class ExecutableBinarySpecLinkTaskIntegrationTest {
 	@Test
 	void hasNoLinkerArgumentsByDefault() {
 		assertThat(subject.getLinkerArgs(), providerOf(emptyIterable()));
-	}
-
-	@Test
-	void hasNoSourcesByDefault() {
-		assertThat(subject.getSource(), emptyIterable());
 	}
 
 	@Test
