@@ -34,19 +34,25 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.isA;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 class SharedLibraryBinarySpecLanguagePluginsIntegrationTest extends AbstractPluginTest {
-	private SharedLibraryBinary subject;
+	private NativeBinary subject;
 
 	@BeforeEach
 	void createSubject() {
 		val factory = project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		subject = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "nizo"))).as(SharedLibraryBinary.class).get();
+		subject = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "nizo"))).as(NativeBinary.class).get();
+	}
+
+	@Test
+	void hasNoCompileTasksByDefault() {
+		assertThat(subject.getCompileTasks().get(), emptyIterable());
 	}
 
 	@Test
