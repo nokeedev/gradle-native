@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleProject;
@@ -27,9 +26,10 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -52,22 +52,22 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
-@SuppressWarnings("unchecked")
 @IntegrationTest
-class StaticLibraryBinarySpecCreateTaskObjectFilesIntegrationTest {
+@SuppressWarnings("unchecked")
+class SharedLibraryBinarySpecLinkTaskObjectFilesIntegrationTest {
 	@GradleProject Project project;
-	StaticLibraryBinary binary;
-	CreateStaticLibraryTask subject;
+	SharedLibraryBinary binary;
+	LinkSharedLibraryTask subject;
 
 	@BeforeEach
 	void createSubject() {
-		val factory = project.getExtensions().getByType(StaticLibraryBinaryRegistrationFactory.class);
+		val factory = project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val projectIdentifier = ProjectIdentifier.of(project);
-		binary = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "liku"))).as(StaticLibraryBinary.class).get();
+		binary = registry.register(factory.create(BinaryIdentifier.of(projectIdentifier, "liku"))).as(SharedLibraryBinary.class).get();
 
-		binary.getCreateTask().configure(task -> ((CreateStaticLibraryTask) task).getTargetPlatform().set(create(of("macos-x64"))));
-		subject = (CreateStaticLibraryTask) binary.getCreateTask().get();
+		binary.getLinkTask().configure(task -> ((LinkSharedLibraryTask) task).getTargetPlatform().set(create(of("macos-x64"))));
+		subject = (LinkSharedLibraryTask) binary.getLinkTask().get();
 	}
 
 	@Test
@@ -76,7 +76,7 @@ class StaticLibraryBinarySpecCreateTaskObjectFilesIntegrationTest {
 	}
 
 	@Test
-	void includesNativeSourceCompileTaskAsCreateTaskSources() throws IOException {
+	void includesNativeSourceCompileTaskAsLinkTaskSources() throws IOException {
 		val compileTask = project.getTasks().register("suti", MyNativeSourceCompileTask.class, task -> {
 			try {
 				task.getObjectFiles().from(createFile(project.getLayout().getProjectDirectory().file("foo.o")));
@@ -92,7 +92,7 @@ class StaticLibraryBinarySpecCreateTaskObjectFilesIntegrationTest {
 	}
 
 	@Test
-	void includesSourceCompileTaskWithObjectFilesAsCreateTaskSources() throws IOException {
+	void includesSourceCompileTaskWithObjectFilesAsLinkTaskSources() throws IOException {
 		val compileTask = project.getTasks().register("kedi", MySourceCompileWithObjectFilesTask.class, task -> {
 			try {
 				task.getObjectFiles().from(createFile(project.getLayout().getProjectDirectory().file("bar.o")));

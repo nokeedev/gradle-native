@@ -60,3 +60,9 @@ test {
 		implementation gradleTestKit(minimumGradleVersion)
 	}
 }
+
+integrationTest {
+	dependencies {
+		implementation testFixtures(project(':platformBase'))
+	}
+}
