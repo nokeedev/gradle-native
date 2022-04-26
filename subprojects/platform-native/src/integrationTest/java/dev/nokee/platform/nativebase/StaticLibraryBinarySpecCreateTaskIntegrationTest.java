@@ -80,7 +80,7 @@ class StaticLibraryBinarySpecCreateTaskIntegrationTest extends AbstractPluginTes
 	}
 
 	@Test
-	void hasLinkerArgs() {
+	void hasArchiverArgs() {
 		assertThat("not null as per contract", subject.getArchiverArgs(), notNullValue(ListProperty.class));
 		assertThat("there should be a value", subject.getArchiverArgs(), presentProvider());
 	}
@@ -99,12 +99,6 @@ class StaticLibraryBinarySpecCreateTaskIntegrationTest extends AbstractPluginTes
 	void hasDestinationDirectoryUnderLibsInsideBuildDirectory() {
 		assertThat(subject.getDestinationDirectory(),
 			providerOf(aFile(withAbsolutePath(containsString("/build/libs/")))));
-	}
-
-	@Test
-	void usesBinaryBaseNameForCreateTaskOutputFileBaseName() {
-		binary.getBaseName().set("da-bo");
-		assertThat(subject.getOutputFile(), providerOf(aFileBaseNamed(endsWith("da-bo"))));
 	}
 
 	@Test
