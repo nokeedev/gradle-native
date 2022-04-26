@@ -37,6 +37,7 @@ import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import lombok.val;
@@ -94,6 +95,8 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
 		if (ModelNodeUtils.canBeViewedAs(entity, of(ExecutableBinary.class))) {
 			linkTask.configure(implementationType, configureDestinationDirectory(convention(forExecutable(identifier.get()))));
+		} else if (ModelNodeUtils.canBeViewedAs(entity, of(BundleBinary.class))) {
+			linkTask.configure(implementationType, configureDestinationDirectory(convention(forBundle(identifier.get()))));
 		} else {
 			linkTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier.get()))));
 		}
@@ -117,6 +120,10 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 
 	private static Function<Task, Provider<Directory>> forExecutable(DomainObjectIdentifier identifier) {
 		return task -> task.getProject().getLayout().getBuildDirectory().dir("exes/" + OutputDirectoryPath.fromIdentifier(identifier));
+	}
+
+	private static Function<Task, Provider<Directory>> forBundle(DomainObjectIdentifier identifier) {
+		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier));
 	}
 	//endregion
 

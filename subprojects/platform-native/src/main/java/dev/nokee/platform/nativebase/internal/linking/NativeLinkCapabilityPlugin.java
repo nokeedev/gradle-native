@@ -53,5 +53,6 @@ public class NativeLinkCapabilityPlugin<T extends ExtensionAware & PluginAware> 
 		configurer.configure(new AttachObjectFilesToLinkTaskRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new ConfigureLinkTaskDefaultsRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new ConfigureLinkTaskTargetPlatformFromBuildVariantRule(target.getExtensions().getByType(ModelRegistry.class)));
+		configurer.configure(new ConfigureLinkTaskBundleRule(target.getExtensions().getByType(ModelRegistry.class)));
 	}
 }

@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase.tasks;
 
-import org.gradle.api.Task;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
@@ -29,7 +28,7 @@ import org.gradle.nativeplatform.toolchain.NativeToolChain;
  *
  * @version 0.4
  */
-public interface LinkBundle extends Task {
+public interface LinkBundle extends ObjectLink {
 	/**
 	 * The tool chain used for the compilation.
 	 *
