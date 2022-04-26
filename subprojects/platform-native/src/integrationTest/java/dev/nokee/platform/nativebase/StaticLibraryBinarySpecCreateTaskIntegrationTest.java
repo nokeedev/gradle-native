@@ -15,9 +15,10 @@
  */
 package dev.nokee.platform.nativebase;
 
-import dev.nokee.internal.testing.AbstractPluginTest;
+import dev.nokee.internal.testing.IntegrationTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
+import dev.nokee.internal.testing.junit.jupiter.GradleProject;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -30,13 +31,13 @@ import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFac
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import lombok.val;
+import org.gradle.api.Project;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
-import static dev.nokee.internal.testing.FileSystemMatchers.aFileBaseNamed;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
@@ -48,14 +49,15 @@ import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 @PluginRequirement.Require(type = NativeComponentBasePlugin.class)
-class StaticLibraryBinarySpecCreateTaskIntegrationTest extends AbstractPluginTest {
+@IntegrationTest
+class StaticLibraryBinarySpecCreateTaskIntegrationTest {
+	@GradleProject Project project;
 	StaticLibraryBinary binary;
 	CreateStaticLibraryTask subject;
 
@@ -103,7 +105,7 @@ class StaticLibraryBinarySpecCreateTaskIntegrationTest extends AbstractPluginTes
 
 	@Test
 	void usesDestinationDirectoryAsOutputFileParentDirectory() {
-		val newDestinationDirectory = project().file("some-new-destination-directory");
+		val newDestinationDirectory = project.file("some-new-destination-directory");
 		subject.getDestinationDirectory().set(newDestinationDirectory);
 		assertThat(subject.getOutputFile(), providerOf(aFile(parentFile(is(newDestinationDirectory)))));
 	}
