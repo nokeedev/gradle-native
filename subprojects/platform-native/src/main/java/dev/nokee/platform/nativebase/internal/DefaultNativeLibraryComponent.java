@@ -65,6 +65,9 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeLibraryVariant>
 	, ModelBackedNamedMixIn
+	, ModelBackedTargetMachineAwareComponentMixIn
+	, ModelBackedTargetBuildTypeAwareComponentMixIn
+	, ModelBackedTargetLinkageAwareComponentMixIn
 {
 	private final TaskRegistry taskRegistry;
 

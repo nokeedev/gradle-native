@@ -50,10 +50,8 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.CompileTaskTag;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
-import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -75,10 +73,7 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.runtime.core.Coordinate;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 import org.gradle.api.Action;
@@ -100,7 +95,6 @@ import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platf
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
-import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -194,19 +188,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 						//  We can either add an file dependency or use the, yet-to-be-implemented, shim to consume system libraries
 						//  We aren't using a language source set as the files will be included inside the IDE projects which is not what we want.
 						registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
-
-						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-						val toolChainSelectorInternal = project.getObjects().newInstance(ToolChainSelectorInternal.class);
-						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
-							.axis(TARGET_MACHINE_COORDINATE_AXIS)
-							.defaultValue(TargetMachines.host())
-							.validateUsing((Iterable<Coordinate<TargetMachine>> it) -> assertTargetMachinesAreKnown(it, toolChainSelectorInternal))
-							.build());
-						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
-							.elementType(TargetLinkage.class)
-							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
-							.defaultValue(TargetLinkages.SHARED)
-							.build());
 
 						project.getPluginManager().withPlugin("groovy", ignored -> {
 							registry.register(project.getExtensions().getByType(GroovySourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier, "groovy")));
