@@ -50,7 +50,6 @@ import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
@@ -68,14 +67,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDepende
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.BuildType;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
-import dev.nokee.runtime.nativebase.internal.TargetLinkages;
-import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.file.RegularFile;
@@ -120,6 +111,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(NativeLibraryTag.tag())
 			// TODO: Should configure FileCollection on CApplication
 			//   and link FileCollection to source sets
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(LanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
@@ -153,22 +145,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
 						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeLibraryVariant.class));
-
-						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
-							.elementType(TargetLinkage.class)
-							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
-							.defaultValue(TargetLinkages.SHARED)
-							.build());
-						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetBuildTypes"))
-							.elementType(TargetBuildType.class)
-							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
-							.defaultValue(TargetBuildTypes.DEFAULT)
-							.build());
-						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
-							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
-							.defaultValue(TargetMachines.host())
-							.build());
 					}
 				}
 			}))

@@ -65,6 +65,9 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeApplicationVariant>
 	, ModelBackedNamedMixIn
+	, ModelBackedTargetMachineAwareComponentMixIn
+	, ModelBackedTargetBuildTypeAwareComponentMixIn
+	, ModelBackedTargetLinkageAwareComponentMixIn
 {
 	private final TaskRegistry taskRegistry;
 
