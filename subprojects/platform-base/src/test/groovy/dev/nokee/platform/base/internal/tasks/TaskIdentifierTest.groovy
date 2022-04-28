@@ -17,8 +17,6 @@ package dev.nokee.platform.base.internal.tasks
 
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Component
-import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
 import dev.nokee.platform.base.internal.VariantIdentifier
@@ -428,18 +426,18 @@ class TaskIdentifierTest extends Specification {
 		def ownerVariantInChildProject = VariantIdentifier.of('macosDebug', ownerComponentInChildProject)
 
 		expect: 'in a root project'
-		TaskIdentifier.ofLifecycle(ownerVariantInRootProject).toString() == "task ':main:macosDebug' (Task)"
-		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), ownerRootProject)).toString() == "task ':test' (Task)"
-		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariantInRootProject).toString() == "task ':main:macosDebug:compileC' (${TestableTask.simpleName})"
-		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponentInRootProject).toString() == "task ':main:createJar' (${TestableTask.simpleName})"
-		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerRootProject).toString() == "task ':link' (${TestableTask.simpleName})"
+		TaskIdentifier.ofLifecycle(ownerVariantInRootProject).toString() == "task ':main:macosDebug'"
+		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), ownerRootProject)).toString() == "task ':test'"
+		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariantInRootProject).toString() == "task ':main:macosDebug:compileC'"
+		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponentInRootProject).toString() == "task ':main:createJar'"
+		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerRootProject).toString() == "task ':link'"
 
 		and: 'in a child project'
-		TaskIdentifier.ofLifecycle(ownerVariantInChildProject).toString() == "task ':foo:main:macosDebug' (Task)"
-		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), ownerChildProject)).toString() == "task ':foo:test' (Task)"
-		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariantInChildProject).toString() == "task ':foo:main:macosDebug:compileC' (${TestableTask.simpleName})"
-		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponentInChildProject).toString() == "task ':foo:main:createJar' (${TestableTask.simpleName})"
-		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerChildProject).toString() == "task ':foo:link' (${TestableTask.simpleName})"
+		TaskIdentifier.ofLifecycle(ownerVariantInChildProject).toString() == "task ':main:macosDebug'"
+		TaskIdentifier.ofLifecycle(ComponentIdentifier.of(ComponentName.of('test'), ownerChildProject)).toString() == "task ':test'"
+		TaskIdentifier.of(TaskName.of('compile', 'c'), TestableTask, ownerVariantInChildProject).toString() == "task ':main:macosDebug:compileC'"
+		TaskIdentifier.of(TaskName.of('create', 'jar'), TestableTask, ownerComponentInChildProject).toString() == "task ':main:createJar'"
+		TaskIdentifier.of(TaskName.of('link'), TestableTask, ownerChildProject).toString() == "task ':link'"
 	}
 
 	private static TaskIdentifier identifier(String verb, DomainObjectIdentifier owner) {
@@ -454,8 +452,6 @@ class TaskIdentifierTest extends Specification {
 		return TaskIdentifier.of(TaskName.of(verb, object), TaskIdentifierTest.TestableTask, owner)
 	}
 
-	interface TestableComponent extends Component {}
-	interface TestableVariant extends Variant {}
 	interface TestableTask extends Task {}
 	interface AnotherDummyTask extends Task {}
 }

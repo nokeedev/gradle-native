@@ -127,7 +127,7 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 
 	@Override
 	public String toString() {
-		return "task '" + toGradlePath(this) + "' (" + type.getSimpleName() + ")";
+		return "task '" + toGradlePath(this) + "'";
 	}
 
 	@Override
