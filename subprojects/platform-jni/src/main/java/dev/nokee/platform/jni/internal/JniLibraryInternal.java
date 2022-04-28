@@ -18,7 +18,6 @@ package dev.nokee.platform.jni.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
@@ -41,7 +40,6 @@ import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
@@ -70,7 +68,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier<JniLibraryInternal> identifier, ObjectFactory objects) {
+	public JniLibraryInternal(VariantIdentifier identifier, ObjectFactory objects) {
 		super(identifier, objects);
 	}
 

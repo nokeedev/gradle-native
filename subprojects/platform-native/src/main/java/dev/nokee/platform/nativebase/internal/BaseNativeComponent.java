@@ -77,10 +77,10 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	public abstract NativeComponentDependencies getDependencies();
 
 	protected void createBinaries(KnownDomainObject<T> knownVariant) {
-		doCreateBinaries((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant);
+		doCreateBinaries((VariantIdentifier) knownVariant.getIdentifier(), knownVariant);
 	}
 
-	private void doCreateBinaries(VariantIdentifier<?> variantIdentifier, KnownDomainObject<T> knownVariant) {
+	private void doCreateBinaries(VariantIdentifier variantIdentifier, KnownDomainObject<T> knownVariant) {
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		final TargetMachine targetMachineInternal = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 

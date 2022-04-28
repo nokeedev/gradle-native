@@ -57,10 +57,10 @@ public class CreateNativeBinaryLifecycleTaskRule implements Action<KnownDomainOb
 
 	@Override
 	public void execute(KnownDomainObject<? extends Variant> knownVariant) {
-		doExecute((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
+		doExecute((VariantIdentifier) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
 	}
 
-	private void doExecute(VariantIdentifier<?> variantIdentifier, Provider<Binary> binaryProvider) {
+	private void doExecute(VariantIdentifier variantIdentifier, Provider<Binary> binaryProvider) {
 		val buildVariant = (BuildVariantInternal) variantIdentifier.getBuildVariant();
 		if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);

@@ -80,7 +80,7 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 
 	private static boolean isValidLifecycleOwner(DomainObjectIdentifier ownerIdentifier) {
 		if (ownerIdentifier instanceof VariantIdentifier) {
-			val variantIdentifier = (VariantIdentifier<?>) ownerIdentifier;
+			val variantIdentifier = (VariantIdentifier) ownerIdentifier;
 			if (variantIdentifier.getUnambiguousName().isEmpty() && variantIdentifier.getComponentIdentifier().isMainComponent()) {
 				return false;
 			}
@@ -112,16 +112,16 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 
 	private Optional<ComponentIdentifier> getComponentOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
-			return Optional.of(((VariantIdentifier<?>) ownerIdentifier).getComponentIdentifier());
+			return Optional.of(((VariantIdentifier) ownerIdentifier).getComponentIdentifier());
 		} else if (ownerIdentifier instanceof ComponentIdentifier) {
 			return Optional.of((ComponentIdentifier) ownerIdentifier);
 		}
 		return Optional.empty();
 	}
 
-	private Optional<VariantIdentifier<?>> getVariantOwnerIdentifier() {
+	private Optional<VariantIdentifier> getVariantOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
-			return Optional.of((VariantIdentifier<?>) ownerIdentifier);
+			return Optional.of((VariantIdentifier) ownerIdentifier);
 		}
 		return Optional.empty();
 	}

@@ -25,11 +25,11 @@ import org.gradle.api.provider.Property;
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
 public class BaseVariant {
-	@Getter private final VariantIdentifier<?> identifier;
+	@Getter private final VariantIdentifier identifier;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	private final Property<Binary> developmentBinary;
 
-	protected BaseVariant(VariantIdentifier<?> identifier, ObjectFactory objects) {
+	protected BaseVariant(VariantIdentifier identifier, ObjectFactory objects) {
 		this.identifier = identifier;
 		this.objects = objects;
 		this.developmentBinary = configureDisplayName(objects.property(Binary.class), "developmentBinary");

@@ -52,7 +52,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withType(Variant).withComponentIdentifier(componentIdentifier).build()
+		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
 
 		expect:
@@ -65,7 +65,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withType(Variant).withComponentIdentifier(componentIdentifier).build()
+		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
 
 		expect:
@@ -79,7 +79,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withType(Variant).withComponentIdentifier(componentIdentifier).build()
+		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
 
 		expect:
@@ -92,7 +92,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withType(Variant).withComponentIdentifier(componentIdentifier).build()
+		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withComponentIdentifier(componentIdentifier).build()
 		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
 
 		expect:

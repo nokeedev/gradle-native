@@ -237,7 +237,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 
 						val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
 						variants.put(buildVariant, ModelNodes.of(variant));
@@ -316,18 +316,18 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				}
 			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(ObjectiveCSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, path, sourceSet, ignored) -> {
-				if (entityPath.isDescendant(path.get())) {
+				if (entityPath.isDescendant(path.get())) { // FIXME
 					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, ObjectiveCSourceSet.class));
 				}
 			}))
 			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path.get())) {
+				if (entityPath.equals(path.get())) { // FIXME
 					val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultXCTestTestSuiteVariant.class).build();
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 
 						val variant = ModelNodeUtils.register(entity, xcTestTestSuiteVariant(variantIdentifier, component, project));
 						variants.put(buildVariant, ModelNodes.of(variant));
@@ -351,7 +351,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		};
 	}
 
-	private static NodeRegistration xcTestTestSuiteVariant(VariantIdentifier<DefaultXCTestTestSuiteVariant> identifier, BaseXCTestTestSuiteComponent component, Project project) {
+	private static NodeRegistration xcTestTestSuiteVariant(VariantIdentifier identifier, BaseXCTestTestSuiteComponent component, Project project) {
 		val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(DefaultXCTestTestSuiteVariant.class), () -> {
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
