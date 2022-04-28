@@ -28,6 +28,6 @@ public class WarnUnbuildableLogger {
 	}
 
 	public void warn() {
-		LOGGER.warn(String.format("'%s' component in project '%s' cannot build on this machine.", identifier.getName(), identifier.getProjectIdentifier().getPath()));
+		LOGGER.warn(String.format("'%s' component in %s cannot build on this machine.", identifier.getName(), identifier.getProjectIdentifier()));
 	}
 }

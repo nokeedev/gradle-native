@@ -68,12 +68,12 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 
 	@Override
 	public String getDisplayName() {
-		return "project '" + getPath() + "'";
+		return "project '" + projectPath + "'";
 	}
 
 	@Override
 	public String toString() {
-		return "project '" + getPath() + "'";
+		return "project '" + projectPath + "'";
 	}
 
 	@Override

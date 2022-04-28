@@ -37,6 +37,8 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
+
 @EqualsAndHashCode
 public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T>, HasName {
 	@Getter private final TaskName name;
@@ -154,7 +156,7 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 
 	@Override
 	public String toString() {
-		return "task '" + getPath() + "' (" + type.getSimpleName() + ")";
+		return "task '" + toGradlePath(this) + "' (" + type.getSimpleName() + ")";
 	}
 
 	@Override
