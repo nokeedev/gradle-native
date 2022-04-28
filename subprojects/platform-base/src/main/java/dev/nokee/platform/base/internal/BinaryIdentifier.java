@@ -34,24 +34,18 @@ import static java.util.Objects.requireNonNull;
 @EqualsAndHashCode
 public final class BinaryIdentifier<T extends Binary> implements DomainObjectIdentifierInternal {
 	private final BinaryIdentity identity;
-	private final Class<T> type;
 	private final DomainObjectIdentifier ownerIdentifier;
 
-	public BinaryIdentifier(BinaryIdentity identity, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+	public BinaryIdentifier(BinaryIdentity identity, DomainObjectIdentifier ownerIdentifier) {
 		requireNonNull(identity);
 		checkArgument(ownerIdentifier != null, "Cannot construct a task identifier because the owner identifier is null.");
 		checkArgument(isValidOwner(ownerIdentifier), "Cannot construct a task identifier because the owner identifier is invalid, only ComponentIdentifier and VariantIdentifier are accepted.");
 		this.identity = identity;
-		this.type = type;
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
 	public BinaryName getName() {
 		return identity.getName();
-	}
-
-	public Class<T> getType() {
-		return type;
 	}
 
 	public DomainObjectIdentifier getOwnerIdentifier() {
@@ -64,15 +58,15 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 
 	public static <T extends Binary> BinaryIdentifier<T> of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(type != null, "Cannot construct a binary identifier because the task type is null.");
-		return new BinaryIdentifier<>(BinaryIdentity.of(name.toString(), "binary"), type, ownerIdentifier);
+		return new BinaryIdentifier<>(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
 	}
 
 	public static BinaryIdentifier<?> of(DomainObjectIdentifier ownerIdentifier, String name) {
-		return new BinaryIdentifier<>(BinaryIdentity.of(name, "binary"), null, ownerIdentifier);
+		return new BinaryIdentifier<>(BinaryIdentity.of(name, "binary"), ownerIdentifier);
 	}
 
 	public static BinaryIdentifier<?> of(DomainObjectIdentifier ownerIdentifier, BinaryIdentity identity) {
-		return new BinaryIdentifier<>(identity, null, ownerIdentifier);
+		return new BinaryIdentifier<>(identity, ownerIdentifier);
 	}
 
 	public String getOutputDirectoryBase(String outputType) {

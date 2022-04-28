@@ -36,7 +36,6 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryName;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.GroupId;
@@ -232,7 +231,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 			task.getSources().from(assetCatalogCompileTaskTask.flatMap(AssetCatalogCompileTask::getDestinationDirectory));
 			task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
 		});
-		val applicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("applicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
+		val applicationBundleIdentifier = BinaryIdentifier.of(variantIdentifier, "applicationBundle");
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
@@ -249,7 +248,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		});
 
 
-		val signedApplicationBundleIdentifier = BinaryIdentifier.of(BinaryName.of("signedApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
+		val signedApplicationBundleIdentifier = BinaryIdentifier.of(variantIdentifier, "signedApplicationBundle");
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())

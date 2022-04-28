@@ -32,7 +32,6 @@ import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryName;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -93,7 +92,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 			});
 			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 			if (linkage.isExecutable()) {
-				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("executable"), ExecutableBinaryInternal.class, variantIdentifier);
+				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "executable");
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(IsBinary.tag())
@@ -107,7 +106,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					}))
 					.build());
 			} else if (linkage.isShared()) {
-				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("sharedLibrary"), SharedLibraryBinaryInternal.class, variantIdentifier);
+				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "sharedLibrary");
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(IsBinary.tag())
@@ -121,7 +120,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					}))
 					.build());
 			} else if (linkage.isBundle()) {
-				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("bundle"), BundleBinaryInternal.class, variantIdentifier);
+				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "bundle");
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(IsBinary.tag())
@@ -135,7 +134,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 					}))
 					.build());
 			} else if (linkage.isStatic()) {
-				val binaryIdentifier = BinaryIdentifier.of(BinaryName.of("staticLibrary"), StaticLibraryBinaryInternal.class, variantIdentifier);
+				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "staticLibrary");
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(IsBinary.tag())
