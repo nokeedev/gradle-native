@@ -50,7 +50,7 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeApplicationVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+	public DefaultNativeApplicationVariant(VariantIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
 		super(identifier, objects, providers, assembleTask);
 	}
 

@@ -171,7 +171,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
 				@Override
 				public void accept(BuildVariant buildVariant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeApplicationVariant.class).build();
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 					val variant = ModelNodeUtils.register(entity, nativeApplicationVariant(variantIdentifier, component, project));
 
 					variants.put(buildVariant, ModelNodes.of(variant));

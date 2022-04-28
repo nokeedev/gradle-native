@@ -232,7 +232,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 					component.getBuildVariants().get().forEach(buildVariant -> {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeTestSuiteVariant.class).build();
+						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 
 						val variant = ModelNodeUtils.register(entity, nativeTestSuiteVariant(variantIdentifier, component, project));
 						variants.put(buildVariant, ModelNodes.of(variant));
@@ -248,7 +248,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			;
 	}
 
-	private static NodeRegistration nativeTestSuiteVariant(VariantIdentifier<DefaultNativeTestSuiteVariant> identifier, DefaultNativeTestSuiteComponent component, Project project) {
+	private static NodeRegistration nativeTestSuiteVariant(VariantIdentifier identifier, DefaultNativeTestSuiteComponent component, Project project) {
 		val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(DefaultNativeTestSuiteVariant.class), () -> {
 			val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));

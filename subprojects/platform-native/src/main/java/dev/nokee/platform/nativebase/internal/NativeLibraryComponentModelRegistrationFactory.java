@@ -190,7 +190,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 
 				@Override
 				public void accept(BuildVariant buildVariant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).withType(DefaultNativeLibraryVariant.class).build();
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 					val variant = ModelNodeUtils.register(entity, nativeLibraryVariant(variantIdentifier, component, project));
 
 					variants.put(buildVariant, ModelNodes.of(variant));

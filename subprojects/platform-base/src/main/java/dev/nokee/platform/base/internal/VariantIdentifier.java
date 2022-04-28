@@ -24,7 +24,6 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.core.Coordinate;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
 
@@ -37,22 +36,20 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier, HasName {
+public final class VariantIdentifier implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier, HasName {
 	@Getter private final String unambiguousName;
-	@Getter private final Class<T> type;
 	@Getter private final ComponentIdentifier componentIdentifier;
 	@Getter @EqualsAndHashCode.Exclude private final Dimensions ambiguousDimensions;
 	private final Dimensions dimensions;
 	@EqualsAndHashCode.Exclude private final BuildVariant buildVariant;
 	@EqualsAndHashCode.Exclude private final String fullName;
 
-	public VariantIdentifier(Class<T> type, ComponentIdentifier componentIdentifier, DefaultBuildVariant buildVariant) {
-		this(buildVariant.getName(), type, componentIdentifier, buildVariant.getAmbiguousDimensions(), buildVariant.getAllDimensions(), buildVariant, buildVariant.getAllDimensions().getAsLowerCamelCase().get());
+	public VariantIdentifier(ComponentIdentifier componentIdentifier, DefaultBuildVariant buildVariant) {
+		this(buildVariant.getName(), componentIdentifier, buildVariant.getAmbiguousDimensions(), buildVariant.getAllDimensions(), buildVariant, buildVariant.getAllDimensions().getAsLowerCamelCase().get());
 	}
 
-	public VariantIdentifier(String unambiguousName, Class<T> type, ComponentIdentifier componentIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
+	public VariantIdentifier(String unambiguousName, ComponentIdentifier componentIdentifier, Dimensions ambiguousDimensions, Dimensions dimensions, BuildVariant buildVariant, String fullName) {
 		this.unambiguousName = requireNonNull(unambiguousName);
-		this.type = requireNonNull(type);
 		this.componentIdentifier = requireNonNull(componentIdentifier);
 		this.ambiguousDimensions = ambiguousDimensions;
 		this.dimensions = requireNonNull(dimensions);
@@ -60,18 +57,18 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 		this.fullName = fullName;
 	}
 
-	public static <T extends Variant> VariantIdentifier<T> of(String unambiguousName, Class<T> type, ComponentIdentifier identifier) {
-		return new VariantIdentifier<>(unambiguousName, type, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
+	public static <T extends Variant> VariantIdentifier of(String unambiguousName, Class<T> type, ComponentIdentifier identifier) {
+		return new VariantIdentifier(unambiguousName, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
 	}
 
-	public static VariantIdentifier<?> of(String unambiguousName, ComponentIdentifier identifier) {
-		return new VariantIdentifier<>(unambiguousName, Variant.class, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
+	public static VariantIdentifier of(String unambiguousName, ComponentIdentifier identifier) {
+		return new VariantIdentifier(unambiguousName, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
 	}
 
-	public static <T extends Variant> VariantIdentifier<T> of(BuildVariant buildVariant, Class<T> type, ComponentIdentifier identifier) {
+	public static <T extends Variant> VariantIdentifier of(BuildVariant buildVariant, Class<T> type, ComponentIdentifier identifier) {
 		String unambiguousName = createUnambiguousName(buildVariant);
 		Dimensions ambiguousDimensions = Dimensions.of(createAmbiguousDimensionNames(buildVariant));
-		return new VariantIdentifier<>(unambiguousName, type, identifier, ambiguousDimensions, Dimensions.empty(), buildVariant, unambiguousName);
+		return new VariantIdentifier(unambiguousName, identifier, ambiguousDimensions, Dimensions.empty(), buildVariant, unambiguousName);
 	}
 
 	private static String createUnambiguousName(BuildVariant buildVariant) {
@@ -114,13 +111,6 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 		private Dimensions dimensions = Dimensions.empty();
 		private ComponentIdentifier componentIdentifier = null;
 		private BuildVariantInternal buildVariant = null;
-		private Class<? extends T> type;
-
-		@SuppressWarnings("unchecked")
-		public <S extends T> Builder<S> withType(Class<S> type) {
-			this.type = type;
-			return (Builder<S>) this;
-		}
 
 		@Deprecated // used in tests
 		public <V extends Named> Builder<T> withVariantDimension(V value, Collection<? extends V> allValuesForAxis) {
@@ -148,17 +138,15 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 			return this;
 		}
 
-		public VariantIdentifier<T> build() {
-			@SuppressWarnings("unchecked")
-			val variantType = (Class<T>) type;
+		public VariantIdentifier build() {
 			if (buildVariant instanceof DefaultBuildVariant) {
-				return new VariantIdentifier<T>(variantType, componentIdentifier, (DefaultBuildVariant) buildVariant);
+				return new VariantIdentifier(componentIdentifier, (DefaultBuildVariant) buildVariant);
 			}
 			Dimensions allDimensions = this.allDimensions;
 			if (allDimensions.size() == dimensions.size()) {
 				allDimensions = Dimensions.empty();
 			}
-			return new VariantIdentifier<T>(dimensions.getAsLowerCamelCase().orElse(""), variantType, componentIdentifier, dimensions, allDimensions, buildVariant, this.allDimensions.getAsLowerCamelCase().orElse(""));
+			return new VariantIdentifier(dimensions.getAsLowerCamelCase().orElse(""), componentIdentifier, dimensions, allDimensions, buildVariant, this.allDimensions.getAsLowerCamelCase().orElse(""));
 		}
 	}
 }

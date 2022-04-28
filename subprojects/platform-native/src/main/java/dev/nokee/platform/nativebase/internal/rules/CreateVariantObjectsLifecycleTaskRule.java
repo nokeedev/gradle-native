@@ -39,10 +39,10 @@ public class CreateVariantObjectsLifecycleTaskRule implements Action<KnownDomain
 
 	@Override
 	public void execute(KnownDomainObject<? extends Variant> knownVariant) {
-		doExecute((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS));
+		doExecute((VariantIdentifier) knownVariant.getIdentifier(), knownVariant.flatMap(ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS));
 	}
 
-	private void doExecute(VariantIdentifier<?> variantIdentifier, Provider<Set<? extends SourceCompile>> compileTasksProvider) {
+	private void doExecute(VariantIdentifier variantIdentifier, Provider<Set<? extends SourceCompile>> compileTasksProvider) {
 		taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of("objects"), ObjectsLifecycleTask.class, variantIdentifier)).configure(configureDependsOn(compileTasksProvider));
 	}
 }

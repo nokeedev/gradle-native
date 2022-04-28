@@ -142,7 +142,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	}
 
 
-	public static NodeRegistration nativeApplicationVariant(VariantIdentifier<DefaultNativeApplicationVariant> identifier, DefaultNativeApplicationComponent component, Project project) {
+	public static NodeRegistration nativeApplicationVariant(VariantIdentifier identifier, DefaultNativeApplicationComponent component, Project project) {
 		return NodeRegistration.unmanaged(identifier.getUnambiguousName(), of(DefaultNativeApplicationVariant.class), () -> {
 				val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));

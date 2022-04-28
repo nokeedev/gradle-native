@@ -187,7 +187,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				binary.getJarTask().configure(task -> {
 					task.getArchiveBaseName().set(project.provider(() -> {
 						val baseName = ModelProperties.getProperty(entity, "baseName").as(String.class).get();
-						return baseName + ((VariantIdentifier<?>) identifier.get()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
+						return baseName + ((VariantIdentifier) identifier.get()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
 					}));
 				});
 			}));
@@ -288,10 +288,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		// Variant rules
 		// TODO: We should limit to JNILibrary variant
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.of(ModelPathComponent.class), (entity, id, tag, path) -> {
-			val identifier = (VariantIdentifier<?>) id.get();
+			val identifier = (VariantIdentifier) id.get();
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			if (!((VariantIdentifier<?>) id.get()).getUnambiguousName().isEmpty()) {
+			if (!((VariantIdentifier) id.get()).getUnambiguousName().isEmpty()) {
 				entity.addComponent(MultiVariantTag.tag());
 			}
 

@@ -55,7 +55,7 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
-	public DefaultIosApplicationVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+	public DefaultIosApplicationVariant(VariantIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
 		super(identifier, objects, providers, assembleTask);
 		this.productBundleIdentifier = objects.property(String.class);
 

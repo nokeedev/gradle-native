@@ -93,7 +93,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	@Override
 	protected void onEachVariant(KnownDomainObject<DefaultXCTestTestSuiteVariant> variant) {
 		super.onEachVariant(variant);
-		val variantIdentifier = (VariantIdentifier<?>) variant.getIdentifier();
+		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();
 
 		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
 

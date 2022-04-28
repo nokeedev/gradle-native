@@ -88,16 +88,16 @@ public final class BinaryIdentifier implements DomainObjectIdentifierInternal {
 
 	private Optional<ComponentIdentifier> getComponentOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
-			return Optional.of(((VariantIdentifier<?>) ownerIdentifier).getComponentIdentifier());
+			return Optional.of(((VariantIdentifier) ownerIdentifier).getComponentIdentifier());
 		} else if (ownerIdentifier instanceof ComponentIdentifier) {
 			return Optional.of((ComponentIdentifier) ownerIdentifier);
 		}
 		return Optional.empty();
 	}
 
-	private Optional<VariantIdentifier<?>> getVariantOwnerIdentifier() {
+	private Optional<VariantIdentifier> getVariantOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
-			return Optional.of((VariantIdentifier<?>) ownerIdentifier);
+			return Optional.of((VariantIdentifier) ownerIdentifier);
 		}
 		return Optional.empty();
 	}

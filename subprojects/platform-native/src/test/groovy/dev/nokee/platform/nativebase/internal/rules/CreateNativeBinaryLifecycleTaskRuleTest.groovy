@@ -53,11 +53,11 @@ class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { mockConfigurableProvider(provider) }, {})
 	}
 
-	VariantIdentifier<Variant> newIdentifier() {
+	VariantIdentifier newIdentifier() {
 		return newIdentifier(DefaultBuildVariant.of(Coordinates.of(TargetMachines.host())))
 	}
 
-	VariantIdentifier<Variant> newIdentifier(DefaultBuildVariant buildVariant) {
+	VariantIdentifier newIdentifier(DefaultBuildVariant buildVariant) {
 		return VariantIdentifier.of(buildVariant, Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of('root')))
 	}
 

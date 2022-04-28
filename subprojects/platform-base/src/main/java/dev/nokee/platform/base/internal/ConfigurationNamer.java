@@ -47,7 +47,7 @@ public final class ConfigurationNamer implements Namer<DependencyBucketIdentifie
 						return Stream.of(((ComponentIdentity) it).getName().get());
 					}
 				} else if (it instanceof VariantIdentifier) {
-					return Stream.of(((VariantIdentifier<?>) it).getUnambiguousName());
+					return Stream.of(((VariantIdentifier) it).getUnambiguousName());
 				} else if (it instanceof BinaryIdentity) {
 					return Stream.of((BinaryIdentity) it).filter(t -> !t.isMain()).map(t -> t.getName().toString());
 				} else if (it instanceof HasName) {

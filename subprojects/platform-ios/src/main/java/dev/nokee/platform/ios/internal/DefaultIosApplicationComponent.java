@@ -165,7 +165,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	protected void onEachVariant(KnownDomainObject<DefaultIosApplicationVariant> variant) {
-		val variantIdentifier = (VariantIdentifier<?>) variant.getIdentifier();
+		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();
 		ConfigurationNamer configurationNamer = ConfigurationNamer.INSTANCE;
 		// Create iOS application specific tasks
 		Configuration interfaceBuilderToolConfiguration = configurations.create(configurationNamer.determineName(DependencyBucketIdentifier.of(DependencyBucketIdentity.resolvable("interfaceBuilderTool"), variantIdentifier)));

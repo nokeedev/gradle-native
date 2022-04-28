@@ -41,10 +41,10 @@ public class CreateVariantAssembleLifecycleTaskRule implements Action<KnownDomai
 
 	@Override
 	public void execute(KnownDomainObject<? extends Variant> knownVariant) {
-		doExecute((VariantIdentifier<?>) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
+		doExecute((VariantIdentifier) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
 	}
 
-	private void doExecute(VariantIdentifier<?> variantIdentifier, Provider<Binary> binaryProvider) {
+	private void doExecute(VariantIdentifier variantIdentifier, Provider<Binary> binaryProvider) {
 		// For single variant component, the task may already exists, coming from 'lifecycle-base'.
 		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier), configureGroup(BUILD_GROUP));
 

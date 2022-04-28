@@ -31,7 +31,6 @@ class VariantIdentifierTest extends Specification {
 
 		then:
 		identifier.unambiguousName == 'macosDebug'
-		identifier.type == TestableVariant
 		identifier.componentIdentifier == ownerIdentifier
 	}
 
@@ -41,13 +40,11 @@ class VariantIdentifierTest extends Specification {
 
 		when:
 		def identifier = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
 
 		then:
 		identifier.unambiguousName == 'debug'
-		identifier.type == TestableVariant
 		identifier.componentIdentifier == ownerIdentifier
 	}
 
@@ -57,14 +54,12 @@ class VariantIdentifierTest extends Specification {
 
 		when:
 		def identifier = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
 
 		then:
 		identifier.unambiguousName == 'macosDebug'
-		identifier.type == TestableVariant
 		identifier.componentIdentifier == ownerIdentifier
 	}
 
@@ -74,14 +69,12 @@ class VariantIdentifierTest extends Specification {
 
 		when:
 		def identifier = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
 
 		then:
 		identifier.unambiguousName == 'debug'
-		identifier.type == TestableVariant
 		identifier.componentIdentifier == ownerIdentifier
 	}
 
@@ -91,19 +84,16 @@ class VariantIdentifierTest extends Specification {
 
 		expect:
 		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build().fullName == 'macosDebug'
 
 		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build().fullName == 'macosDebug'
 
 		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.build().fullName == ''
 	}
 
@@ -113,19 +103,16 @@ class VariantIdentifierTest extends Specification {
 
 		expect:
 		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build().ambiguousDimensions.get() == ['debug']
 
 		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build().ambiguousDimensions.get() == ['macos', 'debug']
 
 		VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.build().ambiguousDimensions.get() == []
 	}
 
@@ -135,13 +122,11 @@ class VariantIdentifierTest extends Specification {
 
 		when:
 		def identifier = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.build()
 
 		then:
 		identifier.unambiguousName == ''
-		identifier.type == TestableVariant
 		identifier.componentIdentifier == ownerIdentifier
 	}
 
@@ -149,11 +134,9 @@ class VariantIdentifierTest extends Specification {
 		given:
 		def ownerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
 		def singleDimension = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
 		def multipleDimension = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
@@ -166,12 +149,10 @@ class VariantIdentifierTest extends Specification {
 		given:
 		def ownerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
 		def identifier1 = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
 		def identifier2 = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
@@ -195,7 +176,6 @@ class VariantIdentifierTest extends Specification {
 		def ownerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
 		def identifier1 = VariantIdentifier.of('macosDebug', TestableVariant, ownerIdentifier)
 		def identifier2 = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
@@ -212,11 +192,9 @@ class VariantIdentifierTest extends Specification {
 		and:
 		def ownerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of(childProject))
 		def singleDimension = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
 		def multipleDimension = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withType(TestableVariant)
 			.withVariantDimension({'macos'}, [{'macos'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
@@ -226,6 +204,5 @@ class VariantIdentifierTest extends Specification {
 		multipleDimension.toString() == "variant ':bar:main:macosDebug'"
 	}
 
-	interface TestableComponent extends Component {}
 	interface TestableVariant extends Variant {}
 }

@@ -52,7 +52,7 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultXCTestTestSuiteVariant(VariantIdentifier<?> identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+	public DefaultXCTestTestSuiteVariant(VariantIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
 		super(identifier, objects, providers, assembleTask);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
