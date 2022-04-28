@@ -88,6 +88,9 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 
 	@Override
 	public String toString() {
+		if (unambiguousName.isEmpty()) {
+			return componentIdentifier.getDisplayName() + " '" + toGradlePath(this) + "'";
+		}
 		return "variant '" + toGradlePath(this) + "'";
 	}
 

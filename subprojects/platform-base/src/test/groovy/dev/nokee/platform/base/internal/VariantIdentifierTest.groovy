@@ -16,7 +16,6 @@
 package dev.nokee.platform.base.internal
 
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Variant
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
@@ -194,14 +193,12 @@ class VariantIdentifierTest extends Specification {
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
 		def multipleDimension = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
-			.withVariantDimension({'macos'}, [{'macos'}])
+			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])
 			.build()
 
 		expect:
-		singleDimension.toString() == "variant ':bar:main:debug'"
-		multipleDimension.toString() == "variant ':bar:main:macosDebug'"
+		singleDimension.toString() == "variant ':main:debug'"
+		multipleDimension.toString() == "variant ':main:macosDebug'"
 	}
-
-	interface TestableVariant extends Variant {}
 }

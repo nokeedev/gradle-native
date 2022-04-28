@@ -63,20 +63,6 @@ class BinaryIdentifierTest extends Specification {
 		thrown(NullPointerException)
 	}
 
-	def "throws exception if type is null"() {
-		given:
-		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
-
-		when:
-		BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
-
-		then:
-		def ex = thrown(IllegalArgumentException)
-		ex.message == 'Cannot construct a binary identifier because the task type is null.'
-	}
-
 	def "throws exception if owner is null"() {
 		when:
 		BinaryIdentifier.of(BinaryName.of('foo'), null)
