@@ -19,10 +19,12 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.mapDisplayName;
+import java.util.function.Supplier;
+
 import static dev.nokee.utils.ConfigurationUtils.configureDescription;
 
 public final class DependencyBucketFactoryImpl implements DependencyBucketFactory {
@@ -52,5 +54,28 @@ public final class DependencyBucketFactoryImpl implements DependencyBucketFactor
 			return ConfigurationBucketType.RESOLVABLE;
 		}
 		throw new RuntimeException();
+	}
+
+	public static Supplier<String> mapDisplayName(DependencyBucketIdentifier identifier) {
+		return new MapDisplayName(identifier);
+	}
+
+	@EqualsAndHashCode
+	private static class MapDisplayName implements Supplier<String> {
+		private final DependencyBucketIdentifier identifier;
+
+		public MapDisplayName(DependencyBucketIdentifier identifier) {
+			this.identifier = identifier;
+		}
+
+		@Override
+		public String get() {
+			return DependencyBuckets.toDescription(identifier);
+		}
+
+		@Override
+		public String toString() {
+			return "DomainObjectIdentifierUtils.mapDisplayName(" + identifier + ")";
+		}
 	}
 }

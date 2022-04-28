@@ -115,11 +115,6 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	}
 
 	@Override
-	public String getDisplayName() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public String toString() {
 		return identity.getDisplayName() + " '" + toGradlePath(this) + "'";
 	}

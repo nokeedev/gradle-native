@@ -21,6 +21,4 @@ import java.util.Optional;
 
 public interface DomainObjectIdentifierInternal extends DomainObjectIdentifier {
 	Optional<? extends DomainObjectIdentifier> getParentIdentifier();
-
-	String getDisplayName();
 }

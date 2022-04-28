@@ -38,7 +38,7 @@ class DependencyBucketFactoryImplTest extends Specification {
 		def result = subject.create(identifier)
 
 		then:
-		result.asConfiguration.description == identifier.displayName
+		result.asConfiguration.description == DependencyBuckets.toDescription(identifier)
 		if (bucketType == DeclarableDependencyBucket) {
 			!result.asConfiguration.canBeConsumed
 			!result.asConfiguration.canBeResolved

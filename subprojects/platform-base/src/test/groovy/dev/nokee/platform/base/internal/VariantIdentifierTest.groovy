@@ -204,41 +204,6 @@ class VariantIdentifierTest extends Specification {
 		identifier1 == identifier2
 	}
 
-	def "computes display name from unambiguous name and component's display name for non-main component"() {
-		given:
-		def mainOwnerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
-		def testOwnerIdentifier = ComponentIdentifier.of(ComponentName.of('test'), ProjectIdentifier.ofRootProject())
-		def integTestOwnerIdentifier = ComponentIdentifier.of(ComponentName.of('integTest'), ProjectIdentifier.ofRootProject())
-
-		expect:
-        VariantIdentifier.of('macosDebug', TestableVariant, mainOwnerIdentifier).displayName == "variant 'macosDebug'"
-        VariantIdentifier.of('macosDebug', TestableVariant, testOwnerIdentifier).displayName == "variant 'macosDebug' of component ':test'"
-        VariantIdentifier.of('macosDebug', TestableVariant, integTestOwnerIdentifier).displayName == "variant 'macosDebug' of component ':integTest'"
-        VariantIdentifier.of('debug', TestableVariant, mainOwnerIdentifier).displayName == "variant 'debug'"
-	}
-
-	def "includes component custom display name for main component"() {
-		given:
-		def jniOwnerIdentifier = ComponentIdentifier.builder().name(ComponentName.of('main')).withProjectIdentifier(ProjectIdentifier.ofRootProject()).displayName('JNI library').build()
-		def iosOwnerIdentifier = ComponentIdentifier.builder().name(ComponentName.of('main')).withProjectIdentifier(ProjectIdentifier.ofRootProject()).displayName('iOS application').build()
-
-		expect:
-        VariantIdentifier.of('macosDebug', TestableVariant, jniOwnerIdentifier).displayName == "variant 'macosDebug'"
-        VariantIdentifier.of('debug', TestableVariant, iosOwnerIdentifier).displayName == "variant 'debug'"
-	}
-
-	def "uses component display name for empty unambiguous name"() {
-		def mainOwnerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
-		def testOwnerIdentifier = ComponentIdentifier.of(ComponentName.of('test'), ProjectIdentifier.of('root'))
-		def jniOwnerIdentifier = ComponentIdentifier.builder().name(ComponentName.of('main')).withProjectIdentifier(ProjectIdentifier.of('root')).displayName('JNI library').build()
-		def iosOwnerIdentifier = ComponentIdentifier.builder().name(ComponentName.of('main')).withProjectIdentifier(ProjectIdentifier.of('root')).displayName('iOS application').build()
-
-        VariantIdentifier.of('', TestableVariant, mainOwnerIdentifier).displayName == "main component"
-        VariantIdentifier.of('', TestableVariant, testOwnerIdentifier).displayName == "component 'test'"
-        VariantIdentifier.of('', TestableVariant, jniOwnerIdentifier).displayName == "JNI library"
-        VariantIdentifier.of('', TestableVariant, jniOwnerIdentifier).displayName == "iOS application"
-	}
-
 	def "has meaningful toString() implementation"() {
 		given:
 		def rootProject = ProjectBuilder.builder().withName('foo').build()
@@ -257,8 +222,8 @@ class VariantIdentifierTest extends Specification {
 			.build()
 
 		expect:
-		singleDimension.toString() == "variant ':bar:main:debug' (${TestableVariant.simpleName})"
-		multipleDimension.toString() == "variant ':bar:main:macosDebug' (${TestableVariant.simpleName})"
+		singleDimension.toString() == "variant ':bar:main:debug'"
+		multipleDimension.toString() == "variant ':bar:main:macosDebug'"
 	}
 
 	interface TestableComponent extends Component {}

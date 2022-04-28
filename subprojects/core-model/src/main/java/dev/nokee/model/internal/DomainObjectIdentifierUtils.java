@@ -27,7 +27,6 @@ import org.gradle.util.Path;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -154,29 +153,6 @@ public final class DomainObjectIdentifierUtils {
 		@Override
 		public String toString() {
 			return "DomainObjectIdentifierUtils.named(" + name + ")";
-		}
-	}
-
-	public static Supplier<String> mapDisplayName(DomainObjectIdentifierInternal identifier) {
-		return new MapDisplayName(identifier);
-	}
-
-	@EqualsAndHashCode
-	private static class MapDisplayName implements Supplier<String> {
-		private final DomainObjectIdentifierInternal identifier;
-
-		public MapDisplayName(DomainObjectIdentifierInternal identifier) {
-			this.identifier = identifier;
-		}
-
-		@Override
-		public String get() {
-			return identifier.getDisplayName();
-		}
-
-		@Override
-		public String toString() {
-			return "DomainObjectIdentifierUtils.mapDisplayName(" + identifier + ")";
 		}
 	}
 
