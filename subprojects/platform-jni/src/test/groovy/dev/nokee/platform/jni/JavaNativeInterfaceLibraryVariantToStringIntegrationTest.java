@@ -53,7 +53,7 @@ class JavaNativeInterfaceLibraryVariantToStringIntegrationTest extends AbstractP
 
 	@Test
 	void hasToString() {
-		assertThat(subject, Matchers.hasToString("variant 'macosX64' of my JNI library ':zagi'"));
+		assertThat(subject, Matchers.hasToString("JNI library 'zagiMacosX64'"));
 	}
 
 }

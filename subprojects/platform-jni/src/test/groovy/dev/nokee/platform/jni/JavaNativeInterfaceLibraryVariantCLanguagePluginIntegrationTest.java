@@ -90,7 +90,7 @@ class JavaNativeInterfaceLibraryVariantCLanguagePluginIntegrationTest extends Ab
 
 		@Override
 		public String displayName() {
-			return "variant 'freebsdX86' of component ':liho'";
+			return "variant ':liho:freebsdX86'";
 		}
 	}
 

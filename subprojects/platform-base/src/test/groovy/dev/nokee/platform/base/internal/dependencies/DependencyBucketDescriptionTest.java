@@ -76,23 +76,23 @@ class DependencyBucketDescriptionTest {
 
 	@Test
 	void canGenerateNameForSingleWordBucketNameOwnedByAVariantOfTheMainComponent() {
-		assertEquals("Implementation dependencies for variant 'macosDebug'.",
+		assertEquals("Implementation dependencies for variant ':main:macosDebug'.",
 			toDescription(of(declarable("implementation"), VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
-		assertEquals("Implementation dependencies for variant 'x86-64Debug'.",
+		assertEquals("Implementation dependencies for variant ':main:x86-64Debug'.",
 			toDescription(of(declarable("implementation"), VariantIdentifier.of("x86-64Debug", ofMain(ofRootProject())))));
-		assertEquals("Implementation dependencies for variant 'windowsX86'.",
+		assertEquals("Implementation dependencies for variant ':main:windowsX86'.",
 			toDescription(of(declarable("implementation"), VariantIdentifier.of("windowsX86", ofMain(ofRootProject())))));
 	}
 
 	@Test
 	void canGenerateNameForSingleWordBucketNameOwnedByAVariantOfTheNonMainComponent() {
-		assertEquals("Implementation dependencies for variant 'macosDebug' of component ':test'.",
+		assertEquals("Implementation dependencies for variant ':test:macosDebug'.",
 			toDescription(of(declarable("implementation"),
 				VariantIdentifier.of("macosDebug", ComponentIdentifier.of("test", ofRootProject())))));
-		assertEquals("Implementation dependencies for variant 'x86-64Debug' of component ':integTest'.",
+		assertEquals("Implementation dependencies for variant ':integTest:x86-64Debug'.",
 			toDescription(of(declarable("implementation"),
 				VariantIdentifier.of("x86-64Debug", ComponentIdentifier.of("integTest", ofRootProject())))));
-		assertEquals("Implementation dependencies for variant 'windowsX86' of component ':uiTest'.",
+		assertEquals("Implementation dependencies for variant ':uiTest:windowsX86'.",
 			toDescription(of(declarable("implementation"),
 				VariantIdentifier.of("windowsX86", ComponentIdentifier.of("uiTest", ofRootProject())))));
 	}

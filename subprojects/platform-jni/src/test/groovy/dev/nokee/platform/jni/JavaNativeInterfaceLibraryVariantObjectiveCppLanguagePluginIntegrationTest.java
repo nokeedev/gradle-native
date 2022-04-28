@@ -90,7 +90,7 @@ class JavaNativeInterfaceLibraryVariantObjectiveCppLanguagePluginIntegrationTest
 
 		@Override
 		public String displayName() {
-			return "variant 'linuxX64' of component ':xapi'";
+			return "variant ':xapi:linuxX64'";
 		}
 	}
 

@@ -16,8 +16,6 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.Iterables;
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,14 +29,7 @@ public final class DependencyBuckets {
 		if (Iterables.size(identities) == 1) {
 			builder.append("<unknown>");
 		} else {
-			val ownerIdentifier = identifier.getOwnerIdentifier();
-			if (ownerIdentifier instanceof BinaryIdentifier) {
-				builder.append(ownerIdentifier);
-			} else if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
-				builder.append(((DomainObjectIdentifierInternal) ownerIdentifier).getDisplayName());
-			} else {
-				builder.append(ownerIdentifier);
-			}
+			builder.append(identifier.getOwnerIdentifier());
 		}
 		builder.append(".");
 		return builder.toString();
