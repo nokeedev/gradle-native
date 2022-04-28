@@ -60,7 +60,7 @@ public final class BundleBinaryRegistrationFactory {
 		this.objectFactory = objectFactory;
 	}
 
-	public ModelRegistration create(BinaryIdentifier<?> identifier) {
+	public ModelRegistration create(BinaryIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsBinary.tag())

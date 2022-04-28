@@ -35,7 +35,6 @@ import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.HasCreateTask;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.val;
 import org.gradle.api.file.FileSystemLocation;
@@ -60,7 +59,7 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		this.objectFactory = objectFactory;
 	}
 
-	public ModelRegistration create(BinaryIdentifier<?> identifier) {
+	public ModelRegistration create(BinaryIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsBinary.tag())
