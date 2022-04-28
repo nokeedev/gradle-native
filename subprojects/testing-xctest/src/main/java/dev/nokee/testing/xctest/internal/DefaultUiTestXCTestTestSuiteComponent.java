@@ -25,7 +25,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
-import dev.nokee.platform.base.internal.BinaryName;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -144,7 +143,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 			task.getSwiftSupportRequired().set(false);
 		});
 
-		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(BinaryName.of("launcherApplicationBundle"), IosApplicationBundleInternal.class, variantIdentifier);
+		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(variantIdentifier, "launcherApplicationBundle");
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
 			.withComponent(ConfigurableTag.tag())
@@ -159,7 +158,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 			task.getCodeSignatureTool().disallowChanges();
 		});
 
-		val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(BinaryName.of("signedLauncherApplicationBundle"), SignedIosApplicationBundleInternal.class, variantIdentifier);
+		val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(variantIdentifier, "signedLauncherApplicationBundle");
 		val signedLauncherApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
 		registry.register(ModelRegistration.builder()
 			.withComponent(IsBinary.tag())
