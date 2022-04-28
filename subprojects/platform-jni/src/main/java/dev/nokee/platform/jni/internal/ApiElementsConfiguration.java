@@ -21,7 +21,7 @@ import dev.nokee.model.internal.core.ModelNode;
 public final class ApiElementsConfiguration implements ModelComponent {
 	private final ModelNode entity;
 
-	ApiElementsConfiguration(ModelNode entity) {
+	public ApiElementsConfiguration(ModelNode entity) {
 		this.entity = entity;
 	}
 
