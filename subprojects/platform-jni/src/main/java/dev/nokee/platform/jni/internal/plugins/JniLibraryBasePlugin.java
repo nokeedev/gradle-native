@@ -80,6 +80,7 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.jni.JvmJarBinary;
+import dev.nokee.platform.jni.internal.ApiElementsConfiguration;
 import dev.nokee.platform.jni.internal.AssembleTask;
 import dev.nokee.platform.jni.internal.GeneratedJniHeadersComponent;
 import dev.nokee.platform.jni.internal.JarTaskComponent;
@@ -177,6 +178,15 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(CompileTaskTag.class));
 
+		// Component rules
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			registry.instantiate(configure(apiElements.get().getId(), Configuration.class, configuration -> {
+				configuration.getOutgoing().artifact(jvmJar.getJarTask());
+			}));
+		}));
+
+		// Variant rules
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsVariant.class), (entity, projection, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));

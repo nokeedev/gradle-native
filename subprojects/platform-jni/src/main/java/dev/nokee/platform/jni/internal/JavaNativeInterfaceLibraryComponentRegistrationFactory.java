@@ -211,14 +211,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, id, jvmJar, apiElements) -> {
-				if (id.get().equals(identifier)) {
-					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					registry.instantiate(configure(apiElements.get().getId(), Configuration.class, configuration -> {
-						configuration.getOutgoing().artifact(jvmJar.getJarTask());
-					}));
-				}
-			}))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(RuntimeElementsConfiguration.class), (entity, id, jvmJar, runtimeElements) -> {
 				if (id.get().equals(identifier)) {
 					val registry = project.getExtensions().getByType(ModelRegistry.class);
