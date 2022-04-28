@@ -35,7 +35,6 @@ class BinaryIdentifierTest extends Specification {
 
 		then:
 		result.name.get() == 'foo'
-		result.type == TestableBinary
 		result.ownerIdentifier == variantIdentifier
 	}
 
@@ -49,7 +48,6 @@ class BinaryIdentifierTest extends Specification {
 
 		then:
 		result.name.get() == 'foo'
-		result.type == TestableBinary
 		result.ownerIdentifier == componentIdentifier
 	}
 

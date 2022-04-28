@@ -21,7 +21,6 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 
 @EqualsAndHashCode
-public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal, TypeAwareDomainObjectIdentifier<T>, HasName {
+public final class TaskIdentifier<T extends Task> implements DomainObjectIdentifierInternal, HasName {
 	@Getter private final TaskName name;
 	@Getter private final Class<T> type;
 	@Getter private final DomainObjectIdentifier ownerIdentifier;

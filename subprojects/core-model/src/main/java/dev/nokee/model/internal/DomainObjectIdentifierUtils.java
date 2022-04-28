@@ -69,32 +69,6 @@ public final class DomainObjectIdentifierUtils {
 		}
 	}
 
-	public static Predicate<DomainObjectIdentifier> withType(Class<?> type) {
-		return new WithTypeIdentifierPredicate(type);
-	}
-
-	@EqualsAndHashCode
-	private static final class WithTypeIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
-		private final Class<?> type;
-
-		WithTypeIdentifierPredicate(Class<?> type) {
-			this.type = type;
-		}
-
-		@Override
-		public boolean test(DomainObjectIdentifier identifier) {
-			if (identifier instanceof TypeAwareDomainObjectIdentifier) {
-				return type.isAssignableFrom(((TypeAwareDomainObjectIdentifier<?>) identifier).getType());
-			}
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return "DomainObjectIdentifierUtils.withType(" + type.getCanonicalName() + ")";
-		}
-	}
-
 	public static Predicate<DomainObjectIdentifier> named(String name) {
 		return new NamedIdentifierPredicate(name);
 	}
@@ -119,19 +93,6 @@ public final class DomainObjectIdentifierUtils {
 		public String toString() {
 			return "DomainObjectIdentifierUtils.named(" + name + ")";
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <S> TypeAwareDomainObjectIdentifier<S> uncheckedIdentifierCast(TypeAwareDomainObjectIdentifier<?> identifier) {
-		return (TypeAwareDomainObjectIdentifier<S>) identifier;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <S> TypeAwareDomainObjectIdentifier<S> castIdentifier(Class<S> outputIdentifierType, TypeAwareDomainObjectIdentifier<?> identifier) {
-		if (outputIdentifierType.isAssignableFrom(identifier.getType())) {
-			return (TypeAwareDomainObjectIdentifier<S>) identifier;
-		}
-		throw new ClassCastException(String.format("Failed to cast identifier %s of type %s to identifier of type %s.", identifier.toString(), identifier.getType().getName(), outputIdentifierType.getName()));
 	}
 
 	public static ModelPath toPath(DomainObjectIdentifier identifier) {
