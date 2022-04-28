@@ -18,12 +18,9 @@ package dev.nokee.platform.base.internal.dependencies;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
@@ -55,22 +52,6 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifier {
 
 	public DomainObjectIdentifier getOwnerIdentifier() {
 		return ownerIdentifier;
-	}
-
-	private Optional<ComponentIdentifier> getComponentOwnerIdentifier() {
-		if (ownerIdentifier instanceof VariantIdentifier) {
-			return Optional.of(((VariantIdentifier) ownerIdentifier).getComponentIdentifier());
-		} else if (ownerIdentifier instanceof ComponentIdentifier) {
-			return Optional.of((ComponentIdentifier) ownerIdentifier);
-		}
-		return Optional.empty();
-	}
-
-	private Optional<VariantIdentifier> getVariantOwnerIdentifier() {
-		if (ownerIdentifier instanceof VariantIdentifier) {
-			return Optional.of((VariantIdentifier) ownerIdentifier);
-		}
-		return Optional.empty();
 	}
 
 	// FIXME: Remove this API
