@@ -28,7 +28,7 @@ import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIden
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.from;
 
 @EqualsAndHashCode
-public class DependencyBucketIdentifier implements DomainObjectIdentifier {
+public final class DependencyBucketIdentifier implements DomainObjectIdentifier {
 	private final DependencyBucketIdentity identity;
 	private final DomainObjectIdentifier ownerIdentifier;
 
