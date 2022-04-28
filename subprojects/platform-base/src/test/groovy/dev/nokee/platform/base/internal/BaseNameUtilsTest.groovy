@@ -16,8 +16,6 @@
 package dev.nokee.platform.base.internal
 
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Component
-import dev.nokee.platform.base.Variant
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -38,7 +36,7 @@ class BaseNameUtilsTest extends Specification {
 	}
 
 	private static VariantIdentifier variantId(String name, ComponentIdentifier owner) {
-		return VariantIdentifier.of(name, Variant, owner)
+		return VariantIdentifier.of(name, owner)
 	}
 
 	def "creates a base name of main component"() {

@@ -55,10 +55,10 @@ class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 		def subject = new CreateVariantObjectsLifecycleTaskRule(taskRegistry)
 
 		and:
-		def owner1 = VariantIdentifier.of('debug', Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of('root')))
+		def owner1 = VariantIdentifier.of('debug', ComponentIdentifier.ofMain(ProjectIdentifier.of('root')))
 
 		and:
-		def owner2 = VariantIdentifier.of('macos', Variant, ComponentIdentifier.of(ComponentName.of('test'), ProjectIdentifier.of('root')))
+		def owner2 = VariantIdentifier.of('macos', ComponentIdentifier.of(ComponentName.of('test'), ProjectIdentifier.of('root')))
 
 		when:
 		subject.execute(newSubject(owner1))
@@ -82,7 +82,7 @@ class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 		def subject = new CreateVariantObjectsLifecycleTaskRule(taskRegistry)
 
 		and:
-		def owner = VariantIdentifier.of('debug', Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of('root')))
+		def owner = VariantIdentifier.of('debug', ComponentIdentifier.ofMain(ProjectIdentifier.of('root')))
 		def valueFlatMapProvider = Stub(Provider)
 		def value = Mock(Provider)
 

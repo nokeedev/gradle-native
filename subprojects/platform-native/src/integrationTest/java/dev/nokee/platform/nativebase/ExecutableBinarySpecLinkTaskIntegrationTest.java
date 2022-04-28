@@ -23,7 +23,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -73,7 +72,7 @@ class ExecutableBinarySpecLinkTaskIntegrationTest {
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("mede", projectIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
-		val variantIdentifier = VariantIdentifier.of("wuri", Variant.class, componentIdentifier);
+		val variantIdentifier = VariantIdentifier.of("wuri", componentIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(variantIdentifier)).build());
 		binary = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, "ruro"))).as(ExecutableBinary.class).get();
 

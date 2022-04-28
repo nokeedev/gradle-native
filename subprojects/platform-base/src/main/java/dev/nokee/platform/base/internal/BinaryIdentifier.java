@@ -55,8 +55,7 @@ public final class BinaryIdentifier implements DomainObjectIdentifier {
 		return ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier || ownerIdentifier instanceof ProjectIdentifier;
 	}
 
-	public static <T extends Binary> BinaryIdentifier of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
-		checkArgument(type != null, "Cannot construct a binary identifier because the task type is null.");
+	public static BinaryIdentifier of(BinaryName name, DomainObjectIdentifier ownerIdentifier) {
 		return new BinaryIdentifier(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
 	}
 

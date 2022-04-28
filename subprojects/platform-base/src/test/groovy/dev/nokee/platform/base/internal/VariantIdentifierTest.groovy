@@ -16,7 +16,6 @@
 package dev.nokee.platform.base.internal
 
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Component
 import dev.nokee.platform.base.Variant
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -27,7 +26,7 @@ class VariantIdentifierTest extends Specification {
 		def ownerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
 
 		when:
-		def identifier = VariantIdentifier.of('macosDebug', TestableVariant, ownerIdentifier)
+		def identifier = VariantIdentifier.of('macosDebug', ownerIdentifier)
 
 		then:
 		identifier.unambiguousName == 'macosDebug'
@@ -164,8 +163,8 @@ class VariantIdentifierTest extends Specification {
 	def "two identifier build from names with the same unambiguous name are considered equals"() {
 		given:
 		def ownerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
-		def identifier1 = VariantIdentifier.of('macosDebug', TestableVariant, ownerIdentifier)
-		def identifier2 = VariantIdentifier.of('macosDebug', TestableVariant, ownerIdentifier)
+		def identifier1 = VariantIdentifier.of('macosDebug', ownerIdentifier)
+		def identifier2 = VariantIdentifier.of('macosDebug', ownerIdentifier)
 
 		expect:
 		identifier1 == identifier2
@@ -174,7 +173,7 @@ class VariantIdentifierTest extends Specification {
 	def "two identifiers resulting to the same unambiguous name where one has all dimensions participated to the name and the other is built directly from name are considered equals"() {
 		given:
 		def ownerIdentifier = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
-		def identifier1 = VariantIdentifier.of('macosDebug', TestableVariant, ownerIdentifier)
+		def identifier1 = VariantIdentifier.of('macosDebug', ownerIdentifier)
 		def identifier2 = VariantIdentifier.builder().withComponentIdentifier(ownerIdentifier)
 			.withVariantDimension({'macos'}, [{'macos'}, {'windows'}])
 			.withVariantDimension({'debug'}, [{'debug'}, {'release'}])

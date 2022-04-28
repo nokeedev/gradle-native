@@ -22,7 +22,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
-import java.util.Optional;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
@@ -55,11 +54,6 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 	@Override
 	public ComponentName getName() {
 		return identity.getName();
-	}
-
-	// FIXME: Remove this API
-	public Optional<ProjectIdentifier> getParentIdentifier() {
-		return Optional.of(projectIdentifier);
 	}
 
 	// FIXME: Remove this API

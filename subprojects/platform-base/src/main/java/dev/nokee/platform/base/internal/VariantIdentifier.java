@@ -56,15 +56,11 @@ public final class VariantIdentifier implements DomainObjectIdentifier, HasName 
 		this.fullName = fullName;
 	}
 
-	public static <T extends Variant> VariantIdentifier of(String unambiguousName, Class<T> type, ComponentIdentifier identifier) {
-		return new VariantIdentifier(unambiguousName, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
-	}
-
 	public static VariantIdentifier of(String unambiguousName, ComponentIdentifier identifier) {
 		return new VariantIdentifier(unambiguousName, identifier, Dimensions.empty(), Dimensions.empty(), null, unambiguousName);
 	}
 
-	public static <T extends Variant> VariantIdentifier of(BuildVariant buildVariant, Class<T> type, ComponentIdentifier identifier) {
+	public static <T extends Variant> VariantIdentifier of(BuildVariant buildVariant, ComponentIdentifier identifier) {
 		String unambiguousName = createUnambiguousName(buildVariant);
 		Dimensions ambiguousDimensions = Dimensions.of(createAmbiguousDimensionNames(buildVariant));
 		return new VariantIdentifier(unambiguousName, identifier, ambiguousDimensions, Dimensions.empty(), buildVariant, unambiguousName);

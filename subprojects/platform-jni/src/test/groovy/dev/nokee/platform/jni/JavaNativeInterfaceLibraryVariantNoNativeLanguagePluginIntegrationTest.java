@@ -26,7 +26,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -36,7 +35,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -51,7 +49,7 @@ class JavaNativeInterfaceLibraryVariantNoNativeLanguagePluginIntegrationTest ext
 		val componentIdentifier = ComponentIdentifier.of("zoko", ProjectIdentifier.of(project));
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
-		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(of("unix-arm")), Variant.class, componentIdentifier);
+		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(of("unix-arm")), componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();
 	}
 

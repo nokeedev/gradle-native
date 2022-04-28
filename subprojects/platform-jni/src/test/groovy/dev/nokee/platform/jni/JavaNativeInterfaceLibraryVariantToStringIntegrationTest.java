@@ -21,7 +21,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
@@ -33,7 +32,6 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @PluginRequirement.Require(id = "dev.nokee.jni-library-base")
@@ -46,7 +44,7 @@ class JavaNativeInterfaceLibraryVariantToStringIntegrationTest extends AbstractP
 		val componentIdentifier = ComponentIdentifier.builder().name(ComponentName.of("zagi")).withProjectIdentifier(ProjectIdentifier.of(project)).displayName("my JNI library").build();
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
-		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("macos-x64")), Variant.class, componentIdentifier);
+		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("macos-x64")), componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();
 
 	}

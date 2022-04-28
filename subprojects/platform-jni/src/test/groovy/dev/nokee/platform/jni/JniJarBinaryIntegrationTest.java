@@ -21,7 +21,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -55,7 +54,7 @@ class JniJarBinaryIntegrationTest extends AbstractPluginTest {
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("poto", ProjectIdentifier.of(project));
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
-		val variantIdentifier = VariantIdentifier.of("qile", Variant.class, componentIdentifier);
+		val variantIdentifier = VariantIdentifier.of("qile", componentIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(variantIdentifier)).build());
 		val factory = project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class);
 		subject = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, BinaryIdentity.of("tuva", "Liha binary"))).build()).as(JniJarBinary.class).get();

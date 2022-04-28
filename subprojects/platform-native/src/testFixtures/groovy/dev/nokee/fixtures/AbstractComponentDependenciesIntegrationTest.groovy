@@ -18,7 +18,6 @@ package dev.nokee.fixtures
 import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.DomainObjectIdentifier
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import org.gradle.api.Action
@@ -43,7 +42,7 @@ abstract class AbstractComponentDependenciesIntegrationTest extends Specificatio
 	def project = ProjectTestUtils.rootProject()
 
 	protected DomainObjectIdentifier newNamingScheme(String variant = '') {
-		return VariantIdentifier.of(variant, Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)))
+		return VariantIdentifier.of(variant, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)))
 	}
 
 	protected newDependencies(String variant = '') {

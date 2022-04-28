@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal.dependencies
 
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.DependencyBucket
-import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
@@ -59,7 +58,7 @@ class DependencyBucketIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 		def bucketName = DependencyBucketName.of('implementation')
 
 		when:
@@ -98,7 +97,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "has to string"() {
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 
 		expect:
 		DependencyBucketIdentifier.of(declarable('compileOnly'), projectIdentifier).toString() == "compile only dependencies ':compileOnly'"
