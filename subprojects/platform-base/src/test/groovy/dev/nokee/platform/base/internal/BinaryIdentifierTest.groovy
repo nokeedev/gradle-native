@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal
 
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Binary
-import dev.nokee.platform.base.Variant
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Subject
@@ -28,10 +27,10 @@ class BinaryIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 
 		when:
-		def result = BinaryIdentifier.of(BinaryName.of('foo'), TestableBinary, variantIdentifier)
+		def result = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
 
 		then:
 		result.name.get() == 'foo'
@@ -44,7 +43,7 @@ class BinaryIdentifierTest extends Specification {
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 
 		when:
-		def result = BinaryIdentifier.of(BinaryName.of('foo'), TestableBinary, componentIdentifier)
+		def result = BinaryIdentifier.of(BinaryName.of('foo'), componentIdentifier)
 
 		then:
 		result.name.get() == 'foo'
@@ -55,10 +54,10 @@ class BinaryIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 
 		when:
-		BinaryIdentifier.of(null, TestableBinary, variantIdentifier)
+		BinaryIdentifier.of(null, variantIdentifier)
 
 		then:
 		thrown(NullPointerException)
@@ -68,10 +67,10 @@ class BinaryIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('debug', Variant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 
 		when:
-		BinaryIdentifier.of(BinaryName.of('foo'), null, variantIdentifier)
+		BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
 
 		then:
 		def ex = thrown(IllegalArgumentException)
@@ -80,7 +79,7 @@ class BinaryIdentifierTest extends Specification {
 
 	def "throws exception if owner is null"() {
 		when:
-		BinaryIdentifier.of(BinaryName.of('foo'), TestableBinary, null)
+		BinaryIdentifier.of(BinaryName.of('foo'), null)
 
 		then:
 		def ex = thrown(IllegalArgumentException)
@@ -95,11 +94,11 @@ class BinaryIdentifierTest extends Specification {
 		and:
 		def ownerProject = ProjectIdentifier.of(childProject)
 		def ownerComponent = ComponentIdentifier.ofMain(ownerProject)
-		def ownerVariant = VariantIdentifier.of('macosRelease', Variant, ownerComponent)
+		def ownerVariant = VariantIdentifier.of('macosRelease', ownerComponent)
 
 		expect:
-		BinaryIdentifier.of(BinaryName.of('bar'), TestableBinary, ownerComponent).toString() == "binary ':main:bar'"
-		BinaryIdentifier.of(BinaryName.of('jar'), TestableBinary, ownerVariant).toString() == "binary ':main:macosRelease:jar'"
+		BinaryIdentifier.of(BinaryName.of('bar'), ownerComponent).toString() == "binary ':main:bar'"
+		BinaryIdentifier.of(BinaryName.of('jar'), ownerVariant).toString() == "binary ':main:macosRelease:jar'"
 	}
 
 	interface TestableBinary extends Binary {}

@@ -26,7 +26,6 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -44,7 +43,6 @@ import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.TaskMatchers.dependsOn;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentIntegrationTest.realize;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,7 +59,7 @@ class JavaNativeInterfaceLibraryVariantCppLanguagePluginIntegrationTest extends 
 		val componentIdentifier = ComponentIdentifier.of("difi", ProjectIdentifier.of(project));
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).withComponent(new FullyQualifiedNameComponent("difi")).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
-		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(of("windows-x86")), Variant.class, componentIdentifier);
+		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(of("windows-x86")), componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();
 	}
 

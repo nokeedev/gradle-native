@@ -16,9 +16,6 @@
 package dev.nokee.platform.base.internal
 
 import dev.nokee.model.internal.ProjectIdentifier
-import dev.nokee.platform.base.Binary
-import dev.nokee.platform.base.Component
-import dev.nokee.platform.base.Variant
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -28,7 +25,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, componentIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), componentIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/main'
@@ -40,7 +37,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, componentIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), componentIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/test'
@@ -53,7 +50,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withComponentIdentifier(componentIdentifier).build()
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/main'
@@ -66,7 +63,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}]).withVariantDimension({'macos'}, [{'macos'}]).withComponentIdentifier(componentIdentifier).build()
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/test'
@@ -80,7 +77,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withComponentIdentifier(componentIdentifier).build()
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/main/debug/macos'
@@ -93,7 +90,7 @@ class BinaryIdentifier_OutputDirectoryBaseTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.of('root')
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
 		def variantIdentifier = VariantIdentifier.builder().withVariantDimension({'debug'}, [{'debug'}, {'release'}]).withVariantDimension({'macos'}, [{'macos'}, {'windows'}]).withComponentIdentifier(componentIdentifier).build()
-		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), Binary, variantIdentifier)
+		def binaryIdentifier = BinaryIdentifier.of(BinaryName.of('foo'), variantIdentifier)
 
 		expect:
 		binaryIdentifier.getOutputDirectoryBase('objs') == 'objs/test/debug/macos'

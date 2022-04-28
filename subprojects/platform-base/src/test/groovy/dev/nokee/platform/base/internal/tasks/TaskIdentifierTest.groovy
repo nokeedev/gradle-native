@@ -61,7 +61,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('debug', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
 		def taskName = TaskName.of('create')
 
 		when:
@@ -153,7 +153,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('macosDebug', componentIdentifier)
 
 		expect:
 		identifier('compile', variantIdentifier).taskName == 'compileMacosDebug'
@@ -165,7 +165,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('macosDebug', componentIdentifier)
 
 		expect:
 		identifier('compile', 'c', variantIdentifier).taskName == 'compileMacosDebugC'
@@ -177,7 +177,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('macosDebug', componentIdentifier)
 
 		expect:
 		identifier('compile', variantIdentifier).taskName == 'compileTestMacosDebug'
@@ -189,7 +189,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('macosDebug', componentIdentifier)
 
 		expect:
 		identifier('compile', 'c', variantIdentifier).taskName == 'compileTestMacosDebugC'
@@ -201,7 +201,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('', componentIdentifier)
 
 		expect:
 		identifier('create', variantIdentifier).taskName == 'create'
@@ -213,7 +213,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('', componentIdentifier)
 
 		expect:
 		identifier('create', variantIdentifier).taskName == 'createTest'
@@ -258,7 +258,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('macosDebug', componentIdentifier)
 
 		expect:
 		identifier('foo', projectIdentifier) == identifier('foo', projectIdentifier)
@@ -277,7 +277,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.of(ComponentName.of('test'), projectIdentifier)
-		def variantIdentifier = VariantIdentifier.of('macosDebug', TestableVariant, componentIdentifier)
+		def variantIdentifier = VariantIdentifier.of('macosDebug', componentIdentifier)
 
 		expect:
 		identifier('foo', TestableTask, projectIdentifier) == identifier('foo', TestableTask, projectIdentifier)
@@ -296,7 +296,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def ownerProject = ProjectIdentifier.ofRootProject()
 		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), ownerProject)
-		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
+		def ownerVariant = VariantIdentifier.of('macosDebug', ownerComponent)
 
 		expect:
 		identifier('foo', ownerProject) == identifier('foo', ownerProject)
@@ -318,7 +318,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def ownerProject = ProjectIdentifier.ofRootProject()
 		def ownerComponent = ComponentIdentifier.ofMain(ownerProject)
-		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
+		def ownerVariant = VariantIdentifier.of('macosDebug', ownerComponent)
 
 		when:
 		def result = TaskIdentifier.ofLifecycle(ownerVariant)
@@ -334,7 +334,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def ownerProject = ProjectIdentifier.ofRootProject()
 		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), ownerProject)
-		def ownerVariant = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponent)
+		def ownerVariant = VariantIdentifier.of('macosDebug', ownerComponent)
 
 		when:
 		def result = TaskIdentifier.ofLifecycle(ownerVariant)
@@ -350,7 +350,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def ownerProject = ProjectIdentifier.ofRootProject()
 		def ownerComponent = ComponentIdentifier.of(ComponentName.of('test'), ownerProject)
-		def ownerVariant = VariantIdentifier.of('', TestableVariant, ownerComponent)
+		def ownerVariant = VariantIdentifier.of('', ownerComponent)
 
 		when:
 		def result = TaskIdentifier.ofLifecycle(ownerVariant)
@@ -406,7 +406,7 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def ownerProject = ProjectIdentifier.ofRootProject()
 		def ownerComponent = ComponentIdentifier.ofMain(ownerProject)
-		def ownerVariant = VariantIdentifier.of('', TestableVariant, ownerComponent)
+		def ownerVariant = VariantIdentifier.of('', ownerComponent)
 
 		when:
 		TaskIdentifier.ofLifecycle(ownerVariant)
@@ -420,12 +420,12 @@ class TaskIdentifierTest extends Specification {
 		given:
 		def ownerRootProject = ProjectIdentifier.ofRootProject()
 		def ownerComponentInRootProject = ComponentIdentifier.ofMain(ownerRootProject)
-		def ownerVariantInRootProject = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponentInRootProject)
+		def ownerVariantInRootProject = VariantIdentifier.of('macosDebug', ownerComponentInRootProject)
 
 		and:
 		def ownerChildProject = ProjectIdentifier.ofChildProject('foo')
 		def ownerComponentInChildProject = ComponentIdentifier.ofMain(ownerChildProject)
-		def ownerVariantInChildProject = VariantIdentifier.of('macosDebug', TestableVariant, ownerComponentInChildProject)
+		def ownerVariantInChildProject = VariantIdentifier.of('macosDebug', ownerComponentInChildProject)
 
 		expect: 'in a root project'
 		TaskIdentifier.ofLifecycle(ownerVariantInRootProject).toString() == "task ':main:macosDebug' (Task)"

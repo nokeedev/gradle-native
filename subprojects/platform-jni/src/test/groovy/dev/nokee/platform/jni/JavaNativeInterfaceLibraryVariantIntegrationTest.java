@@ -27,7 +27,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -85,7 +84,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 		val componentIdentifier = ComponentIdentifier.of("reqi", ProjectIdentifier.of(project));
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
 		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
-		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("windows-x86")), Variant.class, componentIdentifier);
+		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(TargetMachines.of("windows-x86")), componentIdentifier);
 		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();
 	}
 

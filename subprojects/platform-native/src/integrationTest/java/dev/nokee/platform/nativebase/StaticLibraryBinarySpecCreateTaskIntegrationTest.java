@@ -23,7 +23,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -68,7 +67,7 @@ class StaticLibraryBinarySpecCreateTaskIntegrationTest {
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("vula", projectIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
-		val variantIdentifier = VariantIdentifier.of("nusi", Variant.class, componentIdentifier);
+		val variantIdentifier = VariantIdentifier.of("nusi", componentIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(variantIdentifier)).build());
 		binary = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, "liku"))).as(StaticLibraryBinary.class).get();
 

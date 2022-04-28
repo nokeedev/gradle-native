@@ -23,7 +23,6 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -52,7 +51,6 @@ import static dev.nokee.platform.nativebase.NativePlatformTestUtils.macosPlatfor
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -74,7 +72,7 @@ class BundleBinarySpecLinkTaskIntegrationTest {
 		val projectIdentifier = ProjectIdentifier.of(project);
 		val componentIdentifier = ComponentIdentifier.of("luko", projectIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).build());
-		val variantIdentifier = VariantIdentifier.of("foto", Variant.class, componentIdentifier);
+		val variantIdentifier = VariantIdentifier.of("foto", componentIdentifier);
 		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(variantIdentifier)).build());
 		binary = registry.register(factory.create(BinaryIdentifier.of(variantIdentifier, "vupi"))).as(BundleBinary.class).get();
 
