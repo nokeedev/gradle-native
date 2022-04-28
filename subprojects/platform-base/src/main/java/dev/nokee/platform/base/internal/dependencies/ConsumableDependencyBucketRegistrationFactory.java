@@ -86,6 +86,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
 			.withComponent(ofInstance(outgoing))
+			.withComponent(ConsumableDependencyBucketTag.tag())
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path.get())) {
 					configurationProvider.configure(configuration -> {
