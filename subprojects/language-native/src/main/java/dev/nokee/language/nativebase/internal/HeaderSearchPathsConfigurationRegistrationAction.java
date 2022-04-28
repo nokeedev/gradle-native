@@ -23,6 +23,7 @@ import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
@@ -58,7 +59,7 @@ public final class HeaderSearchPathsConfigurationRegistrationAction extends Mode
 
 	@Override
 	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
-		val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier.get())));
+		val headerSearchPaths = registry.register(ModelRegistration.builder().mergeFrom(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier.get()))).withComponent(HeaderSearchPathsDependencyBucketTag.tag()).build());
 		headerSearchPaths.configure(Configuration.class, forCPlusPlusApiUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));
 		entity.addComponent(new HeaderSearchPathsConfigurationComponent(ModelNodes.of(headerSearchPaths)));
