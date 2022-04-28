@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -32,7 +31,7 @@ import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIden
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.from;
 
 @EqualsAndHashCode
-public class DependencyBucketIdentifier implements DomainObjectIdentifierInternal {
+public class DependencyBucketIdentifier implements DomainObjectIdentifier {
 	private final DependencyBucketIdentity identity;
 	private final Class<?> type;
 	private final DomainObjectIdentifier ownerIdentifier;

@@ -15,8 +15,8 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.FunctionalSourceSet;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.cpp.CppSourceSet;
@@ -28,10 +28,9 @@ import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -48,9 +47,9 @@ import java.util.function.Function;
 public class NativeLanguageRules {
 	private final TaskRegistry taskRegistry;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-	private final DomainObjectIdentifierInternal ownerIdentifier;
+	private final DomainObjectIdentifier ownerIdentifier;
 
-	public NativeLanguageRules(TaskRegistry taskRegistry, ObjectFactory objects, DomainObjectIdentifierInternal ownerIdentifier) {
+	public NativeLanguageRules(TaskRegistry taskRegistry, ObjectFactory objects, DomainObjectIdentifier ownerIdentifier) {
 		this.taskRegistry = taskRegistry;
 		this.objects = objects;
 		this.ownerIdentifier = ownerIdentifier;

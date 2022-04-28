@@ -35,17 +35,11 @@ class DomainObjectIdentifierUtils_IsDescendentTest extends Specification {
 
 	def "returns true when identifier is direct child"() {
 		given:
-		def parentIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.empty()
-		}
+		def parentIdentifier = Stub(DomainObjectIdentifier)
 		parentIdentifier.iterator() >> { Stream.of(parentIdentifier).iterator() }
-		def childIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.of(parentIdentifier)
-		}
+		def childIdentifier = Stub(DomainObjectIdentifier)
 		childIdentifier.iterator() >> { Stream.of(parentIdentifier, childIdentifier).iterator() }
-		def anotherChildIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.of(parentIdentifier)
-		}
+		def anotherChildIdentifier = Stub(DomainObjectIdentifier)
 		anotherChildIdentifier.iterator() >> { Stream.of(parentIdentifier, anotherChildIdentifier).iterator() }
 
 		expect:
@@ -55,21 +49,13 @@ class DomainObjectIdentifierUtils_IsDescendentTest extends Specification {
 
 	def "returns true when identifier is not a direct child"() {
 		given:
-		def parentIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.empty()
-		}
+		def parentIdentifier = Stub(DomainObjectIdentifier)
 		parentIdentifier.iterator() >> { Stream.of(parentIdentifier).iterator() }
-		def indirectIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.of(parentIdentifier)
-		}
+		def indirectIdentifier = Stub(DomainObjectIdentifier)
 		indirectIdentifier.iterator() >> { Stream.of(parentIdentifier, indirectIdentifier).iterator() }
-		def childIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.of(indirectIdentifier)
-		}
+		def childIdentifier = Stub(DomainObjectIdentifier)
 		childIdentifier.iterator() >> { Stream.of(parentIdentifier, indirectIdentifier, childIdentifier).iterator() }
-		def anotherChildIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.of(indirectIdentifier)
-		}
+		def anotherChildIdentifier = Stub(DomainObjectIdentifier)
 		anotherChildIdentifier.iterator() >> { Stream.of(parentIdentifier, indirectIdentifier, anotherChildIdentifier).iterator() }
 
 		expect:
@@ -79,15 +65,9 @@ class DomainObjectIdentifierUtils_IsDescendentTest extends Specification {
 
 	def "returns false when identifier is not descendent"() {
 		given:
-		def parentIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.empty()
-		}
-		def childIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.of(parentIdentifier)
-		}
-		def anotherChildIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.of(parentIdentifier)
-		}
+		def parentIdentifier = Stub(DomainObjectIdentifier)
+		def childIdentifier = Stub(DomainObjectIdentifier)
+		def anotherChildIdentifier = Stub(DomainObjectIdentifier)
 
 		expect:
 		!isDescendent(parentIdentifier, childIdentifier)
@@ -96,12 +76,8 @@ class DomainObjectIdentifierUtils_IsDescendentTest extends Specification {
 
 	def "returns false for non-internal identifier type"() {
 		given:
-		def parentIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.empty()
-		}
-		def childIdentifier = Stub(DomainObjectIdentifierInternal) {
-			getParentIdentifier() >> Optional.of(parentIdentifier)
-		}
+		def parentIdentifier = Stub(DomainObjectIdentifier)
+		def childIdentifier = Stub(DomainObjectIdentifier)
 		def identifier = Stub(DomainObjectIdentifier)
 
 		expect:

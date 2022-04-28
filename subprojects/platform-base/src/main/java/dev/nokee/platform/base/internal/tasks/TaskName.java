@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.base.internal.tasks;
 
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
+import dev.nokee.model.DomainObjectIdentifier;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,7 +51,7 @@ public final class TaskName {
 	}
 
 	/**
-	 * Used as part of {@link TaskIdentifier#ofLifecycle(DomainObjectIdentifierInternal)}
+	 * Used as part of {@link TaskIdentifier#ofLifecycle(DomainObjectIdentifier)}
 	 *
 	 * @return an empty task name, never null.
  	 */
