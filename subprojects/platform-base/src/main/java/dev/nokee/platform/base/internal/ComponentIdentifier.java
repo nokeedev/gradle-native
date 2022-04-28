@@ -25,6 +25,7 @@ import org.gradle.util.Path;
 import java.util.Iterator;
 import java.util.Optional;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -88,7 +89,7 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 
 	@Override
 	public String toString() {
-		return displayName + " '" + getPath() + "'";
+		return displayName + " '" + toGradlePath(this) + "'";
 	}
 
 	public static Builder builder() {

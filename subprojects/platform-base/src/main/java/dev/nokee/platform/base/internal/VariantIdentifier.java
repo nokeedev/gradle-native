@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -123,7 +124,7 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 
 	@Override
 	public String toString() {
-		return "variant '" + getPath() + "' (" + type.getSimpleName() + ")";
+		return "variant '" + toGradlePath(this) + "' (" + type.getSimpleName() + ")";
 	}
 
 	public static Builder<Variant> builder() {
