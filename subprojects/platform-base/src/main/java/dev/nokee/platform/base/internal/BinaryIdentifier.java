@@ -110,11 +110,6 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	}
 
 	@Override
-	public Optional<? extends DomainObjectIdentifier> getParentIdentifier() {
-		return Optional.of(ownerIdentifier);
-	}
-
-	@Override
 	public String toString() {
 		return identity.getDisplayName() + " '" + toGradlePath(this) + "'";
 	}

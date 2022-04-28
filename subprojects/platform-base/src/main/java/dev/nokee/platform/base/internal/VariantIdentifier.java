@@ -32,7 +32,6 @@ import org.gradle.api.Named;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
@@ -94,11 +93,6 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 
 	public BuildVariant getBuildVariant() {
 		return requireNonNull(buildVariant);
-	}
-
-	@Override
-	public Optional<? extends ComponentIdentifier> getParentIdentifier() {
-		return Optional.of(componentIdentifier);
 	}
 
 	@Override

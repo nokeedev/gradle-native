@@ -37,8 +37,6 @@ class BinaryIdentifierTest extends Specification {
 		result.name.get() == 'foo'
 		result.type == TestableBinary
 		result.ownerIdentifier == variantIdentifier
-		result.parentIdentifier.present
-		result.parentIdentifier.get() == variantIdentifier
 	}
 
 	def "can create identifier owned by component"() {
@@ -53,8 +51,6 @@ class BinaryIdentifierTest extends Specification {
 		result.name.get() == 'foo'
 		result.type == TestableBinary
 		result.ownerIdentifier == componentIdentifier
-		result.parentIdentifier.present
-		result.parentIdentifier.get() == componentIdentifier
 	}
 
 	def "throws exception if binary name is null"() {

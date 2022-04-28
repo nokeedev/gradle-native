@@ -40,8 +40,6 @@ class DependencyBucketIdentifierTest extends Specification {
 		identifier.name == bucketName
 		identifier.type == TestableBucket
 		identifier.ownerIdentifier == projectIdentifier
-		identifier.parentIdentifier.present
-		identifier.parentIdentifier.get() == projectIdentifier
 	}
 
 	def "can create identifier owned by a component using factory method"() {
@@ -57,8 +55,6 @@ class DependencyBucketIdentifierTest extends Specification {
 		identifier.name == bucketName
 		identifier.type == TestableBucket
 		identifier.ownerIdentifier == componentIdentifier
-		identifier.parentIdentifier.present
-		identifier.parentIdentifier.get() == componentIdentifier
 	}
 
 	def "can create identifier owned by a variant using factory method"() {
@@ -75,8 +71,6 @@ class DependencyBucketIdentifierTest extends Specification {
 		identifier.name == bucketName
 		identifier.type == TestableBucket
 		identifier.ownerIdentifier == variantIdentifier
-		identifier.parentIdentifier.present
-		identifier.parentIdentifier.get() == variantIdentifier
 	}
 
 	def "throws exception when dependency bucket name is null"() {

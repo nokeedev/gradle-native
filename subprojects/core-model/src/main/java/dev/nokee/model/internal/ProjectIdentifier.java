@@ -21,7 +21,6 @@ import org.gradle.api.Project;
 import org.gradle.util.Path;
 
 import java.util.Iterator;
-import java.util.Optional;
 
 @EqualsAndHashCode(doNotUseGetters = true)
 public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
@@ -39,11 +38,6 @@ public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
 
 	public Path getPath() {
 		return projectPath;
-	}
-
-	@Override
-	public Optional<? extends DomainObjectIdentifierInternal> getParentIdentifier() {
-		return Optional.empty();
 	}
 
 	public static ProjectIdentifier of(String name) {

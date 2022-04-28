@@ -25,7 +25,6 @@ import lombok.val;
 import org.gradle.util.Path;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -67,40 +66,6 @@ public final class DomainObjectIdentifierUtils {
 		@Override
 		public String toString() {
 			return "DomainObjectIdentifierUtils.descendentOf(" + owner + ")";
-		}
-	}
-
-	public static Optional<? extends DomainObjectIdentifier> getParent(DomainObjectIdentifier self) {
-		if (self instanceof DomainObjectIdentifierInternal) {
-			return ((DomainObjectIdentifierInternal) self).getParentIdentifier();
-		}
-		return Optional.empty();
-	}
-
-	public static Predicate<DomainObjectIdentifier> directlyOwnedBy(DomainObjectIdentifier owner) {
-		return new DirectlyOwnedIdentifierPredicate(owner);
-	}
-
-	@EqualsAndHashCode
-	private static final class DirectlyOwnedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
-		private final DomainObjectIdentifier owner;
-
-		DirectlyOwnedIdentifierPredicate(DomainObjectIdentifier owner) {
-			this.owner = owner;
-		}
-
-		@Override
-		public boolean test(DomainObjectIdentifier identifier) {
-			if (identifier instanceof DomainObjectIdentifierInternal) {
-				val identifierInternal = (DomainObjectIdentifierInternal) identifier;
-				return identifierInternal.getParentIdentifier().isPresent() && identifierInternal.getParentIdentifier().get().equals(owner);
-			}
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return "DomainObjectIdentifierUtils.directlyOwnedBy(" + owner + ")";
 		}
 	}
 

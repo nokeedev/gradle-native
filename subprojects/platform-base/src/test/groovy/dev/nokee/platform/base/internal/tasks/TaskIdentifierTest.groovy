@@ -40,8 +40,6 @@ class TaskIdentifierTest extends Specification {
 		identifier.name == taskName
 		identifier.type == TestableTask
 		identifier.ownerIdentifier == projectIdentifier
-		identifier.parentIdentifier.present
-		identifier.parentIdentifier.get() == projectIdentifier
 	}
 
 	def "can create identifier owner by a component using factory method"() {
@@ -57,8 +55,6 @@ class TaskIdentifierTest extends Specification {
 		identifier.name == taskName
 		identifier.type == TestableTask
 		identifier.ownerIdentifier == componentIdentifier
-		identifier.parentIdentifier.present
-		identifier.parentIdentifier.get() == componentIdentifier
 	}
 
 	def "can create identifier owner by a variant using factory method"() {
@@ -75,8 +71,6 @@ class TaskIdentifierTest extends Specification {
 		identifier.name == taskName
 		identifier.type == TestableTask
 		identifier.ownerIdentifier == variantIdentifier
-		identifier.parentIdentifier.present
-		identifier.parentIdentifier.get() == variantIdentifier
 	}
 
 	def "task name for project owned identifier is the same as a verb-only task name"() {
@@ -334,8 +328,6 @@ class TaskIdentifierTest extends Specification {
 		result.taskName == 'macosDebug'
 		result.type == Task
 		result.ownerIdentifier == ownerVariant
-		result.parentIdentifier.present
-		result.parentIdentifier.get() == ownerVariant
 	}
 
 	def "can create pure lifecycle identifier owned by a variant of non-main component"() {
@@ -352,8 +344,6 @@ class TaskIdentifierTest extends Specification {
 		result.taskName == 'testMacosDebug'
 		result.type == Task
 		result.ownerIdentifier == ownerVariant
-		result.parentIdentifier.present
-		result.parentIdentifier.get() == ownerVariant
 	}
 
 	def "can create pure lifecycle identifier owned by a single-variant of non-main component"() {
@@ -370,8 +360,6 @@ class TaskIdentifierTest extends Specification {
 		result.taskName == 'test'
 		result.type == Task
 		result.ownerIdentifier == ownerVariant
-		result.parentIdentifier.present
-		result.parentIdentifier.get() == ownerVariant
 	}
 
 	def "can create pure lifecycle identifier owned by a non-main component"() {
@@ -387,8 +375,6 @@ class TaskIdentifierTest extends Specification {
 		result.taskName == 'integTest'
 		result.type == Task
 		result.ownerIdentifier == ownerComponent
-		result.parentIdentifier.present
-		result.parentIdentifier.get() == ownerComponent
 	}
 
 	def "throws exception when creating pure lifecycle identifier owned by a main component"() {
