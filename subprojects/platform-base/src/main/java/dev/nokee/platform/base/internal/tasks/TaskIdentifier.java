@@ -133,11 +133,6 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 	}
 
 	@Override
-	public String getDisplayName() {
-		throw new UnsupportedOperationException(); // for now...
-	}
-
-	@Override
 	public String toString() {
 		return "task '" + toGradlePath(this) + "' (" + type.getSimpleName() + ")";
 	}

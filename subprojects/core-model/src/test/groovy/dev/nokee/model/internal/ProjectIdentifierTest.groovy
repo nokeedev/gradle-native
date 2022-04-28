@@ -31,32 +31,22 @@ class ProjectIdentifierTest extends Specification {
 		of('bar').name == 'bar'
 	}
 
-	def "has display name"() {
-		expect:
-		of('root').displayName == "project ':root'"
-		of('foo').displayName == "project ':foo'"
-		of('bar').displayName == "project ':bar'"
-	}
-
 	def "can create identifier for root project without name"() {
 		expect:
 		def subject = ofRootProject()
 		subject.name == null
-		subject.displayName == "project ':'"
 	}
 
 	def "can create child project"() {
 		expect:
 		def subject = ofChildProject('foo')
 		subject.name == 'foo'
-		subject.displayName == "project ':foo'"
 	}
 
 	def "can create nested child project"() {
 		expect:
 		def subject = ofChildProject('foo', 'bar')
 		subject.name == 'bar'
-		subject.displayName == "project ':foo:bar'"
 	}
 
 	def "can create identifier from Project instance"() {
@@ -65,7 +55,6 @@ class ProjectIdentifierTest extends Specification {
 
 		expect:
 		of(project).name == project.name
-		of(project).displayName == "project '${project.path}'"
 	}
 
 	def "can create identifier from child Project instance"() {
@@ -75,7 +64,6 @@ class ProjectIdentifierTest extends Specification {
 
 		expect:
 		of(childProject).name == childProject.name
-		of(childProject).displayName == "project '${childProject.path}'"
 	}
 
 	def "has no parent identifier"() {

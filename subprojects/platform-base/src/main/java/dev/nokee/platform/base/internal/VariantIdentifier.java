@@ -102,21 +102,6 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 	}
 
 	@Override
-	// TODO: The display name should be richer when we wire the BuildVariant concept in the identifier
-	public String getDisplayName() {
-		val builder = new StringBuilder();
-		if (!unambiguousName.isEmpty()) {
-			builder.append("variant").append(" '").append(unambiguousName).append("'");
-		}
-		if (unambiguousName.isEmpty()) {
-			builder.append(componentIdentifier);
-		} else if (!componentIdentifier.isMainComponent()) {
-			builder.append(" of ").append(componentIdentifier);
-		}
-		return builder.toString();
-	}
-
-	@Override
 	public String toString() {
 		return "variant '" + toGradlePath(this) + "'";
 	}

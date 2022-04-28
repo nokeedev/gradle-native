@@ -80,12 +80,6 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 	}
 
 	// FIXME: Remove this API
-	@Override
-	public String getDisplayName() {
-		return DependencyBuckets.toDescription(this);
-	}
-
-	// FIXME: Remove this API
 	public static DependencyBucketIdentifier of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
 		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), type, ownerIdentifier);
 	}
