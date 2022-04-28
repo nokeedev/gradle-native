@@ -30,14 +30,11 @@ import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType
 @EqualsAndHashCode
 public class DependencyBucketIdentifier implements DomainObjectIdentifier {
 	private final DependencyBucketIdentity identity;
-	private final Class<?> type;
 	private final DomainObjectIdentifier ownerIdentifier;
 
-	private DependencyBucketIdentifier(DependencyBucketIdentity identity, Class<?> type, DomainObjectIdentifier ownerIdentifier) {
-		checkArgument(type != null, "Cannot construct a dependency identifier because the bucket type is null.");
+	private DependencyBucketIdentifier(DependencyBucketIdentity identity, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(ownerIdentifier != null, "Cannot construct a dependency identifier because the owner identifier is null.");
 		this.identity = identity;
-		this.type = type;
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
@@ -46,8 +43,19 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifier {
 	}
 
 	// FIXME: Remove this API
-	public Class<?> getType() {
-		return type;
+	public ConfigurationBucketType getType() {
+		return bucketTypeOf(identity.getType().toBucketType());
+	}
+
+	private static ConfigurationBucketType bucketTypeOf(Class<?> type) {
+		if (DeclarableDependencyBucket.class.isAssignableFrom(type)) {
+			return ConfigurationBucketType.DECLARABLE;
+		} else if (ConsumableDependencyBucket.class.isAssignableFrom(type)) {
+			return ConfigurationBucketType.CONSUMABLE;
+		} else if (ResolvableDependencyBucket.class.isAssignableFrom(type)) {
+			return ConfigurationBucketType.RESOLVABLE;
+		}
+		throw new RuntimeException();
 	}
 
 	public DomainObjectIdentifier getOwnerIdentifier() {
@@ -56,11 +64,11 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifier {
 
 	// FIXME: Remove this API
 	public static DependencyBucketIdentifier of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), type, ownerIdentifier);
+		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), ownerIdentifier);
 	}
 
 	public static DependencyBucketIdentifier of(DependencyBucketIdentity identity, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(identity, identity.getType().toBucketType(), ownerIdentifier);
+		return new DependencyBucketIdentifier(identity, ownerIdentifier);
 	}
 
 	@Override
