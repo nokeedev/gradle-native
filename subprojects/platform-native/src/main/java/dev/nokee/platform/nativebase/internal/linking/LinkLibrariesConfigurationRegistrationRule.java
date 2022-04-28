@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
@@ -52,7 +53,7 @@ final class LinkLibrariesConfigurationRegistrationRule extends ModelActionWithIn
 
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, IsBinary tag, ModelProjection projection) {
-		val linkLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("linkLibraries"), identifier.get())));
+		val linkLibraries = registry.register(ModelRegistration.builder().mergeFrom(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("linkLibraries"), identifier.get()))).withComponent(LinkLibrariesDependencyBucketTag.tag()).build());
 		linkLibraries.configure(Configuration.class, forNativeLinkUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(linkLibraries));
 		entity.addComponent(new DependentFrameworks(incomingArtifacts.getAs(frameworks())));
