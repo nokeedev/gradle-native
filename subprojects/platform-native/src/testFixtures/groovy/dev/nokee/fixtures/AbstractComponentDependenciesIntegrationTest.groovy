@@ -17,7 +17,6 @@ package dev.nokee.fixtures
 
 import dev.nokee.internal.testing.util.ProjectTestUtils
 import dev.nokee.model.DomainObjectIdentifier
-import dev.nokee.model.internal.DomainObjectIdentifierInternal
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
@@ -43,14 +42,14 @@ import static org.junit.Assert.assertThat
 abstract class AbstractComponentDependenciesIntegrationTest extends Specification {
 	def project = ProjectTestUtils.rootProject()
 
-	protected DomainObjectIdentifierInternal newNamingScheme(String variant = '') {
+	protected DomainObjectIdentifier newNamingScheme(String variant = '') {
 		return VariantIdentifier.of(variant, Variant, ComponentIdentifier.ofMain(ProjectIdentifier.of(project)))
 	}
 
 	protected newDependencies(String variant = '') {
 		return newDependencies(newNamingScheme(variant))
 	}
-	protected abstract newDependencies(DomainObjectIdentifierInternal identifier)
+	protected abstract newDependencies(DomainObjectIdentifier identifier)
 
 	protected abstract List<String> getBucketsUnderTest()
 

@@ -16,6 +16,7 @@
 package dev.nokee.model.internal;
 
 import com.google.common.collect.Iterators;
+import dev.nokee.model.DomainObjectIdentifier;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Project;
 import org.gradle.util.Path;
@@ -23,7 +24,7 @@ import org.gradle.util.Path;
 import java.util.Iterator;
 
 @EqualsAndHashCode(doNotUseGetters = true)
-public final class ProjectIdentifier implements DomainObjectIdentifierInternal {
+public final class ProjectIdentifier implements DomainObjectIdentifier {
 	private final Path projectPath;
 	private final String projectName;
 

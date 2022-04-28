@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
@@ -32,7 +31,7 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class BinaryIdentifier implements DomainObjectIdentifierInternal {
+public final class BinaryIdentifier implements DomainObjectIdentifier {
 	private final BinaryIdentity identity;
 	private final DomainObjectIdentifier ownerIdentifier;
 
