@@ -81,6 +81,7 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
 			.withComponent(ofInstance(incoming))
+			.withComponent(ResolvableDependencyBucketTag.tag())
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path.get())) {
 					configurationProvider.configure(configuration -> {
