@@ -66,14 +66,6 @@ class ProjectIdentifierTest extends Specification {
 		of(childProject).name == childProject.name
 	}
 
-	def "has no parent identifier"() {
-		given:
-		def project = ProjectTestUtils.rootProject()
-
-		expect:
-		!of(project).parentIdentifier.present
-	}
-
 	def "can compare project identifier instances"() {
 		given:
 		def foo = ProjectBuilder.builder().withName('foo').build()

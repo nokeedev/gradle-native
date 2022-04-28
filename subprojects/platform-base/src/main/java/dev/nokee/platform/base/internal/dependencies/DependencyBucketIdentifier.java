@@ -58,11 +58,6 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 		return ownerIdentifier;
 	}
 
-	@Override
-	public Optional<? extends DomainObjectIdentifier> getParentIdentifier() {
-		return Optional.of(ownerIdentifier);
-	}
-
 	private Optional<ComponentIdentifier> getComponentOwnerIdentifier() {
 		if (ownerIdentifier instanceof VariantIdentifier) {
 			return Optional.of(((VariantIdentifier<?>) ownerIdentifier).getComponentIdentifier());

@@ -128,11 +128,6 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 	}
 
 	@Override
-	public Optional<? extends DomainObjectIdentifier> getParentIdentifier() {
-		return Optional.of(ownerIdentifier);
-	}
-
-	@Override
 	public String toString() {
 		return "task '" + toGradlePath(this) + "' (" + type.getSimpleName() + ")";
 	}
