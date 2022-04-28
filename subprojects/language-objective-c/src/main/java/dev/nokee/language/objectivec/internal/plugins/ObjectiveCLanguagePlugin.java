@@ -16,17 +16,19 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
-import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetExtensible;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -47,29 +49,11 @@ public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguage
 
 			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().get(IdentifierComponent.class).get(), "objectiveC"), true));
 		}))));
-
-		project.getExtensions().add("__nokee_defaultObjectiveCFactory", new DefaultObjectiveCSourceSetRegistrationFactory(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeLanguageSourceSetAwareTag.class), (entity, identifier, tag) -> {
-			val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(getRegistrationFactoryType()).create(identifier.get()));
-			entity.addComponent(new ObjectiveCSourceSetComponent(ModelNodes.of(sourceSet)));
-		})));
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(ObjectiveCSourceSetTag.tag());
 	}
 
 	@Override
 	public Class<? extends NativeLanguageRegistrationFactory> getRegistrationFactoryType() {
-		return DefaultObjectiveCSourceSetRegistrationFactory.class;
-	}
-
-	private static final class DefaultObjectiveCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
-		private final ObjectiveCSourceSetRegistrationFactory factory;
-
-		private DefaultObjectiveCSourceSetRegistrationFactory(ObjectiveCSourceSetRegistrationFactory factory) {
-			this.factory = factory;
-		}
-
-		@Override
-		public ModelRegistration create(DomainObjectIdentifier owner) {
-			return ModelRegistration.builder().mergeFrom(factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("objectiveC", "Objective-C sources")))).withComponent(new DisplayNameComponent("Objective-C sources")).build();
-		}
+		return ObjectiveCLanguageBasePlugin.DefaultObjectiveCSourceSetRegistrationFactory.class;
 	}
 }
