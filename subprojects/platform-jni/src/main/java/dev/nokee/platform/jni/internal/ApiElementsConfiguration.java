@@ -17,30 +17,12 @@ package dev.nokee.platform.jni.internal;
 
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.model.internal.type.TypeOf;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.provider.Provider;
 
-// TODO: We could set the classes directory as secondary variant.
-// TODO: We could maybe set the shared library directory as secondary variant.
-//  However, the shared library would requires the resource path to be taken into consideration...
 public final class ApiElementsConfiguration implements ModelComponent {
 	private final ModelNode entity;
 
 	ApiElementsConfiguration(ModelNode entity) {
 		this.entity = entity;
-	}
-
-	public void add(Object notation) {
-		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {})).configure(configuration -> configuration.getOutgoing().artifact(notation));
-	}
-
-	public void addAll(Provider<? extends Iterable<PublishArtifact>> values) {
-		ModelNodeUtils.get(entity, ModelType.of(new TypeOf<NamedDomainObjectProvider<Configuration>>() {})).configure(configuration -> configuration.getOutgoing().getArtifacts().addAllLater(values));
 	}
 
 	public ModelNode get() {
