@@ -20,7 +20,6 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.ProjectIdentifier;
 import lombok.EqualsAndHashCode;
-import org.gradle.util.Path;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -56,11 +55,6 @@ public final class ComponentIdentifier implements DomainObjectIdentifier, HasNam
 	@Override
 	public ComponentName getName() {
 		return identity.getName();
-	}
-
-	// FIXME: Remove this API
-	public Path getPath() {
-		return getProjectIdentifier().getPath().child(getName().get());
 	}
 
 	// FIXME: Remove this API

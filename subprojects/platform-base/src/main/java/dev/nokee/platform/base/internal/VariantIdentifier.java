@@ -28,7 +28,6 @@ import lombok.Getter;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Named;
-import org.gradle.util.Path;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -115,11 +114,6 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 			builder.append(" of ").append(componentIdentifier);
 		}
 		return builder.toString();
-	}
-
-	@Override
-	public Path getPath() {
-		return getComponentIdentifier().getPath().child(fullName);
 	}
 
 	@Override

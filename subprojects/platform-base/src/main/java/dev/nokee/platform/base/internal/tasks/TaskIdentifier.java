@@ -30,7 +30,6 @@ import lombok.Getter;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Task;
-import org.gradle.util.Path;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -136,22 +135,6 @@ public final class TaskIdentifier<T extends Task> implements DomainObjectIdentif
 	@Override
 	public String getDisplayName() {
 		throw new UnsupportedOperationException(); // for now...
-	}
-
-	@Override
-	public Path getPath() {
-		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
-			if (getName().get().isEmpty()) {
-				return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath();
-			}
-			return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath().child(getName().get());
-		} else if (ownerIdentifier instanceof ComponentIdentifier) {
-			if (getName().get().isEmpty()) {
-				return ((ComponentIdentifier) ownerIdentifier).getPath();
-			}
-			return ((ComponentIdentifier) ownerIdentifier).getPath().child(getName().get());
-		}
-		return Path.path(getName().get());
 	}
 
 	@Override
