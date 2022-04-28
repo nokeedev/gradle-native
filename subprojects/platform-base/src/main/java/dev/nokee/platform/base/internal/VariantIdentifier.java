@@ -118,7 +118,7 @@ public final class VariantIdentifier<T extends Variant> implements DomainObjectI
 
 	@Override
 	public String toString() {
-		return "variant '" + toGradlePath(this) + "' (" + type.getSimpleName() + ")";
+		return "variant '" + toGradlePath(this) + "'";
 	}
 
 	public static Builder<Variant> builder() {

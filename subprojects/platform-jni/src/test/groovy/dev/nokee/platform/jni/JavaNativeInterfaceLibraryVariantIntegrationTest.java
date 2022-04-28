@@ -181,7 +181,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), ConfigurationMatchers.description("Native implementation dependencies for variant 'windowsX86' of component ':reqi'."));
+			assertThat(subject(), ConfigurationMatchers.description("Native implementation dependencies for variant ':reqi:windowsX86'."));
 		}
 	}
 
@@ -198,7 +198,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), ConfigurationMatchers.description("Native link only dependencies for variant 'windowsX86' of component ':reqi'."));
+			assertThat(subject(), ConfigurationMatchers.description("Native link only dependencies for variant ':reqi:windowsX86'."));
 		}
 	}
 
@@ -215,7 +215,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), ConfigurationMatchers.description("Native runtime only dependencies for variant 'windowsX86' of component ':reqi'."));
+			assertThat(subject(), ConfigurationMatchers.description("Native runtime only dependencies for variant ':reqi:windowsX86'."));
 		}
 	}
 
@@ -232,7 +232,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Assembles the outputs of variant 'windowsX86' of component ':reqi'."));
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of variant ':reqi:windowsX86'."));
 		}
 	}
 
@@ -249,7 +249,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Assembles the shared library binary of variant 'windowsX86' of component ':reqi'."));
+			assertThat(subject(), TaskMatchers.description("Assembles the shared library binary of variant ':reqi:windowsX86'."));
 		}
 
 		@Test
@@ -271,7 +271,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Assembles the object files of variant 'windowsX86' of component ':reqi'."));
+			assertThat(subject(), TaskMatchers.description("Assembles the object files of variant ':reqi:windowsX86'."));
 		}
 	}
 

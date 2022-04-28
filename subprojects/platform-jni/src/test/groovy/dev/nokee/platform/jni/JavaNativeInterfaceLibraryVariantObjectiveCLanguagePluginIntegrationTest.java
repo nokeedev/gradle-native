@@ -90,7 +90,7 @@ class JavaNativeInterfaceLibraryVariantObjectiveCLanguagePluginIntegrationTest e
 
 		@Override
 		public String displayName() {
-			return "variant 'windowsX64' of component ':veda'";
+			return "variant ':veda:windowsX64'";
 		}
 	}
 

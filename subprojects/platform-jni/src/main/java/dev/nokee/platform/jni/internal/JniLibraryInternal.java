@@ -146,6 +146,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	@Override
 	public String toString() {
-		return ((VariantIdentifier<?>) node.get(IdentifierComponent.class).get()).getDisplayName();
+		return "JNI library '" + getName() + "'";
 	}
 }

@@ -90,7 +90,7 @@ class JavaNativeInterfaceLibraryVariantCppLanguagePluginIntegrationTest extends 
 
 		@Override
 		public String displayName() {
-			return "variant 'windowsX86' of component ':difi'";
+			return "variant ':difi:windowsX86'";
 		}
 	}
 

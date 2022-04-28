@@ -317,7 +317,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			}));
 			val sharedLibraryTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(identifier, "sharedLibrary"), Task.class).build());
 			sharedLibraryTask.configure(Task.class, configureBuildGroup());
-			sharedLibraryTask.configure(Task.class, configureDescription("Assembles the shared library binary of %s.", identifier.getDisplayName()));
+			sharedLibraryTask.configure(Task.class, configureDescription("Assembles the shared library binary of %s.", identifier));
 			sharedLibraryTask.configure(Task.class, configureDependsOn(sharedLibrary.as(SharedLibraryBinary.class)));
 
 			val developmentBinaryProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentBinary"), Binary.class));
@@ -330,13 +330,13 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val objectsTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(identifier, "objects"), Task.class).build());
 			objectsTask.configure(Task.class, configureDependsOn(sharedLibrary.as(SharedLibraryBinary.class).flatMap(binary -> binary.getCompileTasks().filter(it -> it instanceof HasObjectFiles))));
 			objectsTask.configure(Task.class, configureBuildGroup());
-			objectsTask.configure(Task.class, configureDescription("Assembles the object files of %s.", identifier.getDisplayName()));
+			objectsTask.configure(Task.class, configureDescription("Assembles the object files of %s.", identifier));
 
 			val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier), Task.class).build());
 			assembleTask.configure(Task.class, task -> {
 				task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 				if (task.getDescription() == null) {
-					task.setDescription(String.format("Assembles the outputs of %s.", identifier.getDisplayName()));
+					task.setDescription(String.format("Assembles the outputs of %s.", identifier));
 				}
 			});
 			entity.addComponent(new AssembleTask(ModelNodes.of(assembleTask)));
