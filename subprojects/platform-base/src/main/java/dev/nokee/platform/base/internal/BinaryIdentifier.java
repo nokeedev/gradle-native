@@ -23,7 +23,6 @@ import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.Binary;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.util.Path;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -118,16 +117,6 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 	@Override
 	public String getDisplayName() {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Path getPath() {
-		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
-			return ((DomainObjectIdentifierInternal) ownerIdentifier).getPath().child(getName().get());
-		} else if (ownerIdentifier instanceof ComponentIdentifier) {
-			return ((ComponentIdentifier) ownerIdentifier).getPath().child(getName().get());
-		}
-		return Path.path(getName().get());
 	}
 
 	@Override

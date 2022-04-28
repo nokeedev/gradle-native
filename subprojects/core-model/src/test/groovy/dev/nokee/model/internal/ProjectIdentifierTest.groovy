@@ -17,7 +17,6 @@ package dev.nokee.model.internal
 
 import dev.nokee.internal.testing.util.ProjectTestUtils
 import org.gradle.testfixtures.ProjectBuilder
-import org.gradle.util.Path
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -43,7 +42,6 @@ class ProjectIdentifierTest extends Specification {
 		expect:
 		def subject = ofRootProject()
 		subject.name == null
-		subject.path == Path.ROOT
 		subject.displayName == "project ':'"
 	}
 
@@ -51,7 +49,6 @@ class ProjectIdentifierTest extends Specification {
 		expect:
 		def subject = ofChildProject('foo')
 		subject.name == 'foo'
-		subject.path == Path.ROOT.child('foo')
 		subject.displayName == "project ':foo'"
 	}
 
@@ -59,7 +56,6 @@ class ProjectIdentifierTest extends Specification {
 		expect:
 		def subject = ofChildProject('foo', 'bar')
 		subject.name == 'bar'
-		subject.path == Path.ROOT.child('foo').child('bar')
 		subject.displayName == "project ':foo:bar'"
 	}
 

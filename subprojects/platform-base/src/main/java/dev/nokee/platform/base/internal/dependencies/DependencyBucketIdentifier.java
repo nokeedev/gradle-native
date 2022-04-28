@@ -22,7 +22,6 @@ import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.EqualsAndHashCode;
-import org.gradle.util.Path;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -84,14 +83,6 @@ public class DependencyBucketIdentifier implements DomainObjectIdentifierInterna
 	@Override
 	public String getDisplayName() {
 		return DependencyBuckets.toDescription(this);
-	}
-
-	@Override
-	public Path getPath() {
-		if (ownerIdentifier instanceof DomainObjectIdentifierInternal) {
-			return ((DomainObjectIdentifierInternal) getOwnerIdentifier()).getPath().child(getName().get());
-		}
-		return Path.path(getName().get());
 	}
 
 	// FIXME: Remove this API
