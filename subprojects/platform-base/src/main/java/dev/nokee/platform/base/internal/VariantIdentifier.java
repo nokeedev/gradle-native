@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.DomainObjectIdentifierInternal;
 import dev.nokee.model.internal.NamedDomainObjectIdentifier;
-import dev.nokee.model.internal.TypeAwareDomainObjectIdentifier;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.runtime.core.Coordinate;
@@ -38,7 +37,7 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier, TypeAwareDomainObjectIdentifier<T>, HasName {
+public final class VariantIdentifier<T extends Variant> implements DomainObjectIdentifierInternal, NamedDomainObjectIdentifier, HasName {
 	@Getter private final String unambiguousName;
 	@Getter private final Class<T> type;
 	@Getter private final ComponentIdentifier componentIdentifier;
