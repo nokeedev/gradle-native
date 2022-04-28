@@ -38,7 +38,6 @@ class DependencyBucketIdentifierTest extends Specification {
 
 		then:
 		identifier.name == bucketName
-		identifier.type == TestableBucket
 		identifier.ownerIdentifier == projectIdentifier
 	}
 
@@ -53,7 +52,6 @@ class DependencyBucketIdentifierTest extends Specification {
 
 		then:
 		identifier.name == bucketName
-		identifier.type == TestableBucket
 		identifier.ownerIdentifier == componentIdentifier
 	}
 
@@ -69,7 +67,6 @@ class DependencyBucketIdentifierTest extends Specification {
 
 		then:
 		identifier.name == bucketName
-		identifier.type == TestableBucket
 		identifier.ownerIdentifier == variantIdentifier
 	}
 

@@ -18,7 +18,6 @@ package dev.nokee.platform.jni.internal;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.internal.GroovySourceSetRegistrationFactory;
@@ -72,8 +71,6 @@ import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.runtime.core.Coordinate;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import lombok.val;
 import org.gradle.api.Action;
@@ -89,7 +86,6 @@ import org.gradle.api.provider.Provider;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
@@ -110,7 +106,6 @@ import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 import static dev.nokee.utils.TransformerUtils.transformEach;
-import static java.util.stream.Collectors.joining;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
@@ -300,12 +295,5 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 		}
 
 		return builder.build();
-	}
-
-	private static void assertTargetMachinesAreKnown(Iterable<Coordinate<TargetMachine>> targetMachines, ToolChainSelectorInternal toolChainSelector) {
-		List<TargetMachine> unknownTargetMachines = Streams.stream(targetMachines).filter(it -> !toolChainSelector.isKnown(it.getValue())).map(Coordinate::getValue).collect(Collectors.toList());
-		if (!unknownTargetMachines.isEmpty()) {
-			throw new IllegalArgumentException("The following target machines are not know by the defined tool chains:\n" + unknownTargetMachines.stream().map(it -> " * " + it.getOperatingSystemFamily().getCanonicalName() + " " + it.getArchitecture().getCanonicalName()).collect(joining("\n")));
-		}
 	}
 }

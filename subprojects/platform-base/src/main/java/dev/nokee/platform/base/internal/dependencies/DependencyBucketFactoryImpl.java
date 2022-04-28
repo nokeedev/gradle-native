@@ -39,21 +39,10 @@ public final class DependencyBucketFactoryImpl implements DependencyBucketFactor
 	@Override
 	public DependencyBucket create(DependencyBucketIdentifier identifier) {
 		val configurationProvider = configurationRegistry.registerIfAbsent(ConfigurationNamer.INSTANCE.determineName(identifier));
-		configurationProvider.configure(bucketTypeOf(identifier.getType())::configure);
+		configurationProvider.configure(identifier.getType()::configure);
 		configurationProvider.configure(configureDescription(mapDisplayName(identifier)));
 
 		return new DefaultDependencyBucket(identifier.getName().get(), configurationProvider, dependencyFactory);
-	}
-
-	private static ConfigurationBucketType bucketTypeOf(Class<?> type) {
-		if (DeclarableDependencyBucket.class.isAssignableFrom(type)) {
-			return ConfigurationBucketType.DECLARABLE;
-		} else if (ConsumableDependencyBucket.class.isAssignableFrom(type)) {
-			return ConfigurationBucketType.CONSUMABLE;
-		} else if (ResolvableDependencyBucket.class.isAssignableFrom(type)) {
-			return ConfigurationBucketType.RESOLVABLE;
-		}
-		throw new RuntimeException();
 	}
 
 	public static Supplier<String> mapDisplayName(DependencyBucketIdentifier identifier) {
