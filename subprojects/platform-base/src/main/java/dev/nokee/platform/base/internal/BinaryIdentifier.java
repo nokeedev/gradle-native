@@ -32,7 +32,7 @@ import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class BinaryIdentifier<T extends Binary> implements DomainObjectIdentifierInternal {
+public final class BinaryIdentifier implements DomainObjectIdentifierInternal {
 	private final BinaryIdentity identity;
 	private final DomainObjectIdentifier ownerIdentifier;
 
@@ -56,17 +56,17 @@ public final class BinaryIdentifier<T extends Binary> implements DomainObjectIde
 		return ownerIdentifier instanceof ComponentIdentifier || ownerIdentifier instanceof VariantIdentifier || ownerIdentifier instanceof ProjectIdentifier;
 	}
 
-	public static <T extends Binary> BinaryIdentifier<T> of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
+	public static <T extends Binary> BinaryIdentifier of(BinaryName name, Class<T> type, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(type != null, "Cannot construct a binary identifier because the task type is null.");
-		return new BinaryIdentifier<>(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
+		return new BinaryIdentifier(BinaryIdentity.of(name.toString(), "binary"), ownerIdentifier);
 	}
 
-	public static BinaryIdentifier<?> of(DomainObjectIdentifier ownerIdentifier, String name) {
-		return new BinaryIdentifier<>(BinaryIdentity.of(name, "binary"), ownerIdentifier);
+	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, String name) {
+		return new BinaryIdentifier(BinaryIdentity.of(name, "binary"), ownerIdentifier);
 	}
 
-	public static BinaryIdentifier<?> of(DomainObjectIdentifier ownerIdentifier, BinaryIdentity identity) {
-		return new BinaryIdentifier<>(identity, ownerIdentifier);
+	public static BinaryIdentifier of(DomainObjectIdentifier ownerIdentifier, BinaryIdentity identity) {
+		return new BinaryIdentifier(identity, ownerIdentifier);
 	}
 
 	public String getOutputDirectoryBase(String outputType) {

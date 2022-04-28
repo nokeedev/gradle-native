@@ -26,7 +26,7 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class JniJarBinaryRegistrationFactory {
-	public ModelRegistration.Builder create(BinaryIdentifier<?> identifier) {
+	public ModelRegistration.Builder create(BinaryIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(new ElementNameComponent(identifier.getName().get()))

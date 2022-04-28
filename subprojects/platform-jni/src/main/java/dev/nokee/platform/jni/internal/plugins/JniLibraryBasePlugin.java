@@ -204,7 +204,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs"));
 			}));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
-				task.getArchiveBaseName().convention(((BinaryIdentifier<?>) identifier.get()).getName().get());
+				task.getArchiveBaseName().convention(((BinaryIdentifier) identifier.get()).getName().get());
 			}));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				if (task.getDescription() == null) {
@@ -223,7 +223,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				task.getDestinationDirectory().convention(task.getProject().getLayout().getBuildDirectory().dir("libs"));
 			}));
-			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> task.getArchiveBaseName().convention(((BinaryIdentifier<?>) identifier.get()).getName().get())));
+			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> task.getArchiveBaseName().convention(((BinaryIdentifier) identifier.get()).getName().get())));
 			registry.instantiate(configure(jarTask.getId(), Jar.class, task -> {
 				if (task.getDescription() == null) {
 					task.setDescription(String.format("Assembles a JAR archive containing the classes for %s.", identifier.get()));

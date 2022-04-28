@@ -84,7 +84,7 @@ import java.util.stream.Stream;
 public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths {
 	private final ToolChainSelectorInternal toolChainSelector;
 	private final FullyQualifiedName name;
-	@Getter protected final BinaryIdentifier<?> identifier;
+	@Getter protected final BinaryIdentifier identifier;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
 	private final DomainObjectSet<ObjectSourceSet> objectSourceSets;
 	@Getter private final TargetMachine targetMachine;
@@ -95,7 +95,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 	@Getter private final Property<String> baseName;
 
-	public BaseNativeBinary(FullyQualifiedName name, BinaryIdentifier<?> identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskView<Task> compileTasks) {
+	public BaseNativeBinary(FullyQualifiedName name, BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskView<Task> compileTasks) {
 		this.name = name;
 		this.identifier = identifier;
 		this.compileTasks = compileTasks;
