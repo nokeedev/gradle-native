@@ -31,7 +31,7 @@ import org.gradle.api.provider.Provider;
 public final class RuntimeElementsConfiguration implements ModelComponent {
 	private final ModelNode entity;
 
-	RuntimeElementsConfiguration(ModelNode entity) {
+	public RuntimeElementsConfiguration(ModelNode entity) {
 		this.entity = entity;
 	}
 
