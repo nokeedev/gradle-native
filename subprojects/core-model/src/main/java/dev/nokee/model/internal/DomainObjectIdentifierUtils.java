@@ -24,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.util.Path;
 
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -66,32 +65,6 @@ public final class DomainObjectIdentifierUtils {
 		@Override
 		public String toString() {
 			return "DomainObjectIdentifierUtils.descendentOf(" + owner + ")";
-		}
-	}
-
-	public static Predicate<DomainObjectIdentifier> named(String name) {
-		return new NamedIdentifierPredicate(name);
-	}
-
-	@EqualsAndHashCode
-	private static final class NamedIdentifierPredicate implements Predicate<DomainObjectIdentifier> {
-		private final String name;
-
-		private NamedIdentifierPredicate(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public boolean test(DomainObjectIdentifier identifier) {
-			if (identifier instanceof NameAwareDomainObjectIdentifier) {
-				return Objects.equals(((NameAwareDomainObjectIdentifier) identifier).getName().toString(), name);
-			}
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return "DomainObjectIdentifierUtils.named(" + name + ")";
 		}
 	}
 
