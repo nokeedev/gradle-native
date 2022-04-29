@@ -15,19 +15,12 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
 
-public final class JarTaskComponent implements ModelComponent, LinkedEntity {
-	private final ModelNode entity;
+public final class JniJarArtifactTag implements ModelComponent {
+	private static final JniJarArtifactTag INSTANCE = new JniJarArtifactTag();
 
-	public JarTaskComponent(ModelNode entity) {
-		this.entity = entity;
-	}
-
-	@Override
-	public ModelNode get() {
-		return entity;
+	public static JniJarArtifactTag tag() {
+		return INSTANCE;
 	}
 }

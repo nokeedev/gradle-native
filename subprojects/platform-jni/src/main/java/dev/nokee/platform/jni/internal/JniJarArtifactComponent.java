@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
@@ -27,7 +28,7 @@ import org.gradle.api.tasks.bundling.Jar;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
-public final class JniJarArtifactComponent implements Callable<Object>, ModelComponent {
+public final class JniJarArtifactComponent implements Callable<Object>, ModelComponent, LinkedEntity {
 	public final ModelNode entity;
 
 	public JniJarArtifactComponent(ModelNode entity) {
