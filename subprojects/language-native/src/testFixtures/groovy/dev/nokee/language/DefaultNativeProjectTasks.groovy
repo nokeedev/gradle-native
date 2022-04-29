@@ -177,15 +177,15 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 
 	protected String getVariant() {
 		String result = componentName
-		if (linkage != null) {
-			result += linkage.toLowerCase().capitalize()
-		}
 		result += buildType.capitalize()
 		if (operatingSystemFamily != null) {
 			result += operatingSystemFamily.toLowerCase().capitalize()
 		}
 		if (architecture != null) {
 			result += architecture.toLowerCase().capitalize()
+		}
+		if (linkage != null) {
+			result += linkage.toLowerCase().capitalize()
 		}
 		return result
 	}
