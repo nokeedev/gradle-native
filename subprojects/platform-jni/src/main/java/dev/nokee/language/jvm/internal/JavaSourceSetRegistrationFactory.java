@@ -18,7 +18,6 @@ package dev.nokee.language.jvm.internal;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
@@ -27,9 +26,9 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.*;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.internal.ComponentIdentity;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.utils.TaskDependencyUtils;
@@ -50,7 +49,6 @@ import java.util.stream.Stream;
 public final class JavaSourceSetRegistrationFactory {
 	private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
 	private final LanguageSourceSetRegistrationFactory languageSourceSetRegistrationFactory;
-	private final JvmCompileTaskRegistrationActionFactory compileTaskRegistrationFactory;
 	private final Namer<DomainObjectIdentifier> sourceSetNamer = new Namer<DomainObjectIdentifier>() {
 		@Override
 		public String determineName(DomainObjectIdentifier identifier) {
@@ -69,22 +67,16 @@ public final class JavaSourceSetRegistrationFactory {
 		}
 	};
 
-	public JavaSourceSetRegistrationFactory(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry, LanguageSourceSetRegistrationFactory languageSourceSetRegistrationFactory, JvmCompileTaskRegistrationActionFactory compileTaskRegistrationFactory) {
+	public JavaSourceSetRegistrationFactory(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry, LanguageSourceSetRegistrationFactory languageSourceSetRegistrationFactory) {
 		this.sourceSetRegistry = sourceSetRegistry;
 		this.languageSourceSetRegistrationFactory = languageSourceSetRegistrationFactory;
-		this.compileTaskRegistrationFactory = compileTaskRegistrationFactory;
 	}
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		assert identifier.getName().get().equals("java");
 		val sourceSetProvider = sourceSetRegistry.registerIfAbsent(sourceSetNamer.determineName(identifier.getOwnerIdentifier()));
 		return languageSourceSetRegistrationFactory.create(identifier, JavaSourceSet.class, DefaultJavaSourceSet.class, sourceSetProvider.map(this::asSourceDirectorySet)::get)
-			.action(compileTaskRegistrationFactory.create(identifier, JavaCompile.class))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), (entity, id, tag, ignored) -> {
-				if (id.get().equals(identifier)) {
-					sourceSetProvider.configure(task -> ModelStates.realize(entity));
-				}
-			}))
+			.withComponent(JvmSourceSetTag.tag())
 			.build();
 	}
 

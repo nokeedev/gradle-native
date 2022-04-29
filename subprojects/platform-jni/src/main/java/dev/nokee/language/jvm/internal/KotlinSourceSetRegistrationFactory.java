@@ -18,7 +18,6 @@ package dev.nokee.language.jvm.internal;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
@@ -27,13 +26,8 @@ import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.ComponentIdentity;
 import dev.nokee.platform.base.internal.ComponentName;
 import lombok.val;
@@ -80,11 +74,7 @@ public final class KotlinSourceSetRegistrationFactory {
 		assert identifier.getName().get().equals("kotlin");
 		val sourceSetProvider = sourceSetRegistry.registerIfAbsent(sourceSetNamer.determineName(identifier.getOwnerIdentifier()));
 		return languageSourceSetRegistrationFactory.create(identifier, KotlinSourceSet.class, DefaultKotlinSourceSet.class, sourceSetProvider.map(this::asSourceDirectorySet)::get)
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, id, tag, ignored) -> {
-				if (id.get().equals(identifier)) {
-					sourceSetProvider.configure(task -> ModelStates.realize(entity));
-				}
-			}))
+			.withComponent(JvmSourceSetTag.tag())
 			.build();
 	}
 
