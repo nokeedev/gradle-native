@@ -18,12 +18,7 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
@@ -34,7 +29,6 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.plugins.ExtensionAware;
 
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
@@ -75,13 +69,6 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path.get())) {
-					configurationProvider.configure(configuration -> {
-						((ConfigurationInternal) configuration).beforeLocking(it -> ModelStates.realize(entity));
-					});
-				}
-			}))
 			.build();
 	}
 
