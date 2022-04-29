@@ -18,13 +18,7 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
@@ -37,7 +31,6 @@ import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
@@ -87,13 +80,6 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(ofInstance(bucket))
 			.withComponent(ofInstance(outgoing))
 			.withComponent(ConsumableDependencyBucketTag.tag())
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path.get())) {
-					configurationProvider.configure(configuration -> {
-						((ConfigurationInternal) configuration).beforeLocking(it -> ModelStates.realize(entity));
-					});
-				}
-			}))
 			.build();
 	}
 
