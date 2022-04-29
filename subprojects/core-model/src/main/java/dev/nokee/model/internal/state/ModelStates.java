@@ -30,10 +30,12 @@ public final class ModelStates {
 
 	public static ModelNode create(ModelNode self) {
 		if (!self.has(ModelState.IsAtLeastCreated.class)) {
-			if (self.has(ModelState.class)) {
-				self.setComponent(ModelState.class, ModelState.Created);
-			} else {
-				self.addComponent(ModelState.Created);
+			if (!isAtLeast(self, ModelState.Created)) {
+				if (self.has(ModelState.class)) {
+					self.setComponent(ModelState.class, ModelState.Created);
+				} else {
+					self.addComponent(ModelState.Created);
+				}
 			}
 			self.addComponent(CREATED_TAG);
 		}

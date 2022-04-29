@@ -33,6 +33,7 @@ import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
@@ -53,11 +54,13 @@ import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final Instantiator instantiator;
@@ -74,28 +77,41 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		this.instantiator = instantiator;
 		this.elementFactory = new ModelElementFactory(instantiator);
 		this.bindingService = new BindManagedProjectionService(instantiator);
-		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), (node, path, state) -> {
-			if (state.equals(ModelState.Created)) {
-				if (!path.get().equals(ModelPath.root()) && (!path.get().getParent().isPresent() || !nodes.containsKey(path.get().getParent().get()))) {
-					throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path));
-				}
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
+			private final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
 
-				node.addComponent(new DescendantNodes(this, path.get()));
-				node.addComponent(new RelativeRegistrationService(path.get(), this));
-				node.addComponent(new RelativeConfigurationService(path.get(), this));
-				node.addComponent(new BindManagedProjectionService(instantiator));
-				if (!node.has(ElementNameComponent.class)) {
-					node.addComponent(new ElementNameComponent(path.get().getName()));
+			@Override
+			public void execute(ModelNode node, ModelPathComponent path, ModelState state) {
+				if (state.isAtLeast(ModelState.Created) && alreadyExecuted.add(node.getId())) {
+					if (!path.get().equals(ModelPath.root()) && (!path.get().getParent().isPresent() || !nodes.containsKey(path.get().getParent().get()))) {
+						throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path));
+					}
+
+					node.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
+					node.addComponent(new RelativeRegistrationService(path.get(), DefaultModelRegistry.this));
+					node.addComponent(new RelativeConfigurationService(path.get(), DefaultModelRegistry.this));
+					node.addComponent(new BindManagedProjectionService(instantiator));
+					if (!node.has(ElementNameComponent.class)) {
+						node.addComponent(new ElementNameComponent(path.get().getName()));
+					}
+					path.get().getParent().ifPresent(parentPath -> {
+						node.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
+					});
+					if (!node.has(DisplayNameComponent.class)) {
+						node.addComponent(new DisplayNameComponent(path.get().toString()));
+					}
 				}
-				path.get().getParent().ifPresent(parentPath -> {
-					node.addComponent(new ParentComponent(this.get(parentPath)));
-				});
-				if (!node.has(DisplayNameComponent.class)) {
-					node.addComponent(new DisplayNameComponent(path.get().toString()));
+			}
+		}));
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
+			public final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
+
+			@Override
+			public void execute(ModelNode node, ModelPathComponent path, ModelState state) {
+				if (state.isAtLeast(ModelState.Registered) && alreadyExecuted.add(node.getId())) {
+					assert !nodes.values().contains(node) : "duplicated registered notification";
+					nodes.put(path.get(), node);
 				}
-			} else if (state.equals(ModelState.Registered)) {
-				assert !nodes.values().contains(node) : "duplicated registered notification";
-				nodes.put(path.get(), node);
 			}
 		}));
 		rootNode = ModelStates.register(createRootNode());
