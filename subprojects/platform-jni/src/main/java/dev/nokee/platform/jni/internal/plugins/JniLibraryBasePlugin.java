@@ -101,6 +101,7 @@ import dev.nokee.platform.jni.internal.JavaLanguageSourceSet;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniJarArtifactComponent;
+import dev.nokee.platform.jni.internal.JniJarArtifactTag;
 import dev.nokee.platform.jni.internal.JniJarBinaryRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
@@ -361,6 +362,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
 			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 				.withComponent(new ParentComponent(entity))
+				.withComponent(JniJarArtifactTag.tag())
 				.build());
 			registry.instantiate(configure(jniJar.getId(), JniJarBinary.class, binary -> {
 				binary.getJarTask().configure(task -> {
@@ -523,17 +525,17 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 			entity.addComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects())));
 
-
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.ofProjection(JniLibrary.class), (e, i, t, s, p, library) -> {
-				if (i.get().equals(identifier)) {
-					val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
-
-					ModelNodeUtils.get(e, JniLibrary.class).getJavaNativeInterfaceJar().getJarTask().configure(configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(e, JniLibrary.class)), unbuildableMainComponentLogger));
-				}
-			}));
-
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
+
+		// ComponentFromEntity<IdentifierComponent> read-only
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JarTaskComponent.class), ModelComponentReference.of(JniJarArtifactTag.class), ModelComponentReference.of(ParentComponent.class), (entity, jarTask, tag, parent) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+
+			val identifier = (VariantIdentifier) parent.get().get(IdentifierComponent.class).get();
+			val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
+			registry.instantiate(ModelAction.configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableMainComponentLogger)));
+		}));
 
 		project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(ignored -> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
