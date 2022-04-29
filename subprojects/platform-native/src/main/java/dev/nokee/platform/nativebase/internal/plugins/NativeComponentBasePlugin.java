@@ -15,13 +15,18 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -35,7 +40,12 @@ import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.LinkedConfiguration;
+import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
@@ -56,6 +66,7 @@ import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyRegistration
 import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyRegistrationRule;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
+import dev.nokee.platform.nativebase.internal.linking.LinkLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.rules.LanguageSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCSourceLayoutConvention;
@@ -68,14 +79,20 @@ import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.SetProperty;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -124,6 +141,32 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(NativeLibraryTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
 			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.SHARED));
 		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(LinkLibrariesConfiguration.class), ModelComponentReference.of(ParentComponent.class), (e, linkLibraries, parent) -> {
+			project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(linkLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, LinkOnlyConfigurationComponent.class))));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(RuntimeLibrariesConfiguration.class), ModelComponentReference.of(ParentComponent.class), (e, runtimeLibraries, parent) -> {
+			project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(runtimeLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, RuntimeOnlyConfigurationComponent.class))));
+		}));
+	}
+
+	private static <T extends ModelComponent & LinkedConfiguration> Callable<Iterable<Configuration>> firstParentConfigurationOf(ParentComponent parent, Class<T> type) {
+		return () -> {
+			return ParentUtils.stream(parent)
+				.flatMap(it -> {
+					if (it.has(type)) {
+						return Stream.of(it.get(type).get());
+					} else {
+						return Stream.empty();
+					}
+				})
+				.map(it -> {
+					ModelStates.realize(it);
+					return ImmutableList.of(ModelNodeUtils.get(it, Configuration.class));
+				})
+				.findFirst()
+				.orElse(ImmutableList.of());
+		};
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {
