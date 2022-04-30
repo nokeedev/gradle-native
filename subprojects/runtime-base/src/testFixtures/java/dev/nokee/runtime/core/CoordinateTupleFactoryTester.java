@@ -20,9 +20,13 @@ import com.google.common.testing.NullPointerTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.runtime.core.CoordinateTestUtils.*;
+import static dev.nokee.runtime.core.CoordinateTestUtils.xAxis;
+import static dev.nokee.runtime.core.CoordinateTestUtils.yAxis;
+import static dev.nokee.runtime.core.CoordinateTestUtils.zAxis;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.iterableWithSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -74,8 +78,7 @@ public interface CoordinateTupleFactoryTester {
 			.addEqualityGroup(createSubject(xAxis().create(1L)), createSubject(xAxis().create(1L)))
 			.addEqualityGroup(createSubject(yAxis().create(1L)))
 			.addEqualityGroup(createSubject(xAxis().create(2L)))
-			.addEqualityGroup(createSubject(xAxis().create(1L), yAxis().create(2L)))
-			.addEqualityGroup(createSubject(yAxis().create(2L), xAxis().create(1L)))
+			.addEqualityGroup(createSubject(xAxis().create(1L), yAxis().create(2L)), createSubject(yAxis().create(2L), xAxis().create(1L)))
 			.testEquals();
 	}
 }

@@ -44,7 +44,7 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 	CoordinateTuple coordinates;
 	@EqualsAndHashCode.Exclude Dimensions allDimensions;
 	@EqualsAndHashCode.Exclude Dimensions ambiguousDimensions;
-	String name;
+	@EqualsAndHashCode.Exclude String name;
 
 	public static DefaultBuildVariant of(Coordinate<?>... coordinates) {
 		val tuple = CoordinateTuple.of(coordinates);

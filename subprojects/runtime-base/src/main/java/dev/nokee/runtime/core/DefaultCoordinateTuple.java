@@ -15,26 +15,26 @@
  */
 package dev.nokee.runtime.core;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.stream.Collectors.joining;
 
 @EqualsAndHashCode
 final class DefaultCoordinateTuple implements CoordinateTuple {
-	private final List<Coordinate<?>> list;
+	private final Set<Coordinate<?>> coordinates;
 
-	DefaultCoordinateTuple(List<? extends Coordinate<?>> list) {
-		checkArgument(!list.isEmpty(), "coordinates cannot be empty");
-		checkArgument(!hasDuplicatedAxis(list), "coordinates cannot contains duplicated axis");
-		this.list = ImmutableList.copyOf(list);
+	DefaultCoordinateTuple(List<? extends Coordinate<?>> coordinates) {
+		checkArgument(!coordinates.isEmpty(), "coordinates cannot be empty");
+		checkArgument(!hasDuplicatedAxis(coordinates), "coordinates cannot contains duplicated axis");
+		this.coordinates = ImmutableSet.copyOf(coordinates);
 	}
 
 	private static boolean hasDuplicatedAxis(Iterable<? extends Coordinate<?>> coordinates) {
@@ -49,11 +49,11 @@ final class DefaultCoordinateTuple implements CoordinateTuple {
 
 	@Override
 	public Iterator<Coordinate<?>> iterator() {
-		return list.iterator();
+		return coordinates.iterator();
 	}
 
 	@Override
 	public String toString() {
-		return "(" + list.stream().map(it -> it.getValue().toString()).collect(joining(", ")) + ")";
+		return "(" + coordinates.stream().map(it -> it.getValue().toString()).collect(joining(", ")) + ")";
 	}
 }
