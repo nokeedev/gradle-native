@@ -147,9 +147,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			((Provider<?>) buildVariants.get().get(GradlePropertyComponent.class).get()).get();
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedTaskAwareComponentMixIn.class)), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			if (identifier.get() instanceof ModelPropertyIdentifier) {
-				return;
-			}
 			modeRegistry.register(ModelRegistration.builder()
 				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "tasks")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(Task.class)).build())
@@ -157,9 +154,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.build());
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedBinaryAwareComponentMixIn.class)), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			if (identifier.get() instanceof ModelPropertyIdentifier) {
-				return;
-			}
 			modeRegistry.register(ModelRegistration.builder()
 				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "binaries")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(Binary.class)).build())
@@ -167,9 +161,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.build());
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedDependencyAwareComponentMixIn<? extends ComponentDependencies, ? extends ComponentDependencies>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			if (identifier.get() instanceof ModelPropertyIdentifier) {
-				return;
-			}
 			Class<ComponentDependencies> type = (Class<ComponentDependencies>) dependenciesType((ModelType<DependencyAwareComponent<? extends ComponentDependencies>>)projection.getType());
 			modeRegistry.register(ModelRegistration.builder()
 				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "dependencies")))
