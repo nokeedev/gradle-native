@@ -189,7 +189,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
 				.elementType(of(Component.class))
 				.build())
-			.withComponent(createdUsing(of(ComponentContainer.class), () -> new ComponentContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<Component>>() {})))))
+			.withComponent(createdUsing(of(ComponentContainer.class), () -> new ComponentContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<Component>>() {})), modeRegistry)))
 			.build()
 		);
 		project.getExtensions().add(ComponentContainer.class, "components", components.as(ComponentContainer.class).get());

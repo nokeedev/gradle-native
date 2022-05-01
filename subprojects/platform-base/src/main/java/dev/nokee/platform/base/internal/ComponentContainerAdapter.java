@@ -20,9 +20,9 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.NodeRegistration;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.dsl.GroovyDslSupport;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.View;
@@ -39,20 +39,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public class ComponentContainerAdapter extends GroovyObjectSupport implements ComponentContainer {
 	private final View<Component> delegate;
 	private final GroovyDslSupport dslSupport;
+	private final ModelRegistry registry;
 	private final ModelNode entity;
 
-	public ComponentContainerAdapter(View<Component> delegate) {
-		this(delegate, ModelNodeContext.getCurrentModelNode());
+	public ComponentContainerAdapter(View<Component> delegate, ModelRegistry registry) {
+		this(delegate, registry, ModelNodeContext.getCurrentModelNode());
 	}
 
 	@SuppressWarnings("unchecked") // IntelliJ is incompetent
-	public ComponentContainerAdapter(View<Component> delegate, ModelNode entity) {
+	public ComponentContainerAdapter(View<Component> delegate, ModelRegistry registry, ModelNode entity) {
 		this.delegate = delegate;
+		this.registry = registry;
 		this.entity = entity;
 		dslSupport = GroovyDslSupport.builder()
 			.metaClass(getMetaClass())
@@ -72,7 +75,8 @@ public class ComponentContainerAdapter extends GroovyObjectSupport implements Co
 	@Override
 	public <U extends Component> NamedDomainObjectProvider<U> register(String name, Class<U> type) {
 		Preconditions.checkArgument(!isTestSuiteComponent(type), "Cannot register test suite components in this container, use a TestSuiteContainer instead.");
-		return ModelNodeUtils.register(entity.get(ViewConfigurationBaseComponent.class).get(), NodeRegistration.of(name, of(type)).withComponent(new IdentifierComponent(ComponentIdentifier.of(name, (ProjectIdentifier) entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get())))).as(type).asProvider();
+		val identifier = ComponentIdentifier.of(name, (ProjectIdentifier) entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get());
+		return registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(identifier)).withComponent(managed(of(type))).build()).as(type).asProvider();
 	}
 
 	@Override

@@ -16,22 +16,34 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.View;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.ClosureTestUtils;
 import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@ExtendWith(MockitoExtension.class)
 class ComponentContainerAdapaterDisallowTestComponentTest {
-	@SuppressWarnings("unchecked") private final View<Component> delegate = (View<Component>) Mockito.mock(View.class);
-	private final ComponentContainerAdapter subject = new ComponentContainerAdapter(delegate, new ModelNode());
+	@Mock private View<Component> delegate;
+	@Mock private ModelRegistry registry;
+	private ComponentContainerAdapter subject;
+
+	@BeforeEach
+	void createSubject() {
+		subject = new ComponentContainerAdapter(delegate, registry, new ModelNode());
+	}
 
 	@Test
 	void throwsExceptionOnRegisterTestSuiteComponents() {
