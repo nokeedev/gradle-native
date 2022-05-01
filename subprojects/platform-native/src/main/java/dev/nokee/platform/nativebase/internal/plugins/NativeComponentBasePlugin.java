@@ -36,6 +36,9 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.HasDevelopmentVariant;
+import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.internal.AssembleTaskComponent;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
@@ -71,19 +74,25 @@ import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin
 import dev.nokee.platform.nativebase.internal.rules.LanguageSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCppSourceLayoutConvention;
+import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
+import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
+import dev.nokee.utils.DeferUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -92,7 +101,10 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
+import static dev.nokee.utils.RunnableUtils.onlyOnce;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -143,10 +155,24 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(LinkLibrariesConfiguration.class), ModelComponentReference.of(ParentComponent.class), (e, linkLibraries, parent) -> {
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(linkLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, LinkOnlyConfigurationComponent.class))));
+			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(linkLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, LinkOnlyConfigurationComponent.class))));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(RuntimeLibrariesConfiguration.class), ModelComponentReference.of(ParentComponent.class), (e, runtimeLibraries, parent) -> {
-			project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(runtimeLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, RuntimeOnlyConfigurationComponent.class))));
+			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(runtimeLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, RuntimeOnlyConfigurationComponent.class))));
+		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTaskComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasDevelopmentVariant.class), (entity, assembleTask, identifier, tag) -> {
+			// The "component" assemble task was most likely added by the 'lifecycle-base' plugin
+			//   then we configure the dependency.
+			//   Note that the dependency may already exists for single variant component but it's not a big deal.
+			@SuppressWarnings("unchecked")
+			final Provider<HasDevelopmentVariant<?>> component = project.getProviders().provider(() -> ModelNodeUtils.get(entity, HasDevelopmentVariant.class));
+			Provider<? extends Variant> developmentVariant = component.flatMap(HasDevelopmentVariant::getDevelopmentVariant);
+			val logger = new WarnUnbuildableLogger((ComponentIdentifier) identifier.get());
+
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn(developmentVariant.flatMap(ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY).map(Arrays::asList)
+				.orElse(DeferUtils.executes(onlyOnce(logger::warn))))));
 		}));
 	}
 
