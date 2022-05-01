@@ -38,7 +38,7 @@ import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameLegacyMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -144,7 +144,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources, ObjectiveCIosApplicationSourcesAdapter>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
-		, ModelBackedHasBaseNameLegacyMixIn
+		, ModelBackedHasBaseNameMixIn
 		, ModelBackedNamedMixIn
 		, ModelBackedHasAssembleTaskMixIn
 	{
