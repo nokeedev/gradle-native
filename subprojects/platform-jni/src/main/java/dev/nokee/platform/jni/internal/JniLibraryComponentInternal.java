@@ -25,6 +25,7 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
@@ -56,6 +57,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> imple
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
 	, ModelBackedHasDevelopmentVariantMixIn<JniLibrary>
+	, ModelBackedHasAssembleTaskMixIn
 {
 	@Getter private final GroupId groupId;
 

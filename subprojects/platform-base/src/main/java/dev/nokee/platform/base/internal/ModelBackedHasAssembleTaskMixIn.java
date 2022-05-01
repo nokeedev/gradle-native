@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal.rules;
+package dev.nokee.platform.base.internal;
 
-import dev.nokee.platform.base.Binary;
-import dev.nokee.platform.base.Variant;
-import org.gradle.api.Transformer;
-import org.gradle.api.provider.Provider;
-
-public enum ToDevelopmentBinaryTransformer implements Transformer<Provider<Binary>, Variant> {
-	TO_DEVELOPMENT_BINARY;
-
-	@Override
-	public Provider<Binary> transform(Variant variant) {
-		return variant.getDevelopmentBinary();
-	}
+public interface ModelBackedHasAssembleTaskMixIn {
 }

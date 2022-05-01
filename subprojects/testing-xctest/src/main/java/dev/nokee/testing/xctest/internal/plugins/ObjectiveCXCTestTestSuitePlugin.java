@@ -26,7 +26,6 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -82,7 +81,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeInco
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependenciesComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.platform.nativebase.internal.rules.RegisterAssembleLifecycleTaskRule;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
@@ -230,7 +228,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, ObjectiveCSourceSet.class));
 				}
 			}))
-			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path.get())) {
 					val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
@@ -320,7 +317,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					withConventionOf(maven(identifier.getName()), defaultObjectiveCGradle(identifier.getName())).accept(ModelNodeUtils.get(entity, ObjectiveCSourceSet.class));
 				}
 			}))
-			.action(new RegisterAssembleLifecycleTaskRule(identifier, PolymorphicDomainObjectRegistry.of(project.getTasks()), project.getExtensions().getByType(ModelRegistry.class), project.getProviders()))
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
 				if (entityPath.equals(path.get())) { // FIXME
 					val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);

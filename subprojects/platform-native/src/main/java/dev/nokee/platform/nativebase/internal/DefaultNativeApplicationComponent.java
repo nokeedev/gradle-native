@@ -29,6 +29,7 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
@@ -68,6 +69,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Defau
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
+	, ModelBackedHasAssembleTaskMixIn
 {
 	private final TaskRegistry taskRegistry;
 

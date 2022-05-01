@@ -75,6 +75,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
+import dev.nokee.platform.base.internal.RegisterAssembleLifecycleTaskRule;
 import dev.nokee.platform.base.internal.TaskNamer;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
@@ -241,6 +242,8 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, property, elementName) -> {
 			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(elementName.get().toString());
 		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(TaskRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
 	}
 
 	@SuppressWarnings("unchecked")
