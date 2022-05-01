@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
@@ -83,6 +84,11 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		public Bits getInputBits() {
 			return inputBits;
 		}
+
+		@Override
+		public String toString() {
+			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
+		}
 	}
 
 	public static <I0 extends ModelComponent, I1 extends ModelComponent> ModelAction of(ModelComponentReference<I0> i0, ModelComponentReference<I1> i1, A2<? super I0, ? super I1> action) {
@@ -136,6 +142,11 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		@Override
 		public Bits getInputBits() {
 			return inputBits;
+		}
+
+		@Override
+		public String toString() {
+			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
 		}
 	}
 
@@ -193,6 +204,11 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		@Override
 		public Bits getInputBits() {
 			return inputBits;
+		}
+
+		@Override
+		public String toString() {
+			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
 		}
 	}
 
@@ -253,6 +269,11 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		@Override
 		public Bits getInputBits() {
 			return inputBits;
+		}
+
+		@Override
+		public String toString() {
+			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
 		}
 	}
 
@@ -315,6 +336,11 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		@Override
 		public Bits getInputBits() {
 			return inputBits;
+		}
+
+		@Override
+		public String toString() {
+			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
 		}
 	}
 }
