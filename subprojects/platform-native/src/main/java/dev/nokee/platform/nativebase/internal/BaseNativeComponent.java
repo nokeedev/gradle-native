@@ -66,7 +66,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 	private final ModelRegistry registry;
 
 	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, objects);
+		super(identifier);
 		this.objects = objects;
 		this.registry = registry;
 		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));

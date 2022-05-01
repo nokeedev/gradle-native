@@ -39,7 +39,6 @@ import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import lombok.Getter;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
@@ -62,8 +61,8 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> imple
 	@Getter private final GroupId groupId;
 
 	@Inject
-	public JniLibraryComponentInternal(ComponentIdentifier identifier, GroupId groupId, ObjectFactory objects) {
-		super(identifier, objects);
+	public JniLibraryComponentInternal(ComponentIdentifier identifier, GroupId groupId) {
+		super(identifier);
 		this.groupId = groupId;
 	}
 
