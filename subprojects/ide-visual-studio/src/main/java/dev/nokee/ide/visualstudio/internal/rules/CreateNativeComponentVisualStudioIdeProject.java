@@ -15,15 +15,20 @@
  */
 package dev.nokee.ide.visualstudio.internal.rules;
 
-import dev.nokee.ide.visualstudio.*;
+import dev.nokee.ide.visualstudio.VisualStudioIdeConfiguration;
+import dev.nokee.ide.visualstudio.VisualStudioIdePlatform;
+import dev.nokee.ide.visualstudio.VisualStudioIdePlatforms;
+import dev.nokee.ide.visualstudio.VisualStudioIdeProject;
+import dev.nokee.ide.visualstudio.VisualStudioIdeProjectConfiguration;
+import dev.nokee.ide.visualstudio.VisualStudioIdeProjectExtension;
+import dev.nokee.ide.visualstudio.VisualStudioIdeTarget;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeProject;
 import dev.nokee.ide.visualstudio.internal.DefaultVisualStudioIdeTarget;
 import dev.nokee.ide.visualstudio.internal.tasks.GenerateVisualStudioIdeProjectTask;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
+import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -69,7 +74,7 @@ import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 
-public final class CreateNativeComponentVisualStudioIdeProject implements Action<KnownDomainObject<BaseComponent<?>>> {
+public final class CreateNativeComponentVisualStudioIdeProject implements Action<ModelElement> {
 	private final VisualStudioIdeProjectExtension extension;
 	private final ProjectLayout projectLayout;
 	private final ObjectFactory objectFactory;
@@ -83,21 +88,22 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 	}
 
 	@Override
-	public void execute(KnownDomainObject<BaseComponent<?>> knownComponent) {
+	public void execute(ModelElement knownComponent) {
 		// TODO: Do something about the casting of DomainObjectIdentifier
-		extension.getProjects().register(DomainObjectIdentifierUtils.toPath(knownComponent.getIdentifier()).getName(), configureVisualStudioIdeProject(knownComponent));
+		extension.getProjects().register(knownComponent.getName(), configureVisualStudioIdeProject(knownComponent));
 	}
 
-	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(KnownDomainObject<BaseComponent<?>> knownComponent) {
+	@SuppressWarnings("unchecked")
+	private Action<VisualStudioIdeProject> configureVisualStudioIdeProject(ModelElement knownComponent) {
 		return new Action<VisualStudioIdeProject>() {
 			@Override
 			public void execute(VisualStudioIdeProject visualStudioProject) {
 				val visualStudioProjectInternal = (DefaultVisualStudioIdeProject) visualStudioProject;
-				visualStudioProjectInternal.getGeneratorTask().configure(vcxprojFilenameToMatchComponentBaseName(knownComponent.flatMap(BaseComponent::getBaseName)));
+				visualStudioProjectInternal.getGeneratorTask().configure(vcxprojFilenameToMatchComponentBaseName(knownComponent.as(BaseComponent.class).flatMap(BaseComponent::getBaseName)));
 
-				visualStudioProjectInternal.getSourceFiles().from(knownComponent.flatMap(this::componentSources));
-				visualStudioProjectInternal.getHeaderFiles().from(knownComponent.flatMap(this::componentHeaders));
-				visualStudioProjectInternal.getTargets().addAllLater(CreateNativeComponentVisualStudioIdeProject.this.asGradleListProvider(knownComponent.flatMap(CreateNativeComponentVisualStudioIdeProject.this::toVisualStudioIdeTargets)));
+				visualStudioProjectInternal.getSourceFiles().from(knownComponent.as(BaseComponent.class).flatMap(this::componentSources));
+				visualStudioProjectInternal.getHeaderFiles().from(knownComponent.as(BaseComponent.class).flatMap(this::componentHeaders));
+				visualStudioProjectInternal.getTargets().addAllLater(CreateNativeComponentVisualStudioIdeProject.this.asGradleListProvider(knownComponent.as(BaseComponent.class).flatMap(CreateNativeComponentVisualStudioIdeProject.this::toVisualStudioIdeTargets)));
 			}
 
 			private Provider<List<? extends FileTree>> componentSources(BaseComponent<?> component) {
@@ -129,11 +135,9 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 	}
 
 	private class ToVisualStudioIdeTargets implements Transformer<Iterable<VisualStudioIdeTarget>, Variant> {
-		private final BaseComponent<?> component;
 		private final Set<BinaryLinkage> allLinkages;
 
 		ToVisualStudioIdeTargets(BaseComponent<?> component) {
-			this.component = component;
 			this.allLinkages = component.getBuildVariants().get().stream().map(it -> ((BuildVariantInternal) it).getAxisValue(BINARY_LINKAGE_COORDINATE_AXIS)).collect(Collectors.toSet());
 		}
 

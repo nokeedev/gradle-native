@@ -26,6 +26,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -79,7 +80,7 @@ import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceV
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.OperatingSystemFamily.OPERATING_SYSTEM_COORDINATE_AXIS;
 
-public final class CreateNativeComponentXcodeIdeProject implements Action<KnownDomainObject<? extends BaseComponent<?>>> {
+public final class CreateNativeComponentXcodeIdeProject implements Action<ModelElement> {
 	private final XcodeIdeProjectExtension extension;
 	private final ProviderFactory providerFactory;
 	private final ObjectFactory objectFactory;
@@ -99,7 +100,7 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 	}
 
 	@Override
-	public void execute(KnownDomainObject<? extends BaseComponent<?>> knownComponent) {
+	public void execute(ModelElement knownComponent) {
 		registerXcodeIdeProjectIfAbsent(extension.getProjects(), projectIdentifier.getName()).configure(configureXcodeIdeProject(knownComponent));
 	}
 
@@ -114,12 +115,12 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<KnownD
 		return !StreamSupport.stream(container.getCollectionSchema().getElements().spliterator(), false).anyMatch(it -> it.getName().equals(name));
 	}
 
-	private Action<XcodeIdeProject> configureXcodeIdeProject(KnownDomainObject<? extends BaseComponent<?>> knownComponent) {
+	private Action<XcodeIdeProject> configureXcodeIdeProject(ModelElement knownComponent) {
 		return new Action<XcodeIdeProject>() {
 			@Override
 			public void execute(XcodeIdeProject xcodeProject) {
-				xcodeProject.getTargets().addAllLater(CreateNativeComponentXcodeIdeProject.this.asGradleListProvider(knownComponent.flatMap(CreateNativeComponentXcodeIdeProject.this.toXcodeIdeTargets())));
-				xcodeProject.getGroups().addLater(knownComponent.flatMap(CreateNativeComponentXcodeIdeProject.this::toXcodeIdeGroup));
+				xcodeProject.getTargets().addAllLater(CreateNativeComponentXcodeIdeProject.this.asGradleListProvider(knownComponent.as(BaseComponent.class).flatMap(CreateNativeComponentXcodeIdeProject.this.toXcodeIdeTargets())));
+				xcodeProject.getGroups().addLater(knownComponent.as(BaseComponent.class).flatMap(CreateNativeComponentXcodeIdeProject.this::toXcodeIdeGroup));
 			}
 		};
 	}
