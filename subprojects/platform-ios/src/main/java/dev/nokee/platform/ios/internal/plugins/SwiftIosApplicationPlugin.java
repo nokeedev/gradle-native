@@ -56,7 +56,8 @@ import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.util.GUtil;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.baseNameConvention;
+import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static org.gradle.util.ConfigureUtil.configureUsing;
@@ -75,7 +76,8 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication("main", project)).as(SwiftIosApplication.class);
-		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup)))));
+		componentProvider.configure(baseName(convention(GUtil.toCamelCase(project.getName()))));
+		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, (t, projection) -> projection.getGroupId().set(GroupId.of(project::getGroup))));
 		project.getExtensions().add(SwiftIosApplication.class, EXTENSION_NAME, componentProvider.get());
 
 		// Other configurations

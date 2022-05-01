@@ -77,8 +77,9 @@ import static dev.nokee.language.base.internal.LanguageSourceSetConventionSuppli
 import static dev.nokee.language.base.internal.LanguageSourceSetConventionSupplier.withConventionOf;
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.baseNameConvention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static org.gradle.util.ConfigureUtil.configureUsing;
@@ -98,7 +99,8 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication("main", project)).as(ObjectiveCIosApplication.class);
-		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, baseNameConvention(GUtil.toCamelCase(project.getName())).andThen((t, projection) -> ((DefaultIosApplicationComponent) projection).getGroupId().set(GroupId.of(project::getGroup)))));
+		componentProvider.configure(baseName(convention(GUtil.toCamelCase(project.getName()))));
+		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, (t, projection) -> projection.getGroupId().set(GroupId.of(project::getGroup))));
 		project.getExtensions().add(ObjectiveCIosApplication.class, EXTENSION_NAME, componentProvider.get());
 
 		// Other configurations
