@@ -21,12 +21,13 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelRegistrationFactory;
-import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactory;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryLookup;
 import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.dsl.GroovyDslSupport;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -48,16 +49,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class TestSuiteContainerAdapter extends GroovyObjectSupport implements TestSuiteContainer, ModelNodeAware {
 	private final ViewAdapter<TestSuiteComponent> delegate;
+	private final ModelRegistry registry;
 	private final GroovyDslSupport dslSupport;
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 
 	@SuppressWarnings("unchecked") // IntelliJ is incompetent
-	public TestSuiteContainerAdapter(ViewAdapter<TestSuiteComponent> delegate) {
+	public TestSuiteContainerAdapter(ViewAdapter<TestSuiteComponent> delegate, ModelRegistry registry) {
 		this.delegate = delegate;
+		this.registry = registry;
 		dslSupport = GroovyDslSupport.builder()
 			.metaClass(getMetaClass())
 			.whenGetProperty(this::find)
@@ -102,7 +106,8 @@ public final class TestSuiteContainerAdapter extends GroovyObjectSupport impleme
 				return entity.get(RelativeRegistrationService.class).modelRegistry.register(((ModelRegistrationFactory) factory).create(name)).as(type).asProvider();
 			}
 		}
-		return ModelNodeUtils.register(entity.get(ViewConfigurationBaseComponent.class).get(), NodeRegistration.of(name, type).withComponent(new IdentifierComponent(ComponentIdentifier.of(name, (ProjectIdentifier) entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get())))).as(type).asProvider();
+		val identifier = ComponentIdentifier.of(name, (ProjectIdentifier) entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get());
+		return registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(identifier)).withComponent(managed(type)).build()).as(type).asProvider();
 	}
 
 	@Override
