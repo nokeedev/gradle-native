@@ -30,6 +30,8 @@ import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -119,8 +121,8 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 		return new Action<XcodeIdeProject>() {
 			@Override
 			public void execute(XcodeIdeProject xcodeProject) {
-				xcodeProject.getTargets().addAllLater(CreateNativeComponentXcodeIdeProject.this.asGradleListProvider(knownComponent.as(BaseComponent.class).flatMap(CreateNativeComponentXcodeIdeProject.this.toXcodeIdeTargets())));
-				xcodeProject.getGroups().addLater(knownComponent.as(BaseComponent.class).flatMap(CreateNativeComponentXcodeIdeProject.this::toXcodeIdeGroup));
+				xcodeProject.getTargets().addAllLater(CreateNativeComponentXcodeIdeProject.this.asGradleListProvider(knownComponent.as(ModelType.of(new TypeOf<BaseComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this.toXcodeIdeTargets())));
+				xcodeProject.getGroups().addLater(knownComponent.as(ModelType.of(new TypeOf<BaseComponent<?>>() {})).flatMap(CreateNativeComponentXcodeIdeProject.this::toXcodeIdeGroup));
 			}
 		};
 	}

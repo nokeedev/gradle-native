@@ -29,6 +29,8 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.cpp.tasks.CppCompile;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
@@ -68,6 +70,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
@@ -99,11 +102,11 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			@Override
 			public void execute(VisualStudioIdeProject visualStudioProject) {
 				val visualStudioProjectInternal = (DefaultVisualStudioIdeProject) visualStudioProject;
-				visualStudioProjectInternal.getGeneratorTask().configure(vcxprojFilenameToMatchComponentBaseName(knownComponent.as(BaseComponent.class).flatMap(BaseComponent::getBaseName)));
+				visualStudioProjectInternal.getGeneratorTask().configure(vcxprojFilenameToMatchComponentBaseName(knownComponent.as(of(new TypeOf<BaseComponent<?>>() {})).flatMap(BaseComponent::getBaseName)));
 
-				visualStudioProjectInternal.getSourceFiles().from(knownComponent.as(BaseComponent.class).flatMap(this::componentSources));
-				visualStudioProjectInternal.getHeaderFiles().from(knownComponent.as(BaseComponent.class).flatMap(this::componentHeaders));
-				visualStudioProjectInternal.getTargets().addAllLater(CreateNativeComponentVisualStudioIdeProject.this.asGradleListProvider(knownComponent.as(BaseComponent.class).flatMap(CreateNativeComponentVisualStudioIdeProject.this::toVisualStudioIdeTargets)));
+				visualStudioProjectInternal.getSourceFiles().from(knownComponent.as(of(new TypeOf<BaseComponent<?>>() {})).flatMap(this::componentSources));
+				visualStudioProjectInternal.getHeaderFiles().from(knownComponent.as(of(new TypeOf<BaseComponent<?>>() {})).flatMap(this::componentHeaders));
+				visualStudioProjectInternal.getTargets().addAllLater(CreateNativeComponentVisualStudioIdeProject.this.asGradleListProvider(knownComponent.as(of(new TypeOf<BaseComponent<?>>() {})).flatMap(CreateNativeComponentVisualStudioIdeProject.this::toVisualStudioIdeTargets)));
 			}
 
 			private Provider<List<? extends FileTree>> componentSources(BaseComponent<?> component) {
