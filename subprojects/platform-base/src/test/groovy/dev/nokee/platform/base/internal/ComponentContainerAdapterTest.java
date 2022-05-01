@@ -16,13 +16,24 @@
 package dev.nokee.platform.base.internal;
 
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.View;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class ComponentContainerAdapterTest implements ViewDelegateTester<Component> {
-	@SuppressWarnings("unchecked") private final View<Component> delegate = (View<Component>) Mockito.mock(View.class);
-	private final ComponentContainerAdapter subject = new ComponentContainerAdapter(delegate, new ModelNode());
+	@Mock private View<Component> delegate;
+	@Mock private ModelRegistry registry;
+	private ComponentContainerAdapter subject;
+
+	@BeforeEach
+	void createSubject() {
+		subject = new ComponentContainerAdapter(delegate, registry, new ModelNode());
+	}
 
 	@Override
 	public View<Component> subject() {
