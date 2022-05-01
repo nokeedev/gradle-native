@@ -57,7 +57,7 @@ public class TestingBasePlugin implements Plugin<Project> {
 				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
 				.elementType(of(TestSuiteComponent.class))
 				.build())
-			.withComponent(createdUsing(of(TestSuiteContainer.class), () -> new TestSuiteContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<TestSuiteComponent>>() {})))))
+			.withComponent(createdUsing(of(TestSuiteContainer.class), () -> new TestSuiteContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<TestSuiteComponent>>() {})), modeRegistry)))
 			.withComponent(ofInstance(new NodeRegistrationFactories()))
 			.build()
 		);
