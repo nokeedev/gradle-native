@@ -45,7 +45,6 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
@@ -143,17 +142,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
 						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeLibraryVariant.class));
-					}
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-				private boolean alreadyExecuted = false;
-				@Override
-				@SuppressWarnings("unchecked")
-				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
-					if (entityPath.equals(path.get()) && state.equals(ModelState.Registered) && !alreadyExecuted) {
-						alreadyExecuted = true;
-						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.get().getName());
 					}
 				}
 			}))

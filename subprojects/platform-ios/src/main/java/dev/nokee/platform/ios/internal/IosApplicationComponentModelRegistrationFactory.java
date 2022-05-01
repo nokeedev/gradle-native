@@ -44,7 +44,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
@@ -165,17 +164,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
 							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
 							.build());
-					}
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-				private boolean alreadyExecuted = false;
-				@Override
-				@SuppressWarnings("unchecked")
-				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
-					if (entityPath.equals(path.get()) && state.equals(ModelState.Registered) && !alreadyExecuted) {
-						alreadyExecuted = true;
-						ModelNodeUtils.get(entity, BaseComponent.class).getBaseName().convention(path.get().getName());
 					}
 				}
 			}))
