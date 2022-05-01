@@ -43,12 +43,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.function.Predicate;
 
-import static com.google.common.base.Predicates.alwaysTrue;
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelActions.register;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelNodes.stateOf;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
@@ -61,7 +58,6 @@ import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransiti
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
-import static dev.nokee.model.internal.registry.DefaultModelRegistryIntegrationTest.MyComponent.aComponent;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.model.internal.state.ModelState.Registered;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -219,33 +215,6 @@ public class DefaultModelRegistryIntegrationTest {
 		assertThat("direct descendant of a should be only b*",
 			ModelNodeUtils.getDirectDescendants(modelRegistry.get(path("a"))),
 			contains(expectedNodes.toArray()));
-	}
-
-	@Test
-	void canRegisterComplexModelSimply() {
-		modelRegistry.register(aComponent("main"));
-		val paths = ImmutableList.<ModelPath>builder();
-		modelRegistry.query(alwaysTrue()::test).map(ModelNodeUtils::getPath).forEach(paths::add);
-		assertThat(paths.build(), contains(root(), path("main"), path("main.sources"), path("main.sources.foo"), path("main.sources.bar")));
-	}
-
-	interface MyComponent {
-		static NodeRegistration aComponent(String name) {
-			return NodeRegistration.of(name, of(MyComponent.class))
-				.action(self(stateAtLeast(Registered)).apply(once(register(MyComponentSources.componentSources()))));
-		}
-	}
-	interface MyComponentSources {
-		static NodeRegistration componentSources() {
-			return NodeRegistration.of("sources", of(MyComponentSources.class))
-				.action(self(stateAtLeast(Registered)).apply(once(register(MySourceSet.aSourceSet("foo")))))
-				.action(self(stateAtLeast(Registered)).apply(once(register(MySourceSet.aSourceSet("bar")))));
-		}
-	}
-	interface MySourceSet {
-		static NodeRegistration aSourceSet(String name) {
-			return NodeRegistration.of(name, of(MySourceSet.class));
-		}
 	}
 
 	@Test
