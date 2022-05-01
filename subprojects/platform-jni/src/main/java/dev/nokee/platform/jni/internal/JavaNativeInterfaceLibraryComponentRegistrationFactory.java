@@ -40,7 +40,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
-			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup), project.getObjects())))
+			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup))))
 			;
 
 		if (identifier.isMainComponent()) {

@@ -43,7 +43,7 @@ public abstract class BaseComponent<T extends Variant> implements Component, Mod
 		return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
 	}
 
-	protected BaseComponent(ComponentIdentifier identifier, ObjectFactory objects) {
+	protected BaseComponent(ComponentIdentifier identifier) {
 		this.identifier = identifier;
 	}
 
