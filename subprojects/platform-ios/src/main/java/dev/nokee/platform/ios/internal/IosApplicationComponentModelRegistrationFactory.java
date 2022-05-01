@@ -58,6 +58,10 @@ import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFact
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -142,10 +146,15 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-						registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
+						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
+						val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
+						val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
+						val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
+
+						entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
 						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultIosApplicationVariant.class));
 
@@ -219,6 +228,11 @@ public final class IosApplicationComponentModelRegistrationFactory {
 				val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
 				val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
 				val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
+
+				entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+				entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+				entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
 				val resolvableFactory = project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class);
 				boolean hasSwift = project.getExtensions().getByType(ModelLookup.class).anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
