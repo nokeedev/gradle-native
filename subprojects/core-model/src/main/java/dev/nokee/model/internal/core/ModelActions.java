@@ -51,47 +51,6 @@ public final class ModelActions {
 		}
 	}
 
-	public static <T> ModelAction executeUsingProjection(ModelType<T> type, Action<? super T> action) {
-		return new ExecuteUsingProjectionModelAction<>(type, action);
-	}
-
-	@EqualsAndHashCode
-	private static final class ExecuteUsingProjectionModelAction<T> implements ModelAction, HasInputs {
-		private final ModelType<T> type;
-		private final Action<? super T> action;
-		private final List<ModelComponentReference<?>> inputs;
-		private final Bits inputBits;
-
-		private ExecuteUsingProjectionModelAction(ModelType<T> type, Action<? super T> action) {
-			this.type = requireNonNull(type);
-			this.action = requireNonNull(action);
-			this.inputs = ImmutableList.of(ofProjection(type.getConcreteType()));
-			this.inputBits = inputs.stream().map(ModelComponentReference::componentBits).reduce(Bits.empty(), Bits::or);
-		}
-
-		@Override
-		public void execute(ModelNode node) {
-			if (node.getComponentBits().containsAll(inputBits)) {
-				action.execute(ModelNodeUtils.get(node, type));
-			}
-		}
-
-		@Override
-		public List<? extends ModelComponentReference<?>> getInputs() {
-			return inputs;
-		}
-
-		@Override
-		public Bits getInputBits() {
-			return inputBits;
-		}
-
-		@Override
-		public String toString() {
-			return "ModelActions.executeUsingProjection(" + type + ", " + action + ")";
-		}
-	}
-
 	/**
 	 * Returns an action that will only be executed once regardless of the node.
 	 *
