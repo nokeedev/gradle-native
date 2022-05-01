@@ -150,6 +150,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 
 		@Override
 		protected void execute(ModelNode entity, ModelPathComponent path) {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeApplicationComponent.class));
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
@@ -157,7 +158,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 				@Override
 				public void accept(BuildVariant buildVariant) {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					val variant = ModelNodeUtils.register(entity, nativeApplicationVariant(variantIdentifier, component, project));
+					val variant = registry.register(nativeApplicationVariant(variantIdentifier, component, project));
 
 					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
