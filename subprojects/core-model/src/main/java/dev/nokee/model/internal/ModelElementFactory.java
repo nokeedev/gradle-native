@@ -44,7 +44,6 @@ import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ProviderUtils;
@@ -62,24 +61,14 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static dev.nokee.model.internal.core.ModelActions.executeUsingProjection;
-import static dev.nokee.model.internal.core.ModelActions.once;
-import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 
 public final class ModelElementFactory implements ModelComponent {
 	private static final Object IGNORED_OBJECT = new Object();
 	private final Instantiator instantiator;
-	private final boolean useLegacyModelAction;
 
 	public ModelElementFactory(Instantiator instantiator) {
-		this(instantiator, false);
-	}
-
-	public ModelElementFactory(Instantiator instantiator, boolean useLegacyModelAction) {
 		this.instantiator = Objects.requireNonNull(instantiator);
-		this.useLegacyModelAction = useLegacyModelAction;
 	}
 
 	public ModelElement createElement(ModelNode entity) {
@@ -173,11 +162,7 @@ public final class ModelElementFactory implements ModelComponent {
 					throw new RuntimeException("...");
 				}
 				assert fullType.equals(type);
-				if (useLegacyModelAction) {
-					ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
-				} else {
-					ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
-				}
+				ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
 			}
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
@@ -277,11 +262,7 @@ public final class ModelElementFactory implements ModelComponent {
 					action.execute(ModelNodeUtils.get(entity, type));
 					return;
 				}
-				if (useLegacyModelAction) {
-					ModelNodeUtils.applyTo(entity, self(stateAtLeast(ModelState.Realized)).apply(once(executeUsingProjection(type, action))));
-				} else {
-					ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
-				}
+				ModelNodeUtils.instantiate(entity, ModelAction.configure(entity.getId(), type.getConcreteType(), action));
 			}
 		};
 		val propertyLookup = new ModelBackedModelPropertyLookupStrategy(entity);
