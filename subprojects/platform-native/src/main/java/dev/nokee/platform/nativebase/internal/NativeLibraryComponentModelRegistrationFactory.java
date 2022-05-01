@@ -167,6 +167,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 
 		@Override
 		protected void execute(ModelNode entity, ModelPathComponent path) {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
@@ -176,7 +177,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 				@Override
 				public void accept(BuildVariant buildVariant) {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					val variant = ModelNodeUtils.register(entity, nativeLibraryVariant(variantIdentifier, component, project));
+					val variant = registry.register(nativeLibraryVariant(variantIdentifier, component, project));
 
 					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
