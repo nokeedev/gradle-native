@@ -29,7 +29,8 @@ import static nokeebuild.buildscan.GradleEnterpriseCustomSearchQueryUrlTransform
 final class GitInformationCustomValueProvider implements Action<BuildScanExtension> {
 	private static final String GIT_STATUS = "gitStatus";
 	private static final String GIT_BRANCH_NAME = "gitBranchName";
-	private static final String GIT_COMMIT_NAME = "gitCommitId";
+	private static final String GIT_COMMIT_SHA_NAME = "gitCommitSha";
+	private static final String GIT_COMMIT_ID_NAME = "gitCommitId";
 	private final Parameters gitInformation;
 
 	GitInformationCustomValueProvider(Parameters gitInformation) {
@@ -43,7 +44,8 @@ final class GitInformationCustomValueProvider implements Action<BuildScanExtensi
 			buildScan.value(GIT_STATUS, it);
 		});
 		gitInformation.gitRef().ifPresent(it -> buildScan.value(GIT_BRANCH_NAME, it));
-		gitInformation.gitCommitSha().ifPresent(it -> buildScan.value(GIT_COMMIT_NAME, it));
+		gitInformation.gitCommitSha().ifPresent(it -> buildScan.value(GIT_COMMIT_SHA_NAME, it));
+		gitInformation.gitCommitId().ifPresent(it -> buildScan.value(GIT_COMMIT_ID_NAME, it));
 
 		ifBothPresent(gitInformation.gitRepository(), gitInformation.gitCommitSha(), (gitRepo, gitSha) -> {
 			if (gitRepo.contains("github.com/") || gitRepo.contains("github.com:")) {
@@ -56,8 +58,8 @@ final class GitInformationCustomValueProvider implements Action<BuildScanExtensi
 			}
 		});
 
-		gitInformation.gitCommitSha().ifPresent(commitId ->
-			Optional.ofNullable(buildScan.getServer()).map(toCustomSearchUrl(Collections.singletonMap(GIT_COMMIT_NAME, commitId))).ifPresent(url -> buildScan.link("Git Commit Scans", url)));
+		gitInformation.gitCommitSha().ifPresent(commitSha ->
+			Optional.ofNullable(buildScan.getServer()).map(toCustomSearchUrl(Collections.singletonMap(GIT_COMMIT_SHA_NAME, commitSha))).ifPresent(url -> buildScan.link("Git Commit Scans", url)));
 	}
 
 	private static <T, U> void ifBothPresent(Optional<T> first, Optional<U> second, BiConsumer<? super T, ? super U> action) {
@@ -72,6 +74,8 @@ final class GitInformationCustomValueProvider implements Action<BuildScanExtensi
 		Optional<String> gitStatus();
 
 		Optional<String> gitCommitSha();
+
+		Optional<String> gitCommitId();
 
 		Optional<String> gitRepository();
 	}

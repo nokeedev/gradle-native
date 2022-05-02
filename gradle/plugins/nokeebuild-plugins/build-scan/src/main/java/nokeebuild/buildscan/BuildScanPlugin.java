@@ -166,6 +166,18 @@ class BuildScanPlugin implements Plugin<Settings> {
 		}
 
 		@Override
+		public Optional<String> gitCommitId() {
+			return capture(outStream -> {
+				execOperations.exec(spec -> {
+					spec.commandLine("git", "rev-parse", "--short=8", "--verify", "HEAD");
+					spec.setStandardOutput(outStream);
+					spec.setErrorOutput(outStream);
+					spec.workingDir(settings.getRootDir());
+				});
+			});
+		}
+
+		@Override
 		public Optional<String> gitRepository() {
 			return capture(outStream -> {
 				execOperations.exec(spec -> {

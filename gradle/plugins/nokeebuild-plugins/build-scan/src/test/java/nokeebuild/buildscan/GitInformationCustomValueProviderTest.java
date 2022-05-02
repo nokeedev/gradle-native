@@ -88,14 +88,31 @@ class GitInformationCustomValueProviderTest {
 	@Nested
 	class GitCommitShaTest {
 		@Test
-		void addsCommitIdAsCustomValue() {
+		void addsCommitShaAsCustomValue() {
 			when(git.gitCommitSha()).thenReturn(Optional.of("ffac537e6cbbf934b08745a378932722df287a53"));
 			subject.execute(buildScan);
-			verify(buildScan).value("gitCommitId", "ffac537e6cbbf934b08745a378932722df287a53");
+			verify(buildScan).value("gitCommitSha", "ffac537e6cbbf934b08745a378932722df287a53");
 		}
 
 		@Test
-		void doesNotAddCommitIdAsCustomValueIfCommitShaAbsent() {
+		void doesNotAddCommitShaAsCustomValueIfCommitShaAbsent() {
+			when(git.gitCommitSha()).thenReturn(Optional.empty());
+			subject.execute(buildScan);
+			verify(buildScan, never()).value(eq("gitCommitSha"), any());
+		}
+	}
+
+	@Nested
+	class GitCommitIdTest {
+		@Test
+		void addsCommitIdAsCustomValue() {
+			when(git.gitCommitId()).thenReturn(Optional.of("df287a53"));
+			subject.execute(buildScan);
+			verify(buildScan).value("gitCommitId", "df287a53");
+		}
+
+		@Test
+		void doesNotAddCommitIdAsCustomValueIfCommitIdAbsent() {
 			when(git.gitCommitSha()).thenReturn(Optional.empty());
 			subject.execute(buildScan);
 			verify(buildScan, never()).value(eq("gitCommitId"), any());
@@ -136,7 +153,7 @@ class GitInformationCustomValueProviderTest {
 			when(git.gitCommitSha()).thenReturn(Optional.of("ffac537e6cbbf934b08745a378932722df287a53"));
 			when(buildScan.getServer()).thenReturn("https://my-company.gradle.com/");
 			subject.execute(buildScan);
-			verify(buildScan).link("Git Commit Scans", "https://my-company.gradle.com/scans?search.names=gitCommitId&search.values=ffac537e6cbbf934b08745a378932722df287a53");
+			verify(buildScan).link("Git Commit Scans", "https://my-company.gradle.com/scans?search.names=gitCommitSha&search.values=ffac537e6cbbf934b08745a378932722df287a53");
 		}
 
 		@Test
