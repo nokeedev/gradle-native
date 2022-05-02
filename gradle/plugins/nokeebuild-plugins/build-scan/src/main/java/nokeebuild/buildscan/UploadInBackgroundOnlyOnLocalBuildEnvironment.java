@@ -19,9 +19,9 @@ import com.gradle.scan.plugin.BuildScanExtension;
 import org.gradle.api.Action;
 
 final class UploadInBackgroundOnlyOnLocalBuildEnvironment implements Action<BuildScanExtension> {
-	private final UploadInBackgroundParameters parameters;
+	private final Parameters parameters;
 
-	UploadInBackgroundOnlyOnLocalBuildEnvironment(UploadInBackgroundParameters parameters) {
+	UploadInBackgroundOnlyOnLocalBuildEnvironment(Parameters parameters) {
 		this.parameters = parameters;
 	}
 
@@ -30,7 +30,7 @@ final class UploadInBackgroundOnlyOnLocalBuildEnvironment implements Action<Buil
 		buildScan.setUploadInBackground(parameters.isLocalBuildEnvironment());
 	}
 
-	interface UploadInBackgroundParameters {
+	interface Parameters {
 		boolean isLocalBuildEnvironment();
 	}
 }

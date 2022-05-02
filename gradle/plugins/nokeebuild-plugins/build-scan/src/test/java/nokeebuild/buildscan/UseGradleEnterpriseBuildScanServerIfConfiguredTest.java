@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UseGradleEnterpriseBuildScanServerIfConfiguredTest {
-	@Mock private UseGradleEnterpriseBuildScanServerIfConfigured.BuildScanServerParameter gradleEnterprise;
+	@Mock private UseGradleEnterpriseBuildScanServerIfConfigured.Parameters gradleEnterprise;
 	@InjectMocks private UseGradleEnterpriseBuildScanServerIfConfigured subject;
 	@Mock private BuildScanExtension buildScan;
 

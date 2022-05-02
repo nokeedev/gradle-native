@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class IdeaIdeCustomValueProviderTest {
-	@Mock private IdeaIdeCustomValueProvider.IdeaRuntimeParameter ideaRuntime;
+	@Mock private IdeaIdeCustomValueProvider.Parameters ideaRuntime;
 	@InjectMocks private IdeaIdeCustomValueProvider subject;
 	@Mock private BuildScanExtension buildScan;
 

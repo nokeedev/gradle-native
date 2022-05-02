@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BuildEnvironmentCustomValueProviderTest {
-	@Mock private BuildEnvironmentCustomValueProvider.BuildEnvironmentParameter buildEnvironment;
+	@Mock private BuildEnvironmentCustomValueProvider.Parameters buildEnvironment;
 	@InjectMocks private BuildEnvironmentCustomValueProvider subject;
 	@Mock private BuildScanExtension buildScan;
 

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BuildCacheCustomValueProviderTest {
-	@Mock private BuildCacheCustomValueProvider.BuildCacheParameter buildCache;
+	@Mock private BuildCacheCustomValueProvider.Parameters buildCache;
 	@InjectMocks private BuildCacheCustomValueProvider subject;
 	@Mock private BuildScanExtension buildScan;
 

@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UploadInBackgroundOnlyOnLocalBuildEnvironmentTest {
-	@Mock private UploadInBackgroundOnlyOnLocalBuildEnvironment.UploadInBackgroundParameters parameters;
+	@Mock private UploadInBackgroundOnlyOnLocalBuildEnvironment.Parameters parameters;
 	@InjectMocks private UploadInBackgroundOnlyOnLocalBuildEnvironment subject;
 	@Mock private BuildScanExtension buildScan;
 

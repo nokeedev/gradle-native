@@ -19,9 +19,9 @@ import com.gradle.scan.plugin.BuildScanExtension;
 import org.gradle.api.Action;
 
 final class BuildCacheCustomValueProvider implements Action<BuildScanExtension> {
-	private final BuildCacheParameter buildCache;
+	private final Parameters buildCache;
 
-	public BuildCacheCustomValueProvider(BuildCacheParameter buildCache) {
+	public BuildCacheCustomValueProvider(Parameters buildCache) {
 		this.buildCache = buildCache;
 	}
 
@@ -32,7 +32,7 @@ final class BuildCacheCustomValueProvider implements Action<BuildScanExtension> 
 		}
 	}
 
-	interface BuildCacheParameter {
+	interface Parameters {
 		boolean buildCacheEnabled();
 	}
 }

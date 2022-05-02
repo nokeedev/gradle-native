@@ -24,9 +24,9 @@ final class IdeaIdeCustomValueProvider implements Action<BuildScanExtension> {
 	public static final String[] IDEA_RUNTIME_SYSTEM_PROPERTY_NAMES = new String[]{"idea.registered", "idea.active", "idea.paths.selector"};
 	public static final String IDEA_VERSION_SYSTEM_PROPERTY_NAME = "idea.paths.selector";
 	private static final String IDEA_VERSION = "ideaVersion";
-	private final IdeaRuntimeParameter ideaRuntime;
+	private final Parameters ideaRuntime;
 
-	IdeaIdeCustomValueProvider(IdeaRuntimeParameter ideaRuntime) {
+	IdeaIdeCustomValueProvider(Parameters ideaRuntime) {
 		this.ideaRuntime = ideaRuntime;
 	}
 
@@ -38,7 +38,7 @@ final class IdeaIdeCustomValueProvider implements Action<BuildScanExtension> {
 		}
 	}
 
-	interface IdeaRuntimeParameter {
+	interface Parameters {
 		boolean wasLaunchedFromIdea();
 
 		Optional<String> ideaVersion();

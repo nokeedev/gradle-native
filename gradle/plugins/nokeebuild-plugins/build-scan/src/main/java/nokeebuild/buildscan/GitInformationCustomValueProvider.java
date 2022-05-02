@@ -30,9 +30,9 @@ final class GitInformationCustomValueProvider implements Action<BuildScanExtensi
 	private static final String GIT_STATUS = "gitStatus";
 	private static final String GIT_BRANCH_NAME = "gitBranchName";
 	static final String GIT_COMMIT_NAME = "gitCommitId";
-	private final GitInformationParameters gitInformation;
+	private final Parameters gitInformation;
 
-	GitInformationCustomValueProvider(GitInformationParameters gitInformation) {
+	GitInformationCustomValueProvider(Parameters gitInformation) {
 		this.gitInformation = gitInformation;
 	}
 
@@ -66,7 +66,7 @@ final class GitInformationCustomValueProvider implements Action<BuildScanExtensi
 		}
 	}
 
-	interface GitInformationParameters {
+	interface Parameters {
 		Optional<String> gitRef();
 
 		Optional<String> gitStatus();

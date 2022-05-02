@@ -31,9 +31,9 @@ import javax.annotation.Nullable;
  */
 final class UseGradleEnterpriseBuildScanServerIfConfigured implements Action<BuildScanExtension> {
 	public static final String GRADLE_ENTERPRISE_URL_PROPERTY_NAME = "gradle.enterprise.url";
-	private final BuildScanServerParameter gradleEnterprise;
+	private final Parameters gradleEnterprise;
 
-	public UseGradleEnterpriseBuildScanServerIfConfigured(BuildScanServerParameter gradleEnterprise) {
+	public UseGradleEnterpriseBuildScanServerIfConfigured(Parameters gradleEnterprise) {
 		this.gradleEnterprise = gradleEnterprise;
 	}
 
@@ -42,7 +42,7 @@ final class UseGradleEnterpriseBuildScanServerIfConfigured implements Action<Bui
 		extension.setServer(gradleEnterprise.serverUrl());
 	}
 
-	interface BuildScanServerParameter {
+	interface Parameters {
 		@Nullable
 		String serverUrl();
 	}

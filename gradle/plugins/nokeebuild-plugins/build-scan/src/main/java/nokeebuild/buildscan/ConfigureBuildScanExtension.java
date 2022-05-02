@@ -41,12 +41,12 @@ final class ConfigureBuildScanExtension implements Action<GradleEnterpriseExtens
 		extension.buildScan(new InBackground(new GitInformationCustomValueProvider(parameters)));
 	}
 
-	interface Parameters extends BuildCacheCustomValueProvider.BuildCacheParameter
-		, BuildEnvironmentCustomValueProvider.BuildEnvironmentParameter
-		, IdeaIdeCustomValueProvider.IdeaRuntimeParameter
-		, UseGradleEnterpriseBuildScanServerIfConfigured.BuildScanServerParameter
-		, GitHubActionsCustomValueProvider.GitHubActionsParameters
-		, GitInformationCustomValueProvider.GitInformationParameters
+	interface Parameters extends BuildCacheCustomValueProvider.Parameters
+		, BuildEnvironmentCustomValueProvider.Parameters
+		, IdeaIdeCustomValueProvider.Parameters
+		, UseGradleEnterpriseBuildScanServerIfConfigured.Parameters
+		, GitHubActionsCustomValueProvider.Parameters
+		, GitInformationCustomValueProvider.Parameters
 		, AgreePublicBuildScanTermsOfService.Parameters {
 	}
 }

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GitHubActionsCustomValueProviderTest {
-	@Mock private GitHubActionsCustomValueProvider.GitHubActionsParameters gitHubActions;
+	@Mock private GitHubActionsCustomValueProvider.Parameters gitHubActions;
 	@InjectMocks private GitHubActionsCustomValueProvider subject;
 	@Mock private BuildScanExtension buildScan;
 

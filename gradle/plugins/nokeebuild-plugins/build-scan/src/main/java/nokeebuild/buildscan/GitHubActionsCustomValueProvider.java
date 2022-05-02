@@ -20,9 +20,9 @@ import org.gradle.api.Action;
 
 final class GitHubActionsCustomValueProvider implements Action<BuildScanExtension> {
 	private static final String BUILD_ID = "buildId";
-	private final GitHubActionsParameters gitHubActions;
+	private final Parameters gitHubActions;
 
-	public GitHubActionsCustomValueProvider(GitHubActionsParameters gitHubActions) {
+	public GitHubActionsCustomValueProvider(Parameters gitHubActions) {
 		this.gitHubActions = gitHubActions;
 	}
 
@@ -38,7 +38,7 @@ final class GitHubActionsCustomValueProvider implements Action<BuildScanExtensio
 		}
 	}
 
-	interface GitHubActionsParameters {
+	interface Parameters {
 		boolean isGitHubActionsEnvironment();
 
 		String githubRepository();
