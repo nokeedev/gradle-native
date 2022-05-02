@@ -18,12 +18,9 @@ package nokeebuild.buildscan;
 import com.gradle.scan.plugin.BuildScanExtension;
 import org.gradle.api.Action;
 
-import javax.inject.Inject;
-
 final class BuildEnvironmentCustomValueProvider implements Action<BuildScanExtension> {
 	private final Parameters buildEnvironment;
 
-	@Inject
 	public BuildEnvironmentCustomValueProvider(Parameters buildEnvironment) {
 		this.buildEnvironment = buildEnvironment;
 	}
