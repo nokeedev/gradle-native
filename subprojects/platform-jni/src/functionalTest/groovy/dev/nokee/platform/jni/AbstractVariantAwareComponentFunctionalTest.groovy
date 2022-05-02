@@ -326,7 +326,7 @@ class VariantAwareComponentJavaObjectiveCppJniLibraryFunctionalTest extends Abst
 
 class VariantAwareComponentKotlinCppJniLibraryFunctionalTest extends AbstractVariantAwareComponentFunctionalTest {
 	private static String getKotlinVersion() {
-		return '1.5.10'
+		return '1.6.21'
 	}
 
 	protected void makeSingleProject() {

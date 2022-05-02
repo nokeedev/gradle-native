@@ -246,7 +246,7 @@ class NativeLinkingJavaObjectiveCppJniLibraryFunctionalTest extends AbstractNati
 
 class NativeLinkingKotlinCppJniLibraryFunctionalTest extends AbstractNativeLinkingAwareComponentFunctionalTest implements CppTaskNames {
 	private static String getKotlinVersion() {
-		return '1.5.10'
+		return '1.6.21'
 	}
 
 	protected void makeSingleProject() {
