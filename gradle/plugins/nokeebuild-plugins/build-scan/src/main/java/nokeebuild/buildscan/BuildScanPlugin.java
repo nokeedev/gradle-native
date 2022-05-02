@@ -190,8 +190,8 @@ class BuildScanPlugin implements Plugin<Settings> {
 		}
 
 		@Override
-		public boolean publicBuildScanTermsOfServiceAgreed() {
-			return "yes".equals(providers.systemProperty("gradle.enterprise.agreePublicBuildScanTermOfService").forUseAtConfigurationTime().orElse("no").get());
+		public Optional<Boolean> publicBuildScanTermsOfServiceAgreed() {
+			return Optional.ofNullable(providers.systemProperty("gradle.enterprise.agreePublicBuildScanTermOfService").forUseAtConfigurationTime().map(it -> "yes".equals(it)).getOrNull());
 		}
 	}
 

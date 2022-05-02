@@ -18,6 +18,8 @@ package nokeebuild.buildscan;
 import com.gradle.scan.plugin.BuildScanExtension;
 import org.gradle.api.Action;
 
+import java.util.Optional;
+
 final class AgreePublicBuildScanTermsOfService implements Action<BuildScanExtension> {
 	private final Parameters parameters;
 
@@ -28,10 +30,10 @@ final class AgreePublicBuildScanTermsOfService implements Action<BuildScanExtens
 	@Override
 	public void execute(BuildScanExtension extension) {
 		extension.setTermsOfServiceUrl("https://gradle.com/terms-of-service");
-		extension.setTermsOfServiceAgree(parameters.publicBuildScanTermsOfServiceAgreed() ? "yes" : "no");
+		extension.setTermsOfServiceAgree(parameters.publicBuildScanTermsOfServiceAgreed().map(it -> it ? "yes" : "no").orElse(null));
 	}
 
 	interface Parameters {
-		boolean publicBuildScanTermsOfServiceAgreed();
+		Optional<Boolean> publicBuildScanTermsOfServiceAgreed();
 	}
 }
