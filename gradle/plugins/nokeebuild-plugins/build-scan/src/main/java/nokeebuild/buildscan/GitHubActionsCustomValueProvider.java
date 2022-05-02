@@ -38,15 +38,6 @@ final class GitHubActionsCustomValueProvider implements Action<BuildScanExtensio
 		}
 	}
 
-//    @SuppressWarnings("UnstableApiUsage")
-//    private boolean isGitHubActionsEnvironment() {
-//        return providers.environmentVariable("GITHUB_ACTIONS").forUseAtConfigurationTime().isPresent();
-//    }
-//
-//    private String envVar(String variableName) {
-//        return providers.environmentVariable(variableName).forUseAtConfigurationTime().orElse("").get();
-//    }
-
 	interface GitHubActionsParameters {
 		boolean isGitHubActionsEnvironment();
 
