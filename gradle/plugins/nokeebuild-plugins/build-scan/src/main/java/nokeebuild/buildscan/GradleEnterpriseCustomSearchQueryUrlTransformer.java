@@ -35,7 +35,11 @@ final class GradleEnterpriseCustomSearchQueryUrlTransformer implements UnaryOper
 			.stream()
 			.map(entry -> String.format("search.names=%s&search.values=%s", urlEncode(entry.getKey()), urlEncode(entry.getValue())))
 			.collect(Collectors.joining("&"));
-		return String.format("%s/scans?%s", serverUrl, query);
+		return appendUrlSeparatorIfMissing(serverUrl) + "scans?" + query;
+	}
+
+	private static String appendUrlSeparatorIfMissing(String str) {
+		return str.endsWith("/") ? str : str + "/";
 	}
 
 	private static String urlEncode(String s) {
