@@ -24,6 +24,8 @@ import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Collections.singletonMap;
+import static java.util.Optional.ofNullable;
 import static nokeebuild.buildscan.GradleEnterpriseCustomSearchQueryUrlTransformer.toCustomSearchUrl;
 
 final class GitInformationCustomValueProvider implements Action<BuildScanExtension> {
@@ -58,8 +60,9 @@ final class GitInformationCustomValueProvider implements Action<BuildScanExtensi
 			}
 		});
 
-		gitInformation.gitCommitSha().ifPresent(commitSha ->
-			Optional.ofNullable(buildScan.getServer()).map(toCustomSearchUrl(Collections.singletonMap(GIT_COMMIT_SHA_NAME, commitSha))).ifPresent(url -> buildScan.link("Git Commit Scans", url)));
+		gitInformation.gitCommitSha()
+			.flatMap(commitSha -> ofNullable(buildScan.getServer()).map(toCustomSearchUrl(singletonMap(GIT_COMMIT_SHA_NAME, commitSha))))
+			.ifPresent(url -> buildScan.link("Git Commit Scans", url));
 	}
 
 	private static <T, U> void ifBothPresent(Optional<T> first, Optional<U> second, BiConsumer<? super T, ? super U> action) {
