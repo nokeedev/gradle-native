@@ -24,22 +24,8 @@ runs:
                 distribution: temurin
                 java-version: 8
         -   uses: gradle/gradle-build-action@v2
-            id: gradle
             with:
                 arguments: ${{ inputs.arguments }} --no-daemon --continue "-Dgradle.enterprise.url=https://ge.nokee.dev/" "-Dgradle.cache.remote.username=${{ inputs.build-cache-username }}" "-Dgradle.cache.remote.password=${{ inputs.build-cache-password }}" "-Dgradle.cache.remote.push=true"
                 gradle-version: wrapper
             env:
                 GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.build-scan-access-key }}
-        - name: "Tag build scan url"
-          uses: actions/github-script@v5
-          if: failure()
-          with:
-              script: |
-                  github.rest.repos.createCommitStatus({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    sha: context.sha,
-                    state: '${{ steps.gradle.outcome }}',
-                    target_url: '${{ steps.gradle.outputs.build-scan-url }}',
-                    context: `❌ ${context.workflow} / ${context.job}`
-                  })
