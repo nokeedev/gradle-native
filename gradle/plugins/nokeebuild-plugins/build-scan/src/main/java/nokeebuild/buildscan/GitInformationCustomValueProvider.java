@@ -29,7 +29,7 @@ import static nokeebuild.buildscan.GradleEnterpriseCustomSearchQueryUrlTransform
 final class GitInformationCustomValueProvider implements Action<BuildScanExtension> {
 	private static final String GIT_STATUS = "gitStatus";
 	private static final String GIT_BRANCH_NAME = "gitBranchName";
-	static final String GIT_COMMIT_NAME = "gitCommitId";
+	private static final String GIT_COMMIT_NAME = "gitCommitId";
 	private final Parameters gitInformation;
 
 	GitInformationCustomValueProvider(Parameters gitInformation) {
