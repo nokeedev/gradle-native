@@ -25,7 +25,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,7 +54,6 @@ class GitHubActionsCustomValueProviderTest {
 			when(gitHubActions.isGitHubActionsEnvironment()).thenReturn(true);
 			when(gitHubActions.githubRepository()).thenReturn("octocat/Hello-World");
 			when(gitHubActions.githubRunId()).thenReturn("1658821493");
-			when(gitHubActions.githubSha()).thenReturn("ffac537e6cbbf934b08745a378932722df287a53");
 			when(gitHubActions.githubRunNumber()).thenReturn("3");
 		}
 
@@ -66,35 +64,9 @@ class GitHubActionsCustomValueProviderTest {
 		}
 
 		@Test
-		void addsSourceUrlToCommit() {
-			subject.execute(buildScan);
-			verify(buildScan).link("Source", "https://github.com/octocat/Hello-World/commit/ffac537e6cbbf934b08745a378932722df287a53");
-		}
-
-		@Test
 		void addsBuildIdAsCustomValue() {
 			subject.execute(buildScan);
 			verify(buildScan).value("buildId", "1658821493 3");
-		}
-
-		@Test
-		void addsCommitIdAsCustomValue() {
-			subject.execute(buildScan);
-			verify(buildScan).value("gitCommitId", "ffac537e6cbbf934b08745a378932722df287a53");
-		}
-
-		@Test
-		void addsBuildScanSearchLinkToAllMatchingCommitId() {
-			when(buildScan.getServer()).thenReturn("https://my-company.gradle.com/");
-			subject.execute(buildScan);
-			verify(buildScan).link("Git Commit Scans", "https://my-company.gradle.com//scans?search.names=gitCommitId&search.values=ffac537e6cbbf934b08745a378932722df287a53");
-		}
-
-		@Test
-		void doesNotAddBuildScanSearchLinkToAllMatchingCommitIdWhenUsingPublicInstance() {
-			when(buildScan.getServer()).thenReturn(null);
-			subject.execute(buildScan);
-			verify(buildScan, never()).link(eq("Git Commit Scans"), any());
 		}
 	}
 }

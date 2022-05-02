@@ -101,11 +101,6 @@ class BuildScanPlugin implements Plugin<Settings> {
 		}
 
 		@Override
-		public String githubSha() {
-			return envVar("GITHUB_SHA");
-		}
-
-		@Override
 		public String githubRepository() {
 			return envVar("GITHUB_REPOSITORY");
 		}
@@ -151,6 +146,30 @@ class BuildScanPlugin implements Plugin<Settings> {
 			return capture(outStream -> {
 				execOperations.exec(spec -> {
 					spec.commandLine("git", "status", "--porcelain");
+					spec.setStandardOutput(outStream);
+					spec.setErrorOutput(outStream);
+					spec.workingDir(settings.getRootDir());
+				});
+			});
+		}
+
+		@Override
+		public Optional<String> gitCommitSha() {
+			return capture(outStream -> {
+				execOperations.exec(spec -> {
+					spec.commandLine("git", "rev-parse", "--verify", "HEAD");
+					spec.setStandardOutput(outStream);
+					spec.setErrorOutput(outStream);
+					spec.workingDir(settings.getRootDir());
+				});
+			});
+		}
+
+		@Override
+		public Optional<String> gitRepository() {
+			return capture(outStream -> {
+				execOperations.exec(spec -> {
+					spec.commandLine("git", "config", "--get", "remote.origin.url");
 					spec.setStandardOutput(outStream);
 					spec.setErrorOutput(outStream);
 					spec.workingDir(settings.getRootDir());
