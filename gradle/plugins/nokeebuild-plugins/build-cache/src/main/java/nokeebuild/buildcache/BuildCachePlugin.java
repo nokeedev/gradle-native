@@ -50,6 +50,7 @@ class BuildCachePlugin implements Plugin<Settings> {
 		public Optional<String> remoteBuildCacheUrl() {
 			return Optional.ofNullable(providers.environmentVariable(GRADLE_CACHE_REMOTE_URL_ENV_NAME).forUseAtConfigurationTime()
 				.orElse(providers.systemProperty(GRADLE_CACHE_REMOTE_URL_PROPERTY_NAME).forUseAtConfigurationTime())
+				.orElse("https://ge.nokee.dev/cache/")
 				.getOrNull());
 		}
 

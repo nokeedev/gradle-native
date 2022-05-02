@@ -26,7 +26,7 @@ runs:
         -   uses: gradle/gradle-build-action@v2
             id: gradle
             with:
-                arguments: ${{ inputs.arguments }} --no-daemon --continue "-Dgradle.enterprise.url=https://ge.nokee.dev/" "-Dgradle.cache.remote.url=https://ge.nokee.dev/cache/" "-Dgradle.cache.remote.username=${{ inputs.build-cache-username }}" "-Dgradle.cache.remote.password=${{ inputs.build-cache-password }}" "-Dgradle.cache.remote.push=true"
+                arguments: ${{ inputs.arguments }} --no-daemon --continue "-Dgradle.enterprise.url=https://ge.nokee.dev/" "-Dgradle.cache.remote.username=${{ inputs.build-cache-username }}" "-Dgradle.cache.remote.password=${{ inputs.build-cache-password }}" "-Dgradle.cache.remote.push=true"
                 gradle-version: wrapper
             env:
                 GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.build-scan-access-key }}
