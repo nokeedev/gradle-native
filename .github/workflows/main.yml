@@ -132,7 +132,7 @@ jobs:
             -   uses: nokeedev/actions/vagrant-ssh@main
                 with:
                     name: freebsd-12.3
-                    run: ./gradlew --scan --continue --no-daemon :docs:docsTest --no-build-cache -PskipAllAsciinemaTasks
+                    run: ./gradlew --continue --no-daemon :docs:docsTest --no-build-cache -PskipAllAsciinemaTasks -Dgradle.enterprise.agreePublicBuildScanTermOfService=yes
 
     publish-head-milestone:
         if: github.ref == 'refs/heads/master'
