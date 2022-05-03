@@ -71,12 +71,12 @@ import dev.nokee.platform.nativebase.internal.rules.LanguageSourceLayoutConventi
 import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCppSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
-import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
+import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
-import dev.nokee.utils.DeferUtils;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -97,7 +97,7 @@ import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
-import static dev.nokee.utils.RunnableUtils.onlyOnce;
+import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
@@ -155,6 +155,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(runtimeLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, RuntimeOnlyConfigurationComponent.class))));
 		}));
 
+		val unbuildableWarningService = forUseAtConfigurationTime(project.getGradle().getSharedServices().registerIfAbsent("unbuildableWarningService", UnbuildableWarningService.class, ActionUtils.doNothing()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTaskComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasDevelopmentVariant.class), (entity, assembleTask, identifier, tag) -> {
 			// The "component" assemble task was most likely added by the 'lifecycle-base' plugin
 			//   then we configure the dependency.
@@ -162,11 +163,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			@SuppressWarnings("unchecked")
 			final Provider<HasDevelopmentVariant<?>> component = project.getProviders().provider(() -> ModelNodeUtils.get(entity, HasDevelopmentVariant.class));
 			Provider<? extends Variant> developmentVariant = component.flatMap(HasDevelopmentVariant::getDevelopmentVariant);
-			val logger = new WarnUnbuildableLogger((ComponentIdentifier) identifier.get());
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			registry.instantiate(configure(assembleTask.get().getId(), Task.class, configureDependsOn(developmentVariant.flatMap(ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY).map(Arrays::asList)
-				.orElse(DeferUtils.executes(onlyOnce(logger::warn))))));
+				.orElse(unbuildableWarningService.map(it -> {
+					it.warn((ComponentIdentifier) identifier.get());
+					return Collections.emptyList();
+				})))));
 		}));
 	}
 
