@@ -73,6 +73,7 @@ import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
+import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
@@ -333,14 +334,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(NativeVariantTag.tag())
 			.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, id, path) -> {
-				if (id.get().equals(identifier)) {
-					entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
-				}
 			}))
 			.action(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, id, path) -> {
 				if (id.get().equals(identifier)) {

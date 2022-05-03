@@ -65,6 +65,7 @@ import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
@@ -200,16 +201,12 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsVariant.tag())
 			.withComponent(ConfigurableTag.tag())
+			.withComponent(NativeVariantTag.tag())
 			.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);
 				variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
 				return variant;
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, id, path) -> {
-				if (id.get().equals(identifier)) {
-					entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
-				}
 			}))
 			.action(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, id, path) -> {
 				if (id.get().equals(identifier)) {
