@@ -59,7 +59,6 @@ import java.util.Set;
 
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
@@ -69,7 +68,6 @@ import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<DefaultXCTestTestSuiteVariant> implements TestSuiteComponent
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, BinaryAwareComponent
-	, ModelBackedHasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
 {
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
@@ -80,7 +78,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Getter private final Property<String> productBundleIdentifier;
 
 	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, DefaultXCTestTestSuiteVariant.class, objects, taskRegistry, registry);
+		super(identifier, objects, taskRegistry, registry);
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = taskRegistry;
@@ -98,11 +96,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Override
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelProperties.getProperty(this, "buildVariants").as(set(of(BuildVariant.class))).asProvider();
-	}
-
-	@Override
-	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").asProperty(property(of(DefaultXCTestTestSuiteVariant.class)));
 	}
 
 	@Override

@@ -24,7 +24,6 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -35,7 +34,6 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
@@ -50,6 +48,7 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
@@ -140,8 +139,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
 						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
-						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeLibraryVariant.class));
 					}
 				}
 			}))
@@ -166,6 +163,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		protected void execute(ModelNode entity, ModelPathComponent path) {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
@@ -210,7 +208,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			entity.addComponent(new Variants(variants.build()));
 
 			component.finalizeExtension(null);
-			component.getDevelopmentVariant().convention(project.provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
+			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 		}
 	}
 }

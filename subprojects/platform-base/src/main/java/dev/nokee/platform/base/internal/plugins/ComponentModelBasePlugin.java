@@ -54,6 +54,7 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.TaskView;
@@ -71,6 +72,7 @@ import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
@@ -221,6 +223,16 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(TaskRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasDevelopmentVariantMixIn.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
+			modeRegistry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "developmentVariant"), developmentVariantType((ModelType<? extends HasDevelopmentVariant<? extends Variant>>) tag.getType())));
+		})));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Class<? extends Variant> developmentVariantType(ModelType<? extends HasDevelopmentVariant<? extends Variant>> type) {
+		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(ModelBackedHasDevelopmentVariantMixIn.class)).map(it -> (ModelType<ModelBackedHasDevelopmentVariantMixIn<?>>) it).collect(MoreCollectors.onlyElement());
+		return (Class<? extends Variant>) ((ParameterizedType) t.getType()).getActualTypeArguments()[0];
 	}
 
 	@SuppressWarnings("unchecked")

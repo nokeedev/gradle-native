@@ -15,23 +15,23 @@
  */
 package dev.nokee.platform.nativebase.internal.rules
 
-
-import dev.nokee.platform.base.Component
+import dev.nokee.model.internal.ProjectIdentifier
+import dev.nokee.platform.base.Variant
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.ComponentName
-import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier
 import dev.nokee.platform.base.internal.tasks.TaskName
 import dev.nokee.platform.base.internal.tasks.TaskRegistry
 import dev.nokee.platform.nativebase.internal.tasks.ObjectsLifecycleTask
-import dev.nokee.utils.ProviderUtils
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import spock.lang.Specification
 import spock.lang.Subject
 
 import static ToBinariesCompileTasksTransformer.TO_DEVELOPMENT_BINARY_COMPILE_TASKS
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory
 import static dev.nokee.utils.TaskUtils.configureDependsOn
 
 @Subject(CreateVariantAwareComponentObjectsLifecycleTaskRule)
@@ -47,7 +47,7 @@ class CreateVariantAwareComponentObjectsLifecycleTaskRuleTest extends Specificat
 
 		and:
 		def component = Mock(VariantAwareComponentInternal) {
-			getDevelopmentVariant() >> ProviderUtils.notDefined()
+			getDevelopmentVariant() >> objectFactory().property(Variant)
 		}
 
 		when:
@@ -75,7 +75,7 @@ class CreateVariantAwareComponentObjectsLifecycleTaskRuleTest extends Specificat
 
 		and:
 		def developmentVariantFlatMapProvider = Stub(Provider)
-		def developmentVariantProvider = Mock(Provider)
+		def developmentVariantProvider = Mock(Property)
 
 		and:
 		def owner = ComponentIdentifier.ofMain(ProjectIdentifier.of('root'))
