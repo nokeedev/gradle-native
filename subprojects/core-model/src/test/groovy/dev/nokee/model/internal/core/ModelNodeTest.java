@@ -16,7 +16,6 @@
 package dev.nokee.model.internal.core;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
@@ -31,13 +30,11 @@ import org.junit.jupiter.params.provider.EnumSource;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
-import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.ModelTestUtils.childNode;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
 import static dev.nokee.model.internal.core.ModelTestUtils.rootNode;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -150,15 +147,6 @@ class ModelNodeTest {
 		when(modelLookup.query(any())).thenReturn(ModelLookup.Result.empty());
 		ModelNodeUtils.getDirectDescendants(parentNode);
 		verify(modelLookup, times(1)).query(allDirectDescendants().scope(path("parent")));
-	}
-
-	@Test
-	void canApplyConfigurationToSelf() {
-		val modelConfigurer = mock(ModelConfigurer.class);
-		val node = node("foo", builder -> builder.withConfigurer(modelConfigurer));
-		ModelNodeUtils.applyTo(node, self().apply(doSomething()));
-		verify(modelConfigurer, times(1))
-			.configure(self().apply(doSomething()).scope(path("foo")));
 	}
 
 	@Test

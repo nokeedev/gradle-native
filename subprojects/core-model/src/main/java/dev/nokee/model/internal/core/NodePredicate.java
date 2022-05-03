@@ -25,7 +25,9 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.alwaysTrue;
-import static dev.nokee.model.internal.core.ModelNodes.*;
+import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
+import static dev.nokee.model.internal.core.ModelNodes.withParent;
+import static dev.nokee.model.internal.core.ModelNodes.withPath;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
@@ -122,30 +124,6 @@ public abstract class NodePredicate {
 		};
 	}
 
-	@SuppressWarnings("overloads")
-	public static NodeAction self(ModelAction action) {
-		return new SelfNodeAction(action);
-	}
-
-	@EqualsAndHashCode(callSuper = true)
-	private static final class SelfNodeAction extends NodeAction {
-		private final ModelAction action;
-
-		private SelfNodeAction(ModelAction action) {
-			this.action = requireNonNull(action);
-		}
-
-		@Override
-		ModelAction scope(ModelPath path) {
-			return ModelActions.matching(NodePredicateScopeStrategy.SELF.scope(path, alwaysTrue()), action);
-		}
-
-		@Override
-		public String toString() {
-			return "NodePredicate.self(" + action + ")";
-		}
-	}
-
 	private enum NodePredicateScopeStrategy {
 		ALL_DIRECT_DESCENDANT {
 			@Override
@@ -167,26 +145,6 @@ public abstract class NodePredicate {
 		};
 
 		abstract ModelSpec scope(ModelPath path, Predicate<? super ModelNode> matcher);
-	}
-
-	public NodeAction apply(ModelAction action) {
-		return new DefaultNodeAction(this, action);
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class DefaultNodeAction extends NodeAction {
-		private final NodePredicate predicate;
-		private final ModelAction action;
-
-		public DefaultNodeAction(NodePredicate predicate, ModelAction action) {
-			this.predicate = predicate;
-			this.action = requireNonNull(action);
-		}
-
-		@Override
-		ModelAction scope(ModelPath path) {
-			return ModelActions.matching(predicate.scope(path), action);
-		}
 	}
 
 	@ToString
