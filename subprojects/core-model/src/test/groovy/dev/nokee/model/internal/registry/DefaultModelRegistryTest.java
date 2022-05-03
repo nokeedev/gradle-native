@@ -17,11 +17,19 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.DescendantNodes;
+import dev.nokee.model.internal.core.ModelAction;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStateTester;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -36,11 +44,16 @@ import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class DefaultModelRegistryTest {
 	private final DefaultModelRegistry subject = new DefaultModelRegistry(ProjectTestUtils.objectFactory()::newInstance);
@@ -152,20 +165,6 @@ public class DefaultModelRegistryTest {
 			assertTrue(modelLookup.anyMatch(ModelSpecs.of(withType(of(MyType.class)))), "a node should match");
 			assertFalse(modelLookup.anyMatch(ModelSpecs.of(withType(of(WrongType.class)))), "a node should not match");
 		}
-	}
-
-	@Test
-	void canRegisterNodeRelativeToRootNode() {
-		assertThat("relative registration are performed from the root node",
-			subject.register(NodeRegistration.of("foo", of(MyType.class))).as(MyType.class), equalTo(modelRegistry.get("foo", MyType.class)));
-	}
-
-	@Test
-	void canRegisterNodeRelativeToNestedNode() {
-		subject.register(ModelRegistration.of("a", MyType.class));
-		assertThat("relative registration can also be performed from an arbitrary node",
-			ModelNodeUtils.register(subject.get(path("a")), NodeRegistration.of("foo", of(MyType.class))).as(MyType.class),
-			equalTo(modelRegistry.get("a.foo", MyType.class)));
 	}
 
 	@Test

@@ -27,11 +27,8 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ModelTestActions;
-import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.RelativeConfigurationService;
-import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.Value;
@@ -40,13 +37,10 @@ import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.function.Predicate;
 
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
-import static dev.nokee.model.internal.core.ModelNodes.stateOf;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
@@ -55,16 +49,11 @@ import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransiti
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.realized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.registered;
-import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
-import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.state.ModelState.Realized;
-import static dev.nokee.model.internal.state.ModelState.Registered;
-import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -218,26 +207,6 @@ public class DefaultModelRegistryIntegrationTest {
 	}
 
 	@Test
-	void canIncludeActionInNodeRegistrationThatAppliesOnlyToSelfModelNode() {
-		val modelPaths = new HashSet<ModelPath>();
-		modelRegistry.register(ModelRegistration.of("x", MyType.class));
-		modelRegistry.register(NodeRegistration.of("y", of(MyType.class)).action(self((Predicate<ModelNode>) node -> modelPaths.add(ModelNodeUtils.getPath(node))).apply(doSomething())));
-		modelRegistry.register(ModelRegistration.of("y.foo", MyType.class));
-		modelRegistry.register(ModelRegistration.of("z", MyType.class));
-		assertThat("action for specific node isn't called for other nodes", modelPaths, hasItems(path("y")));
-	}
-
-	@Test
-	void canIncludeActionInNodeRegistrationThatAppliesOnlyToDescendantModelNode() {
-		val modelPaths = new HashSet<ModelPath>();
-		modelRegistry.register(ModelRegistration.of("a", MyType.class));
-		modelRegistry.register(NodeRegistration.of("b", of(MyType.class)).action(allDirectDescendants(node -> modelPaths.add(ModelNodeUtils.getPath(node))).apply(doSomething())));
-		modelRegistry.register(ModelRegistration.of("b.bar", MyType.class));
-		modelRegistry.register(ModelRegistration.of("c", MyType.class));
-		assertThat("action for descendant node isn't called for other nodes", modelPaths, hasItems(path("b.bar")));
-	}
-
-	@Test
 	void canCheckExistingDescendantNode() {
 		val parent = registerNode("foo");
 		registerNode("foo.bar");
@@ -279,37 +248,6 @@ public class DefaultModelRegistryIntegrationTest {
 		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo"));
 		registerNode("foo.bar");
 		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo", "n1 - foo.bar", "n2 - foo.bar", "n3 - foo.bar"));
-	}
-
-	@Test
-	void canRegisterNodeWhileDispatchingConfigurationActions() {
-		val paths = new ArrayList<ModelPath>();
-		registerNode("foo");
-		modelRegistry.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class), ModelComponentReference.of(RelativeRegistrationService.class),(node, path, stateTag, registry) -> {
-			paths.add(ModelNodeUtils.getPath(node));
-			if (ModelNodeUtils.getPath(node).equals(path("foo"))) {
-				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
-			}
-		}));
-
-		System.out.println("Current paths: " + paths);
-		assertThat(paths, contains(root(), path("foo"), path("foo.bar")));
-	}
-
-	@Test // This may not be exactly the behaviour we want, let's keep a close eye
-	void dispatchConfigurationActionsAsNodeAreRegistered() {
-		val paths = new ArrayList<ModelPath>();
-		registerNode("foo");
-		registerNode("bar");
-		modelRegistry.configure(matching(ModelSpecs.of(stateOf(Registered)), ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(RelativeRegistrationService.class), (node, path, registry) -> {
-			paths.add(ModelNodeUtils.getPath(node));
-			if (ModelNodeUtils.getPath(node).equals(path("foo"))) {
-				ModelNodeUtils.register(node, NodeRegistration.of("bar", of(MyType.class)));
-			}
-		})));
-
-		System.out.println("Current paths: " + paths);
-		assertThat(paths, contains(root(), path("foo"), path("foo.bar"), path("bar")));
 	}
 
 	@Test

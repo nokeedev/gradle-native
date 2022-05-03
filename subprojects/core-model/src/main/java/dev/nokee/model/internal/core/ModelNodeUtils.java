@@ -121,21 +121,6 @@ public final class ModelNodeUtils {
 			.forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
 	}
 
-	/**
-	 * Returns a model provider of the relative registration.
-	 *
-	 * @param self  the node apply the registration, must not be null
-	 * @param registration  registration request relative to this model node
-	 * @return a provider to the default projection of this registration.
-	 */
-	// TODO: Should we return a provider here?
-	//  We should return a provider here so the caller can chain a configuration on the object itself when realized.
-	//  We should not return a provider here, it's crossing wires in the implementation. It should return only the ModelNode
-	//  On ModelRegistry, we can return a provider for NodeRegistration which would be a convenience only to bridge with the ModelRegistration API.
-	public static ModelElement register(ModelNode self, NodeRegistration registration) {
-		return self.get(RelativeRegistrationService.class).register(registration);
-	}
-
 	public static void applyTo(ModelNode self, NodeAction action) {
 		self.get(RelativeConfigurationService.class).applyTo(action);
 	}

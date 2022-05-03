@@ -19,11 +19,7 @@ import com.google.common.collect.Streams;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
-import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.model.ObjectFactory;
@@ -33,21 +29,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.model.internal.core.ModelPath.path;
 
 public class ModelRegistryTestUtils {
 	private static final DefaultModelRegistry TEST_MODEL_REGISTRY = new DefaultModelRegistry(objectFactory()::newInstance);
 	private static int count = 0;
-
-	public static ModelElement create(NodeRegistration registration) {
-		return create(TEST_MODEL_REGISTRY, registration);
-	}
-
-	public static ModelElement create(DefaultModelRegistry modelRegistry, NodeRegistration registration) {
-		String testHolderName = String.valueOf(count++);
-		modelRegistry.register(ModelRegistration.of(testHolderName, (TestHolder.class)));
-		return ModelNodeUtils.register(modelRegistry.get(path(testHolderName)), registration);
-	}
 
 	public static DefaultModelRegistry registry(File baseDirectory) {
 		return new DefaultModelRegistry(ProjectTestUtils.createRootProject(baseDirectory).getObjects()::newInstance);

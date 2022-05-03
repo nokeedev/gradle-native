@@ -26,10 +26,6 @@ public final class RelativeRegistrationService implements ModelComponent {
 		this.modelRegistry = modelRegistry;
 	}
 
-	public ModelElement register(NodeRegistration registration) {
-		return modelRegistry.register(registration.scope(path));
-	}
-
 	public ModelNode instantiate(ModelRegistration registration) {
 		return modelRegistry.instantiate(registration);
 	}
