@@ -30,6 +30,7 @@ import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -56,6 +57,7 @@ import org.apache.commons.io.IOUtils;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.Sync;
@@ -78,6 +80,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedNamedMixIn
 	, ModelBackedHasAssembleTaskMixIn
+	, ModelBackedHasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
 {
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;
@@ -210,5 +213,10 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		return providers.provider(() -> {
 			return new File(getSdkPlatformPath(), "Developer/Library/Xcode/Agents/XCTRunner.app/XCTRunner");
 		});
+	}
+
+	@Override
+	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
+		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 }

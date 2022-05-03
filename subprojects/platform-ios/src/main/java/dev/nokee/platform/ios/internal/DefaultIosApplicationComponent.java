@@ -51,6 +51,7 @@ import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -91,18 +92,17 @@ import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceV
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
-public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultIosApplicationVariant> implements Component
+public class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements Component
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, ComponentSources>
-	, ModelBackedVariantAwareComponentMixIn<DefaultIosApplicationVariant>
+	, ModelBackedVariantAwareComponentMixIn<IosApplication>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedHasDevelopmentVariantMixIn<DefaultIosApplicationVariant>
+	, ModelBackedHasDevelopmentVariantMixIn<IosApplication>
 	, ModelBackedNamedMixIn
 {
 	@Getter private final Property<GroupId> groupId;
@@ -116,7 +116,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Inject
 	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, DefaultIosApplicationVariant.class, objects, taskRegistry, registry);
+		super(identifier, objects, taskRegistry, registry);
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;
@@ -148,8 +148,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 	}
 
 	@Override
-	public Property<DefaultIosApplicationVariant> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").asProperty(property(of(DefaultIosApplicationVariant.class)));
+	public Property<IosApplication> getDevelopmentVariant() {
+		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override
@@ -160,11 +160,11 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public VariantView<DefaultIosApplicationVariant> getVariants() {
+	public VariantView<IosApplication> getVariants() {
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
-	protected void onEachVariant(KnownDomainObject<DefaultIosApplicationVariant> variant) {
+	protected void onEachVariant(KnownDomainObject<IosApplication> variant) {
 		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();
 		ConfigurationNamer configurationNamer = ConfigurationNamer.INSTANCE;
 		// Create iOS application specific tasks
@@ -304,7 +304,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<DefaultI
 		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 	}
 
-	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<DefaultIosApplicationVariant>> action) {
-		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), DefaultIosApplicationVariant.class, action));
+	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<IosApplication>> action) {
+		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), IosApplication.class, action));
 	}
 }

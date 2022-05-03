@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
@@ -30,6 +29,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -59,18 +59,15 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
-public abstract class BaseNativeComponent<T extends VariantInternal> extends BaseComponent<T> implements VariantAwareComponentInternal<T> {
-	private final Class<T> variantType;
+public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> implements VariantAwareComponentInternal<T> {
 	private final TaskRegistry taskRegistry;
 	private final ObjectFactory objects;
 	private final ModelRegistry registry;
 
-	public BaseNativeComponent(ComponentIdentifier identifier, Class<T> variantType, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry) {
+	public BaseNativeComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry) {
 		super(identifier);
 		this.objects = objects;
 		this.registry = registry;
-		Preconditions.checkArgument(BaseNativeVariant.class.isAssignableFrom(variantType));
-		this.variantType = variantType;
 		this.taskRegistry = taskRegistry;
 	}
 
@@ -85,7 +82,7 @@ public abstract class BaseNativeComponent<T extends VariantInternal> extends Bas
 		final TargetMachine targetMachineInternal = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 
 		if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-			val incomingDependencies = knownVariant.map(VariantInternal::getResolvableDependencies);
+			val incomingDependencies = knownVariant.map(it -> ((VariantInternal) it).getResolvableDependencies());
 			val objectSourceSets = new NativeLanguageRules(taskRegistry, objects, variantIdentifier).apply(sourceViewOf(this));
 			val taskView = knownVariant.map(it -> {
 				return ModelProperties.getProperty(it, "tasks").as(ModelType.of(new TypeOf<TaskView<Task>>() {})).get();

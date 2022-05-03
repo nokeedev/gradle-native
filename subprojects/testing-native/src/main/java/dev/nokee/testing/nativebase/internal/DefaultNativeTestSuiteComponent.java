@@ -43,16 +43,19 @@ import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
+import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
+import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
@@ -71,6 +74,7 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
+import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import groovy.lang.Closure;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -106,11 +110,11 @@ import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINA
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
 
-public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<DefaultNativeTestSuiteVariant> implements NativeTestSuite
+public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, NativeApplicationSourcesAdapter>
-	, ModelBackedVariantAwareComponentMixIn<DefaultNativeTestSuiteVariant>
-	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeTestSuiteVariant>
+	, ModelBackedVariantAwareComponentMixIn<NativeTestSuiteVariant>
+	, ModelBackedHasDevelopmentVariantMixIn<NativeTestSuiteVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedNamedMixIn
 	, ModelBackedHasAssembleTaskMixIn
@@ -122,7 +126,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Inject
 	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup, ModelRegistry registry) {
-		super(identifier, DefaultNativeTestSuiteVariant.class, objects, taskRegistry, registry);
+		super(identifier, objects, taskRegistry, registry);
 		this.objects = objects;
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
@@ -157,8 +161,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 	}
 
 	@Override
-	public Property<DefaultNativeTestSuiteVariant> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").asProperty(property(of(DefaultNativeTestSuiteVariant.class)));
+	public Property<NativeTestSuiteVariant> getDevelopmentVariant() {
+		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override
@@ -169,7 +173,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public VariantView<DefaultNativeTestSuiteVariant> getVariants() {
+	public VariantView<NativeTestSuiteVariant> getVariants() {
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
@@ -217,7 +221,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		// Ensure the task is registered before configuring
 		taskRegistry.registerIfAbsent(TaskIdentifier.of(ProjectIdentifier.of(project), "check")).configure(task -> {
 			// TODO: To eliminate access to the TaskContainer, we should have a getter on the variant for the relevant task in question
-			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(TaskIdentifier.ofLifecycle(it.getIdentifier()).getTaskName())));
+			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(TaskIdentifier.ofLifecycle(((BaseVariant) it).getIdentifier()).getTaskName())));
 		});
 
 
@@ -260,7 +264,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 			}
 			getVariants().configureEach(variant -> {
 				variant.getBinaries().configureEach(ExecutableBinaryInternal.class, binary -> {
-					Provider<List<? extends FileTree>> componentObjects = component.getVariants().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS).equals(variant.getBuildVariant().withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS))).map(it -> {
+					Provider<List<? extends FileTree>> componentObjects = component.getVariants().filter(it -> ((BuildVariantInternal)it.getBuildVariant()).withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS).equals(((VariantInternal) variant).getBuildVariant().withoutDimension(BINARY_LINKAGE_COORDINATE_AXIS))).map(it -> {
 						ImmutableList.Builder<FileTree> result = ImmutableList.builder();
 						it.stream().flatMap(v -> v.getBinaries().withType(NativeBinary.class).get().stream()).forEach(testedBinary -> {
 							result.addAll(testedBinary.getCompileTasks().withType(NativeSourceCompileTask.class).getElements().map(t -> {
@@ -297,7 +301,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 					ConfigurableFileCollection objects = this.objects.fileCollection();
 					objects.from(componentObjects);
 					if (component instanceof DefaultNativeApplicationComponent) {
-						val relocateTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("relocateMainSymbolFor"), UnexportMainSymbol.class, variant.getIdentifier()), task -> {
+						val relocateTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("relocateMainSymbolFor"), UnexportMainSymbol.class, ((BaseVariant) variant).getIdentifier()), task -> {
 							task.getObjects().from(componentObjects);
 							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(binary.getIdentifier().getOutputDirectoryBase("objs/for-test")));
 						});
@@ -321,7 +325,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<Default
 		}
 	}
 
-	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<DefaultNativeTestSuiteVariant>> action) {
-		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), DefaultNativeTestSuiteVariant.class, action));
+	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeTestSuiteVariant>> action) {
+		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), NativeTestSuiteVariant.class, action));
 	}
 }

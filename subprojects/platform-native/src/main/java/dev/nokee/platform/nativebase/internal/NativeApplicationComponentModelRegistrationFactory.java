@@ -20,7 +20,6 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -30,7 +29,6 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -43,6 +41,7 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
@@ -57,6 +56,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDepen
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import lombok.val;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Provider;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -123,8 +123,6 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
 						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
-						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeApplicationVariant.class));
 					}
 				}
 			}))
@@ -149,6 +147,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		protected void execute(ModelNode entity, ModelPathComponent path) {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeApplicationComponent.class));
@@ -171,7 +170,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 			entity.addComponent(new Variants(variants.build()));
 
 			component.finalizeExtension(null);
-			component.getDevelopmentVariant().set(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get()))); // TODO: VariantView#get should force finalize the component.
+			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeApplicationVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 		}
 	}
 }

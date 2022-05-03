@@ -41,7 +41,6 @@ import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelRegistrationFactory;
 import dev.nokee.model.internal.core.ModelSpecs;
-import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -56,6 +55,7 @@ import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
@@ -99,6 +99,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.provider.Provider;
 
 import java.util.Set;
 
@@ -187,8 +188,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
-						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultNativeTestSuiteVariant.class));
-
 						val testedComponentProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "testedComponent"), Component.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
@@ -239,7 +238,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 					entity.addComponent(new Variants(variants.build()));
 
 					component.finalizeExtension(project);
-					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
+					component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 				}
 			}))
 			.build()

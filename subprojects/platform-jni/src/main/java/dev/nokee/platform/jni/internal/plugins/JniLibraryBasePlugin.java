@@ -248,7 +248,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 			val variants = ModelElements.of(entity).property("variants").as(of(VariantView.class));
 
-			val developmentVariantProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "developmentVariant"), JniLibrary.class));
+			val developmentVariantProperty = ModelElements.of(entity).property("developmentVariant");
 			((ModelProperty<JniLibrary>) developmentVariantProperty).asProperty(property(of(JniLibrary.class))).convention(project.provider(new BuildableDevelopmentVariantConvention(variants.as(VariantView.class).flatMap(VariantView::getElements)::get)));
 
 			val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier.get()), Task.class).build());

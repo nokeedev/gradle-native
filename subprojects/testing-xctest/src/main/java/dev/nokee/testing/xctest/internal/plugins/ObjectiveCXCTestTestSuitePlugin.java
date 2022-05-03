@@ -206,8 +206,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
-						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultXCTestTestSuiteVariant.class));
-
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
 							.elementType(TargetLinkage.class)
@@ -300,8 +298,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
 						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
-						registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "developmentVariant"), DefaultXCTestTestSuiteVariant.class));
 
 						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
 						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))

@@ -36,6 +36,7 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateNativeBinaryLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
@@ -54,17 +55,16 @@ import java.util.Set;
 
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
-import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
-public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNativeLibraryVariant> implements Component
+public class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLibrary> implements Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, NativeLibrarySourcesAdapter>
-	, ModelBackedVariantAwareComponentMixIn<DefaultNativeLibraryVariant>
+	, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedHasDevelopmentVariantMixIn<DefaultNativeLibraryVariant>
+	, ModelBackedHasDevelopmentVariantMixIn<NativeLibrary>
 	, ModelBackedNamedMixIn
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
@@ -75,7 +75,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Inject
 	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, DefaultNativeLibraryVariant.class, objects, taskRegistry, registry);
+		super(identifier, objects, taskRegistry, registry);
 		this.taskRegistry = taskRegistry;
 	}
 
@@ -100,8 +100,8 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 	}
 
 	@Override
-	public Property<DefaultNativeLibraryVariant> getDevelopmentVariant() {
-		return ModelProperties.getProperty(this, "developmentVariant").asProperty(property(of(DefaultNativeLibraryVariant.class)));
+	public Property<NativeLibrary> getDevelopmentVariant() {
+		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public VariantView<DefaultNativeLibraryVariant> getVariants() {
+	public VariantView<NativeLibrary> getVariants() {
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
@@ -124,7 +124,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<DefaultNa
 		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
 	}
 
-	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<DefaultNativeLibraryVariant>> action) {
-		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), DefaultNativeLibraryVariant.class, action));
+	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeLibrary>> action) {
+		instantiate(ModelNodes.of(target), ModelAction.whenElementKnown(ownedBy(ModelNodes.of(target).getId()), NativeLibrary.class, action));
 	}
 }
