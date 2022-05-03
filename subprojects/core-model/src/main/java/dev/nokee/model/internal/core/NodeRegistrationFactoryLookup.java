@@ -20,7 +20,7 @@ import dev.nokee.model.internal.type.ModelType;
 import java.util.Set;
 
 public interface NodeRegistrationFactoryLookup {
-	<T> Object get(ModelType<T> type);
+	<T> ModelRegistrationFactory get(ModelType<T> type);
 
 	Set<ModelType<?>> getSupportedTypes();
 }
