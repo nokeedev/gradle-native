@@ -118,6 +118,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedNamedMixIn
 	, ModelBackedHasAssembleTaskMixIn
+	, ModelBackedHasBaseNameMixIn
 {
 	private final ObjectFactory objects;
 	private final TaskRegistry taskRegistry;
