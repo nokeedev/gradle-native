@@ -17,8 +17,12 @@ package dev.nokee.platform.nativebase.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.Factory;
+import dev.nokee.language.base.internal.LegacySourceSetTag;
+import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
+import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -29,6 +33,7 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -77,6 +82,7 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ActionUtils;
+import dev.nokee.utils.Optionals;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -89,6 +95,7 @@ import org.gradle.api.provider.SetProperty;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
@@ -96,6 +103,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
@@ -170,6 +178,18 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					it.warn((ComponentIdentifier) identifier.get());
 					return Collections.emptyList();
 				})))));
+		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(LegacySourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, tag, source, parent, elementName) -> {
+			val builder = ImmutableList.<String>builder();
+			val parentPath = ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(ElementNameComponent.class).map(ElementNameComponent::get))).map(Objects::toString).collect(Collectors.joining("/"));
+			builder.add("src/" + parentPath + "/" + elementName.get());
+			if (ModelNodeUtils.canBeViewedAs(entity, of(ObjectiveCSourceSet.class))) {
+				builder.add("src/" + parentPath + "/objc");
+			} else if (ModelNodeUtils.canBeViewedAs(entity, of(ObjectiveCppSourceSet.class))) {
+				builder.add("src/" + parentPath + "/objcpp");
+			}
+			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from(builder.build());
 		}));
 	}
 
