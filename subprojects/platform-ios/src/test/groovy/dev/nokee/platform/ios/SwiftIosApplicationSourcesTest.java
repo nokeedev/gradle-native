@@ -20,8 +20,8 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.testers.ComponentSourcesTester;
+import dev.nokee.platform.ios.internal.plugins.IosComponentBasePlugin;
 import dev.nokee.platform.ios.internal.plugins.IosResourcePlugin;
-import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.val;
 
 import java.util.stream.Stream;
@@ -32,7 +32,7 @@ class SwiftIosApplicationSourcesTest implements ComponentSourcesTester<SwiftIosA
 	@Override
 	public SwiftIosApplicationSources createSubject() {
 		val project = ProjectTestUtils.rootProject();
-		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(IosComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
 		val sources = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication("main", project)).as(SwiftIosApplication.class).get().getSources();

@@ -44,7 +44,6 @@ import dev.nokee.platform.ios.internal.SwiftIosApplicationSourcesAdapter;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import groovy.lang.Closure;
@@ -71,7 +70,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 
 		// Create the component
-		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(IosComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
 

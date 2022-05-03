@@ -15,23 +15,33 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.internal.Factory;
+import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
+import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelComponentType;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPathComponent;
+import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -39,14 +49,21 @@ import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.AssembleTaskComponent;
+import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
@@ -55,10 +72,15 @@ import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurati
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
+import dev.nokee.platform.nativebase.NativeApplication;
+import dev.nokee.platform.nativebase.NativeBinary;
+import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
+import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeApplicationTag;
 import dev.nokee.platform.nativebase.internal.NativeLibraryTag;
@@ -74,8 +96,10 @@ import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyRegistration
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.linking.LinkLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
+import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.rules.LanguageSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCppSourceLayoutConvention;
@@ -94,23 +118,33 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
+import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -199,6 +233,13 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(NativeVariantTag.class), (entity, id, path, tag) -> {
 			entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(NativeApplicationTag.class), (entity, path, ignored, tag) -> {
+			new CalculateNativeApplicationVariantAction(project).execute(entity, path);
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(NativeLibraryTag.class), (entity, path, ignored, tag) -> {
+			new CalculateNativeLibraryVariantAction(project).execute(entity, path);
+		}));
 	}
 
 	private static <T extends ModelComponent & LinkedConfiguration> Callable<Iterable<Configuration>> firstParentConfigurationOf(ParentComponent parent, Class<T> type) {
@@ -239,5 +280,97 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			ModelNodeUtils.finalizeProjections(ModelNodes.of(target));
 			ModelStates.finalize(ModelNodes.of(target));
 		};
+	}
+
+	private static class CalculateNativeApplicationVariantAction extends ModelActionWithInputs.ModelAction1<ModelPathComponent> {
+		private final Project project;
+
+		public CalculateNativeApplicationVariantAction(Project project) {
+			this.project = project;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		protected void execute(ModelNode entity, ModelPathComponent path) {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeApplicationComponent.class));
+
+			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
+			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
+				@Override
+				public void accept(BuildVariant buildVariant) {
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+					val variant = registry.register(nativeApplicationVariant(variantIdentifier, component, project));
+
+					variants.put(buildVariant, ModelNodes.of(variant));
+					onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
+				}
+
+				private void onEachVariantDependencies(DomainObjectProvider<NativeApplication> variant, VariantComponentDependencies<?> dependencies) {
+					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
+				}
+			});
+			entity.addComponent(new Variants(variants.build()));
+
+			component.finalizeExtension(null);
+			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeApplicationVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
+		}
+	}
+
+	private static class CalculateNativeLibraryVariantAction extends ModelActionWithInputs.ModelAction1<ModelPathComponent> {
+		private final Project project;
+
+		private CalculateNativeLibraryVariantAction(Project project) {
+			this.project = project;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		protected void execute(ModelNode entity, ModelPathComponent path) {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
+
+			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
+			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
+				private final ModelLookup modelLookup = project.getExtensions().getByType(ModelLookup.class);
+
+				@Override
+				public void accept(BuildVariant buildVariant) {
+					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+					val variant = registry.register(nativeLibraryVariant(variantIdentifier, component, project));
+
+					variants.put(buildVariant, ModelNodes.of(variant));
+					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
+				}
+
+				private void onEachVariantDependencies(DomainObjectProvider<NativeLibrary> variant, VariantComponentDependencies<?> dependencies) {
+					if (NativeLibrary.class.isAssignableFrom(DefaultNativeLibraryVariant.class)) {
+						if (modelLookup.anyMatch(ModelSpecs.of(withType(ModelType.of(SwiftSourceSet.class))))) {
+							dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
+								List<? extends Provider<RegularFile>> result = it.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
+									List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();
+									return modules;
+								}).get();
+								return one(result);
+							}));
+						}
+						dependencies.getOutgoing().getExportedHeaders().from(sourceViewOf(component).filter(it -> (it instanceof NativeHeaderSet) && it.getName().equals("public")).map(transformEach(LanguageSourceSet::getSourceDirectories)));
+					}
+					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
+				}
+
+				private <T> T one(Iterable<T> c) {
+					Iterator<T> iterator = c.iterator();
+					Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
+					T result = iterator.next();
+					Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
+					return result;
+				}
+			});
+			entity.addComponent(new Variants(variants.build()));
+
+			component.finalizeExtension(null);
+			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
+		}
 	}
 }

@@ -115,51 +115,12 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path.get())) {
-					new CalculateNativeApplicationVariantAction(project).execute(entity, path);
-				}
-			}));
+			;
 
 		if (identifier.isMainComponent()) {
 			builder.withComponent(ExcludeFromQualifyingNameTag.tag());
 		}
 
 		return builder.build();
-	}
-
-	private static class CalculateNativeApplicationVariantAction extends ModelActionWithInputs.ModelAction1<ModelPathComponent> {
-		private final Project project;
-
-		public CalculateNativeApplicationVariantAction(Project project) {
-			this.project = project;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		protected void execute(ModelNode entity, ModelPathComponent path) {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeApplicationComponent.class));
-
-			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
-				@Override
-				public void accept(BuildVariant buildVariant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					val variant = registry.register(nativeApplicationVariant(variantIdentifier, component, project));
-
-					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
-				}
-
-				private void onEachVariantDependencies(DomainObjectProvider<NativeApplication> variant, VariantComponentDependencies<?> dependencies) {
-					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
-				}
-			});
-			entity.addComponent(new Variants(variants.build()));
-
-			component.finalizeExtension(null);
-			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeApplicationVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
-		}
 	}
 }

@@ -40,11 +40,11 @@ import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
+import dev.nokee.platform.ios.internal.plugins.IosComponentBasePlugin;
 import dev.nokee.platform.ios.internal.plugins.IosResourcePlugin;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Task;
@@ -86,7 +86,7 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 	@Override
 	public SwiftIosApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
-		project.getPluginManager().apply(NativeComponentBasePlugin.class);
+		project.getPluginManager().apply(IosComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication(componentName, project)).as(SwiftIosApplication.class).get();
