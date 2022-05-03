@@ -21,6 +21,7 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -61,16 +62,28 @@ import dev.nokee.platform.ios.internal.IosApplicationComponentTag;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
+import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyComponent;
+import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
+import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependenciesComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.runtime.nativebase.TargetBuildType;
+import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
+import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
+import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.provider.SetProperty;
+
+import java.util.Collections;
 
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
@@ -86,6 +99,7 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 
 public class IosComponentBasePlugin implements Plugin<Project> {
 	@Override
+	@SuppressWarnings("unchecked")
 	public void apply(Project project) {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 
@@ -104,6 +118,16 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			entity.addComponent(new Variants(variants.build()));
 
 			component.finalizeValue();
+		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IosApplicationComponentTag.class), ModelComponentReference.of(TargetMachinesPropertyComponent.class), (entity, tag, targetMachines) -> {
+			((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IosApplicationComponentTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
+			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.EXECUTABLE));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IosApplicationComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), (entity, tag, targetBuildTypes) -> {
+			((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetBuildTypes.named("Default")));
 		}));
 	}
 

@@ -49,6 +49,9 @@ import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
@@ -78,6 +81,9 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 	, ModelBackedNamedMixIn
 	, ModelBackedHasAssembleTaskMixIn
 	, ModelBackedHasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
+	, ModelBackedTargetMachineAwareComponentMixIn
+	, ModelBackedTargetBuildTypeAwareComponentMixIn
+	, ModelBackedTargetLinkageAwareComponentMixIn
 {
 	private final ProviderFactory providers;
 	private final TaskRegistry taskRegistry;

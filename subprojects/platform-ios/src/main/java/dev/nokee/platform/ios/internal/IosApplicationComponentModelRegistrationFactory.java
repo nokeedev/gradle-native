@@ -17,7 +17,6 @@ package dev.nokee.platform.ios.internal;
 
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -34,7 +33,6 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
@@ -47,14 +45,6 @@ import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurati
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
-import dev.nokee.runtime.nativebase.BuildType;
-import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
-import dev.nokee.runtime.nativebase.internal.NativeRuntimeBasePlugin;
-import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
-import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
@@ -112,22 +102,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
 						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
-						val dimensions = project.getExtensions().getByType(DimensionPropertyRegistrationFactory.class);
-						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetLinkages"))
-							.elementType(TargetLinkage.class)
-							.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
-							.defaultValue(TargetLinkages.EXECUTABLE)
-							.build());
-						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetBuildTypes"))
-							.elementType(TargetBuildType.class)
-							.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
-							.defaultValue(TargetBuildTypes.named("Default"))
-							.build());
-						registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier, "targetMachines"))
-							.axis(TargetMachine.TARGET_MACHINE_COORDINATE_AXIS)
-							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
-							.build());
 					}
 				}
 			}))
