@@ -17,10 +17,8 @@ package dev.nokee.model.internal.names;
 
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjection;
-import dev.nokee.model.internal.core.ModelPropertyTag;
 
 import java.util.function.Function;
 
@@ -35,7 +33,7 @@ public final class NamingSchemeSystem extends ModelActionWithInputs.ModelAction2
 	@Override
 	protected void execute(ModelNode entity, ModelProjection projection, ElementNameComponent elementName) {
 		// Deduplication required because of the old component elements implementation
-		if (!entity.has(NamingSchemeComponent.class) && !entity.has(ModelPropertyTag.class)) {
+		if (!entity.has(NamingSchemeComponent.class)) {
 			entity.addComponent(new NamingSchemeComponent(namingSchemeFactory.apply(elementName.get())));
 		}
 	}

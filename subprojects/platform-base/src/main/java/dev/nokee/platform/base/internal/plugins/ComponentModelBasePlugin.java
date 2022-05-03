@@ -31,7 +31,6 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
-import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -195,35 +194,22 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ComponentContainer.class, "components", components.as(ComponentContainer.class).get());
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(BinaryAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.has(ModelPropertyTag.class)) {
-				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "binaries"));
-			}
+			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "binaries"));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(SourceAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.has(ModelPropertyTag.class)) {
-				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "sources"));
-			}
+			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "sources"));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.has(ModelPropertyTag.class)) {
-				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "dependencies"));
-			}
+			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "dependencies"));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(TaskAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.has(ModelPropertyTag.class)) {
-				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "tasks"));
-			}
+			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "tasks"));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(VariantAwareComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class), (entity, projection, stateTag) -> {
-			if (!entity.has(ModelPropertyTag.class)) {
-				ModelStates.realize(ModelNodeUtils.getDescendant(entity, "variants"));
-			}
+			ModelStates.realize(ModelNodeUtils.getDescendant(entity, "variants"));
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasBaseNameMixIn.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			if (entity.has(ModelPropertyTag.class)) {
-				return; // ignore
-			}
 			val baseNameProperty = modeRegistry.instantiate(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "baseName"), String.class));
 			ModelStates.register(baseNameProperty);
 			entity.addComponent(new BaseNamePropertyComponent(baseNameProperty));

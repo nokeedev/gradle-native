@@ -29,7 +29,6 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.NamingScheme;
 import dev.nokee.model.internal.names.NamingSchemeSystem;
@@ -69,18 +68,13 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(SourceSetFactory.class), new SourcePropertyRegistrationActionFactory(() -> project.getExtensions().getByType(ModelRegistry.class), () -> project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(LanguageSourceSet.class), (entity, knownSourceSet) -> {
-			if (!entity.has(ModelPropertyTag.class)) {
-				entity.addComponent(IsLanguageSourceSet.tag());
-				entity.addComponent(ConfigurableTag.tag());
-			}
+			entity.addComponent(IsLanguageSourceSet.tag());
+			entity.addComponent(ConfigurableTag.tag());
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(LanguageSourceSet.class, NamingScheme::prefixTo));
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedSourceAwareComponentMixIn<? extends ComponentSources, ? extends ComponentSources>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			if (entity.has(ModelPropertyTag.class)) {
-				return;
-			}
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			Class<ComponentSources> type = (Class<ComponentSources>) sourcesType((ModelType<SourceAwareComponent<? extends ComponentSources>>)projection.getType());
 			registry.register(ModelRegistration.builder()
