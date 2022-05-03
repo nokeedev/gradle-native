@@ -121,10 +121,6 @@ public final class ModelNodeUtils {
 			.forEach(it -> it.get(ModelType.of(Finalizable.class)).finalizeValue());
 	}
 
-	public static void applyTo(ModelNode self, NodeAction action) {
-		self.get(RelativeConfigurationService.class).applyTo(action);
-	}
-
 	public static ModelNode instantiate(ModelNode self, ModelRegistration registration) {
 		return self.get(RelativeRegistrationService.class).instantiate(registration);
 	}

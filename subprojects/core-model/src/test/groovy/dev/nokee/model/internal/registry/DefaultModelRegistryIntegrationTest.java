@@ -28,8 +28,6 @@ import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelTestActions;
-import dev.nokee.model.internal.core.RelativeConfigurationService;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.Value;
 import lombok.val;
@@ -39,7 +37,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 
 import static dev.nokee.model.internal.core.ModelActions.matching;
-import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
@@ -49,7 +46,6 @@ import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransiti
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.realized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.registered;
-import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -231,23 +227,6 @@ public class DefaultModelRegistryIntegrationTest {
 		val parent = registerNode("foo");
 		assertThrows(IllegalArgumentException.class, () -> ModelNodeUtils.getDescendant(parent, "bar"),
 			"non-existing child node cannot be queried from parent node");
-	}
-
-	@Test
-	void honorsNestedConfigurationActionOrder() {
-		val executionOrder = new ArrayList<String>();
-		modelRegistry.configure(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), ModelComponentReference.of(RelativeConfigurationService.class), (n1, path1, state1, configurer1) -> {
-			executionOrder.add("n1 - " + ModelNodeUtils.getPath(n1));
-			ModelNodeUtils.applyTo(n1, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), ModelComponentReference.of(RelativeConfigurationService.class), (n2, path2, state2, configurer2) -> {
-				executionOrder.add("n2 - " + ModelNodeUtils.getPath(n2));
-				ModelNodeUtils.applyTo(n2, allDirectDescendants().apply(once(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), (n3, path3, state3) -> executionOrder.add("n3 - " + ModelNodeUtils.getPath(n3))))));
-			}))));
-		})));
-
-		registerNode("foo");
-		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo"));
-		registerNode("foo.bar");
-		assertThat(executionOrder, contains("n1 - <root>", "n1 - foo", "n2 - foo", "n1 - foo.bar", "n2 - foo.bar", "n3 - foo.bar"));
 	}
 
 	@Test
