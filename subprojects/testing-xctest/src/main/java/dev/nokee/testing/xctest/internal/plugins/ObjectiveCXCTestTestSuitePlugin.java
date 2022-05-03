@@ -42,6 +42,7 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelRegistrationFactory;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
+import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -95,6 +96,7 @@ import dev.nokee.testing.xctest.internal.BaseXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUiTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultUnitTestXCTestTestSuiteComponent;
 import dev.nokee.testing.xctest.internal.DefaultXCTestTestSuiteVariant;
+import dev.nokee.testing.xctest.internal.XCTestTestSuiteComponentTag;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Plugin;
@@ -130,6 +132,27 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply(TestingBasePlugin.class);
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(XCTestTestSuiteComponentTag.class), (entity, path, ignored, tag) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val component = ModelNodeUtils.get(entity, BaseXCTestTestSuiteComponent.class);
+
+			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
+			component.getBuildVariants().get().forEach(buildVariant -> {
+				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
+
+				val variant = registry.register(xcTestTestSuiteVariant(variantIdentifier, component, project));
+				variants.put(buildVariant, ModelNodes.of(variant));
+				onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
+			});
+			entity.addComponent(new Variants(variants.build()));
+
+			component.finalizeExtension(project);
+			component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
+
+			component.getVariants().get(); // Force realization, for now
+		}));
+
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-ios-application", appliedPlugin -> {
 			BaseNativeComponent<?> application = ModelNodeUtils.get(ModelNodes.of(project.getExtensions().getByType(ObjectiveCIosApplication.class)), BaseNativeComponent.class);
 			val testSuites = project.getExtensions().getByType(TestSuiteContainer.class);
@@ -214,25 +237,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path.get())) {
-					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val component = ModelNodeUtils.get(entity, DefaultUnitTestXCTestTestSuiteComponent.class);
-
-					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-					component.getBuildVariants().get().forEach(buildVariant -> {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-
-						val variant = registry.register(xcTestTestSuiteVariant(variantIdentifier, component, project));
-						variants.put(buildVariant, ModelNodes.of(variant));
-						onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
-					});
-					entity.addComponent(new Variants(variants.build()));
-
-					component.finalizeExtension(project);
-					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
-				}
-			}))
 			.build()
 			;
 	}
@@ -295,27 +299,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 							.defaultValue(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64())
 							.build());
 					}
-				}
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path.get())) { // FIXME
-					val registry = project.getExtensions().getByType(ModelRegistry.class);
-					val component = ModelNodeUtils.get(entity, DefaultUiTestXCTestTestSuiteComponent.class);
-
-					val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-					component.getBuildVariants().get().forEach(buildVariant -> {
-						val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-
-						val variant = registry.register(xcTestTestSuiteVariant(variantIdentifier, component, project));
-						variants.put(buildVariant, ModelNodes.of(variant));
-						onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
-					});
-					entity.addComponent(new Variants(variants.build()));
-
-					component.finalizeExtension(project);
-					component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
-
-					component.getVariants().get(); // Force realization, for now
 				}
 			}))
 			.build()

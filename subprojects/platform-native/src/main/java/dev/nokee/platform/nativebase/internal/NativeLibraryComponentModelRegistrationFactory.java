@@ -132,73 +132,12 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 					}
 				}
 			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, path, ignored) -> {
-				if (entityPath.equals(path.get())) {
-					new CalculateNativeLibraryVariantAction(project).execute(entity, path);
-				}
-			}));
+			;
 
 		if (identifier.isMainComponent()) {
 			builder.withComponent(ExcludeFromQualifyingNameTag.tag());
 		}
 
 		return builder.build();
-	}
-
-	private static class CalculateNativeLibraryVariantAction extends ModelActionWithInputs.ModelAction1<ModelPathComponent> {
-		private final Project project;
-
-		private CalculateNativeLibraryVariantAction(Project project) {
-			this.project = project;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		protected void execute(ModelNode entity, ModelPathComponent path) {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
-
-			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
-				private final ModelLookup modelLookup = project.getExtensions().getByType(ModelLookup.class);
-
-				@Override
-				public void accept(BuildVariant buildVariant) {
-					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					val variant = registry.register(nativeLibraryVariant(variantIdentifier, component, project));
-
-					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
-				}
-
-				private void onEachVariantDependencies(DomainObjectProvider<NativeLibrary> variant, VariantComponentDependencies<?> dependencies) {
-					if (NativeLibrary.class.isAssignableFrom(DefaultNativeLibraryVariant.class)) {
-						if (modelLookup.anyMatch(ModelSpecs.of(withType(ModelType.of(SwiftSourceSet.class))))) {
-							dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
-								List<? extends Provider<RegularFile>> result = it.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
-									List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();
-									return modules;
-								}).get();
-								return one(result);
-							}));
-						}
-						dependencies.getOutgoing().getExportedHeaders().from(sourceViewOf(component).filter(it -> (it instanceof NativeHeaderSet) && it.getName().equals("public")).map(transformEach(LanguageSourceSet::getSourceDirectories)));
-					}
-					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
-				}
-
-				private <T> T one(Iterable<T> c) {
-					Iterator<T> iterator = c.iterator();
-					Preconditions.checkArgument(iterator.hasNext(), "collection needs to have one element, was empty");
-					T result = iterator.next();
-					Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
-					return result;
-				}
-			});
-			entity.addComponent(new Variants(variants.build()));
-
-			component.finalizeExtension(null);
-			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
-		}
 	}
 }
