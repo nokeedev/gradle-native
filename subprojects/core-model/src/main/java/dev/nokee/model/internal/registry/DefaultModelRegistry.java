@@ -86,7 +86,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					}
 
 					node.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
-					node.addComponent(new RelativeRegistrationService(path.get(), DefaultModelRegistry.this));
+					node.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
 					node.addComponent(new RelativeConfigurationService(path.get(), DefaultModelRegistry.this));
 					node.addComponent(new BindManagedProjectionService(instantiator));
 					if (!node.has(ElementNameComponent.class)) {
