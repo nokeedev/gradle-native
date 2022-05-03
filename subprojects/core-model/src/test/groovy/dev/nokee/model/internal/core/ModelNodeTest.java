@@ -18,7 +18,6 @@ package dev.nokee.model.internal.core;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -33,15 +32,28 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
-import static dev.nokee.model.internal.core.ModelTestUtils.*;
+import static dev.nokee.model.internal.core.ModelTestUtils.childNode;
+import static dev.nokee.model.internal.core.ModelTestUtils.node;
+import static dev.nokee.model.internal.core.ModelTestUtils.projectionOf;
+import static dev.nokee.model.internal.core.ModelTestUtils.rootNode;
 import static dev.nokee.model.internal.core.NodePredicate.allDirectDescendants;
 import static dev.nokee.model.internal.core.NodePredicate.self;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ModelNodeTest {
 	private static final ModelType<MyType> TYPE = of(MyType.class);
@@ -138,14 +150,6 @@ class ModelNodeTest {
 		when(modelLookup.query(any())).thenReturn(ModelLookup.Result.empty());
 		ModelNodeUtils.getDirectDescendants(parentNode);
 		verify(modelLookup, times(1)).query(allDirectDescendants().scope(path("parent")));
-	}
-
-	@Test
-	void canRegisterNodeRelativeToCurrentNode() {
-		val modelRegistry = mock(ModelRegistry.class);
-		val parentNode = childNode(rootNode(), "parent", builder -> builder.withRegistry(modelRegistry));
-		ModelNodeUtils.register(parentNode, NodeRegistration.of("foo", of(MyType.class)));
-		verify(modelRegistry, times(1)).register(ModelRegistration.of("parent.foo", MyType.class));
 	}
 
 	@Test

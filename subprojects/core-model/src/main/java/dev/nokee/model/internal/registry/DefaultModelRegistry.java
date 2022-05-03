@@ -38,13 +38,11 @@ import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
 import dev.nokee.model.internal.core.ModelNodeListenerComponent;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpec;
-import dev.nokee.model.internal.core.NodeRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.RelativeConfigurationService;
 import dev.nokee.model.internal.core.RelativeRegistrationService;
@@ -141,11 +139,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		val node = new ModelNode(nodeStateListener);
 		entities.add(node);
 		return newNode(node, registration);
-	}
-
-	@Override
-	public ModelElement register(NodeRegistration registration) {
-		return ModelNodeUtils.register(rootNode, registration);
 	}
 
 	@Override

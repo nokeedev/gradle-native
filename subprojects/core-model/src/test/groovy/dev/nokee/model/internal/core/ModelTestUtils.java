@@ -258,11 +258,6 @@ public final class ModelTestUtils {
 			}
 
 			@Override
-			public ModelElement register(NodeRegistration registration) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
 			public ModelElement register(ModelRegistration registration) {
 				return FACTORY.createElement(instantiate(registration));
 			}
