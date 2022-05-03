@@ -18,11 +18,9 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.registry.ModelRegistry;
 
 public final class RelativeRegistrationService implements ModelComponent {
-	private final ModelPath path;
 	public final ModelRegistry modelRegistry; // public only as a hack for TestSuiteContainer
 
-	public RelativeRegistrationService(ModelPath path, ModelRegistry modelRegistry) {
-		this.path = path;
+	public RelativeRegistrationService(ModelRegistry modelRegistry) {
 		this.modelRegistry = modelRegistry;
 	}
 

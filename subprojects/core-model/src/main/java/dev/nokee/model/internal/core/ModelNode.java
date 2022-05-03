@@ -217,7 +217,7 @@ public final class ModelNode {
 		public ModelNode build() {
 			val entity = new ModelNode(listener);
 			entity.addComponent(new DescendantNodes(lookup, path));
-			entity.addComponent(new RelativeRegistrationService(path, registry));
+			entity.addComponent(new RelativeRegistrationService(registry));
 			entity.addComponent(new RelativeConfigurationService(path, configurer));
 			entity.addComponent(new BindManagedProjectionService(instantiator));
 			entity.addComponent(new ModelPathComponent(path));
