@@ -65,6 +65,9 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
@@ -119,6 +122,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	, ModelBackedNamedMixIn
 	, ModelBackedHasAssembleTaskMixIn
 	, ModelBackedHasBaseNameMixIn
+	, ModelBackedTargetBuildTypeAwareComponentMixIn
+	, ModelBackedTargetLinkageAwareComponentMixIn
+	, ModelBackedTargetMachineAwareComponentMixIn
 {
 	private final ObjectFactory objects;
 	private final TaskRegistry taskRegistry;

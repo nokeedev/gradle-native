@@ -43,6 +43,9 @@ import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
 import dev.nokee.platform.ios.internal.SwiftIosApplicationSourcesAdapter;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
+import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
@@ -108,6 +111,9 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedHasBaseNameMixIn
 		, ModelBackedNamedMixIn
 		, ModelBackedHasAssembleTaskMixIn
+		, ModelBackedTargetMachineAwareComponentMixIn
+		, ModelBackedTargetLinkageAwareComponentMixIn
+		, ModelBackedTargetBuildTypeAwareComponentMixIn
 	{
 		@Override
 		public SwiftSourceSet getSwiftSources() {
