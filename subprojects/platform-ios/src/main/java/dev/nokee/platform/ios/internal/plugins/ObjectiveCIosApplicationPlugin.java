@@ -43,7 +43,6 @@ import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
@@ -54,6 +53,7 @@ import dev.nokee.platform.ios.internal.ObjectiveCIosApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
+import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.HasObjectiveCSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
@@ -94,7 +94,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class);
 
 		// Create the component
-		project.getPluginManager().apply(ComponentModelBasePlugin.class);
+		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
