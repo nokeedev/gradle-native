@@ -23,9 +23,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelRegistrationFactory;
-import dev.nokee.model.internal.core.NodeRegistrationFactory;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryLookup;
-import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.dsl.GroovyDslSupport;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
@@ -100,11 +98,7 @@ public final class TestSuiteContainerAdapter extends GroovyObjectSupport impleme
 		val registrationFactoryLookup = ModelNodeUtils.get(entity, NodeRegistrationFactoryLookup.class);
 		if (registrationFactoryLookup.getSupportedTypes().contains(type)) {
 			val factory = registrationFactoryLookup.get(type);
-			if (factory instanceof NodeRegistrationFactory) {
-				return ModelNodeUtils.register(entity, ((NodeRegistrationFactory) factory).create(name)).as(type).asProvider();
-			} else {
-				return entity.get(RelativeRegistrationService.class).modelRegistry.register(((ModelRegistrationFactory) factory).create(name)).as(type).asProvider();
-			}
+			return registry.register(factory.create(name)).as(type).asProvider();
 		}
 		val identifier = ComponentIdentifier.of(name, (ProjectIdentifier) entity.get(ViewConfigurationBaseComponent.class).get().get(IdentifierComponent.class).get());
 		return registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(identifier)).withComponent(managed(type)).build()).as(type).asProvider();
