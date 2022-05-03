@@ -136,7 +136,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 				@Override
 				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
-					if (entityPath.equals(path.get()) && state.equals(ModelState.Registered) && !alreadyExecuted) {
+					if (entityPath.equals(path.get()) && state.isAtLeast(ModelState.Registered) && !alreadyExecuted) {
 						alreadyExecuted = true;
 						val registry = project.getExtensions().getByType(ModelRegistry.class);
 
