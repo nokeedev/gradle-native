@@ -122,7 +122,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDepende
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.platform.nativebase.internal.rules.WarnUnbuildableLogger;
+import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
@@ -182,7 +182,6 @@ import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskPropertie
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
-import static dev.nokee.utils.RunnableUtils.onlyOnce;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
@@ -528,13 +527,17 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
 
+		val unbuildableWarningService = (Provider<UnbuildableWarningService>) project.getGradle().getSharedServices().getRegistrations().getByName("unbuildableWarningService").getService();
+
 		// ComponentFromEntity<IdentifierComponent> read-only
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JarTaskComponent.class), ModelComponentReference.of(JniJarArtifactTag.class), ModelComponentReference.of(ParentComponent.class), (entity, jarTask, tag, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			val identifier = (VariantIdentifier) parent.get().get(IdentifierComponent.class).get();
-			val unbuildableMainComponentLogger = new WarnUnbuildableLogger(identifier.getComponentIdentifier());
-			registry.instantiate(ModelAction.configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableMainComponentLogger)));
+			registry.instantiate(ModelAction.configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableWarningService.map(it -> {
+				it.warn(identifier.getComponentIdentifier());
+				return null;
+			}))));
 		}));
 
 		project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(ignored -> {
@@ -616,8 +619,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		}
 	}
 
-	private static Action<Jar> configureJarTaskUsing(Provider<JniLibrary> library, WarnUnbuildableLogger logger) {
-		val runnableLogger = onlyOnce(logger::warn);
+	private static Action<Jar> configureJarTaskUsing(Provider<JniLibrary> library, Provider<Void> logger) {
 		return task -> {
 			MissingFileDiagnostic diagnostic = new MissingFileDiagnostic();
 			task.doFirst(new Action<Task>() {
@@ -655,7 +657,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					if (it.getSharedLibrary().isBuildable()) {
 						return it.getNativeRuntimeFiles().getElements();
 					} else {
-						runnableLogger.run();
+						logger.getOrNull();
 						return ProviderUtils.fixed(emptyList());
 					}
 				}
