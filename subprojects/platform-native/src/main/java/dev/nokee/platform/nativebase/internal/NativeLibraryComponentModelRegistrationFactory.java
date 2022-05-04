@@ -15,71 +15,24 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
-import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.Variants;
-import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
-import dev.nokee.platform.base.internal.dependencybuckets.ApiConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
-import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.platform.nativebase.NativeLibrary;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
-import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
-import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import lombok.val;
 import org.gradle.api.Project;
-import org.gradle.api.file.RegularFile;
-import org.gradle.api.provider.Provider;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.nativeLibraryProjection;
-import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
-import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class NativeLibraryComponentModelRegistrationFactory {
 	private final Class<Component> componentType;
@@ -106,32 +59,6 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(NativeLibraryTag.tag())
 			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(name, project)))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-				private boolean alreadyExecuted = false;
-				@Override
-				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
-					if (entityPath.equals(path.get()) && state.isAtLeast(ModelState.Registered) && !alreadyExecuted) {
-						alreadyExecuted = true;
-						val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-						sourceRegistration.accept(entity, path.get());
-
-						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-
-						val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier)));
-						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-						val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-						val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
-
-						entity.addComponent(new ApiConfigurationComponent(ModelNodes.of(api)));
-						entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-					}
-				}
-			}))
 			;
 
 		if (identifier.isMainComponent()) {
