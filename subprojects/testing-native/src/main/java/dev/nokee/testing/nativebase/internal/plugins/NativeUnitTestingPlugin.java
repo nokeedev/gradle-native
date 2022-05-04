@@ -131,6 +131,24 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		val componentRegistry = ModelNodeUtils.get(ModelNodes.of(testSuites), NodeRegistrationFactoryRegistry.class);
 		componentRegistry.registerFactory(of(NativeTestSuite.class), name -> nativeTestSuite(name, project));
 
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeTestSuiteComponentTag.class), (entity, identifier, tag) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+
+			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier.get())));
+			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier.get())));
+			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier.get())));
+			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier.get())));
+
+			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+
+			val testedComponentProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "testedComponent"), Component.class));
+			entity.addComponent(new TestedComponentPropertyComponent(ModelNodes.of(testedComponentProperty)));
+		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(NativeTestSuiteComponentTag.class), (entity, path, ignored, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
@@ -195,31 +213,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(NativeTestSuiteComponentTag.tag())
 			.withComponent(new IdentifierComponent(identifier))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-				private boolean alreadyExecuted = false;
-				@Override
-				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
-					if (entityPath.equals(path.get()) && state.isAtLeast(ModelState.Registered) && !alreadyExecuted) {
-						alreadyExecuted = true;
-						val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-
-						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-						val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-						val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
-
-						entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-
-						val testedComponentProperty = registry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier, "testedComponent"), Component.class));
-						entity.addComponent(new TestedComponentPropertyComponent(ModelNodes.of(testedComponentProperty)));
-					}
-				}
-			}))
 			.build()
 			;
 	}
