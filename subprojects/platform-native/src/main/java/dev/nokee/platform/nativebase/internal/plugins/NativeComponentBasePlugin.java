@@ -20,16 +20,31 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
+import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
+import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
+import dev.nokee.language.c.internal.plugins.CSourceSetTag;
+import dev.nokee.language.cpp.internal.plugins.CppHeaderSetRegistrationFactory;
+import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
+import dev.nokee.language.cpp.internal.plugins.CppSourceSetTag;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetRegistrationFactory;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -64,7 +79,12 @@ import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
+import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
+import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencybuckets.ApiConfigurationComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkedConfiguration;
@@ -95,6 +115,7 @@ import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyRegistration
 import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyRegistrationRule;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.linking.LinkLibrariesConfiguration;
@@ -139,6 +160,7 @@ import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
@@ -175,6 +197,71 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachAttributesToConfigurationRule<>(RuntimeLibrariesConfiguration.class, project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeApplicationTag.class), (entity, identifier, tag) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+
+			if (entity.has(CSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "c"), true));
+				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+			} else if (entity.has(CppSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "cpp"), true));
+				registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+			} else if (entity.has(ObjectiveCSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "objectiveC"), true));
+				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+			} else if (entity.has(ObjectiveCppSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "objectiveCpp"), true));
+				registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+			} else if (entity.has(SwiftSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "swift"), true));
+			}
+
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+
+			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier.get())));
+			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier.get())));
+			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier.get())));
+			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier.get())));
+
+			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+		})));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeLibraryTag.class), (entity, identifier, tag) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+
+			if (entity.has(CSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "c"), true));
+				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+			} else if (entity.has(CppSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "cpp"), true));
+				registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+			} else if (entity.has(ObjectiveCSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "objectiveC"), true));
+				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+			} else if (entity.has(ObjectiveCppSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "objectiveCpp"), true));
+				registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+			} else if (entity.has(SwiftSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "swift"), true));
+			}
+
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+
+			val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier.get())));
+			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier.get())));
+			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier.get())));
+			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier.get())));
+			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier.get())));
+
+			entity.addComponent(new ApiConfigurationComponent(ModelNodes.of(api)));
+			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+		})));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new LanguageSourceLayoutConvention());
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new LegacyObjectiveCSourceLayoutConvention());
