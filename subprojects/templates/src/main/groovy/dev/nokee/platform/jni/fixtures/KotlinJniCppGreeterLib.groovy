@@ -181,23 +181,22 @@ object NativeLoader {
 			source = sourceFile("kotlin/${javaPackage.directoryLayout}", 'GreeterTest.kt', """
 package ${javaPackage.name}
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertThat
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.Test
 
-class GreeterTest {
+internal class GreeterTest {
 	@Test
 	fun testGreeter() {
 		val greeter = Greeter()
 		val greeting = greeter.sayHello("World")
-		assertThat(greeting, equalTo("Bonjour, World!"))
+		assertEquals("Bonjour, World!", greeting)
 	}
 
 	@Test
 	fun testNullGreeter() {
 		val greeter = Greeter()
 		val greeting = greeter.sayHello(null)
-		assertThat(greeting, equalTo("name cannot be null"))
+		assertEquals("name cannot be null", greeting)
 	}
 }
 """)
