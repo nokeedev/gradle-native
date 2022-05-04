@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectFactory;
@@ -35,10 +36,8 @@ import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelRegistrationFactory;
 import dev.nokee.model.internal.core.ModelSpecs;
@@ -138,6 +137,26 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(XCTestTestSuiteComponentTag.class), (entity, identifier, tag) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+
+			if (entity.has(ObjectiveCSourceSetTag.class)) {
+				registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "objectiveC"), true));
+				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "headers")));
+			}
+
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+
+			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier.get())));
+			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier.get())));
+			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier.get())));
+			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier.get())));
+
+			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
+			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
+			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
+			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(XCTestTestSuiteComponentTag.class), (entity, path, ignored, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, BaseXCTestTestSuiteComponent.class);
@@ -200,9 +219,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	public static ModelRegistration unitTestXCTestTestSuite(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		val entityPath = ModelPath.path(name);
 		return ModelRegistration.builder()
-			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
 				return newUnitTestFactory(project).create(identifier);
@@ -211,33 +228,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(IsTestComponent.tag())
 			.withComponent(XCTestTestSuiteComponentTag.tag())
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-				private boolean alreadyExecuted = false;
-
-				@Override
-				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
-					if (entityPath.equals(path.get()) && state.isAtLeast(ModelState.Registered) && !alreadyExecuted) {
-						alreadyExecuted = true;
-						val registry = project.getExtensions().getByType(ModelRegistry.class);
-						val propertyFactory = project.getExtensions().getByType(ModelPropertyRegistrationFactory.class);
-
-						registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "objectiveC"), true));
-						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "headers")));
-
-						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-
-						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-						val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-						val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
-
-						entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-					}
-				}
-			}))
+			.withComponent(ObjectiveCSourceSetTag.tag())
 			.build()
 			;
 	}
@@ -250,42 +241,15 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	public static ModelRegistration uiTestXCTestTestSuite(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		val entityPath = ModelPath.path(name);
 		return ModelRegistration.builder()
-			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(IsTestComponent.tag())
 			.withComponent(XCTestTestSuiteComponentTag.tag())
+			.withComponent(ObjectiveCSourceSetTag.tag())
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
-			}))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-				private boolean alreadyExecuted = false;
-
-				@Override
-				public void execute(ModelNode entity, ModelPathComponent path, ModelState state) {
-					if (entityPath.equals(path.get()) && state.isAtLeast(ModelState.Registered) && !alreadyExecuted) {
-						alreadyExecuted = true;
-						val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-						registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "objectiveC"), true));
-						registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "headers")));
-
-						val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-
-						val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("implementation"), identifier)));
-						val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("compileOnly"), identifier)));
-						val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("linkOnly"), identifier)));
-						val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier)));
-
-						entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
-						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
-						entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
-						entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
-					}
-				}
 			}))
 			.build()
 			;
