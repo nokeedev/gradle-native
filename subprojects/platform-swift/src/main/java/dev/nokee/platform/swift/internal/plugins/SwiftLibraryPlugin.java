@@ -15,12 +15,10 @@
  */
 package dev.nokee.platform.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -92,11 +90,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 
 	public static ModelRegistration swiftLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Swift library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeLibraryComponentModelRegistrationFactory(SwiftLibrary.class, DefaultSwiftLibrary.class, project, (entity, path) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "swift"), true));
-		}).create(identifier);
+		return new NativeLibraryComponentModelRegistrationFactory(DefaultSwiftLibrary.class, project).create(identifier).withComponent(SwiftSourceSetTag.tag()).build();
 	}
 
 	public static abstract class DefaultSwiftLibrary implements SwiftLibrary

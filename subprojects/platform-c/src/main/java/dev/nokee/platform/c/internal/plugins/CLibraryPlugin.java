@@ -15,15 +15,12 @@
  */
 package dev.nokee.platform.c.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.c.CSourceSet;
-import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
+import dev.nokee.language.c.internal.plugins.CSourceSetTag;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -95,13 +92,7 @@ public class CLibraryPlugin implements Plugin<Project> {
 
 	public static ModelRegistration cLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeLibraryComponentModelRegistrationFactory(CLibrary.class, DefaultCLibrary.class, project, (entity, path) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "c"), true));
-			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "public")));
-			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "headers")));
-		}).create(identifier);
+		return new NativeLibraryComponentModelRegistrationFactory(DefaultCLibrary.class, project).create(identifier).withComponent(CSourceSetTag.tag()).build();
 	}
 
 	public static abstract class DefaultCLibrary implements CLibrary
