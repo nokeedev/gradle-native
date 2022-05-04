@@ -235,15 +235,19 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			if (entity.has(CSourceSetTag.class)) {
 				registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "c"), true));
 				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "public")));
 			} else if (entity.has(CppSourceSetTag.class)) {
 				registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "cpp"), true));
 				registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+				registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "public")));
 			} else if (entity.has(ObjectiveCSourceSetTag.class)) {
 				registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "objectiveC"), true));
 				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "public")));
 			} else if (entity.has(ObjectiveCppSourceSetTag.class)) {
 				registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "objectiveCpp"), true));
 				registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+				registry.register(project.getExtensions().getByType(CppHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "public")));
 			} else if (entity.has(SwiftSourceSetTag.class)) {
 				registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "swift"), true));
 			}
