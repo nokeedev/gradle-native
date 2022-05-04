@@ -15,15 +15,12 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -42,7 +39,6 @@ import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
-import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
 import dev.nokee.platform.ios.internal.ObjectiveCIosApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -118,13 +114,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C iOS application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new IosApplicationComponentModelRegistrationFactory(ObjectiveCIosApplication.class, DefaultObjectiveCIosApplication.class, project, (entity, path) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "objectiveC"), true));
-			registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "headers")));
-			registry.register(project.getExtensions().getByType(IosResourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "resources")));
-		}).create(identifier);
+		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponent(ObjectiveCSourceSetTag.tag()).build();
 	}
 
 	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication
