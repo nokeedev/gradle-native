@@ -210,6 +210,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(IsTestComponent.tag())
+			.withComponent(XCTestTestSuiteComponentTag.tag())
 			.action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
 				private boolean alreadyExecuted = false;
 
@@ -256,6 +257,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(IsComponent.tag())
 			.withComponent(ConfigurableTag.tag())
 			.withComponent(IsTestComponent.tag())
+			.withComponent(XCTestTestSuiteComponentTag.tag())
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))
