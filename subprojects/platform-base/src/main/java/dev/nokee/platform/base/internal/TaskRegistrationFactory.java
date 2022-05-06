@@ -18,20 +18,14 @@ package dev.nokee.platform.base.internal;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.FullyQualifiedName;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import lombok.val;
 import org.gradle.api.Namer;
 import org.gradle.api.Task;
-import org.gradle.api.internal.MutationGuards;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -60,13 +54,6 @@ public final class TaskRegistrationFactory {
 			.withComponent(new ModelElementProviderSourceComponent(taskProvider))
 			.withComponent(createdUsingNoInject(ModelType.of(type), taskProvider::get))
 			.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider))
-			.action(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsTask.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, id, tag, ignored) -> {
-				if (id.get().equals(identifier)) {
-					taskProvider.configure(task -> {
-						MutationGuards.of(tasks).withMutationEnabled(__ -> ModelStates.realize(entity)).execute(null);
-					});
-				}
-			}))
 			;
 	}
 }
