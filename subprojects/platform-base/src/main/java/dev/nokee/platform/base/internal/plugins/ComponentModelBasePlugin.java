@@ -69,6 +69,7 @@ import dev.nokee.platform.base.internal.ComponentContainerAdapter;
 import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
+import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -122,6 +123,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			((ConfigurationInternal) configuration).beforeLocking(it -> {
 				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.has(IsDependencyBucket.class) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::realize);
 			});
+		});
+		project.getTasks().configureEach(task -> {
+			project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.has(IsTask.class) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
 		});
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
