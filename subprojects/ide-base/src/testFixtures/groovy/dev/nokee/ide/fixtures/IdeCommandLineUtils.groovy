@@ -57,10 +57,12 @@ Actual: \${actual[key]}
 
 			rootProject {
 				def gradleEnvironment = file("gradle-environment")
-				tasks.matching { it.name == '$ideTaskName' }.all { ideTask ->
-					ideTask.doLast {
-						gradleEnvironment.withOutputStream { writer ->
-							gatherEnvironment().store(writer, null)
+				tasks.configureEach { task ->
+					if (task.name == '$ideTaskName') {
+						task.doLast {
+							gradleEnvironment.withOutputStream { writer ->
+								gatherEnvironment().store(writer, null)
+							}
 						}
 					}
 				}
