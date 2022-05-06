@@ -19,8 +19,6 @@ import com.google.common.collect.MoreCollectors;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.HasConfigurableSourceMixInRule;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
-import dev.nokee.language.base.internal.SourcePropertyRegistrationActionFactory;
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -65,7 +63,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		DefaultImporter.forProject(project).defaultImport(LanguageSourceSet.class);
 
 		project.getExtensions().add("__nokee_sourceSetFactory", new SourceSetFactory(project.getObjects()));
-		project.getExtensions().add("__nokee_languageSourceSetFactory", new LanguageSourceSetRegistrationFactory(project.getObjects(), project.getExtensions().getByType(SourceSetFactory.class), new SourcePropertyRegistrationActionFactory(() -> project.getExtensions().getByType(ModelRegistry.class), () -> project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(LanguageSourceSet.class), (entity, knownSourceSet) -> {
 			entity.addComponent(IsLanguageSourceSet.tag());

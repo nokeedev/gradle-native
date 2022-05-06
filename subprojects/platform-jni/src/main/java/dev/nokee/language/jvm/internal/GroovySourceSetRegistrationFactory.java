@@ -15,26 +15,14 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
-import dev.nokee.language.base.ConfigurableSourceSet;
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.GroovySourceSet;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
-import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.platform.base.internal.ComponentIdentity;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.utils.TaskDependencyUtils;
-import lombok.val;
-import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Namer;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.reflect.HasPublicType;
@@ -43,57 +31,46 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.GroovyCompile;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.gradle.api.tasks.util.PatternFilterable;
 
 import static dev.nokee.utils.TaskDependencyUtils.of;
 
 public final class GroovySourceSetRegistrationFactory {
-	private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
-	private final LanguageSourceSetRegistrationFactory languageSourceSetRegistrationFactory;
-	private final Namer<DomainObjectIdentifier> sourceSetNamer = new Namer<DomainObjectIdentifier>() {
-		@Override
-		public String determineName(DomainObjectIdentifier identifier) {
-			return StringUtils.uncapitalize(Streams.stream(identifier).flatMap(it -> {
-				if (it instanceof ProjectIdentifier) {
-					return Stream.empty();
-				} else if (it instanceof ComponentIdentity) {
-					return Stream.of(((ComponentIdentity) it).getName()).filter(name -> !(name.isMain() && Iterables.getLast(identifier) != it)).map(ComponentName::toString);
-				} else if (it instanceof HasName) {
-					return Stream.of(((HasName) it).getName().toString());
-				} else {
-					throw new UnsupportedOperationException();
-				}
-			}).map(StringUtils::capitalize).collect(Collectors.joining()));
-
-		}
-	};
-
-	public GroovySourceSetRegistrationFactory(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry, LanguageSourceSetRegistrationFactory languageSourceSetRegistrationFactory) {
-		this.sourceSetRegistry = sourceSetRegistry;
-		this.languageSourceSetRegistrationFactory = languageSourceSetRegistrationFactory;
-	}
-
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		assert identifier.getName().get().equals("groovy");
-		val sourceSetProvider = sourceSetRegistry.registerIfAbsent(sourceSetNamer.determineName(identifier.getOwnerIdentifier()));
-		return languageSourceSetRegistrationFactory.create(identifier, GroovySourceSet.class, DefaultGroovySourceSet.class, sourceSetProvider.map(this::asSourceDirectorySet)::get)
+		return ModelRegistration.managedBuilder(identifier, DefaultGroovySourceSet.class)
 			.withComponent(JvmSourceSetTag.tag())
+			.withComponent(DefaultGroovySourceSet.Tag.tag())
 			.build();
 	}
 
-	private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+	public static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
 		return ((org.gradle.api.tasks.GroovySourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("groovy")).getGroovy();
 	}
 
-	public static class DefaultGroovySourceSet implements GroovySourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet> {
-		public ConfigurableSourceSet getSource() {
-			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
-		}
-
+	public static class DefaultGroovySourceSet implements GroovySourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasConfigurableSourceMixIn {
 		public TaskProvider<GroovyCompile> getCompileTask() {
 			return (TaskProvider<GroovyCompile>) ModelElements.of(this).element("compile", GroovyCompile.class).asProvider();
+		}
+
+		@Override
+		public GroovySourceSet from(Object... paths) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setFrom(Object... paths) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public PatternFilterable getFilter() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public GroovySourceSet convention(Object... path) {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
@@ -104,6 +81,14 @@ public final class GroovySourceSetRegistrationFactory {
 		@Override
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(GroovySourceSet.class);
+		}
+
+		public static final class Tag implements ModelComponent {
+			private static final Tag INSTANCE = new Tag();
+
+			public static Tag tag() {
+				return INSTANCE;
+			}
 		}
 	}
 }

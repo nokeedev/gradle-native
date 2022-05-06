@@ -15,26 +15,15 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
-import dev.nokee.language.base.ConfigurableSourceSet;
+import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.JavaSourceSet;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
-import dev.nokee.model.NamedDomainObjectRegistry;
-import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.language.jvm.KotlinSourceSet;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.platform.base.internal.ComponentIdentity;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.utils.TaskDependencyUtils;
-import lombok.val;
-import org.apache.commons.lang3.StringUtils;
-import org.gradle.api.Namer;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -42,55 +31,44 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.gradle.api.tasks.util.PatternFilterable;
 
 public final class JavaSourceSetRegistrationFactory {
-	private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
-	private final LanguageSourceSetRegistrationFactory languageSourceSetRegistrationFactory;
-	private final Namer<DomainObjectIdentifier> sourceSetNamer = new Namer<DomainObjectIdentifier>() {
-		@Override
-		public String determineName(DomainObjectIdentifier identifier) {
-			return StringUtils.uncapitalize(Streams.stream(identifier).flatMap(it -> {
-				if (it instanceof ProjectIdentifier) {
-					return Stream.empty();
-				} else if (it instanceof ComponentIdentity) {
-					return Stream.of(((ComponentIdentity) it).getName()).filter(name -> !(name.isMain() && Iterables.getLast(identifier) != it)).map(ComponentName::toString);
-				} else if (it instanceof HasName) {
-					return Stream.of(((HasName) it).getName().toString());
-				} else {
-					throw new UnsupportedOperationException();
-				}
-			}).map(StringUtils::capitalize).collect(Collectors.joining()));
-
-		}
-	};
-
-	public JavaSourceSetRegistrationFactory(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry, LanguageSourceSetRegistrationFactory languageSourceSetRegistrationFactory) {
-		this.sourceSetRegistry = sourceSetRegistry;
-		this.languageSourceSetRegistrationFactory = languageSourceSetRegistrationFactory;
-	}
-
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		assert identifier.getName().get().equals("java");
-		val sourceSetProvider = sourceSetRegistry.registerIfAbsent(sourceSetNamer.determineName(identifier.getOwnerIdentifier()));
-		return languageSourceSetRegistrationFactory.create(identifier, JavaSourceSet.class, DefaultJavaSourceSet.class, sourceSetProvider.map(this::asSourceDirectorySet)::get)
+		return ModelRegistration.managedBuilder(identifier, DefaultJavaSourceSet.class)
 			.withComponent(JvmSourceSetTag.tag())
+			.withComponent(DefaultJavaSourceSet.Tag.tag())
 			.build();
 	}
 
-	private SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+	public static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
 		return sourceSet.getJava();
 	}
 
-	public static class DefaultJavaSourceSet implements JavaSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet> {
-		public ConfigurableSourceSet getSource() {
-			return ModelProperties.getProperty(this, "source").as(ConfigurableSourceSet.class).get();
-		}
-
+	public static class DefaultJavaSourceSet implements JavaSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasConfigurableSourceMixIn {
 		public TaskProvider<JavaCompile> getCompileTask() {
 			return (TaskProvider<JavaCompile>) ModelElements.of(this).element("compile", JavaCompile.class).asProvider();
+		}
+
+		@Override
+		public JavaSourceSet from(Object... paths) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setFrom(Object... paths) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public PatternFilterable getFilter() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public JavaSourceSet convention(Object... path) {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
@@ -101,6 +79,14 @@ public final class JavaSourceSetRegistrationFactory {
 		@Override
 		public TypeOf<?> getPublicType() {
 			return TypeOf.typeOf(JavaSourceSet.class);
+		}
+
+		public static final class Tag implements ModelComponent {
+			private static final Tag INSTANCE = new Tag();
+
+			public static Tag tag() {
+				return INSTANCE;
+			}
 		}
 	}
 }
