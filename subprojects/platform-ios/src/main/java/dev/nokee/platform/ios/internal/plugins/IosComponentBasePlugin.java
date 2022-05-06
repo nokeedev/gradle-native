@@ -66,6 +66,7 @@ import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationVariant;
 import dev.nokee.platform.ios.internal.IosApplicationComponentTag;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
+import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyComponent;
@@ -119,6 +120,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			} else if (entity.has(SwiftSourceSetTag.class)) {
 				registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "swift"), true));
 			}
+			registry.register(project.getExtensions().getByType(IosResourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "resources")));
 
 			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 
