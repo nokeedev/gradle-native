@@ -21,6 +21,7 @@ import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
@@ -45,6 +46,7 @@ import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundle;
 import dev.nokee.platform.ios.internal.plugins.IosComponentBasePlugin;
 import dev.nokee.platform.ios.internal.plugins.IosResourcePlugin;
+import dev.nokee.platform.ios.internal.plugins.ObjectiveCIosApplicationPlugin;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -90,6 +92,8 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 	@Override
 	public ObjectiveCIosApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
+		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
+		project.getPluginManager().apply(ObjectiveCIosApplicationPlugin.ToolChainMetadataRules.class);
 		project.getPluginManager().apply(IosComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCLanguageBasePlugin.class);
 		project.getPluginManager().apply(IosResourcePlugin.class);
