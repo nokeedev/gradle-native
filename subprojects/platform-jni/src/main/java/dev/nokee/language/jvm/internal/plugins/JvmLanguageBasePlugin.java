@@ -15,22 +15,20 @@
  */
 package dev.nokee.language.jvm.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetRegistrationFactory;
+import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.language.jvm.GroovySourceSet;
-import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.internal.GroovySourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
-import dev.nokee.language.jvm.internal.JvmSourceSetTag;
 import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -38,6 +36,8 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.GroovyCompile;
@@ -49,32 +49,43 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
 		project.getPlugins().withType(JavaBasePlugin.class, ignored -> {
-			project.getExtensions().add("__nokee_javaSourceSetFactory", new JavaSourceSetRegistrationFactory(
-				NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class)),
-				project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
-			));
-			project.getExtensions().add("__nokee_groovySourceSetFactory", new GroovySourceSetRegistrationFactory(
-				NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class)),
-				project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
-			));
-			project.getExtensions().add("__nokee_kotlinSourceSetFactory", new KotlinSourceSetRegistrationFactory(
-				NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class)),
-				project.getExtensions().getByType(LanguageSourceSetRegistrationFactory.class)
-			));
+			project.getExtensions().add("__nokee_javaSourceSetFactory", new JavaSourceSetRegistrationFactory());
+			project.getExtensions().add("__nokee_groovySourceSetFactory", new GroovySourceSetRegistrationFactory());
+			project.getExtensions().add("__nokee_kotlinSourceSetFactory", new KotlinSourceSetRegistrationFactory());
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val taskRegistrationFactory = project.getExtensions().getByType(TaskRegistrationFactory.class);
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JavaSourceSet.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(JavaSourceSetRegistrationFactory.DefaultJavaSourceSet.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
 				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), JavaCompile.class, identifier.get()), JavaCompile.class).build());
 			})));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(GroovySourceSet.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(GroovySourceSetRegistrationFactory.DefaultGroovySourceSet.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), GroovyCompile.class, identifier.get()), GroovyCompile.class).build());
+			})));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(KotlinSourceSetRegistrationFactory.DefaultKotlinSourceSet.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
+				try {
+					@SuppressWarnings("unchecked")
+					val KotlinCompile = (Class<? extends Task>) Class.forName("org.jetbrains.kotlin.gradle.tasks.KotlinCompile");
+					registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), KotlinCompile, identifier.get()), KotlinCompile).build());
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException(e);
+				}
 			})));
 
 			val sourceSetRegistry = NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmSourceSetTag.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, tag, fullyQualifiedName) -> {
-				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(fullyQualifiedName.get().toString());
-				sourceSetProvider.configure(task -> ModelStates.realize(entity));
+
+			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(GroovySourceSetRegistrationFactory.DefaultGroovySourceSet.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), (entity, tag, parent, sourceProperty) -> {
+				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+				sourceSetProvider.get();
+				((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(GroovySourceSetRegistrationFactory::asSourceDirectorySet));
+			}));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JavaSourceSetRegistrationFactory.DefaultJavaSourceSet.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), (entity, tag, parent, sourceProperty) -> {
+				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+				((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(JavaSourceSetRegistrationFactory::asSourceDirectorySet));
+			}));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(KotlinSourceSetRegistrationFactory.DefaultKotlinSourceSet.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), (entity, tag, parent, sourceProperty) -> {
+				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+				((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(KotlinSourceSetRegistrationFactory::asSourceDirectorySet));
 			}));
 		});
 	}
