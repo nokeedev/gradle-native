@@ -28,6 +28,10 @@ final class SuffixToNamingScheme implements NamingScheme {
 
 	@Override
 	public String determineName(QualifyingName qualifyingName) {
-		return name.toString() + StringUtils.capitalize(qualifyingName.toString());
+		if (name.toString().isEmpty()) { // for lifecycle task
+			return qualifyingName.toString();
+		} else {
+			return name.toString() + StringUtils.capitalize(qualifyingName.toString());
+		}
 	}
 }
