@@ -84,18 +84,6 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		componentUnderTest.writeToSourceDir(file('srcs'))
 		buildFile << """
 			import ${LanguageSourceSet.canonicalName}
-			pluginManager.withPlugin('java') {
-				sourceSets.main.java.setSrcDirs([])
-				${componentUnderTestDsl}.sources.java { filter.include('**/*.java') }
-			}
-			pluginManager.withPlugin('groovy') {
-				sourceSets.main.groovy.setSrcDirs([])
-				${componentUnderTestDsl}.sources.groovy { filter.include('**/*.groovy') }
-			}
-			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
-				sourceSets.main.kotlin.setSrcDirs([])
-				${componentUnderTestDsl}.sources.kotlin { filter.include('**/*.kt') }
-			}
 
 			def generatedSources = tasks.register('generateSources') {
 				def inputFiles = fileTree('srcs')
@@ -112,7 +100,23 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				}
 			}
 
-			${componentUnderTestDsl}.sources.configureEach {
+			pluginManager.withPlugin('java') {
+				sourceSets.main.java.setSrcDirs([])
+				sourceSets.main.java.filter.include('**/*.java')
+				sourceSets.main.java.srcDir(generatedSources)
+			}
+			pluginManager.withPlugin('groovy') {
+				sourceSets.main.groovy.setSrcDirs([])
+				sourceSets.main.groovy.filter.include('**/*.groovy')
+				sourceSets.main.groovy.srcDir(generatedSources)
+			}
+			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
+				sourceSets.main.kotlin.setSrcDirs([])
+				sourceSets.main.kotlin.filter.include('**/*.kt')
+				sourceSets.main.kotlin.srcDir(generatedSources)
+			}
+
+			${componentUnderTestDsl}.sources.configureEach({ sourceSet -> ['Java', 'Groovy', 'Kotlin'].every { !sourceSet.getClass().simpleName.contains(it) } }) {
 				setFrom(generatedSources)
 			}
 
@@ -150,15 +154,18 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			import ${LanguageSourceSet.canonicalName}
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
-				library.sources.java { filter.include('**/*.java') }
+				sourceSets.main.java.filter.include('**/*.java')
+				sourceSets.main.java.srcDir('srcs')
 			}
 			pluginManager.withPlugin('groovy') {
 				sourceSets.main.groovy.setSrcDirs([])
-				library.sources.groovy { filter.include('**/*.groovy') }
+				sourceSets.main.groovy.filter.include('**/*.groovy')
+				sourceSets.main.groovy.srcDir('srcs')
 			}
 			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
 				sourceSets.main.kotlin.setSrcDirs([])
-				library.sources.kotlin { filter.include('**/*.kt') }
+				sourceSets.main.kotlin.filter.include('**/*.kt')
+				sourceSets.main.kotlin.srcDir('srcs')
 			}
 
 			def generatedSources = tasks.register('generateSources') {
@@ -176,7 +183,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				}
 			}
 
-			library.sources.configureEach {
+			library.sources.configureEach({ sourceSet -> ['Java', 'Groovy', 'Kotlin'].every { !sourceSet.getClass().simpleName.contains(it) } }) {
 				from(generatedSources)
 			}
 			import ${CSourceSet.canonicalName}
@@ -237,6 +244,8 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			import ${LanguageSourceSet.canonicalName}
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
+				sourceSets.main.java.filter.include('**/*.java')
+				sourceSets.main.java.srcDir('srcs')
 			}
 			afterEvaluate {
 				pluginManager.withPlugin('java') {
@@ -248,11 +257,13 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			}
 			pluginManager.withPlugin('groovy') {
 				sourceSets.main.groovy.setSrcDirs([])
-				${dsl}.sources.groovy { filter.include('**/*.groovy') }
+				sourceSets.main.groovy.filter.include('**/*.groovy')
+				sourceSets.main.groovy.srcDir('srcs')
 			}
 			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
 				sourceSets.main.kotlin.setSrcDirs([])
-				${dsl}.sources.kotlin { filter.include('**/*.kt') }
+				sourceSets.main.kotlin.filter.include('**/*.kt')
+				sourceSets.main.kotlin.srcDir('srcs')
 			}
 
 			import ${NativeHeaderSet.canonicalName}
@@ -271,7 +282,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 						setFrom('headers')
 					}
 				}
-				sources.configureEach({ !(it instanceof NativeHeaderSet) }) {
+				sources.configureEach({ sourceSet -> !(sourceSet instanceof NativeHeaderSet) && ['Java', 'Groovy', 'Kotlin'].every { !sourceSet.getClass().simpleName.contains(it) } }) {
 					setFrom('srcs')
 				}
 			}
@@ -294,7 +305,8 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			import ${LanguageSourceSet.canonicalName}
 			pluginManager.withPlugin('java-base') {
 				sourceSets.main.java.setSrcDirs([])
-				${componentUnderTestDsl}.sources.java { filter.include('**/*.java') }
+				sourceSets.main.java.filter.include('**/*.java')
+				sourceSets.main.java.srcDir('srcs')
 			}
 			afterEvaluate {
 				pluginManager.withPlugin('java-base') {
@@ -306,11 +318,13 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			}
 			pluginManager.withPlugin('groovy-base') {
 				sourceSets.main.groovy.setSrcDirs([])
-				${componentUnderTestDsl}.sources.groovy { filter.include('**/*.groovy') }
+				sourceSets.main.groovy.filter.include('**/*.groovy')
+				sourceSets.main.groovy.srcDir('srcs')
 			}
 			pluginManager.withPlugin('org.jetbrains.kotlin.jvm') {
 				sourceSets.main.kotlin.setSrcDirs([])
-				${componentUnderTestDsl}.sources.kotlin { filter.include('**/*.kt') }
+				sourceSets.main.kotlin.filter.include('**/*.kt')
+				sourceSets.main.kotlin.srcDir('srcs')
 			}
 
 			import ${NativeHeaderSet.canonicalName}
@@ -323,7 +337,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 						setFrom('headers')
 					}
 				}
-				sources.configureEach({ !(it instanceof NativeHeaderSet) }) {
+				sources.configureEach({ sourceSet -> !(sourceSet instanceof NativeHeaderSet) && ['Java', 'Groovy', 'Kotlin'].every { !sourceSet.getClass().simpleName.contains(it) } }) {
 					setFrom(${ofSources(componentUnderTest).files.collect { "'srcs/${it.name}'" }.join(',')})
 				}
 			}
