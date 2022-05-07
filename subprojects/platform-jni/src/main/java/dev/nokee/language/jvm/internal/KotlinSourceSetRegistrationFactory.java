@@ -20,14 +20,17 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelRegistration;
 import lombok.val;
+import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskDependency;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.util.PatternFilterable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -53,6 +56,11 @@ public final class KotlinSourceSetRegistrationFactory {
 	}
 
 	public static class DefaultKotlinSourceSet implements KotlinSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasConfigurableSourceMixIn {
+		@Override
+		public TaskProvider<? extends Task> getCompileTask() {
+			return (TaskProvider<Task>) ModelElements.of(this).element("compile", Task.class).asProvider();
+		}
+
 		@Override
 		public TaskDependency getBuildDependencies() {
 			return getSource().getBuildDependencies();

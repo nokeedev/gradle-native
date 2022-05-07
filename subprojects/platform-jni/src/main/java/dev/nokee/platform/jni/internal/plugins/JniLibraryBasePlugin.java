@@ -20,9 +20,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
+import dev.nokee.language.jvm.KotlinSourceSet;
+import dev.nokee.language.jvm.internal.GroovyLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.GroovySourceSetRegistrationFactory;
+import dev.nokee.language.jvm.internal.JavaLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
+import dev.nokee.language.jvm.internal.KotlinLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasObjectFiles;
@@ -35,8 +40,8 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -97,7 +102,6 @@ import dev.nokee.platform.jni.internal.AssembleTask;
 import dev.nokee.platform.jni.internal.ConfigureJniHeaderDirectoryOnJavaCompileAction;
 import dev.nokee.platform.jni.internal.GeneratedJniHeadersComponent;
 import dev.nokee.platform.jni.internal.JarTaskComponent;
-import dev.nokee.platform.jni.internal.JavaLanguageSourceSet;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniJarArtifactComponent;
@@ -262,7 +266,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
 
 			project.getPluginManager().withPlugin("groovy", ignored -> {
-				registry.register(project.getExtensions().getByType(GroovySourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "groovy")));
+				val sourceSet = registry.register(project.getExtensions().getByType(GroovySourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "groovy")));
+				entity.addComponent(new GroovyLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("java", ignored -> {
 				val sourceSetIdentifier = LanguageSourceSetIdentifier.of(identifier.get(), "java");
@@ -275,10 +280,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(new GeneratedJniHeadersComponent(project.getObjects().fileCollection().from((Callable<?>) () -> {
 					return sourceSet.as(JavaSourceSet.class).flatMap(ss -> ss.getCompileTask().flatMap(it -> it.getOptions().getHeaderOutputDirectory()));
 				})));
-				entity.addComponent(new JavaLanguageSourceSet(sourceSet));
+				entity.addComponent(new JavaLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-				registry.register(project.getExtensions().getByType(KotlinSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "kotlin")));
+				val sourceSet = registry.register(project.getExtensions().getByType(KotlinSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "kotlin")));
+				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 
 			project.getPluginManager().withPlugin("java", appliedPlugin -> {
@@ -357,6 +363,21 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 			entity.addComponent(new Variants(variants.build()));
 		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(JavaLanguageSourceSetComponent.class), (entity, jvmJar, javaSourceSet) -> {
+			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
+				binary.getJarTask().configure(configureDependsOn(entity.get(ModelElementFactory.class).createObject(javaSourceSet.get(), of(JavaSourceSet.class)).flatMap(JavaSourceSet::getCompileTask)));
+			}));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(GroovyLanguageSourceSetComponent.class), (entity, jvmJar, groovySourceSet) -> {
+			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
+				binary.getJarTask().configure(configureDependsOn(entity.get(ModelElementFactory.class).createObject(groovySourceSet.get(), of(GroovySourceSet.class)).flatMap(GroovySourceSet::getCompileTask)));
+			}));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(KotlinLanguageSourceSetComponent.class), (entity, jvmJar, kotlinSourceSet) -> {
+			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
+				binary.getJarTask().configure(configureDependsOn(entity.get(ModelElementFactory.class).createObject(kotlinSourceSet.get(), of(KotlinSourceSet.class)).flatMap(KotlinSourceSet::getCompileTask)));
+			}));
+		}));
 
 		// Variant rules
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsVariant.class), (entity, projection, identifier, tag) -> {
@@ -365,6 +386,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 				.withComponent(new ParentComponent(entity))
 				.withComponent(JniJarArtifactTag.tag())
+				.withComponent(ExcludeFromQualifyingNameTag.tag())
 				.build());
 			registry.instantiate(configure(jniJar.getId(), JniJarBinary.class, binary -> {
 				binary.getJarTask().configure(task -> {
@@ -419,7 +441,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(Variants.class), ModelComponentReference.of(JvmJarArtifactComponent.class), (entity, variants, jvmJar) -> {
 			if (Iterables.size(variants) == 1) {
-				project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
+				project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(jvmJar.get().getId(), JvmJarBinary.class, binary -> {
 					binary.getJarTask().configure(configureDescription("Assembles a JAR archive containing the classes and shared library for %s.", ModelNodes.of(binary).get(IdentifierComponent.class).get()));
 				}));
 			}
@@ -433,6 +455,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jvmJar", "JVM JAR binary"));
 					val jvmJar = registry.instantiate(project.getExtensions().getByType(JvmJarBinaryRegistrationFactory.class).create(binaryIdentifier)
 						.withComponent(new ParentComponent(entity))
+						.withComponent(ExcludeFromQualifyingNameTag.tag())
 						.build());
 					registry.instantiate(configure(jvmJar.getId(), JvmJarBinary.class, binary -> {
 						binary.getJarTask().configure(task -> task.getArchiveBaseName().set(project.provider(() -> {
@@ -537,7 +560,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			val identifier = (VariantIdentifier) parent.get().get(IdentifierComponent.class).get();
-			registry.instantiate(ModelAction.configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableWarningService.map(it -> {
+			registry.instantiate(configure(jarTask.get().getId(), Jar.class, configureJarTaskUsing(project.provider(() -> ModelNodeUtils.get(parent.get(), JniLibrary.class)), unbuildableWarningService.map(it -> {
 				it.warn(identifier.getComponentIdentifier());
 				return null;
 			}))));
@@ -554,7 +577,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeaderSearchPathsConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headerSearchPaths, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(ModelAction.configure(headerSearchPaths.get().getId(), Configuration.class, configureExtendsFrom((Callable<?>) () -> {
+			registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, configureExtendsFrom((Callable<?>) () -> {
 				val result = ImmutableList.builder();
 				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(ImplementationConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
 				ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(CompileOnlyConfigurationComponent.class))).findFirst().map(it -> ModelNodeUtils.get(it.get(), Configuration.class)).ifPresent(result::add);
@@ -565,9 +588,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HeaderSearchPathsConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headerSearchPaths, parent) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(BuildVariantComponent.class))).findFirst().ifPresent(it -> {
-				registry.instantiate(ModelAction.configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) it.get(), project.getObjects())));
+				registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) it.get(), project.getObjects())));
 			});
-			registry.instantiate(ModelAction.configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
+			registry.instantiate(configure(headerSearchPaths.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(IsVariant.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, tag, ignored) -> {

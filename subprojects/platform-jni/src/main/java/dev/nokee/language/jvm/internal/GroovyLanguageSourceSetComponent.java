@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.jni.internal;
+package dev.nokee.language.jvm.internal;
 
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelElement;
+import dev.nokee.model.internal.core.ModelNode;
 
-public final class JavaLanguageSourceSet implements ModelComponent {
-	private final ModelElement delegate;
+public final class GroovyLanguageSourceSetComponent implements ModelComponent {
+	private final ModelNode value;
 
-	public JavaLanguageSourceSet(ModelElement delegate) {
-		this.delegate = delegate;
+	public GroovyLanguageSourceSetComponent(ModelNode value) {
+		this.value = value;
 	}
 
-	public <T> DomainObjectProvider<T> as(Class<T> type) {
-		return delegate.as(type);
+	public ModelNode get() {
+		return value;
 	}
 }
