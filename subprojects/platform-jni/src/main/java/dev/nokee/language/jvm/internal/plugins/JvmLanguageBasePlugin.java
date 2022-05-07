@@ -29,6 +29,7 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.type.ModelTypeUtils;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -53,6 +54,8 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 			project.getExtensions().add("__nokee_groovySourceSetFactory", new GroovySourceSetRegistrationFactory());
 			project.getExtensions().add("__nokee_kotlinSourceSetFactory", new KotlinSourceSetRegistrationFactory());
 
+			val sourceSetRegistry = NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class));
+
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val taskRegistrationFactory = project.getExtensions().getByType(TaskRegistrationFactory.class);
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(JavaSourceSetRegistrationFactory.DefaultJavaSourceSet.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
@@ -61,17 +64,13 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(GroovySourceSetRegistrationFactory.DefaultGroovySourceSet.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), GroovyCompile.class, identifier.get()), GroovyCompile.class).build());
 			})));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(KotlinSourceSetRegistrationFactory.DefaultKotlinSourceSet.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-				try {
-					@SuppressWarnings("unchecked")
-					val KotlinCompile = (Class<? extends Task>) Class.forName("org.jetbrains.kotlin.gradle.tasks.KotlinCompile");
-					registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), KotlinCompile, identifier.get()), KotlinCompile).build());
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				}
+			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(KotlinSourceSetRegistrationFactory.DefaultKotlinSourceSet.Tag.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, projection, identifier, parent, fullyQualifiedName) -> {
+				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+				@SuppressWarnings("unchecked")
+				val KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.flatMap(it -> project.getTasks().named(it.getCompileTaskName("kotlin"))).get().getClass());
+				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), KotlinCompile, identifier.get()), KotlinCompile).build());
 			})));
-
-			val sourceSetRegistry = NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class));
 
 			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(GroovySourceSetRegistrationFactory.DefaultGroovySourceSet.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), (entity, tag, parent, sourceProperty) -> {

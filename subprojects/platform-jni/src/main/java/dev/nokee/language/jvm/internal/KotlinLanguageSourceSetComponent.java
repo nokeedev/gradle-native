@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.jvm;
+package dev.nokee.language.jvm.internal;
 
-import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.SelfAwareLanguageSourceSet;
-import org.gradle.api.Task;
-import org.gradle.api.tasks.TaskProvider;
+import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.core.ModelNode;
 
-/**
- * A set of Kotlin source files.
- *
- * @see LanguageSourceSet
- * @since 0.5
- */
-public interface KotlinSourceSet extends SelfAwareLanguageSourceSet<KotlinSourceSet> {
-	TaskProvider<? extends Task> getCompileTask();
+public final class KotlinLanguageSourceSetComponent implements ModelComponent {
+	private final ModelNode value;
+
+	public KotlinLanguageSourceSetComponent(ModelNode value) {
+		this.value = value;
+	}
+
+	public ModelNode get() {
+		return value;
+	}
 }
