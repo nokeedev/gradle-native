@@ -17,24 +17,15 @@ package dev.nokee.model.internal.registry;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelTestActions;
 import dev.nokee.model.internal.state.ModelStates;
-import lombok.Value;
 import lombok.val;
 import org.gradle.api.provider.Property;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
 
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
@@ -228,25 +219,6 @@ public class DefaultModelRegistryIntegrationTest {
 		assertThrows(IllegalArgumentException.class, () -> ModelNodeUtils.getDescendant(parent, "bar"),
 			"non-existing child node cannot be queried from parent node");
 	}
-
-	@Test
-	void canExecuteActionWithComponentInputs() {
-		val result = new ArrayList<ModelPath>();
-		modelRegistry.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(MyFooComponent.class), (node, path, i) -> {
-			result.add(ModelNodeUtils.getPath(node));
-		}));
-		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo", Object.class), new Object()));
-		modelRegistry.register(ModelRegistration.bridgedInstance(ModelIdentifier.of("foo.bar", Object.class), new Object()));
-		modelRegistry.register(ModelRegistration.unmanagedInstanceBuilder(ModelIdentifier.of("foo.far", Object.class), Object::new).action(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
-			if (path.get().equals(ModelPath.path("foo.far"))) {
-				entity.addComponent(new MyFooComponent());
-			}
-		})).build());
-		assertThat(result, contains(ModelPath.path("foo.far")));
-	}
-
-	@Value
-	static class MyFooComponent implements ModelComponent {}
 
 //	@Test
 //	void canAccessModelNodeOnManagedType() {

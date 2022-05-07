@@ -18,11 +18,13 @@ package dev.nokee.model.internal.core;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.iterableWithSize;
+import static org.hamcrest.Matchers.notNullValue;
 
 class ModelRegistrationBuilderTest {
 	private final ModelRegistration.Builder subject = builder();
@@ -37,13 +39,6 @@ class ModelRegistrationBuilderTest {
 		val registration = subject.withComponent(new ModelComponent() {}).build();
 		subject.withComponent(new ModelComponent() {}); // no effect on registration
 		assertThat(registration.getComponents(), iterableWithSize(1));
-	}
-
-	@Test
-	void doesNotModifyActionsOnBuiltRegistrationViaBuilder() {
-		val registration = subject.action(Mockito.mock(ModelAction.class)).build();
-		subject.action(Mockito.mock(ModelAction.class)); // no effect on registration
-		assertThat(registration.getActions(), iterableWithSize(1));
 	}
 
 	@Test
@@ -67,11 +62,9 @@ class ModelRegistrationBuilderTest {
 		val componentA = new ModelComponent() {};
 		val componentB = new ModelComponent() {};
 		val componentC = new ModelComponent() {};
-		val action = Mockito.mock(ModelAction.class);
 		val registration = subject.withComponent(componentC)
-			.mergeFrom(builder().withComponent(componentA).withComponent(componentB).build()).action(action).build();
+			.mergeFrom(builder().withComponent(componentA).withComponent(componentB).build()).build();
 		assertThat(registration.getComponents(), contains(componentC, componentA, componentB));
-		assertThat(registration.getActions(), contains(action));
 	}
 
 	@Nested
@@ -86,11 +79,6 @@ class ModelRegistrationBuilderTest {
 		@Test
 		public void hasComponents() {
 			assertThat(subject().getComponents(), emptyIterable());
-		}
-
-		@Test
-		public void hasActions() {
-			assertThat(subject().getActions(), emptyIterable());
 		}
 	}
 
@@ -107,32 +95,6 @@ class ModelRegistrationBuilderTest {
 		@Test
 		public void hasComponents() {
 			assertThat(subject().getComponents(), contains(component));
-		}
-
-		@Test
-		public void hasActions() {
-			assertThat(subject().getActions(), emptyIterable());
-		}
-	}
-
-	@Nested
-	class WithActionTest implements ModelRegistrationTester {
-		private final ModelAction action = Mockito.mock(ModelAction.class);
-		private final ModelRegistration subject = ModelRegistrationBuilderTest.this.subject.action(action).build();
-
-		@Override
-		public ModelRegistration subject() {
-			return subject;
-		}
-
-		@Test
-		public void hasComponents() {
-			assertThat(subject().getComponents(), emptyIterable());
-		}
-
-		@Test
-		public void hasActions() {
-			assertThat(subject().getActions(), contains(action));
 		}
 	}
 }
