@@ -26,6 +26,8 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -54,19 +56,20 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<NativeCompileTypeComponent, IdentifierComponent, IsLanguageSourceSet> {
+public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<NativeCompileTypeComponent, IdentifierComponent, ModelComponentTag<IsLanguageSourceSet>> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
+		super(ModelComponentReference.of(NativeCompileTypeComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
+	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, ModelComponentTag<IsLanguageSourceSet> ignored) {
 		val implementationType = knownObject.getNativeCompileTaskType();
 
 		val compileTask = ModelNodes.of(registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, identifier.get()), implementationType).build()));

@@ -15,12 +15,6 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class SwiftSourceSetTag implements ModelComponent {
-	private static final SwiftSourceSetTag INSTANCE = new SwiftSourceSetTag();
-
-	public static SwiftSourceSetTag tag() {
-		return INSTANCE;
-	}
-}
+public interface SwiftSourceSetTag extends ModelTag {}

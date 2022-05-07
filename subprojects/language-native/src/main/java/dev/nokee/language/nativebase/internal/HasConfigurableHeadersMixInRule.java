@@ -32,6 +32,8 @@ import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
@@ -39,27 +41,28 @@ import org.gradle.api.model.ObjectFactory;
 import java.io.File;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
-public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, IsLanguageSourceSet> {
+public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, ModelComponentTag<IsLanguageSourceSet>> {
 	private final ModelRegistry registry;
 	private final SourceSetFactory sourceSetFactory;
 	private final ObjectFactory objects;
 
 	HasConfigurableHeadersMixInRule(ModelRegistry registry, SourceSetFactory sourceSetFactory, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class));
+		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.sourceSetFactory = sourceSetFactory;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
+	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, ModelComponentTag<IsLanguageSourceSet> ignored) {
 		val propertyIdentifier = ModelPropertyIdentifier.of(identifier.get(), "headers");
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(propertyIdentifier))
-			.withComponent(ModelPropertyTag.instance())
+			.withComponent(tag(ModelPropertyTag.class))
 			.withComponent(new ModelPropertyTypeComponent(set(ModelType.of(File.class))))
 			.withComponent(new GradlePropertyComponent(objects.fileCollection()))
 			.withComponent(createdUsing(ModelType.of(ConfigurableSourceSet.class), () -> {

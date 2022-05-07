@@ -21,6 +21,7 @@ import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -43,7 +44,7 @@ public abstract class VisualStudioIdePlugin implements Plugin<Project> {
 			public void execute(ComponentModelBasePlugin appliedPlugin) {
 				val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
 				val action = new CreateNativeComponentVisualStudioIdeProject(extension, project.getLayout(), project.getObjects(), project.getProviders());
-				modelConfigurer.configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IsComponent.class), ModelComponentReference.of(ModelElementFactory.class), (entity, tag, factory) -> {
+				modelConfigurer.configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsComponent.class), ModelComponentReference.of(ModelElementFactory.class), (entity, tag, factory) -> {
 					action.execute(factory.createElement(entity));
 				})));
 			}

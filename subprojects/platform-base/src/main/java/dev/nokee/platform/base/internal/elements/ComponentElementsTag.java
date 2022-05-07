@@ -15,14 +15,6 @@
  */
 package dev.nokee.platform.base.internal.elements;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class ComponentElementsTag implements ModelComponent {
-	private static final ComponentElementsTag INSTANCE = new ComponentElementsTag();
-
-	private ComponentElementsTag() {}
-
-	public static ComponentElementsTag tag() {
-		return INSTANCE;
-	}
-}
+public interface ComponentElementsTag extends ModelTag {}

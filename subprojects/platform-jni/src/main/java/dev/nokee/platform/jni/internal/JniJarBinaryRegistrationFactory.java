@@ -23,6 +23,7 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class JniJarBinaryRegistrationFactory {
@@ -30,8 +31,8 @@ public final class JniJarBinaryRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(new ElementNameComponent(identifier.getName().get()))
-			.withComponent(IsBinary.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsBinary.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(createdUsing(of(ModelBackedJniJarBinary.class), ModelBackedJniJarBinary::new));
 	}
 }

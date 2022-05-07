@@ -19,10 +19,9 @@ import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.JavaSourceSet;
-import dev.nokee.language.jvm.KotlinSourceSet;
-import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.reflect.HasPublicType;
@@ -33,12 +32,14 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.util.PatternFilterable;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
+
 public final class JavaSourceSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		assert identifier.getName().get().equals("java");
 		return ModelRegistration.managedBuilder(identifier, DefaultJavaSourceSet.class)
-			.withComponent(JvmSourceSetTag.tag())
-			.withComponent(DefaultJavaSourceSet.Tag.tag())
+			.withComponent(tag(JvmSourceSetTag.class))
+			.withComponent(tag(DefaultJavaSourceSet.Tag.class))
 			.build();
 	}
 
@@ -81,12 +82,6 @@ public final class JavaSourceSetRegistrationFactory {
 			return TypeOf.typeOf(JavaSourceSet.class);
 		}
 
-		public static final class Tag implements ModelComponent {
-			private static final Tag INSTANCE = new Tag();
-
-			public static Tag tag() {
-				return INSTANCE;
-			}
-		}
+		public interface Tag extends ModelTag {}
 	}
 }

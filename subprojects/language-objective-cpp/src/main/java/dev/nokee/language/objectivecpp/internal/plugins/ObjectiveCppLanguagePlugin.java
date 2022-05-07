@@ -37,6 +37,7 @@ import org.gradle.api.Project;
 import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 	@Override
@@ -50,7 +51,7 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLangua
 
 			registry.register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().get(IdentifierComponent.class).get(), "objectiveCpp"), true));
 		}))));
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(ObjectiveCppSourceSetTag.tag());
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(ObjectiveCppSourceSetTag.class));
 	}
 
 	@Override

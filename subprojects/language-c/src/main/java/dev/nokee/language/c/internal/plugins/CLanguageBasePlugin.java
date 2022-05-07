@@ -35,11 +35,14 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+
+import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 
 public class CLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -60,8 +63,8 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		val registrationFactory = new DefaultCSourceSetRegistrationFactory(project.getExtensions().getByType(CSourceSetRegistrationFactory.class));
 		project.getExtensions().add("__nokee_defaultCSourceSetFactory", registrationFactory);
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			ParentUtils.stream(parent).filter(it -> it.has(CSourceSetTag.class)).findFirst().ifPresent(ignored -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
+			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(CSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(identifier.get()));
 				entity.addComponent(new CSourceSetComponent(ModelNodes.of(sourceSet)));
 			});

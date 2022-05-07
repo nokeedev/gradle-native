@@ -40,6 +40,7 @@ import org.gradle.api.provider.Provider;
 import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
@@ -73,13 +74,13 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		val entityPath = toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(IsDependencyBucket.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsDependencyBucket.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
 			.withComponent(ofInstance(outgoing))
-			.withComponent(ConsumableDependencyBucketTag.tag())
+			.withComponent(tag(ConsumableDependencyBucketTag.class))
 			.build();
 	}
 

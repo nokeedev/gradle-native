@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import static dev.nokee.model.internal.actions.ModelActionSystem.updateSelectorForTag;
 import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 class ModelActionByTagIntegrationTest extends ModelActionIntegrationTester {
 	@BeforeEach
@@ -38,12 +39,12 @@ class ModelActionByTagIntegrationTest extends ModelActionIntegrationTester {
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(ConfigurableTag.tag()).withComponent(MyTagComponent.tag()).build();
+		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(MyTagComponent.tag()).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(ConfigurableTag.tag()).build();
+		return builder().withComponent(tag(ConfigurableTag.class)).build();
 	}
 
 	private static final class MyTagComponent implements ModelComponent {

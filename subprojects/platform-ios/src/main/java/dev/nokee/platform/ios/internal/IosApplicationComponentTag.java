@@ -15,12 +15,6 @@
  */
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class IosApplicationComponentTag implements ModelComponent {
-	private static final IosApplicationComponentTag INSTANCE = new IosApplicationComponentTag();
-
-	public static IosApplicationComponentTag tag() {
-		return INSTANCE;
-	}
-}
+public interface IosApplicationComponentTag extends ModelTag {}

@@ -35,11 +35,14 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+
+import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 
 public class CppLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -58,8 +61,8 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_cppSourceSetFactory", new CppSourceSetRegistrationFactory());
 		project.getExtensions().add("__nokee_defaultCppSourceSet", new DefaultCppSourceSetRegistrationFactory(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class)));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			ParentUtils.stream(parent).filter(it -> it.has(CppSourceSetTag.class)).findFirst().ifPresent(ignored -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
+			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(CppSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultCppSourceSetRegistrationFactory.class).create(identifier.get()));
 				entity.addComponent(new CppSourceSetComponent(ModelNodes.of(sourceSet)));
 			});

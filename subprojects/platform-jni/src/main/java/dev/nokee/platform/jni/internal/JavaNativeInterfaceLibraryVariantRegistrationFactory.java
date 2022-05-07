@@ -25,6 +25,7 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.val;
 import org.gradle.api.Project;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
@@ -39,8 +40,8 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 		Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
 
 		return ModelRegistration.builder()
-			.withComponent(IsVariant.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsVariant.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(identifier))
 			.build();
 	}

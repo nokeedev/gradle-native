@@ -47,6 +47,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -116,6 +117,8 @@ import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
+import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
@@ -138,10 +141,10 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(TestingBasePlugin.class);
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(XCTestTestSuiteComponentTag.class), (entity, identifier, tag) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			if (entity.has(ObjectiveCSourceSetTag.class)) {
+			if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
 				registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "objectiveC"), true));
 				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "headers")));
 			}
@@ -158,8 +161,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			if (!parent.get().has(XCTestTestSuiteComponentTag.class)) {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
+			if (!parent.get().hasComponent(typeOf(XCTestTestSuiteComponentTag.class))) {
 				return;
 			}
 
@@ -213,7 +216,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(XCTestTestSuiteComponentTag.class), (entity, path, ignored, tag) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), (entity, path, ignored, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, BaseXCTestTestSuiteComponent.class);
 
@@ -232,14 +235,14 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 			component.getVariants().get(); // Force realization, for now
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetLinkagesPropertyComponent.class), (entity, tag, targetLinkages) -> {
 			((SetProperty<TargetLinkage>) targetLinkages.get().get(GradlePropertyComponent.class).get()).convention(Collections.singletonList(TargetLinkages.BUNDLE));
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetBuildTypes, testedComponent) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetBuildTypesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetBuildTypes, testedComponent) -> {
 			((SetProperty<TargetBuildType>) targetBuildTypes.get().get(GradlePropertyComponent.class).get())
 				.convention(ImmutableSet.of(TargetBuildTypes.DEFAULT));
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetMachinesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetMachines, testedComponent) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(TargetMachinesPropertyComponent.class), ModelComponentReference.of(TestedComponentPropertyComponent.class), (entity, tag, targetMachines, testedComponent) -> {
 			((SetProperty<TargetMachine>) targetMachines.get().get(GradlePropertyComponent.class).get())
 				.convention(ImmutableSet.of(NativeRuntimeBasePlugin.TARGET_MACHINE_FACTORY.os("ios").getX86_64()));
 		}));
@@ -280,11 +283,11 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(createdUsing(of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
 				return newUnitTestFactory(project).create(identifier);
 			}))
-			.withComponent(IsComponent.tag())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(IsTestComponent.tag())
-			.withComponent(XCTestTestSuiteComponentTag.tag())
-			.withComponent(ObjectiveCSourceSetTag.tag())
+			.withComponent(tag(IsComponent.class))
+			.withComponent(tag(ConfigurableTag.class))
+			.withComponent(tag(IsTestComponent.class))
+			.withComponent(tag(XCTestTestSuiteComponentTag.class))
+			.withComponent(tag(ObjectiveCSourceSetTag.class))
 			.build()
 			;
 	}
@@ -299,11 +302,11 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(IsComponent.tag())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(IsTestComponent.tag())
-			.withComponent(XCTestTestSuiteComponentTag.tag())
-			.withComponent(ObjectiveCSourceSetTag.tag())
+			.withComponent(tag(IsComponent.class))
+			.withComponent(tag(ConfigurableTag.class))
+			.withComponent(tag(IsTestComponent.class))
+			.withComponent(tag(XCTestTestSuiteComponentTag.class))
+			.withComponent(tag(ObjectiveCSourceSetTag.class))
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))
@@ -321,9 +324,9 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(IsVariant.tag())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(NativeVariantTag.tag())
+			.withComponent(tag(IsVariant.class))
+			.withComponent(tag(ConfigurableTag.class))
+			.withComponent(tag(NativeVariantTag.class))
 			.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);

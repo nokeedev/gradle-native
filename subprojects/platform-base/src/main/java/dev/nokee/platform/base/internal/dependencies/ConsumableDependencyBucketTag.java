@@ -15,12 +15,6 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class ConsumableDependencyBucketTag implements ModelComponent {
-	private static final ConsumableDependencyBucketTag INSTANCE = new ConsumableDependencyBucketTag();
-
-	public static ConsumableDependencyBucketTag tag() {
-		return INSTANCE;
-	}
-}
+public interface ConsumableDependencyBucketTag extends ModelTag {}

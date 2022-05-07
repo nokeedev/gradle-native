@@ -43,6 +43,7 @@ import org.gradle.api.Project;
 import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 	@Override
@@ -56,7 +57,7 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 
 			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().get(IdentifierComponent.class).get(), "c"), true));
 		}))));
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(CSourceSetTag.tag());
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(CSourceSetTag.class));
 	}
 
 	@Override

@@ -15,17 +15,11 @@
  */
 package dev.nokee.model.internal.names;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
 /**
  * This tag exclude an entity from participating in the qualifying name calculation.
  * Typically, main entity should exclude their element name from the qualifying name calculation.
  * For example, {@literal main} component would not include in child fully qualified and relative names.
  */
-public final class ExcludeFromQualifyingNameTag implements ModelComponent {
-	private static final ExcludeFromQualifyingNameTag INSTANCE = new ExcludeFromQualifyingNameTag();
-
-	public static ExcludeFromQualifyingNameTag tag() {
-		return INSTANCE;
-	}
-}
+public interface ExcludeFromQualifyingNameTag extends ModelTag {}

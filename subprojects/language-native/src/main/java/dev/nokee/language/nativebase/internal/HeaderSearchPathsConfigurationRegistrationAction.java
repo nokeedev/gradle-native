@@ -25,6 +25,8 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import lombok.val;
@@ -40,26 +42,27 @@ import java.nio.file.Path;
 import java.util.Set;
 
 import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts.frameworks;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
-public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, IsLanguageSourceSet> {
+public final class HeaderSearchPathsConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, ModelComponentTag<IsLanguageSourceSet>> {
 	private final ModelRegistry registry;
 	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
 	HeaderSearchPathsConfigurationRegistrationAction(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(IsLanguageSourceSet.class));
+		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, IsLanguageSourceSet ignored) {
-		val headerSearchPaths = registry.register(ModelRegistration.builder().mergeFrom(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier.get()))).withComponent(HeaderSearchPathsDependencyBucketTag.tag()).build());
+	protected void execute(ModelNode entity, ModelProjection knownObject, IdentifierComponent identifier, ModelComponentTag<IsLanguageSourceSet> ignored) {
+		val headerSearchPaths = registry.register(ModelRegistration.builder().mergeFrom(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("headerSearchPaths"), identifier.get()))).withComponent(tag(HeaderSearchPathsDependencyBucketTag.class)).build());
 		headerSearchPaths.configure(Configuration.class, forCPlusPlusApiUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(headerSearchPaths));
 		entity.addComponent(new HeaderSearchPathsConfigurationComponent(ModelNodes.of(headerSearchPaths)));

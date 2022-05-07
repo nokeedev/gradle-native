@@ -21,6 +21,7 @@ import org.gradle.api.model.ObjectFactory;
 
 import java.io.File;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
@@ -35,7 +36,7 @@ public final class ModelPropertyRegistrationFactory {
 		val property = objects.property(type);
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(ModelPropertyTag.instance())
+			.withComponent(tag(ModelPropertyTag.class))
 			.withComponent(new ModelPropertyTypeComponent(of(type)))
 			.withComponent(new GradlePropertyComponent(property))
 			.withComponent(new ModelElementProviderSourceComponent(property))
@@ -46,7 +47,7 @@ public final class ModelPropertyRegistrationFactory {
 		val property = objects.fileCollection();
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(ModelPropertyTag.instance())
+			.withComponent(tag(ModelPropertyTag.class))
 			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
 			.withComponent(new GradlePropertyComponent(property))
 			.withComponent(new ModelElementProviderSourceComponent(property.getElements()))

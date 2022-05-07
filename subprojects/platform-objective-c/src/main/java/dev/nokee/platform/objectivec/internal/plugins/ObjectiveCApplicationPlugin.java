@@ -58,6 +58,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
@@ -91,7 +92,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration objectiveCApplication(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeApplicationComponentModelRegistrationFactory(DefaultObjectiveCApplication.class, project).create(identifier).withComponent(ObjectiveCSourceSetTag.tag()).build();
+		return new NativeApplicationComponentModelRegistrationFactory(DefaultObjectiveCApplication.class, project).create(identifier).withComponent(tag(ObjectiveCSourceSetTag.class)).build();
 	}
 
 	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication

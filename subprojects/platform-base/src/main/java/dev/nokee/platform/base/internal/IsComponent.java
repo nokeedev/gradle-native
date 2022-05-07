@@ -15,17 +15,6 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import dev.nokee.model.internal.tags.ModelTag;
 
-@Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class IsComponent implements ModelComponent {
-	private static final IsComponent INSTANCE = new IsComponent();
-
-	public static IsComponent tag() {
-		return INSTANCE;
-	}
-}
+public interface IsComponent extends ModelTag {}

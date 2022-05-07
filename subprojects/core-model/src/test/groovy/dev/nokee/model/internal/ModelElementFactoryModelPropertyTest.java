@@ -17,7 +17,11 @@ package dev.nokee.model.internal;
 
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.*;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelProperty;
+import dev.nokee.model.internal.core.ModelPropertyTag;
+import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import lombok.val;
@@ -32,11 +36,16 @@ import java.util.Set;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelType.untyped;
-import static dev.nokee.model.internal.type.ModelTypes.*;
+import static dev.nokee.model.internal.type.ModelTypes.list;
+import static dev.nokee.model.internal.type.ModelTypes.map;
+import static dev.nokee.model.internal.type.ModelTypes.set;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -46,7 +55,7 @@ class ModelElementFactoryModelPropertyTest {
 
 	private static ModelNode createPropertyEntity() {
 		val result = new ModelNode();
-		result.addComponent(ModelPropertyTag.instance());
+		result.addComponent(tag(ModelPropertyTag.class));
 		result.addComponent(ofInstance(objectFactory().newInstance(MyOtherType.class)));
 		return result;
 	}

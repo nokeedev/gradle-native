@@ -15,12 +15,6 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class HeaderSearchPathsDependencyBucketTag implements ModelComponent {
-	private static final HeaderSearchPathsDependencyBucketTag INSTANCE = new HeaderSearchPathsDependencyBucketTag();
-
-	public static HeaderSearchPathsDependencyBucketTag tag() {
-		return INSTANCE;
-	}
-}
+public interface HeaderSearchPathsDependencyBucketTag extends ModelTag {}

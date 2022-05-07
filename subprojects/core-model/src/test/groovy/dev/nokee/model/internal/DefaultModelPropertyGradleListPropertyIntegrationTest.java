@@ -34,6 +34,7 @@ import java.util.List;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.listProperty;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.list;
@@ -50,7 +51,7 @@ class DefaultModelPropertyGradleListPropertyIntegrationTest {
 	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
 		val property = objectFactory().listProperty(MyType.class);
 		val entity = node("jeja", builder -> builder.withConfigurer(modelConfigurer));
-		entity.addComponent(ModelPropertyTag.instance());
+		entity.addComponent(tag(ModelPropertyTag.class));
 		entity.addComponent(new GradlePropertyComponent(property));
 		entity.addComponent(new ModelPropertyTypeComponent(list(of(MyType.class))));
 		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("jeja", Object.class)));

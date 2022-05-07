@@ -28,6 +28,8 @@ import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.model.internal.tags.ModelTags;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -56,17 +58,17 @@ public final class ModelActionSystem implements Action<Project> {
 		val configurer = project.getExtensions().getByType(ModelConfigurer.class);
 
 		// Rules to execute actions
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelActionTag.class), this::trackActions));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), this::trackConfigurableEntities));
+		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelActionTag.class), this::trackActions));
+		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), this::trackConfigurableEntities));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ActionSelectorComponent.class), this::onIdentityChanged));
 		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelSpecComponent.class), ModelComponentReference.of(ModelActionComponent.class), this::onActionAdded));
 
 		// Rules to keep identity up-to-date
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ModelProjection.class), this::updateSelectorForProjection));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
-		configurer.configure(ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), this::updateSelectorForSelf));
+		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(ModelProjection.class), this::updateSelectorForProjection));
+		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForParent));
+		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(ModelState.class), this::updateSelectorForState));
+		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(ParentComponent.class), this::updateSelectorForAncestors));
+		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), this::updateSelectorForSelf));
 	}
 
 	// ComponentFromEntity<MatchingSpecificationComponent> (readonly) all
@@ -129,16 +131,16 @@ public final class ModelActionSystem implements Action<Project> {
 		};
 	}
 
-	private void trackActions(ModelNode entity, ModelActionTag tag) {
+	private void trackActions(ModelNode entity, ModelComponentTag<ModelActionTag> tag) {
 		allActionEntities.add(entity);
 	}
 
-	private void trackConfigurableEntities(ModelNode entity, ConfigurableTag tag) {
+	private void trackConfigurableEntities(ModelNode entity, ModelComponentTag<ConfigurableTag> tag) {
 		allConfigurableEntities.add(entity);
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForState(ModelNode entity, ConfigurableTag tag, ModelState state) {
+	private void updateSelectorForState(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ModelState state) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(state))
@@ -146,7 +148,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForParent(ModelNode entity, ConfigurableTag tag, ParentComponent parent) {
+	private void updateSelectorForParent(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ParentComponent parent) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(new ParentRef(parent.get().getId())))
@@ -154,7 +156,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForProjection(ModelNode entity, ConfigurableTag tag, ModelProjection projection) {
+	private void updateSelectorForProjection(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ModelProjection projection) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.plus(projection.getType()))
@@ -163,7 +165,7 @@ public final class ModelActionSystem implements Action<Project> {
 
 	// ComponentFromEntity<ParentComponent> read-only all
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForAncestors(ModelNode entity, ConfigurableTag tag, ParentComponent parent) {
+	private void updateSelectorForAncestors(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, ParentComponent parent) {
 		val ancestors = ImmutableSet.<AncestorRef>builder();
 		Optional<ParentComponent> parentComponent = Optional.of(parent);
 		while(parentComponent.isPresent()) {
@@ -178,7 +180,7 @@ public final class ModelActionSystem implements Action<Project> {
 	}
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
-	private void updateSelectorForSelf(ModelNode entity, ConfigurableTag tag) {
+	private void updateSelectorForSelf(ModelNode entity, ModelComponentTag<ConfigurableTag> tag) {
 		entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 			.map(ActionSelectorComponent::get)
 			.map(it -> it.with(new SelfRef(entity.getId())))
@@ -209,9 +211,9 @@ public final class ModelActionSystem implements Action<Project> {
 
 	// ComponentFromEntity<ActionSelectorComponent> read-write self
 	public static <T extends ModelComponent> ModelAction updateSelectorForTag(Class<T> componentType) {
-		return ModelActionWithInputs.of(ModelComponentReference.of(ConfigurableTag.class), ModelComponentReference.of(componentType), new ModelActionWithInputs.A2<ConfigurableTag, T>() {
+		return ModelActionWithInputs.of(ModelTags.referenceOf(ConfigurableTag.class), ModelComponentReference.of(componentType), new ModelActionWithInputs.A2<ModelComponentTag<ConfigurableTag>, T>() {
 			@Override
-			public void execute(ModelNode entity, ConfigurableTag tag, T component) {
+			public void execute(ModelNode entity, ModelComponentTag<ConfigurableTag> tag, T component) {
 				entity.addComponent(new ActionSelectorComponent(entity.findComponent(componentOf(ActionSelectorComponent.class))
 					.map(ActionSelectorComponent::get)
 					.map(it -> it.with(valueOf(component)))

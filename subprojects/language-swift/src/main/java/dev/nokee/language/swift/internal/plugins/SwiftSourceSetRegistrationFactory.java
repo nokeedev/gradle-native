@@ -21,6 +21,8 @@ import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.internal.core.ModelRegistration;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
+
 public final class SwiftSourceSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		return create(identifier, false);
@@ -28,7 +30,7 @@ public final class SwiftSourceSetRegistrationFactory {
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
 		if (isLegacy) {
-			return ModelRegistration.managedBuilder(identifier, LegacySwiftSourceSet.class).withComponent(LegacySourceSetTag.tag()).build();
+			return ModelRegistration.managedBuilder(identifier, LegacySwiftSourceSet.class).withComponent(tag(LegacySourceSetTag.class)).build();
 		} else {
 			return ModelRegistration.managedBuilder(identifier, SwiftSourceSetSpec.class).withComponent(new NativeCompileTypeComponent(SwiftCompileTask.class)).build();
 		}

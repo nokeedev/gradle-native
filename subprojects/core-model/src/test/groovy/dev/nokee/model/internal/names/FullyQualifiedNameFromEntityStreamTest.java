@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.names.FullyQualifiedName.toFullyQualifiedName;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -51,7 +52,7 @@ class FullyQualifiedNameFromEntityStreamTest {
 	void ignoresMainEntityInFullyQualifiedName() {
 		parent.addComponent(new ElementNameComponent("bopu"));
 		grandParent.addComponent(new ElementNameComponent("robo"));
-		grandParent.addComponent(ExcludeFromQualifyingNameTag.tag());
+		grandParent.addComponent(tag(ExcludeFromQualifyingNameTag.class));
 		greatGrandParent.addComponent(new ElementNameComponent("zite"));
 
 		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(NamingScheme.prefixTo(ElementName.of("ruba")))), equalTo(FullyQualifiedName.of("ziteBopuRuba")));

@@ -17,8 +17,6 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.base.Preconditions;
 import dev.nokee.model.internal.type.ModelType;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
 import lombok.val;
 
 import java.lang.reflect.Type;
@@ -81,7 +79,7 @@ public abstract class ModelComponentType<T> {
 	}
 
 
-	public static <T extends ModelComponent> ModelComponentType<T> componentOf(Class<T> type) {
+	public static <T> ModelComponentType<T> componentOf(Class<T> type) {
 		Objects.requireNonNull(type);
 		return (ModelComponentType<T>) knownComponentTypes.computeIfAbsent(type, t -> new ComponentType<>(type));
 	}

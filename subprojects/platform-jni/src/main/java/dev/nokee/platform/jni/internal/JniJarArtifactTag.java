@@ -15,12 +15,6 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class JniJarArtifactTag implements ModelComponent {
-	private static final JniJarArtifactTag INSTANCE = new JniJarArtifactTag();
-
-	public static JniJarArtifactTag tag() {
-		return INSTANCE;
-	}
-}
+public interface JniJarArtifactTag extends ModelTag {}

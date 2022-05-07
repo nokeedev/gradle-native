@@ -15,17 +15,6 @@
  */
 package dev.nokee.language.base.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import dev.nokee.model.internal.tags.ModelTag;
 
-@Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class IsLanguageSourceSet implements ModelComponent {
-	private static final IsLanguageSourceSet INSTANCE = new IsLanguageSourceSet();
-
-	public static IsLanguageSourceSet tag() {
-		return INSTANCE;
-	}
-}
+public interface IsLanguageSourceSet extends ModelTag {}

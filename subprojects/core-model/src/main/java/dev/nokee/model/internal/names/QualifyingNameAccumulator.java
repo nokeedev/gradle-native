@@ -20,11 +20,13 @@ import lombok.val;
 
 import java.util.function.BiConsumer;
 
+import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+
 final class QualifyingNameAccumulator implements BiConsumer<QualifyingName.Builder, ModelNode> {
 	@Override
 	public void accept(QualifyingName.Builder builder, ModelNode parentEntity) {
 		val parentElementName = parentEntity.find(ElementNameComponent.class).map(ElementNameComponent::get).map(ElementName::toString);
-		if (!parentEntity.has(ExcludeFromQualifyingNameTag.class)) {
+		if (!parentEntity.hasComponent(typeOf(ExcludeFromQualifyingNameTag.class))) {
 			parentElementName.ifPresent(builder::prepend);
 		}
 	}

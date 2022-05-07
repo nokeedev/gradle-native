@@ -15,12 +15,6 @@
  */
 package dev.nokee.testing.xctest.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class XCTestTestSuiteComponentTag implements ModelComponent {
-	private static final XCTestTestSuiteComponentTag INSTANCE = new XCTestTestSuiteComponentTag();
-
-	public static XCTestTestSuiteComponentTag tag() {
-		return INSTANCE;
-	}
-}
+public interface XCTestTestSuiteComponentTag extends ModelTag {}

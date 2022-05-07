@@ -60,6 +60,7 @@ import org.gradle.util.ConfigureUtil;
 import javax.inject.Inject;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
@@ -93,7 +94,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 
 	public static ModelRegistration objectiveCppLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C++ library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCppLibrary.class, project).create(identifier).withComponent(ObjectiveCppSourceSetTag.tag()).build();
+		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCppLibrary.class, project).create(identifier).withComponent(tag(ObjectiveCppSourceSetTag.class)).build();
 	}
 
 	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary

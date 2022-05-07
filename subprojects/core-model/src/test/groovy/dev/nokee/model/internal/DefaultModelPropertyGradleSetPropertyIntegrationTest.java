@@ -34,6 +34,7 @@ import java.util.Set;
 
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
@@ -50,7 +51,7 @@ class DefaultModelPropertyGradleSetPropertyIntegrationTest {
 	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
 		val property = objectFactory().setProperty(MyType.class);
 		val entity = node("zimu", builder -> builder.withConfigurer(modelConfigurer));
-		entity.addComponent(ModelPropertyTag.instance());
+		entity.addComponent(tag(ModelPropertyTag.class));
 		entity.addComponent(new GradlePropertyComponent(property));
 		entity.addComponent(new ModelPropertyTypeComponent(set(of(MyType.class))));
 		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("zimu", Object.class)));

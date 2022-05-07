@@ -31,6 +31,7 @@ import org.gradle.api.tasks.TaskProvider;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 public final class TaskRegistrationFactory {
 	private final TaskContainer tasks;
@@ -49,8 +50,8 @@ public final class TaskRegistrationFactory {
 		val taskProvider = (TaskProvider<T>) taskRegistry.registerIfAbsent(name.toString(), type);
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(IsTask.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsTask.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new ModelElementProviderSourceComponent(taskProvider))
 			.withComponent(createdUsingNoInject(ModelType.of(type), taskProvider::get))
 			.withComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider))

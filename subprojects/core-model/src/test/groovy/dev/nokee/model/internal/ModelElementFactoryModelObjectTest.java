@@ -17,7 +17,6 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPropertyTag;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 

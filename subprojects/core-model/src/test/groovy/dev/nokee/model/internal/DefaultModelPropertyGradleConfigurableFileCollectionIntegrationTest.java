@@ -36,6 +36,7 @@ import java.util.Set;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFileNamed;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,7 +53,7 @@ class DefaultModelPropertyGradleConfigurableFileCollectionIntegrationTest {
 	private static ModelNode newEntity(ModelConfigurer modelConfigurer) {
 		val property = objectFactory().fileCollection();
 		val entity = node("jeja", builder -> builder.withConfigurer(modelConfigurer));
-		entity.addComponent(ModelPropertyTag.instance());
+		entity.addComponent(tag(ModelPropertyTag.class));
 		entity.addComponent(new GradlePropertyComponent(property));
 		entity.addComponent(new ModelPropertyTypeComponent(set(of(File.class))));
 		entity.addComponent(new IdentifierComponent(ModelIdentifier.of("jeja", Object.class)));
