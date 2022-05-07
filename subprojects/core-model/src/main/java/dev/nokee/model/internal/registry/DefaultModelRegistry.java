@@ -133,7 +133,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public ModelNode instantiate(ModelRegistration registration) {
-		registration.getActions().forEach(this::configure);
 		val node = new ModelNode(nodeStateListener);
 		entities.add(node);
 		return newNode(node, registration);

@@ -17,7 +17,6 @@ package dev.nokee.model.internal.core;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 
@@ -27,22 +26,6 @@ import static org.hamcrest.Matchers.notNullValue;
 
 public interface ModelRegistrationTester {
 	ModelRegistration subject();
-
-	@Test
-	default void hasActions() {
-		assertThat(subject().getActions(), notNullValue(List.class));
-	}
-
-	@Test
-	default void returnsAnImmutableActionList() {
-		val initialSize = subject().getActions().size();
-		try {
-			subject().getActions().add(Mockito.mock(ModelAction.class));
-		} catch (Throwable ignored) {
-			// Actions can either be a list copy or an immutable list
-		}
-		assertThat(subject().getActions(), iterableWithSize(initialSize));
-	}
 
 	@Test
 	default void hasComponents() {

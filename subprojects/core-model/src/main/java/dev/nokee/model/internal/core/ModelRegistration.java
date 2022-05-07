@@ -30,11 +30,9 @@ import java.util.Objects;
  */
 @EqualsAndHashCode
 public final class ModelRegistration {
-	private final List<ModelAction> actions;
 	private final List<Object> components;
 
-	private ModelRegistration(List<ModelAction> actions, List<Object> components) {
-		this.actions = actions;
+	private ModelRegistration(List<Object> components) {
 		this.components = components;
 	}
 
@@ -80,13 +78,8 @@ public final class ModelRegistration {
 		return components;
 	}
 
-	public List<ModelAction> getActions() {
-		return actions;
-	}
-
 	public static final class Builder {
 		private final List<Object> components = new ArrayList<>();
-		private final List<ModelAction> actions = new ArrayList<>();
 
 		Builder withComponent(Object component) {
 			if (!components.contains(component)) {
@@ -103,19 +96,13 @@ public final class ModelRegistration {
 			return withComponent((Object) component);
 		}
 
-		public Builder action(ModelAction action) {
-			actions.add(action);
-			return this;
-		}
-
 		public Builder mergeFrom(ModelRegistration other) {
 			components.addAll(other.getComponents());
-			actions.addAll(other.getActions());
 			return this;
 		}
 
 		public ModelRegistration build() {
-			return new ModelRegistration(ImmutableList.copyOf(actions), ImmutableList.copyOf(components));
+			return new ModelRegistration(ImmutableList.copyOf(components));
 		}
 	}
 }

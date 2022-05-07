@@ -23,11 +23,14 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.internal.Factories.alwaysThrow;
 import static dev.nokee.model.internal.core.ModelIdentifier.of;
 import static dev.nokee.model.internal.core.ModelPath.path;
-import static dev.nokee.model.internal.core.ModelRegistration.*;
-import static dev.nokee.model.internal.core.ModelTestActions.doSomething;
+import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
+import static dev.nokee.model.internal.core.ModelRegistration.builder;
+import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.iterableWithSize;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 class ModelRegistrationTest {
@@ -36,7 +39,6 @@ class ModelRegistrationTest {
 		assertAll(() -> {
 			val registration = ModelRegistration.of("a.b.c", MyType.class);
 			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("a.b.c"))));
-			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
 	}
@@ -62,8 +64,6 @@ class ModelRegistrationTest {
 				builder().withComponent(new ModelPathComponent(path("po.ta.to"))).build())
 			.addEqualityGroup(
 				builder().withComponent(new ModelPathComponent(path("po.ta.to"))).withComponent(ModelProjections.ofInstance(new MyType())).build())
-			.addEqualityGroup(
-				builder().withComponent(new ModelPathComponent(path("po.ta.to"))).action(doSomething()).build())
 			.testEquals();
 	}
 
@@ -72,7 +72,6 @@ class ModelRegistrationTest {
 		assertAll(() -> {
 			val registration = unmanagedInstance(of("foo", MyType.class), alwaysThrow());
 			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("foo"))));
-			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
 		});
 	}
@@ -82,19 +81,7 @@ class ModelRegistrationTest {
 		assertAll(() -> {
 			val registration = bridgedInstance(of("foo", MyType.class), new MyType());
 			assertThat(registration.getComponents(), hasItem(new ModelPathComponent(path("foo"))));
-			assertThat(registration.getActions(), emptyIterable());
 			assertThat(registration.getComponents(), iterableWithSize(2)); // for the projections
-		});
-	}
-
-	@Test
-	void canAddActionToRegistration() {
-		assertAll(() -> {
-			val registration = ModelRegistration.builder()
-				.withComponent(new ModelPathComponent(path("a.b.c")))
-				.action(doSomething())
-				.build();
-			assertThat(registration.getActions(), hasItem(doSomething())); // other are projections
 		});
 	}
 
