@@ -15,12 +15,6 @@
  */
 package dev.nokee.language.base.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class LegacySourceSetTag implements ModelComponent {
-	private static final LegacySourceSetTag INSTANCE = new LegacySourceSetTag();
-
-	public static LegacySourceSetTag tag() {
-		return INSTANCE;
-	}
-}
+public interface LegacySourceSetTag extends ModelTag {}

@@ -15,12 +15,6 @@
  */
 package dev.nokee.language.objectivecpp.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class ObjectiveCppSourceSetTag implements ModelComponent {
-	private static final ObjectiveCppSourceSetTag INSTANCE = new ObjectiveCppSourceSetTag();
-
-	public static ObjectiveCppSourceSetTag tag() {
-		return INSTANCE;
-	}
-}
+public interface ObjectiveCppSourceSetTag extends ModelTag {}

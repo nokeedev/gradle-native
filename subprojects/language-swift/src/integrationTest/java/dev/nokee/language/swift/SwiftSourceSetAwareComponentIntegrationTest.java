@@ -34,6 +34,7 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -47,7 +48,7 @@ class SwiftSourceSetAwareComponentIntegrationTest extends AbstractPluginTest {
 	void createSubject() {
 		componentEntity = ModelStates.register(project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelRegistration.builder().withComponent(new IdentifierComponent(ComponentIdentifier.ofMain(ProjectIdentifier.of(project)))).build()));
 		assertThat("expect no source set", componentEntity.has(SwiftSourceSetComponent.class), is(false));
-		componentEntity.addComponent(NativeLanguageSourceSetAwareTag.tag());
+		componentEntity.addComponent(tag(NativeLanguageSourceSetAwareTag.class));
 		sourceSetEntity = componentEntity.find(SwiftSourceSetComponent.class).map(LinkedEntity::get).orElse(null);
 	}
 

@@ -102,6 +102,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Objects;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
@@ -121,11 +122,11 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getConfigurations().configureEach(configuration -> {
 			((ConfigurationInternal) configuration).beforeLocking(it -> {
-				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.has(IsDependencyBucket.class) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::realize);
+				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::realize);
 			});
 		});
 		project.getTasks().configureEach(task -> {
-			project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.has(IsTask.class) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
+			project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsTask.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
 		});
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));

@@ -15,12 +15,6 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class CSourceSetTag implements ModelComponent {
-	private static final CSourceSetTag INSTANCE = new CSourceSetTag();
-
-	public static CSourceSetTag tag() {
-		return INSTANCE;
-	}
-}
+public interface CSourceSetTag extends ModelTag {}

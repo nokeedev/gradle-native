@@ -34,6 +34,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.internal.Cast;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class IosApplicationComponentModelRegistrationFactory {
@@ -50,14 +51,14 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		val builder = ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
-			.withComponent(IsComponent.tag())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(IosApplicationComponentTag.tag())
+			.withComponent(tag(IsComponent.class))
+			.withComponent(tag(ConfigurableTag.class))
+			.withComponent(tag(IosApplicationComponentTag.class))
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(identifier.getName().get(), project)))
 			;
 
 		if (identifier.isMainComponent()) {
-			builder.withComponent(ExcludeFromQualifyingNameTag.tag());
+			builder.withComponent(tag(ExcludeFromQualifyingNameTag.class));
 		}
 
 		return builder;

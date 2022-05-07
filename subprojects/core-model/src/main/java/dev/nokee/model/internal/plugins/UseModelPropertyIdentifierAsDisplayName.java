@@ -19,12 +19,19 @@ import dev.nokee.model.internal.core.DisplayName;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPropertyTag;
+import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.model.internal.tags.ModelTags;
 
-final class UseModelPropertyIdentifierAsDisplayName extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelPropertyTag> {
+final class UseModelPropertyIdentifierAsDisplayName extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelComponentTag<ModelPropertyTag>> {
+	public UseModelPropertyIdentifierAsDisplayName() {
+		super(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(ModelPropertyTag.class));
+	}
+
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelPropertyTag tag) {
+	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<ModelPropertyTag> tag) {
 		entity.addComponent(new DisplayNameComponent(new DisplayName(identifier.get().toString())));
 	}
 }

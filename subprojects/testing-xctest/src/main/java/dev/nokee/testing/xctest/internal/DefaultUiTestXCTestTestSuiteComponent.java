@@ -74,6 +74,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
@@ -158,8 +159,8 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 
 		val binaryIdentifierApplicationBundle = BinaryIdentifier.of(variantIdentifier, "launcherApplicationBundle");
 		registry.register(ModelRegistration.builder()
-			.withComponent(IsBinary.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsBinary.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(binaryIdentifierApplicationBundle))
 			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> new IosApplicationBundleInternal(createUiTestApplicationBundleTask)))
 			.build());
@@ -174,8 +175,8 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 		val binaryIdentifierSignedApplicationBundle = BinaryIdentifier.of(variantIdentifier, "signedLauncherApplicationBundle");
 		val signedLauncherApplicationBundle = new SignedIosApplicationBundleInternal(signTask);
 		registry.register(ModelRegistration.builder()
-			.withComponent(IsBinary.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsBinary.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(binaryIdentifierSignedApplicationBundle))
 			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> signedLauncherApplicationBundle))
 			.build());

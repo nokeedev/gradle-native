@@ -15,12 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class NativeVariantTag implements ModelComponent {
-	private static final NativeVariantTag INSTANCE = new NativeVariantTag();
-
-	public static NativeVariantTag tag() {
-		return INSTANCE;
-	}
-}
+public interface NativeVariantTag extends ModelTag {}

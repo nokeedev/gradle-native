@@ -15,14 +15,6 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class VariantDimensionAxisOptionalTag implements ModelComponent {
-	private static final VariantDimensionAxisOptionalTag INSTANCE = new VariantDimensionAxisOptionalTag();
-
-	private VariantDimensionAxisOptionalTag() {}
-
-	public static VariantDimensionAxisOptionalTag tag() {
-		return INSTANCE;
-	}
-}
+public interface VariantDimensionAxisOptionalTag extends ModelTag {}

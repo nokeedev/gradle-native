@@ -31,11 +31,13 @@ import java.util.function.Predicate;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -59,12 +61,12 @@ class VariantDimensionPropertyFactoryTest {
 
 		@Test
 		void hasVariantDimensionTag() {
-			assertThat(subject.getComponents(), hasItem(isA(VariantDimensionTag.class)));
+			assertThat(subject.getComponents(), hasItem(is(tag(VariantDimensionTag.class))));
 		}
 
 		@Test
 		void hasModelPropertyTag() {
-			assertThat(subject.getComponents(), hasItem(isA(ModelPropertyTag.class)));
+			assertThat(subject.getComponents(), hasItem(is(tag(ModelPropertyTag.class))));
 		}
 
 		@Test
@@ -95,7 +97,7 @@ class VariantDimensionPropertyFactoryTest {
 
 		@Test
 		void hasNoAxisOptionalTag() {
-			assertThat(subject.getComponents(), not(hasItem(isA(VariantDimensionAxisOptionalTag.class))));
+			assertThat(subject.getComponents(), not(hasItem(is(tag(VariantDimensionAxisOptionalTag.class)))));
 		}
 	}
 
@@ -129,7 +131,7 @@ class VariantDimensionPropertyFactoryTest {
 	@Test
 	void canMarkAxisAsOptional() {
 		val subject = factory.newAxisProperty().axis(testAxis).includeEmptyCoordinate().build();
-		assertThat(subject.getComponents(), hasItem(isA(VariantDimensionAxisOptionalTag.class)));
+		assertThat(subject.getComponents(), hasItem(is(tag(VariantDimensionAxisOptionalTag.class))));
 	}
 
 	@Test

@@ -15,12 +15,6 @@
  */
 package dev.nokee.testing.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class NativeTestSuiteComponentTag implements ModelComponent {
-	private static final NativeTestSuiteComponentTag INSTANCE = new NativeTestSuiteComponentTag();
-
-	public static NativeTestSuiteComponentTag tag() {
-		return INSTANCE;
-	}
-}
+public interface NativeTestSuiteComponentTag extends ModelTag {}

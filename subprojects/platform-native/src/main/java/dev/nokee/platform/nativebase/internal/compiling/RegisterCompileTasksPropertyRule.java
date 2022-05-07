@@ -20,8 +20,11 @@ import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
@@ -40,18 +43,19 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static dev.nokee.utils.TransformerUtils.onlyInstanceOf;
 import static dev.nokee.utils.TransformerUtils.stream;
 
-final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, IsBinary> {
+final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelComponentTag<IsBinary>> {
 	private static final ModelType<TaskView<SourceCompile>> TASK_VIEW_MODEL_TYPE = ModelType.of(new TypeOf<TaskView<SourceCompile>>() {});
 	private final ModelRegistry registry;
 	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
 
 	public RegisterCompileTasksPropertyRule(ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory) {
+		super(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class));
 		this.registry = registry;
 		this.tasksPropertyRegistrationFactory = tasksPropertyRegistrationFactory;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier, IsBinary tag) {
+	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> tag) {
 		val compileTasks = registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier.get(), "compileTasks"), SourceCompile.class));
 		entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
 	}

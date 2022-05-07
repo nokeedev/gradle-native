@@ -56,6 +56,7 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
@@ -92,8 +93,8 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "executable");
 
 				registry.register(ModelRegistration.builder()
-					.withComponent(IsBinary.tag())
-					.withComponent(ConfigurableTag.tag())
+					.withComponent(tag(IsBinary.class))
+					.withComponent(tag(ConfigurableTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkExecutableTask.class, variantIdentifier));
@@ -106,8 +107,8 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "sharedLibrary");
 
 				registry.register(ModelRegistration.builder()
-					.withComponent(IsBinary.tag())
-					.withComponent(ConfigurableTag.tag())
+					.withComponent(tag(IsBinary.class))
+					.withComponent(tag(ConfigurableTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
 						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkSharedLibraryTask.class, variantIdentifier));
@@ -120,8 +121,8 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "bundle");
 
 				registry.register(ModelRegistration.builder()
-					.withComponent(IsBinary.tag())
-					.withComponent(ConfigurableTag.tag())
+					.withComponent(tag(IsBinary.class))
+					.withComponent(tag(ConfigurableTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
 						val linkTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("link"), LinkBundleTask.class, variantIdentifier));
@@ -134,8 +135,8 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "staticLibrary");
 
 				registry.register(ModelRegistration.builder()
-					.withComponent(IsBinary.tag())
-					.withComponent(ConfigurableTag.tag())
+					.withComponent(tag(IsBinary.class))
+					.withComponent(tag(ConfigurableTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
 						val createTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("create"), CreateStaticLibraryTask.class, variantIdentifier));

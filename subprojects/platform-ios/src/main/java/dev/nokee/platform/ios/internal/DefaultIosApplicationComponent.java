@@ -92,6 +92,7 @@ import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceV
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
@@ -233,8 +234,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 		});
 		val applicationBundleIdentifier = BinaryIdentifier.of(variantIdentifier, "applicationBundle");
 		registry.register(ModelRegistration.builder()
-			.withComponent(IsBinary.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsBinary.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(applicationBundleIdentifier))
 			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> {
 				return new IosApplicationBundleInternal(createApplicationBundleTask);
@@ -250,8 +251,8 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 
 		val signedApplicationBundleIdentifier = BinaryIdentifier.of(variantIdentifier, "signedApplicationBundle");
 		registry.register(ModelRegistration.builder()
-			.withComponent(IsBinary.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsBinary.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(signedApplicationBundleIdentifier))
 			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {
 				return new SignedIosApplicationBundleInternal(signApplicationBundleTask);

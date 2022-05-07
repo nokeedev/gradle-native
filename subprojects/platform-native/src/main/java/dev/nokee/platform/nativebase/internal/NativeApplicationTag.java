@@ -15,12 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class NativeApplicationTag implements ModelComponent {
-	private static final NativeApplicationTag INSTANCE = new NativeApplicationTag();
-
-	public static NativeApplicationTag tag() {
-		return INSTANCE;
-	}
-}
+public interface NativeApplicationTag extends ModelTag {}

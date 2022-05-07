@@ -19,8 +19,10 @@ import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.model.internal.core.ModelRegistration;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
+
 public final class CHeaderSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		return ModelRegistration.managedBuilder(identifier, DefaultCHeaderSet.class).withComponent(LegacySourceSetTag.tag()).build();
+		return ModelRegistration.managedBuilder(identifier, DefaultCHeaderSet.class).withComponent(tag(LegacySourceSetTag.class)).build();
 	}
 }

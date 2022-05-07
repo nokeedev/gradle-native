@@ -15,17 +15,6 @@
  */
 package dev.nokee.testing.base.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import dev.nokee.model.internal.tags.ModelTag;
 
-@Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class IsTestComponent implements ModelComponent {
-	private static final IsTestComponent INSTANCE = new IsTestComponent();
-
-	public static IsTestComponent tag() {
-		return INSTANCE;
-	}
-}
+public interface IsTestComponent extends ModelTag {}

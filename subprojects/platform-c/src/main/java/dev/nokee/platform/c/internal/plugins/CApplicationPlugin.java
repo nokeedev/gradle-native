@@ -58,6 +58,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
@@ -91,7 +92,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration cApplication(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeApplicationComponentModelRegistrationFactory(DefaultCApplication.class, project).create(identifier).withComponent(CSourceSetTag.tag()).build();
+		return new NativeApplicationComponentModelRegistrationFactory(DefaultCApplication.class, project).create(identifier).withComponent(tag(CSourceSetTag.class)).build();
 	}
 
 	public static abstract class DefaultCApplication implements CApplication

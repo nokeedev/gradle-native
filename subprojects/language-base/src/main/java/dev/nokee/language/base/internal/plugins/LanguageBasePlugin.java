@@ -52,6 +52,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public class LanguageBasePlugin implements Plugin<Project> {
@@ -65,8 +66,8 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_sourceSetFactory", new SourceSetFactory(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.ofProjection(LanguageSourceSet.class), (entity, knownSourceSet) -> {
-			entity.addComponent(IsLanguageSourceSet.tag());
-			entity.addComponent(ConfigurableTag.tag());
+			entity.addComponent(tag(IsLanguageSourceSet.class));
+			entity.addComponent(tag(ConfigurableTag.class));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(LanguageSourceSet.class, NamingScheme::prefixTo));
 

@@ -21,6 +21,8 @@ import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
+
 public final class CSourceSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		return create(identifier, false);
@@ -28,7 +30,7 @@ public final class CSourceSetRegistrationFactory {
 
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier, boolean isLegacy) {
 		if (isLegacy) {
-			return ModelRegistration.managedBuilder(identifier, LegacyCSourceSet.class).withComponent(LegacySourceSetTag.tag()).build();
+			return ModelRegistration.managedBuilder(identifier, LegacyCSourceSet.class).withComponent(tag(LegacySourceSetTag.class)).build();
 		} else {
 			return ModelRegistration.managedBuilder(identifier, CSourceSetSpec.class).withComponent(new NativeCompileTypeComponent(CCompileTask.class)).build();
 		}

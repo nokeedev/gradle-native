@@ -16,10 +16,10 @@
 package dev.nokee.model.internal.actions;
 
 import dev.nokee.model.KnownDomainObject;
-import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.model.internal.state.ModelState;
 import org.gradle.api.Action;
 
@@ -27,6 +27,7 @@ import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.actions.ModelSpec.self;
 import static dev.nokee.model.internal.actions.ModelSpec.stateAtLeast;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 /**
@@ -138,7 +139,7 @@ public interface ModelAction {
 		return ModelRegistration.builder()
 			.withComponent(new ModelSpecComponent(spec))
 			.withComponent(new ModelActionComponent(action))
-			.withComponent(ModelActionTag.tag())
+			.withComponent(tag(ModelActionTag.class))
 			.build();
 	}
 }

@@ -15,12 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class LinkLibrariesDependencyBucketTag implements ModelComponent {
-	private static final LinkLibrariesDependencyBucketTag INSTANCE = new LinkLibrariesDependencyBucketTag();
-
-	public static LinkLibrariesDependencyBucketTag tag() {
-		return INSTANCE;
-	}
-}
+public interface LinkLibrariesDependencyBucketTag extends ModelTag {}

@@ -22,15 +22,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+
 public final class ModelProperties {
 	private ModelProperties() {}
 
 	public static ModelProperty<?> getProperty(Object self, String name) {
-		return ModelNodes.of(self).get(DescendantNodes.class).getDirectDescendants().stream().filter(it -> it.has(ModelPropertyTag.class)).filter(it -> it.get(ModelPathComponent.class).get().getName().equals(name)).findFirst().map(ModelProperties::newElement).orElseThrow(() -> new IllegalArgumentException("No property of name '" + name + "'. Existing properties of '" + ModelNodes.of(self).get(ModelPathComponent.class).get() + "' are: " + ModelNodes.of(self).get(DescendantNodes.class).getDirectDescendants().stream().filter(it -> it.has(ModelPropertyTag.class)).map(it -> it.get(ModelPathComponent.class).get().getName()).collect(Collectors.joining(", "))));
+		return ModelNodes.of(self).get(DescendantNodes.class).getDirectDescendants().stream().filter(it -> it.hasComponent(typeOf(ModelPropertyTag.class))).filter(it -> it.get(ModelPathComponent.class).get().getName().equals(name)).findFirst().map(ModelProperties::newElement).orElseThrow(() -> new IllegalArgumentException("No property of name '" + name + "'. Existing properties of '" + ModelNodes.of(self).get(ModelPathComponent.class).get() + "' are: " + ModelNodes.of(self).get(DescendantNodes.class).getDirectDescendants().stream().filter(it -> it.hasComponent(typeOf(ModelPropertyTag.class))).map(it -> it.get(ModelPathComponent.class).get().getName()).collect(Collectors.joining(", "))));
 	}
 
 	public static Optional<ModelProperty<?>> findProperty(Object self, String name) {
-		return ModelNodes.of(self).get(DescendantNodes.class).getDirectDescendants().stream().filter(it -> it.has(ModelPropertyTag.class)).filter(it -> it.get(ModelPathComponent.class).get().getName().equals(name)).findFirst().map(ModelProperties::newElement);
+		return ModelNodes.of(self).get(DescendantNodes.class).getDirectDescendants().stream().filter(it -> it.hasComponent(typeOf(ModelPropertyTag.class))).filter(it -> it.get(ModelPathComponent.class).get().getName().equals(name)).findFirst().map(ModelProperties::newElement);
 	}
 
 	public static boolean hasProperty(Object self, String name) {
@@ -39,7 +41,7 @@ public final class ModelProperties {
 
 	public static Stream<ModelProperty<?>> getProperties(Object self) {
 		val result = ModelNodes.of(self).get(DescendantNodes.class).getDirectDescendants();
-		return result.stream().filter(it -> it.has(ModelPropertyTag.class)).map(ModelProperties::newElement);
+		return result.stream().filter(it -> it.hasComponent(typeOf(ModelPropertyTag.class))).map(ModelProperties::newElement);
 	}
 
 	private static ModelProperty<?> newElement(ModelNode entity) {

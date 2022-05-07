@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.internal.tags;
 
-import dev.nokee.model.internal.core.ModelComponent;
+public interface ModelTag {
 
-public final class CompileTaskTag implements ModelComponent {
-	private static final CompileTaskTag INSTANCE = new CompileTaskTag();
-
-	public static CompileTaskTag tag() {
-		return INSTANCE;
-	}
 }

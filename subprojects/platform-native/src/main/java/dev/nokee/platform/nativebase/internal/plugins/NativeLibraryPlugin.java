@@ -62,6 +62,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
@@ -116,10 +117,10 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 
 	public static ModelRegistration nativeLibraryVariant(VariantIdentifier identifier, DefaultNativeLibraryComponent component, Project project) {
 		return ModelRegistration.builder()
-			.withComponent(IsVariant.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsVariant.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(NativeVariantTag.tag())
+			.withComponent(tag(NativeVariantTag.class))
 			.withComponent(createdUsing(of(DefaultNativeLibraryVariant.class), () -> {
 				val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));

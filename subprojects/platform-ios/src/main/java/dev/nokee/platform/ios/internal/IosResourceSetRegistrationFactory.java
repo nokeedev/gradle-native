@@ -23,6 +23,7 @@ import dev.nokee.model.internal.type.ModelType;
 import org.gradle.api.model.ObjectFactory;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 public final class IosResourceSetRegistrationFactory {
 	private final ObjectFactory objectFactory;
@@ -35,7 +36,7 @@ public final class IosResourceSetRegistrationFactory {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(ModelType.of(IosResourceSetSpec.class), () -> objectFactory.newInstance(IosResourceSetSpec.class)))
-			.withComponent(LegacySourceSetTag.tag())
+			.withComponent(tag(LegacySourceSetTag.class))
 			.build();
 	}
 }

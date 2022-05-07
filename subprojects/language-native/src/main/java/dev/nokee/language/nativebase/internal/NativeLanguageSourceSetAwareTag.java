@@ -15,12 +15,6 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class NativeLanguageSourceSetAwareTag implements ModelComponent {
-	private static final NativeLanguageSourceSetAwareTag INSTANCE = new NativeLanguageSourceSetAwareTag();
-
-	public static NativeLanguageSourceSetAwareTag tag() {
-		return INSTANCE;
-	}
-}
+public interface NativeLanguageSourceSetAwareTag extends ModelTag {}

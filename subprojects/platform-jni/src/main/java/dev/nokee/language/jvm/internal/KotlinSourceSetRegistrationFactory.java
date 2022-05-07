@@ -19,9 +19,9 @@ import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.KotlinSourceSet;
-import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.tags.ModelTag;
 import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
@@ -35,12 +35,14 @@ import org.gradle.api.tasks.util.PatternFilterable;
 
 import java.lang.reflect.InvocationTargetException;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
+
 public final class KotlinSourceSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		assert identifier.getName().get().equals("kotlin");
 		return ModelRegistration.managedBuilder(identifier, DefaultKotlinSourceSet.class)
-			.withComponent(JvmSourceSetTag.tag())
-			.withComponent(DefaultKotlinSourceSet.Tag.tag())
+			.withComponent(tag(JvmSourceSetTag.class))
+			.withComponent(tag(DefaultKotlinSourceSet.Tag.class))
 			.build();
 	}
 
@@ -91,12 +93,6 @@ public final class KotlinSourceSetRegistrationFactory {
 			return TypeOf.typeOf(KotlinSourceSet.class);
 		}
 
-		public static final class Tag implements ModelComponent {
-			private static final Tag INSTANCE = new Tag();
-
-			public static Tag tag() {
-				return INSTANCE;
-			}
-		}
+		public interface Tag extends ModelTag {}
 	}
 }

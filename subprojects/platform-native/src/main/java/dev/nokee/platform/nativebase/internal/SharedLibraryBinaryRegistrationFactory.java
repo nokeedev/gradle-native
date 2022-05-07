@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
@@ -63,9 +64,9 @@ public final class SharedLibraryBinaryRegistrationFactory {
 	public ModelRegistration create(BinaryIdentifier identifier) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(IsBinary.tag())
-			.withComponent(ConfigurableTag.tag())
-			.withComponent(NativeLanguageSourceSetAwareTag.tag())
+			.withComponent(tag(IsBinary.class))
+			.withComponent(tag(ConfigurableTag.class))
+			.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
 			.withComponent(createdUsing(of(ModelBackedSharedLibraryBinary.class), () -> new ModelBackedSharedLibraryBinary(objectFactory)))
 			.build();
 	}

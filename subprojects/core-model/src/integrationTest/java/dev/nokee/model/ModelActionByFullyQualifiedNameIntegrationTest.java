@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 import static dev.nokee.model.internal.actions.ModelSpec.isEqual;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class ModelActionByFullyQualifiedNameIntegrationTest extends ModelActionIntegrationTester {
@@ -42,11 +43,11 @@ class ModelActionByFullyQualifiedNameIntegrationTest extends ModelActionIntegrat
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(ConfigurableTag.tag()).withComponent(new FullyQualifiedNameComponent(NAME)).build();
+		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new FullyQualifiedNameComponent(NAME)).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(ConfigurableTag.tag()).withComponent(new FullyQualifiedNameComponent(OTHER_NAME)).build();
+		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(new FullyQualifiedNameComponent(OTHER_NAME)).build();
 	}
 }

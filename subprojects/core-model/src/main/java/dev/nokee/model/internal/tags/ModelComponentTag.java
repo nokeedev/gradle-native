@@ -13,8 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal.dependencies;
+package dev.nokee.model.internal.tags;
 
-import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.core.ModelComponentType;
 
-public interface ResolvableDependencyBucketTag extends ModelTag {}
+public final class ModelComponentTag<T extends ModelTag> implements ModelComponent {
+	private final Class<T> tagType;
+
+	public ModelComponentTag(Class<T> tagType) {
+		this.tagType = tagType;
+	}
+
+	@Override
+	public ModelComponentType<?> getComponentType() {
+		return ModelComponentType.componentOf(tagType);
+	}
+}

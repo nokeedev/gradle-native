@@ -15,12 +15,6 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class JvmSourceSetTag implements ModelComponent {
-	private static final JvmSourceSetTag INSTANCE = new JvmSourceSetTag();
-
-	public static JvmSourceSetTag tag() {
-		return INSTANCE;
-	}
-}
+public interface JvmSourceSetTag extends ModelTag {}

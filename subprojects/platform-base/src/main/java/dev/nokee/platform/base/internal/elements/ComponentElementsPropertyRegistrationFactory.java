@@ -23,6 +23,7 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.map;
 
@@ -47,9 +48,9 @@ public final class ComponentElementsPropertyRegistrationFactory {
 
 		public ModelRegistration build() {
 			return ModelRegistration.builder()
-				.withComponent(ModelPropertyTag.instance())
-				.withComponent(ConfigurableTag.tag())
-				.withComponent(ComponentElementsTag.tag())
+				.withComponent(tag(ModelPropertyTag.class))
+				.withComponent(tag(ConfigurableTag.class))
+				.withComponent(tag(ComponentElementsTag.class))
 				.withComponent(new ViewConfigurationBaseComponent(baseEntity))
 				.withComponent(new ComponentElementTypeComponent(elementType))
 				.withComponent(new ModelPropertyTypeComponent(map(of(String.class), elementType)))

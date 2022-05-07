@@ -28,6 +28,7 @@ import dev.nokee.model.internal.names.RelativeNamesComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.ModelNodeBackedViewStrategy;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
@@ -58,10 +59,10 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 	@Override
 	@SuppressWarnings("unchecked")
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ComponentElementsTag.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, tag, elementType, parent) -> {
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, tag, elementType, parent) -> {
 			entity.addComponent(createdUsing(of(ViewAdapter.class), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> ModelStates.finalize(parent.get())))));
 		}));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), (entity, tag, base, elementType) -> {
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), (entity, tag, base, elementType) -> {
 			val property = objects.mapProperty(String.class, (Class<Object>) elementType.get().getConcreteType());
 			entity.addComponent(new GradlePropertyComponent(property));
 			property.set(providers.provider(() -> {

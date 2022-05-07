@@ -15,14 +15,6 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public final class MultiVariantTag implements ModelComponent {
-	private static final MultiVariantTag INSTANCE = new MultiVariantTag();
-
-	private MultiVariantTag() {}
-
-	public static MultiVariantTag tag() {
-		return INSTANCE;
-	}
-}
+public interface MultiVariantTag extends ModelTag {}

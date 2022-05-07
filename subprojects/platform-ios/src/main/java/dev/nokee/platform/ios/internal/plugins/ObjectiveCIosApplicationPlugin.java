@@ -66,6 +66,7 @@ import java.util.Arrays;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
@@ -114,7 +115,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration objectiveCIosApplication(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C iOS application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponent(ObjectiveCSourceSetTag.tag()).build();
+		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponent(tag(ObjectiveCSourceSetTag.class)).build();
 	}
 
 	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication

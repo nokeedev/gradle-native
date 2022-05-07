@@ -26,6 +26,7 @@ import lombok.val;
 import org.gradle.api.Project;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
@@ -38,13 +39,13 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val builder = ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(IsComponent.tag())
-			.withComponent(ConfigurableTag.tag())
+			.withComponent(tag(IsComponent.class))
+			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup))))
 			;
 
 		if (identifier.isMainComponent()) {
-			builder.withComponent(ExcludeFromQualifyingNameTag.tag());
+			builder.withComponent(tag(ExcludeFromQualifyingNameTag.class));
 		}
 
 		return builder.build();

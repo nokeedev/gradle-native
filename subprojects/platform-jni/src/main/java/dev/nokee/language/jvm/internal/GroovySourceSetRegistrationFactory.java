@@ -19,9 +19,9 @@ import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.GroovySourceSet;
-import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
@@ -33,14 +33,15 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.util.PatternFilterable;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.TaskDependencyUtils.of;
 
 public final class GroovySourceSetRegistrationFactory {
 	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
 		assert identifier.getName().get().equals("groovy");
 		return ModelRegistration.managedBuilder(identifier, DefaultGroovySourceSet.class)
-			.withComponent(JvmSourceSetTag.tag())
-			.withComponent(DefaultGroovySourceSet.Tag.tag())
+			.withComponent(tag(JvmSourceSetTag.class))
+			.withComponent(tag(DefaultGroovySourceSet.Tag.class))
 			.build();
 	}
 
@@ -83,12 +84,6 @@ public final class GroovySourceSetRegistrationFactory {
 			return TypeOf.typeOf(GroovySourceSet.class);
 		}
 
-		public static final class Tag implements ModelComponent {
-			private static final Tag INSTANCE = new Tag();
-
-			public static Tag tag() {
-				return INSTANCE;
-			}
-		}
+		public interface Tag extends ModelTag {}
 	}
 }
