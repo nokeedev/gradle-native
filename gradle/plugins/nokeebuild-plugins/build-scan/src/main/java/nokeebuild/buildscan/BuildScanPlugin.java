@@ -51,7 +51,10 @@ class BuildScanPlugin implements Plugin<Settings> {
 		// We prefer using `--scan` flag because...
 		//   We would be left playing a cat & mouse game with the enterprise plugin
 		//   to figure out which version should match our build.
-		settings.getPlugins().withId("com.gradle.enterprise", new ConfigureGradleEnterprisePlugin(settings, new SkipIfBuildScanExplicitlyDisabledViaStartParameters(settings.getStartParameter(), new ConfigureBuildScanExtension(new BuildScanParameters(settings)))));
+		settings.getPlugins().withId("com.gradle.enterprise", new ConfigureGradleEnterprisePlugin(settings, new SkipIfBuildScanExplicitlyDisabledViaStartParameters(settings.getStartParameter(), enterprise -> {
+			enterprise.setAccessKey(providers.systemProperty("gradle.enterprise.accessKey").forUseAtConfigurationTime().orElse(providers.environmentVariable("GRADLE_ENTERPRISE_ACCESS_KEY").forUseAtConfigurationTime()).getOrNull());
+			new ConfigureBuildScanExtension(new BuildScanParameters(settings)).execute(enterprise);
+		})));
 	}
 
 	private class BuildScanParameters implements ConfigureBuildScanExtension.Parameters {
