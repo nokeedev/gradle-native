@@ -132,7 +132,7 @@ jobs:
             -   uses: nokeedev/actions/vagrant-ssh@main
                 with:
                     name: freebsd-12.3
-                    run: ./gradlew --continue --no-daemon :docs:docsTest --no-build-cache -PskipAllAsciinemaTasks -Dgradle.enterprise.agreePublicBuildScanTermOfService=yes
+                    run: ./gradlew --continue --no-daemon :docs:docsTest --no-build-cache -PskipAllAsciinemaTasks "-Dgradle.enterprise.url=https://ge.nokee.dev/" "-Dgradle.enterprise.accessKey=${{ secrets.BUILD_SCAN_ACCESS_KEY }}"
 
     publish-head-milestone:
         if: github.ref == 'refs/heads/master'
