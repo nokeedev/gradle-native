@@ -28,10 +28,14 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
 import static nokeebuild.buildscan.IdeaIdeCustomValueProvider.IDEA_RUNTIME_SYSTEM_PROPERTY_NAMES;
 import static nokeebuild.buildscan.IdeaIdeCustomValueProvider.IDEA_VERSION_SYSTEM_PROPERTY_NAME;
 import static nokeebuild.buildscan.UseGradleEnterpriseBuildScanServerIfConfigured.GRADLE_ENTERPRISE_URL_PROPERTY_NAME;
@@ -52,8 +56,18 @@ class BuildScanPlugin implements Plugin<Settings> {
 		//   We would be left playing a cat & mouse game with the enterprise plugin
 		//   to figure out which version should match our build.
 		settings.getPlugins().withId("com.gradle.enterprise", new ConfigureGradleEnterprisePlugin(settings, new SkipIfBuildScanExplicitlyDisabledViaStartParameters(settings.getStartParameter(), enterprise -> {
-			enterprise.setAccessKey(providers.systemProperty("gradle.enterprise.accessKey").forUseAtConfigurationTime().orElse(providers.environmentVariable("GRADLE_ENTERPRISE_ACCESS_KEY").forUseAtConfigurationTime()).getOrNull());
-			new ConfigureBuildScanExtension(new BuildScanParameters(settings)).execute(enterprise);
+			final BuildScanParameters buildScanParameters = new BuildScanParameters(settings);
+			if (buildScanParameters.serverUrl() != null) {
+				buildScanParameters.accessKeys().stream()
+					.filter(accessKey -> accessKey.startsWith(requireNonNull(buildScanParameters.serverUrl())))
+					.findFirst()
+					.map(it -> it.split("="))
+					.ifPresent(gradleEnterpriseCredentials -> {
+						enterprise.setServer(gradleEnterpriseCredentials[0]);
+						enterprise.setAccessKey(gradleEnterpriseCredentials[1]);
+					});
+			}
+			new ConfigureBuildScanExtension(buildScanParameters).execute(enterprise);
 		})));
 	}
 
@@ -95,6 +109,10 @@ class BuildScanPlugin implements Plugin<Settings> {
 		public String serverUrl() {
 			return providers.systemProperty(GRADLE_ENTERPRISE_URL_PROPERTY_NAME)
 				.forUseAtConfigurationTime().getOrNull();
+		}
+
+		public List<String> accessKeys() {
+			return Optional.ofNullable(providers.systemProperty("gradle.enterprise.accessKey").forUseAtConfigurationTime().orElse(providers.environmentVariable("GRADLE_ENTERPRISE_ACCESS_KEY").forUseAtConfigurationTime()).getOrNull()).map(it -> Arrays.asList(it.split(";"))).orElse(Collections.emptyList());
 		}
 
 		@Override
