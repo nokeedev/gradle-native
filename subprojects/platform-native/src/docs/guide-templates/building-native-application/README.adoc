@@ -8,53 +8,54 @@
 This guide demonstrates how to create a {C application} using the Nokee plugins for Gradle.
 You can follow the guide step-by-step to create a new project from scratch or download the complete project using the links above.
 
-== What we'll build
 
-We’ll generate a {C application} that follows Nokee and Gradle’s conventions.
-
-== What we’ll need
+== Before starting, you will need to have
 
 * A text editor or IDE - for example https://www.jetbrains.com/idea/download/[IntelliJ IDEA]
 * A Java Development Kit (JDK), version 8 or higher - for example https://adoptopenjdk.net/[AdoptOpenJDK]
 * The latest https://gradle.org/install[Gradle distribution]
 * An installed C compiler.
- See which link:TODO[C toolchains] are supported by Nokee.
+See which link:TODO[C toolchains] are supported by Nokee.
 
 == 1. Create a project folder
 
-First, let's create an empty folder for our project and create an empty `settings.gradle` file while mark the root of your project in Gradle.
+ Create in your project folder a new folder for your project and a new empty setting files named 'settings.gradle')
+
+
+This will mark* the root of your project in Gradle.
 
 [source,terminal]
 ----
-$ mkdir demo
-$ cd demo
-$ touch settings.gradle // <1>
+$ mkdir demo           //  <1>
+$ cd demo              //  <2>
+$ touch settings.gradle//  <3>
 ----
+<1> Creates Directory named "demo"
+<2> Changes Directory to "demo"
+<3> Creates an empty Gradle setting(workspace) buildscript
+// TODO setting workspace to review terminology maybe add link to setting.gradle
 
-<1> Create an empty Gradle workspace buildscript
 
-We now have a Gradle project setup.
-Let's configure {C application} capability to the project.
 
-== 2. Configure {C application} capability
+== 2. Add {C application} capability to the project
 
-First, create the project buildscript, e.g. `build.gradle`.
+Create the project buildscript, e.g. `build.gradle`.
 
-build.gradle
+Edit `build.gradle` and add the following :
 
 [source,groovy]
 ----
-plugins {  // <1>
+plugins {                            // <1>
 	id 'dev.nokee.c-application' // <2>
 }
 ----
 
-<1> We use the plugin block to apply plugins that extends the project capability.
-We can apply any Gradle project plugin here.
+<1> Using the plugin block to apply plugins that extends the project capability.
+You can apply any Gradle project plugin here.
 Learn more about the link:TODO[plugins block in Gradle's documentation].
 Refer to each plugin's reference chapter to learn more about each individual plugins.
 
-<2> We apply Nokee's {C application} plugin.
+<2> Apply Nokee's {C application} plugin.
 Learn more about link:TODO[this plugin at its reference chapter].
 
 NOTE: Gradle support two domain specific language (DSL): Groovy DSL and Kotlin DSL.
@@ -63,10 +64,10 @@ Learn more about Gradle DSL language in the link:TODO[Getting started chapter].
 
 == 3. Add {C} code
 
-By default, Nokee uses link:TODO[Gradle's conventional source layout].
-All {C} application code is located at `src/main/c` and its private headers are located at `src/main/headers`.
+By default, Nokee uses a default link:TODO[Gradle's conventional source layout].
+All {C} application code is located at `src/main/c` with private headers located at `src/main/headers`.
 
-Let's add a very simple hello world:
+Add a "hello world" to your application:
 
 .src/main/c/main.c
 [source,c]
@@ -86,17 +87,21 @@ int main(int argc, char** argv) {
 static const char* kHelloWorld = "Hello, World!";
 ----
 
-Next, let's build the application.
 
-== 3. Build the {application}
-
+== 4. Build the {application}
+Build using gradle:
 [source,terminal]
 ----
-$ gradle build
+$ gradle build                  // <1>
 
-BUILD SUCCESSFUL
-7 actionable tasks: 7 executed
+BUILD SUCCESSFUL                // <2>
+7 actionable tasks: 7 executed  // <3>
 ----
+<1> invoke the task with gradle , in this case build
+<2> Status of build which is successful
+<3> Summary of total tasks completed and their dependencies
+
+
 
 The build task compiles the {C} sources, links the object files, and runs the tests, if any.
 The following shows the content of the `build` folder:
@@ -129,7 +134,7 @@ To learn more about this subject, have a look at the transitive dependency sampl
 NOTE: Nokee integrates with several IDEs: [Visual Studio], [Xcode] and [Clion].
 To learn more, have a look at their respective linked documentation to configure those IDEs integration in your project.
 
-== 4. Run the application
+== 5. Run the application
 
 Look inside the `build` folder, and you will notice the appearance of an exe folder.
 By convention, Gradle will place all {applications} in subfolders named according to the component name.
@@ -142,10 +147,17 @@ Now run your newly built executable.
 $ ./build/exe/main/app
 Hello, World!
 ----
+== 6. Test and explore different possibilities & summaries
 
-== Next steps
+//TODO a downloadable example with more complex application code
 
-To learn more about how you can further customize {C application} projects, check out the user manual chapter on link:TODO[Building native projects].
-Check out other guides and samples around common configuration:
+// 2 button at top like other pages
+
+
+== Guides and Customization??
+
+To learn more on how to further customize {C application} projects, check out the user manual chapter on link:TODO[Building native projects].
+
+You also May Be Interested in other guides and samples around common configuration:
 
 TODO: Link to other guides and samples…
