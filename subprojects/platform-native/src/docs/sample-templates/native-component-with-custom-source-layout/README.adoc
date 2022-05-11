@@ -23,7 +23,7 @@ application {
 ----
 <1> Apply the <<plugin:c-application, C application plugin>>.
 <2> Set C sources to include *everything* under `srcs` directory.
-<3> Set private headers to include *everything* under `incs` directory.
+<3> Set private headers to include *everything* under `incs` directory, where `incs` will be the base of the private header search path.
 
 Build the application:
 
