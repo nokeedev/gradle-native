@@ -3,11 +3,12 @@
 :type: sample-chapter
 :tags: sample, {application}, sources, native, {C}, gradle
 :category: {C}
-:description: See how to customize the source layout of {an application} implemented in {C} using the Gradle Nokee plugins.
+:description: See how to override the source layout of {an application} implemented in {C} using the Gradle Nokee plugins.
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-Here is a sample where we configure the source layout of {an application} implemented in {C} with no dependencies and minimal configuration.
+Here is a sample where we override the source layout of {an application} implemented in {C} with no dependencies and minimal configuration.
+
 [source,groovy]
 ----
 plugins {
@@ -33,18 +34,24 @@ $ ./gradlew assemble
 BUILD SUCCESSFUL
 4 actionable tasks: 4 executed
 ----
-Setting the sources layout will exclude the conventional sources location as per example below.
+
+Setting the sources layout using `setFrom` will exclude the conventional sources location as per example below.
+
 [source,terminal]
 ----
 $ mkdir -p src/main/c
-$ echo "broken!" > src/main/c/broken.c
+$ echo "broken!" > src/main/c/broken.c          // <1>
 $ mkdir -p src/main/headers
-$ echo "broken!" > src/main/headers/greeter.h
-$ ./gradlew clean assemble
+$ echo "broken!" > src/main/headers/greeter.h   // <2>
+$ ./gradlew clean assemble                      // <3>
 
 BUILD SUCCESSFUL
 5 actionable tasks: 5 executed
 ----
+<1> Create a broken C source file in conventional location.
+<2> Create a broken header file in conventional location.
+<3> Rebuilding C application ignores those broken source files and succeed.
+
 It can also be applied to other native components and languages : link other example here
 
 For more information, see link:working-with-source-files.adoc[working with source files chapter].
