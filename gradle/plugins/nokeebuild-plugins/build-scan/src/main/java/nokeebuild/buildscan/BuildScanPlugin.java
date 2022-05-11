@@ -59,7 +59,7 @@ class BuildScanPlugin implements Plugin<Settings> {
 			final BuildScanParameters buildScanParameters = new BuildScanParameters(settings);
 			if (buildScanParameters.serverUrl() != null) {
 				buildScanParameters.accessKeys().stream()
-					.filter(accessKey -> accessKey.startsWith(requireNonNull(buildScanParameters.serverUrl())))
+					.filter(accessKey -> accessKey.startsWith(withoutProtocol(requireNonNull(buildScanParameters.serverUrl()))))
 					.findFirst()
 					.map(it -> it.split("="))
 					.ifPresent(gradleEnterpriseCredentials -> {
@@ -69,6 +69,10 @@ class BuildScanPlugin implements Plugin<Settings> {
 			}
 			new ConfigureBuildScanExtension(buildScanParameters).execute(enterprise);
 		})));
+	}
+
+	private static String withoutProtocol(String url) {
+		return url.replace("https://", "");
 	}
 
 	private class BuildScanParameters implements ConfigureBuildScanExtension.Parameters {
