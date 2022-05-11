@@ -1,3 +1,4 @@
+[[plugin:c-application]]
 = C Application
 :jbake-status: published
 :jbake-type: reference_chapter
