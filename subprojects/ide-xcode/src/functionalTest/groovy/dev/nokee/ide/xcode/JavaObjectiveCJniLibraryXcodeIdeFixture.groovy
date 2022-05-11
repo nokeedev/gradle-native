@@ -40,7 +40,7 @@ trait JavaObjectiveCJniLibraryXcodeIdeFixture {
 	String registerJniSharedLibraryTarget() {
 		return """
 			targets.register('JniSharedLibrary') {
-				productReference = library.binaries.withType(${SharedLibraryBinary.simpleName}).elements.map { it.first().linkTask.get().linkedFile.get().asFile.getName() }
+				productReference = library.binaries.withType(${SharedLibraryBinary.simpleName}).elements.flatMap { binaries -> provider { binaries.first().linkTask.get().linkedFile.get().asFile.name } }
 				productType = productTypes.dynamicLibrary
 				buildConfigurations.register('Default') {
 					productLocation = library.binaries.withType(${SharedLibraryBinary.simpleName}).elements.flatMap { it.first().linkTask.get().linkedFile }
