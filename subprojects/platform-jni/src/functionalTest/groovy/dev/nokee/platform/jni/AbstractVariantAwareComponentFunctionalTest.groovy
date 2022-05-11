@@ -21,10 +21,12 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.platform.jni.fixtures.*
 import dev.nokee.platform.jni.fixtures.elements.JniLibraryElement
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Requires
 import spock.lang.Unroll
 import spock.util.environment.OperatingSystem
 
+import static dev.nokee.internal.testing.junit.jupiter.VersionNumber.parse
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem
 
 abstract class AbstractVariantAwareComponentFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {
@@ -127,6 +129,7 @@ No dependencies
 """)
 	}
 
+	@IgnoreIf({ parse(System.getProperty('dev.gradleplugins.defaultGradleVersion')) >= parse("7.5") })
 	def "can see outgoing variants created by variants when executing outgoingVariants"() {
 		given:
 		makeSingleProject()
@@ -181,6 +184,7 @@ Artifacts
 """))
 	}
 
+	@IgnoreIf({ parse(System.getProperty('dev.gradleplugins.defaultGradleVersion')) >= parse("7.5") })
 	def "can view dependency insight for configuration created by variants when executing dependencyInsight"() {
 		given:
 		makeSingleProject()
