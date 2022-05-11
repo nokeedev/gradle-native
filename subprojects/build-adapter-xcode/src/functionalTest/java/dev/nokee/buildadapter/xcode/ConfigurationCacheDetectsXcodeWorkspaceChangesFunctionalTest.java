@@ -18,6 +18,8 @@ package dev.nokee.buildadapter.xcode;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
+import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
+import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
 import dev.nokee.platform.xcode.EmptyXCProject;
 import dev.nokee.platform.xcode.EmptyXCWorkspace;
 import dev.nokee.xcode.workspace.XCFileReference;
@@ -42,6 +44,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
+@RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class ConfigurationCacheDetectsXcodeWorkspaceChangesFunctionalTest {
 	GradleRunner executer;

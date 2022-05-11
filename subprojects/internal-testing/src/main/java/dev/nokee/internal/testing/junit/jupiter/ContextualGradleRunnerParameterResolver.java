@@ -16,14 +16,17 @@
 package dev.nokee.internal.testing.junit.jupiter;
 
 import dev.gradleplugins.runnerkit.GradleRunner;
+import org.junit.jupiter.api.extension.ConditionEvaluationResult;
+import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
 import static dev.gradleplugins.runnerkit.GradleExecutor.gradleTestKit;
+import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
 
-public class ContextualGradleRunnerParameterResolver implements ParameterResolver {
+public class ContextualGradleRunnerParameterResolver implements ParameterResolver, ExecutionCondition {
 	@Override
 	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
 		return parameterContext.getParameter().getType() == GradleRunner.class;
@@ -35,5 +38,19 @@ public class ContextualGradleRunnerParameterResolver implements ParameterResolve
 			System.out.println("Using Gradle v" + System.getProperty("dev.gradleplugins.defaultGradleVersion") + " in '" + it.getWorkingDirectory().getAbsolutePath() + "'");
 			return it;
 		});
+	}
+
+	private static VersionNumber getGradleVersion() {
+		return VersionNumber.parse(System.getProperty("dev.gradleplugins.defaultGradleVersion"));
+	}
+
+	private static final ConditionEvaluationResult ENABLED = ConditionEvaluationResult.enabled(
+		"No @RequiresGradleFeature conditions resulting in 'disabled' execution encountered");
+
+	@Override
+	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
+		return findAnnotation(context.getElement(), RequiresGradleFeature.class)
+			.map(requirements -> requirements.value().isSupported(getGradleVersion()))
+			.orElse(ENABLED);
 	}
 }
