@@ -19,7 +19,6 @@ import dev.nokee.model.internal.core.ModelComponent;
 
 // FIXME: It should not be a model component
 public enum ModelState implements ModelComponent {
-	Initialized, // All projection added
 	Registered, // Node attached to registry
 	// Discovered, // Node discovered, can now register child nodes
 	Realized, // Node is in use
@@ -30,7 +29,6 @@ public enum ModelState implements ModelComponent {
 		return this.compareTo(state) >= 0;
 	}
 
-	public static final class IsAtLeastInitialized implements ModelComponent {}
 	public static final class IsAtLeastRegistered implements ModelComponent {}
 	public static final class IsAtLeastRealized implements ModelComponent {}
 	public static final class IsAtLeastFinalized implements ModelComponent {}

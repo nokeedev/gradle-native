@@ -150,10 +150,6 @@ public final class ModelTestActions {
 			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), Registered);
 		}
 
-		public static CaptureNodeTransitionAction.NodeStateTransition initialized(Object path) {
-			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelState.Initialized);
-		}
-
 		private static ModelPath asPath(Object path) {
 			if (path instanceof ModelPath) {
 				return (ModelPath) path;

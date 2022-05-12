@@ -39,17 +39,8 @@ public class ModelNodes_StateOfTest {
 	void checkEquals() {
 		new EqualsTester()
 			.addEqualityGroup(stateOf(ModelState.Registered), stateOf(ModelState.Registered))
-			.addEqualityGroup(stateOf(ModelState.Initialized))
 			.addEqualityGroup(stateOf(ModelState.Realized))
 			.testEquals();
-	}
-
-	@Test
-	void canCreatePredicateFilterForModelNodeForStateOfInitialized() {
-		val predicate = stateOf(ModelState.Initialized);
-		assertTrue(predicate.test(node()));
-		assertFalse(predicate.test(ModelStates.register(node())));
-		assertFalse(predicate.test(ModelStates.realize(node())));
 	}
 
 	@Test
