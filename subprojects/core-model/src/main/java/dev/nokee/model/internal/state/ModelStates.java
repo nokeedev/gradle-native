@@ -18,6 +18,9 @@ package dev.nokee.model.internal.state;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import lombok.val;
+
+import javax.annotation.Nullable;
 
 public final class ModelStates {
 	private static final ModelState.IsAtLeastRealized REALIZED_TAG = new ModelState.IsAtLeastRealized();
@@ -117,7 +120,12 @@ public final class ModelStates {
 	 * @return {@literal true} if the state of the node is at or later that the specified state or {@literal false} otherwise.
 	 */
 	public static boolean isAtLeast(ModelNode self, ModelState state) {
-		return getState(self).isAtLeast(state);
+		val selfState = getState(self);
+		if (selfState == null) {
+			return false;
+		} else {
+			return selfState.isAtLeast(state);
+		}
 	}
 
 	/**
@@ -126,7 +134,8 @@ public final class ModelStates {
 	 * @param self  the node to query its state, must not be null
 	 * @return a {@link ModelState} representing the state of this model node, never null.
 	 */
+	@Nullable
 	public static ModelState getState(ModelNode self) {
-		return self.find(ModelState.class).orElse(ModelState.Initialized);
+		return self.find(ModelState.class).orElse(null);
 	}
 }

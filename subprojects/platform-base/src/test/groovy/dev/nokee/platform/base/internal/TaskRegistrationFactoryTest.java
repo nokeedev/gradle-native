@@ -23,7 +23,6 @@ import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -39,7 +38,9 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
 class TaskRegistrationFactoryTest extends AbstractPluginTest {
@@ -78,9 +79,9 @@ class TaskRegistrationFactoryTest extends AbstractPluginTest {
 
 	@Test
 	void realizesNodeWhenTaskIsRealized() {
-		assertFalse(ModelStates.getState(ModelNodes.of(element)).isAtLeast(ModelState.Realized));
+		assertFalse(ModelNodes.of(element).has(ModelState.IsAtLeastRealized.class));
 		element.as(Task.class).get();
-		assertTrue(ModelStates.getState(ModelNodes.of(element)).isAtLeast(ModelState.Realized));
+		assertTrue(ModelNodes.of(element).has(ModelState.IsAtLeastRealized.class));
 	}
 
 	@Nested

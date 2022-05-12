@@ -22,6 +22,7 @@ import static dev.nokee.model.internal.state.ModelStates.getState;
 import static dev.nokee.model.internal.state.ModelStates.isAtLeast;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public interface ModelStateTester {
@@ -44,8 +45,8 @@ public interface ModelStateTester {
 		}
 
 		@Test
-		default void defaultsToInitializedState() {
-			assertEquals(getState(subject()), ModelState.Initialized);
+		default void hasNoStateByDefault() {
+			assertNull(getState(subject()));
 		}
 
 		@Test
