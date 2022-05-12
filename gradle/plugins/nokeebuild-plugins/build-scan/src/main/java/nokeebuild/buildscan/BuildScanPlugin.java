@@ -72,7 +72,7 @@ class BuildScanPlugin implements Plugin<Settings> {
 	}
 
 	private static String withoutProtocol(String url) {
-		return url.replace("https://", "");
+		return url.replace("https://", "").replace("/", "");
 	}
 
 	private class BuildScanParameters implements ConfigureBuildScanExtension.Parameters {
