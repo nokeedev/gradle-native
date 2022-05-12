@@ -35,7 +35,7 @@ class ModelSpec_StateAtLeastTest implements ModelSpecTester<StateAtLeastSpec> {
 
 	@Override
 	public DomainObjectIdentity notSatisfyingInput() {
-		return DomainObjectIdentity.of(ModelState.Created);
+		return DomainObjectIdentity.of(ModelState.Initialized);
 	}
 
 	@Test
@@ -45,6 +45,6 @@ class ModelSpec_StateAtLeastTest implements ModelSpecTester<StateAtLeastSpec> {
 
 	@Test
 	void canCreateSpecUsingFactoryMethod() {
-		assertEquals(new StateAtLeastSpec(ModelState.Created), stateAtLeast(ModelState.Created));
+		assertEquals(new StateAtLeastSpec(ModelState.Finalized), stateAtLeast(ModelState.Finalized));
 	}
 }

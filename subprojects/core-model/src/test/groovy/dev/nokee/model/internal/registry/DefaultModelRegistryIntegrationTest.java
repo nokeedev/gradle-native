@@ -33,7 +33,6 @@ import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelRegistration.bridgedInstance;
 import static dev.nokee.model.internal.core.ModelRegistration.unmanagedInstance;
-import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.created;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.initialized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.realized;
 import static dev.nokee.model.internal.core.ModelTestActions.CaptureNodeTransitionAction.registered;
@@ -148,7 +147,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(ModelRegistration.of("y", MyType.class)).as(MyType.class);
 
 		assertThat(action.getAllTransitions(),
-			contains(registered(root()), created("x"), initialized("x"), registered("x"), created("y"), initialized("y"), registered("y")));
+			contains(registered(root()), initialized("x"), registered("x"), initialized("y"), registered("y")));
 	}
 
 	@Test
@@ -159,7 +158,7 @@ public class DefaultModelRegistryIntegrationTest {
 		modelRegistry.register(ModelRegistration.of("x", MyType.class)).as(MyType.class).get();
 
 		assertThat(action.getAllTransitions(),
-			contains(registered(root()), created("x"), initialized("x"), registered("x"), realized(root()), realized("x")));
+			contains(registered(root()), initialized("x"), registered("x"), realized(root()), realized("x")));
 	}
 
 	@Test

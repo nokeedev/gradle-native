@@ -18,12 +18,10 @@ package dev.nokee.model.internal.core;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,10 +152,6 @@ public final class ModelTestActions {
 
 		public static CaptureNodeTransitionAction.NodeStateTransition initialized(Object path) {
 			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelState.Initialized);
-		}
-
-		public static CaptureNodeTransitionAction.NodeStateTransition created(Object path) {
-			return new CaptureNodeTransitionAction.NodeStateTransition(asPath(path), ModelState.Created);
 		}
 
 		private static ModelPath asPath(Object path) {

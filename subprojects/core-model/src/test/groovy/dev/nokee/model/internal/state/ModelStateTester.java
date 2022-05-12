@@ -20,17 +20,14 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.state.ModelStates.getState;
 import static dev.nokee.model.internal.state.ModelStates.isAtLeast;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public interface ModelStateTester {
 	ModelNode subject();
 
 	interface None extends ModelStateTester {
-		@Test
-		default void doesNotHaveCreatedTag() {
-			assertFalse(subject().has(ModelState.IsAtLeastCreated.class));
-		}
-
 		@Test
 		default void doesNotHaveInitializedTag() {
 			assertFalse(subject().has(ModelState.IsAtLeastInitialized.class));
@@ -47,8 +44,8 @@ public interface ModelStateTester {
 		}
 
 		@Test
-		default void defaultsToCreatedState() {
-			assertEquals(getState(subject()), ModelState.Created);
+		default void defaultsToInitializedState() {
+			assertEquals(getState(subject()), ModelState.Initialized);
 		}
 
 		@Test
@@ -57,52 +54,9 @@ public interface ModelStateTester {
 		}
 
 		@Test
-		default void isAtMostCreated() {
-			assertTrue(isAtLeast(subject(), ModelState.Created));
+		default void isAtMostInitialized() {
+			assertTrue(isAtLeast(subject(), ModelState.Initialized));
 
-			assertFalse(isAtLeast(subject(), ModelState.Initialized));
-			assertFalse(isAtLeast(subject(), ModelState.Registered));
-			assertFalse(isAtLeast(subject(), ModelState.Realized));
-			assertFalse(isAtLeast(subject(), ModelState.Finalized));
-		}
-	}
-
-	interface Created extends ModelStateTester {
-		@Test
-		default void hasCreatedTagComponent() {
-			assertTrue(subject().has(ModelState.IsAtLeastCreated.class));
-		}
-
-		@Test
-		default void doesNotHaveInitializedTag() {
-			assertFalse(subject().has(ModelState.IsAtLeastInitialized.class));
-		}
-
-		@Test
-		default void doesNotHaveRegisteredTag() {
-			assertFalse(subject().has(ModelState.IsAtLeastRegistered.class));
-		}
-
-		@Test
-		default void doesNotHaveRealizedTag() {
-			assertFalse(subject().has(ModelState.IsAtLeastRealized.class));
-		}
-
-		@Test
-		default void hasCreatedState() {
-			assertEquals(getState(subject()), ModelState.Created);
-		}
-
-		@Test
-		default void hasStateComponent() {
-			assertTrue(subject().has(ModelState.class));
-		}
-
-		@Test
-		default void isAtMostCreated() {
-			assertTrue(isAtLeast(subject(), ModelState.Created));
-
-			assertFalse(isAtLeast(subject(), ModelState.Initialized));
 			assertFalse(isAtLeast(subject(), ModelState.Registered));
 			assertFalse(isAtLeast(subject(), ModelState.Realized));
 			assertFalse(isAtLeast(subject(), ModelState.Finalized));
@@ -110,11 +64,6 @@ public interface ModelStateTester {
 	}
 
 	interface Initialized extends ModelStateTester {
-		@Test
-		default void hasCreatedTagComponent() {
-			assertTrue(subject().has(ModelState.IsAtLeastCreated.class));
-		}
-
 		@Test
 		default void hasInitializedTagComponent() {
 			assertTrue(subject().has(ModelState.IsAtLeastInitialized.class));
@@ -142,7 +91,6 @@ public interface ModelStateTester {
 
 		@Test
 		default void isAtMostInitialized() {
-			assertTrue(isAtLeast(subject(), ModelState.Created));
 			assertTrue(isAtLeast(subject(), ModelState.Initialized));
 
 			assertFalse(isAtLeast(subject(), ModelState.Registered));
@@ -152,11 +100,6 @@ public interface ModelStateTester {
 	}
 
 	interface Registered extends ModelStateTester {
-		@Test
-		default void hasCreatedTagComponent() {
-			assertTrue(subject().has(ModelState.IsAtLeastCreated.class));
-		}
-
 		@Test
 		default void hasInitializedTagComponent() {
 			assertTrue(subject().has(ModelState.IsAtLeastInitialized.class));
@@ -184,7 +127,6 @@ public interface ModelStateTester {
 
 		@Test
 		default void isAtMostRegistered() {
-			assertTrue(isAtLeast(subject(), ModelState.Created));
 			assertTrue(isAtLeast(subject(), ModelState.Initialized));
 			assertTrue(isAtLeast(subject(), ModelState.Registered));
 
@@ -194,11 +136,6 @@ public interface ModelStateTester {
 	}
 
 	interface Realized extends ModelStateTester {
-		@Test
-		default void hasCreatedTagComponent() {
-			assertTrue(subject().has(ModelState.IsAtLeastCreated.class));
-		}
-
 		@Test
 		default void hasInitializedTagComponent() {
 			assertTrue(subject().has(ModelState.IsAtLeastInitialized.class));
@@ -226,7 +163,6 @@ public interface ModelStateTester {
 
 		@Test
 		default void isAtMostRealized() {
-			assertTrue(isAtLeast(subject(), ModelState.Created));
 			assertTrue(isAtLeast(subject(), ModelState.Initialized));
 			assertTrue(isAtLeast(subject(), ModelState.Registered));
 			assertTrue(isAtLeast(subject(), ModelState.Realized));
@@ -236,11 +172,6 @@ public interface ModelStateTester {
 	}
 
 	interface Finalized extends ModelStateTester {
-		@Test
-		default void hasCreatedTagComponent() {
-			assertTrue(subject().has(ModelState.IsAtLeastCreated.class));
-		}
-
 		@Test
 		default void hasInitializedTagComponent() {
 			assertTrue(subject().has(ModelState.IsAtLeastInitialized.class));
@@ -273,7 +204,6 @@ public interface ModelStateTester {
 
 		@Test
 		default void isAtMostFinalized() {
-			assertTrue(isAtLeast(subject(), ModelState.Created));
 			assertTrue(isAtLeast(subject(), ModelState.Initialized));
 			assertTrue(isAtLeast(subject(), ModelState.Registered));
 			assertTrue(isAtLeast(subject(), ModelState.Realized));
