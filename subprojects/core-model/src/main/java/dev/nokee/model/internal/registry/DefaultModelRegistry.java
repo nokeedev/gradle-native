@@ -87,9 +87,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					node.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
 					node.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
 					node.addComponent(new BindManagedProjectionService(instantiator));
-					if (!node.has(ElementNameComponent.class)) {
-						node.addComponent(new ElementNameComponent(path.get().getName()));
-					}
 				}
 			}
 		}));
@@ -98,6 +95,11 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 				path.get().getParent().ifPresent(parentPath -> {
 					entity.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
 				});
+			}
+		}));
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+			if (!entity.has(ElementNameComponent.class) && !path.get().equals(ModelPath.root())) {
+				entity.addComponent(new ElementNameComponent(path.get().getName()));
 			}
 		}));
 		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
