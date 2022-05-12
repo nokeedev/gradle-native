@@ -116,11 +116,16 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		rootNode = ModelStates.register(createRootNode());
 	}
 
+	private ModelNode newEntity() {
+		val entity = new ModelNode();
+		entity.addComponent(new ModelNodeListenerComponent(nodeStateListener));
+		entities.add(entity);
+		return entity;
+	}
+
 	private ModelNode createRootNode() {
 		val path = ModelPath.root();
-		val entity = new ModelNode();
-		entities.add(entity);
-		entity.addComponent(new ModelNodeListenerComponent(nodeStateListener));
+		val entity = newEntity();
 		entity.addComponent(new ModelPathComponent(path));
 		return entity;
 	}
@@ -136,8 +141,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public ModelNode instantiate(ModelRegistration registration) {
-		val node = new ModelNode(nodeStateListener);
-		entities.add(node);
+		val node = newEntity();
 		return newNode(node, registration);
 	}
 
