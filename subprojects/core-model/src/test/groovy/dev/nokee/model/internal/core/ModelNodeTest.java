@@ -124,10 +124,10 @@ class ModelNodeTest {
 		val parentNode = node();
 		val childNode = childNode(parentNode);
 		ModelStates.realize(childNode);
-		assertAll(() -> {
-			assertThat(ModelStates.getState(parentNode), equalTo(ModelState.Realized));
-			assertThat(ModelStates.getState(childNode), equalTo(ModelState.Realized));
-		});
+		assertAll(
+			() -> assertThat(ModelStates.getState(parentNode), equalTo(ModelState.Realized)),
+			() -> assertThat(ModelStates.getState(childNode), equalTo(ModelState.Realized))
+		);
 	}
 
 	@Test

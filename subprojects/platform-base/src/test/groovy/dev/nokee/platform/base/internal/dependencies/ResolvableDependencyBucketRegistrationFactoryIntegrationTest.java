@@ -18,15 +18,12 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -43,13 +40,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.*;
+import static dev.nokee.internal.testing.ConfigurationMatchers.dependencies;
+import static dev.nokee.internal.testing.ConfigurationMatchers.description;
+import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
+import static dev.nokee.internal.testing.ConfigurationMatchers.hasConfiguration;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.ProjectMatchers.extensions;
 import static dev.nokee.internal.testing.ProjectMatchers.publicType;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
-import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
@@ -57,8 +56,16 @@ import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.gradle.api.reflect.TypeOf.typeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
 class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends AbstractPluginTest {
@@ -169,13 +176,13 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 
 		@Test
 		void doesNotRealizeNodeWhenConfigurationIsRealized() {
-			assertFalse(ModelStates.getState(ModelNodes.of(element)).isAtLeast(Realized));
+			assertFalse(ModelNodes.of(element).has(ModelState.IsAtLeastRealized.class));
 		}
 
 		@Test
 		void realizeNodeWhenConfigurationIsResolved() {
 			subject().resolve();
-			assertTrue(ModelStates.getState(ModelNodes.of(element)).isAtLeast(Realized));
+			assertTrue(ModelNodes.of(element).has(ModelState.IsAtLeastRealized.class));
 		}
 	}
 
@@ -214,7 +221,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 			bucket.getAsConfiguration().getAttributes().attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
 		});
 		ModelNodeUtils.get(ModelNodes.of(bucketProvider), Configuration.class).resolve();
-		assertThat(ModelStates.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
+		assertTrue(ModelNodes.of(bucketProvider).has(ModelState.IsAtLeastRealized.class));
 	}
 
 	@Nested
