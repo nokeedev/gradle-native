@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 
 public final class ModelStates {
 	private static final ModelState.IsAtLeastRealized REALIZED_TAG = new ModelState.IsAtLeastRealized();
-	private static final ModelState.IsAtLeastInitialized INITIALIZED_TAG = new ModelState.IsAtLeastInitialized();
 	private static final ModelState.IsAtLeastRegistered REGISTERED_TAG = new ModelState.IsAtLeastRegistered();
 	private static final ModelState.IsAtLeastFinalized FINALIZED_TAG = new ModelState.IsAtLeastFinalized();
 
@@ -61,23 +60,8 @@ public final class ModelStates {
 		}
 	}
 
-	public static ModelNode initialize(ModelNode self) {
-		if (!self.has(ModelState.IsAtLeastInitialized.class)) {
-			if (self.has(ModelState.class)) {
-				if (!self.get(ModelState.class).isAtLeast(ModelState.Initialized)) {
-					self.setComponent(ModelState.class, ModelState.Initialized);
-				}
-			} else {
-				self.addComponent(ModelState.Initialized);
-			}
-			self.addComponent(INITIALIZED_TAG);
-		}
-		return self;
-	}
-
 	public static ModelNode register(ModelNode self) {
 		if (!self.has(ModelState.IsAtLeastRegistered.class)) {
-			initialize(self);
 			if (!isAtLeast(self, ModelState.Registered)) {
 				if (!self.has(Registering.class)) {
 					self.addComponent(new Registering());

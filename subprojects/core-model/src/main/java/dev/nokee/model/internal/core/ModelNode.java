@@ -225,7 +225,6 @@ public final class ModelNode {
 			});
 			entity.addComponent(new ElementNameComponent(path.getName()));
 			entity.addComponent(new DisplayNameComponent(path.toString()));
-			ModelStates.initialize(entity);
 			return entity;
 		}
 
