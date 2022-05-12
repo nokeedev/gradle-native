@@ -90,13 +90,17 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					if (!node.has(ElementNameComponent.class)) {
 						node.addComponent(new ElementNameComponent(path.get().getName()));
 					}
-					path.get().getParent().ifPresent(parentPath -> {
-						node.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
-					});
 					if (!node.has(DisplayNameComponent.class)) {
 						node.addComponent(new DisplayNameComponent(path.get().toString()));
 					}
 				}
+			}
+		}));
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+			if (!entity.has(ParentComponent.class) && !path.get().equals(ModelPath.root())) {
+				path.get().getParent().ifPresent(parentPath -> {
+					entity.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
+				});
 			}
 		}));
 		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
