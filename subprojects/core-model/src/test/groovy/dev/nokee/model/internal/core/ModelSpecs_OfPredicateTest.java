@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.base.Predicates.alwaysTrue;
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
-import static dev.nokee.model.internal.core.ModelNodes.withPath;
+import static dev.nokee.model.internal.core.ModelNodes.withParent;
 import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.model.internal.core.ModelSpecs.of;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ModelSpecs_OfPredicateTest {
-	private final ModelSpec subject = of(withPath(path("po.ta.to")));
+	private final ModelSpec subject = of(withParent(path("po.ta")));
 
 	@Test
 	void noOpinionOnPath() {
@@ -64,7 +64,7 @@ class ModelSpecs_OfPredicateTest {
 	void checkEquals() {
 		new EqualsTester()
 			.addEqualityGroup(of(alwaysTrue()), of(alwaysTrue()))
-			.addEqualityGroup(of(withPath(path("po.ta.to"))))
+			.addEqualityGroup(of(withParent(path("po.ta.to"))))
 			.testEquals();
 	}
 }
