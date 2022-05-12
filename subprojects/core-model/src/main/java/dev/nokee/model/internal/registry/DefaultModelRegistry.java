@@ -85,8 +85,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					}
 
 					node.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
-					node.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
-					node.addComponent(new BindManagedProjectionService(instantiator));
 				}
 			}
 		}));
@@ -118,6 +116,9 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	private ModelNode newEntity() {
 		val entity = new ModelNode();
+		entity.addComponent(elementFactory);
+		entity.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
+		entity.addComponent(new BindManagedProjectionService(instantiator));
 		entity.addComponent(new ModelNodeListenerComponent(nodeStateListener));
 		entities.add(entity);
 		return entity;
@@ -151,7 +152,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	private ModelNode newNode(ModelNode entity, ModelRegistration registration) {
-		entity.addComponent(elementFactory);
 		for (Object component : registration.getComponents()) {
 			if (component instanceof ModelProjection) {
 				entity.addComponent(bindingService.bindManagedProjectionWithInstantiator((ModelProjection) component));
