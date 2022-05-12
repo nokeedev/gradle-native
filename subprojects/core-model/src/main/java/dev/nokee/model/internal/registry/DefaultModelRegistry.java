@@ -73,7 +73,8 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 			if (!path.get().equals(ModelPath.root()) && (!path.get().getParent().isPresent() || !nodes.containsKey(path.get().getParent().get()))) {
 				throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path.get()));
 			}
-
+		}));
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
 			entity.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
 		}));
 		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
