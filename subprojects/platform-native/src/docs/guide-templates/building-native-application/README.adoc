@@ -19,19 +19,18 @@ See which link:TODO[C toolchains] are supported by Nokee.
 
 == 1. Create a project folder
 
- Create in your project folder a new folder for your project and a new empty setting files named 'settings.gradle')
-
+Create in your project folder a new folder for your project and a new empty setting files named 'settings.gradle')
 
 This will mark* the root of your project in Gradle.
 
 [source,terminal]
 ----
-$ mkdir demo           //  <1>
-$ cd demo              //  <2>
-$ touch settings.gradle//  <3>
+$ mkdir demo            # <1>
+$ cd demo               # <2>
+$ touch settings.gradle # <3>
 ----
-<1> Creates Directory named "demo"
-<2> Changes Directory to "demo"
+<1> Creates directory named "demo"
+<2> Changes directory to "demo"
 <3> Creates an empty Gradle setting(workspace) buildscript
 // TODO setting workspace to review terminology maybe add link to setting.gradle
 
@@ -45,8 +44,8 @@ Edit `build.gradle` and add the following :
 
 [source,groovy]
 ----
-plugins {                            // <1>
-	id 'dev.nokee.c-application' // <2>
+plugins {                           // <1>
+    id 'dev.nokee.c-application'    // <2>
 }
 ----
 
@@ -92,16 +91,14 @@ static const char* kHelloWorld = "Hello, World!";
 Build using gradle:
 [source,terminal]
 ----
-$ gradle build                  // <1>
+$ gradle build                  # <1>
 
-BUILD SUCCESSFUL                // <2>
-7 actionable tasks: 7 executed  // <3>
+BUILD SUCCESSFUL                # <2>
+7 actionable tasks: 7 executed  # <3>
 ----
 <1> invoke the task with gradle , in this case build
 <2> Status of build which is successful
 <3> Summary of total tasks completed and their dependencies
-
-
 
 The build task compiles the {C} sources, links the object files, and runs the tests, if any.
 The following shows the content of the `build` folder:
@@ -124,14 +121,13 @@ $ tree ./build
     |- options.txt
 ----
 <1> The built executable
-<2> All object files are built here
-<3> The `tmp` folder is a temporary workspace for all Gradle tasks.
+<2> All object files, typically .o and .obj, are built here
+<3> The `tmp` folder is a temporary directory for all Gradle tasks.
 You can find `options.txt` file containing all flags for both compile and link tasks.
 
-NOTE: Dependencies on other projects isn’t covered in this guide.
-To learn more about this subject, have a look at the transitive dependency sample for a demonstration.
+NOTE: To learn more about dependencies on other projects not covered, have a look at the transitive dependency sample for a demonstration.
 
-NOTE: Nokee integrates with several IDEs: [Visual Studio], [Xcode] and [Clion].
+NOTE: Nokee integrates with several IDEs (Integrated Development Environments): [Visual Studio], [Xcode] and [Clion].
 To learn more, have a look at their respective linked documentation to configure those IDEs integration in your project.
 
 == 5. Run the application
@@ -147,7 +143,10 @@ Now run your newly built executable.
 $ ./build/exe/main/app
 Hello, World!
 ----
+
 == 6. Test and explore different possibilities & summaries
+// Maybe: To further explore (Nokee metaverse and the NFTs)
+// NFT -> Nokee Fruit Tomato
 
 //TODO a downloadable example with more complex application code
 
