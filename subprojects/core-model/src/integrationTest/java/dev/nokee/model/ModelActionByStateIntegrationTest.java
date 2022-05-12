@@ -37,6 +37,6 @@ class ModelActionByStateIntegrationTest extends ModelActionIntegrationTester {
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(ModelState.Created).build();
+		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(ModelState.Initialized).build();
 	}
 }

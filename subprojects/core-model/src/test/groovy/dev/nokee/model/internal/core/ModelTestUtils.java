@@ -179,7 +179,7 @@ public final class ModelTestUtils {
 		builder.withListener(new ModelNodeListener() {
 			@Override
 			public void projectionAdded(ModelNode node, ModelComponent newComponent) {
-				if (newComponent instanceof ModelState.IsAtLeastCreated) {
+				if (newComponent instanceof ModelState.IsAtLeastInitialized) {
 					nodeProvider.setValue(node);
 				}
 				val size = actions.size(); // avoid replaying new actions

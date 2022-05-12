@@ -20,27 +20,12 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 
 public final class ModelStates {
-	private static final ModelState.IsAtLeastCreated CREATED_TAG = new ModelState.IsAtLeastCreated();
 	private static final ModelState.IsAtLeastRealized REALIZED_TAG = new ModelState.IsAtLeastRealized();
 	private static final ModelState.IsAtLeastInitialized INITIALIZED_TAG = new ModelState.IsAtLeastInitialized();
 	private static final ModelState.IsAtLeastRegistered REGISTERED_TAG = new ModelState.IsAtLeastRegistered();
 	private static final ModelState.IsAtLeastFinalized FINALIZED_TAG = new ModelState.IsAtLeastFinalized();
 
 	private ModelStates() {}
-
-	public static ModelNode create(ModelNode self) {
-		if (!self.has(ModelState.IsAtLeastCreated.class)) {
-			if (!self.has(ModelState.class) || !isAtLeast(self, ModelState.Created)) {
-				if (self.has(ModelState.class)) {
-					self.setComponent(ModelState.class, ModelState.Created);
-				} else {
-					self.addComponent(ModelState.Created);
-				}
-			}
-			self.addComponent(CREATED_TAG);
-		}
-		return self;
-	}
 
 	/**
 	 * Realize this node.
@@ -75,7 +60,6 @@ public final class ModelStates {
 
 	public static ModelNode initialize(ModelNode self) {
 		if (!self.has(ModelState.IsAtLeastInitialized.class)) {
-			create(self);
 			if (self.has(ModelState.class)) {
 				if (!self.get(ModelState.class).isAtLeast(ModelState.Initialized)) {
 					self.setComponent(ModelState.class, ModelState.Initialized);
@@ -143,6 +127,6 @@ public final class ModelStates {
 	 * @return a {@link ModelState} representing the state of this model node, never null.
 	 */
 	public static ModelState getState(ModelNode self) {
-		return self.find(ModelState.class).orElse(ModelState.Created);
+		return self.find(ModelState.class).orElse(ModelState.Initialized);
 	}
 }
