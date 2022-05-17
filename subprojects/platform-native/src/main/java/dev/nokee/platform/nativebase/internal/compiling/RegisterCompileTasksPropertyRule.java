@@ -71,6 +71,7 @@ final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.Model
 			.mergeFrom(factory.newProperty().baseRef(entity).elementType(of(SourceCompile.class)).build())
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
 			.build());
+		entity.addComponent(new CompileTasksPropertyComponent(ModelNodes.of(compileTasks)));
 		entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
 	}
 
