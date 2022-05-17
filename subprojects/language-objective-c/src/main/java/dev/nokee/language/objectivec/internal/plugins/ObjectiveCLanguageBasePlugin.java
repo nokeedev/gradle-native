@@ -64,7 +64,7 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_defaultObjectiveCFactory", new DefaultObjectiveCSourceSetRegistrationFactory(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(ObjectiveCSourceSetTag.class))).findFirst().ifPresent(ignored -> {
-				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultObjectiveCSourceSetRegistrationFactory.class).create(identifier.get()));
+				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder().withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(DefaultObjectiveCSourceSetRegistrationFactory.class).create(identifier.get())).build());
 				entity.addComponent(new ObjectiveCSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));

@@ -30,6 +30,8 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
@@ -89,7 +91,7 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 		@SuppressWarnings("unchecked")
 		val implementationType = taskType((ModelType<? extends HasLinkTask<? extends ObjectLink, ? extends ObjectLink>>) projection.getType());
 
-		val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("link"), implementationType, identifier.get()), implementationType).build());
+		val linkTask = registry.register(ModelRegistration.builder().withComponent(new ParentComponent(entity)).mergeFrom(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("link"), implementationType, identifier.get()), implementationType).build()).build());
 		linkTask.configure(implementationType, configureDescription("Links the %s.", identifier.get()));
 		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
