@@ -66,7 +66,6 @@ import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentContainerAdapter;
-import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.IsTask;
@@ -113,8 +112,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply("lifecycle-base");
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
-
-		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory(project.getExtensions().getByType(ModelLookup.class)));
 
 		project.getExtensions().add("__nokee_declarableBucketFactory", new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 		project.getExtensions().add("__nokee_resolvableBucketFactory", new ResolvableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));

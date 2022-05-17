@@ -22,15 +22,23 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
-import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.TaskViewAdapter;
+import dev.nokee.platform.base.internal.ViewAdapter;
+import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import lombok.val;
+import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Provider;
@@ -40,23 +48,29 @@ import java.nio.file.Path;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerUtils.onlyInstanceOf;
 import static dev.nokee.utils.TransformerUtils.stream;
 
 final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelComponentTag<IsBinary>> {
+	private final ComponentElementsPropertyRegistrationFactory factory = new ComponentElementsPropertyRegistrationFactory();
 	private static final ModelType<TaskView<SourceCompile>> TASK_VIEW_MODEL_TYPE = ModelType.of(new TypeOf<TaskView<SourceCompile>>() {});
 	private final ModelRegistry registry;
-	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
 
-	public RegisterCompileTasksPropertyRule(ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory) {
+	public RegisterCompileTasksPropertyRule(ModelRegistry registry) {
 		super(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class));
 		this.registry = registry;
-		this.tasksPropertyRegistrationFactory = tasksPropertyRegistrationFactory;
 	}
 
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> tag) {
-		val compileTasks = registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier.get(), "compileTasks"), SourceCompile.class));
+		val compileTasks = registry.register(ModelRegistration.builder()
+			.withComponent(new ParentComponent(entity))
+			.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "compileTasks")))
+			.mergeFrom(factory.newProperty().baseRef(entity).elementType(of(SourceCompile.class)).build())
+			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
+			.build());
 		entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
 	}
 
