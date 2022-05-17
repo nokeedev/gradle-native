@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -54,7 +55,7 @@ public final class RuntimeLibrariesConfigurationRegistrationRule extends ModelAc
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> ignored, ModelProjection projection) {
 		val runtimeLibraries = registry.register(ModelRegistration.builder().withComponent(new ParentComponent(entity)).mergeFrom(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("runtimeLibraries"), identifier.get()))).withComponent(tag(RuntimeLibrariesDependencyBucketTag.class)).build());
-		runtimeLibraries.configure(Configuration.class, forNativeRuntimeUsage());
+		registry.instantiate(ModelAction.configure(ModelNodes.of(runtimeLibraries).getId(), Configuration.class, forNativeRuntimeUsage()));
 		entity.addComponent(new RuntimeLibrariesConfiguration(ModelNodes.of(runtimeLibraries)));
 		entity.addComponent(new DependentRuntimeLibraries(runtimeLibraries.as(Configuration.class).flatMap(it -> it.getIncoming().getFiles().getElements())));
 	}
