@@ -69,7 +69,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 			entity.addComponent(tag(IsLanguageSourceSet.class));
 			entity.addComponent(tag(ConfigurableTag.class));
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(LanguageSourceSet.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsLanguageSourceSet.class, NamingScheme::prefixTo));
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedSourceAwareComponentMixIn<? extends ComponentSources, ? extends ComponentSources>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {

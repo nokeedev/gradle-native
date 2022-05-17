@@ -67,8 +67,11 @@ import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentContainerAdapter;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.IsTask;
+import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -178,11 +181,11 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.build());
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Artifact.class, NamingScheme::prefixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Task.class, NamingScheme::suffixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Component.class, NamingScheme::prefixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(DependencyBucket.class, NamingScheme::prefixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Variant.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsBinary.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsTask.class, NamingScheme::suffixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsComponent.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsDependencyBucket.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsVariant.class, NamingScheme::prefixTo));
 
 		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
 
