@@ -17,7 +17,6 @@ package dev.nokee.platform.nativebase.internal.compiling;
 
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
@@ -26,6 +25,6 @@ import org.gradle.api.plugins.PluginAware;
 public class NativeCompileCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterCompileTasksPropertyRule(target.getExtensions().getByType(ModelRegistry.class), target.getExtensions().getByType(ComponentTasksPropertyRegistrationFactory.class))));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterCompileTasksPropertyRule(target.getExtensions().getByType(ModelRegistry.class))));
 	}
 }
