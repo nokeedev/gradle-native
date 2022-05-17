@@ -109,8 +109,10 @@ import dev.nokee.platform.jni.internal.JniJarArtifactTag;
 import dev.nokee.platform.jni.internal.JniJarBinaryRegistrationFactory;
 import dev.nokee.platform.jni.internal.JniLibraryComponentInternal;
 import dev.nokee.platform.jni.internal.JniLibraryInternal;
+import dev.nokee.platform.jni.internal.JvmImplementationConfigurationComponent;
 import dev.nokee.platform.jni.internal.JvmJarArtifactComponent;
 import dev.nokee.platform.jni.internal.JvmJarBinaryRegistrationFactory;
+import dev.nokee.platform.jni.internal.JvmRuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.jni.internal.ModelBackedJniJarBinary;
 import dev.nokee.platform.jni.internal.ModelBackedJvmJarBinary;
 import dev.nokee.platform.jni.internal.MultiVariantTag;
@@ -217,6 +219,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier.get())));
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmImplementation"), identifier.get())));
 			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmRuntimeOnly"), identifier.get())));
+			entity.addComponent(new JvmImplementationConfigurationComponent(ModelNodes.of(implementation)));
+			entity.addComponent(new JvmRuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
+
 			project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 				private boolean alreadyExecuted = false;
 
