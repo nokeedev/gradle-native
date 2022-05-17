@@ -188,6 +188,7 @@ import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskPropertie
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
+import static dev.nokee.utils.ConfigurationUtils.beforeLocking;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
@@ -289,15 +290,16 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				val sourceSet = registry.register(project.getExtensions().getByType(KotlinSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "kotlin")));
 				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
-
-			project.getPluginManager().withPlugin("java", appliedPlugin -> {
+		})));
+		project.getPluginManager().withPlugin("java", appliedPlugin -> {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmImplementationConfigurationComponent.class), ModelComponentReference.of(JvmRuntimeOnlyConfigurationComponent.class), (entity, identifier, implementation, runtimeOnly) -> {
 				// We use getByName instead of named as it doesn't really matter because Configuration are always realized
 				//   but also we have nested configure actions
 				// We should avoid extendsFrom outside the Universal Model
-				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("implementation"), identifier.get())), configureExtendsFrom(implementation.as(Configuration.class)));
-				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier.get())), configureExtendsFrom(runtimeOnly.as(Configuration.class)));
-			});
-		})));
+				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("implementation"), identifier.get())), beforeLocking(configureExtendsFrom((Callable<?>) () -> ModelNodeUtils.get(implementation.get(), Configuration.class))));
+				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier.get())), beforeLocking(configureExtendsFrom((Callable<?>) () -> ModelNodeUtils.get(runtimeOnly.get(), Configuration.class))));
+			}));
+		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, jvmJar, apiElements) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			registry.instantiate(configure(apiElements.get().getId(), Configuration.class, configuration -> {
