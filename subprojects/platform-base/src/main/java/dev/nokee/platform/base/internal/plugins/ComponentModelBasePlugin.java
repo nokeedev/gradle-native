@@ -226,8 +226,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		})));
 
 		// ComponentFromEntity<GradlePropertyComponent> on BaseNamePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, property, elementName) -> {
-			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(elementName.get().toString());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), (entity, baseName) -> {
+			((Property<String>) baseName.get().get(GradlePropertyComponent.class).get()).convention(project.provider(() -> {
+				return entity.find(ParentComponent.class).map(ParentComponent::get)
+					.flatMap(it -> it.find(BaseNamePropertyComponent.class))
+					.map(it -> ((Provider<String>) it.get().get(GradlePropertyComponent.class).get()).getOrNull())
+					.orElseGet(() -> entity.find(ElementNameComponent.class).map(it -> it.get().toString()).orElse(null));
+			}));
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(TaskRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
