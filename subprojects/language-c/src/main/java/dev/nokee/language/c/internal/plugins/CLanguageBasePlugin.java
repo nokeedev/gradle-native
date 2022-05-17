@@ -61,11 +61,10 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_cSourceSetFactory", new CSourceSetRegistrationFactory());
 
-		val registrationFactory = new DefaultCSourceSetRegistrationFactory(project.getExtensions().getByType(CSourceSetRegistrationFactory.class));
-		project.getExtensions().add("__nokee_defaultCSourceSetFactory", registrationFactory);
+		project.getExtensions().add("__nokee_defaultCSourceSetFactory", new DefaultCSourceSetRegistrationFactory(project.getExtensions().getByType(CSourceSetRegistrationFactory.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(CSourceSetTag.class))).findFirst().ifPresent(ignored -> {
-				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(identifier.get()));
+				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder().withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(DefaultCSourceSetRegistrationFactory.class).create(identifier.get())).build());
 				entity.addComponent(new CSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));
