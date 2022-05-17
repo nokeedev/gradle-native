@@ -67,6 +67,7 @@ import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentContainerAdapter;
 import dev.nokee.platform.base.internal.ComponentVariantsProperty;
+import dev.nokee.platform.base.internal.DevelopmentVariantProperty;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
@@ -232,7 +233,8 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(TaskRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasDevelopmentVariantMixIn.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
-			modeRegistry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "developmentVariant"), developmentVariantType((ModelType<? extends HasDevelopmentVariant<? extends Variant>>) tag.getType())));
+			val developmentVariantProperty = modeRegistry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "developmentVariant"), developmentVariantType((ModelType<? extends HasDevelopmentVariant<? extends Variant>>) tag.getType())));
+			entity.addComponent(new DevelopmentVariantProperty(ModelNodes.of(developmentVariantProperty)));
 		})));
 	}
 
