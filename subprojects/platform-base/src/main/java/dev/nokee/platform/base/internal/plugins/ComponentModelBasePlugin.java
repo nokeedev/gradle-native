@@ -66,6 +66,7 @@ import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentContainerAdapter;
+import dev.nokee.platform.base.internal.ComponentVariantsProperty;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsComponent;
@@ -142,11 +143,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier.get(), "buildVariants"), buildVariants.get()));
 			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
 
-			registry.register(ModelRegistration.builder()
+			val variantsProperty = registry.register(ModelRegistration.builder()
 				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "variants")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(parent.get()).elementType(of(variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType()))).build())
 				.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends Variant>>() {})))))
 				.build());
+			entity.addComponent(new ComponentVariantsProperty(ModelNodes.of(variantsProperty)));
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
 			// TODO: Each plugins should just map the build variants into the variants.
