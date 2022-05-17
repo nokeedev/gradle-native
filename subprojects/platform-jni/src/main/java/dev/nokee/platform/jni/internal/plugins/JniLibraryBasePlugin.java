@@ -74,7 +74,9 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
+import dev.nokee.platform.base.internal.ComponentVariantsProperty;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
+import dev.nokee.platform.base.internal.DevelopmentVariantProperty;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -254,11 +256,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 			entity.addComponent(new RuntimeElementsConfiguration(ModelNodes.of(runtimeElements)));
 
-			val variants = ModelElements.of(entity).property("variants").as(of(VariantView.class));
-
-			val developmentVariantProperty = ModelElements.of(entity).property("developmentVariant");
-			((ModelProperty<JniLibrary>) developmentVariantProperty).asProperty(property(of(JniLibrary.class))).convention(project.provider(new BuildableDevelopmentVariantConvention(variants.as(VariantView.class).flatMap(VariantView::getElements)::get)));
-
 			val assembleTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier.get()), Task.class).build());
 			assembleTask.configure(Task.class, configureBuildGroup());
 			assembleTask.configure(Task.class, configureDescription("Assembles the outputs of %s.", identifier.get()));
@@ -291,6 +288,10 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantProperty.class), ModelComponentReference.of(ComponentVariantsProperty.class), (entity, developmentVariant, variants) -> {
+			val developmentVariantProperty = ModelElements.of(developmentVariant.get());
+			((ModelProperty<JniLibrary>) developmentVariantProperty).asProperty(property(of(JniLibrary.class))).convention(project.provider(new BuildableDevelopmentVariantConvention(ModelElements.of(variants.get()).as(VariantView.class).flatMap(VariantView::getElements)::get)));
+		}));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmImplementationConfigurationComponent.class), ModelComponentReference.of(JvmRuntimeOnlyConfigurationComponent.class), (entity, identifier, implementation, runtimeOnly) -> {
 				// We use getByName instead of named as it doesn't really matter because Configuration are always realized
