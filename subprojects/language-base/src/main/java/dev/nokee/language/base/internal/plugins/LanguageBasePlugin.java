@@ -27,6 +27,7 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.NamingScheme;
 import dev.nokee.model.internal.names.NamingSchemeSystem;
@@ -38,6 +39,7 @@ import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.View;
+import dev.nokee.platform.base.internal.ComponentSourcesProperty;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
@@ -75,7 +77,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedSourceAwareComponentMixIn<? extends ComponentSources, ? extends ComponentSources>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			Class<ComponentSources> type = (Class<ComponentSources>) sourcesType((ModelType<SourceAwareComponent<? extends ComponentSources>>)projection.getType());
-			registry.register(ModelRegistration.builder()
+			val sourcesProperty = registry.register(ModelRegistration.builder()
 				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "sources")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(LanguageSourceSet.class)).build())
 				.withComponent(createdUsing(of(type), () -> {
@@ -95,6 +97,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 					}
 				}))
 				.build());
+			entity.addComponent(new ComponentSourcesProperty(ModelNodes.of(sourcesProperty)));
 		})));
 	}
 
