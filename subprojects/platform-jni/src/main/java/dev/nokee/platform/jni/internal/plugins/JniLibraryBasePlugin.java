@@ -514,6 +514,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
 			val sharedLibrary = registry.register(ModelRegistration.builder().mergeFrom(project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("sharedLibrary", "shared library binary")))).withComponent(tag(ExcludeFromQualifyingNameTag.class)).withComponent(new BuildVariantComponent(identifier.getBuildVariant())).build());
+			entity.addComponent(new SharedLibraryComponent(ModelNodes.of(sharedLibrary)));
 			val sharedLibraryTask = registry.register(project.getExtensions().getByType(TaskRegistrationFactory.class).create(TaskIdentifier.of(identifier, "sharedLibrary"), Task.class).build());
 			sharedLibraryTask.configure(Task.class, configureBuildGroup());
 			sharedLibraryTask.configure(Task.class, configureDescription("Assembles the shared library binary of %s.", identifier));
