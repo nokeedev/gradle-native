@@ -33,7 +33,7 @@ $ ./gradlew assemble
 BUILD SUCCESSFUL
 4 actionable tasks: 4 executed
 ----
-Setting the sources layout will exclude the conventional sources location as per example below.
+Setting the source layout will exclude the conventional source location as per example below.
 [source,terminal]
 ----
 $ mkdir -p src/main/c
