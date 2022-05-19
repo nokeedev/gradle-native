@@ -76,7 +76,6 @@ import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentVariantsProperty;
-import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.DevelopmentVariantProperty;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsVariant;
@@ -554,6 +553,25 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
+		})));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
+			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
+				.withComponent(new ParentComponent(entity))
+				.withComponent(tag(JniJarArtifactTag.class))
+				.withComponent(tag(ExcludeFromQualifyingNameTag.class))
+				.build());
+			registry.instantiate(configure(jniJar.getId(), JniJarBinary.class, binary -> {
+				binary.getJarTask().configure(task -> {
+					task.getArchiveBaseName().set(project.provider(() -> {
+						val baseName = ModelProperties.getProperty(entity, "baseName").as(String.class).get();
+						return baseName + ((VariantIdentifier) identifier.get()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
+					}));
+				});
+			}));
+			ModelStates.register(jniJar);
+			entity.addComponent(new JniJarArtifactComponent(jniJar));
 		})));
 
 		val unbuildableWarningService = (Provider<UnbuildableWarningService>) project.getGradle().getSharedServices().getRegistrations().getByName("unbuildableWarningService").getService();
