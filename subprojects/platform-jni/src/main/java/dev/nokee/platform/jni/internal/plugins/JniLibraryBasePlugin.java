@@ -60,6 +60,7 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -153,6 +154,7 @@ import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
@@ -190,7 +192,6 @@ import static dev.nokee.platform.jni.internal.plugins.NativeCompileTaskPropertie
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
-import static dev.nokee.utils.ConfigurationUtils.beforeLocking;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
@@ -293,12 +294,14 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			((ModelProperty<JniLibrary>) developmentVariantProperty).asProperty(property(of(JniLibrary.class))).convention(project.provider(new BuildableDevelopmentVariantConvention(ModelElements.of(variants.get()).as(VariantView.class).flatMap(VariantView::getElements)::get)));
 		}));
 		project.getPluginManager().withPlugin("java", appliedPlugin -> {
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmImplementationConfigurationComponent.class), ModelComponentReference.of(JvmRuntimeOnlyConfigurationComponent.class), (entity, identifier, implementation, runtimeOnly) -> {
-				// We use getByName instead of named as it doesn't really matter because Configuration are always realized
-				//   but also we have nested configure actions
-				// We should avoid extendsFrom outside the Universal Model
-				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("implementation"), identifier.get())), beforeLocking(configureExtendsFrom((Callable<?>) () -> ModelNodeUtils.get(implementation.get(), Configuration.class))));
-				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier.get())), beforeLocking(configureExtendsFrom((Callable<?>) () -> ModelNodeUtils.get(runtimeOnly.get(), Configuration.class))));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(JvmImplementationConfigurationComponent.class), ModelComponentReference.of(JvmRuntimeOnlyConfigurationComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, identifier, implementation, runtimeOnly, name) -> {
+				NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class)).registerIfAbsent(name.get().toString()).configure(sourceSet -> {
+					// We use getByName instead of named as it doesn't really matter because Configuration are always realized
+					//   but also we have nested configure actions
+					// We should avoid extendsFrom outside the Universal Model
+					project.getConfigurations().getByName(sourceSet.getImplementationConfigurationName(), configureExtendsFrom((Callable<?>) () -> ModelNodeUtils.get(implementation.get(), Configuration.class)));
+					project.getConfigurations().getByName(sourceSet.getRuntimeOnlyConfigurationName(), configureExtendsFrom((Callable<?>) () -> ModelNodeUtils.get(runtimeOnly.get(), Configuration.class)));
+				});
 			}));
 		});
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, jvmJar, apiElements) -> {
