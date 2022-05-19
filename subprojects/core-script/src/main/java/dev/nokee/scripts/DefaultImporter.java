@@ -15,6 +15,8 @@
  */
 package dev.nokee.scripts;
 
+import com.google.common.reflect.TypeParameter;
+import com.google.common.reflect.TypeToken;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionContainer;
@@ -55,7 +57,8 @@ public final class DefaultImporter {
 	 * @return this default importer, never null.
 	 */
 	public <T> DefaultImporter defaultImport(Class<T> type) {
-		val defaultImportExtensionType = new TypeOf<Class<T>>() {};
+		val defaultImportExtensionType = TypeOf.typeOf(new TypeToken<Class<T>>() {}.where(new TypeParameter<T>() {}, type).getType());
+//		val defaultImportExtensionType = new TypeOf<Class<T>>() {};
 		try {
 			extensionContainer.add(defaultImportExtensionType, type.getSimpleName(), type);
 		} catch (Throwable ex) {
