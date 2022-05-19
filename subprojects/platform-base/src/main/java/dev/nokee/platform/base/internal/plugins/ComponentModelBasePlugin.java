@@ -66,6 +66,7 @@ import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentContainerAdapter;
+import dev.nokee.platform.base.internal.ComponentDependenciesProperty;
 import dev.nokee.platform.base.internal.ComponentVariantsProperty;
 import dev.nokee.platform.base.internal.DevelopmentVariantProperty;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
@@ -171,7 +172,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedDependencyAwareComponentMixIn<? extends ComponentDependencies, ? extends ComponentDependencies>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 			Class<ComponentDependencies> type = (Class<ComponentDependencies>) dependenciesType((ModelType<DependencyAwareComponent<? extends ComponentDependencies>>)projection.getType());
-			modeRegistry.register(ModelRegistration.builder()
+			val dependenciesProperty = modeRegistry.register(ModelRegistration.builder()
 				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "dependencies")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(DependencyBucket.class)).build())
 				.withComponent(createdUsing(of(type), () -> {
@@ -182,6 +183,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 					}
 				}))
 				.build());
+			entity.addComponent(new ComponentDependenciesProperty(ModelNodes.of(dependenciesProperty)));
 		})));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsBinary.class, NamingScheme::prefixTo));
