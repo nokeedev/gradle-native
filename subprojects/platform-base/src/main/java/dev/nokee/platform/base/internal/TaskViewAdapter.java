@@ -93,4 +93,9 @@ public /*final*/ class TaskViewAdapter<T extends Task> implements TaskView<T> {
 	public Provider<List<T>> filter(Spec<? super T> spec) {
 		return delegate.filter(spec);
 	}
+
+	@Override
+	public String toString() {
+		return delegate.toString();
+	}
 }
