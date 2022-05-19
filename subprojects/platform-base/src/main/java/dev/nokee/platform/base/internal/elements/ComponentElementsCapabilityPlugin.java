@@ -61,7 +61,14 @@ public abstract class ComponentElementsCapabilityPlugin<T extends ExtensionAware
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ComponentElementTypeComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, tag, elementType, parent) -> {
 			entity.addComponent(createdUsing(of(ViewAdapter.class), () -> new ViewAdapter<>(elementType.get().getConcreteType(), new ModelNodeBackedViewStrategy(providers, () -> {
-				entity.find(ComponentElementsDiscoveryComponent.class).map(ComponentElementsDiscoveryComponent::get).orElse(() -> ModelStates.finalize(parent.get())).run();
+				ModelStates.finalize(parent.get());
+				entity.find(ComponentElementsDiscoveryComponent.class).map(ComponentElementsDiscoveryComponent::get).ifPresent(Runnable::run);
+				entity.find(ComponentElementsDiscoveryTagComponent.class).map(ComponentElementsDiscoveryTagComponent::get).ifPresent(discoverTag -> {
+					val baseRef = entity.get(ViewConfigurationBaseComponent.class).get();
+					target.getExtensions().getByType(ModelLookup.class).query(it -> {
+						return it.find(AncestorsComponent.class).map(t -> t.get().contains(AncestorRef.of(baseRef))).orElse(false) && it.hasComponent(ModelTags.typeOf(discoverTag));
+					}).forEach(ModelStates::discover);
+				});
 			}))));
 		}));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ComponentElementsTag.class), ModelComponentReference.of(ViewConfigurationBaseComponent.class), ModelComponentReference.of(ComponentElementTypeComponent.class), (entity, tag, base, elementType) -> {
