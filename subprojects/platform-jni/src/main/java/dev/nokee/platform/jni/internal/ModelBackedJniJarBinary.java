@@ -50,4 +50,9 @@ public class ModelBackedJniJarBinary implements JniJarBinary, ModelNodeAware, Ha
 	public TypeOf<?> getPublicType() {
 		return TypeOf.typeOf(JniJarBinary.class);
 	}
+
+	@Override
+	public String toString() {
+		return "JNI JAR binary '" + getName() + "'";
+	}
 }
