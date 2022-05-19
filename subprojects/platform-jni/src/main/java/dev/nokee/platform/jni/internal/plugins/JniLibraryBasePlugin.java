@@ -77,6 +77,7 @@ import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentVariantsProperty;
 import dev.nokee.platform.base.internal.DevelopmentVariantProperty;
+import dev.nokee.platform.base.internal.HasOutgoingDependencyBucketTag;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -213,6 +214,17 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_jvmJarBinaryFactory", new JvmJarBinaryRegistrationFactory());
 		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory(project));
 		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory(project));
+
+		// We have to discover the outgoing dependency bucket during the after evaluate because...
+		//   Gradle builds a list of configuration metadata for the consumers.
+		//   We can't `addLater` to the `ConfigurationContainer` because there are already `all` action registered.
+		project.afterEvaluate(proj -> {
+			project.getExtensions().getByType(ModelLookup.class).query(entity -> {
+				return entity.hasComponent(ModelTags.typeOf(HasOutgoingDependencyBucketTag.class));
+			}).forEach(it -> {
+				ModelStates.finalize(it); // FIXME: We should only finalize the component and allow outgoing configuration to be created immediately instead of on discovered
+			});
+		});
 
 		// Component rules
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
