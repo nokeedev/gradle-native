@@ -1,4 +1,3 @@
-
 plugins {
 	id("dev.nokee.c-application")									// <1>
 }
