@@ -1,3 +1,4 @@
+[[plugin:objective-cpp-application]]
 = Objective-{cpp} Application
 :jbake-status: published
 :jbake-type: reference_chapter

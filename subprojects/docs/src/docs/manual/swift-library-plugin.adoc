@@ -1,3 +1,4 @@
+[[plugin:swift-library]]
 = Swift Library
 :jbake-status: published
 :jbake-type: reference_chapter
