@@ -16,9 +16,11 @@
 package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableSet;
+import lombok.EqualsAndHashCode;
 
 import java.util.Set;
 
+@EqualsAndHashCode
 public final class XCProject {
 	private final ImmutableSet<String> targetNames;
 
