@@ -3,6 +3,7 @@ plugins {
 	id 'nokeebuild.gradle-plugin-unit-test'
 	id 'antlr'
 	id 'maven-publish'
+	id 'java-test-fixtures'
 }
 
 dependencies {

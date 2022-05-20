@@ -62,6 +62,9 @@ public final class PBXProj {
 		}
 
 		public PBXProj build() {
+			if (objects == null) {
+				objects = PBXObjects.builder().build();
+			}
 			return new PBXProj(objects, rootObject);
 		}
 	}
