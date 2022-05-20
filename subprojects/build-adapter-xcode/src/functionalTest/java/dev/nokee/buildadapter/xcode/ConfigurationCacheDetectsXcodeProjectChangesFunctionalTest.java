@@ -28,12 +28,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.buildadapter.xcode.GradleTestSnippets.doSomethingVerifyTask;
+import static dev.nokee.xcode.utils.PropertyListTestUtils.writeAsciiPlistTo;
+import static dev.nokee.xcode.utils.PropertyListTestUtils.writeXmlPlistTo;
+import static dev.nokee.xcode.utils.XCWorkspaceDataTestUtils.emptyWorkspaceData;
+import static dev.nokee.xcode.utils.XCWorkspaceDataTestUtils.writeTo;
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
 @RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
@@ -52,7 +61,32 @@ class ConfigurationCacheDetectsXcodeProjectChangesFunctionalTest {
 	}
 
 	@Test
-	void alwaysReuseConfigurationCacheWhenNoChanges() {
+	void reuseConfigurationCacheWhenNoChanges() {
 		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+	}
+
+	@Test
+	void reuseConfigurationCacheWhenProjectPbxprojChangeInNonMeaningfulWay() throws IOException {
+		// We serialize the project model hence, any change that doesn't change the model will be no-op.
+		Files.write(testDirectory.resolve("XcodeSwiftApp.xcodeproj/project.pbxproj"), Collections.singletonList(""), StandardOpenOption.APPEND);
+		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+	}
+
+	@Test
+	void reuseConfigurationCacheByIgnoringEmbeddedWorkspaceContentChanges() throws IOException {
+		writeTo(emptyWorkspaceData(), testDirectory.resolve("XcodeSwiftApp.xcodeproj/project.xcworkspace/contents.xcworkspacedata"));
+		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+	}
+
+	@Test
+	void reuseConfigurationCacheByIgnoringIDEWorkspaceChecksChanges() throws IOException {
+		writeXmlPlistTo(emptyMap(), testDirectory.resolve("XcodeSwiftApp.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist"));
+		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+	}
+
+	@Test
+	void doesNotReuseConfigurationCacheWhenProjectPbxprojChangeInMeaningfulWay() throws IOException {
+		writeAsciiPlistTo(emptyMap(), testDirectory.resolve("XcodeSwiftApp.xcodeproj/project.pbxproj"));
+		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 }
