@@ -1,33 +1,126 @@
-= {C Application} Custom Source Layout Globing
-:summary: Set custom source layout Globing for a {C application}.
+:plugin-name: c-application
+
+ifeval::["{plugin-name}" == "c-application"]
+:c-application: C application
+:an-application: an application
+:c: C
+:file-extension: c
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "cpp-application"]
+:c-application: {cpp} application
+:an-application: an application
+:c: {cpp}
+:file-extension: cpp
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "objective-c-application"]
+:c-application: Objective-C application
+:an-application: an application
+:c: Objective-C
+:file-extension: m
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "objective-cpp-application"]
+:c-application: Objective-{cpp} application
+:an-application: an application
+:c: Objective-{cpp}
+:file-extension: mm
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "swift-application"]
+:c-application: Swift application
+:an-application: an application
+:c: Swift
+:file-extension: swift
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "c-library"]
+:c-application: C library
+:an-application: a library
+:c: C
+:file-extension: c
+:application: library
+endif::[]
+
+ifeval::["{plugin-name}" == "cpp-library"]
+:c-application: {cpp} library
+:an-application: a library
+:c: {cpp}
+:file-extension: cpp
+:application: library
+endif::[]
+
+ifeval::["{plugin-name}" == "objective-c-library"]
+:c-application: Objective-C library
+:an-application: a library
+:c: Objective-C
+:file-extension: m
+:application: library
+endif::[]
+
+ifeval::["{plugin-name}" == "objective-cpp-library"]
+:c-application: Objective-{cpp} library
+:an-application: a library
+:c: Objective-{cpp}
+:file-extension: mm
+:application: library
+endif::[]
+
+ifeval::["{plugin-name}" == "swift-library"]
+:c-application: Swift library
+:an-application: a library
+:c: Swift
+:file-extension: swift
+:application: library
+endif::[]
+
+:ref-plugin: <<plugin:{plugin-name}, {c-application} plugin>>
+
+ifndef::c[ERROR: Please define `plugin-name` attribute.]
+
+= {c-application} Custom Source Layout Globing
+:summary: Set custom source layout Globing for a {c-application}.
 :type: sample-chapter
 :tags: sample, {application}, sources, native, {C}, gradle
 :category: {C}
-:description: See how to set the source layout globing of {an application} implemented in {C} using the Gradle Nokee plugins.
+:description: See how to set the source layout globing of {an-application} implemented in {C} using the Gradle Nokee plugins.
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-Here is a sample where we set the source layout globing of {an application} implemented in {C} with no dependencies and minimal configuration.
+Here is a sample where we set the source layout globing of {an-application} implemented in {C} with no dependencies and minimal configuration.
 
+====
+[.multi-language-sample]
+=====
+.build.gradle
 [source,groovy]
 ----
-plugins {
-	id 'dev.nokee.c-application'    // <1>
-}
-
-application {
-    cSources.setFrom(fileTree('srcs') { include '**/*.c' })// <2>
-}
-
+include::groovy-dsl/build.{plugin-name}.gradle[]
 ----
-<1> Apply the <<plugin:c-application, C application plugin>>.
-<2> Set C sources to *include* all files with c extension recursively from the `srcs` directory.
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.{plugin-name}.gradle.kts[]
+----
+=====
+====
+<1> Apply the {ref-plugin}.
+<2> Set {C} sources to *include* all files with `{file-extension}` extension recursively from the `srcs` directory.
 
 
 NOTE: More filter patterns exist such as *exclude*, *matching*, etc.
 Refer to the Gradle documentation for more information.
 
-Demonstration below where we see the application builds and runs:
+Demonstration below where we see the {application} builds and runs:
 
 [source,terminal]
 ----
@@ -41,14 +134,14 @@ Demonstration when including a file that doesn't meet the source filters:
 
 [source,terminal]
 ----
-$ echo "broken!" > srcs/a_broken.potato           // <1>
-$ ./gradlew clean assemble                      // <2>
+$ echo "broken!" > srcs/a_broken.potato     # <1>
+$ ./gradlew clean assemble                  # <2>
 
-BUILD SUCCESSFUL                                // <3>
+BUILD SUCCESSFUL                            # <3>
 4 actionable tasks: 4 executed
 ----
-<1> Create a broken C source file in conventional location with no C extension.
-<2> Rebuilding C application using task `clean`
+<1> Create a broken {C} source file in conventional location with no `{file-extension}` extension.
+<2> Rebuilding {c-application} using task `clean`
 <3> The result ignores the incorrect *.potato* source file and succeed.
 
 
