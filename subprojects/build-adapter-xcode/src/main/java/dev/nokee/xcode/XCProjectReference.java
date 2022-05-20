@@ -18,7 +18,6 @@ package dev.nokee.xcode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
-import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.project.PBXProjReader;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -29,7 +28,6 @@ import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 public final class XCProjectReference implements Serializable {
