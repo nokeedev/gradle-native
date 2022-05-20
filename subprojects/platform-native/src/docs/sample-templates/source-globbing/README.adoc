@@ -7,7 +7,7 @@ ifeval::["{plugin-name}" == "c-application"]
 :c-application: C application
 :an-application: an application
 :c: C
-:file-extension: c
+:source-file-extension: c
 :header-file-extension: h
 :application: application
 endif::[]
@@ -16,7 +16,7 @@ ifeval::["{plugin-name}" == "cpp-application"]
 :c-application: {cpp} application
 :an-application: an application
 :c: {cpp}
-:file-extension: cpp
+:source-file-extension: cpp
 :header-file-extension: hpp
 :application: application
 endif::[]
@@ -25,7 +25,7 @@ ifeval::["{plugin-name}" == "objective-c-application"]
 :c-application: Objective-C application
 :an-application: an application
 :c: Objective-C
-:file-extension: m
+:source-file-extension: m
 :header-file-extension: h
 :application: application
 endif::[]
@@ -34,7 +34,7 @@ ifeval::["{plugin-name}" == "objective-cpp-application"]
 :c-application: Objective-{cpp} application
 :an-application: an application
 :c: Objective-{cpp}
-:file-extension: mm
+:source-file-extension: mm
 :header-file-extension: hpp
 :application: application
 endif::[]
@@ -43,7 +43,7 @@ ifeval::["{plugin-name}" == "swift-application"]
 :c-application: Swift application
 :an-application: an application
 :c: Swift
-:file-extension: swift
+:source-file-extension: swift
 :application: application
 endif::[]
 
@@ -51,7 +51,7 @@ ifeval::["{plugin-name}" == "c-library"]
 :c-application: C library
 :an-application: a library
 :c: C
-:file-extension: c
+:source-file-extension: c
 :header-file-extension: h
 :application: library
 endif::[]
@@ -60,7 +60,7 @@ ifeval::["{plugin-name}" == "cpp-library"]
 :c-application: {cpp} library
 :an-application: a library
 :c: {cpp}
-:file-extension: cpp
+:source-file-extension: cpp
 :header-file-extension: hpp
 :application: library
 endif::[]
@@ -69,7 +69,7 @@ ifeval::["{plugin-name}" == "objective-c-library"]
 :c-application: Objective-C library
 :an-application: a library
 :c: Objective-C
-:file-extension: m
+:source-file-extension: m
 :header-file-extension: h
 :application: library
 endif::[]
@@ -78,7 +78,7 @@ ifeval::["{plugin-name}" == "objective-cpp-library"]
 :c-application: Objective-{cpp} library
 :an-application: a library
 :c: Objective-{cpp}
-:file-extension: mm
+:source-file-extension: mm
 :header-file-extension: hpp
 :application: library
 endif::[]
@@ -87,7 +87,7 @@ ifeval::["{plugin-name}" == "swift-library"]
 :c-application: Swift library
 :an-application: a library
 :c: Swift
-:file-extension: swift
+:source-file-extension: swift
 :application: library
 endif::[]
 
@@ -128,7 +128,7 @@ include::kotlin-dsl/build.{plugin-name}.gradle.kts[]
 =====
 ====
 <1> Apply the {ref-plugin}.
-<2> Set {C} sources to *include* all files with `{file-extension}` extension recursively from the `srcs` directory.
+<2> Set {C} sources to *include* all files with `{source-file-extension}` extension recursively from the `srcs` directory.
 ifdef::header-file-extension[]
 <3> Set private headers to *include* all files with `{header-file-extension}` extension recursively from the `hdrs` directory.
 ifeval::["{entry-point}" == "library"]
@@ -160,10 +160,6 @@ $ ./gradlew clean assemble                  # <2>
 BUILD SUCCESSFUL                            # <3>
 4 actionable tasks: 4 executed
 ----
-<1> Create a broken {C} source file in conventional location with no `{file-extension}` extension.
+<1> Create a broken {C} source file in conventional location with no `{source-file-extension}` extension.
 <2> Rebuilding {c-application} using task `clean`
 <3> The result ignores the incorrect *.potato* source file and succeed.
-
-
-
-
