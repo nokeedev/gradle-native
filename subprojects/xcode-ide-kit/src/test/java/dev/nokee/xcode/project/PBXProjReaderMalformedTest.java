@@ -17,7 +17,6 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.AsciiPropertyListReader;
 import lombok.val;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -27,8 +26,6 @@ import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PBXProjReaderMalformedTest {
 
