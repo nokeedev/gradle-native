@@ -90,6 +90,9 @@ ifndef::c[ERROR: Please define `plugin-name` attribute.]
 :tags: sample, {application}, sources, native, {C}, gradle
 :category: {C}
 :description: See how to set the source layout globing of {an-application} implemented in {C} using the Gradle Nokee plugins.
+:ref-configurable-file-tree: https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileTree.html
+:ref-configurable-file-tree-exclude: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html#exclude-java.lang.String...-
+:ref-configurable-file-tree-matching: https://docs.gradle.org/current/javadoc/org/gradle/api/file/FileTree.html#matching-groovy.lang.Closure-
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
@@ -117,8 +120,8 @@ include::kotlin-dsl/build.{plugin-name}.gradle.kts[]
 <2> Set {C} sources to *include* all files with `{file-extension}` extension recursively from the `srcs` directory.
 
 
-NOTE: More filter patterns exist such as *exclude*, *matching*, etc.
-Refer to the Gradle documentation for more information.
+NOTE: More filter patterns exist such as link:{ref-configurable-file-tree-exclude}[*exclude*], link:{ref-configurable-file-tree-matching}[*matching*], etc.
+Refer to the link:{ref-configurable-file-tree}[Gradle documentation for more information].
 
 Demonstration below where we see the {application} builds and runs:
 
