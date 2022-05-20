@@ -140,7 +140,7 @@ endif::[]
 NOTE: More filter patterns exist such as link:{ref-configurable-file-tree-exclude}[*exclude*], link:{ref-configurable-file-tree-matching}[*matching*], etc.
 Refer to the link:{ref-configurable-file-tree}[Gradle documentation for more information].
 
-Demonstration below where we see the {application} builds and runs:
+Demonstration below where we see the {application} builds:
 
 [source,terminal]
 ----
