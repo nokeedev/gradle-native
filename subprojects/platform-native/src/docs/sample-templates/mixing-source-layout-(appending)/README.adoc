@@ -16,15 +16,16 @@ plugins {
 }
 
 application {
-//  cSources.from('src/main/c') // this is by default initially set by convention
-    cSources.from('sources/application.c') // <2>
-    cSources.from('sources/greeter.c') // <3>
+//  cSources.from('src/main/c') // default initially set by convention <2>
+    cSources.from('sources/application.c') // <3>
+    cSources.from('sources/greeter.c') // <4>
 }
 
 ----
 <1> Apply the <<plugin:c-application, C application plugin>>.
-<2> Set C sources under main.c
-<3> Set C sources greeter.c that will append to previous command (2)
+<2> Set C sources under main.c, commented to show this is set by convention and doesn't need to be implemented.
+<3> Set C sources under application.c
+<4> Set C sources under greeter.c that will append to previous command (3)
 
 NOTE:  that from can take any type of source layout (globing, cherry-picking, generated).
 
