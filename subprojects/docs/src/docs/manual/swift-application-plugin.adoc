@@ -1,3 +1,4 @@
+[[plugin:swift-application]]
 = Swift Application
 :jbake-status: published
 :jbake-type: reference_chapter

@@ -1,3 +1,4 @@
+[[plugin:objective-c-library]]
 = Objective-C Library
 :jbake-status: published
 :jbake-type: reference_chapter

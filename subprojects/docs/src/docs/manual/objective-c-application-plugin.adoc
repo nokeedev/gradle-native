@@ -1,3 +1,4 @@
+[[plugin:objective-c-application]]
 = Objective-C Application
 :jbake-status: published
 :jbake-type: reference_chapter

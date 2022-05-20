@@ -1,3 +1,4 @@
+[[plugin:cpp-library]]
 = {cpp} Library
 :jbake-status: published
 :jbake-type: reference_chapter
