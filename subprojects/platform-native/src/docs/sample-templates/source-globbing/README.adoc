@@ -1,4 +1,7 @@
-:plugin-name: c-application
+:language: c
+:entry-point: application
+
+:plugin-name: {language}-{entry-point}
 
 ifeval::["{plugin-name}" == "c-application"]
 :c-application: C application
@@ -7,7 +10,6 @@ ifeval::["{plugin-name}" == "c-application"]
 :file-extension: c
 :header-file-extension: h
 :application: application
-:entry-point: application
 endif::[]
 
 ifeval::["{plugin-name}" == "cpp-application"]
@@ -17,7 +19,6 @@ ifeval::["{plugin-name}" == "cpp-application"]
 :file-extension: cpp
 :header-file-extension: hpp
 :application: application
-:entry-point: application
 endif::[]
 
 ifeval::["{plugin-name}" == "objective-c-application"]
@@ -27,7 +28,6 @@ ifeval::["{plugin-name}" == "objective-c-application"]
 :file-extension: m
 :header-file-extension: h
 :application: application
-:entry-point: application
 endif::[]
 
 ifeval::["{plugin-name}" == "objective-cpp-application"]
@@ -37,7 +37,6 @@ ifeval::["{plugin-name}" == "objective-cpp-application"]
 :file-extension: mm
 :header-file-extension: hpp
 :application: application
-:entry-point: application
 endif::[]
 
 ifeval::["{plugin-name}" == "swift-application"]
@@ -46,7 +45,6 @@ ifeval::["{plugin-name}" == "swift-application"]
 :c: Swift
 :file-extension: swift
 :application: application
-:entry-point: application
 endif::[]
 
 ifeval::["{plugin-name}" == "c-library"]
@@ -56,7 +54,6 @@ ifeval::["{plugin-name}" == "c-library"]
 :file-extension: c
 :header-file-extension: h
 :application: library
-:entry-point: library
 endif::[]
 
 ifeval::["{plugin-name}" == "cpp-library"]
@@ -66,7 +63,6 @@ ifeval::["{plugin-name}" == "cpp-library"]
 :file-extension: cpp
 :header-file-extension: hpp
 :application: library
-:entry-point: library
 endif::[]
 
 ifeval::["{plugin-name}" == "objective-c-library"]
@@ -76,7 +72,6 @@ ifeval::["{plugin-name}" == "objective-c-library"]
 :file-extension: m
 :header-file-extension: h
 :application: library
-:entry-point: library
 endif::[]
 
 ifeval::["{plugin-name}" == "objective-cpp-library"]
@@ -86,7 +81,6 @@ ifeval::["{plugin-name}" == "objective-cpp-library"]
 :file-extension: mm
 :header-file-extension: hpp
 :application: library
-:entry-point: library
 endif::[]
 
 ifeval::["{plugin-name}" == "swift-library"]
@@ -95,7 +89,6 @@ ifeval::["{plugin-name}" == "swift-library"]
 :c: Swift
 :file-extension: swift
 :application: library
-:entry-point: library
 endif::[]
 
 :ref-plugin: <<plugin:{plugin-name}, {c-application} plugin>>
