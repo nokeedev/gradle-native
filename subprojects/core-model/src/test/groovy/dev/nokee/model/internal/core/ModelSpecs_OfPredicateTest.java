@@ -56,7 +56,7 @@ class ModelSpecs_OfPredicateTest {
 
 	@Test
 	void checkToString() {
-		assertThat(subject, hasToString("ModelSpecs.of(ModelNodes.withPath(po.ta.to))"));
+		assertThat(subject, hasToString("ModelSpecs.of(ModelNodes.withParent(po.ta))"));
 	}
 
 	@Test
