@@ -61,6 +61,9 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 		});
 		functionalTest(project, new UseJUnitJupiter(junitVersion(project)));
 		functionalTest(project, new UseSpockFramework(spockVersion(project)));
+		project.getPluginManager().withPlugin("java-test-fixtures", __ -> {
+			functionalTest(project, testSuite -> testSuite.dependencies(it -> it.implementation(it.testFixtures(project))));
+		});
 	}
 
 	private static final class MyAction implements Action<Task> {

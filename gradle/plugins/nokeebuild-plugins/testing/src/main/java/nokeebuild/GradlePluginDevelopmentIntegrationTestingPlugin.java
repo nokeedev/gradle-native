@@ -65,6 +65,9 @@ abstract /*final*/ class GradlePluginDevelopmentIntegrationTestingPlugin impleme
 			});
 		});
 		integrationTest(project, new UseJUnitJupiter(junitVersion(project)));
+		project.getPluginManager().withPlugin("java-test-fixtures", __ -> {
+			integrationTest(project, testSuite -> testSuite.dependencies(it -> it.implementation(it.testFixtures(project))));
+		});
 	}
 
 	private static void integrationTest(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
