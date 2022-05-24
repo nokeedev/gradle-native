@@ -44,7 +44,6 @@ test {
 integrationTest {
 	dependencies {
 		implementation project(':platformBase')
-		implementation testFixtures(project)
 		implementation testFixtures(project(':coreScript'))
 	}
 }

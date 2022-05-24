@@ -39,9 +39,3 @@ test {
 		implementation testFixtures(project(':coreUtils'))
 	}
 }
-
-integrationTest {
-	dependencies {
-		implementation testFixtures(project)
-	}
-}
