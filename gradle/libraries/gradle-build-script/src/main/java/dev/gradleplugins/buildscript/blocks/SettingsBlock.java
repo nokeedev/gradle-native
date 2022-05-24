@@ -72,6 +72,11 @@ public final class SettingsBlock extends AbstractBlock {
 			return this;
 		}
 
+		public Builder includeBuild(String buildPath) {
+			builder.add(IncludeBuildStatement.includeBuild(buildPath));
+			return this;
+		}
+
 		public Builder rootProject(Function<? super PropertyExpression, ? extends Expression> mapper) {
 			builder.add(ExpressionStatement.of(mapper.apply(property(literal("rootProject")))));
 			return this;
@@ -85,6 +90,12 @@ public final class SettingsBlock extends AbstractBlock {
 	public static final class IncludeStatement {
 		public static Statement include(String firstProjectPath, String... otherProjectPaths) {
 			return ExpressionStatement.of(invoke("include", Stream.concat(Stream.of(firstProjectPath), Stream.of(otherProjectPaths)).map(Syntax::string).toArray(Expression[]::new)));
+		}
+	}
+
+	public static final class IncludeBuildStatement {
+		public static Statement includeBuild(String path) {
+			return ExpressionStatement.of(invoke("includeBuild", Syntax.string(path)));
 		}
 	}
 }
