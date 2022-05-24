@@ -57,6 +57,11 @@ public final class SettingsBlock extends AbstractBlock {
 			return this;
 		}
 
+		public Builder apply(ApplyStatement.Notation notation) {
+			builder.add(ApplyStatement.apply(notation));
+			return this;
+		}
+
 		public Builder pluginManagement(Consumer<? super PluginManagementBlock.Builder> action) {
 			builder.add(PluginManagementBlock.pluginManagement(action));
 			return this;
