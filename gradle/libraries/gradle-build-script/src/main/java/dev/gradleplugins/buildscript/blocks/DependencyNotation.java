@@ -44,6 +44,10 @@ public final class DependencyNotation {
 		return new DependencyNotation(invoke("project", string(path)).alwaysUseParenthesis());
 	}
 
+	public static DependencyNotation platform(String path) {
+		return new DependencyNotation(invoke("platform", string(path)).alwaysUseParenthesis());
+	}
+
 	Expression asExpression() {
 		return expression;
 	}
