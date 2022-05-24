@@ -15,21 +15,25 @@
  */
 package dev.nokee.xcode;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.workspace.XCWorkspaceData;
 import dev.nokee.xcode.workspace.XCWorkspaceDataReader;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 @EqualsAndHashCode
 public final class XCWorkspace implements Serializable {
@@ -39,6 +43,7 @@ public final class XCWorkspace implements Serializable {
 
 	private final File location;
 	private final List<XCProjectReference> projects;
+	private final List<String> schemeNames;
 
 	// friends with XCWorkspaceReference
 	XCWorkspace(Path workspaceLocation) {
@@ -53,6 +58,18 @@ public final class XCWorkspace implements Serializable {
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
+
+		schemeNames = projects.stream().map(it -> it.getLocation().resolve("xcshareddata/xcschemes")).filter(Files::isDirectory).flatMap(it -> {
+			val builder = ImmutableList.<String>builder();
+			try (final DirectoryStream<Path> xcodeSchemeStream = Files.newDirectoryStream(it, "*.xcscheme")) {
+				for (Path xcodeSchemeFile : xcodeSchemeStream) {
+					builder.add(removeExtension(xcodeSchemeFile.getFileName().toString()));
+				}
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+			return builder.build().stream();
+		}).distinct().collect(ImmutableList.toImmutableList());
 	}
 
 	public Path getLocation() {
@@ -61,5 +78,9 @@ public final class XCWorkspace implements Serializable {
 
 	public List<XCProjectReference> getProjectLocations() {
 		return projects;
+	}
+
+	public List<String> getSchemeNames() {
+		return schemeNames;
 	}
 }
