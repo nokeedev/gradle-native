@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
+import static dev.gradleplugins.buildscript.syntax.Syntax.property;
+import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 
 public final class ProjectBlock extends AbstractBlock {
 	private ProjectBlock(Statement delegate) {
@@ -90,6 +92,11 @@ public final class ProjectBlock extends AbstractBlock {
 
 		public Builder apply(ApplyStatement.Notation notation) {
 			builder.add(ApplyStatement.apply(notation));
+			return this;
+		}
+
+		public Builder setGroup(String group) {
+			builder.add(Statement.expressionOf(property(literal("group")).assign(string(group))));
 			return this;
 		}
 
