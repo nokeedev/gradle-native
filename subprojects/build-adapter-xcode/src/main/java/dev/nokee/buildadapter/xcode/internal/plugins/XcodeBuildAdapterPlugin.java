@@ -74,11 +74,8 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				val projectPath = asProjectPath(relativePath);
 				LOGGER.info(String.format("Mapping Xcode project '%s' to Gradle project '%s'.", relativePath, projectPath));
 				settings.include(projectPath);
-
-				settings.getGradle().rootProject(rootProject -> {
-					rootProject.project(projectPath, forXcodeProject(project));
-				});
 			}
+			settings.getGradle().rootProject(forXcodeWorkspace(workspace));
 		}
 	}
 
@@ -95,6 +92,20 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
 						"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
 					task.workingDir(reference.getLocation().getParent().toFile()); // TODO: Test execution on nested projects
+				});
+			});
+		};
+	}
+
+	private static Action<Project> forXcodeWorkspace(XCWorkspace workspace) {
+		return project -> {
+			workspace.getSchemeNames().forEach(schemaName -> {
+				project.getTasks().register(schemaName, Exec.class, task -> {
+					task.setGroup("Xcode Scheme");
+					task.commandLine("xcodebuild", "-workspace", workspace.getLocation(), "-scheme", schemaName,
+						// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
+						"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
+					task.workingDir(workspace.getLocation().getParent().toFile()); // TODO: Test execution on nested projects
 				});
 			});
 		};
