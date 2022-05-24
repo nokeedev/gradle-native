@@ -1,0 +1,16 @@
+plugins {
+	id 'nokeebuild.java-gradle-plugin'
+	id 'nokeebuild.gradle-plugin-functional-test'
+	id 'nokeebuild.gradle-plugin-integration-test'
+	id 'maven-publish'
+	id 'java-test-fixtures'
+}
+
+gradlePlugin {
+	plugins {
+		init {
+			id = 'dev.nokee.distributions-management'
+			implementationClass = 'dev.nokee.init.DistributionsManagementPlugin'
+		}
+	}
+}
