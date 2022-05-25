@@ -95,16 +95,16 @@ endif::[]
 
 ifndef::c[ERROR: Please define `plugin-name` attribute.]
 
-= {C Application} Custom Source File cherry-picking
-:summary: Set custom source file cherry-picking for a {C application}.
+= {c-application} Custom Source File cherry-picking
+:summary: Set custom source file cherry-picking for a {c-application}.
 :type: sample-chapter
 :tags: sample, {application}, sources, native, {C}, gradle
 :category: {C}
-:description: See how to set the source file cherry-picking of {an application} implemented in {C} using the Gradle Nokee plugins.
+:description: See how to set the source file cherry-picking of {an-application} implemented in {C} using the Gradle Nokee plugins.
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
-Here is a sample where we set the source file cherry-picking {an application} implemented in {C} with no dependencies and minimal configuration.
+Here is a sample where we set the source file cherry-picking {an-application} implemented in {C} with no dependencies and minimal configuration.
 
 [source,groovy]
 ----
@@ -119,8 +119,8 @@ application {
 }
 
 ----
-<1> Apply the <<plugin:c-application, C application plugin>>.
-<2> Set application sources from  `srcs/main.c` and `srcs/potato/greeter.c` files
+<1> Apply the {ref-plugin}.
+<2> Set {application} sources from `srcs/main.c` and `srcs/potato/greeter.c` files
 <3> Important to set private headers with the *include* pattern using *fileTree* to ensure the proper header search paths.
 When a header file is picked by file path alone, the parent directory (enclosing directory) will be selected as one of the header search paths.
 +
@@ -128,8 +128,7 @@ NOTE: Although users can cherry-pick header files by file path alone,
 we recommend using a *fileTree* to cherry-pick the headers.
 You can mix *cherry-picking*, *globing* and *generated* sources via appending.
 
-
-Demonstration below where we see the application builds and runs:
+Demonstration below where we see the {application} builds:
 
 [source,terminal]
 ----
