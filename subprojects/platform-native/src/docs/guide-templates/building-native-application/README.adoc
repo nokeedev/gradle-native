@@ -7,6 +7,7 @@
 
 This guide demonstrates how to create a {C application} using the Nokee plugins for Gradle.
 You can follow the guide step-by-step to create a new project from scratch or download the complete project using the links above.
+//TODO ADD LINK to complete project
 
 
 == Before starting, you will need to have
@@ -19,11 +20,11 @@ See which link:TODO[C toolchains] are supported by Nokee.
 
 == 1. Create a project folder
 
- Create in your project folder a new folder for your project and a new empty setting files named 'settings.gradle')
+Create in your project folder a new folder for your project and a new empty setting files named 'settings.gradle')
 
 
 This will mark* the root of your project in Gradle.
-
+//TODO might want to use Indicates were the root of your project "starts" in gradle.- I'm not sure what this really set/accomplishes
 [source,terminal]
 ----
 $ mkdir demo           //  <1>
@@ -97,13 +98,13 @@ $ gradle build                  // <1>
 BUILD SUCCESSFUL                // <2>
 7 actionable tasks: 7 executed  // <3>
 ----
-<1> invoke the task with gradle , in this case build
+<1> Invoke the task with gradle , in this case *build*
 <2> Status of build which is successful
 <3> Summary of total tasks completed and their dependencies
 
 
 
-The build task compiles the {C} sources, links the object files, and runs the tests, if any.
+The build task compiles the {C} sources, links the object files and runs tests.
 The following shows the content of the `build` folder:
 
 [source,terminal]
@@ -124,15 +125,12 @@ $ tree ./build
     |- options.txt
 ----
 <1> The built executable
-<2> All object files are built here
+<2> All object files builds and stores here.
 <3> The `tmp` folder is a temporary workspace for all Gradle tasks.
-You can find `options.txt` file containing all flags for both compile and link tasks.
+The file `options.txt` contains all flags for both compile and link tasks.
 
-NOTE: Dependencies on other projects isn’t covered in this guide.
-To learn more about this subject, have a look at the transitive dependency sample for a demonstration.
 
-NOTE: Nokee integrates with several IDEs: [Visual Studio], [Xcode] and [Clion].
-To learn more, have a look at their respective linked documentation to configure those IDEs integration in your project.
+NOTE: Nokee integrates with several IDEs: [Visual Studio], [Xcode] and [Clion].To learn more, have a look at their respective linked documentation to configure those IDEs integration in your project.
 
 == 5. Run the application
 
@@ -148,16 +146,23 @@ $ ./build/exe/main/app
 Hello, World!
 ----
 == 6. Test and explore different possibilities & summaries
-
+Here is an example and link to download this demo application for you to test out:
 //TODO a downloadable example with more complex application code
+//TODO add box with demo of the app with both toggles like other pages
 
-// 2 button at top like other pages
+== 7. Customization and Other helpful Guides
 
 
-== Guides and Customization??
+How to further customize {C application} projects, check out the user manual chapter on link:TODO[Building native projects].
 
-To learn more on how to further customize {C application} projects, check out the user manual chapter on link:TODO[Building native projects].
+How to integrate Nokee with  link:TODO[Visual Studio], link:TODO[Xcode] and link:TODO[Clion] IDEs.
 
-You also May Be Interested in other guides and samples around common configuration:
+How to set different dependencies, check out a demonstration link:TODO[Transitive dependency sample].
+//The link:TODO[Transitive dependency sample] covers how to set dependencies on other project.
+//TODO add link to "transitive dependency sample"
 
-TODO: Link to other guides and samples…
+More guides and samples around common configuration:
+
+link:TODO[Nokee application Plugins], link:TODO[Getting started with Gradle]
+
+//TODO: Link to other guides and samples…
