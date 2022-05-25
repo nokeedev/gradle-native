@@ -117,7 +117,6 @@ application {
     cSources.from('sources/application.c') // <3>
     cSources.from('sources/greeter.c') // <4>
 }
-
 ----
 <1> Apply the {ref-plugin}.
 <2> Set {C} sources under `main.c.` This section is commented to show it is set by convention and doesn't need to be implemented.
@@ -129,10 +128,7 @@ NOTE:  _from_ can take any type of source layout (globing, cherry-picking, gener
 As per below example, creating a broken source file at the conventional location will fail the build since
 the full sources include everything under *src/main/c*; *sources/application.c* ; *sources/greeter.c*
 
-
-
 The {application} build fails:
-
 
 [source,terminal]
 ----
@@ -141,6 +137,4 @@ $ echo "broken!" > src/main/c/broken.c
 $ ./gradlew clean assemble
 
 BUILD FAIL
-
 ----
-
