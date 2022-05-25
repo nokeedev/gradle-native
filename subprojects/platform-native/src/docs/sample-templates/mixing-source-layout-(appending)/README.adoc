@@ -1,3 +1,100 @@
+:language: c
+:entry-point: application
+
+:plugin-name: {language}-{entry-point}
+
+ifeval::["{plugin-name}" == "c-application"]
+:c-application: C application
+:an-application: an application
+:c: C
+:source-file-extension: c
+:header-file-extension: h
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "cpp-application"]
+:c-application: {cpp} application
+:an-application: an application
+:c: {cpp}
+:source-file-extension: cpp
+:header-file-extension: hpp
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "objective-c-application"]
+:c-application: Objective-C application
+:an-application: an application
+:c: Objective-C
+:source-file-extension: m
+:header-file-extension: h
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "objective-cpp-application"]
+:c-application: Objective-{cpp} application
+:an-application: an application
+:c: Objective-{cpp}
+:source-file-extension: mm
+:header-file-extension: hpp
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "swift-application"]
+:c-application: Swift application
+:an-application: an application
+:c: Swift
+:source-file-extension: swift
+:application: application
+endif::[]
+
+ifeval::["{plugin-name}" == "c-library"]
+:c-application: C library
+:an-application: a library
+:c: C
+:source-file-extension: c
+:header-file-extension: h
+:application: library
+endif::[]
+
+ifeval::["{plugin-name}" == "cpp-library"]
+:c-application: {cpp} library
+:an-application: a library
+:c: {cpp}
+:source-file-extension: cpp
+:header-file-extension: hpp
+:application: library
+endif::[]
+
+ifeval::["{plugin-name}" == "objective-c-library"]
+:c-application: Objective-C library
+:an-application: a library
+:c: Objective-C
+:source-file-extension: m
+:header-file-extension: h
+:application: library
+endif::[]
+
+ifeval::["{plugin-name}" == "objective-cpp-library"]
+:c-application: Objective-{cpp} library
+:an-application: a library
+:c: Objective-{cpp}
+:source-file-extension: mm
+:header-file-extension: hpp
+:application: library
+endif::[]
+
+ifeval::["{plugin-name}" == "swift-library"]
+:c-application: Swift library
+:an-application: a library
+:c: Swift
+:source-file-extension: swift
+:application: library
+endif::[]
+
+:ref-plugin: <<plugin:{plugin-name}, {c-application} plugin>>
+
+ifndef::c[ERROR: Please define `plugin-name` attribute.]
+
 = {C Application} Custom Source File mixing source layout (appending)
 :summary: Set custom source file mixing source layout for a {C application}.
 :type: sample-chapter
