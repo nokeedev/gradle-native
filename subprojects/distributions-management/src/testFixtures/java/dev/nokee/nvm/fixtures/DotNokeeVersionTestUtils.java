@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.init.fixtures;
+package dev.nokee.nvm.fixtures;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

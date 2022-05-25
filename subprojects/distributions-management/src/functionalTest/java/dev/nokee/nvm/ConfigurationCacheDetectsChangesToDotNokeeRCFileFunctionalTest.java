@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.init;
+package dev.nokee.nvm;
 
+import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
+import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
+import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,38 +32,40 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
+import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 
+@RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
-class NokeeVersionManagementServiceUsesVersionFromBuildSrcParentFunctionalTest {
+class ConfigurationCacheDetectsChangesToDotNokeeRCFileFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
+	BuildResult result;
 
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
-		executer = runner;
+		writeVersionFileTo(testDirectory, "0.3.0");
 		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
-		writeVersionFileTo(testDirectory, "0.4.2");
+		executer = runner.withArgument("verify").withArgument("--configuration-cache");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
+			"plugins {",
+			"  id 'dev.nokee.jni-library'", // we must resolve a Nokee plugin so the "version" is marked as used
+			"}",
 			"tasks.register('verify')"
 		));
-
-		Files.createDirectory(testDirectory.resolve("buildSrc"));
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("buildSrc/settings.gradle"));
-		Files.write(testDirectory.resolve("buildSrc/build.gradle"), Arrays.asList(
-			"def service = gradle.sharedServices.registrations.nokeeVersionManagement.service",
-			"def verifyTask = tasks.register('verify') {",
-			"  usesService(service)",
-			"  doLast {",
-			"    assert service.get().version.toString() == '0.4.2'",
-			"  }",
-			"}",
-			"tasks.named('build') { finalizedBy(verifyTask) }"
-		));
+		result = executer.build();
 	}
 
 	@Test
-	void fetchesNokeeVersionFromMainBuild() {
-		executer.withTasks("verify").build();
+	void reusesConfigurationCacheWhenVersionFileDoesNotChanges() {
+		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+	}
+
+	@Test
+	void doesNotReuseConfigurationCacheWhenVersionFileChange() throws IOException {
+		writeVersionFileTo(testDirectory, "0.4.0");
+		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 }

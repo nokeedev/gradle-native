@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @NonNullApi
-package dev.nokee.init;
+package dev.nokee.nvm;
 
 import org.gradle.api.NonNullApi;

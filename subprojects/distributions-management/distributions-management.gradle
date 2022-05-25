@@ -10,7 +10,7 @@ gradlePlugin {
 	plugins {
 		nokeeVersionManagement {
 			id = 'dev.nokee.nokee-version-management'
-			implementationClass = 'dev.nokee.init.NokeeVersionManagementPlugin'
+			implementationClass = 'dev.nokee.nvm.NokeeVersionManagementPlugin'
 		}
 	}
 }
