@@ -50,6 +50,8 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 	@Override
 	public void apply(Settings settings) {
+		settings.getGradle().rootProject(new RedirectProjectBuildDirectoryToRootBuildDirectory());
+
 		val allWorkspaceLocations = forUseAtConfigurationTime(providers.of(AllXCWorkspaceLocationsValueSource.class, it -> it.parameters(p -> p.getSearchDirectory().set(settings.getSettingsDir()))));
 		val selectedWorkspaceLocation = allWorkspaceLocations.map(new SelectXCWorkspaceLocationTransformation());
 
