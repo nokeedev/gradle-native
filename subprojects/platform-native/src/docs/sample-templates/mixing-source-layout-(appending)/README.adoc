@@ -106,18 +106,24 @@ NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com
 
 Here is a sample where we set the custom source file by _mixing source layout_ also called _appending_ {an-application} implemented in {C} with no dependencies and minimal configuration.
 
+====
+[.multi-language-sample]
+=====
+.build.gradle
 [source,groovy]
 ----
-plugins {
-	id 'dev.nokee.c-application'    // <1>
-}
-
-application {
-//  cSources.from('src/main/c') // default initially set by convention <2>
-    cSources.from('sources/application.c') // <3>
-    cSources.from('sources/greeter.c') // <4>
-}
+include::groovy-dsl/build.{plugin-name}.gradle[]
 ----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.{plugin-name}.gradle.kts[]
+----
+=====
+====
 <1> Apply the {ref-plugin}.
 <2> Set {C} sources under `main.c.` This section is commented to show it is set by convention and doesn't need to be implemented.
 <3> Set {C} sources under `application.c`
