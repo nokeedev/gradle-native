@@ -91,7 +91,6 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					task.setGroup("Xcode Target");
 					task.getProjectLocation().set(reference.getLocation().toFile());
 					task.getTargetName().set(targetName);
-					task.getDerivedDataPath().set(project.getRootProject().getLayout().getBuildDirectory().dir("derivedData"));
 				});
 			});
 		};

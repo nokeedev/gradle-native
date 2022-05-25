@@ -47,11 +47,10 @@ class DefaultXcode13SwiftAppSampleFunctionalTest {
 		new XcodeSwiftApp().writeToProject(testDirectory.toFile());
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
 		executer = runner.withArgument(":XcodeSwiftApp");
-		result = executer.build();
 	}
 
 	@Test
 	void doesNotFail() {
-		assertThat(result.task(":XcodeSwiftApp").getOutcome(), equalTo(TaskOutcome.SUCCESS));
+		assertThat(executer.build().task(":XcodeSwiftApp").getOutcome(), equalTo(TaskOutcome.SUCCESS));
 	}
 }

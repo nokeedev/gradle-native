@@ -17,7 +17,6 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import lombok.val;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Internal;
@@ -29,8 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import static dev.nokee.utils.ProviderUtils.ifPresent;
-
 public abstract class XcodeTargetExecTask extends DefaultTask {
 	@Inject
 	protected abstract ExecOperations getExecOperations();
@@ -41,15 +38,11 @@ public abstract class XcodeTargetExecTask extends DefaultTask {
 	@Internal
 	public abstract Property<String> getTargetName();
 
-	@Internal
-	public abstract DirectoryProperty getDerivedDataPath();
-
 	@TaskAction
 	private void doExec() throws IOException {
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			getExecOperations().exec(spec -> {
 				spec.commandLine("xcodebuild", "-project", getProjectLocation().get().getAsFile(), "-target", getTargetName().get());
-				ifPresent(getDerivedDataPath(), it -> spec.args("-derivedDataPath", it.getAsFile()));
 				spec.args(
 					// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
 					"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
