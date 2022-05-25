@@ -33,7 +33,7 @@ import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
-class NokeeManagementServiceUsesVersionFromIncludedBuildTopMostParentFunctionalTest {
+class NokeeVersionManagementServiceUsesVersionFromIncludedBuildTopMostParentFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
 
@@ -60,7 +60,7 @@ class NokeeManagementServiceUsesVersionFromIncludedBuildTopMostParentFunctionalT
 		Files.createDirectory(testDirectory.resolve("build-src/buildSrc"));
 		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("build-src/buildSrc/settings.gradle"));
 		Files.write(testDirectory.resolve("build-src/buildSrc/build.gradle"), Arrays.asList(
-			"def service = gradle.sharedServices.registrations.nokeeManagement.service",
+			"def service = gradle.sharedServices.registrations.nokeeVersionManagement.service",
 			"def verifyTask = tasks.register('verify') {",
 			"  usesService(service)",
 			"  doLast {",

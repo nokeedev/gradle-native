@@ -15,7 +15,6 @@
  */
 package dev.nokee.init;
 
-import dev.gradleplugins.buildscript.blocks.SettingsBlock;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
@@ -33,28 +32,17 @@ import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
-class NokeeManagementServiceUsesVersionFromIncludedBuildParentFunctionalTest {
+class NokeeVersionManagementServiceUsesVersionFromVersionFileFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
 
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
 		executer = runner;
-		SettingsBlock.builder().plugins(it -> it.id("dev.nokee.nokee-version-management"))
-			.includeBuild("build-src")
-			.build()
-			.writeTo(testDirectory.resolve("settings.gradle"));
+		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
 		writeVersionFileTo(testDirectory, "0.4.2");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
-			"tasks.register('verify') {",
-			"  dependsOn gradle.includedBuild('build-src').task(':verify')",
-			"}"
-		));
-
-		Files.createDirectory(testDirectory.resolve("build-src"));
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("build-src/settings.gradle"));
-		Files.write(testDirectory.resolve("build-src/build.gradle"), Arrays.asList(
-			"def service = gradle.sharedServices.registrations.nokeeManagement.service",
+			"def service = gradle.sharedServices.registrations.nokeeVersionManagement.service",
 			"tasks.register('verify') {",
 			"  usesService(service)",
 			"  doLast {",
@@ -65,7 +53,7 @@ class NokeeManagementServiceUsesVersionFromIncludedBuildParentFunctionalTest {
 	}
 
 	@Test
-	void fetchesNokeeVersionFromParentBuild() {
+	void loadsNokeeVersionFromDotNokeeVersionFile() {
 		executer.withTasks("verify").build();
 	}
 }

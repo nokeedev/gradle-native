@@ -27,24 +27,24 @@ import org.gradle.api.services.BuildServiceRegistration;
 import javax.inject.Inject;
 import java.util.function.Function;
 
-import static dev.nokee.init.NokeeManagementService.registerService;
-import static dev.nokee.init.NokeeManagementService.toNokeeVersion;
+import static dev.nokee.init.NokeeVersionManagementService.registerService;
+import static dev.nokee.init.NokeeVersionManagementService.toNokeeVersion;
 import static dev.nokee.init.NokeeVersionSource.versionFile;
 import static dev.nokee.init.ProviderUtils.forUseAtConfigurationTime;
 
 // FIXME: Javadoc fail if no public class
-public class DistributionsManagementPlugin implements Plugin<Settings> {
+public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 	private final ProviderFactory providers;
 
 	@Inject
-	public DistributionsManagementPlugin(ProviderFactory providers) {
+	public NokeeVersionManagementPlugin(ProviderFactory providers) {
 		this.providers = providers;
 	}
 
 	@Override
 	public void apply(Settings settings) {
-		final Provider<NokeeManagementService> service = forUseAtConfigurationTime(registerService(settings.getGradle(), defaultParameters(settings)));
-		final Provider<NokeeVersion> version = service.map(NokeeManagementService::getVersion);
+		final Provider<NokeeVersionManagementService> service = forUseAtConfigurationTime(registerService(settings.getGradle(), defaultParameters(settings)));
+		final Provider<NokeeVersion> version = service.map(NokeeVersionManagementService::getVersion);
 
 		settings.pluginManagement(spec -> {
 			// TODO: Allow disable of the default gradlePluginPortal()
@@ -61,20 +61,20 @@ public class DistributionsManagementPlugin implements Plugin<Settings> {
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
-	private Action<NokeeManagementService.Parameters> defaultParameters(Settings settings) {
-		return new Action<NokeeManagementService.Parameters>() {
+	private Action<NokeeVersionManagementService.Parameters> defaultParameters(Settings settings) {
+		return new Action<NokeeVersionManagementService.Parameters>() {
 			@Override
-			public void execute(NokeeManagementService.Parameters parameters) {
+			public void execute(NokeeVersionManagementService.Parameters parameters) {
 				parameters.getNokeeVersion().value(
-					providers.provider(settings::getGradle).flatMap(forEachParent(NokeeManagementService::findServiceRegistration)).map(toNokeeVersion())
+					providers.provider(settings::getGradle).flatMap(forEachParent(NokeeVersionManagementService::findServiceRegistration)).map(toNokeeVersion())
 						.orElse(forUseAtConfigurationTime(providers.of(NokeeVersionSource.class, versionFile(settings.getSettingsDir())))));
 			}
 
-			private Transformer<Provider<NokeeManagementService>, Gradle> forEachParent(Function<Gradle, BuildServiceRegistration<NokeeManagementService, NokeeManagementService.Parameters>> mapper) {
+			private Transformer<Provider<NokeeVersionManagementService>, Gradle> forEachParent(Function<Gradle, BuildServiceRegistration<NokeeVersionManagementService, NokeeVersionManagementService.Parameters>> mapper) {
 				return gradle -> {
 					while (gradle.getParent() != null) {
 						gradle = gradle.getParent();
-						final BuildServiceRegistration<NokeeManagementService, NokeeManagementService.Parameters> serviceRegistration = mapper.apply(gradle);
+						final BuildServiceRegistration<NokeeVersionManagementService, NokeeVersionManagementService.Parameters> serviceRegistration = mapper.apply(gradle);
 
 						if (serviceRegistration != null) {
 							return serviceRegistration.getService();
