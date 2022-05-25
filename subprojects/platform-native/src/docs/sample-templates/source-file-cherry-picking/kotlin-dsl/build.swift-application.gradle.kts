@@ -3,5 +3,5 @@ plugins {
 }
 
 application {
-	swiftSources.setFrom("srcs/main.swift", "srcs/potato/greeter.c")	// <2>
+	swiftSources.setFrom("srcs/main.swift", "srcs/potato/greeter.swift")	// <2>
 }
