@@ -39,7 +39,7 @@ class PluginManagementNokeeRepositoriesFunctionalTest {
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
 		executer = runner;
-		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("settings.gradle"));
+		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
 	}
 
 	@Test

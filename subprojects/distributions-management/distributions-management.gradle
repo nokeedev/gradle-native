@@ -8,8 +8,8 @@ plugins {
 
 gradlePlugin {
 	plugins {
-		init {
-			id = 'dev.nokee.distributions-management'
+		nokeeVersionManagement {
+			id = 'dev.nokee.nokee-version-management'
 			implementationClass = 'dev.nokee.init.DistributionsManagementPlugin'
 		}
 	}

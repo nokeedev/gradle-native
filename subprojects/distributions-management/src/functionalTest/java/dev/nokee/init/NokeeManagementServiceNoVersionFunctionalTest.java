@@ -41,7 +41,7 @@ class NokeeManagementServiceNoVersionFunctionalTest {
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
 		executer = runner;
-		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("settings.gradle"));
+		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
 			"def service = gradle.sharedServices.registrations.nokeeManagement.service",
 			"tasks.register('verify') {",

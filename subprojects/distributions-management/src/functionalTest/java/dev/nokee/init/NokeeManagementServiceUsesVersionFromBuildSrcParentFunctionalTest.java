@@ -39,14 +39,14 @@ class NokeeManagementServiceUsesVersionFromBuildSrcParentFunctionalTest {
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
 		executer = runner;
-		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("settings.gradle"));
+		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
 		writeVersionFileTo(testDirectory, "0.4.2");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
 			"tasks.register('verify')"
 		));
 
 		Files.createDirectory(testDirectory.resolve("buildSrc"));
-		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("buildSrc/settings.gradle"));
+		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("buildSrc/settings.gradle"));
 		Files.write(testDirectory.resolve("buildSrc/build.gradle"), Arrays.asList(
 			"def service = gradle.sharedServices.registrations.nokeeManagement.service",
 			"def verifyTask = tasks.register('verify') {",
