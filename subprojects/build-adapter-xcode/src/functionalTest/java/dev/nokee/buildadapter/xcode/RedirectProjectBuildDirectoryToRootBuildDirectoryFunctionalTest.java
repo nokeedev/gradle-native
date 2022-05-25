@@ -50,12 +50,12 @@ class RedirectProjectBuildDirectoryToRootBuildDirectoryFunctionalTest {
 	@Test
 	void redirectsSubprojectBuildDirectoryToRootProjectBuildDirectory(GradleRunner runner) throws IOException {
 		assertVerifyTask(
-			"project(':').buildDir.absolutePath.endsWith('/build')",
-			"project(':App').buildDir.absolutePath.endsWith('/build/subprojects/App-29bgbf8mfc')",
-			"project(':Lib1').buildDir.absolutePath.endsWith('/build/subprojects/Lib1-22ji4v30pv3')",
-			"project(':Pods').buildDir.absolutePath.endsWith('/build/subprojects/Pods-22ji7ch9sql')",
-			"project(':Pods:Lib1').buildDir.absolutePath.endsWith('/build/subprojects/Lib1-3vq31ktoy17hb')",
-			"project(':Pods:Lib2').buildDir.absolutePath.endsWith('/build/subprojects/Lib2-3vq31ktoy1z7k')"
+			"project(':').buildDir.absolutePath.replace('\\', '/').endsWith('/build')",
+			"project(':App').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/App-29bgbf8mfc')",
+			"project(':Lib1').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/Lib1-22ji4v30pv3')",
+			"project(':Pods').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/Pods-22ji7ch9sql')",
+			"project(':Pods:Lib1').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/Lib1-3vq31ktoy17hb')",
+			"project(':Pods:Lib2').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/Lib2-3vq31ktoy1z7k')"
 		).writeTo(testDirectory.resolve("build.gradle"));
 		runner.withTasks("verify").build();
 	}
