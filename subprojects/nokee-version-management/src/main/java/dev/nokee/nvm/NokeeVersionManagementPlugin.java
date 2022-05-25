@@ -66,7 +66,8 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 			@Override
 			public void execute(NokeeVersionManagementService.Parameters parameters) {
 				parameters.getNokeeVersion().value(
-					providers.provider(settings::getGradle).flatMap(forEachParent(NokeeVersionManagementService::findServiceRegistration)).map(toNokeeVersion())
+					providers.environmentVariable("NOKEE_VERSION").map(NokeeVersion::version)
+						.orElse(providers.provider(settings::getGradle).flatMap(forEachParent(NokeeVersionManagementService::findServiceRegistration)).map(toNokeeVersion()))
 						.orElse(forUseAtConfigurationTime(providers.of(NokeeVersionSource.class, versionFile(settings.getSettingsDir())))));
 			}
 
