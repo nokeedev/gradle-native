@@ -29,15 +29,15 @@ import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;
 
 @SuppressWarnings("UnstableApiUsage")
-abstract class NokeeManagementService implements BuildService<NokeeManagementService.Parameters> {
-	private static final String SERVICE_NAME = "nokeeManagement";
+abstract class NokeeVersionManagementService implements BuildService<NokeeVersionManagementService.Parameters> {
+	private static final String SERVICE_NAME = "nokeeVersionManagement";
 
 	interface Parameters extends BuildServiceParameters {
 		Property<NokeeVersion> getNokeeVersion();
 	}
 
 	@Inject
-	public NokeeManagementService() {}
+	public NokeeVersionManagementService() {}
 
 	public NokeeVersion getVersion() {
 		final NokeeVersion result = getParameters().getNokeeVersion().getOrNull();
@@ -47,21 +47,21 @@ abstract class NokeeManagementService implements BuildService<NokeeManagementSer
 		return result;
 	}
 
-	public static Provider<NokeeManagementService> registerService(Gradle gradle, Action<? super Parameters> action) {
-		return gradle.getSharedServices().registerIfAbsent(SERVICE_NAME, NokeeManagementService.class, it -> {
+	public static Provider<NokeeVersionManagementService> registerService(Gradle gradle, Action<? super Parameters> action) {
+		return gradle.getSharedServices().registerIfAbsent(SERVICE_NAME, NokeeVersionManagementService.class, it -> {
 			it.parameters(action);
 		});
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Provider<NokeeManagementService> fromService(Gradle gradle) {
-		return (Provider<NokeeManagementService>) gradle.getSharedServices().getRegistrations().getByName(SERVICE_NAME).getService();
+	public static Provider<NokeeVersionManagementService> fromService(Gradle gradle) {
+		return (Provider<NokeeVersionManagementService>) gradle.getSharedServices().getRegistrations().getByName(SERVICE_NAME).getService();
 	}
 
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public static BuildServiceRegistration<NokeeManagementService, NokeeManagementService.Parameters> findServiceRegistration(Gradle gradle) {
-		return (BuildServiceRegistration<NokeeManagementService, NokeeManagementService.Parameters>) gradle.getSharedServices().getRegistrations().findByName(SERVICE_NAME);
+	public static BuildServiceRegistration<NokeeVersionManagementService, NokeeVersionManagementService.Parameters> findServiceRegistration(Gradle gradle) {
+		return (BuildServiceRegistration<NokeeVersionManagementService, NokeeVersionManagementService.Parameters>) gradle.getSharedServices().getRegistrations().findByName(SERVICE_NAME);
 	}
 
 	public static Transformer<NokeeVersion, BuildService<?>> toNokeeVersion() {
