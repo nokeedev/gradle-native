@@ -106,19 +106,24 @@ NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com
 
 Here is a sample where we set the source file cherry-picking {an-application} implemented in {C} with no dependencies and minimal configuration.
 
+====
+[.multi-language-sample]
+=====
+.build.gradle
 [source,groovy]
 ----
-plugins {
-	id 'dev.nokee.c-application'    // <1>
-}
-
-application {
-    cSources.setFrom('srcs/main.c', 'srcs/potato/greeter.c') // <2>
-    privateHeaders.setFrom(fileTree('incs') { include 'tomato/greeter.h' }) // <3>
-    // See note regarding privateHeaders/publicHeaders
-}
-
+include::groovy-dsl/build.{plugin-name}.gradle[]
 ----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+include::kotlin-dsl/build.{plugin-name}.gradle.kts[]
+----
+=====
+====
 <1> Apply the {ref-plugin}.
 <2> Set {application} sources from `srcs/main.c` and `srcs/potato/greeter.c` files
 <3> Important to set private headers with the *include* pattern using *fileTree* to ensure the proper header search paths.
