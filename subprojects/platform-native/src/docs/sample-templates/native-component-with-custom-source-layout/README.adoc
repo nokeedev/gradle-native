@@ -25,7 +25,7 @@ application {
 <3> Set private headers to include everything under `incs` directory.
 
 Build the application:
-
+//build & run ?
 [source,terminal]
 ----
 $ ./gradlew assemble
@@ -34,6 +34,7 @@ BUILD SUCCESSFUL
 4 actionable tasks: 4 executed
 ----
 Setting the source layout will exclude the conventional source location as per example below.
+//TODO change "conventional source location" ?
 [source,terminal]
 ----
 $ mkdir -p src/main/c
