@@ -20,8 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DotNokeeRCTestUtils {
-	public static void writeRcFileTo(Path testDirectory, String version) throws IOException {
-		Files.write(testDirectory.resolve(".nokeerc"), version.getBytes(StandardCharsets.UTF_8));
+public class DotNokeeVersionTestUtils {
+	public static void writeVersionFileTo(Path testDirectory, String version) throws IOException {
+		Files.write(testDirectory.resolve(".nokee-version"), version.getBytes(StandardCharsets.UTF_8));
 	}
 }

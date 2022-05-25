@@ -42,7 +42,7 @@ abstract class NokeeManagementService implements BuildService<NokeeManagementSer
 	public NokeeVersion getVersion() {
 		final NokeeVersion result = getParameters().getNokeeVersion().getOrNull();
 		if (result == null) {
-			throw new RuntimeException("Please add the Nokee version to use in a .nokeerc file.");
+			throw new RuntimeException("Please add the Nokee version to use in a .nokee-version file.");
 		}
 		return result;
 	}

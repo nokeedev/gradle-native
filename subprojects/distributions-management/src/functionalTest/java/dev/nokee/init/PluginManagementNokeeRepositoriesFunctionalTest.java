@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.init.fixtures.DotNokeeRCTestUtils.writeRcFileTo;
+import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class PluginManagementNokeeRepositoriesFunctionalTest {
@@ -44,7 +44,7 @@ class PluginManagementNokeeRepositoriesFunctionalTest {
 
 	@Test
 	void usesReleaseRepositoriesOnReleaseVersion() throws IOException {
-		writeRcFileTo(testDirectory, "0.4.0");
+		writeVersionFileTo(testDirectory, "0.4.0");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
 			"tasks.register('verify') {",
 			"  doLast {",
@@ -58,7 +58,7 @@ class PluginManagementNokeeRepositoriesFunctionalTest {
 
 	@Test
 	void usesSnapshotRepositoriesOnIntegrationVersion() throws IOException {
-		writeRcFileTo(testDirectory, "0.4.2190-202205201507.5d969a1e");
+		writeVersionFileTo(testDirectory, "0.4.2190-202205201507.5d969a1e");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
 			"tasks.register('verify') {",
 			"  doLast {",
@@ -72,7 +72,7 @@ class PluginManagementNokeeRepositoriesFunctionalTest {
 
 	@Test
 	void usesSnapshotRepositoriesOnSnapshotVersion() throws IOException {
-		writeRcFileTo(testDirectory, "0.5.0-SNAPSHOT");
+		writeVersionFileTo(testDirectory, "0.5.0-SNAPSHOT");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
 			"tasks.register('verify') {",
 			"  doLast {",

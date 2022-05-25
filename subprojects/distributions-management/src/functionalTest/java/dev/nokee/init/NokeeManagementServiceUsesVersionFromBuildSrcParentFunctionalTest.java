@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.init.fixtures.DotNokeeRCTestUtils.writeRcFileTo;
+import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class NokeeManagementServiceUsesVersionFromBuildSrcParentFunctionalTest {
@@ -40,7 +40,7 @@ class NokeeManagementServiceUsesVersionFromBuildSrcParentFunctionalTest {
 	void setup(GradleRunner runner) throws IOException {
 		executer = runner;
 		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("settings.gradle"));
-		writeRcFileTo(testDirectory, "0.4.2");
+		writeVersionFileTo(testDirectory, "0.4.2");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
 			"tasks.register('verify')"
 		));

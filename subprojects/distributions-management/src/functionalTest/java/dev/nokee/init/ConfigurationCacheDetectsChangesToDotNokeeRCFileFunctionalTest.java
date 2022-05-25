@@ -32,7 +32,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.init.fixtures.DotNokeeRCTestUtils.writeRcFileTo;
+import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -46,7 +46,7 @@ class ConfigurationCacheDetectsChangesToDotNokeeRCFileFunctionalTest {
 
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
-		writeRcFileTo(testDirectory, "0.3.0");
+		writeVersionFileTo(testDirectory, "0.3.0");
 		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("settings.gradle"));
 		executer = runner.withArgument("verify").withArgument("--configuration-cache");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
@@ -59,13 +59,13 @@ class ConfigurationCacheDetectsChangesToDotNokeeRCFileFunctionalTest {
 	}
 
 	@Test
-	void reusesConfigurationCacheWhenRCFileDoesNotChanges() {
+	void reusesConfigurationCacheWhenVersionFileDoesNotChanges() {
 		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
 	}
 
 	@Test
-	void doesNotReuseConfigurationCacheWhenRCFileChange() throws IOException {
-		writeRcFileTo(testDirectory, "0.4.0");
+	void doesNotReuseConfigurationCacheWhenVersionFileChange() throws IOException {
+		writeVersionFileTo(testDirectory, "0.4.0");
 		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 }

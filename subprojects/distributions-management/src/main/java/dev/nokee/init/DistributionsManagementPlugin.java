@@ -29,7 +29,7 @@ import java.util.function.Function;
 
 import static dev.nokee.init.NokeeManagementService.registerService;
 import static dev.nokee.init.NokeeManagementService.toNokeeVersion;
-import static dev.nokee.init.NokeeRCVersionSource.rcFile;
+import static dev.nokee.init.NokeeVersionSource.versionFile;
 import static dev.nokee.init.ProviderUtils.forUseAtConfigurationTime;
 
 // FIXME: Javadoc fail if no public class
@@ -67,7 +67,7 @@ public class DistributionsManagementPlugin implements Plugin<Settings> {
 			public void execute(NokeeManagementService.Parameters parameters) {
 				parameters.getNokeeVersion().value(
 					providers.provider(settings::getGradle).flatMap(forEachParent(NokeeManagementService::findServiceRegistration)).map(toNokeeVersion())
-						.orElse(forUseAtConfigurationTime(providers.of(NokeeRCVersionSource.class, rcFile(settings.getSettingsDir())))));
+						.orElse(forUseAtConfigurationTime(providers.of(NokeeVersionSource.class, versionFile(settings.getSettingsDir())))));
 			}
 
 			private Transformer<Provider<NokeeManagementService>, Gradle> forEachParent(Function<Gradle, BuildServiceRegistration<NokeeManagementService, NokeeManagementService.Parameters>> mapper) {

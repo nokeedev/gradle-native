@@ -31,7 +31,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.init.fixtures.DotNokeeRCTestUtils.writeRcFileTo;
+import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class PluginManagementDefaultRepositoriesFunctionalTest {
@@ -41,7 +41,7 @@ class PluginManagementDefaultRepositoriesFunctionalTest {
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
 		executer = runner;
-		writeRcFileTo(testDirectory, "0.5.21");
+		writeVersionFileTo(testDirectory, "0.5.21");
 	}
 
 	@Test

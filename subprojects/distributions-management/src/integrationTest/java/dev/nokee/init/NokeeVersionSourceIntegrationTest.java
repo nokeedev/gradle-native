@@ -23,25 +23,25 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static dev.nokee.init.NokeeRCVersionSource.rcFile;
-import static dev.nokee.init.fixtures.DotNokeeRCTestUtils.writeRcFileTo;
+import static dev.nokee.init.NokeeVersionSource.versionFile;
+import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 import static dev.nokee.internal.testing.GradleProviderMatchers.absentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(TestDirectoryExtension.class)
-class NokeeRCVersionSourceIntegrationTest {
+class NokeeVersionSourceIntegrationTest {
 	@TestDirectory Path testDirectory;
 
 	@Test
-	void provideVersionFromDotNokeercFile() throws IOException {
-		writeRcFileTo(testDirectory, "0.2.0");
-		assertThat(providerFactory().of(NokeeRCVersionSource.class, rcFile(testDirectory.toFile())), providerOf(NokeeVersion.version("0.2.0")));
+	void providesVersionFromDotNokeeVersionFile() throws IOException {
+		writeVersionFileTo(testDirectory, "0.2.0");
+		assertThat(providerFactory().of(NokeeVersionSource.class, versionFile(testDirectory.toFile())), providerOf(NokeeVersion.version("0.2.0")));
 	}
 
 	@Test
-	void doesNotProvideVersionWhenDotNokeercFileAbsent() {
-		assertThat(providerFactory().of(NokeeRCVersionSource.class, rcFile(testDirectory.toFile())), absentProvider());
+	void doesNotProvideVersionWhenDotNokeeVersionFileAbsent() {
+		assertThat(providerFactory().of(NokeeVersionSource.class, versionFile(testDirectory.toFile())), absentProvider());
 	}
 }
