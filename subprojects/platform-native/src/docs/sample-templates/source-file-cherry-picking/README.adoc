@@ -8,7 +8,6 @@ ifeval::["{plugin-name}" == "c-application"]
 :an-application: an application
 :c: C
 :source-file-extension: c
-:header-file-extension: h
 :application: application
 endif::[]
 
@@ -17,7 +16,6 @@ ifeval::["{plugin-name}" == "cpp-application"]
 :an-application: an application
 :c: {cpp}
 :source-file-extension: cpp
-:header-file-extension: hpp
 :application: application
 endif::[]
 
@@ -26,7 +24,6 @@ ifeval::["{plugin-name}" == "objective-c-application"]
 :an-application: an application
 :c: Objective-C
 :source-file-extension: m
-:header-file-extension: h
 :application: application
 endif::[]
 
@@ -35,7 +32,6 @@ ifeval::["{plugin-name}" == "objective-cpp-application"]
 :an-application: an application
 :c: Objective-{cpp}
 :source-file-extension: mm
-:header-file-extension: hpp
 :application: application
 endif::[]
 
@@ -52,7 +48,6 @@ ifeval::["{plugin-name}" == "c-library"]
 :an-application: a library
 :c: C
 :source-file-extension: c
-:header-file-extension: h
 :application: library
 endif::[]
 
@@ -61,7 +56,6 @@ ifeval::["{plugin-name}" == "cpp-library"]
 :an-application: a library
 :c: {cpp}
 :source-file-extension: cpp
-:header-file-extension: hpp
 :application: library
 endif::[]
 
@@ -70,7 +64,6 @@ ifeval::["{plugin-name}" == "objective-c-library"]
 :an-application: a library
 :c: Objective-C
 :source-file-extension: m
-:header-file-extension: h
 :application: library
 endif::[]
 
@@ -79,7 +72,6 @@ ifeval::["{plugin-name}" == "objective-cpp-library"]
 :an-application: a library
 :c: Objective-{cpp}
 :source-file-extension: mm
-:header-file-extension: hpp
 :application: library
 endif::[]
 
