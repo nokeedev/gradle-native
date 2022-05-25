@@ -47,7 +47,7 @@ class ConfigurationCacheDetectsChangesToDotNokeeRCFileFunctionalTest {
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
 		writeVersionFileTo(testDirectory, "0.3.0");
-		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("settings.gradle"));
+		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
 		executer = runner.withArgument("verify").withArgument("--configuration-cache");
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
 			"plugins {",

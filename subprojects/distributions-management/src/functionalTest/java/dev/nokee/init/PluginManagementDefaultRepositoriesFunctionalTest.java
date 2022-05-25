@@ -46,7 +46,7 @@ class PluginManagementDefaultRepositoriesFunctionalTest {
 
 	@Test
 	void usesGradlePluginPortalRepositoryAsFirstRepositoryWhenNoRepositoryPresent() throws IOException {
-		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("settings.gradle"));
+		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
 
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
 			"tasks.register('verify') {",
@@ -61,7 +61,7 @@ class PluginManagementDefaultRepositoriesFunctionalTest {
 	@Test
 	void doesNotIncludeGradlePluginPortalRepositoryWhenRepositoriesArePresent() throws IOException {
 		SettingsBlock.builder().pluginManagement(it -> it.repositories(RepositoriesBlock.Builder::mavenCentral))
-			.plugins(it -> it.id("dev.nokee.distributions-management"))
+			.plugins(it -> it.id("dev.nokee.nokee-version-management"))
 			.build().writeTo(testDirectory.resolve("settings.gradle"));
 
 		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(

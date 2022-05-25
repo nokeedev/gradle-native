@@ -40,7 +40,7 @@ class NokeeManagementServiceUsesVersionFromIncludedBuildParentFunctionalTest {
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
 		executer = runner;
-		SettingsBlock.builder().plugins(it -> it.id("dev.nokee.distributions-management"))
+		SettingsBlock.builder().plugins(it -> it.id("dev.nokee.nokee-version-management"))
 			.includeBuild("build-src")
 			.build()
 			.writeTo(testDirectory.resolve("settings.gradle"));
@@ -52,7 +52,7 @@ class NokeeManagementServiceUsesVersionFromIncludedBuildParentFunctionalTest {
 		));
 
 		Files.createDirectory(testDirectory.resolve("build-src"));
-		plugins(it -> it.id("dev.nokee.distributions-management")).writeTo(testDirectory.resolve("build-src/settings.gradle"));
+		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("build-src/settings.gradle"));
 		Files.write(testDirectory.resolve("build-src/build.gradle"), Arrays.asList(
 			"def service = gradle.sharedServices.registrations.nokeeManagement.service",
 			"tasks.register('verify') {",
