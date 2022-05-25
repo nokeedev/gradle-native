@@ -42,6 +42,7 @@ import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallback, BeforeEachCallback, ParameterResolver {
 	private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(TestDirectoryExtension.class);
 	private static final String KEY = "temp.dir";
+	private static final String TRACKER_KEY = "tracker";
 
 	@Override
 	public void beforeAll(ExtensionContext context) throws Exception {
@@ -55,12 +56,8 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 	}
 
 	@Override
-	public void testSuccessful(ExtensionContext context) {
-		try {
-			((AutoCloseable) context.getStore(NAMESPACE).get(KEY, TestDirectoryProvider.class)).close();
-		} catch (Exception e) {
-			ExceptionUtils.throwAsUncheckedException(e);
-		}
+	public void testFailed(ExtensionContext context, Throwable cause) {
+		context.getStore(NAMESPACE).get(TRACKER_KEY, CleanupTracker.class).markFailure();
 	}
 
 	private void injectStaticFields(ExtensionContext context, Class<?> testClass) {
@@ -132,6 +129,7 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 					.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(extensionContext.getRequiredTestClass(), includeSpaces), TestDirectoryProvider.class));
 
 		extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put(KEY, provider.getTestDirectory());
+		extensionContext.getStore(NAMESPACE).getOrComputeIfAbsent(TRACKER_KEY, key -> new CleanupTracker(provider));
 
 		if (type == Path.class) {
 			return provider.getTestDirectory();
@@ -139,6 +137,26 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 			return provider.getTestDirectory().toFile();
 		} else {
 			return provider;
+		}
+	}
+
+	private static final class CleanupTracker implements ExtensionContext.Store.CloseableResource {
+		private final TestDirectoryProvider provider;
+		private boolean hasFailure = false;
+
+		private CleanupTracker(TestDirectoryProvider provider) {
+			this.provider = provider;
+		}
+
+		public void markFailure() {
+			hasFailure = true;
+		}
+
+		@Override
+		public void close() throws Throwable {
+			if (!hasFailure) {
+				((AutoCloseable) provider).close();
+			}
 		}
 	}
 }
