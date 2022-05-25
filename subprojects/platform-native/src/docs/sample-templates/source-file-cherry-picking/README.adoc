@@ -101,6 +101,8 @@ ifndef::c[ERROR: Please define `plugin-name` attribute.]
 :tags: sample, {application}, sources, native, {C}, gradle
 :category: {C}
 :description: See how to set the source file cherry-picking of {an-application} implemented in {C} using the Gradle Nokee plugins.
+:ref-configurable-file-tree: https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileTree.html
+:ref-configurable-file-tree-include: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html#include-java.lang.String...-
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
@@ -126,11 +128,11 @@ include::kotlin-dsl/build.{plugin-name}.gradle.kts[]
 ====
 <1> Apply the {ref-plugin}.
 <2> Set {application} sources from `srcs/main.{source-file-extension}` and `srcs/potato/greeter.{source-file-extension}` files
-<3> Important to set private headers with the *include* pattern using *fileTree* to ensure the proper header search paths.
+<3> Important to set private headers with the link:{ref-configurable-file-tree-include}[*include*] pattern using link:{ref-configurable-file-tree}[*fileTree*] to ensure the proper header search paths.
 When a header file is picked by file path alone, the parent directory (enclosing directory) will be selected as one of the header search paths.
 +
 NOTE: Although users can cherry-pick header files by file path alone,
-we recommend using a *fileTree* to cherry-pick the headers.
+we recommend using a link:{ref-configurable-file-tree}[*fileTree*] to cherry-pick the headers.
 You can mix *cherry-picking*, *globing* and *generated* sources via appending.
 
 Demonstration below where we see the {application} builds:
