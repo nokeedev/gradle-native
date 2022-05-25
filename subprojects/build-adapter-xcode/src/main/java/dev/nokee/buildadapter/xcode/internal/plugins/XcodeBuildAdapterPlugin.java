@@ -91,6 +91,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					task.setGroup("Xcode Target");
 					task.getProjectLocation().set(reference.getLocation().toFile());
 					task.getTargetName().set(targetName);
+					task.getDerivedDataPath().set(project.getRootProject().getLayout().getBuildDirectory().dir("derivedData"));
 				});
 			});
 		};
@@ -103,6 +104,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					task.setGroup("Xcode Scheme");
 					task.getWorkspaceLocation().set(workspace.getLocation().toFile());
 					task.getSchemeName().set(schemeName);
+					task.getDerivedDataPath().set(project.getRootProject().getLayout().getBuildDirectory().dir("derivedData"));
 				});
 			});
 		};

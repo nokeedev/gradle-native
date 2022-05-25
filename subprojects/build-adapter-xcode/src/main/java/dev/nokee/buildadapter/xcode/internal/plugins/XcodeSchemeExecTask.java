@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static dev.nokee.utils.ProviderUtils.ifPresent;
+
 public abstract class XcodeSchemeExecTask extends DefaultTask {
 	@Inject
 	protected abstract ExecOperations getExecOperations();
@@ -39,11 +41,16 @@ public abstract class XcodeSchemeExecTask extends DefaultTask {
 	@Internal
 	public abstract Property<String> getSchemeName();
 
+	@Internal
+	public abstract DirectoryProperty getDerivedDataPath();
+
 	@TaskAction
 	private void doExec() throws IOException {
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			getExecOperations().exec(spec -> {
-				spec.commandLine("xcodebuild", "-workspace", getWorkspaceLocation().get().getAsFile(), "-scheme", getSchemeName().get(),
+				spec.commandLine("xcodebuild", "-workspace", getWorkspaceLocation().get().getAsFile(), "-scheme", getSchemeName().get());
+				ifPresent(getDerivedDataPath(), it -> spec.args("-derivedDataPath", it.getAsFile()));
+				spec.args(
 					// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
 					"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
 				spec.workingDir(getWorkspaceLocation().get().getAsFile().getParentFile()); // TODO: Test execution on nested projects
