@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.init;
+package dev.nokee.nvm;
 
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
@@ -23,8 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static dev.nokee.init.NokeeVersionSource.versionFile;
-import static dev.nokee.init.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
+import static dev.nokee.nvm.NokeeVersionSource.versionFile;
+import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 import static dev.nokee.internal.testing.GradleProviderMatchers.absentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;

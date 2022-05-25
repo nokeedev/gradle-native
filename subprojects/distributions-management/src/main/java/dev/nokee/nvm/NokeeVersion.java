@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.init;
+package dev.nokee.nvm;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;

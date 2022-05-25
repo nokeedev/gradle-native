@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.init;
+package dev.nokee.nvm;
 
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -27,10 +27,10 @@ import org.gradle.api.services.BuildServiceRegistration;
 import javax.inject.Inject;
 import java.util.function.Function;
 
-import static dev.nokee.init.NokeeVersionManagementService.registerService;
-import static dev.nokee.init.NokeeVersionManagementService.toNokeeVersion;
-import static dev.nokee.init.NokeeVersionSource.versionFile;
-import static dev.nokee.init.ProviderUtils.forUseAtConfigurationTime;
+import static dev.nokee.nvm.NokeeVersionManagementService.registerService;
+import static dev.nokee.nvm.NokeeVersionManagementService.toNokeeVersion;
+import static dev.nokee.nvm.NokeeVersionSource.versionFile;
+import static dev.nokee.nvm.ProviderUtils.forUseAtConfigurationTime;
 
 // FIXME: Javadoc fail if no public class
 public class NokeeVersionManagementPlugin implements Plugin<Settings> {
