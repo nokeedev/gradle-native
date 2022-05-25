@@ -125,7 +125,7 @@ include::kotlin-dsl/build.{plugin-name}.gradle.kts[]
 =====
 ====
 <1> Apply the {ref-plugin}.
-<2> Set {application} sources from `srcs/main.c` and `srcs/potato/greeter.c` files
+<2> Set {application} sources from `srcs/main.{source-file-extension}` and `srcs/potato/greeter.{source-file-extension}` files
 <3> Important to set private headers with the *include* pattern using *fileTree* to ensure the proper header search paths.
 When a header file is picked by file path alone, the parent directory (enclosing directory) will be selected as one of the header search paths.
 +
