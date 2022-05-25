@@ -21,13 +21,11 @@ import dev.nokee.platform.xcode.EmptyXCProject;
 import dev.nokee.platform.xcode.XCWorkspaceElement;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
@@ -50,12 +48,12 @@ class RedirectProjectBuildDirectoryToRootBuildDirectoryFunctionalTest {
 	@Test
 	void redirectsSubprojectBuildDirectoryToRootProjectBuildDirectory(GradleRunner runner) throws IOException {
 		assertVerifyTask(
-			"project(':').buildDir.absolutePath.replace('\\', '/').endsWith('/build')",
-			"project(':App').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/App-29bgbf8mfc')",
-			"project(':Lib1').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/Lib1-22ji4v30pv3')",
-			"project(':Pods').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/Pods-22ji7ch9sql')",
-			"project(':Pods:Lib1').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/Lib1-3vq31ktoy17hb')",
-			"project(':Pods:Lib2').buildDir.absolutePath.replace('\\', '/').endsWith('/build/subprojects/Lib2-3vq31ktoy1z7k')"
+			"project(':').buildDir.absolutePath.replace('\\\\', '/').endsWith('/build')",
+			"project(':App').buildDir.absolutePath.replace('\\\\', '/').endsWith('/build/subprojects/App-29bgbf8mfc')",
+			"project(':Lib1').buildDir.absolutePath.replace('\\\\', '/').endsWith('/build/subprojects/Lib1-22ji4v30pv3')",
+			"project(':Pods').buildDir.absolutePath.replace('\\\\', '/').endsWith('/build/subprojects/Pods-22ji7ch9sql')",
+			"project(':Pods:Lib1').buildDir.absolutePath.replace('\\\\', '/').endsWith('/build/subprojects/Lib1-3vq31ktoy17hb')",
+			"project(':Pods:Lib2').buildDir.absolutePath.replace('\\\\', '/').endsWith('/build/subprojects/Lib2-3vq31ktoy1z7k')"
 		).writeTo(testDirectory.resolve("build.gradle"));
 		runner.withTasks("verify").build();
 	}
