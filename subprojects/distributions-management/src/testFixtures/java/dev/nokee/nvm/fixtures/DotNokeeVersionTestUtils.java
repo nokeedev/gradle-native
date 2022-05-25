@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DotNokeeVersionTestUtils {
+public final class DotNokeeVersionTestUtils {
 	public static void writeVersionFileTo(Path testDirectory, String version) throws IOException {
 		Files.write(testDirectory.resolve(".nokee-version"), version.getBytes(StandardCharsets.UTF_8));
 	}
