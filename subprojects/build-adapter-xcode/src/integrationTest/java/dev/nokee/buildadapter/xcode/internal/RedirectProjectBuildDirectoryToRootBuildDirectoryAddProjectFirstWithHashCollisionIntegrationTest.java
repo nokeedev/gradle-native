@@ -84,7 +84,7 @@ class RedirectProjectBuildDirectoryToRootBuildDirectoryAddProjectFirstWithHashCo
 
 	@Test
 	void hasProject_B_BuildDirectory() {
-		assertThat(projectB.getBuildDir(), aFile(withAbsolutePath(endsWith("/build/subprojects/A-1q"))));
+		assertThat(projectB.getBuildDir(), aFile(withAbsolutePath(endsWith("/build/subprojects/B-1g"))));
 	}
 
 	@Test
