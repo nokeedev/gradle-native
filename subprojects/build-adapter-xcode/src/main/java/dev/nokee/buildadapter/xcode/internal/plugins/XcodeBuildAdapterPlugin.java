@@ -31,7 +31,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
-import org.gradle.api.tasks.Exec;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -88,12 +87,10 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static Action<Project> forXcodeProject(XCProjectReference reference) {
 		return project -> {
 			forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.getParameters().getProject().set(reference))).get().getTargetNames().forEach(targetName -> {
-				project.getTasks().register(targetName, Exec.class, task -> {
+				project.getTasks().register(targetName, XcodeTargetExecTask.class, task -> {
 					task.setGroup("Xcode Target");
-					task.commandLine("xcodebuild", "-project", reference.getLocation(), "-target", targetName,
-						// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
-						"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
-					task.workingDir(reference.getLocation().getParent().toFile()); // TODO: Test execution on nested projects
+					task.getProjectLocation().set(reference.getLocation().toFile());
+					task.getTargetName().set(targetName);
 				});
 			});
 		};
@@ -101,13 +98,11 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 	private static Action<Project> forXcodeWorkspace(XCWorkspace workspace) {
 		return project -> {
-			workspace.getSchemeNames().forEach(schemaName -> {
-				project.getTasks().register(schemaName, Exec.class, task -> {
+			workspace.getSchemeNames().forEach(schemeName -> {
+				project.getTasks().register(schemeName, XcodeSchemeExecTask.class, task -> {
 					task.setGroup("Xcode Scheme");
-					task.commandLine("xcodebuild", "-workspace", workspace.getLocation(), "-scheme", schemaName,
-						// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
-						"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
-					task.workingDir(workspace.getLocation().getParent().toFile()); // TODO: Test execution on nested projects
+					task.getWorkspaceLocation().set(workspace.getLocation().toFile());
+					task.getSchemeName().set(schemeName);
 				});
 			});
 		};
