@@ -29,21 +29,21 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-abstract class NokeeRCVersionSource implements ValueSource<NokeeVersion, NokeeRCVersionSource.Parameters> {
+abstract class NokeeVersionSource implements ValueSource<NokeeVersion, NokeeVersionSource.Parameters> {
 	interface Parameters extends ValueSourceParameters {
-		RegularFileProperty getNokeeRCFile();
+		RegularFileProperty getNokeeVersionFile();
 	}
 
 	@Inject
-	public NokeeRCVersionSource() {}
+	public NokeeVersionSource() {}
 
 	@Nullable
 	@Override
 	public NokeeVersion obtain() {
-		final Path rcFile = getParameters().getNokeeRCFile().get().getAsFile().toPath();
-		if (Files.exists(rcFile)) {
+		final Path versionFile = getParameters().getNokeeVersionFile().get().getAsFile().toPath();
+		if (Files.exists(versionFile)) {
 			try {
-				return NokeeVersion.version(new String(Files.readAllBytes(rcFile)));
+				return NokeeVersion.version(new String(Files.readAllBytes(versionFile)));
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
@@ -51,7 +51,7 @@ abstract class NokeeRCVersionSource implements ValueSource<NokeeVersion, NokeeRC
 		return null;
 	}
 
-	public static Action<ValueSourceSpec<Parameters>> rcFile(File baseDirectory) {
-		return spec -> spec.parameters(parameters -> parameters.getNokeeRCFile().fileValue(new File(baseDirectory, ".nokeerc")));
+	public static Action<ValueSourceSpec<Parameters>> versionFile(File baseDirectory) {
+		return spec -> spec.parameters(parameters -> parameters.getNokeeVersionFile().fileValue(new File(baseDirectory, ".nokee-version")));
 	}
 }

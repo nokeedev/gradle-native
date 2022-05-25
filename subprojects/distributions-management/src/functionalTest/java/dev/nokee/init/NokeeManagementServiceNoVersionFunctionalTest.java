@@ -56,6 +56,6 @@ class NokeeManagementServiceNoVersionFunctionalTest {
 	@Test
 	void showsMeaningfulError() {
 		final BuildResult result = executer.withTasks("verify").buildAndFail();
-		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokeerc file."));
+		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokee-version file."));
 	}
 }
