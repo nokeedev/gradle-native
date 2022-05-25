@@ -15,19 +15,20 @@
  */
 package dev.nokee.utils;
 
-import org.gradle.api.internal.provider.DefaultProvider;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.internal.provider.CollectionProviderInternal;
+import org.gradle.api.internal.provider.DefaultProvider;
 import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.HasConfigurableValue;
 import org.gradle.api.provider.Provider;
 import org.gradle.util.GradleVersion;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -137,5 +138,21 @@ public final class ProviderUtils {
 	public static <S extends HasConfigurableValue> S disallowChanges(S value) {
 		value.disallowChanges();
 		return value;
+	}
+
+	/**
+	 * If a value is present, invoke the specified action with the value, otherwise do nothing.
+	 *
+	 * @param self  the provider, must not be null
+	 * @param action  the action to execute, must not be null
+	 * @param <S>  the provider type
+	 */
+	public static <S> void ifPresent(Provider<S> self, Action<? super S> action) {
+		Objects.requireNonNull(self);
+		Objects.requireNonNull(action);
+		final S value = self.getOrNull();
+		if (value != null) {
+			action.execute(value);
+		}
 	}
 }
