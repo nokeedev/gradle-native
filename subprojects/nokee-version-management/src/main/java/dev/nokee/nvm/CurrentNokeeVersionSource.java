@@ -53,6 +53,7 @@ abstract class CurrentNokeeVersionSource implements ValueSource<NokeeVersion, Cu
 
 		try {
 			final URLConnection connection = getParameters().getCurrentReleaseUrl().get().toURL().openConnection();
+			connection.setRequestProperty("User-Agent", "Nokee Version Management plugin"); // required by GitHub hosting
 			connection.connect();
 			final Scanner s = new Scanner(connection.getInputStream()).useDelimiter("\\A");
 			if (!s.hasNext()) {
