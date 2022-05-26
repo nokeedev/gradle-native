@@ -25,7 +25,7 @@ final class ProviderUtils {
 		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0 && GradleVersion.current().compareTo(GradleVersion.version("7.0")) < 0) {
 			try {
 				@SuppressWarnings("unchecked")
-				Provider<T> result = (Provider<T>) Provider.class.getMethod("forUseAtConfigurationTime").invoke(self);
+				final Provider<T> result = (Provider<T>) Provider.class.getMethod("forUseAtConfigurationTime").invoke(self);
 				return result;
 			} catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
 				throw new RuntimeException(e);
