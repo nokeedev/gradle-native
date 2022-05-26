@@ -104,12 +104,14 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 			final GradlePluginTestingStrategyFactory strategyFactory = testSuite.getStrategies();
 			majorOperatingSystemFamilies().forEach(osFamily -> {
 				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForMinimumVersion()));
+				strategies.add(strategyFactory.composite(osFamily, strategyFactory.coverageForGradleVersion("6.9.2")));
 				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForLatestGlobalAvailableVersion()));
 				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForLatestNightlyVersion()));
 			});
 
 			final DevelopmentTestingStrategy developmentStrategy = new DevelopmentTestingStrategy();
 			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForMinimumVersion()));
+			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.coverageForGradleVersion("6.9.2")));
 			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForLatestGlobalAvailableVersion()));
 			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForLatestNightlyVersion()));
 			testSuite.getTestingStrategies().convention(strategies);
