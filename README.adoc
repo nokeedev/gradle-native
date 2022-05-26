@@ -19,6 +19,8 @@ plugins {
 }
 ----
 
+For more information, refer to the link:https://docs.nokee.dev/manual/getting-started.html[Getting Started chapter].
+
 == Usage
 
 Apply link:https://nokee.dev/docs/{jbake-version}/manual/plugin-references.html[any of the Nokee plugins] to your build just like any other Gradle plugin:
