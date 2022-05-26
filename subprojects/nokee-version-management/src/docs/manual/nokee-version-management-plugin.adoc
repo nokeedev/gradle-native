@@ -55,8 +55,8 @@ Upon resolution, all plugins in the namespace `dev.nokee` resolve to the specifi
 
 The plugin determine which Nokee version to use by reading it from the following sources, in this order:
 
-1. The `NOKEE_VERSION` environment variable, if specified.
-2. The first Nokee version found by searching each of its parent build until reaching the root build (e.g. `gradle.parent` is null).
+1. The <<envVar:NOKEE_VERSION, `NOKEE_VERSION` environment variable>>, if specified.
+2. The first Nokee version found by searching each of its parent build until reaching the root build (e.g. `gradle.parent` is null) for an exported Nokee version via <<sec:nokee-version-management-service, build service>>.
 3. The `.nokee-version` file in the Gradle project root (e.g. `settingsDir`/`rootDir`).
 
 == Seeding Nokee Version
@@ -64,7 +64,12 @@ The plugin determine which Nokee version to use by reading it from the following
 When no version is found, we seed a Nokee version in a new `.nokee-version` according to the following order:
 
 1. If networking activity is allowed, the current release version from https://services.nokee.dev/versions/current.json
-2. The current release version known at the time of plugin was released.
+2. The current release version known at the time of plugin was released - updated on each plugin release.
+
+[[sec:nokee-version-management-service]]
+== Build Service
+
+The plugin register a shared service named `nokeeVersionManagement` that expose a `version` read-only property.
 
 == System properties
 
