@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.not;
 
 @RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
-class ConfigurationCacheDetectsChangesToDotNokeeRCFileFunctionalTest {
+class ConfigurationCacheDetectsChangesToNokeeVersionFileFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
 	BuildResult result;
