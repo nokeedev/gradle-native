@@ -47,18 +47,81 @@ The plugin will keep the implicit declaration of `gradlePluginPortal()` when add
 You can disable the behaviour via System property `dev.nokee.repository.gradlePluginPortal` by using the `disabled` value.
 Keep in mind that Nokee plugins has dependencies on remote artifacts from `mavenCentral()` which are mirrored to `gradlePluginPortal()`.
 
+When adding a dependency on the `nokeeApi()`, we need to declare a repository containing the artifacts.
+The plugin provide an extension on `repositories` block (e.g. `RepositoryHandler`) for every project.
+
+NOTE: Although the release artifacts are available on `gradlePluginPortal()`, we recommend using the Nokee repository factory method.
+The factory method is aware of both release and snapshot repositories.
+
+.Declare the Nokee Maven artifact repository matching current version
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+repositories {
+    nokee()
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+repositories {
+    nokee()
+}
+----
+=====
+====
+
+=== Dependencies
+
+When developing against Nokee API, you can use the `dependencies` block (e.g. `DependencyHandler`) extension `nokeeApi()`.
+It will align with the declared Nokee version detected by this plugin.
+
+.Declare dependency on Nokee API artifacts matching current version
+====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+dependencies {
+    nokeeApi()
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+dependencies {
+    nokeeApi()
+}
+----
+=====
+====
+
 === Version Alignment
 
 Upon resolution, all plugins in the namespace `dev.nokee` resolve to the specified version.
 
+[[sec:nokee-version-management-sourcing]]
 == Choosing the Nokee Version
 
 The plugin determine which Nokee version to use by reading it from the following sources, in this order:
 
-1. The <<envVar:NOKEE_VERSION, `NOKEE_VERSION` environment variable>>, if specified.
-2. The first Nokee version found by searching each of its parent build until reaching the root build (e.g. `gradle.parent` is null) for an exported Nokee version via <<sec:nokee-version-management-service, build service>>.
-3. The `.nokee-version` file in the Gradle project root (e.g. `settingsDir`/`rootDir`).
+1. The first Nokee version found by searching each of its parent build until reaching the root build (e.g. `gradle.parent` is null) for an exported Nokee version via <<sec:nokee-version-management-service, build service>>.
+2. The <<systemProp:nokee.version, `nokee.version` System property>>, if specified.
+3. The <<gradleProp:nokee.version, `nokee.version` Gradle property>>, if specified.
+4. The <<envVar:NOKEE_VERSION, `NOKEE_VERSION` environment variable>>, if specified.
+5. The `.nokee-version` file in the Gradle project root (e.g. `settingsDir`/`rootDir`).
 
+[[sec:nokee-version-management-seeding]]
 == Seeding Nokee Version
 
 When no version is found, we seed a Nokee version in a new `.nokee-version` according to the following order:
@@ -66,22 +129,29 @@ When no version is found, we seed a Nokee version in a new `.nokee-version` acco
 1. If networking activity is allowed, the current release version from https://services.nokee.dev/versions/current.json
 2. The current release version known at the time of plugin was released - updated on each plugin release.
 
+[[sec:nokee-version-management-repositories]]
+== Repositories
+
 [[sec:nokee-version-management-service]]
 == Build Service
 
 The plugin register a shared service named `nokeeVersionManagement` that expose a `version` read-only property.
 
-== System properties
+== System Properties
 
-[[sysProp:dev.nokee.repository.release.url.override]]
+[[systemProp:nokee.version]]
+`nokee.version` (any version string)::
+Overrides the Nokee version to use for the current build.
+
+[[systemProp:dev.nokee.repository.release.url.override]]
 `dev.nokee.repository.release.url.override` (any URL string)::
 Overrides the repository URL for release version.
 
-[[sysProp:dev.nokee.repository.snapshot.url.override]]
+[[systemProp:dev.nokee.repository.snapshot.url.override]]
 `dev.nokee.repository.snapshot.url.override` (any URL string)::
 Overrides the repository URL for snapshot version.
 
-[[sysProp:dev.nokee.repository.gradlePluginPortal]]
+[[systemProp:dev.nokee.repository.gradlePluginPortal]]
 `dev.nokee.repository.gradlePluginPortal` (implicit|enabled|disabled)::
 Gradle Plugin Portal repository behaviour.
 Disabled will not include the repository.
@@ -89,8 +159,14 @@ Users will have to declare it if they want it.
 Enabled will always declare the repository.
 Implicit (default) will declare it only if no repository were previously added.
 
+== Gradle Properties
+
+[[gradleProp:nokee.version]]
+`nokee.version` (any version String)::
+Overrides the Nokee version to use for the current build.
+
 == Environment Variables
 
 [[envVar:NOKEE_VERSION]]
 `NOKEE_VERSION`::
-Overrides the Nokee version in use.
+Overrides the Nokee version to use for the current build.

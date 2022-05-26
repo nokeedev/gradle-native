@@ -36,7 +36,12 @@ plugins {
 ----
 =====
 ====
-<1> The latest status version, `latest.release`, is link:https://docs.gradle.org/7.0/release-notes.html[only supported starting Gradle 7.0]. For older Gradle, please use the link:https://plugins.gradle.org/plugin/dev.nokee.nokee-version-management[latest version available].
+<1> The latest status version, `latest.release`, is link:https://docs.gradle.org/7.0/release-notes.html[only supported starting Gradle 7.0].
+For older Gradle, please use the link:https://plugins.gradle.org/plugin/dev.nokee.nokee-version-management[latest version available].
+
+NOTE: The Nokee Version Management plugin does not refer to the Nokee version to use.
+Instead, the plugin will <<sec:nokee-version-management-sourcing, choose the Nokee version from various location>>.
+On the first use, the plugin will <<sec:nokee-version-management-seeding, seed a new Nokee version>> that best match your project.
 
 Second, apply one of <<plugin-references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
 
