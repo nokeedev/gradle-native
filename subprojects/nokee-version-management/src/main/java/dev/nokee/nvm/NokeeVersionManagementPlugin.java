@@ -25,6 +25,8 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.services.BuildServiceRegistration;
 
 import javax.inject.Inject;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.function.Function;
 
 import static dev.nokee.nvm.NokeeVersionManagementService.registerService;
@@ -68,7 +70,20 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 				parameters.getNokeeVersion().value(
 					forUseAtConfigurationTime(providers.environmentVariable("NOKEE_VERSION")).map(NokeeVersion::version)
 						.orElse(providers.provider(settings::getGradle).flatMap(forEachParent(NokeeVersionManagementService::findServiceRegistration)).map(toNokeeVersion()))
-						.orElse(forUseAtConfigurationTime(providers.of(NokeeVersionSource.class, versionFile(settings.getSettingsDir())))));
+						.orElse(forUseAtConfigurationTime(providers.of(NokeeVersionSource.class, versionFile(settings.getSettingsDir()))))
+						.orElse(forUseAtConfigurationTime(providers.of(CurrentNokeeVersionSource.class, spec -> spec.parameters(it -> {
+							it.getNetworkStatus().set(settings.getGradle().getStartParameter().isOffline() ? CurrentNokeeVersionSource.Parameters.NetworkStatus.DISALLOWED : CurrentNokeeVersionSource.Parameters.NetworkStatus.ALLOWED);
+							it.getCurrentReleaseUrl().set(uri(forUseAtConfigurationTime(providers.systemProperty("dev.nokee.internal.currentRelease.url")).orElse("https://services.nokee.dev/versions/current.json").get()));
+						}))))
+				);
+			}
+
+			private URI uri(String s) {
+				try {
+					return new URI(s);
+				} catch (URISyntaxException e) {
+					throw new RuntimeException(e);
+				}
 			}
 
 			private Transformer<Provider<NokeeVersionManagementService>, Gradle> forEachParent(Function<Gradle, BuildServiceRegistration<NokeeVersionManagementService, NokeeVersionManagementService.Parameters>> mapper) {
