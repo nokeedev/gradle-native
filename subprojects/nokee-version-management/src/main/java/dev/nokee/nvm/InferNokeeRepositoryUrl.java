@@ -16,18 +16,30 @@
 package dev.nokee.nvm;
 
 import org.gradle.api.Transformer;
+import org.gradle.api.provider.ProviderFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static dev.nokee.nvm.ProviderUtils.forUseAtConfigurationTime;
+
 // TODO: Allow override of the Nokee repositories
 final class InferNokeeRepositoryUrl implements Transformer<URI, NokeeVersion> {
+	private final ProviderFactory providers;
+
+	public InferNokeeRepositoryUrl(ProviderFactory providers) {
+		this.providers = providers;
+	}
+
 	@Override
+	@SuppressWarnings("UnstableApiUsage")
 	public URI transform(NokeeVersion version) {
 		if (version.isSnapshot()) {
-			return uri("https://repo.nokee.dev/snapshot");
+			return uri(forUseAtConfigurationTime(providers.systemProperty("dev.nokee.repository.snapshot.url.override"))
+				.orElse("https://repo.nokee.dev/snapshot").get());
 		} else {
-			return uri("https://repo.nokee.dev/release");
+			return uri(forUseAtConfigurationTime(providers.systemProperty("dev.nokee.repository.release.url.override"))
+				.orElse("https://repo.nokee.dev/release").get());
 		}
 	}
 
