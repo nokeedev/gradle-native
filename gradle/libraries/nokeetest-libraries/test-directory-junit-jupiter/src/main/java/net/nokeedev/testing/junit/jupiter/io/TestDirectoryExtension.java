@@ -24,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
-import org.junit.jupiter.api.extension.TestWatcher;
 import org.junit.platform.commons.util.ExceptionUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
 
@@ -39,7 +38,7 @@ import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedField
 import static org.junit.platform.commons.util.ReflectionUtils.isPrivate;
 import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 
-public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallback, BeforeEachCallback, ParameterResolver {
+public final class TestDirectoryExtension implements BeforeAllCallback, BeforeEachCallback, ParameterResolver {
 	private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(TestDirectoryExtension.class);
 	private static final String KEY = "temp.dir";
 	private static final String TRACKER_KEY = "tracker";
@@ -53,11 +52,6 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 	public void beforeEach(ExtensionContext context) throws Exception {
 		context.getRequiredTestInstances().getAllInstances() //
 			.forEach(instance -> injectInstanceFields(context, instance));
-	}
-
-	@Override
-	public void testFailed(ExtensionContext context, Throwable cause) {
-		context.getStore(NAMESPACE).get(TRACKER_KEY, CleanupTracker.class).markFailure();
 	}
 
 	private void injectStaticFields(ExtensionContext context, Class<?> testClass) {
@@ -129,7 +123,7 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 					.getOrComputeIfAbsent(KEY, key -> TestNameTestDirectoryProvider.newInstance(extensionContext.getRequiredTestClass(), includeSpaces), TestDirectoryProvider.class));
 
 		extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put(KEY, provider.getTestDirectory());
-		extensionContext.getStore(NAMESPACE).getOrComputeIfAbsent(TRACKER_KEY, key -> new CleanupTracker(provider));
+		extensionContext.getStore(NAMESPACE).getOrComputeIfAbsent(TRACKER_KEY, key -> new CleanupTracker(provider, extensionContext));
 
 		if (type == Path.class) {
 			return provider.getTestDirectory();
@@ -142,19 +136,16 @@ public final class TestDirectoryExtension implements TestWatcher, BeforeAllCallb
 
 	private static final class CleanupTracker implements ExtensionContext.Store.CloseableResource {
 		private final TestDirectoryProvider provider;
-		private boolean hasFailure = false;
+		private final ExtensionContext context;
 
-		private CleanupTracker(TestDirectoryProvider provider) {
+		private CleanupTracker(TestDirectoryProvider provider, ExtensionContext context) {
 			this.provider = provider;
-		}
-
-		public void markFailure() {
-			hasFailure = true;
+			this.context = context;
 		}
 
 		@Override
 		public void close() throws Throwable {
-			if (!hasFailure) {
+			if (!context.getExecutionException().isPresent()) {
 				((AutoCloseable) provider).close();
 			}
 		}
