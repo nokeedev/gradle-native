@@ -53,7 +53,7 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 					spec.getRepositories().gradlePluginPortal();
 				}
 			});
-			spec.repositories(new NokeeRepositoryAction(version.map(new InferNokeeRepositoryUrl())));
+			spec.repositories(new NokeeRepositoryAction(version.map(new InferNokeeRepositoryUrl(providers))));
 			spec.resolutionStrategy(strategy -> strategy.eachPlugin(new OnlyIfUnderNokeeNamespaceAction(details -> {
 				details.useVersion(version.get().toString());
 			})));
