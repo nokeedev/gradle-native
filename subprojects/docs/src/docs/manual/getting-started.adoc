@@ -21,7 +21,7 @@ First, apply the <<plugin:nokee-version-management, Nokee Version Management plu
 [source,groovy]
 ----
 plugins {
-    id 'dev.nokee.nokee-version-management' version 'latest.version'
+    id 'dev.nokee.nokee-version-management' version 'latest.version'    // <1>
 }
 ----
 =====
@@ -31,11 +31,12 @@ plugins {
 [source,kotlin]
 ----
 plugins {
-    id("dev.nokee.nokee-version-management") version("latest.version")
+    id("dev.nokee.nokee-version-management") version("latest.version")  // <1>
 }
 ----
 =====
 ====
+<1> The latest status version, `latest.release`, is link:https://docs.gradle.org/7.0/release-notes.html[only supported starting Gradle 7.0]. For older Gradle, please use the link:https://plugins.gradle.org/plugin/dev.nokee.nokee-version-management[latest version available].
 
 Second, apply one of <<plugin-references.adoc#,Nokee plugins>> to your build using the link:{gradle-user-manual}/plugins.html#sec:plugins_block[plugins DSL block]:
 
