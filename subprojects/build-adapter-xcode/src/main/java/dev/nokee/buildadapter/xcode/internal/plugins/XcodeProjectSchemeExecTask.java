@@ -16,12 +16,10 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import dev.nokee.utils.FileSystemLocationUtils;
+import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.Directory;
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Internal;
@@ -32,7 +30,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 
 import static dev.nokee.utils.ProviderUtils.ifPresent;
 
@@ -41,7 +38,7 @@ public abstract class XcodeProjectSchemeExecTask extends DefaultTask implements 
 	protected abstract ExecOperations getExecOperations();
 
 	@Internal
-	public abstract RegularFileProperty getProjectLocation();
+	public abstract Property<XCProjectReference> getXcodeProject();
 
 	@Internal
 	public abstract Property<String> getSchemeName();
@@ -57,14 +54,14 @@ public abstract class XcodeProjectSchemeExecTask extends DefaultTask implements 
 
 	@Internal
 	public Provider<String> getProjectName() {
-		return getProjectLocation().getLocationOnly().map(it -> FilenameUtils.removeExtension(it.getAsFile().getName()));
+		return getXcodeProject().map(it -> FilenameUtils.removeExtension(it.getLocation().getFileName().toString()));
 	}
 
 	@TaskAction
 	private void doExec() throws IOException {
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			getExecOperations().exec(spec -> {
-				spec.commandLine("xcodebuild", "-project", getProjectLocation().get().getAsFile(), "-scheme", getSchemeName().get());
+				spec.commandLine("xcodebuild", "-project", getXcodeProject().get().getLocation(), "-scheme", getSchemeName().get());
 				ifPresent(getDerivedDataPath().map(FileSystemLocationUtils::asPath), derivedDataPath -> {
 					spec.args("-derivedDataPath", derivedDataPath);
 					spec.args("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));

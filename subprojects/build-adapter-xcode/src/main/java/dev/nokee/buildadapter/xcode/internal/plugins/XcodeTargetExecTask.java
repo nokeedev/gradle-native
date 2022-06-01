@@ -18,18 +18,13 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
-import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemOperations;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 
@@ -39,20 +34,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static dev.nokee.utils.ProviderUtils.ifPresent;
+import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask {
 	@Inject
 	protected abstract ExecOperations getExecOperations();
 
 	@Internal
-	public abstract RegularFileProperty getProjectLocation();
+	public abstract Property<XCProjectReference> getXcodeProject();
 
 	@Input
 	public abstract Property<String> getTargetName();
 
 	@Internal
 	public Provider<String> getProjectName() {
-		return getProjectLocation().getLocationOnly().map(it -> FilenameUtils.removeExtension(it.getAsFile().getName()));
+		return getXcodeProject().map(it ->  removeExtension(it.getLocation().getFileName().toString()));
 	}
 
 	@Internal
@@ -65,7 +61,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	private void doExec() throws IOException {
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			getExecOperations().exec(spec -> {
-				spec.commandLine("xcodebuild", "-project", getProjectLocation().get().getAsFile(), "-target", getTargetName().get());
+				spec.commandLine("xcodebuild", "-project", getXcodeProject().get().getLocation(), "-target", getTargetName().get());
 				ifPresent(getDerivedDataPath().map(FileSystemLocationUtils::asPath), derivedDataPath -> {
 					spec.args("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
 					spec.args("BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
