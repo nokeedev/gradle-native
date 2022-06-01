@@ -89,7 +89,7 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @return a instance representing the environment variables to use, never null.
 	 */
 	static CommandLineToolInvocationEnvironmentVariables inherit() {
-		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(System.getenv());
+		return new CommandLineToolInvocationEnvironmentVariablesInheritImpl();
 	}
 
 	/**
