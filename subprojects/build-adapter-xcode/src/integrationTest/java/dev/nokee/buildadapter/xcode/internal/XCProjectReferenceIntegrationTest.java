@@ -43,4 +43,9 @@ class XCProjectReferenceIntegrationTest {
 	void hasProjectLocation() {
 		assertThat(subject.getLocation(), equalTo(testDirectory.resolve("Test.xcodeproj")));
 	}
+
+	@Test
+	void canConvertWorkspaceBackToReference() {
+		assertThat(subject.load().toReference(), equalTo(XCProjectReference.of(testDirectory.resolve("Test.xcodeproj"))));
+	}
 }
