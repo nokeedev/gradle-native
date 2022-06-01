@@ -18,14 +18,17 @@ package dev.nokee.xcode;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 
+import java.nio.file.Path;
 import java.util.Set;
 
 @EqualsAndHashCode
 public final class XCProject {
+	private final Path location;
 	private final ImmutableSet<String> targetNames;
 	private final ImmutableSet<String> schemeNames;
 
-	public XCProject(ImmutableSet<String> targetNames, ImmutableSet<String> schemeNames) {
+	public XCProject(Path location, ImmutableSet<String> targetNames, ImmutableSet<String> schemeNames) {
+		this.location = location;
 		this.targetNames = targetNames;
 		this.schemeNames = schemeNames;
 	}
@@ -36,5 +39,9 @@ public final class XCProject {
 
 	public Set<String> getSchemeNames() {
 		return schemeNames;
+	}
+
+	public XCProjectReference toReference() {
+		return XCProjectReference.of(location);
 	}
 }

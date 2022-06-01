@@ -75,7 +75,7 @@ public final class XCProjectReference implements Serializable {
 			val schemeNames = builder.build();
 
 			// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
-			return new XCProject(targetNames, schemeNames);
+			return new XCProject(getLocation(), targetNames, schemeNames);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
