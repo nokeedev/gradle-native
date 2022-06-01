@@ -51,4 +51,8 @@ public final class XCWorkspace implements Serializable {
 	public Set<String> getSchemeNames() {
 		return schemeNames;
 	}
+
+	public XCWorkspaceReference toReference() {
+		return XCWorkspaceReference.of(getLocation());
+	}
 }

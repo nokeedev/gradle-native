@@ -15,10 +15,10 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
@@ -36,7 +36,7 @@ public abstract class XcodeSchemeExecTask extends DefaultTask implements Xcodebu
 	protected abstract ExecOperations getExecOperations();
 
 	@Internal
-	public abstract RegularFileProperty getWorkspaceLocation();
+	public abstract Property<XCWorkspaceReference> getXcodeWorkspace();
 
 	@Internal
 	public abstract Property<String> getSchemeName();
@@ -45,7 +45,7 @@ public abstract class XcodeSchemeExecTask extends DefaultTask implements Xcodebu
 	private void doExec() throws IOException {
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			getExecOperations().exec(spec -> {
-				spec.commandLine("xcodebuild", "-workspace", getWorkspaceLocation().get().getAsFile(), "-scheme", getSchemeName().get());
+				spec.commandLine("xcodebuild", "-workspace", getXcodeWorkspace().get().getLocation(), "-scheme", getSchemeName().get());
 				ifPresent(getDerivedDataPath(), it -> spec.args("-derivedDataPath", it.getAsFile()));
 				ifPresent(getSdk(), sdk -> spec.args("-sdk", sdk));
 				ifPresent(getConfiguration(), buildType -> spec.args("-configuration", buildType));
@@ -53,7 +53,7 @@ public abstract class XcodeSchemeExecTask extends DefaultTask implements Xcodebu
 					// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
 					"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
 				spec.workingDir(getWorkingDirectory().map(Directory::getAsFile)
-					.orElse(getWorkspaceLocation().map(it -> it.getAsFile().getParentFile())));
+					.orElse(getXcodeWorkspace().map(it -> it.getLocation().getParent().toFile())));
 				spec.setStandardOutput(outStream);
 				spec.setErrorOutput(outStream);
 			});

@@ -106,7 +106,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			xcodeProject.getTargetNames().forEach(targetName -> {
 				project.getTasks().register(targetName, XcodeTargetExecTask.class, task -> {
 					task.setGroup("Xcode Target");
-					task.getProjectLocation().set(reference.getLocation().toFile());
+					task.getXcodeProject().set(reference);
 					task.getTargetName().set(targetName);
 					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
 					task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + targetName));
@@ -116,7 +116,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			xcodeProject.getSchemeNames().forEach(schemeName -> {
 				project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeProjectSchemeExecTask.class, task -> {
 					task.setGroup("Xcode Scheme");
-					task.getProjectLocation().set(reference.getLocation().toFile());
+					task.getXcodeProject().set(reference);
 					task.getSchemeName().set(schemeName);
 					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
 					action.execute(task);
@@ -130,7 +130,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			workspace.getSchemeNames().forEach(schemeName -> {
 				project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeSchemeExecTask.class, task -> {
 					task.setGroup("Xcode Scheme");
-					task.getWorkspaceLocation().set(workspace.getLocation().toFile());
+					task.getXcodeWorkspace().set(workspace.toReference());
 					task.getSchemeName().set(schemeName);
 					task.getDerivedDataPath().set(project.getRootProject().getLayout().getBuildDirectory().dir("derivedData"));
 				});
