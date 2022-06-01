@@ -16,11 +16,10 @@
 package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.workspace.XCWorkspaceData;
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.workspace.XCWorkspaceDataReader;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +29,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -43,7 +43,7 @@ public final class XCWorkspace implements Serializable {
 
 	private final File location;
 	private final List<XCProjectReference> projects;
-	private final List<String> schemeNames;
+	private final ImmutableSet<String> schemeNames;
 
 	// friends with XCWorkspaceReference
 	XCWorkspace(Path workspaceLocation) {
@@ -59,6 +59,7 @@ public final class XCWorkspace implements Serializable {
 			throw new UncheckedIOException(e);
 		}
 
+		// TODO: Add support for implicit scheme: xcodebuild -list -workspace `getLocation()` -json
 		schemeNames = projects.stream().map(it -> it.getLocation().resolve("xcshareddata/xcschemes")).filter(Files::isDirectory).flatMap(it -> {
 			val builder = ImmutableList.<String>builder();
 			try (final DirectoryStream<Path> xcodeSchemeStream = Files.newDirectoryStream(it, "*.xcscheme")) {
@@ -69,7 +70,7 @@ public final class XCWorkspace implements Serializable {
 				throw new UncheckedIOException(e);
 			}
 			return builder.build().stream();
-		}).distinct().collect(ImmutableList.toImmutableList());
+		}).distinct().collect(ImmutableSet.toImmutableSet());
 	}
 
 	public Path getLocation() {
@@ -80,7 +81,7 @@ public final class XCWorkspace implements Serializable {
 		return projects;
 	}
 
-	public List<String> getSchemeNames() {
+	public Set<String> getSchemeNames() {
 		return schemeNames;
 	}
 }

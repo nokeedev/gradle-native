@@ -14,6 +14,7 @@ dependencies {
 	implementation project(':runtimeNative')
 	implementation project(':runtimeDarwin')
 	implementation "com.google.guava:guava:${guavaVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation 'com.google.code.gson:gson:2.8.6'
 	implementation 'org.simpleframework:simple-xml:2.7.1'

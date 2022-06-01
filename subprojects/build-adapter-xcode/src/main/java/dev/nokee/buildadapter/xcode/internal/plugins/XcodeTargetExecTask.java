@@ -15,11 +15,21 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.utils.FileSystemLocationUtils;
+import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
+import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 
@@ -28,28 +38,56 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public abstract class XcodeTargetExecTask extends DefaultTask {
+import static dev.nokee.utils.ProviderUtils.ifPresent;
+
+public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask {
 	@Inject
 	protected abstract ExecOperations getExecOperations();
 
 	@Internal
 	public abstract RegularFileProperty getProjectLocation();
 
-	@Internal
+	@Input
 	public abstract Property<String> getTargetName();
+
+	@Internal
+	public Provider<String> getProjectName() {
+		return getProjectLocation().getLocationOnly().map(it -> FilenameUtils.removeExtension(it.getAsFile().getName()));
+	}
+
+	@Internal
+	public abstract DirectoryProperty getOutputDirectory();
+
+	@Inject
+	protected abstract FileSystemOperations getFileOperations();
 
 	@TaskAction
 	private void doExec() throws IOException {
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			getExecOperations().exec(spec -> {
 				spec.commandLine("xcodebuild", "-project", getProjectLocation().get().getAsFile(), "-target", getTargetName().get());
+				ifPresent(getDerivedDataPath().map(FileSystemLocationUtils::asPath), derivedDataPath -> {
+					spec.args("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
+					spec.args("BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
+					spec.args("BUILD_ROOT=" + derivedDataPath.resolve("Build/Products"));
+					spec.args("PROJECT_TEMP_DIR=" + derivedDataPath.resolve("Build/Intermediates.noindex/" + getProjectName().get() + ".build"));
+					spec.args("OBJROOT=" + derivedDataPath.resolve("Build/Intermediates.noindex"));
+					spec.args("SYMROOT=" + derivedDataPath.resolve("Build/Products"));
+				});
+				ifPresent(getSdk(), sdk -> spec.args("-sdk", sdk));
+				ifPresent(getConfiguration(), buildType -> spec.args("-configuration", buildType));
 				spec.args(
 					// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
 					"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
-				spec.workingDir(getProjectLocation().get().getAsFile().getParentFile()); // TODO: Test execution on nested projects
+				ifPresent(getWorkingDirectory(), spec::workingDir);
 				spec.setStandardOutput(outStream);
 				spec.setErrorOutput(outStream);
 			});
 		}
+
+		getFileOperations().sync(spec -> {
+			spec.from(getDerivedDataPath(), it -> it.include("Build/Products/**/*"));
+			spec.into(getOutputDirectory());
+		});
 	}
 }

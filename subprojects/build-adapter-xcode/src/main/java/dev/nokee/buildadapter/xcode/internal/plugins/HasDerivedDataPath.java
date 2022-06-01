@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode;
+package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import com.google.common.collect.ImmutableSet;
-import lombok.EqualsAndHashCode;
+import dev.nokee.platform.base.internal.util.PropertyUtils;
+import org.gradle.api.Action;
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.DirectoryProperty;
 
-import java.util.Set;
+import java.util.function.BiConsumer;
 
-@EqualsAndHashCode
-public final class XCProject {
-	private final ImmutableSet<String> targetNames;
-	private final ImmutableSet<String> schemeNames;
+public interface HasDerivedDataPath {
+	DirectoryProperty getDerivedDataPath();
 
-	public XCProject(ImmutableSet<String> targetNames, ImmutableSet<String> schemeNames) {
-		this.targetNames = targetNames;
-		this.schemeNames = schemeNames;
-	}
-
-	public Set<String> getTargetNames() {
-		return targetNames;
-	}
-
-	public Set<String> getSchemeNames() {
-		return schemeNames;
+	static <SELF extends HasDerivedDataPath> Action<SELF> derivedDataPath(BiConsumer<? super SELF, ? super PropertyUtils.Property<Directory>> action) {
+		return self -> action.accept(self, PropertyUtils.wrap(self.getDerivedDataPath()));
 	}
 }

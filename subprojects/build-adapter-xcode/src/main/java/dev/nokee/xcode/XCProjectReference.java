@@ -26,8 +26,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 @EqualsAndHashCode
 public final class XCProjectReference implements Serializable {
@@ -57,7 +60,22 @@ public final class XCProjectReference implements Serializable {
 			val pbxproj = reader.read();
 			val targetIsa = ImmutableSet.of("PBXTarget", "PBXAggregateTarget", "PBXLegacyTarget", "PBXNativeTarget");
 			val targetNames = Streams.stream(pbxproj.getObjects()).filter(it -> targetIsa.contains(it.isa())).map(it -> it.getFields().get("name").toString()).collect(ImmutableSet.toImmutableSet());
-			return new XCProject(targetNames);
+
+			val it = getLocation().resolve("xcshareddata/xcschemes");
+			val builder = ImmutableSet.<String>builder();
+			if (Files.isDirectory(it)) {
+				try (final DirectoryStream<Path> xcodeSchemeStream = Files.newDirectoryStream(it, "*.xcscheme")) {
+					for (Path xcodeSchemeFile : xcodeSchemeStream) {
+						builder.add(removeExtension(xcodeSchemeFile.getFileName().toString()));
+					}
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+			}
+			val schemeNames = builder.build();
+
+			// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
+			return new XCProject(targetNames, schemeNames);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}

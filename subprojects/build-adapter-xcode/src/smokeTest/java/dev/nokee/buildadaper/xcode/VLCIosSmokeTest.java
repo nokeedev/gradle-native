@@ -44,7 +44,7 @@ class VLCIosSmokeTest {
 		CommandLine.of("git", "clone", "--depth=1", "https://code.videolan.org/videolan/vlc-ios.git", '.').execute(null, testDirectory).waitFor().assertNormalExitValue();
 		CommandLine.of("pod", "install", "--repo-update").execute(null, testDirectory).waitFor().assertNormalExitValue();
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
-		executer = runner.withArgument("VLC-iOS");
+		executer = runner.withArgument(":buildVLC-iOS");
 		result = executer.build();
 	}
 
