@@ -27,10 +27,6 @@ import java.util.Set;
 
 @EqualsAndHashCode
 public final class XCWorkspace implements Serializable {
-	public static XCWorkspace open(Path workspaceLocation) {
-		return XCWorkspaceReference.of(workspaceLocation).load();
-	}
-
 	private final File location;
 	private final List<XCProjectReference> projects;
 	private final ImmutableSet<String> schemeNames;
