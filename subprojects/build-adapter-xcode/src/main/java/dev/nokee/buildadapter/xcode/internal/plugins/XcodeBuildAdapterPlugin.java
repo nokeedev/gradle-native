@@ -21,6 +21,7 @@ import dev.nokee.xcode.XCWorkspace;
 import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -36,7 +37,11 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.nio.file.Path;
 
+import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.workingDirectory;
+import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
+import static dev.nokee.utils.ActionUtils.composite;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
+import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 
 class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static final Logger LOGGER = Logging.getLogger(XcodeBuildAdapterPlugin.class);
@@ -75,6 +80,13 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				val projectPath = asProjectPath(relativePath);
 				LOGGER.info(String.format("Mapping Xcode project '%s' to Gradle project '%s'.", relativePath, projectPath));
 				settings.include(projectPath);
+				settings.getGradle().rootProject(rootProject -> {
+					rootProject.project(projectPath, forXcodeProject(project, composite(
+						workingDirectory(set(rootProject.getLayout().getProjectDirectory())),
+						(XcodebuildExecTask task) -> task.getSdk().set(providers.environmentVariable("XCODE_SDK")),
+						(XcodebuildExecTask task) -> task.getConfiguration().set(providers.environmentVariable("XCODE_BUILD_TYPE"))
+					)));
+				});
 			}
 			settings.getGradle().rootProject(forXcodeWorkspace(workspace));
 		}
@@ -85,12 +97,29 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	}
 
 	private static Action<Project> forXcodeProject(XCProjectReference reference) {
+		return forXcodeProject(reference, __ -> {});
+	}
+
+	private static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
-			forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.getParameters().getProject().set(reference))).get().getTargetNames().forEach(targetName -> {
+			val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.getParameters().getProject().set(reference))).get();
+			xcodeProject.getTargetNames().forEach(targetName -> {
 				project.getTasks().register(targetName, XcodeTargetExecTask.class, task -> {
 					task.setGroup("Xcode Target");
 					task.getProjectLocation().set(reference.getLocation().toFile());
 					task.getTargetName().set(targetName);
+					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
+					task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + targetName));
+					action.execute(task);
+				});
+			});
+			xcodeProject.getSchemeNames().forEach(schemeName -> {
+				project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeProjectSchemeExecTask.class, task -> {
+					task.setGroup("Xcode Scheme");
+					task.getProjectLocation().set(reference.getLocation().toFile());
+					task.getSchemeName().set(schemeName);
+					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
+					action.execute(task);
 				});
 			});
 		};
@@ -99,7 +128,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static Action<Project> forXcodeWorkspace(XCWorkspace workspace) {
 		return project -> {
 			workspace.getSchemeNames().forEach(schemeName -> {
-				project.getTasks().register(schemeName, XcodeSchemeExecTask.class, task -> {
+				project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeSchemeExecTask.class, task -> {
 					task.setGroup("Xcode Scheme");
 					task.getWorkspaceLocation().set(workspace.getLocation().toFile());
 					task.getSchemeName().set(schemeName);

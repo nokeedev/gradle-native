@@ -13,28 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode;
+package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import com.google.common.collect.ImmutableSet;
-import lombok.EqualsAndHashCode;
+import org.gradle.api.Task;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
 
-import java.util.Set;
+public interface XcodebuildExecTask extends Task, HasDerivedDataPath, HasWorkingDirectory {
+	@Input
+	@Optional
+	Property<String> getSdk();
 
-@EqualsAndHashCode
-public final class XCProject {
-	private final ImmutableSet<String> targetNames;
-	private final ImmutableSet<String> schemeNames;
+	@Override
+	@Internal
+	DirectoryProperty getDerivedDataPath();
 
-	public XCProject(ImmutableSet<String> targetNames, ImmutableSet<String> schemeNames) {
-		this.targetNames = targetNames;
-		this.schemeNames = schemeNames;
-	}
+	@Override
+	@Internal
+	DirectoryProperty getWorkingDirectory();
 
-	public Set<String> getTargetNames() {
-		return targetNames;
-	}
-
-	public Set<String> getSchemeNames() {
-		return schemeNames;
-	}
+	@Input
+	@Optional
+	Property<String> getConfiguration();
 }
