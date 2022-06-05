@@ -36,6 +36,7 @@ import org.gradle.api.provider.ValueSourceParameters;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.nio.file.Path;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.workingDirectory;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
@@ -103,13 +104,15 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
 			val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.getParameters().getProject().set(reference))).get();
-			xcodeProject.getTargetNames().forEach(targetName -> {
-				project.getTasks().register(targetName, XcodeTargetExecTask.class, task -> {
+			xcodeProject.getTargets().forEach(target -> {
+				project.getTasks().register(target.getName(), XcodeTargetExecTask.class, task -> {
 					task.setGroup("Xcode Target");
 					task.getXcodeProject().set(reference);
-					task.getTargetName().set(targetName);
+					task.getTargetName().set(target.getName());
 					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
-					task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + targetName));
+					task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
+					task.getInputFiles().from((Callable<?>) () -> target.load().getInputFiles());
+					task.getInputFiles().finalizeValueOnRead();
 					action.execute(task);
 				});
 			});

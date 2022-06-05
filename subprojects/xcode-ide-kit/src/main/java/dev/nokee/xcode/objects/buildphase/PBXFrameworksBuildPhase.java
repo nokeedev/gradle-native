@@ -16,8 +16,6 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
-import dev.nokee.xcode.objects.targets.PBXTarget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +23,14 @@ import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
 
-/**
- * Lists the files to be compiled for the containing {@link PBXTarget}.
- *
- * A target should contain at most one of this build phase.
- */
-public final class PBXSourcesBuildPhase extends PBXBuildPhase {
-
-	private PBXSourcesBuildPhase(ImmutableList<PBXBuildFile> files) {
+public final class PBXFrameworksBuildPhase extends PBXBuildPhase {
+	private PBXFrameworksBuildPhase(ImmutableList<PBXBuildFile> files) {
 		super(files);
 	}
+
+	// Xcode maps Optional/Required status via {@link PBXBuildFile#getSettings()}
+	//   i.e. settings = {ATTRIBUTES = (Weak)}
+	//   We can use utility methods to extract the "optional" (Weak) vs "required" (<nothing>) status.
 
 	public static Builder builder() {
 		return new Builder();
@@ -43,19 +39,14 @@ public final class PBXSourcesBuildPhase extends PBXBuildPhase {
 	public static final class Builder {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 
-		public Builder file(PBXBuildFile file) {
-			files.add(Objects.requireNonNull(file));
-			return this;
-		}
-
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
 			this.files.clear();
 			stream(files).map(Objects::requireNonNull).forEach(this.files::add);
 			return this;
 		}
 
-		public PBXSourcesBuildPhase build() {
-			return new PBXSourcesBuildPhase(ImmutableList.copyOf(files));
+		public PBXFrameworksBuildPhase build() {
+			return new PBXFrameworksBuildPhase(ImmutableList.copyOf(files));
 		}
 	}
 }

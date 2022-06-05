@@ -37,7 +37,7 @@ import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.objects.targets.ProductTypes;
-import dev.nokee.xcode.project.ToPBXProjConverter;
+import dev.nokee.xcode.project.PBXObjectArchiver;
 import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProjWriter;
 import dev.nokee.xcode.scheme.XCScheme;
@@ -152,7 +152,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		PBXProject project = projectBuilder.build();
 
 		// Convert to PBXProj model
-		val pbxproj = new ToPBXProjConverter(getGidGenerator().get()).convert(project);
+		val pbxproj = new PBXObjectArchiver(getGidGenerator().get()).encode(project);
 
 
 		// Do the schemes... using PBXProj model as it has GlobalIDs
@@ -433,7 +433,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	private PBXSourcesBuildPhase newSourcesBuildPhase(FileCollection sourceFiles) {
 		PBXSourcesBuildPhase.Builder builder = PBXSourcesBuildPhase.builder();
 		for (File file : sourceFiles.filter(GenerateXcodeIdeProjectTask::keepingOnlyCompilationUnits)) {
-			builder.file(new PBXBuildFile(toAbsoluteFileReference(file)));
+			builder.file(PBXBuildFile.ofFile(toAbsoluteFileReference(file)));
 		}
 		return builder.build();
 	}
@@ -526,8 +526,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	}
 
 	private PBXFileReference toAbsoluteFileReference(File file) {
-		return computeFileReferenceIfAbsent(file.getAbsolutePath(),
-			path -> new PBXFileReference(file.getName(), file.getAbsolutePath(), PBXSourceTree.ABSOLUTE));
+		return computeFileReferenceIfAbsent(file.getAbsolutePath(), PBXFileReference::ofAbsolutePath);
 	}
 
 	private PBXFileReference toBuildProductFileReference(String name) {

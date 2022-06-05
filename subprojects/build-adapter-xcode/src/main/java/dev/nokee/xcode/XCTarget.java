@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.objects;
+package dev.nokee.xcode;
 
-public abstract class PBXObject {
-	/**
-	 * This method is used to generate stable GIDs and must be stable for identical contents.
-	 * Returning a constant value is ok but will make the generated project order-dependent.
-	 *
-	 * @return stable hash
-	 */
-	public int stableHash() {
-		return 0;
+import java.nio.file.Path;
+import java.util.List;
+
+public final class XCTarget {
+	private final List<Path> inputFiles;
+
+	public XCTarget(List<Path> inputFiles) {
+		this.inputFiles = inputFiles;
 	}
 
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
+	public List<Path> getInputFiles() {
+		return inputFiles;
 	}
 }

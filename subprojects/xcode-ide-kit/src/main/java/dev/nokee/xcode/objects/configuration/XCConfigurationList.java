@@ -19,9 +19,13 @@ import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.objects.PBXProjectItem;
 
 import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static com.google.common.collect.Streams.stream;
 
 /**
  * List of build configurations.
@@ -33,8 +37,7 @@ public final class XCConfigurationList extends PBXProjectItem {
 
 	private XCConfigurationList(ImmutableMap<String, XCBuildConfiguration> buildConfigurations, @Nullable String defaultConfigurationName, DefaultConfigurationVisibility defaultConfigurationVisibility) {
 		this.defaultConfigurationName = defaultConfigurationName;
-		defaultConfigurationIsVisible = defaultConfigurationVisibility == DefaultConfigurationVisibility.VISIBLE;
-
+		this.defaultConfigurationIsVisible = (defaultConfigurationVisibility == DefaultConfigurationVisibility.VISIBLE);
 		this.buildConfigurationsByName = buildConfigurations;
 	}
 
@@ -55,7 +58,7 @@ public final class XCConfigurationList extends PBXProjectItem {
 	}
 
 	public static final class Builder {
-		private final ImmutableMap.Builder<String, XCBuildConfiguration> buildConfigurations = ImmutableMap.builder();
+		private final Map<String, XCBuildConfiguration> buildConfigurations = new LinkedHashMap<>();
 		private DefaultConfigurationVisibility defaultConfigurationVisibility = DefaultConfigurationVisibility.HIDDEN;
 		private String defaultConfigurationName;
 
@@ -67,18 +70,26 @@ public final class XCConfigurationList extends PBXProjectItem {
 			return this;
 		}
 
+		public Builder buildConfigurations(Iterable<? extends XCBuildConfiguration> buildConfigurations) {
+			this.buildConfigurations.clear();
+			stream(buildConfigurations).map(Objects::requireNonNull).forEach(buildConfiguration -> {
+				this.buildConfigurations.put(buildConfiguration.getName(), buildConfiguration);
+			});
+			return this;
+		}
+
 		public Builder defaultConfigurationName(String name) {
-			this.defaultConfigurationName = name;
+			this.defaultConfigurationName = Objects.requireNonNull(name);
 			return this;
 		}
 
 		public Builder defaultConfigurationVisibility(DefaultConfigurationVisibility visibility) {
-			this.defaultConfigurationVisibility = visibility;
+			this.defaultConfigurationVisibility = Objects.requireNonNull(visibility);
 			return this;
 		}
 
 		public XCConfigurationList build() {
-			return new XCConfigurationList(buildConfigurations.build(), defaultConfigurationName, defaultConfigurationVisibility);
+			return new XCConfigurationList(ImmutableMap.copyOf(buildConfigurations), defaultConfigurationName, Objects.requireNonNull(defaultConfigurationVisibility, "'defaultConfigurationVisibility' must not be null"));
 		}
 	}
 

@@ -32,7 +32,7 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 
 	public static final class Builder {
 		private String name;
-		private BuildSettings buildSettings = BuildSettings.empty();
+		private BuildSettings buildSettings;
 
 		private Builder() {}
 
@@ -48,8 +48,17 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 			return this;
 		}
 
+		public Builder buildSettings(BuildSettings buildSettings) {
+			this.buildSettings = Objects.requireNonNull(buildSettings);
+			return this;
+		}
+
 		public XCBuildConfiguration build() {
-			return new XCBuildConfiguration(name, buildSettings);
+			if (buildSettings == null) {
+				buildSettings = BuildSettings.empty();
+			}
+
+			return new XCBuildConfiguration(Objects.requireNonNull(name, "'name' must not be null"), buildSettings);
 		}
 	}
 }

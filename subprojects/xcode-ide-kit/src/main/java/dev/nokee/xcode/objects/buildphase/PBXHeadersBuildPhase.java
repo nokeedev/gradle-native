@@ -17,7 +17,7 @@ package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
-import dev.nokee.xcode.objects.targets.PBXTarget;
+import dev.nokee.xcode.objects.PBXObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +25,14 @@ import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
 
-/**
- * Lists the files to be compiled for the containing {@link PBXTarget}.
- *
- * A target should contain at most one of this build phase.
- */
-public final class PBXSourcesBuildPhase extends PBXBuildPhase {
-
-	private PBXSourcesBuildPhase(ImmutableList<PBXBuildFile> files) {
+public final class PBXHeadersBuildPhase extends PBXBuildPhase {
+	private PBXHeadersBuildPhase(ImmutableList<PBXBuildFile> files) {
 		super(files);
 	}
+
+	// Xcode maps Public/Private/Project headers via {@link PBXBuildFile#getSettings()}
+	//   i.e. settings = {ATTRIBUTES = (Project, Public)}
+	//   We can use utility methods to extract the "project" vs "public" vs "private" headers.
 
 	public static Builder builder() {
 		return new Builder();
@@ -43,19 +41,14 @@ public final class PBXSourcesBuildPhase extends PBXBuildPhase {
 	public static final class Builder {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 
-		public Builder file(PBXBuildFile file) {
-			files.add(Objects.requireNonNull(file));
-			return this;
-		}
-
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
 			this.files.clear();
 			stream(files).map(Objects::requireNonNull).forEach(this.files::add);
 			return this;
 		}
 
-		public PBXSourcesBuildPhase build() {
-			return new PBXSourcesBuildPhase(ImmutableList.copyOf(files));
+		public PBXHeadersBuildPhase build() {
+			return new PBXHeadersBuildPhase(ImmutableList.copyOf(files));
 		}
 	}
 }

@@ -22,12 +22,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A collection of files in Xcode's virtual filesystem hierarchy.
+ * This is the element for referencing localized resources.
  */
-public final class PBXGroup extends PBXGroupElement {
-	// It seems the name or path can be null but not both which is a bit different from PBXFileReference.
-	//   Except for the mainGroup which both the name and path is null
-	private PBXGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<PBXReference> children) {
+public final class PBXVariantGroup extends PBXGroupElement {
+	public PBXVariantGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<PBXReference> children) {
 		super(name, path, sourceTree, children);
 	}
 
@@ -35,11 +33,11 @@ public final class PBXGroup extends PBXGroupElement {
 		return new Builder();
 	}
 
-	public static final class Builder extends PBXGroupElement.Builder<Builder, PBXGroup> {
+	public static final class Builder extends PBXGroupElement.Builder<Builder, PBXVariantGroup> {
 		@Override
-		protected PBXGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<PBXReference> children) {
+		protected PBXVariantGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<PBXReference> children) {
 			// mainGroup can have both null name and path
-			return new PBXGroup(name, path, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"), ImmutableList.copyOf(children));
+			return new PBXVariantGroup(name, path, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"), ImmutableList.copyOf(children));
 		}
 	}
 }

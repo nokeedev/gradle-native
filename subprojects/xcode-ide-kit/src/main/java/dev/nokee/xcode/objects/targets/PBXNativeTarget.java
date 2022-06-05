@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.targets;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -25,13 +26,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static com.google.common.collect.Streams.stream;
+
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build
  * system.
  */
 public final class PBXNativeTarget extends PBXTarget {
-	private PBXNativeTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference) {
-		super(name, productType, buildPhases, buildConfigurationList, productName, productReference);
+	private PBXNativeTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference, ImmutableList<PBXTargetDependency> dependencies) {
+		super(name, productType, buildPhases, buildConfigurationList, productName, productReference, dependencies);
 	}
 
 	public static Builder builder() {
@@ -41,13 +44,14 @@ public final class PBXNativeTarget extends PBXTarget {
 	public static final class Builder {
 		private String name;
 		private ProductType productType;
-		private List<PBXBuildPhase> buildPhases = new ArrayList<>();
+		private final List<PBXBuildPhase> buildPhases = new ArrayList<>();
 		private XCConfigurationList buildConfigurationList;
 		private String productName;
 		private PBXFileReference productReference;
+		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
 
 		public Builder name(String name) {
-			this.name = name;
+			this.name = Objects.requireNonNull(name);
 			return this;
 		}
 
@@ -57,13 +61,13 @@ public final class PBXNativeTarget extends PBXTarget {
 		}
 
 		public Builder buildPhase(PBXBuildPhase buildPhase) {
-			this.buildPhases.add(buildPhase);
+			this.buildPhases.add(Objects.requireNonNull(buildPhase));
 			return this;
 		}
 
-		public Builder buildPhases(List<PBXBuildPhase> buildPhases) {
+		public Builder buildPhases(Iterable<? extends PBXBuildPhase> buildPhases) {
 			this.buildPhases.clear();
-			this.buildPhases.addAll(buildPhases);
+			stream(buildPhases).map(Objects::requireNonNull).forEach(this.buildPhases::add);
 			return this;
 		}
 
@@ -74,18 +78,29 @@ public final class PBXNativeTarget extends PBXTarget {
 			return this;
 		}
 
+		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
+			this.buildConfigurationList = Objects.requireNonNull(buildConfigurationList);
+			return this;
+		}
+
 		public Builder productName(String productName) {
-			this.productName = productName;
+			this.productName = Objects.requireNonNull(productName);
 			return this;
 		}
 
 		public Builder productReference(PBXFileReference productReference) {
-			this.productReference = productReference;
+			this.productReference = Objects.requireNonNull(productReference);
+			return this;
+		}
+
+		public Builder dependencies(Iterable<? extends PBXTargetDependency> dependencies) {
+			this.dependencies.clear();
+			stream(dependencies).map(Objects::requireNonNull).forEach(this.dependencies::add);
 			return this;
 		}
 
 		public PBXNativeTarget build() {
-			return new PBXNativeTarget(name, productType, ImmutableList.copyOf(buildPhases), buildConfigurationList, productName, productReference);
+			return new PBXNativeTarget(Objects.requireNonNull(name, "'name' must not be null"), Objects.requireNonNull(productType, "'productType' must not be null"), ImmutableList.copyOf(buildPhases), Objects.requireNonNull(buildConfigurationList, "'buildConfigurations' must not be null"), Objects.requireNonNull(productName, "'productName' must not be null"), Objects.requireNonNull(productReference, "'productReference' must not be null"), ImmutableList.copyOf(dependencies));
 		}
 	}
 }

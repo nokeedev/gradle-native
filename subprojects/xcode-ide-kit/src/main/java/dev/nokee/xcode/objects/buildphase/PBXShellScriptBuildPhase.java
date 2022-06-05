@@ -16,22 +16,27 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.google.common.collect.Streams.stream;
 
 /**
  * Build phase which represents running a shell script.
  */
 public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
+	private static final ImmutableList<PBXBuildFile> ALWAYS_HAS_EMPTY_FILES = ImmutableList.of();
 	private final List<String> inputPaths;
 	private final List<String> outputPaths;
-	@Nullable private final String shellPath;
-	@Nullable private final String shellScript;
+	private final String shellPath;
+	private final String shellScript;
 
-	private PBXShellScriptBuildPhase(@Nullable String shellScript, @Nullable String shellPath, List<String> inputPaths, List<String> outputPaths) {
-		super(ImmutableList.of());
+	private PBXShellScriptBuildPhase(String shellScript, String shellPath, ImmutableList<String> inputPaths, ImmutableList<String> outputPaths) {
+		super(ALWAYS_HAS_EMPTY_FILES);
 		this.shellPath = shellPath;
 		this.shellScript = shellScript;
 		this.inputPaths = inputPaths;
@@ -64,7 +69,6 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	 *
 	 * @return shell path, may be null
 	 */
-	@Nullable
 	public String getShellPath() {
 		return shellPath;
 	}
@@ -75,7 +79,6 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	 *
 	 * @return shell script, may be null
 	 */
-	@Nullable
 	public String getShellScript() {
 		return shellScript;
 	}
@@ -88,35 +91,43 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 		private static final String DEFAULT_SHELL_PATH = "/bin/sh";
 		private static final String DEFAULT_SHELL_SCRIPT = "";
 
-		private String shellScript = DEFAULT_SHELL_SCRIPT;
-		private String shellPath = DEFAULT_SHELL_PATH;
+		private String shellScript;
+		private String shellPath;
 		private final List<String> outputPaths = new ArrayList<>();
 		private final List<String> inputPaths = new ArrayList<>();
 
 		public Builder shellScript(String shellScript) {
-			this.shellScript = shellScript;
+			this.shellScript = Objects.requireNonNull(shellScript);
 			return this;
 		}
 
 		public Builder shellPath(String shellPath) {
-			this.shellPath = shellPath;
+			this.shellPath = Objects.requireNonNull(shellPath);
 			return this;
 		}
 
 		public Builder outputPaths(Iterable<String> outputPaths) {
 			this.outputPaths.clear();
-			outputPaths.forEach(this.outputPaths::add);
+			stream(outputPaths).map(Objects::requireNonNull).forEach(this.outputPaths::add);
 			return this;
 		}
 
 		public Builder inputPaths(Iterable<String> inputPaths) {
 			this.inputPaths.clear();
-			inputPaths.forEach(this.inputPaths::add);
+			stream(inputPaths).map(Objects::requireNonNull).forEach(this.inputPaths::add);
 			return this;
 		}
 
 		public PBXShellScriptBuildPhase build() {
-			return new PBXShellScriptBuildPhase(shellScript, shellPath, inputPaths, outputPaths);
+			if (shellScript != null) {
+				shellScript = DEFAULT_SHELL_SCRIPT;
+			}
+
+			if (shellPath != null) {
+				shellPath = DEFAULT_SHELL_PATH;
+			}
+
+			return new PBXShellScriptBuildPhase(shellScript, shellPath, ImmutableList.copyOf(inputPaths), ImmutableList.copyOf(outputPaths));
 		}
 	}
 }
