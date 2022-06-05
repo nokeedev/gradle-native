@@ -17,6 +17,7 @@ package dev.nokee.xcode.objects.files;
 
 import com.google.common.base.CharMatcher;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -82,6 +83,11 @@ public enum PBXSourceTree {
 			default:
 				return Optional.empty();
 		}
+	}
+
+	// FIXME
+	public static Optional<PBXSourceTree> of(String name) {
+		return Arrays.stream(values()).filter(it -> it.rep.equals(name)).findFirst();
 	}
 
 	@Override

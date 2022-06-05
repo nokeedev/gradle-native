@@ -16,23 +16,31 @@
 package dev.nokee.xcode.objects.targets;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
+import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
+
+import static com.google.common.collect.Streams.stream;
 
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build
  * system.
  */
 public final class PBXLegacyTarget extends PBXTarget {
+	private static final ImmutableList<PBXBuildPhase> ALWAYS_NO_BUILD_PHASES = ImmutableList.of();
 	private final String buildArgumentsString;
 	private final String buildToolPath;
 	private final String buildWorkingDirectory;
 	private final boolean passBuildSettingsInEnvironment;
 
-	private PBXLegacyTarget(String name, ProductType productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
-		super(name, productType, ImmutableList.of(), buildConfigurationList, productName, productReference);
+	private PBXLegacyTarget(String name, ProductType productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, ImmutableList<PBXTargetDependency> dependencies, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
+		super(name, productType, ALWAYS_NO_BUILD_PHASES, buildConfigurationList, productName, productReference, dependencies);
 		this.buildArgumentsString = buildArgumentsString;
 		this.buildToolPath = buildToolPath;
 		this.buildWorkingDirectory = buildWorkingDirectory;
@@ -69,14 +77,15 @@ public final class PBXLegacyTarget extends PBXTarget {
 		private XCConfigurationList buildConfigurationList;
 		private String productName;
 		private PBXFileReference productReference;
+		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
 
 		public Builder name(String name) {
-			this.name = name;
+			this.name = Objects.requireNonNull(name);
 			return this;
 		}
 
 		public Builder productType(ProductType productType) {
-			this.productType = productType;
+			this.productType = Objects.requireNonNull(productType);
 			return this;
 		}
 
@@ -87,28 +96,39 @@ public final class PBXLegacyTarget extends PBXTarget {
 			return this;
 		}
 
+		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
+			this.buildConfigurationList = Objects.requireNonNull(buildConfigurationList);
+			return this;
+		}
+
+		public Builder dependencies(Iterable<? extends PBXTargetDependency> dependencies) {
+			this.dependencies.clear();
+			stream(dependencies).map(Objects::requireNonNull).forEach(this.dependencies::add);
+			return this;
+		}
+
 		public Builder productName(String productName) {
-			this.productName = productName;
+			this.productName = Objects.requireNonNull(productName);
 			return this;
 		}
 
 		public Builder productReference(PBXFileReference productReference) {
-			this.productReference = productReference;
+			this.productReference = Objects.requireNonNull(productReference);
 			return this;
 		}
 
 		public Builder buildArguments(String buildArguments) {
-			this.buildArgumentsString = buildArguments;
+			this.buildArgumentsString = Objects.requireNonNull(buildArguments);
 			return this;
 		}
 
 		public Builder buildToolPath(String buildToolPath) {
-			this.buildToolPath = buildToolPath;
+			this.buildToolPath = Objects.requireNonNull(buildToolPath);
 			return this;
 		}
 
 		public Builder buildWorkingDirectory(String buildWorkingDirectory) {
-			this.buildWorkingDirectory = buildWorkingDirectory;
+			this.buildWorkingDirectory = Objects.requireNonNull(buildWorkingDirectory);
 			return this;
 		}
 
@@ -118,7 +138,8 @@ public final class PBXLegacyTarget extends PBXTarget {
 		}
 
 		public PBXLegacyTarget build() {
-			return new PBXLegacyTarget(name, productType, productName, productReference, buildConfigurationList, buildArgumentsString, buildToolPath, buildWorkingDirectory, passBuildSettingsInEnvironment);
+			// TODO: Null checks
+			return new PBXLegacyTarget(name, productType, productName, productReference, buildConfigurationList, ImmutableList.copyOf(dependencies), buildArgumentsString, buildToolPath, buildWorkingDirectory, passBuildSettingsInEnvironment);
 		}
 	}
 }

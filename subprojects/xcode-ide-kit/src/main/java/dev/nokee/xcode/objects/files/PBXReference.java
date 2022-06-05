@@ -15,17 +15,20 @@
  */
 package dev.nokee.xcode.objects.files;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.xcode.objects.PBXContainerItem;
+import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Superclass for file, directories, and groups. Xcode's virtual file hierarchy are made of these
  * objects.
  */
+@EqualsAndHashCode(callSuper = false)
 public abstract class PBXReference extends PBXContainerItem {
-	private final String name;
+	@Nullable private final String name;
 	@Nullable private final String path;
 	/**
 	 * The "base" path of the reference. The absolute path is resolved by prepending the resolved
@@ -33,19 +36,19 @@ public abstract class PBXReference extends PBXContainerItem {
 	 */
 	private final PBXSourceTree sourceTree;
 
-	public PBXReference(String name, @Nullable String path, PBXSourceTree sourceTree) {
-		this.name = Preconditions.checkNotNull(name);
+	// PBXGroup can have null name or null path but not both while PBXFileReference can have null name but not path.
+	protected PBXReference(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree) {
+		this.name = name;
 		this.path = path;
-		this.sourceTree = Preconditions.checkNotNull(sourceTree);
+		this.sourceTree = Objects.requireNonNull(sourceTree);
 	}
 
-	public String getName() {
-		return name;
+	public Optional<String> getName() {
+		return Optional.ofNullable(name);
 	}
 
-	@Nullable
-	public String getPath() {
-		return path;
+	public Optional<String> getPath() {
+		return Optional.ofNullable(path);
 	}
 
 	public PBXSourceTree getSourceTree() {
@@ -54,7 +57,7 @@ public abstract class PBXReference extends PBXContainerItem {
 
 	@Override
 	public int stableHash() {
-		return name.hashCode();
+		return Objects.hash(name);
 	}
 
 	@Override
@@ -62,7 +65,7 @@ public abstract class PBXReference extends PBXContainerItem {
 		return String.format(
 			"%s name=%s path=%s sourceTree=%s",
 			super.toString(),
-			getName(),
+			name,
 			getPath(),
 			getSourceTree());
 	}

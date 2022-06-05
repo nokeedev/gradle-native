@@ -30,7 +30,11 @@ public final class BuildSettings {
 		this.values = values;
 	}
 
-	public int size() {
+	public static BuildSettings of(Map<String, Object> values) {
+		return new BuildSettings(ImmutableMap.copyOf(values));
+	}
+
+    public int size() {
 		return values.size();
 	}
 

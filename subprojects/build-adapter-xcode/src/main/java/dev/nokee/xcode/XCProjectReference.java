@@ -59,7 +59,7 @@ public final class XCProjectReference implements Serializable {
 		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(getLocation().resolve("project.pbxproj"))))) {
 			val pbxproj = reader.read();
 			val targetIsa = ImmutableSet.of("PBXTarget", "PBXAggregateTarget", "PBXLegacyTarget", "PBXNativeTarget");
-			val targetNames = Streams.stream(pbxproj.getObjects()).filter(it -> targetIsa.contains(it.isa())).map(it -> it.getFields().get("name").toString()).collect(ImmutableSet.toImmutableSet());
+			val targets = Streams.stream(pbxproj.getObjects()).filter(it -> targetIsa.contains(it.isa())).map(it -> it.getFields().get("name").toString()).map(name -> XCTargetReference.of(this, name)).collect(ImmutableSet.toImmutableSet());
 
 			val it = getLocation().resolve("xcshareddata/xcschemes");
 			val builder = ImmutableSet.<String>builder();
@@ -75,7 +75,7 @@ public final class XCProjectReference implements Serializable {
 			val schemeNames = builder.build();
 
 			// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
-			return new XCProject(getLocation(), targetNames, schemeNames);
+			return new XCProject(getLocation(), targets, schemeNames);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}

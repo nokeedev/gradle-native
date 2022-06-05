@@ -9,6 +9,7 @@ plugins {
 dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.antlr:antlr4:${antlrVersion}"
+	implementation "commons-io:commons-io:${commonsIoVersion}"
 	antlr "org.antlr:antlr4:${antlrVersion}"
 }
 

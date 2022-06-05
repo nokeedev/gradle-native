@@ -18,13 +18,19 @@ package dev.nokee.xcode.objects.files;
 import com.google.common.base.MoreObjects;
 import com.google.common.io.Files;
 import dev.nokee.xcode.objects.FileTypes;
+import lombok.EqualsAndHashCode;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * Reference to a concrete file.
  */
+@EqualsAndHashCode(callSuper = true)
 public final class PBXFileReference extends PBXReference {
 	@Nullable private final String explicitFileType;
 	@Nullable private final String lastKnownFileType;
@@ -33,7 +39,8 @@ public final class PBXFileReference extends PBXReference {
 		this(name, path, sourceTree, null);
 	}
 
-	public PBXFileReference(String name, String path, PBXSourceTree sourceTree, @Nullable String defaultType) {
+	// It seems the name can be null but not path which is a bit different from PBXGroup.
+	public PBXFileReference(@Nullable String name, String path, PBXSourceTree sourceTree, @Nullable String defaultType) {
 		super(name, path, sourceTree);
 
 		// PBXVariantGroups create file references where the name doesn't contain the file
@@ -72,6 +79,47 @@ public final class PBXFileReference extends PBXReference {
 		return String.format(
 			"%s explicitFileType=%s",
 			super.toString(),
-			getExplicitFileType());
+			explicitFileType);
+	}
+
+	public static PBXFileReference ofAbsolutePath(File path) {
+		return new PBXFileReference(path.getName(), path.getAbsolutePath(), PBXSourceTree.ABSOLUTE);
+	}
+
+	public static PBXFileReference ofAbsolutePath(Path path) {
+		return new PBXFileReference(path.getFileName().toString(), path.toAbsolutePath().toString(), PBXSourceTree.ABSOLUTE);
+	}
+
+	public static PBXFileReference ofAbsolutePath(String path) {
+		return new PBXFileReference(FilenameUtils.getName(path), path, PBXSourceTree.ABSOLUTE);
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private String name;
+		private String path;
+		private PBXSourceTree sourceTree;
+
+		public Builder name(String name) {
+			this.name = Objects.requireNonNull(name);
+			return this;
+		}
+
+		public Builder path(String path) {
+			this.path = Objects.requireNonNull(path);
+			return this;
+		}
+
+		public Builder sourceTree(PBXSourceTree sourceTree) {
+			this.sourceTree = Objects.requireNonNull(sourceTree);
+			return this;
+		}
+
+		public PBXFileReference build() {
+			return new PBXFileReference(name, Objects.requireNonNull(path, "'path' must not be null"), Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"));
+		}
 	}
 }

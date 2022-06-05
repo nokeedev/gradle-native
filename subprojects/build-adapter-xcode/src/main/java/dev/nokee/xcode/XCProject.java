@@ -24,17 +24,17 @@ import java.util.Set;
 @EqualsAndHashCode
 public final class XCProject {
 	private final Path location;
-	private final ImmutableSet<String> targetNames;
+	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
 
-	public XCProject(Path location, ImmutableSet<String> targetNames, ImmutableSet<String> schemeNames) {
+	public XCProject(Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames) {
 		this.location = location;
-		this.targetNames = targetNames;
+		this.targets = targets;
 		this.schemeNames = schemeNames;
 	}
 
-	public Set<String> getTargetNames() {
-		return targetNames;
+	public Set<XCTargetReference> getTargets() {
+		return targets;
 	}
 
 	public Set<String> getSchemeNames() {

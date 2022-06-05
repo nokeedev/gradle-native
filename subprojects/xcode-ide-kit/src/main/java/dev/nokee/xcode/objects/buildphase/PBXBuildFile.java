@@ -15,12 +15,14 @@
  */
 package dev.nokee.xcode.objects.buildphase;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
+import lombok.EqualsAndHashCode;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * File referenced by a build phase, unique to each build phase.
@@ -31,16 +33,13 @@ import java.util.Map;
  * - {@link PBXSourcesBuildPhase } may read <code>{"COMPILER_FLAGS": "-foo"}</code> and interpret
  * that this file should be compiled with the additional flag {@code "-foo" }.
  */
+@EqualsAndHashCode(callSuper = false)
 public final class PBXBuildFile extends PBXProjectItem {
 	private final PBXReference fileRef;
 	private final ImmutableMap<String, ?> settings;
 
-	public PBXBuildFile(PBXReference fileRef) {
-		this(fileRef, ImmutableMap.of());
-	}
-
-	public PBXBuildFile(PBXReference fileRef, ImmutableMap<String, ?> settings) {
-		this.fileRef = Preconditions.checkNotNull(fileRef);
+	private PBXBuildFile(PBXReference fileRef, ImmutableMap<String, ?> settings) {
+		this.fileRef = fileRef;
 		this.settings = settings;
 	}
 
@@ -60,5 +59,26 @@ public final class PBXBuildFile extends PBXProjectItem {
 	@Override
 	public String toString() {
 		return String.format("%s fileRef=%s settings=%s", super.toString(), fileRef, settings);
+	}
+
+	public static PBXBuildFile ofFile(PBXFileReference fileReference) {
+		return new PBXBuildFile(fileReference, ImmutableMap.of());
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+		private PBXReference fileRef;
+
+		public Builder fileRef(PBXReference fileRef) {
+			this.fileRef = fileRef;
+			return this;
+		}
+
+		public PBXBuildFile build() {
+			return new PBXBuildFile(Objects.requireNonNull(fileRef, "'fileRef' must not be null"), ImmutableMap.of());
+		}
 	}
 }

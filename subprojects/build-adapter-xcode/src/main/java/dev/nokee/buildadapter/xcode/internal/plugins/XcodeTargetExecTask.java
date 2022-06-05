@@ -19,12 +19,15 @@ import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 
@@ -51,7 +54,10 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		return getXcodeProject().map(it ->  removeExtension(it.getLocation().getFileName().toString()));
 	}
 
-	@Internal
+	@InputFiles
+	public abstract ConfigurableFileCollection getInputFiles();
+
+	@OutputDirectory
 	public abstract DirectoryProperty getOutputDirectory();
 
 	@Inject
