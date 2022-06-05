@@ -50,9 +50,6 @@ class CommandLineToolInvocationEnvironmentVariablesTest extends Specification {
 
 	def "can create environment variables from current process"() {
 		expect:
-		inherit() == from(System.getenv())
-
-		and:
 		inherit().asMap == System.getenv()
 		inherit().asList == System.getenv().collect { k, v -> "$k=$v" }
 		inherit().plus(from([A: 'a'])) == from(System.getenv() + [A: 'a'])
