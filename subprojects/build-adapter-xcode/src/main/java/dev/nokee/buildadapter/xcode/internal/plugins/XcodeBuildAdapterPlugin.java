@@ -89,7 +89,10 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					)));
 				});
 			}
-			settings.getGradle().rootProject(forXcodeWorkspace(workspace));
+			settings.getGradle().rootProject(forXcodeWorkspace(workspace, composite(
+				(XcodebuildExecTask task) -> task.getSdk().set(providers.environmentVariable("XCODE_SDK")),
+				(XcodebuildExecTask task) -> task.getConfiguration().set(providers.environmentVariable("XCODE_BUILD_TYPE"))
+			)));
 		}
 	}
 
@@ -128,7 +131,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		};
 	}
 
-	private static Action<Project> forXcodeWorkspace(XCWorkspace workspace) {
+	private static Action<Project> forXcodeWorkspace(XCWorkspace workspace, Action<? super XcodebuildExecTask> action) {
 		return project -> {
 			workspace.getSchemeNames().forEach(schemeName -> {
 				project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeSchemeExecTask.class, task -> {
@@ -136,6 +139,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					task.getXcodeWorkspace().set(workspace.toReference());
 					task.getSchemeName().set(schemeName);
 					task.getDerivedDataPath().set(project.getRootProject().getLayout().getBuildDirectory().dir("derivedData"));
+					action.execute(task);
 				});
 			});
 		};
