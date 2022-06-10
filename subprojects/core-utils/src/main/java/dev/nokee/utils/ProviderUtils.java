@@ -155,4 +155,16 @@ public final class ProviderUtils {
 			action.execute(value);
 		}
 	}
+
+	/**
+	 * Allows fluent call to {@link HasConfigurableValue#finalizeValueOnRead()}.
+	 *
+	 * @param self  the configurable value, must not be null
+	 * @param <S>  the type of configurable value
+	 * @return the specified configurable value, never null
+	 */
+	public static <S extends HasConfigurableValue> S finalizeValueOnRead(S self) {
+		self.finalizeValueOnRead();
+		return self;
+	}
 }
