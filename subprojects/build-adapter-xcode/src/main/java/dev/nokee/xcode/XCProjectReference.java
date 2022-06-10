@@ -34,6 +34,7 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 @EqualsAndHashCode
 public final class XCProjectReference implements Serializable {
+	private transient XCProject project;
 	private /*final*/ File location;
 
 	private XCProjectReference(Path location) {
@@ -56,28 +57,32 @@ public final class XCProjectReference implements Serializable {
 	}
 
 	public XCProject load() {
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(getLocation().resolve("project.pbxproj"))))) {
-			val pbxproj = reader.read();
-			val targetIsa = ImmutableSet.of("PBXTarget", "PBXAggregateTarget", "PBXLegacyTarget", "PBXNativeTarget");
-			val targets = Streams.stream(pbxproj.getObjects()).filter(it -> targetIsa.contains(it.isa())).map(it -> it.getFields().get("name").toString()).map(name -> XCTargetReference.of(this, name)).collect(ImmutableSet.toImmutableSet());
+		if (project == null) {
+			try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(getLocation().resolve("project.pbxproj"))))) {
+				val pbxproj = reader.read();
+				// TODO: Verify that no-one wants to build aggregate target, they don't have productReference
+				val targetIsa = ImmutableSet.of("PBXTarget", /*"PBXAggregateTarget",*/ "PBXLegacyTarget", "PBXNativeTarget");
+				val targets = Streams.stream(pbxproj.getObjects()).filter(it -> targetIsa.contains(it.isa())).map(it -> it.getFields().get("name").toString()).map(name -> XCTargetReference.of(this, name)).collect(ImmutableSet.toImmutableSet());
 
-			val it = getLocation().resolve("xcshareddata/xcschemes");
-			val builder = ImmutableSet.<String>builder();
-			if (Files.isDirectory(it)) {
-				try (final DirectoryStream<Path> xcodeSchemeStream = Files.newDirectoryStream(it, "*.xcscheme")) {
-					for (Path xcodeSchemeFile : xcodeSchemeStream) {
-						builder.add(removeExtension(xcodeSchemeFile.getFileName().toString()));
+				val it = getLocation().resolve("xcshareddata/xcschemes");
+				val builder = ImmutableSet.<String>builder();
+				if (Files.isDirectory(it)) {
+					try (final DirectoryStream<Path> xcodeSchemeStream = Files.newDirectoryStream(it, "*.xcscheme")) {
+						for (Path xcodeSchemeFile : xcodeSchemeStream) {
+							builder.add(removeExtension(xcodeSchemeFile.getFileName().toString()));
+						}
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
 					}
-				} catch (IOException e) {
-					throw new UncheckedIOException(e);
 				}
-			}
-			val schemeNames = builder.build();
+				val schemeNames = builder.build();
 
-			// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
-			return new XCProject(getLocation(), targets, schemeNames);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+				// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
+				this.project = new XCProject(getLocation(), targets, schemeNames);
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
 		}
+		return project;
 	}
 }

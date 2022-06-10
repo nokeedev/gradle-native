@@ -59,6 +59,9 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@InputFiles
 	public abstract ConfigurableFileCollection getInputFiles();
 
+	@InputFiles
+	public abstract ConfigurableFileCollection getInputDerivedData();
+
 	@OutputDirectory
 	public abstract DirectoryProperty getOutputDirectory();
 
@@ -67,6 +70,14 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@TaskAction
 	private void doExec() throws IOException {
+		// TODO: if derived data path is not present, we should "guess" the default path by using -showBuildSettings
+		ifPresent(getDerivedDataPath().map(FileSystemLocationUtils::asPath), derivedDataPath -> {
+			getFileOperations().sync(spec -> {
+				spec.from(getInputDerivedData());
+				spec.into(getDerivedDataPath());
+			});
+		});
+
 		ExecResult result = null;
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			result = getExecOperations().exec(spec -> {

@@ -15,33 +15,39 @@
  */
 package dev.nokee.xcode;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
+import dev.nokee.xcode.objects.files.PBXReference;
+import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.project.PBXObjectUnarchiver;
 import dev.nokee.xcode.project.PBXProjReader;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
-import java.io.File;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dev.nokee.xcode.objects.files.PBXSourceTree.ABSOLUTE;
-import static dev.nokee.xcode.objects.files.PBXSourceTree.GROUP;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.SOURCE_ROOT;
 
 @EqualsAndHashCode
 public final class XCTargetReference implements Serializable {
+	// FIXME: These cache breaks everything, change to a loader on load() method
+	private static Map<String, XCFileReferences> resolvers = new HashMap<>();
+	private static Map<String, PBXProject> projresolvers = new HashMap<>();
+	private transient XCTarget target;
 	private final XCProjectReference project;
 	private final String name;
 
@@ -55,21 +61,28 @@ public final class XCTargetReference implements Serializable {
 	}
 
 	public XCTarget load() {
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(project.getLocation().resolve("project.pbxproj"))))) {
-			val pbxproj = reader.read();
-			val proj = new PBXObjectUnarchiver().decode(pbxproj);
+		if (target == null) {
+			val proj = projresolvers.computeIfAbsent(project.getLocation().toAbsolutePath().normalize().toString(), __ -> {
+				try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(project.getLocation().resolve("project.pbxproj"))))) {
+					val pbxproj = reader.read();
+					return new PBXObjectUnarchiver().decode(pbxproj);
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+			});
 
 			val target = Objects.requireNonNull(Iterables.find(proj.getTargets(), it -> it.getName().equals(name)));
 
-			val resolver = FileReferenceResolver.of(project.getLocation().getParent(), proj);
+			val resolver = resolvers.computeIfAbsent(project.getLocation().toAbsolutePath().normalize().toString(), __ -> walk(proj));
 
 			// Assuming PBXFileReference only
-			val inputFiles = findInputFiles(target).map(resolver::toPath).collect(Collectors.toList());
+			val inputFiles = findInputFiles(target).map(resolver::get).collect(Collectors.toList());
+			val outputFile = target.getProductReference().map(resolver::get).orElseThrow(() -> new RuntimeException("for target " + target.getName() + " in project " + project.getLocation()));
+			val dependencies = target.getDependencies().stream().map(it -> XCTargetReference.of(project, it.getTarget().getName())).collect(ImmutableList.toImmutableList());
 
-			return new XCTarget(inputFiles);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+			this.target = new XCTarget(name, project, inputFiles, dependencies, outputFile);
 		}
+		return target;
 	}
 
 	private static Stream<PBXFileReference> findInputFiles(PBXTarget target) {
@@ -82,60 +95,88 @@ public final class XCTargetReference implements Serializable {
 		}), target.getDependencies().stream().flatMap(it -> findInputFiles(it.getTarget())));
 	}
 
-	private static final class FileReferenceResolver {
-		private final Map<PBXFileReference, Path> result;
+	private static final class FileNode {
+		private final PBXSourceTree sourceTree;
+		@Nullable private final FileNode previous;
+		@Nullable private final String path;
 
-		public FileReferenceResolver(HashMap<PBXFileReference, Path> result) {
-			this.result = result;
+		private FileNode(PBXSourceTree sourceTree, @Nullable FileNode previous, @Nullable String path) {
+			this.sourceTree = sourceTree;
+			this.previous = previous;
+			this.path = path;
 		}
+	}
 
-		public Path toPath(PBXFileReference fileRef) {
-			return result.get(fileRef);
+	private static XCFileReferences walk(PBXProject project) {
+		val builder = XCFileReferences.builder();
+		walk(builder, new FileNode(SOURCE_ROOT, null, null), project.getMainGroup());
+		return builder.build();
+	}
+
+	private static void walk(XCFileReferences.Builder builder, FileNode previousNodes, PBXGroup group) {
+		val node = new FileNode(group.getSourceTree(), previousNodes, group.getPath().orElse(null));
+		for (PBXReference child : group.getChildren()) {
+			if (child instanceof PBXGroup) {
+				walk(builder, node, (PBXGroup) child);
+			} else if (child instanceof PBXFileReference) {
+				walk(builder, node, (PBXFileReference) child);
+			}
 		}
+	}
 
-		public static FileReferenceResolver of(Path path, PBXProject project) {
-			val result = new HashMap<PBXFileReference, Path>();
-			compute(result, new Context(path), project.getMainGroup());
-			return new FileReferenceResolver(result);
-		}
+	private static void walk(XCFileReferences.Builder builder, FileNode previousNodes, PBXFileReference fileRef) {
+		builder.put(fileRef, parse(new FileNode(fileRef.getSourceTree(), previousNodes, fileRef.getPath().orElse(null))));
+	}
 
-		private static void compute(Map<PBXFileReference, Path> paths, Context context, PBXGroup group) {
-			group.getChildren().forEach(it -> {
-				if (it.getSourceTree().equals(GROUP) || it.getSourceTree().equals(ABSOLUTE)) {
-					if (it instanceof PBXGroup) {
-						compute(paths, context.path((PBXGroup) it), (PBXGroup) it);
-					} else if (it instanceof PBXFileReference) {
-						paths.put((PBXFileReference) it, context.resolve((PBXFileReference) it));
-					}
+	private static XCFileReference parse(FileNode node) {
+		String path = null;
+		do {
+			if (node.path != null) {
+				if (path == null) {
+					path = node.path;
+				} else {
+					path = node.path + "/" + path;
 				}
-			});
-		}
-
-		private static final class Context {
-			private final Path path;
-
-			private Context(Path path) {
-				this.path = path;
 			}
 
-			public Path resolve(PBXFileReference fileRef) {
-				switch (fileRef.getSourceTree()) {
-					case GROUP:	return path.resolve(fileRef.getPath().orElseThrow(RuntimeException::new)).normalize();
-					case ABSOLUTE: return new File(fileRef.getPath().orElseThrow(RuntimeException::new)).toPath();
-					default: throw new UnsupportedOperationException();
-				}
+			switch (node.sourceTree) {
+				case GROUP: break; // continue looping
+				case ABSOLUTE: return XCFileReference.absoluteFile(path);
+				case BUILT_PRODUCTS_DIR: return XCFileReference.builtProduct(path);
+				case SOURCE_ROOT: return XCFileReference.sourceRoot(path);
+				case SDKROOT: return XCFileReference.sdkRoot(path);
+				default: throw new UnsupportedOperationException("Source tree not supported! (" + node.sourceTree + ")");
+			}
+		} while ((node = node.previous) != null);
+
+		throw new RuntimeException("Something went wrong.");
+	}
+
+	private static final class XCFileReferences {
+		private final Map<Integer, XCFileReference> fileRefs;
+
+		public XCFileReferences(Map<Integer, XCFileReference> fileRefs) {
+			this.fileRefs = fileRefs;
+		}
+
+		public XCFileReference get(PBXFileReference fileRef) {
+			return Objects.requireNonNull(fileRefs.get(System.identityHashCode(fileRef)));
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		public static final class Builder {
+			private final ImmutableMap.Builder<Integer, XCFileReference> fileRefs = ImmutableMap.builder();
+
+			public Builder put(PBXFileReference fileRef, XCFileReference file) {
+				fileRefs.put(System.identityHashCode(fileRef), file);
+				return this;
 			}
 
-			public Context path(PBXGroup group) {
-				if (!group.getPath().isPresent()) {
-					return this; // when no path, don't use name as it's just for the UI
-				}
-
-				switch (group.getSourceTree()) {
-					case GROUP:	return new Context(path.resolve(group.getPath().get()));
-					case ABSOLUTE: return new Context(new File(group.getPath().get()).toPath());
-					default: throw new UnsupportedOperationException();
-				}
+			public XCFileReferences build() {
+				return new XCFileReferences(fileRefs.build());
 			}
 		}
 	}
