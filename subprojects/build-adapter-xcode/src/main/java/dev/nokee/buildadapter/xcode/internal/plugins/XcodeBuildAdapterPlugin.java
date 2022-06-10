@@ -15,32 +15,43 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCWorkspace;
 import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ProjectDependency;
+import org.gradle.api.attributes.Usage;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
+import org.gradle.api.services.BuildServiceRegistration;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.io.File;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.workingDirectory;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.utils.ActionUtils.composite;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 
@@ -75,11 +86,13 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				}
 			});
 		} else {
+			val service = forUseAtConfigurationTime(settings.getGradle().getSharedServices().registerIfAbsent("implicitDependencies", XcodeImplicitDependenciesService.class, spec -> {
+				spec.parameters(parameters -> {
+					parameters.getLocation().set(workspace.toReference());
+				});
+			}));
 			for (XCProjectReference project : workspace.getProjectLocations()) {
-				// TODO: What happen if a workspace reference project in parent directory? It would break the project mapping.
-				val relativePath = settings.getSettingsDir().toPath().relativize(project.getLocation());
-				val projectPath = asProjectPath(relativePath);
-				LOGGER.info(String.format("Mapping Xcode project '%s' to Gradle project '%s'.", relativePath, projectPath));
+				val projectPath = service.get().asProjectPath(project);
 				settings.include(projectPath);
 				settings.getGradle().rootProject(rootProject -> {
 					rootProject.project(projectPath, forXcodeProject(project, composite(
@@ -96,27 +109,80 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		}
 	}
 
-	private String asProjectPath(Path relativePath) {
-		return FilenameUtils.separatorsToUnix(FilenameUtils.removeExtension(relativePath.toString())).replace('/', ':');
-	}
-
 	private static Action<Project> forXcodeProject(XCProjectReference reference) {
 		return forXcodeProject(reference, __ -> {});
 	}
 
 	private static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
+			@SuppressWarnings("unchecked")
+			val service = (Provider<XcodeImplicitDependenciesService>) project.getProviders().provider(() -> project.getGradle().getSharedServices().getRegistrations().findByName("implicitDependencies")).flatMap(BuildServiceRegistration::getService);
 			val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.getParameters().getProject().set(reference))).get();
 			xcodeProject.getTargets().forEach(target -> {
-				project.getTasks().register(target.getName(), XcodeTargetExecTask.class, task -> {
+				val derivedData = project.getConfigurations().create(target.getName() + "DerivedData", configuration -> {
+					configuration.setCanBeConsumed(false);
+					configuration.setCanBeResolved(true);
+					configuration.attributes(attributes -> {
+						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
+					});
+					configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+						val allTargets = target.load().getInputFiles().stream().map(it::findTarget).filter(Objects::nonNull).map(t -> {
+							val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
+							dep.capabilities(capabilities -> {
+								capabilities.requireCapability("net.nokeedev.xcode:" + t.getName() + ":1.0");
+							});
+							return dep;
+						}).collect(Collectors.toList());
+						return allTargets;
+					}))).orElse(Collections.emptyList()));
+				});
+
+				val targetTask = project.getTasks().register(target.getName(), XcodeTargetExecTask.class, task -> {
 					task.setGroup("Xcode Target");
 					task.getXcodeProject().set(reference);
 					task.getTargetName().set(target.getName());
 					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
 					task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
-					task.getInputFiles().from((Callable<?>) () -> target.load().getInputFiles());
+					task.getInputDerivedData().from(derivedData);
+					task.getInputFiles().from((Callable<?>) () -> target.load().getInputFiles().stream().filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
+						@Override
+						public Path getSourceRoot() {
+							return reference.getLocation().getParent();
+						}
+
+						@Override
+						public Path getBuiltProductDirectory() {
+							// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
+							// TODO: Guard against the missing derived data path
+							// TODO: We should map derived data path as a collection of build settings via helper method
+							return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().toPath();
+						}
+
+						@Override
+						public Path getSdkRoot() {
+							// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
+							return task.getSdk().map(it -> {
+								if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
+									return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toPath();
+								}
+								return null;
+							}).get();
+						}
+					})).collect(Collectors.toList()));
 					task.getInputFiles().finalizeValueOnRead();
 					action.execute(task);
+				});
+
+				project.getConfigurations().create(target.getName() + "Elements", configuration -> {
+					configuration.setCanBeConsumed(true);
+					configuration.setCanBeResolved(false);
+					configuration.attributes(attributes -> {
+						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
+					});
+					configuration.outgoing(outgoing -> {
+						outgoing.capability("net.nokeedev.xcode:" + target.getName() + ":1.0");
+						outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
+					});
 				});
 			});
 			xcodeProject.getSchemeNames().forEach(schemeName -> {
