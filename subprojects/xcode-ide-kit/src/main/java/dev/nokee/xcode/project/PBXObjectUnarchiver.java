@@ -59,9 +59,13 @@ public final class PBXObjectUnarchiver {
 
 		@SuppressWarnings("unchecked")
 		private <T extends PBXObject> T decode(PBXObjectReference objectRef) {
-			return (T) decodedObjects.computeIfAbsent(objectRef.getGlobalID(), (uid) -> {
-				return Objects.requireNonNull(coders.get(objectRef.isa()), "missing coder for '" + objectRef.isa() + "'").read(new BaseDecoder(this, objectRef.getFields()));
-			});
+			// DO NOT USE computeIfAbsent as it's not reentrant
+			T result = (T) decodedObjects.get(objectRef.getGlobalID());
+			if (result == null) {
+				result = (T) Objects.requireNonNull(coders.get(objectRef.isa()), "missing coder for '" + objectRef.isa() + "'").read(new BaseDecoder(this, objectRef.getFields()));
+				decodedObjects.put(objectRef.getGlobalID(), result);
+			}
+			return result;
 		}
 	}
 
