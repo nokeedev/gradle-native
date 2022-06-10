@@ -83,7 +83,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				ifPresent(getConfiguration(), buildType -> spec.args("-configuration", buildType));
 				spec.args(
 					// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
-					"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
+					"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=NO");
 				ifPresent(getWorkingDirectory(), spec::workingDir);
 				spec.setStandardOutput(outStream);
 				spec.setErrorOutput(outStream);
