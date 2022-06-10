@@ -22,7 +22,9 @@ import org.gradle.api.file.Directory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.process.ExecOperations;
+import org.gradle.process.ExecResult;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -43,8 +45,9 @@ public abstract class XcodeSchemeExecTask extends DefaultTask implements Xcodebu
 
 	@TaskAction
 	private void doExec() throws IOException {
+		ExecResult result = null;
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
-			getExecOperations().exec(spec -> {
+			result = getExecOperations().exec(spec -> {
 				spec.commandLine("xcodebuild", "-workspace", getXcodeWorkspace().get().getLocation(), "-scheme", getSchemeName().get());
 				ifPresent(getDerivedDataPath(), it -> spec.args("-derivedDataPath", it.getAsFile()));
 				ifPresent(getSdk(), sdk -> spec.args("-sdk", sdk));
@@ -56,7 +59,13 @@ public abstract class XcodeSchemeExecTask extends DefaultTask implements Xcodebu
 					.orElse(getXcodeWorkspace().map(it -> it.getLocation().getParent().toFile())));
 				spec.setStandardOutput(outStream);
 				spec.setErrorOutput(outStream);
+				spec.setIgnoreExitValue(true);
 			});
+		}
+
+
+		if (result.getExitValue() != 0) {
+			throw new RuntimeException(String.format("Process '%s' finished with non-zero exit value %d, see %s for more information.", "xcodebuild", result.getExitValue(), new ConsoleRenderer().asClickableFileUrl(new File(getTemporaryDir(), "outputs.txt"))));
 		}
 	}
 }
