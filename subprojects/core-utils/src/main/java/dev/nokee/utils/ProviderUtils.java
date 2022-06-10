@@ -103,7 +103,7 @@ public final class ProviderUtils {
 	}
 
 	public static <S> Provider<S> forUseAtConfigurationTime(Provider<S> provider) {
-		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0) {
+		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0 && GradleVersion.current().compareTo(GradleVersion.version("7.0")) < 0) {
 			try {
 				Method method = Provider.class.getMethod("forUseAtConfigurationTime");
 				return Cast.uncheckedCast("using reflection to support newer Gradle", method.invoke(provider));
