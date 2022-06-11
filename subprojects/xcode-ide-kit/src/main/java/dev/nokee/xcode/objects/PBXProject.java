@@ -68,7 +68,11 @@ public final class PBXProject extends PBXContainer {
 
 	@Override
 	public int stableHash() {
-		return name.hashCode();
+		if (name != null) {
+			return name.hashCode();
+		} else {
+			return super.stableHash();
+		}
 	}
 
 	public static Builder builder() {
@@ -78,7 +82,7 @@ public final class PBXProject extends PBXContainer {
 	public static final class Builder {
 		private String name;
 		private final List<PBXTarget> targets = new ArrayList<>();
-		private XCConfigurationList buildConfigurations;
+		private XCConfigurationList buildConfigurations = XCConfigurationList.builder().build();
 		private final List<PBXReference> mainGroupChildren = new ArrayList<>();
 		private PBXGroup mainGroup;
 
@@ -106,7 +110,7 @@ public final class PBXProject extends PBXContainer {
 		}
 
 		public Builder buildConfigurations(XCConfigurationList buildConfigurations) {
-			this.buildConfigurations = buildConfigurations;
+			this.buildConfigurations = Objects.requireNonNull(buildConfigurations);
 			return this;
 		}
 
