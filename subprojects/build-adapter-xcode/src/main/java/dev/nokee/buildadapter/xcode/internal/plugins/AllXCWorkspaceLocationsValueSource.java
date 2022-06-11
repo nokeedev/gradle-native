@@ -19,7 +19,6 @@ import dev.nokee.xcode.XCWorkspaceReference;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
-import org.gradle.api.tasks.Input;
 
 import javax.annotation.Nullable;
 import java.util.stream.Collectors;
@@ -29,7 +28,6 @@ public abstract class AllXCWorkspaceLocationsValueSource implements ValueSource<
 	private static final XCWorkspaceLocator XCODE_WORKSPACE_LOCATOR = new XCWorkspaceLocator();
 
 	interface Parameters extends ValueSourceParameters {
-		@Input
 		DirectoryProperty getSearchDirectory();
 	}
 
