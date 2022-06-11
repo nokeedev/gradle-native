@@ -32,10 +32,12 @@ public abstract class XCFileReference {
 		Path getBuiltProductDirectory();
 
 		Path getSdkRoot();
+
+		Path getDeveloperDirectory();
 	}
 
 	public enum XCFileType {
-		ABSOLUTE, SOURCE_ROOT, BUILT_PRODUCT, SDKROOT
+		ABSOLUTE, SOURCE_ROOT, BUILT_PRODUCT, SDKROOT, DEVELOPER
 	}
 
 	public static XCFileReference absoluteFile(String path) {
@@ -52,6 +54,10 @@ public abstract class XCFileReference {
 
 	public static XCFileReference sdkRoot(String path) {
 		return new SdkRootFileReference(Objects.requireNonNull(path));
+	}
+
+	public static XCFileReference developer(String path) {
+		return new DeveloperFileReference(Objects.requireNonNull(path));
 	}
 
 	@EqualsAndHashCode(callSuper = false)
@@ -147,6 +153,30 @@ public abstract class XCFileReference {
 		@Override
 		public String toString() {
 			return "$(BUILT_PRODUCT_DIR)/" + path;
+		}
+	}
+
+	@EqualsAndHashCode(callSuper = false)
+	private static final class DeveloperFileReference extends XCFileReference {
+		private final String path;
+
+		private DeveloperFileReference(String path) {
+			this.path = path;
+		}
+
+		@Override
+		public Path resolve(ResolveContext context) {
+			return context.getDeveloperDirectory().resolve(path);
+		}
+
+		@Override
+		public XCFileType getType() {
+			return XCFileType.DEVELOPER;
+		}
+
+		@Override
+		public String toString() {
+			return "$(DEVELOPER_DIR)/" + path;
 		}
 	}
 }

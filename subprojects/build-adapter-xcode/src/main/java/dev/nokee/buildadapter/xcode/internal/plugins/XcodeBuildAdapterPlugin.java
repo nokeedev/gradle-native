@@ -181,6 +181,12 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 								return null;
 							}).get();
 						}
+
+						@Override
+						public Path getDeveloperDirectory() {
+							// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
+							return new File("/Applications/Xcode.app/Contents/Developer").toPath();
+						}
 					})).collect(Collectors.toList()));
 					task.getInputFiles().finalizeValueOnRead();
 					action.execute(task);
