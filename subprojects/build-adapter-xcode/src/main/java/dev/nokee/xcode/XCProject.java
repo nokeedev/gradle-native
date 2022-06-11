@@ -27,7 +27,8 @@ public final class XCProject {
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
 
-	public XCProject(Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames) {
+	// friends with XCProjectReference
+	XCProject(Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames) {
 		this.location = location;
 		this.targets = targets;
 		this.schemeNames = schemeNames;

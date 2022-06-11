@@ -24,7 +24,8 @@ public final class XCTarget {
 	private final List<XCTargetReference> dependencies;
 	private final XCFileReference outputFile;
 
-	public XCTarget(String name, XCProjectReference project, List<XCFileReference> inputFiles, List<XCTargetReference> dependencies, XCFileReference outputFile) {
+	// friends with XCTargetReference
+	XCTarget(String name, XCProjectReference project, List<XCFileReference> inputFiles, List<XCTargetReference> dependencies, XCFileReference outputFile) {
 		this.name = name;
 		this.project = project;
 		this.dependencies = dependencies;
