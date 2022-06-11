@@ -21,6 +21,11 @@ import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterR
 import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
 import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
 import dev.nokee.platform.xcode.XcodeSwiftApp;
+import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.project.GidGenerator;
+import dev.nokee.xcode.project.PBXObjectArchiver;
+import dev.nokee.xcode.project.PBXProjWriter;
+import lombok.val;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -35,7 +41,6 @@ import java.util.Collections;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.buildadapter.xcode.GradleTestSnippets.doSomethingVerifyTask;
-import static dev.nokee.xcode.utils.PropertyListTestUtils.writeAsciiPlistTo;
 import static dev.nokee.xcode.utils.PropertyListTestUtils.writeXmlPlistTo;
 import static dev.nokee.xcode.utils.XCWorkspaceDataTestUtils.emptyWorkspaceData;
 import static dev.nokee.xcode.utils.XCWorkspaceDataTestUtils.writeTo;
@@ -86,7 +91,13 @@ class ConfigurationCacheDetectsXcodeProjectChangesFunctionalTest {
 
 	@Test
 	void doesNotReuseConfigurationCacheWhenProjectPbxprojChangeInMeaningfulWay() throws IOException {
-		writeAsciiPlistTo(emptyMap(), testDirectory.resolve("XcodeSwiftApp.xcodeproj/project.pbxproj"));
+		writeEmptyProjectDotPbxProjFile(testDirectory.resolve("XcodeSwiftApp.xcodeproj/project.pbxproj"));
 		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
+	}
+
+	private static void writeEmptyProjectDotPbxProjFile(Path path) throws IOException {
+		try (val writer = new PBXProjWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8))) {
+			writer.write(new PBXObjectArchiver(new GidGenerator(Collections.emptySet())).encode(PBXProject.builder().build()));
+		}
 	}
 }
