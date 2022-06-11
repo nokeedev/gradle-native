@@ -54,6 +54,7 @@ public final class PBXObjectUnarchiver {
 		}
 
 		public <T extends PBXObject> T decode(String gid) {
+			assert gid != null;
 			return decode(objects.getById(gid));
 		}
 
