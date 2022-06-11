@@ -16,11 +16,9 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import dev.nokee.xcode.XCProjectReference;
-import dev.nokee.xcode.XCWorkspaceReference;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
-import org.gradle.api.tasks.Input;
 
 import javax.annotation.Nullable;
 import java.util.stream.Collectors;
@@ -30,7 +28,6 @@ public abstract class AllXCProjectLocationsValueSource implements ValueSource<It
 	private static final XCProjectLocator XCODE_PROJECT_LOCATOR = new XCProjectLocator();
 
 	interface Parameters extends ValueSourceParameters {
-		@Input
 		DirectoryProperty getSearchDirectory();
 	}
 
