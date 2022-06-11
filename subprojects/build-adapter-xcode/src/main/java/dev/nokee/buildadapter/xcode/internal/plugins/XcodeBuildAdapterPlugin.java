@@ -19,6 +19,8 @@ import dev.nokee.utils.ActionUtils;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCTarget;
+import dev.nokee.xcode.XCTargetReference;
 import dev.nokee.xcode.XCWorkspace;
 import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
@@ -48,6 +50,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.workingDirectory;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
@@ -118,6 +121,10 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		return forXcodeProject(reference, __ -> {});
 	}
 
+	private static Stream<XCFileReference> allInputFiles(XCTarget target) {
+		return Stream.concat(target.getInputFiles().stream(), target.getDependencies().stream().map(XCTargetReference::load).flatMap(XcodeBuildAdapterPlugin::allInputFiles));
+	}
+
 	private static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
 			@SuppressWarnings("unchecked")
@@ -133,7 +140,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
 					});
 					configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-						return target.load().getInputFiles().stream().map(it::findTarget).filter(Objects::nonNull).map(t -> {
+						return allInputFiles(target.load()).map(it::findTarget).filter(Objects::nonNull).map(t -> {
 							val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
 							dep.capabilities(capabilities -> {
 								capabilities.requireCapability("net.nokeedev.xcode:" + t.getName() + ":1.0");
@@ -150,7 +157,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
 					task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
 					task.getInputDerivedData().from(derivedData);
-					task.getInputFiles().from((Callable<?>) () -> target.load().getInputFiles().stream().filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
+					task.getInputFiles().from((Callable<Object>) () -> allInputFiles(target.load()).filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
 						@Override
 						public Path getSourceRoot() {
 							return reference.getLocation().getParent();
