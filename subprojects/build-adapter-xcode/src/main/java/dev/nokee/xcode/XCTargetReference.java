@@ -132,6 +132,7 @@ public final class XCTargetReference implements Serializable {
 				case BUILT_PRODUCTS_DIR: return XCFileReference.builtProduct(path);
 				case SOURCE_ROOT: return XCFileReference.sourceRoot(path);
 				case SDKROOT: return XCFileReference.sdkRoot(path);
+				case DEVELOPER_DIR: return XCFileReference.developer(path);
 				default: throw new UnsupportedOperationException("Source tree not supported! (" + node.sourceTree + ")");
 			}
 		} while ((node = node.previous) != null);
