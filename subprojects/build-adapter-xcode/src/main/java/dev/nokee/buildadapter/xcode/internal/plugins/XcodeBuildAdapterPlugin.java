@@ -15,6 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.utils.ActionUtils;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
@@ -68,10 +69,14 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	public void apply(Settings settings) {
 		settings.getGradle().rootProject(new RedirectProjectBuildDirectoryToRootBuildDirectory());
 
+		forUseAtConfigurationTime(settings.getGradle().getSharedServices().registerIfAbsent("loader", XCLoaderService.class, ActionUtils.doNothing())).get();
+
 		val allWorkspaceLocations = forUseAtConfigurationTime(providers.of(AllXCWorkspaceLocationsValueSource.class, it -> it.parameters(p -> p.getSearchDirectory().set(settings.getSettingsDir()))));
 		val selectedWorkspaceLocation = allWorkspaceLocations.map(new SelectXCWorkspaceLocationTransformation());
 
-		val workspace = forUseAtConfigurationTime(providers.of(XCWorkspaceDataValueSource.class, it -> it.parameters(p -> p.getWorkspace().set(selectedWorkspaceLocation)))).getOrNull();
+		val workspace = forUseAtConfigurationTime(providers.of(XCWorkspaceDataValueSource.class, it -> it.parameters(p -> {
+			p.getWorkspace().set(selectedWorkspaceLocation);
+		}))).getOrNull();
 		if (workspace == null) {
 			settings.getGradle().rootProject(rootProject -> {
 				val allProjectLocations = forUseAtConfigurationTime(providers.of(AllXCProjectLocationsValueSource.class, it -> it.parameters(p -> p.getSearchDirectory().set(settings.getSettingsDir()))));
@@ -116,8 +121,10 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
 			@SuppressWarnings("unchecked")
-			val service = (Provider<XcodeImplicitDependenciesService>) project.getProviders().provider(() -> project.getGradle().getSharedServices().getRegistrations().findByName("implicitDependencies")).flatMap(BuildServiceRegistration::getService);
-			val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.getParameters().getProject().set(reference))).get();
+			final Provider<XcodeImplicitDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeImplicitDependenciesService, XcodeImplicitDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName("implicitDependencies")).flatMap(BuildServiceRegistration::getService);
+			val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.parameters(p -> {
+				p.getProject().set(reference);
+			}))).get();
 			xcodeProject.getTargets().forEach(target -> {
 				val derivedData = project.getConfigurations().create(target.getName() + "DerivedData", configuration -> {
 					configuration.setCanBeConsumed(false);

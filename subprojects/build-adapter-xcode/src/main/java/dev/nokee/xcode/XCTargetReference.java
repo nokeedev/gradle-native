@@ -24,17 +24,11 @@ import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.targets.PBXTarget;
-import dev.nokee.xcode.project.PBXObjectUnarchiver;
-import dev.nokee.xcode.project.PBXProjReader;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -44,10 +38,6 @@ import static dev.nokee.xcode.objects.files.PBXSourceTree.SOURCE_ROOT;
 
 @EqualsAndHashCode
 public final class XCTargetReference implements Serializable {
-	// FIXME: These cache breaks everything, change to a loader on load() method
-	private static Map<String, XCFileReferences> resolvers = new HashMap<>();
-	private static Map<String, PBXProject> projresolvers = new HashMap<>();
-	private transient XCTarget target;
 	private final XCProjectReference project;
 	private final String name;
 
@@ -60,32 +50,29 @@ public final class XCTargetReference implements Serializable {
 		return name;
 	}
 
+	public XCProjectReference getProject() {
+		return project;
+	}
+
 	public XCTarget load() {
-		if (target == null) {
-			val proj = projresolvers.computeIfAbsent(project.getLocation().toAbsolutePath().normalize().toString(), __ -> {
-				try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(project.getLocation().resolve("project.pbxproj"))))) {
-					val pbxproj = reader.read();
-					return new PBXObjectUnarchiver().decode(pbxproj);
-				} catch (IOException e) {
-					throw new UncheckedIOException(e);
-				}
-			});
+		return XCCache.cacheIfAbsent(this, key -> {
+			val p = project.load();
+			val proj = p.getModel();
 
 			val target = Objects.requireNonNull(Iterables.find(proj.getTargets(), it -> it.getName().equals(name)));
 
-			val resolver = resolvers.computeIfAbsent(project.getLocation().toAbsolutePath().normalize().toString(), __ -> walk(proj));
+			val resolver = p.getFileReferences();//walk(proj);
 
 			// Assuming PBXFileReference only
 			val inputFiles = findInputFiles(target).map(resolver::get).collect(Collectors.toList());
 			val outputFile = target.getProductReference().map(resolver::get).orElseThrow(() -> new RuntimeException("for target " + target.getName() + " in project " + project.getLocation()));
 			val dependencies = target.getDependencies().stream().map(it -> XCTargetReference.of(project, it.getTarget().getName())).collect(ImmutableList.toImmutableList());
 
-			this.target = new XCTarget(name, project, inputFiles, dependencies, outputFile);
-		}
-		return target;
+			return new XCTarget(name, project, inputFiles, dependencies, outputFile);
+		});
 	}
 
-	private static Stream<PBXFileReference> findInputFiles(PBXTarget target) {
+	public static Stream<PBXFileReference> findInputFiles(PBXTarget target) {
 		return Stream.concat(target.getBuildPhases().stream().flatMap(it -> it.getFiles().stream()).map(it -> it.getFileRef()).flatMap(it -> {
 			if (it instanceof PBXFileReference) {
 				return Stream.of((PBXFileReference) it);
@@ -107,7 +94,7 @@ public final class XCTargetReference implements Serializable {
 		}
 	}
 
-	private static XCFileReferences walk(PBXProject project) {
+	public static XCFileReferences walk(PBXProject project) {
 		val builder = XCFileReferences.builder();
 		walk(builder, new FileNode(SOURCE_ROOT, null, null), project.getMainGroup());
 		return builder.build();
@@ -152,7 +139,7 @@ public final class XCTargetReference implements Serializable {
 		throw new RuntimeException("Something went wrong.");
 	}
 
-	private static final class XCFileReferences {
+	public static final class XCFileReferences {
 		private final Map<Integer, XCFileReference> fileRefs;
 
 		public XCFileReferences(Map<Integer, XCFileReference> fileRefs) {

@@ -18,6 +18,7 @@ package dev.nokee.xcode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
+import dev.nokee.xcode.project.PBXObjectUnarchiver;
 import dev.nokee.xcode.project.PBXProjReader;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -34,7 +35,6 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 @EqualsAndHashCode
 public final class XCProjectReference implements Serializable {
-	private transient XCProject project;
 	private /*final*/ File location;
 
 	private XCProjectReference(Path location) {
@@ -57,9 +57,11 @@ public final class XCProjectReference implements Serializable {
 	}
 
 	public XCProject load() {
-		if (project == null) {
+		return XCCache.cacheIfAbsent(this, key -> {
 			try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(getLocation().resolve("project.pbxproj"))))) {
 				val pbxproj = reader.read();
+				val proj = new PBXObjectUnarchiver().decode(pbxproj);
+
 				// TODO: Verify that no-one wants to build aggregate target, they don't have productReference
 				val targetIsa = ImmutableSet.of("PBXTarget", /*"PBXAggregateTarget",*/ "PBXLegacyTarget", "PBXNativeTarget");
 				val targets = Streams.stream(pbxproj.getObjects()).filter(it -> targetIsa.contains(it.isa())).map(it -> it.getFields().get("name").toString()).map(name -> XCTargetReference.of(this, name)).collect(ImmutableSet.toImmutableSet());
@@ -78,11 +80,10 @@ public final class XCProjectReference implements Serializable {
 				val schemeNames = builder.build();
 
 				// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
-				this.project = new XCProject(getLocation(), targets, schemeNames);
+				return new XCProject(getLocation(), targets, schemeNames, proj);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
-		}
-		return project;
+		});
 	}
 }

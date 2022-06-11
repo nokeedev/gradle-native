@@ -16,22 +16,28 @@
 package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.xcode.objects.PBXProject;
 import lombok.EqualsAndHashCode;
 
 import java.nio.file.Path;
 import java.util.Set;
+
+import static dev.nokee.xcode.XCTargetReference.walk;
 
 @EqualsAndHashCode
 public final class XCProject {
 	private final Path location;
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
+	private final PBXProject project;
+	private XCTargetReference.XCFileReferences references;
 
 	// friends with XCProjectReference
-	XCProject(Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames) {
+	XCProject(Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project) {
 		this.location = location;
 		this.targets = targets;
 		this.schemeNames = schemeNames;
+		this.project = project;
 	}
 
 	public Set<XCTargetReference> getTargets() {
@@ -44,5 +50,16 @@ public final class XCProject {
 
 	public XCProjectReference toReference() {
 		return XCProjectReference.of(location);
+	}
+
+	PBXProject getModel() {
+		return project;
+	}
+
+	XCTargetReference.XCFileReferences getFileReferences() {
+		if (references == null) {
+			references = walk(project);
+		}
+		return references;
 	}
 }

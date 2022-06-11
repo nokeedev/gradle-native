@@ -48,31 +48,33 @@ public final class XCWorkspaceReference implements Serializable {
 	}
 
 	public XCWorkspace load() {
-		val layout = new XCWorkspaceLayout(getLocation());
+		return XCCache.cacheIfAbsent(this, key -> {
+			val layout = new XCWorkspaceLayout(getLocation());
 
-		List<XCProjectReference> projects = null;
-		try {
-			val data = new XCWorkspaceDataReader(Files.newBufferedReader(layout.getContentFile(), UTF_8)).read();
-			val resolver = new XCFileReferenceResolver(layout.getBaseDirectory().toFile());
-			projects = data.getFileRefs().stream().map(resolver::resolve).map(File::toPath).map(XCProjectReference::of).collect(Collectors.toList());
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-
-		// TODO: Add support for implicit scheme: xcodebuild -list -workspace `getLocation()` -json
-		val schemeNames = projects.stream().map(it -> it.getLocation().resolve("xcshareddata/xcschemes")).filter(Files::isDirectory).flatMap(it -> {
-			val builder = ImmutableList.<String>builder();
-			try (final DirectoryStream<Path> xcodeSchemeStream = Files.newDirectoryStream(it, "*.xcscheme")) {
-				for (Path xcodeSchemeFile : xcodeSchemeStream) {
-					builder.add(removeExtension(xcodeSchemeFile.getFileName().toString()));
-				}
+			List<XCProjectReference> projects = null;
+			try {
+				val data = new XCWorkspaceDataReader(Files.newBufferedReader(layout.getContentFile(), UTF_8)).read();
+				val resolver = new XCFileReferenceResolver(layout.getBaseDirectory().toFile());
+				projects = data.getFileRefs().stream().map(resolver::resolve).map(File::toPath).map(XCProjectReference::of).collect(Collectors.toList());
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
-			return builder.build().stream();
-		}).distinct().collect(ImmutableSet.toImmutableSet());
 
-		return new XCWorkspace(location.toPath(), projects, schemeNames);
+			// TODO: Add support for implicit scheme: xcodebuild -list -workspace `getLocation()` -json
+			val schemeNames = projects.stream().map(it -> it.getLocation().resolve("xcshareddata/xcschemes")).filter(Files::isDirectory).flatMap(it -> {
+				val builder = ImmutableList.<String>builder();
+				try (final DirectoryStream<Path> xcodeSchemeStream = Files.newDirectoryStream(it, "*.xcscheme")) {
+					for (Path xcodeSchemeFile : xcodeSchemeStream) {
+						builder.add(removeExtension(xcodeSchemeFile.getFileName().toString()));
+					}
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+				return builder.build().stream();
+			}).distinct().collect(ImmutableSet.toImmutableSet());
+
+			return new XCWorkspace(location.toPath(), projects, schemeNames);
+		});
 	}
 
 	public static XCWorkspaceReference of(Path location) {
