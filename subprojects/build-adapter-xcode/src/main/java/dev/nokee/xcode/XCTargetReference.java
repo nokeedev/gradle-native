@@ -73,13 +73,13 @@ public final class XCTargetReference implements Serializable {
 	}
 
 	public static Stream<PBXFileReference> findInputFiles(PBXTarget target) {
-		return Stream.concat(target.getBuildPhases().stream().flatMap(it -> it.getFiles().stream()).map(it -> it.getFileRef()).flatMap(it -> {
+		return target.getBuildPhases().stream().flatMap(it -> it.getFiles().stream()).map(it -> it.getFileRef()).flatMap(it -> {
 			if (it instanceof PBXFileReference) {
 				return Stream.of((PBXFileReference) it);
 			} else {
 				return Stream.empty();
 			}
-		}), target.getDependencies().stream().flatMap(it -> findInputFiles(it.getTarget())));
+		});
 	}
 
 	private static final class FileNode {
