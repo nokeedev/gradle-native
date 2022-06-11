@@ -53,7 +53,7 @@ public final class XCProjectReference implements Serializable {
 
 	@Override
 	public String toString() {
-		return location.toString();
+		return "project '" + location + "'";
 	}
 
 	public XCProject load() {
