@@ -29,8 +29,8 @@ public final class XCProject {
 	private final Path location;
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
-	private final PBXProject project;
-	private XCTargetReference.XCFileReferences references;
+	private transient final PBXProject project;
+	private transient XCTargetReference.XCFileReferences references;
 
 	// friends with XCProjectReference
 	XCProject(Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project) {
