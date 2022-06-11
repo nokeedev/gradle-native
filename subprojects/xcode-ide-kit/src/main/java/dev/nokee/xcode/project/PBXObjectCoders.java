@@ -33,6 +33,7 @@ import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.files.PBXVariantGroup;
+import dev.nokee.xcode.objects.files.XCVersionGroup;
 import dev.nokee.xcode.objects.targets.PBXAggregateTarget;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
@@ -61,6 +62,7 @@ final class PBXObjectCoders {
 		new PBXFileReferenceCoder(),
 		new PBXGroupCoder(),
 		new PBXVariantGroupCoder(),
+		new XCVersionGroupCoder(),
 		new PBXLegacyTargetCoder(),
 		new PBXNativeTargetCoder(),
 		new PBXAggregateTargetCoder(),
@@ -219,6 +221,37 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXVariantGroup value) {
+			value.getName().ifPresent(it -> encoder.encodeString("name", it));
+			value.getPath().ifPresent(it -> encoder.encodeString("path", it));
+			encoder.encodeString("sourceTree", value.getSourceTree().toString());
+
+			List<PBXReference> children = new ArrayList<>(value.getChildren());
+			if (value.getSortPolicy() == PBXVariantGroup.SortPolicy.BY_NAME) {
+				children.sort(comparing(o -> o.getName().orElse(null), naturalOrder()));
+			}
+
+			encoder.encodeObjects("children", children);
+		}
+	}
+
+	private static final class XCVersionGroupCoder implements PBXObjectCoder<XCVersionGroup> {
+		@Override
+		public Class<XCVersionGroup> getType() {
+			return XCVersionGroup.class;
+		}
+
+		@Override
+		public XCVersionGroup read(Decoder decoder) {
+			val builder = XCVersionGroup.builder();
+			decoder.decodeStringIfPresent("name", builder::name);
+			decoder.decodeStringIfPresent("path", builder::path);
+			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it).orElseThrow(RuntimeException::new)));
+			decoder.decodeObjectsIfPresent("children", builder::children);
+			return builder.build();
+		}
+
+		@Override
+		public void write(Encoder encoder, XCVersionGroup value) {
 			value.getName().ifPresent(it -> encoder.encodeString("name", it));
 			value.getPath().ifPresent(it -> encoder.encodeString("path", it));
 			encoder.encodeString("sourceTree", value.getSourceTree().toString());
