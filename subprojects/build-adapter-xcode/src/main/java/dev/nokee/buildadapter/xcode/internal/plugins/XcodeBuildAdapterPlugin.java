@@ -126,14 +126,13 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
 					});
 					configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-						val allTargets = target.load().getInputFiles().stream().map(it::findTarget).filter(Objects::nonNull).map(t -> {
+						return target.load().getInputFiles().stream().map(it::findTarget).filter(Objects::nonNull).map(t -> {
 							val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
 							dep.capabilities(capabilities -> {
 								capabilities.requireCapability("net.nokeedev.xcode:" + t.getName() + ":1.0");
 							});
 							return dep;
 						}).collect(Collectors.toList());
-						return allTargets;
 					}))).orElse(Collections.emptyList()));
 				});
 
