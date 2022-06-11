@@ -34,7 +34,7 @@ public final class SelectXCProjectLocationTransformation implements Transformer<
 				break;
 			default:
 				result = projectLocations.iterator().next();
-				LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode project located at '%s' because multiple Xcode project were found without workspace in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", result, result.getLocation().getParent()));
+				LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode project located at '%s' because multiple Xcode project were found without workspace in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", result.getLocation(), result.getLocation().getParent()));
 				break;
 		}
 		return result;
