@@ -40,7 +40,13 @@ public interface Statement {
 	}
 
 	default void writeTo(Path path) throws IOException {
-		try (PrettyPrinter writer = new PrettyPrinter(new FileWriter(path.toFile()), path.getFileName().toString().endsWith(".gradle") ? new GroovySyntax() : new KotlinSyntax())) {
+		try (PrettyPrinter writer = new PrettyPrinter(new FileWriter(path.toFile(), false), path.getFileName().toString().endsWith(".gradle") ? new GroovySyntax() : new KotlinSyntax())) {
+			writeTo(writer);
+		}
+	}
+
+	default void appendTo(Path path) throws IOException {
+		try (PrettyPrinter writer = new PrettyPrinter(new FileWriter(path.toFile(), true), path.getFileName().toString().endsWith(".gradle") ? new GroovySyntax() : new KotlinSyntax())) {
 			writeTo(writer);
 		}
 	}
