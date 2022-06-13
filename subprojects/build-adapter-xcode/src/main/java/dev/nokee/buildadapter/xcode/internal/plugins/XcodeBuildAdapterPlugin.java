@@ -147,7 +147,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							});
 							return dep;
 						}).collect(Collectors.toList());
-					}))).orElse(Collections.emptyList()));
+					}).orElse(Collections.emptyList()))));
 				});
 
 				val targetTask = project.getTasks().register(target.getName(), XcodeTargetExecTask.class, task -> {
