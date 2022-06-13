@@ -29,6 +29,12 @@ public final class GradleBlock extends AbstractBlock {
 		super(delegate);
 	}
 
+	public static BlockStatement<ProjectBlock> rootProject(Consumer<? super ProjectBlock.Builder> action) {
+		final ProjectBlock.Builder builder = ProjectBlock.builder();
+		action.accept(builder);
+		return BlockStatement.of(literal("rootProject"), builder.build());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
