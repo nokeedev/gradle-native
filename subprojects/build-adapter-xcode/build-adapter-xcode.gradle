@@ -30,6 +30,10 @@ gradlePlugin {
 			id = 'dev.nokee.xcode-build-adapter'
 			implementationClass = 'dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterPlugin'
 		}
+		cocoapodsSupport {
+			id = 'dev.nokee.cocoapods-support'
+			implementationClass = 'dev.nokee.buildadapter.cocoapods.internal.CocoapodSupportPlugin'
+		}
 	}
 }
 

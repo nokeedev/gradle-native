@@ -70,6 +70,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 	@Override
 	public void apply(Settings settings) {
+		settings.getPluginManager().apply("dev.nokee.cocoapods-support");
 		settings.getGradle().rootProject(new RedirectProjectBuildDirectoryToRootBuildDirectory());
 
 		forUseAtConfigurationTime(settings.getGradle().getSharedServices().registerIfAbsent("loader", XCLoaderService.class, ActionUtils.doNothing())).get();

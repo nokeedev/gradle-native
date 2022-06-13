@@ -15,10 +15,14 @@
  */
 package dev.nokee.buildadapter.xcode;
 
+import dev.gradleplugins.buildscript.blocks.ProjectBlock;
 import dev.gradleplugins.buildscript.blocks.TaskBlock;
 import dev.gradleplugins.buildscript.blocks.TasksBlock;
+import dev.gradleplugins.buildscript.statements.GroupStatement;
 import dev.gradleplugins.buildscript.statements.Statement;
 import org.gradle.api.Action;
+
+import java.util.function.Consumer;
 
 import static dev.gradleplugins.buildscript.statements.Statement.expressionOf;
 import static dev.gradleplugins.buildscript.syntax.Syntax.invoke;
@@ -45,5 +49,17 @@ public final class GradleTestSnippets {
 				builder.add(expressionOf(invoke("assert", literal(assertion))));
 			}
 		})));
+	}
+
+	public static Consumer<ProjectBlock.Builder> registerVerifyTask(Consumer<? super GroupStatement.Builder> builderConsumer) {
+		return project -> project.add(TasksBlock.tasks(tasks -> tasks.register("verify", task -> task.doLast(builderConsumer))));
+	}
+
+	public static Consumer<GroupStatement.Builder> assertStatements(String... assertions) {
+		return builder -> {
+			for (String assertion : assertions) {
+				builder.add(expressionOf(invoke("assert", literal(assertion))));
+			}
+		};
 	}
 }
