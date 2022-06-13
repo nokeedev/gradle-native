@@ -21,6 +21,6 @@ import java.nio.file.Path;
 
 final class CocoaPodsService {
 	public void install(Path workingDirectory) {
-		CommandLine.of("pod", "install").execute(null, workingDirectory.toFile()).waitFor().assertNormalExitValue();
+		CommandLine.of("pod", "install", "--repo-update").execute(null, workingDirectory.toFile()).waitFor().assertNormalExitValue();
 	}
 }
