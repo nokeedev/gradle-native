@@ -65,6 +65,8 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 				details.useVersion(version.get().toString());
 			})));
 		});
+
+		settings.getGradle().allprojects(new InjectNokeeVersionManagementExtensions(version));
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
