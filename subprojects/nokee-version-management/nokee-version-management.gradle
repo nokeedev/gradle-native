@@ -7,6 +7,8 @@ plugins {
 	id 'java-test-fixtures'
 }
 
+version = '1.0.0'
+
 gradlePlugin {
 	plugins {
 		nokeeVersionManagement {
