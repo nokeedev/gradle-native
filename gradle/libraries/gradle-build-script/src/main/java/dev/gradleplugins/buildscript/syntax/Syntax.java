@@ -169,4 +169,8 @@ public interface Syntax {
 	static VariableDeclarableExpression var(String name) {
 		return new VariableDeclarableExpression(false, null, name);
 	}
+
+	static ContainerElementExpression containerElement(Expression target, String elementName) {
+		return new ContainerElementExpression(target, elementName);
+	}
 }
