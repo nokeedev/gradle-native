@@ -16,42 +16,31 @@
 package dev.nokee.nvm;
 
 import org.gradle.api.Action;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ValueSource;
-import org.gradle.api.provider.ValueSourceParameters;
 import org.gradle.api.provider.ValueSourceSpec;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
+@SuppressWarnings("UnstableApiUsage")
 abstract class NokeeVersionSource implements ValueSource<NokeeVersion, NokeeVersionSource.Parameters> {
-	interface Parameters extends ValueSourceParameters {
-		RegularFileProperty getNokeeVersionFile();
-	}
+	private final NokeeVersionLoader loader;
+
+	interface Parameters extends NokeeVersionParameters {}
 
 	@Inject
-	public NokeeVersionSource() {}
+	public NokeeVersionSource() {
+		this(DefaultNokeeVersionLoader.INSTANCE);
+	}
+
+	public NokeeVersionSource(NokeeVersionLoader loader) {
+		this.loader = loader;
+	}
 
 	@Nullable
 	@Override
 	public NokeeVersion obtain() {
-		final Path versionFile = getParameters().getNokeeVersionFile().get().getAsFile().toPath();
-		if (Files.exists(versionFile)) {
-			try {
-				return NokeeVersion.version(new String(Files.readAllBytes(versionFile)));
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		}
-		return null;
-	}
-
-	public static Action<ValueSourceSpec<Parameters>> versionFile(File baseDirectory) {
-		return spec -> spec.parameters(parameters -> parameters.getNokeeVersionFile().fileValue(new File(baseDirectory, ".nokee-version")));
+		return loader.fromFile(getParameters().getNokeeVersionFile().getAsFile().get().toPath());
 	}
 }

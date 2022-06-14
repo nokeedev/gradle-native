@@ -17,43 +17,72 @@ package dev.nokee.nvm;
 
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
+import dev.nokee.nvm.fixtures.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
-import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
+import static dev.nokee.nvm.NokeeVersionManagementServiceSamples.nokeeBuildChildOfNokeeBuild;
+import static dev.nokee.nvm.NokeeVersionManagementServiceSamples.nokeeBuildChildOfNonNokeeBuild;
+import static dev.nokee.nvm.NokeeVersionManagementServiceSamples.singleNokeeBuild;
+import static dev.nokee.nvm.ProjectFixtures.expect;
+import static dev.nokee.nvm.ProjectFixtures.nokeeBuild;
+import static dev.nokee.nvm.ProjectFixtures.nonNokeeBuild;
+import static dev.nokee.nvm.ProjectFixtures.withVersion;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class NokeeVersionManagementServiceUsesVersionFromEnvironmentVariableFunctionalTest {
 	@TestDirectory Path testDirectory;
-	GradleRunner executer;
 
-	@BeforeEach
-	void setup(GradleRunner runner) throws IOException {
-		executer = runner.withEnvironmentVariable("NOKEE_VERSION", "0.5.4");
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
-		writeVersionFileTo(testDirectory, "0.5.2");
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
-			"def service = gradle.sharedServices.registrations.nokeeVersionManagement.service",
-			"tasks.register('verify') {",
-			"  usesService(service)",
-			"  doLast {",
-			"    assert service.get().version.toString() == '0.5.4'",
-			"  }",
-			"}"
-		));
+	@Test
+	void ignoresCurrentBuildVersion(GradleRunner runner) {
+		nokeeBuildChildOfNonNokeeBuild(TestLayout.newBuild(testDirectory))
+			.childBuild(withVersion("0.8.0").andThen(expect("0.5.4")));
+		runner.withEnvironmentVariable("NOKEE_VERSION", "0.5.4").withTasks("verify").build();
 	}
 
 	@Test
-	void loadsNokeeVersionFromNokeeVersionEnvironmentVariable() {
-		executer.withTasks("verify").build();
+	void ignoresMissingVersionFileOnChildBuild(GradleRunner runner) {
+		nokeeBuildChildOfNonNokeeBuild(TestLayout.newBuild(testDirectory)).childBuild(expect("0.3.3"));
+		runner.withEnvironmentVariable("NOKEE_VERSION", "0.3.3").withTasks("verify").build();
+	}
+
+	@Test
+	void ignoresParentBuildVersion(GradleRunner runner) {
+		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
+			.rootBuild(withVersion("0.9.0").andThen(expect("1.5.0")))
+			.childBuild(withVersion("0.8.0").andThen(expect("1.5.0")));
+		runner.withEnvironmentVariable("NOKEE_VERSION", "1.5.0").withTasks("verify").build();
+	}
+
+	@Test
+	void ignoresCurrentBuildVersionAndMissingParentBuildVersionFile(GradleRunner runner) {
+		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
+			.rootBuild(expect("1.5.0"))
+			.childBuild(withVersion("0.8.0").andThen(expect("1.5.0")));
+		runner.withEnvironmentVariable("NOKEE_VERSION", "1.5.0").withTasks("verify").build();
+	}
+
+	@Test
+	void ignoresMissingCurrentVersionFileAndParentBuildVersion(GradleRunner runner) {
+		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
+			.rootBuild(withVersion("0.9.0").andThen(expect("1.5.0")))
+			.childBuild(expect("1.5.0"));
+		runner.withEnvironmentVariable("NOKEE_VERSION", "1.5.0").withTasks("verify").build();
+	}
+
+	@Test
+	void ignoresMissingVersionFile(GradleRunner runner) {
+		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(expect("0.3.0"));
+		runner.withEnvironmentVariable("NOKEE_VERSION", "0.3.0").withTasks("verify").build();
+	}
+
+	@Test
+	void ignoresVersionFileInFavourOfEnvironmentVariable(GradleRunner runner) {
+		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(withVersion("0.6.9").andThen(expect("0.7.0")));
+		runner.withEnvironmentVariable("NOKEE_VERSION", "0.7.0").withTasks("verify").build();
 	}
 }

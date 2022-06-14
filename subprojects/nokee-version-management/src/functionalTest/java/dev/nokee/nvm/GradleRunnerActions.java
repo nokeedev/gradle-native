@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.nvm.fixtures;
+package dev.nokee.nvm;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import dev.gradleplugins.runnerkit.BuildResult;
+import dev.gradleplugins.runnerkit.GradleRunner;
+import lombok.val;
 
-public final class DotNokeeVersionTestUtils {
-	public static Path writeVersionFileTo(Path testDirectory, String version) throws IOException {
-		return Files.write(testDirectory.resolve(".nokee-version"), version.getBytes(StandardCharsets.UTF_8));
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+
+public final class GradleRunnerActions {
+	public static BuildResult warmConfigurationCache(GradleRunner runner) {
+		val result = runner.build();
+		assertThat("expecting the configuration cache to be stored", result.getOutput(), containsString("Configuration cache entry stored."));
+		return result;
 	}
 }

@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.nvm.fixtures;
+package dev.nokee.nvm;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-public final class DotNokeeVersionTestUtils {
-	public static Path writeVersionFileTo(Path testDirectory, String version) throws IOException {
-		return Files.write(testDirectory.resolve(".nokee-version"), version.getBytes(StandardCharsets.UTF_8));
-	}
+interface NokeeVersionParser {
+	NokeeVersion parse(String versionString);
 }
