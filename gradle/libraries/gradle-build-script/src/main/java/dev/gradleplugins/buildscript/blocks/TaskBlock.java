@@ -18,15 +18,17 @@ package dev.gradleplugins.buildscript.blocks;
 import dev.gradleplugins.buildscript.Visitor;
 import dev.gradleplugins.buildscript.statements.BlockStatement;
 import dev.gradleplugins.buildscript.statements.EmptyAwareSection;
-import dev.gradleplugins.buildscript.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.statements.GroupStatement;
 import dev.gradleplugins.buildscript.statements.Statement;
 import dev.gradleplugins.buildscript.syntax.Expression;
-import lombok.val;
 
 import java.util.function.Consumer;
 
+import static dev.gradleplugins.buildscript.statements.Statement.expressionOf;
+import static dev.gradleplugins.buildscript.syntax.Syntax.containerElement;
+import static dev.gradleplugins.buildscript.syntax.Syntax.invoke;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
+import static dev.gradleplugins.buildscript.syntax.Syntax.string;
 
 public final class TaskBlock extends AbstractBlock {
 
@@ -50,6 +52,21 @@ public final class TaskBlock extends AbstractBlock {
 			final GroupStatement.Builder builder = GroupStatement.builder();
 			builderConsumer.accept(builder);
 			this.builder.add(BlockStatement.of(literal("doLast"), builder.build()));
+			return this;
+		}
+
+		public Builder usesService(String serviceName) {
+			this.builder.add(expressionOf(invoke("usesService", containerElement(literal("gradle.sharedServices.registrations"), serviceName).property("service")).alwaysUseParenthesis()));
+			return this;
+		}
+
+		public Builder finalizedBy(String path) {
+			this.builder.add(expressionOf(invoke("finalizedBy", string(path))));
+			return this;
+		}
+
+		public Builder dependsOn(String expression) {
+			this.builder.add(expressionOf(invoke("dependsOn", literal(expression))));
 			return this;
 		}
 
