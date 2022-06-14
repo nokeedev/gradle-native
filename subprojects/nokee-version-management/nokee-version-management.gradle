@@ -1,4 +1,5 @@
 plugins {
+	id 'org.jetbrains.kotlin.jvm' version "1.3.72"
 	id 'nokeebuild.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-functional-test'
 	id 'nokeebuild.gradle-plugin-integration-test'
@@ -12,5 +13,9 @@ gradlePlugin {
 			id = 'dev.nokee.nokee-version-management'
 			implementationClass = 'dev.nokee.nvm.NokeeVersionManagementPlugin'
 		}
+	}
+
+	dependencies {
+		compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 	}
 }
