@@ -1,8 +1,9 @@
 plugins {
-	id 'org.jetbrains.kotlin.jvm' version "1.3.72"
 	id 'nokeebuild.java-gradle-plugin'
 	id 'nokeebuild.gradle-plugin-functional-test'
 	id 'nokeebuild.gradle-plugin-integration-test'
+	id 'org.jetbrains.kotlin.jvm' version "1.3.72" // to inject DependencyHandler/RepositoryHandler extensions
+	id 'groovy' // to inject DependencyHandler/RepositoryHandler extensions
 	id 'maven-publish'
 	id 'java-test-fixtures'
 }
