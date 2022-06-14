@@ -24,7 +24,10 @@ import org.hamcrest.Matchers;
 import org.hamcrest.io.FileMatchers;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
@@ -117,5 +120,22 @@ public final class FileSystemMatchers {
 
 	public static Matcher<String> containsPath(String path) {
 		return matchesPattern(Pattern.compile(".*" + path.replace("/", "[/\\\\]") + ".*"));
+	}
+
+	public static Matcher<Object> anExistingFile() {
+		return aFile(FileMatchers.anExistingFile());
+	}
+
+	public static Matcher<File> withTextContent(Matcher<? super String> matcher) {
+		return new FeatureMatcher<File, String>(matcher, "", "") {
+			@Override
+			protected String featureValueOf(File actual) {
+				try {
+					return new String(Files.readAllBytes(actual.toPath()));
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+			}
+		};
 	}
 }
