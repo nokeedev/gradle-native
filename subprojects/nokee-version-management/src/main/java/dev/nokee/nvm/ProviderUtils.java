@@ -21,6 +21,8 @@ import org.gradle.util.GradleVersion;
 import java.lang.reflect.InvocationTargetException;
 
 final class ProviderUtils {
+	private ProviderUtils() {}
+
 	public static <T> Provider<T> forUseAtConfigurationTime(Provider<T> self) {
 		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0 && GradleVersion.current().compareTo(GradleVersion.version("7.0")) < 0) {
 			try {
