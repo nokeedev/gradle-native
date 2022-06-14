@@ -90,11 +90,10 @@ final class NokeeVersion implements Comparable<NokeeVersion>, Serializable {
 	}
 
 	public static NokeeVersion version(String versionString) {
-		if (versionString == null)
-			return UNKNOWN;
 		Matcher m = versionPattern.matcher(versionString);
-		if (!m.matches())
+		if (!m.matches()) {
 			return UNKNOWN;
+		}
 
 		int major = Integer.parseInt(m.group(1));
 		String minorString = m.group(2);

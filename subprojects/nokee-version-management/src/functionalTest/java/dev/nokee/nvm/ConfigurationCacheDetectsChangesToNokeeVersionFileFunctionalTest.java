@@ -20,6 +20,7 @@ import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
 import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
+import dev.nokee.nvm.fixtures.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,10 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
+import static dev.nokee.nvm.GradleRunnerActions.warmConfigurationCache;
+import static dev.nokee.nvm.ProjectFixtures.applyAnyNokeePlugin;
+import static dev.nokee.nvm.ProjectFixtures.nokeeBuild;
+import static dev.nokee.nvm.ProjectFixtures.writeVersionFile;
 import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -43,19 +48,13 @@ class ConfigurationCacheDetectsChangesToNokeeVersionFileFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
 	BuildResult result;
+	TestLayout layout;
 
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
-		writeVersionFileTo(testDirectory, "0.3.0");
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
+		layout = TestLayout.newBuild(testDirectory).configure(nokeeBuild(applyAnyNokeePlugin().andThen(writeVersionFile("0.3.0"))));
 		executer = runner.withArgument("verify").withArgument("--configuration-cache");
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
-			"plugins {",
-			"  id 'dev.nokee.jni-library'", // we must resolve a Nokee plugin so the "version" is marked as used
-			"}",
-			"tasks.register('verify')"
-		));
-		result = executer.build();
+		result = warmConfigurationCache(executer);
 	}
 
 	@Test
@@ -64,8 +63,8 @@ class ConfigurationCacheDetectsChangesToNokeeVersionFileFunctionalTest {
 	}
 
 	@Test
-	void doesNotReuseConfigurationCacheWhenVersionFileChange() throws IOException {
-		writeVersionFileTo(testDirectory, "0.4.0");
+	void doesNotReuseConfigurationCacheWhenVersionFileChange() {
+		layout.configure(writeVersionFile("0.4.0"));
 		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
 	}
 }

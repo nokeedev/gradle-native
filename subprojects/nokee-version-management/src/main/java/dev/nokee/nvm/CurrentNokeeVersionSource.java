@@ -15,24 +15,24 @@
  */
 package dev.nokee.nvm;
 
+import lombok.val;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ValueSource;
-import org.gradle.api.provider.ValueSourceParameters;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLConnection;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Optional;
 
 @SuppressWarnings("UnstableApiUsage")
 abstract class CurrentNokeeVersionSource implements ValueSource<NokeeVersion, CurrentNokeeVersionSource.Parameters> {
-	private static final Pattern VERSION_PATTERN = Pattern.compile("\"version\"\\s*:\\s*\"(.+)\"");
+	private final NokeeVersionLoader loader;
 
-	interface Parameters extends ValueSourceParameters {
+	interface Parameters extends NokeeVersionParameters {
 		Property<NetworkStatus> getNetworkStatus();
 		Property<URI> getCurrentReleaseUrl();
 
@@ -42,32 +42,39 @@ abstract class CurrentNokeeVersionSource implements ValueSource<NokeeVersion, Cu
 	}
 
 	@Inject
-	public CurrentNokeeVersionSource() {}
+	public CurrentNokeeVersionSource() {
+		this(DefaultNokeeVersionLoader.INSTANCE);
+	}
+
+	public CurrentNokeeVersionSource(NokeeVersionLoader loader) {
+		this.loader = loader;
+	}
 
 	@Nullable
 	@Override
 	public NokeeVersion obtain() {
-		if (getParameters().getNetworkStatus().getOrElse(Parameters.NetworkStatus.ALLOWED) == Parameters.NetworkStatus.DISALLOWED) {
-			return null; // no network, no version
+		val result = Optional.ofNullable(loader.fromFile(getParameters().getNokeeVersionFile().getAsFile().get().toPath())).orElseGet(() -> {
+
+			if (getParameters().getNetworkStatus().getOrElse(Parameters.NetworkStatus.ALLOWED) == Parameters.NetworkStatus.DISALLOWED) {
+				return null; // no network, no version
+			}
+
+			try {
+				return loader.fromUrl(getParameters().getCurrentReleaseUrl()
+					.getOrElse(new URI("https://services.nokee.dev/versions/current.json")).toURL());
+			} catch (IOException | URISyntaxException e) {
+				return null; // exception, assume no version
+			}
+		});
+
+		if (result != null) {
+			try {
+				Files.write(getParameters().getNokeeVersionFile().getAsFile().get().toPath(), result.toString().getBytes(StandardCharsets.UTF_8));
+			} catch (IOException e) {
+				// could not write versionFile
+			}
 		}
 
-		try {
-			final URLConnection connection = getParameters().getCurrentReleaseUrl().get().toURL().openConnection();
-			connection.setRequestProperty("User-Agent", "Nokee Version Management plugin"); // required by GitHub hosting
-			connection.connect();
-			final Scanner s = new Scanner(connection.getInputStream()).useDelimiter("\\A");
-			if (!s.hasNext()) {
-				return null; // no data, no version
-			}
-			final String content = s.next();
-			final Matcher matcher = VERSION_PATTERN.matcher(content);
-			if (matcher.find()) {
-				return NokeeVersion.version(matcher.group(1));
-			} else {
-				return null; // malformed data, assume no version
-			}
-		} catch (IOException e) {
-			return null; // exception, assume no version
-		}
+		return result;
 	}
 }

@@ -17,19 +17,22 @@ package dev.nokee.nvm;
 
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
+import org.gradle.api.Action;
+import org.gradle.api.provider.ValueSourceSpec;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static dev.nokee.nvm.NokeeVersionSource.versionFile;
-import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 import static dev.nokee.internal.testing.GradleProviderMatchers.absentProvider;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
+import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@SuppressWarnings("UnstableApiUsage")
 @ExtendWith(TestDirectoryExtension.class)
 class NokeeVersionSourceIntegrationTest {
 	@TestDirectory Path testDirectory;
@@ -43,5 +46,9 @@ class NokeeVersionSourceIntegrationTest {
 	@Test
 	void doesNotProvideVersionWhenDotNokeeVersionFileAbsent() {
 		assertThat(providerFactory().of(NokeeVersionSource.class, versionFile(testDirectory.toFile())), absentProvider());
+	}
+
+	public static Action<ValueSourceSpec<NokeeVersionSource.Parameters>> versionFile(File baseDirectory) {
+		return spec -> spec.parameters(parameters -> parameters.getNokeeVersionFile().fileValue(new File(baseDirectory, ".nokee-version")));
 	}
 }

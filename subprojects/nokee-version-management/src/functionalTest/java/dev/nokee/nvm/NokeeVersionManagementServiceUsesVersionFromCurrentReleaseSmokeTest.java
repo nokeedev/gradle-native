@@ -17,41 +17,24 @@ package dev.nokee.nvm;
 
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
+import dev.nokee.nvm.fixtures.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
-import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
+import static dev.nokee.nvm.NokeeVersionManagementServiceSamples.singleNokeeBuild;
+import static dev.nokee.nvm.ProjectFixtures.resolveVersion;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseSmokeTest {
 	@TestDirectory Path testDirectory;
-	GradleRunner executer;
-
-	@BeforeEach
-	void setup(GradleRunner runner) throws IOException {
-		executer = runner;
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
-	}
 
 	@Test
-	void loadsNokeeVersionFromNokeeServices() throws IOException {
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
-			"def service = gradle.sharedServices.registrations.nokeeVersionManagement.service",
-			"tasks.register('verify') {",
-			"  usesService(service)",
-			"  doLast {",
-			"    assert service.get().version.toString() == '0.4.0'",
-			"  }",
-			"}"
-		));
-		executer.withTasks("verify").build();
+	void loadsNokeeVersionFromNokeeServices(GradleRunner runner) {
+		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
+		runner.withTasks("verify").build();
 	}
 }

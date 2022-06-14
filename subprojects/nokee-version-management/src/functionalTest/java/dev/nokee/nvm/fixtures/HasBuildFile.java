@@ -15,13 +15,10 @@
  */
 package dev.nokee.nvm.fixtures;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import dev.gradleplugins.buildscript.blocks.ProjectBlock;
 
-public final class DotNokeeVersionTestUtils {
-	public static Path writeVersionFileTo(Path testDirectory, String version) throws IOException {
-		return Files.write(testDirectory.resolve(".nokee-version"), version.getBytes(StandardCharsets.UTF_8));
-	}
+import java.util.function.Consumer;
+
+public interface HasBuildFile {
+	void buildFile(Consumer<? super ProjectBlock.Builder> action);
 }

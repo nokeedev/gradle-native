@@ -19,6 +19,7 @@ import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
 import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
+import dev.nokee.nvm.fixtures.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,11 +29,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 
-import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
-import static java.nio.file.Files.write;
+import static dev.nokee.nvm.GradleRunnerActions.warmConfigurationCache;
+import static dev.nokee.nvm.ProjectFixtures.applyAnyNokeePlugin;
+import static dev.nokee.nvm.ProjectFixtures.nokeeBuild;
+import static dev.nokee.nvm.ProjectFixtures.writeVersionFile;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -45,26 +46,22 @@ import static org.hamcrest.Matchers.not;
 class ConfigurationCacheDetectsChangesToRepositoryUrlOverridesFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
+	TestLayout layout;
 
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
-		executer = runner.withArgument("verify").withArgument("--configuration-cache");
-		write(testDirectory.resolve("build.gradle"), Arrays.asList(
-			"plugins {",
-			"  id 'dev.nokee.jni-library'", // we must resolve a Nokee plugin so the "version" is marked as used
-			"}",
-			"tasks.register('verify')"
-		));
+		layout = TestLayout.newBuild(testDirectory).configure(nokeeBuild(applyAnyNokeePlugin()));
+		executer = runner.withArgument("--configuration-cache").withTasks("verify");
+		warmConfigurationCache(executer);
 	}
 
 	@Nested
 	class ReleaseRepositoryUrlOverrideTest {
 		@BeforeEach
 		void setup() throws IOException {
-			writeVersionFileTo(testDirectory, "0.4.0");
+			layout.configure(writeVersionFile("0.4.0"));
 			executer = executer.withArgument("-Ddev.nokee.repository.release.url.override=https://repo-release.nokeedev.net");
-			executer.build();
+			warmConfigurationCache(executer);
 		}
 
 		@Test
@@ -89,9 +86,9 @@ class ConfigurationCacheDetectsChangesToRepositoryUrlOverridesFunctionalTest {
 	class SnapshotRepositoryUrlOverrideTest {
 		@BeforeEach
 		void setup() throws IOException {
-			writeVersionFileTo(testDirectory, "0.4.2190-202205201507.5d969a1e");
+			layout.configure(writeVersionFile("0.4.2190-202205201507.5d969a1e"));
 			executer = executer.withArgument("-Ddev.nokee.repository.snapshot.url.override=https://repo-snapshot.nokeedev.net");
-			executer.build();
+			warmConfigurationCache(executer);
 		}
 
 		@Test

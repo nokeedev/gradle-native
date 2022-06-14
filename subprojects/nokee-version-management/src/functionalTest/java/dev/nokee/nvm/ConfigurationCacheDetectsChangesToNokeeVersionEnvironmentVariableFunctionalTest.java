@@ -15,11 +15,11 @@
  */
 package dev.nokee.nvm;
 
-import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
 import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
+import dev.nokee.nvm.fixtures.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,12 +27,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
-import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
-import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
+import static dev.nokee.nvm.GradleRunnerActions.warmConfigurationCache;
+import static dev.nokee.nvm.ProjectFixtures.applyAnyNokeePlugin;
+import static dev.nokee.nvm.ProjectFixtures.nokeeBuild;
+import static dev.nokee.nvm.ProjectFixtures.writeVersionFile;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -42,19 +42,13 @@ import static org.hamcrest.Matchers.not;
 class ConfigurationCacheDetectsChangesToNokeeVersionEnvironmentVariableFunctionalTest {
 	@TestDirectory Path testDirectory;
 	GradleRunner executer;
-	BuildResult result;
+	TestLayout layout;
 
 	@BeforeEach
 	void setup(GradleRunner runner) throws IOException {
-		plugins(it -> it.id("dev.nokee.nokee-version-management")).writeTo(testDirectory.resolve("settings.gradle"));
+		layout = TestLayout.newBuild(testDirectory).configure(nokeeBuild(applyAnyNokeePlugin()));
 		executer = runner.withArgument("verify").withArgument("--configuration-cache").withEnvironmentVariable("NOKEE_VERSION", "0.3.0");
-		Files.write(testDirectory.resolve("build.gradle"), Arrays.asList(
-			"plugins {",
-			"  id 'dev.nokee.jni-library'", // we must resolve a Nokee plugin so the "version" is marked as used
-			"}",
-			"tasks.register('verify')"
-		));
-		result = executer.build();
+		warmConfigurationCache(executer);
 	}
 
 	@Test
@@ -63,8 +57,14 @@ class ConfigurationCacheDetectsChangesToNokeeVersionEnvironmentVariableFunctiona
 	}
 
 	@Test
-	void doesNotReuseConfigurationCacheWhenNokeeVersionEnvironmentVariableChange() throws IOException {
+	void doesNotReuseConfigurationCacheWhenNokeeVersionEnvironmentVariableChange() {
 		assertThat(executer.withEnvironmentVariable("NOKEE_VERSION", "0.4.0").build().getOutput(),
 			not(containsString("Reusing configuration cache")));
+	}
+
+	@Test
+	void reusesConfigurationCacheWhenNokeeVersionFileChangeButEnvironmentVariableDoesNotChange() {
+		layout.configure(writeVersionFile("0.2.0"));
+		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
 	}
 }

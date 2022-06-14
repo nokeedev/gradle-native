@@ -30,6 +30,7 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.nvm.fixtures.CurrentDotJsonTestUtils.writeCurrentVersionTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@SuppressWarnings("UnstableApiUsage")
 @ExtendWith(TestDirectoryExtension.class)
 class CurrentNokeeVersionSourceDisallowedNetworkAccessIntegrationTest {
 	@TestDirectory Path testDirectory;
@@ -39,6 +40,7 @@ class CurrentNokeeVersionSourceDisallowedNetworkAccessIntegrationTest {
 	void setup() {
 		subject = providerFactory().of(CurrentNokeeVersionSource.class, spec -> {
 			spec.parameters(parameters -> {
+				parameters.getNokeeVersionFile().set(testDirectory.resolve(".nokee-version").toFile());
 				parameters.getNetworkStatus().set(CurrentNokeeVersionSource.Parameters.NetworkStatus.DISALLOWED);
 				parameters.getCurrentReleaseUrl().set(testDirectory.resolve("current.json").toFile().toURI());
 			});
