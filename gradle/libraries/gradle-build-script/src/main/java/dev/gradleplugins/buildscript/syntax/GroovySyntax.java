@@ -47,8 +47,20 @@ public final class GroovySyntax implements Syntax {
 			return renderSetLiteral((SetLiteralValue) expression);
 		} else if (expression instanceof VariableDeclarableExpression) {
 			return renderStandaloneVariableDeclaration((VariableDeclarableExpression) expression);
+		} else if (expression instanceof ContainerElementExpression) {
+			return renderContainerElement((ContainerElementExpression) expression);
+		} else if (expression instanceof PropertyExpression) {
+			return renderProperty((PropertyExpression) expression);
 		}
 		throw new UnsupportedOperationException("Unknown expression");
+	}
+
+	private String renderProperty(PropertyExpression expression) {
+		return render(expression.get());
+	}
+
+	private String renderContainerElement(ContainerElementExpression expression) {
+		return render(expression.getTarget()) + "." + expression.getElementName();
 	}
 
 	private String renderSetLiteral(SetLiteralValue expression) {
