@@ -16,13 +16,12 @@
 package dev.nokee.nvm;
 
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.provider.Provider;
 
 import java.net.URI;
 
-final class NokeeRepositoryAction implements Action<RepositoryHandler> {
+final class NokeeRepositoryAction implements Action<MavenArtifactRepository> {
 	private final Provider<URI> repositoryUrl;
 
 	public NokeeRepositoryAction(Provider<URI> repositoryUrl) {
@@ -30,11 +29,7 @@ final class NokeeRepositoryAction implements Action<RepositoryHandler> {
 	}
 
 	@Override
-	public void execute(RepositoryHandler repositories) {
-		repositories.maven(this::nokeeRepository);
-	}
-
-	private void nokeeRepository(MavenArtifactRepository repository) {
+	public void execute(MavenArtifactRepository repository) {
 		repository.setName("Nokee Artifact Repository");
 		repository.setUrl(repositoryUrl);
 		repository.mavenContent(content -> {
