@@ -17,6 +17,7 @@ package dev.nokee.nvm.fixtures;
 
 import dev.gradleplugins.buildscript.blocks.ProjectBlock;
 import dev.gradleplugins.buildscript.blocks.SettingsBlock;
+import dev.gradleplugins.buildscript.statements.Statement;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -34,6 +35,7 @@ abstract class AbstractTestGradleBuild implements TestGradleBuild {
 	private final Map<String, TestIncludedBuild> includedBuilds = new LinkedHashMap<>();
 	private final Map<String, TestSubproject> subprojects = new LinkedHashMap<>();
 	private TestBuildSrc buildSrcBuild = null;
+	private String buildFileName = "build.gradle";
 
 	protected AbstractTestGradleBuild(Path location) {
 		this.location = location;
@@ -46,10 +48,52 @@ abstract class AbstractTestGradleBuild implements TestGradleBuild {
 	public void buildFile(Consumer<? super ProjectBlock.Builder> action) {
 		action.accept(buildBuilder);
 		try {
-			buildBuilder.build().writeTo(location.resolve("build.gradle"));
+			buildBuilder.build().writeTo(location.resolve(buildFileName));
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
+	}
+
+	public BuildScriptFile getBuildFile() {
+		return new BuildScriptFile() {
+			@Override
+			public BuildScriptFile useKotlinDsl() {
+				if (!buildFileName.endsWith(".gradle.kts")) {
+					try {
+						if (Files.exists(location.resolve(buildFileName))) {
+							Files.delete(location.resolve(buildFileName));
+						}
+						buildFileName = "build.gradle.kts";
+						buildBuilder.build().writeTo(location.resolve(buildFileName));
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
+				}
+				return this;
+			}
+
+			@Override
+			public BuildScriptFile useGroovyDsl() {
+				if (!buildFileName.endsWith(".gradle")) {
+					try {
+						if (Files.exists(location.resolve(buildFileName))) {
+							Files.delete(location.resolve(buildFileName));
+						}
+						buildFileName = "build.gradle";
+						buildBuilder.build().writeTo(location.resolve(buildFileName));
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
+				}
+				return this;
+			}
+
+			@Override
+			public BuildScriptFile append(Statement statement) {
+				buildFile(it -> it.add(statement));
+				return this;
+			}
+		};
 	}
 
 	public void settingsFile(Consumer<? super SettingsBlock.Builder> action) {
