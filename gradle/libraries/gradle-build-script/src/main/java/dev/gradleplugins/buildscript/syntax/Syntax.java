@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static java.util.Collections.singletonMap;
+import static java.util.Objects.requireNonNull;
 
 public interface Syntax {
 	String render(Expression expression);
@@ -63,7 +64,7 @@ public interface Syntax {
 	 * @return an expression representing a literal value, never null
 	 */
 	static Expression literal(Object literal) {
-		return new LiteralValue(literal);
+		return new LiteralValue(requireNonNull(literal));
 	}
 
 	/**
