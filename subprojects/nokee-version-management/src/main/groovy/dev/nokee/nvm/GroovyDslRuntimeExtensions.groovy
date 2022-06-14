@@ -15,10 +15,13 @@
  */
 package dev.nokee.nvm
 
+import groovy.transform.PackageScope
+
 /**
  * Helper class to add extension methods to Groovy DSL classes at runtime.
  * The end result is comparable to the Kotlin extension methods.
  */
+@PackageScope
 final class GroovyDslRuntimeExtensions {
     /**
      * Add an extension methods to an object.
