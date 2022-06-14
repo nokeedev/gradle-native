@@ -39,6 +39,11 @@ public final class RepositoriesBlock extends AbstractBlock {
 	public static final class Builder implements GradleBuildScriptBlockBuilder<Builder> {
 		private final GroupStatement.Builder builder = GroupStatement.builder();
 
+		public Builder add(Statement statement) {
+			builder.add(statement);
+			return this;
+		}
+
 		public Builder mavenLocal() {
 			builder.add(ArtifactRepositoryStatement.mavenLocal());
 			return this;
