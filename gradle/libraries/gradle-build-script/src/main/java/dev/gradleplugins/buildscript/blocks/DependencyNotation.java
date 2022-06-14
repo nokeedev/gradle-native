@@ -48,6 +48,10 @@ public final class DependencyNotation {
 		return new DependencyNotation(invoke("platform", string(path)).alwaysUseParenthesis());
 	}
 
+	public static DependencyNotation call(String methodName) {
+		return new DependencyNotation(invoke(methodName));
+	}
+
 	Expression asExpression() {
 		return expression;
 	}
