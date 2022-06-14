@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collector;
 
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 
@@ -72,6 +73,10 @@ public final class GroupStatement implements Statement, Iterable<Statement>, Emp
 		return statementList.size();
 	}
 
+	public static Collector<Statement, ?, GroupStatement> toGroupStatement() {
+		return Collector.of(GroupStatement::builder, Builder::add, Builder::mergeFrom, Builder::build);
+	}
+
 	public static GroupStatement of(Statement statement) {
 		return new GroupStatement(Collections.singletonList(Objects.requireNonNull(statement)));
 	}
@@ -104,6 +109,11 @@ public final class GroupStatement implements Statement, Iterable<Statement>, Emp
 			final GroupStatement.Builder builder = GroupStatement.builder();
 			action.accept(builder);
 			statementList.add(BlockStatement.of(literal(selector), builder.build()));
+			return this;
+		}
+
+		private Builder mergeFrom(Builder other) {
+			statementList.addAll(other.statementList);
 			return this;
 		}
 

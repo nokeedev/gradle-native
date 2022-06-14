@@ -18,14 +18,23 @@ package dev.gradleplugins.buildscript.blocks;
 import dev.gradleplugins.buildscript.statements.BlockStatement;
 import dev.gradleplugins.buildscript.statements.GroupStatement;
 import dev.gradleplugins.buildscript.statements.Statement;
+import dev.gradleplugins.buildscript.syntax.Expression;
+import lombok.val;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import static dev.gradleplugins.buildscript.statements.GroupStatement.toGroupStatement;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 import static dev.gradleplugins.buildscript.syntax.Syntax.property;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
+import static java.util.Map.Entry.comparingByKey;
+import static java.util.stream.Collectors.toList;
 
 public final class ProjectBlock extends AbstractBlock {
 	private ProjectBlock(Statement delegate) {
@@ -100,8 +109,73 @@ public final class ProjectBlock extends AbstractBlock {
 			return this;
 		}
 
+		public Builder tasks(Consumer<? super TasksBlock.Builder> action) {
+			builder.add(TasksBlock.tasks(action));
+			return this;
+		}
+
 		public ProjectBlock build() {
-			return new ProjectBlock(builder.build());
+			return new ProjectBlock(normalize(builder.build()));
+		}
+
+		// TODO: Handle comment before block -> comment before group inside block
+		private static GroupStatement normalize(Iterable<Statement> statements) {
+			return StreamSupport.stream(statements.spliterator(), false)
+				.collect(Collectors.groupingBy(BlockType::classify, LinkedHashMap::new, toList()))
+				.entrySet().stream().sorted(comparingByKey()).flatMap(it -> {
+					if (it.getKey().equals(BlockType.OTHERS)) {
+						return it.getValue().stream();
+					} else {
+						val builder = GroupStatement.builder();
+						it.getValue().stream()
+							.map(ProjectBlock.Builder::unpackToBlockStatement)
+							.map(BlockStatement::getContent)
+							.forEach(builder::add);
+						return Stream.of(GroupStatement.of(BlockStatement.of(it.getKey().blockSelector(), builder.build())));
+					}
+				}).collect(toGroupStatement());
+		}
+
+		private static BlockStatement<?> unpackToBlockStatement(Statement statement) {
+			if (statement instanceof BlockStatement) {
+				return (BlockStatement<?>) statement;
+			} else if (statement instanceof GroupStatement) {
+				assert ((GroupStatement) statement).size() == 1;
+				return unpackToBlockStatement(((GroupStatement) statement).iterator().next());
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}
+
+		private enum BlockType {
+			BUILDSCRIPT("buildscript"),
+			PLUGINS("plugins"),
+			OTHERS(null);
+
+			private final String selector;
+
+			BlockType(String selector) {
+				this.selector = selector;
+			}
+
+			public Expression blockSelector() {
+				return literal(selector);
+			}
+
+			public static BlockType classify(Statement statement) {
+				if (statement instanceof GroupStatement && ((GroupStatement) statement).size() == 1) {
+					Statement nestedStatement = ((GroupStatement) statement).iterator().next();
+					if (nestedStatement instanceof BlockStatement) {
+						Statement nestedBlockContentStatement = ((BlockStatement<?>) nestedStatement).getContent();
+						if (nestedBlockContentStatement instanceof PluginsBlock) {
+							return PLUGINS;
+						} else if (nestedBlockContentStatement instanceof BuildScriptBlock) {
+							return BUILDSCRIPT;
+						}
+					}
+				}
+				return OTHERS;
+			}
 		}
 	}
 }
