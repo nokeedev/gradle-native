@@ -90,7 +90,7 @@ public final class PrettyPrinter implements Closeable, Flushable {
 		@Override
 		public void visit(GroupStatement statement) {
 			if (statement.isEmpty()) {
-				throw new UnsupportedOperationException("Empty group ???");
+				// nothing to print
 			} else if (statement.size() == 1) {
 				doInScope(() -> {
 					newLineIfNonEmptyScope();
