@@ -54,6 +54,13 @@ public final class TasksBlock extends AbstractBlock {
 			return this;
 		}
 
+		public Builder named(String name, Consumer<? super TaskBlock.Builder> action) {
+			TaskBlock.Builder taskBuilder = TaskBlock.builder();
+			action.accept(taskBuilder);
+			builder.add(BlockStatement.of(invoke("named", string(name)).alwaysUseParenthesis(), taskBuilder.build()));
+			return this;
+		}
+
 		public TasksBlock build() {
 			return new TasksBlock(builder.build());
 		}
