@@ -41,7 +41,7 @@ abstract class SigningPlugin implements Plugin<Project> {
 		project.getPlugins().withType(PublishingPlugin.class, new Once<>(__ -> {
 			signing(project, extension -> {
 				extension.sign(publishing(project).map(PublishingExtension::getPublications).get());
-				ifPresent(providers.gradleProperty("signing.secretKeyRingFile"), ___ -> {
+				ifNotPresent(providers.gradleProperty("signing.secretKeyRingFile"), () -> {
 					final String signingKeyId = providers.gradleProperty("signing.keyId").get();
 					final String signingKey = providers.gradleProperty("signing.key").get();
 					final String signingPassword = providers.gradleProperty("signing.password").get();
@@ -59,10 +59,10 @@ abstract class SigningPlugin implements Plugin<Project> {
 		return project.getProviders().provider(() -> (PublishingExtension) project.getExtensions().getByName("publishing"));
 	}
 
-	private static <T> void ifPresent(Provider<T> self, Action<? super T> action) {
-		final T value = self.getOrNull();
-		if (value != null) {
-			action.execute(value);
+	private static void ifNotPresent(Provider<?> self, Runnable action) {
+		final Object value = self.getOrNull();
+		if (value == null) {
+			action.run();
 		}
 	}
 }
