@@ -24,7 +24,7 @@ subprojects {
 
 // Configure publishing to Nokee
 subprojects { prj ->
-	if (prj == project(':docs')) {
+	if (prj in [project(':docs'), project(':nokeeVersionManagement')]) {
 		return // ignore this configuration
 	}
 	pluginManager.withPlugin('maven-publish') {
