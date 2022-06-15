@@ -42,9 +42,9 @@ abstract class SigningPlugin implements Plugin<Project> {
 			signing(project, extension -> {
 				extension.sign(publishing(project).map(PublishingExtension::getPublications).get());
 				ifNotPresent(providers.gradleProperty("signing.secretKeyRingFile"), () -> {
-					final String signingKeyId = providers.gradleProperty("signing.keyId").get();
-					final String signingKey = providers.gradleProperty("signing.key").get();
-					final String signingPassword = providers.gradleProperty("signing.password").get();
+					final String signingKeyId = providers.gradleProperty("signing.keyId").getOrNull();
+					final String signingKey = providers.gradleProperty("signing.key").getOrNull();
+					final String signingPassword = providers.gradleProperty("signing.password").getOrNull();
 					extension.useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword);
 				});
 			});
