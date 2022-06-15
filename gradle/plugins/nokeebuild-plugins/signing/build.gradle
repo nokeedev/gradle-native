@@ -1,0 +1,12 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+gradlePlugin {
+	plugins {
+		signing {
+			id = 'nokeebuild.signing'
+			implementationClass = 'nokeebuild.signing.SigningPlugin'
+		}
+	}
+}
