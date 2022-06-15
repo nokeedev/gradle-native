@@ -55,16 +55,17 @@ final class DefaultNokeeVersionLoader implements NokeeVersionLoader {
 			final URLConnection connection = versionUrl.openConnection();
 			connection.setRequestProperty("User-Agent", "Nokee Version Management plugin"); // required by GitHub hosting
 			connection.connect();
-			final Scanner s = new Scanner(connection.getInputStream()).useDelimiter("\\A");
-			if (!s.hasNext()) {
-				return null; // no data, no version
-			}
-			final String content = s.next();
-			final Matcher matcher = VERSION_PATTERN.matcher(content);
-			if (matcher.find()) {
-				return NokeeVersion.version(matcher.group(1));
-			} else {
-				return null; // malformed data, assume no version
+			try (final Scanner s = new Scanner(connection.getInputStream()).useDelimiter("\\A")) {
+				if (!s.hasNext()) {
+					return null; // no data, no version
+				}
+				final String content = s.next();
+				final Matcher matcher = VERSION_PATTERN.matcher(content);
+				if (matcher.find()) {
+					return NokeeVersion.version(matcher.group(1));
+				} else {
+					return null; // malformed data, assume no version
+				}
 			}
 		} catch (IOException e) {
 			return null; // exception, assume no version
