@@ -33,7 +33,7 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseSmokeTest {
 	@TestDirectory Path testDirectory;
 
 	@Test
-	void loadsNokeeVersionFromNokeeServices(GradleRunner runner) {
+	void canLoadVersionFromNokeeServices(GradleRunner runner) {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
 		runner.withTasks("verify").build();
 	}

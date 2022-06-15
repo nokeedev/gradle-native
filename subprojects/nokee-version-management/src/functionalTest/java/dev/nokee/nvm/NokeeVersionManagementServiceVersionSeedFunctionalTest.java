@@ -44,14 +44,14 @@ class NokeeVersionManagementServiceVersionSeedFunctionalTest {
 	@TestDirectory Path testDirectory;
 
 	@Test
-	void writeNokeeVersionFileFromSeedVersionWhenNoParentBuild(GradleRunner runner) throws IOException {
+	void writesVersionFileFromSeedVersionWhenNoParentBuild(GradleRunner runner) throws IOException {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
 		runner.withTasks("verify").withArgument(whereCurrentReleaseIs("0.4.0")).build();
 		assertThat(testDirectory.resolve(".nokee-version"), allOf(anExistingFile(), aFile(withTextContent(is("0.4.0")))));
 	}
 
 	@Test
-	void doesNotWriteNokeeVersionFileOnChildOfNonNokeeBuildWithMissingVersionFile(GradleRunner runner) throws IOException {
+	void doesNotWriteVersionFileOnChildOfNonNokeeBuildWithMissingVersionFile(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNonNokeeBuild(TestLayout.newBuild(testDirectory)).childBuild(resolveVersion());
 		runner.withTasks("verify").withArgument(whereCurrentReleaseIs("0.4.0")).buildAndFail();
 		assertThat(testDirectory.resolve(".nokee-version"), not(anExistingFile()));
@@ -59,7 +59,7 @@ class NokeeVersionManagementServiceVersionSeedFunctionalTest {
 	}
 
 	@Test
-	void writesNokeeVersionFileOnlyInTopMostBuild(GradleRunner runner) throws IOException {
+	void writesVersionFileOnlyInTopMostBuild(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory)).childBuild(resolveVersion());
 		runner.withTasks("verify").withArgument(whereCurrentReleaseIs("0.4.0")).build();
 		assertThat(testDirectory.resolve(".nokee-version"), allOf(anExistingFile(), aFile(withTextContent(is("0.4.0")))));
@@ -67,7 +67,7 @@ class NokeeVersionManagementServiceVersionSeedFunctionalTest {
 	}
 
 	@Test
-	void doesNotWriteNokeeVersionFileWhenBuildOfflineAndNoParentBuild(GradleRunner runner) throws IOException {
+	void doesNotWriteVersionFileWhenBuildOfflineAndNoParentBuild(GradleRunner runner) throws IOException {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
 		runner.withTasks("verify").withArgument("--offline").withArgument(whereCurrentReleaseIs("0.4.0")).buildAndFail();
 		assertThat(testDirectory.resolve(".nokee-version"), not(anExistingFile()));

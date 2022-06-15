@@ -74,11 +74,21 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 		return new Action<NokeeVersionManagementService.Parameters>() {
 			@Override
 			public void execute(NokeeVersionManagementService.Parameters parameters) {
-				parameters.getNokeeVersion().value(fromEnvironmentVariable().orElse(fromParentNokeeBuilds()).orElse(fromNokeeVersionFile()));
+				parameters.getNokeeVersion().value(fromParentNokeeBuilds()
+					.orElse(fromSystemProperty()).orElse(fromGradleProperty())
+					.orElse(fromEnvironmentVariable()).orElse(fromNokeeVersionFile()));
 			}
 
 			private Provider<NokeeVersion> fromEnvironmentVariable() {
 				return forUseAtConfigurationTime(providers.environmentVariable("NOKEE_VERSION")).map(NokeeVersion::version);
+			}
+
+			private Provider<NokeeVersion> fromSystemProperty() {
+				return forUseAtConfigurationTime(providers.systemProperty("nokee.version")).map(NokeeVersion::version);
+			}
+
+			private Provider<NokeeVersion> fromGradleProperty() {
+				return forUseAtConfigurationTime(providers.gradleProperty("nokee.version")).map(NokeeVersion::version);
 			}
 
 			//region gradle.parent services

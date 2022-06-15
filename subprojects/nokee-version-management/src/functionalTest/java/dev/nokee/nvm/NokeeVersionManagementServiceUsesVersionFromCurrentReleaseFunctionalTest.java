@@ -45,13 +45,13 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	@TestDirectory Path testDirectory;
 
 	@Test
-	void loadsNokeeVersionFromRemoteLocation(GradleRunner runner) throws IOException {
+	void loadsVersionFromRemoteService(GradleRunner runner) throws IOException {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(expect("2.5.0"));
 		runner.withArgument(whereCurrentReleaseIs("2.5.0")).withTasks("verify").build();
 	}
 
 	@Test
-	void doesNotLoadsNokeeVersionFromRemoteLocationWhenOffline(GradleRunner runner) throws IOException {
+	void doesNotLoadVersionFromRemoteServiceWhenOffline(GradleRunner runner) throws IOException {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
 		val result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
 			.withTasks("verify").buildAndFail();
@@ -59,21 +59,21 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	}
 
 	@Test
-	void doesNotLoadsNokeeVersionFromRemoteLocationWhenMalformed(GradleRunner runner) throws IOException {
+	void doesNotLoadVersionFromRemoteServiceWhenMalformed(GradleRunner runner) throws IOException {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
 		val result = runner.withArgument(whereCurrentReleaseIsMalformed()).withTasks("verify").buildAndFail();
 		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokee-version file."));
 	}
 
 	@Test
-	void doesNotLoadsNokeeVersionFromRemoteLocationWhenUnavailable(GradleRunner runner) {
+	void doesNotLoadVersionFromRemoteServiceWhenUnavailable(GradleRunner runner) {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(resolveVersion());
 		val result = runner.withArgument(whereCurrentReleaseIsUnavailable()).withTasks("verify").buildAndFail();
 		assertThat(result.getOutput(), containsString("Please add the Nokee version to use in a .nokee-version file."));
 	}
 
 	@Test
-	void doesNotLoadsNokeeVersionFromRemoteLocationWhenNokeeBuildIsChildOfNonNokeeBuildRegardlessOfNetworkStatus(GradleRunner runner) throws IOException {
+	void doesNotLoadVersionFromRemoteServiceWhenNokeeBuildIsChildOfNonNokeeBuildRegardlessOfNetworkStatus(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNonNokeeBuild(TestLayout.newBuild(testDirectory)).childBuild(resolveVersion());
 		val executer = runner.withArgument(whereCurrentReleaseIs("0.6.9")).withTasks("verify");
 		assertAll(
@@ -85,7 +85,7 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	}
 
 	@Test
-	void loadsNokeeVersionFromRemoteLocationByIgnoringCurrentBuildVersionFileAndMissingParentVersionFile(GradleRunner runner) throws IOException {
+	void loadsVersionFromRemoteServiceByIgnoringCurrentBuildVersionFileAndMissingParentVersionFile(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
 			.rootBuild(expect("2.5.1"))
 			.childBuild(withVersion("2.1.0").andThen(expect("2.5.1")));
@@ -93,7 +93,7 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	}
 
 	@Test
-	void loadsNokeeVersionFromRemoteLocationByIgnoringMissingVersionFileInBothBuilds(GradleRunner runner) throws IOException {
+	void loadsVersionFromRemoteServiceByIgnoringMissingVersionFileInBothBuilds(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
 			.rootBuild(expect("2.5.3"))
 			.childBuild(expect("2.5.3"));
@@ -101,7 +101,7 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	}
 
 	@Test
-	void doesNotLoadsNokeeVersionFromRemoteLocationWhenOfflineByIgnoringMissingVersionFileInBothBuilds(GradleRunner runner) throws IOException {
+	void doesNotLoadVersionFromRemoteServiceWhenOfflineByIgnoringMissingVersionFileInBothBuilds(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
 			.childBuild(resolveVersion());
 		val result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
@@ -110,7 +110,7 @@ class NokeeVersionManagementServiceUsesVersionFromCurrentReleaseFunctionalTest {
 	}
 
 	@Test
-	void doesNotLoadsNokeeVersionFromRemoteLocationWhenOfflineByIgnoringCurrentBuildVersionFileAndMissingParentVersionFile(GradleRunner runner) throws IOException {
+	void doesNotLoadVersionFromRemoteServiceWhenOfflineByIgnoringCurrentBuildVersionFileAndMissingParentVersionFile(GradleRunner runner) throws IOException {
 		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
 			.childBuild(withVersion("2.1.1").andThen(resolveVersion()));
 		val result = runner.withArgument(whereCurrentReleaseIs("0.0.0")).withArgument("--offline")
