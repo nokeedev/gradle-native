@@ -6,18 +6,35 @@ plugins {
 	id 'groovy' // to inject DependencyHandler/RepositoryHandler extensions
 	id 'maven-publish'
 	id 'java-test-fixtures'
+
+	id 'nokeebuild.maven-publishing-pom'
+	id 'com.gradle.plugin-publish' version '0.21.0' // version 1.0.0 is error-prone
 }
 
+version = '1.0.0'
 
 gradlePlugin {
 	plugins {
 		nokeeVersionManagement {
 			id = 'dev.nokee.nokee-version-management'
 			implementationClass = 'dev.nokee.nvm.NokeeVersionManagementPlugin'
+			displayName = 'Nokee Version Management plugin'
+			description = 'Manages Nokee plugins integration with Gradle'
 		}
 	}
 
 	dependencies {
 		compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	}
+}
+
+pluginBundle {
+	website = 'https://docs.nokee.dev/nokee-version-management-plugin.html'
+	vcsUrl = 'https://github.com/nokeedev/gradle-native'
+
+	plugins {
+		nokeeVersionManagement {
+			tags = ['gradle-native', 'nokee', 'settings']
+		}
 	}
 }
