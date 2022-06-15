@@ -79,14 +79,6 @@ class NokeeVersionManagementServiceUsesVersionFromTopMostNokeeBuildTest {
 	}
 
 	@Test
-	void ignoresVersionFileFromNonNokeeParentBuilds(GradleRunner runner) {
-		nokeeBuildChildOfNonNokeeBuild(TestLayout.newBuild(testDirectory))
-			.rootBuild(withVersion("0.4.0")) // a version file without being a Nokee project
-			.childBuild(withVersion("0.7.0").andThen(expect("0.7.0")));
-		runner.withTasks("verify").build();
-	}
-
-	@Test
 	void usesParentBuildVersionFile(GradleRunner runner) {
 		nokeeBuildChildOfNokeeBuild(TestLayout.newBuild(testDirectory))
 			.rootBuild(withVersion("0.7.0"))
