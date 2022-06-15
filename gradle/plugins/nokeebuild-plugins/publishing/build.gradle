@@ -1,0 +1,16 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+gradlePlugin {
+	plugins {
+		publishingBase {
+			id = 'nokeebuild.maven-publishing-pom'
+			implementationClass = 'nokeebuild.publishing.NokeePublishingPlugin'
+		}
+	}
+
+	dependencies {
+		implementation project(':licensing')
+	}
+}
