@@ -8,6 +8,7 @@ plugins {
 	id 'java-test-fixtures'
 
 	id 'nokeebuild.maven-publishing-pom'
+	id 'nokeebuild.signing'
 	id 'com.gradle.plugin-publish' version '0.21.0' // version 1.0.0 is error-prone
 }
 
