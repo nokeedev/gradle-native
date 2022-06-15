@@ -24,7 +24,7 @@ import java.net.URL;
 abstract /*final*/ class NokeeLicenseExtension implements LicenseExtension {
 	@Inject
 	public NokeeLicenseExtension() throws MalformedURLException {
-		getDisplayName().value("The Apache Software License, Version 2.0").disallowChanges();
+		getDisplayName().value("Apache Software License, Version 2.0").disallowChanges();
 		getLicenseUrl().value(new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")).disallowChanges();
 		getName().value("Apache-2.0").disallowChanges();
 		getShortName().value("ASL2").disallowChanges();
