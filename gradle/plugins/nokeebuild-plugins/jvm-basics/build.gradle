@@ -6,6 +6,7 @@ dependencies {
 	implementation 'com.google.guava:guava'
 	implementation project(':jvm-strict-compile')
 	runtimeOnly project(':basics')
+	runtimeOnly 'dev.gradleplugins:javadoc'
 }
 
 gradlePlugin {
@@ -13,10 +14,6 @@ gradlePlugin {
 		jvmBase {
 			id = 'nokeebuild.jvm-base'
 			implementationClass = 'nokeebuild.JvmBasePlugin'
-		}
-		javadocBase {
-			id = 'nokeebuild.javadoc-base'
-			implementationClass = 'nokeebuild.javadoc.JavadocBasePlugin'
 		}
 	}
 }

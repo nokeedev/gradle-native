@@ -15,43 +15,22 @@
  */
 package nokeebuild;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.file.FileVisitDetails;
-import org.gradle.api.file.FileVisitor;
-import org.gradle.api.file.RelativePath;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension;
-import org.gradle.util.GUtil;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static dev.gradleplugins.GradlePluginDevelopmentCompatibilityExtension.compatibility;
 import static dev.gradleplugins.GradleRuntimeCompatibility.minimumJavaVersionFor;
-import static java.lang.String.join;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
-import static nokeebuild.javadoc.JavadocExcludeOption.exclude;
-import static nokeebuild.javadoc.JavadocLinksOption.links;
-import static nokeebuild.javadoc.JavadocSourcePathsOption.sourcePaths;
-import static nokeebuild.javadoc.JavadocSourcesOption.sources;
-import static nokeebuild.javadoc.JavadocSubpackagesOption.subpackages;
-import static nokeebuild.javadoc.JavadocTitleOption.title;
+import static dev.gradleplugins.dockit.javadoc.JavadocLinksOption.links;
+import static dev.gradleplugins.dockit.javadoc.JavadocSourcePathsOption.sourcePaths;
+import static dev.gradleplugins.dockit.javadoc.JavadocSourcesOption.sources;
+import static dev.gradleplugins.dockit.javadoc.JavadocTaskUtils.ofDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcePathJavadocOption;
 
 final class JavadocGradleDevelopmentConvention implements Action<Javadoc> {
 	private final Project project;
@@ -64,17 +43,6 @@ final class JavadocGradleDevelopmentConvention implements Action<Javadoc> {
 	public void execute(Javadoc task) {
 		task.setSource(ofDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcePathJavadocOption(task));
 
-		title(task).set(toWords(project.getName()).map(StringUtils::capitalize).collect(joining(" ")) + " " + project.getVersion());
-		subpackages(task).set(project.provider(() -> {
-			final List<String> result = new ArrayList<>();
-			sources(task).getAsFileTree().visit(new GuessSubPackageVisitor(result::add));
-			return result;
-		}));
-		exclude(task).set(project.provider(() -> {
-			final List<String> result = new ArrayList<>();
-			sources(task).getAsFileTree().visit(new ExcludesInternalPackages(result::add));
-			return result;
-		}));
 		sources(task).from(callableOf(this::pluginSourceFiles));
 		links(task).addAll(compatibility(gradlePlugin(project)).getMinimumGradleVersion().map(version -> {
 			return Arrays.asList(
@@ -85,100 +53,12 @@ final class JavadocGradleDevelopmentConvention implements Action<Javadoc> {
 		sourcePaths(task).from(callableOf(this::pluginSourceDirectories));
 	}
 
-	private static Callable<Object> ofDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcePathJavadocOption(Javadoc task) {
-		return new Callable<Object>() {
-			private File dummyFile;
-
-			@Override
-			public Object call() throws Exception {
-				if (dummyFile == null) {
-					if (sources(task).isEmpty()) {
-						return Collections.emptyList();
-					} else {
-						final MutableBoolean hasSources = new MutableBoolean(false);
-						sources(task).getAsFileTree().visit(new FileVisitor() {
-							@Override
-							public void visitDir(FileVisitDetails dirDetails) {
-								// ignores
-							}
-
-							@Override
-							public void visitFile(FileVisitDetails details) {
-								// Antlr, for example, generates files in a root source directory despite not being in the default package.
-								//   Ideally, we should peek into the source files to identify their package.
-								if (details.getRelativePath().getSegments().length > 1 && stream(details.getRelativePath().getSegments()).noneMatch("internal"::equals)) {
-									hasSources.setTrue();
-									details.stopVisiting();
-								}
-							}
-						});
-						if (hasSources.booleanValue()) {
-							dummyFile = task.getTemporaryDir().toPath().resolve("Dummy.java").toFile();
-						} else {
-							return Collections.emptyList();
-						}
-					}
-				}
-
-				Files.createDirectories(dummyFile.getParentFile().toPath());
-				return Files.write(dummyFile.toPath(), Arrays.asList("package internal;", "class Dummy {}"), UTF_8, CREATE, TRUNCATE_EXISTING);
-			}
-		};
-	}
-
-	private static Stream<String> toWords(String s) {
-		return stream(GUtil.toWords(s, '+').split("\\+"));
-	}
-
 	private FileTree pluginSourceFiles() {
 		return gradlePlugin(project).getPluginSourceSet().getAllJava();
 	}
 
 	private FileCollection pluginSourceDirectories() {
 		return gradlePlugin(project).getPluginSourceSet().getAllJava().getSourceDirectories();
-	}
-
-	private static final class ExcludesInternalPackages implements FileVisitor {
-		private final Consumer<? super String> packageToExcludeListener;
-
-		private ExcludesInternalPackages(Consumer<? super String> packageToExcludeListener) {
-			this.packageToExcludeListener = packageToExcludeListener;
-		}
-
-		@Override
-		public void visitDir(FileVisitDetails details) {
-			if (details.getName().equals("internal")) {
-				packageToExcludeListener.accept(toPackage(details.getRelativePath()));
-			}
-		}
-
-		private String toPackage(RelativePath path) {
-			return join(".", path.getSegments());
-		}
-
-		@Override
-		public void visitFile(FileVisitDetails details) {
-			// ignore
-		}
-	}
-
-	private static final class GuessSubPackageVisitor implements FileVisitor {
-		private final Consumer<? super String> subpackageListener;
-
-		public GuessSubPackageVisitor(Consumer<? super String> subpackageListener) {
-			this.subpackageListener = subpackageListener;
-		}
-
-		@Override
-		public void visitDir(FileVisitDetails details) {
-			subpackageListener.accept(details.getRelativePath().getSegments()[0]);
-			details.stopVisiting();
-		}
-
-		@Override
-		public void visitFile(FileVisitDetails details) {
-			// ignore
-		}
 	}
 
 	public static GradlePluginDevelopmentExtension gradlePlugin(Project project) {

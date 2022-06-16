@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nokeebuild.javadoc;
+package dev.gradleplugins.dockit.javadoc;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.tasks.PathSensitivity;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.javadoc.Javadoc;
 
-public class JavadocSourcesOption implements Action<Javadoc> {
-	private static final String SOURCES_EXTENSION_NAME = "sources";
+public final class JavadocAdditionalArgsOption implements Action<Javadoc> {
+	private static final String ADDITIONAL_ARGS_EXTENSION_NAME = "additionalArgs";
 	private final Project project;
 
-	JavadocSourcesOption(Project project) {
+	JavadocAdditionalArgsOption(Project project) {
 		this.project = project;
 	}
 
 	@Override
-	@SuppressWarnings("UnstableApiUsage")
 	public void execute(Javadoc task) {
-		final ConfigurableFileCollection sources = project.getObjects().fileCollection();
-		task.getExtensions().add(ConfigurableFileCollection.class, SOURCES_EXTENSION_NAME, sources);
-		task.getInputs().files(sources).ignoreEmptyDirectories().withPathSensitivity(PathSensitivity.RELATIVE);
+		new JavadocPropertyFactory(project).named(ADDITIONAL_ARGS_EXTENSION_NAME).apply(task);
 	}
 
-	public static ConfigurableFileCollection sources(Javadoc self) {
-		return (ConfigurableFileCollection) self.getExtensions().getByName(SOURCES_EXTENSION_NAME);
+	@SuppressWarnings("unchecked")
+	public static ListProperty<String> additionalArgs(Javadoc self) {
+		return (ListProperty<String>) self.getExtensions().getByName(ADDITIONAL_ARGS_EXTENSION_NAME);
 	}
 }
