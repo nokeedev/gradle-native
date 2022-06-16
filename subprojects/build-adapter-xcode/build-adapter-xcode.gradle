@@ -5,6 +5,7 @@ plugins {
 	id 'nokeebuild.gradle-plugin-integration-test'
 	id 'nokeebuild.gradle-plugin-smoke-test'
 	id 'maven-publish'
+	id 'dev.gradleplugins.documentation.api-reference-module'
 }
 
 dependencies {

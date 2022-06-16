@@ -16,6 +16,7 @@ public abstract class DocumentationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("net.nokeedev.jbake-site");
 		project.getPluginManager().apply("nokeedocs.samples");
 		project.getPluginManager().apply("nokeedocs.user-manual");
+		project.getPluginManager().apply("nokeedocs.javadoc");
 		project.getPluginManager().apply(SpockFrameworkTestSuiteBasePlugin.class);
 
 		project.getComponents().add(project.getObjects().newInstance(GroovySpockFrameworkTestSuite.class, "docsTest", project.getExtensions().getByType(SourceSetContainer.class).create("docsTest")));

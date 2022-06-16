@@ -2,6 +2,7 @@ plugins {
 	id 'nokeebuild.java-gradle-library'
 	id 'nokeebuild.gradle-plugin-unit-test'
 	id 'maven-publish'
+	id 'dev.gradleplugins.documentation.api-reference-module'
 }
 
 dependencies {

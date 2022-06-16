@@ -16,10 +16,15 @@ gradlePlugin {
 			id = 'nokeedocs.samples'
 			implementationClass = 'nokeedocs.NokeeSamplesPlugin'
 		}
+		javadoc {
+			id = 'nokeedocs.javadoc'
+			implementationClass = 'nokeedocs.NokeeJavadocPlugin'
+		}
 	}
 	dependencies {
 		implementation 'dev.gradleplugins:user-manual'
 		implementation 'dev.gradleplugins:samples'
+		implementation 'dev.gradleplugins:javadoc'
 		implementation 'net.nokeedev:jbake-gradle-plugin'
 	}
 }

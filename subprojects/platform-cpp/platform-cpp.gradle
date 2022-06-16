@@ -4,6 +4,7 @@ plugins {
 	id 'nokeebuild.gradle-plugin-functional-test'
 	id 'nokeebuild.gradle-plugin-performance-test'
 	id 'maven-publish'
+	id 'dev.gradleplugins.documentation.api-reference-module'
 }
 
 gradlePlugin {
