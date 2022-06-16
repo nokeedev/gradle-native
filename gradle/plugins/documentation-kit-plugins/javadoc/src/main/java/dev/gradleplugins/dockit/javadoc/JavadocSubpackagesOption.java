@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nokeebuild.javadoc;
+package dev.gradleplugins.dockit.javadoc;
 
-import com.google.common.collect.Iterables;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Transformer;
@@ -26,6 +25,7 @@ import org.gradle.api.tasks.javadoc.Javadoc;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 
 import static java.lang.String.join;
@@ -59,9 +59,9 @@ public final class JavadocSubpackagesOption implements Action<Javadoc> {
 		args.value(subpackages.map(asSubpackagesFlags()).orElse(emptyList())).disallowChanges();
 	}
 
-	private static Transformer<Iterable<String>, Iterable<String>> asSubpackagesFlags() {
+	private static Transformer<Iterable<String>, Collection<String>> asSubpackagesFlags() {
 		return values -> {
-			if (Iterables.isEmpty(values)) {
+			if (values.isEmpty()) {
 				return Collections.emptyList();
 			} else {
 				return Arrays.asList("-subpackages", join(File.pathSeparator, values));

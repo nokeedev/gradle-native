@@ -1,0 +1,14 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'dev.gradleplugins.gradle-plugin-unit-test'
+	id 'maven-publish'
+}
+
+gradlePlugin {
+	plugins {
+		javadocBase {
+			id = 'dev.gradleplugins.documentation.javadoc-base'
+			implementationClass = 'dev.gradleplugins.dockit.javadoc.JavadocBasePlugin'
+		}
+	}
+}

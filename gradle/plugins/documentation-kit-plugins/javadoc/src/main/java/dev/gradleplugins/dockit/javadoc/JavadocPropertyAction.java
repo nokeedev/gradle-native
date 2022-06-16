@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nokeebuild.javadoc;
+package dev.gradleplugins.dockit.javadoc;
 
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -31,7 +31,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.*;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 final class JavadocPropertyAction {
 	private static final TypeOf<ListProperty<String>> ADDITIONAL_ARGS_EXTENSION_TYPE = new TypeOf<ListProperty<String>>() {};

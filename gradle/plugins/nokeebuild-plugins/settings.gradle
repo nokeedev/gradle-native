@@ -4,6 +4,8 @@ plugins {
 
 rootProject.name = 'nokeebuild-plugins'
 
+includeBuild '../documentation-kit-plugins'
+
 include 'build-platform'
 
 include 'basics'

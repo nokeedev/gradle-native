@@ -34,7 +34,7 @@ abstract /*final*/ class JvmBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
 		project.getPluginManager().apply("nokeebuild.lifecycle-base");
-		project.getPluginManager().apply("nokeebuild.javadoc-base");
+		project.getPluginManager().apply("dev.gradleplugins.documentation.javadoc-base");
 		project.getPluginManager().apply("nokeebuild.jvm-strict-compile");
 		project.getPluginManager().withPlugin("java-base", ignored -> {
 			project.getPluginManager().apply("nokeebuild.repositories");

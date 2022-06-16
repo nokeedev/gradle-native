@@ -10,6 +10,7 @@ dependencies {
 	runtimeOnly project(':jvm-basics')
 	runtimeOnly project(':continuous-integration')
 	compileOnly 'dev.gradleplugins:gradle-plugin-development'
+	implementation 'dev.gradleplugins:javadoc'
 }
 
 gradlePlugin {

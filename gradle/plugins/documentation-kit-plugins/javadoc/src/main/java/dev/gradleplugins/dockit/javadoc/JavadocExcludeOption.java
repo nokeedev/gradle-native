@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nokeebuild.javadoc;
+package dev.gradleplugins.dockit.javadoc;
 
-import com.google.common.collect.Iterables;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Transformer;
@@ -26,6 +25,7 @@ import org.gradle.api.tasks.javadoc.Javadoc;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 
 import static java.lang.String.join;
@@ -47,7 +47,6 @@ public final class JavadocExcludeOption implements Action<Javadoc> {
 	@Override
 	@SuppressWarnings("UnstableApiUsage")
 	public void execute(Javadoc task) {
-
 		final SetProperty<String> exclude = project.getObjects().setProperty(String.class);
 		task.getExtensions().add(EXCLUDE_EXTENSION_TYPE, EXCLUDE_EXTENSION_NAME, exclude);
 
@@ -55,9 +54,9 @@ public final class JavadocExcludeOption implements Action<Javadoc> {
 		args.value(exclude.map(asExcludeFlags()).orElse(emptyList())).disallowChanges();
 	}
 
-	private static Transformer<Iterable<String>, Iterable<String>> asExcludeFlags() {
+	private static Transformer<Iterable<String>, Collection<String>> asExcludeFlags() {
 		return values -> {
-			if (Iterables.isEmpty(values)) {
+			if (values.isEmpty()) {
 				return Collections.emptyList();
 			} else {
 				return Arrays.asList("-exclude", join(File.pathSeparator, values));

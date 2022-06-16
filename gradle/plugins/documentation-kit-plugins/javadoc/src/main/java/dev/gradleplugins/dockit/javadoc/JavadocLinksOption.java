@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nokeebuild.javadoc;
+package dev.gradleplugins.dockit.javadoc;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;

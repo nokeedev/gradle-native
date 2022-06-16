@@ -5,6 +5,7 @@ plugins {
 rootProject.name = 'documentation-kit-ex'
 
 include 'common'
+include 'javadoc'
 include 'samples'
 include 'user-manual'
 
