@@ -24,6 +24,7 @@ configurations.create('distributionsElements') {
 	canBeResolved = false
 	attributes {
 		attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, 'distributions'))
+		attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category, 'distribution'))
 	}
 	outgoing.artifact(distributionRepository) {
 		builtBy(publishToStaging)

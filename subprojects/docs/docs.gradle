@@ -27,6 +27,7 @@ plugins {
 	id 'nokeebuild.repositories'
 	id 'dev.nokeebuild.documentation'
 	id 'maven-publish'
+	id 'dev.gradleplugins.documentation.javadoc-api-reference'
 }
 
 docsTest.dependsOn({ project(':distributions').tasks.named('publishToStaging')})

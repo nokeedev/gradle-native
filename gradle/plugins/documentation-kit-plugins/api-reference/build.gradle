@@ -1,0 +1,23 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+	id 'maven-publish'
+}
+
+gradlePlugin {
+	plugins {
+		apiReferenceModule {
+			id = 'dev.gradleplugins.documentation.api-reference-module'
+			implementationClass = 'dev.gradleplugins.dockit.apiref.ApiReferenceModulePlugin'
+		}
+		apiReference {
+			id = 'dev.gradleplugins.documentation.javadoc-api-reference'
+			implementationClass = 'dev.gradleplugins.dockit.apiref.JavadocApiReferencePlugin'
+		}
+	}
+
+	dependencies {
+		implementation project(':javadoc')
+		implementation 'org.apache.commons:commons-lang3:3.12.0'
+		implementation 'com.google.guava:guava:31.0.1-jre'
+	}
+}

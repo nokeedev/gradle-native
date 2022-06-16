@@ -5,6 +5,7 @@ plugins {
 	id 'nokeebuild.gradle-plugin-functional-test'
 	id 'java-test-fixtures'
 	id 'maven-publish'
+	id 'dev.gradleplugins.documentation.api-reference-module'
 }
 
 dependencies {

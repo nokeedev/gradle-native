@@ -6,6 +6,7 @@ plugins {
 	id 'groovy-base'
 	id 'maven-publish'
 	id 'java-test-fixtures'
+	id 'dev.gradleplugins.documentation.api-reference-module'
 }
 
 dependencies {
