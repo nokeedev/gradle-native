@@ -18,18 +18,28 @@ package dev.gradleplugins.dockit.apiref;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Transformer;
+import org.gradle.api.artifacts.ArtifactCollection;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.component.ComponentIdentifier;
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.attributes.Bundling;
 import org.gradle.api.attributes.Category;
 import org.gradle.api.attributes.DocsType;
-import org.gradle.api.attributes.Usage;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.HasConfigurableValue;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.javadoc.Javadoc;
 
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.concurrent.Callable;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static dev.gradleplugins.dockit.javadoc.JavadocSourcePathsOption.sourcePaths;
 import static dev.gradleplugins.dockit.javadoc.JavadocSourcesOption.sources;
@@ -58,56 +68,64 @@ abstract class JavadocApiReferencePlugin implements Plugin<Project> {
 			});
 			configuration.getDependencies().addAll(allProjects(project));
 		});
+
 		final NamedDomainObjectProvider<Configuration> apiReferenceClasspath = project.getConfigurations().register("apiReferenceClasspath", configuration -> {
 			configuration.setCanBeConsumed(false);
 			configuration.setCanBeResolved(true);
-			configuration.attributes(attributes -> {
-				attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, "java-api"));
-//				attributes.attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.class, Category.DOCUMENTATION));
-//				attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.class, Bundling.EXTERNAL));
-//				attributes.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.class, "api-reference-sources"));
-			});
-			configuration.getDependencies().addAll(allProjects(project));
+			configuration.getDependencies().addAllLater(objects.listProperty(Dependency.class).value(apiReferenceSource.map(allResolvedProjects()).map(asProjectDependencies(project))));
 		});
 
 		project.getTasks().register("apiReferenceJavadoc", Javadoc.class, task -> {
+			Provider<ArtifactCollection> apiReferenceSourceArtifacts = apiReferenceSource.map(it -> it.getIncoming().artifactView(view -> view.lenient(true)).getArtifacts());
 			task.setSource(ofDummyFileToAvoidNoSourceTaskOutcomeBecauseUsingSourcePathJavadocOption(task));
-			sources(task).from(apiReferenceSource.flatMap(it -> it.getIncoming().artifactView(view -> view.lenient(true)).getArtifacts().getArtifactFiles().getElements()));
-			task.setClasspath(objects.fileCollection().from(apiReferenceClasspath.flatMap(it -> {
-				return it.getIncoming().artifactView(view -> view.lenient(true)).getArtifacts().getArtifactFiles().getElements();
-			})));
-			sourcePaths(task).from(apiReferenceSource.flatMap(it -> {
-				return it.getIncoming().artifactView(view -> view.lenient(true)).getArtifacts().getArtifactFiles().getElements();
-			})).finalizeValueOnRead();
+			sources(task).from(apiReferenceSourceArtifacts.flatMap(elementsOf(ArtifactCollection::getArtifactFiles)));
+			task.setClasspath(finalizeValueOnRead(objects.fileCollection().from(apiReferenceClasspath.flatMap(elementsOf(it -> it.getIncoming().getFiles())))));
+			sourcePaths(task).from(apiReferenceSourceArtifacts.flatMap(elementsOf(ArtifactCollection::getArtifactFiles))).finalizeValueOnRead();
 			task.setDestinationDir(project.getLayout().getBuildDirectory().dir("api-reference-javadoc").get().getAsFile());
 		});
 	}
 
 	private static Collection<Dependency> allProjects(Project project) {
-		return project.getRootProject().getAllprojects().stream().filter(it -> !it.equals(project)).peek(System.out::println).map(project.getDependencies()::create).collect(toList());
+		return project.getRootProject().getAllprojects().stream()
+			.filter(it -> !it.equals(project))
+			.map(project.getDependencies()::create)
+			.collect(toList());
 	}
 
-	private static <T> Callable<T> callableOf(Callable<T> delegate) {
-		return new Callable<T>() {
-			private transient volatile boolean initialized;
-			private transient T value;
+	private static Transformer<Collection<String>, Configuration> allResolvedProjects() {
+		return configuration -> configuration.getIncoming().artifactView(it -> it.lenient(true)).getArtifacts().getArtifacts().stream()
+			.map(it -> it.getVariant().getOwner())
+			.flatMap(onlyProjectComponentIdentifier())
+			.map(ProjectComponentIdentifier::getProjectPath)
+			.distinct()
+			.collect(toList());
+	}
 
-			@Override
-			public T call() throws Exception {
-				// A 2-field variant of Double Checked Locking.
-				if (!initialized) {
-					synchronized (this) {
-						if (!initialized) {
-							T t = delegate.call();
-							value = t;
-							initialized = true;
-							return t;
-						}
-					}
-				}
-				// This is safe because we checked `initialized.`
-				return value;
+	private static Function<ComponentIdentifier, Stream<ProjectComponentIdentifier>> onlyProjectComponentIdentifier() {
+		return identifier -> {
+			if (identifier instanceof ProjectComponentIdentifier) {
+				return Stream.of((ProjectComponentIdentifier) identifier);
+			} else {
+				return Stream.empty();
 			}
 		};
+	}
+
+	private static Transformer<Collection<Dependency>, Collection<String>> asProjectDependencies(Project project) {
+		return projectPaths -> projectPaths.stream().map(it -> {
+			return project.getDependencies().project(new HashMap<String, Object>() {{
+				put("path", it);
+				put("configuration", "apiReferenceElements");
+			}});
+		}).collect(toList());
+	}
+
+	static <IN> Transformer<Provider<Set<FileSystemLocation>>, IN> elementsOf(Transformer<FileCollection, IN> mapper) {
+		return it -> mapper.transform(it).getElements();
+	}
+
+	private static <T extends HasConfigurableValue> T finalizeValueOnRead(T self) {
+		self.finalizeValueOnRead();
+		return self;
 	}
 }
