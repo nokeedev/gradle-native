@@ -65,6 +65,24 @@ dependencies {
 	docsTestImplementation project(':languageSwift')
 	docsTestImplementation project('exemplarKit')
 	docsTestImplementation testFixtures(project('exemplarKit'))
+
+	content project(':ideXcode')
+	content project(':languageBase')
+	content project(':languageC')
+	content project(':languageCpp')
+	content project(':languageNative')
+	content project(':languageObjectiveC')
+	content project(':languageObjectiveCpp')
+	content project(':languageSwift')
+	content project(':platformBase')
+	content project(':platformC')
+	content project(':platformCpp')
+	content project(':platformJni')
+	content project(':platformNative')
+	content project(':platformObjectiveC')
+	content project(':platformObjectiveCpp')
+	content project(':platformSwift')
+	content project(':runtimeNative')
 }
 
 documentation {

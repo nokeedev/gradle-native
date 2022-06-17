@@ -7,6 +7,7 @@ plugins {
 	id 'maven-publish'
 	id 'java-test-fixtures'
 	id 'dev.gradleplugins.documentation.api-reference-module'
+	id 'nokeedocs.documentation-module'
 }
 
 dependencies {

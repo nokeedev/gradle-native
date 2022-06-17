@@ -1,0 +1,20 @@
+plugins {
+	id 'dev.gradleplugins.groovy-gradle-plugin'
+	id 'maven-publish'
+}
+
+gradlePlugin {
+	plugins {
+		dslReferenceModule {
+			id = 'dev.gradleplugins.documentation.dsl-reference-module'
+			implementationClass = 'dev.gradleplugins.dockit.dslref.DslReferenceModulePlugin'
+		}
+	}
+
+	dependencies {
+		implementation project(':dsl')
+		implementation 'commons-io:commons-io:2.6'
+		implementation 'org.apache.commons:commons-lang3:3.12.0'
+		implementation 'com.google.guava:guava:31.0.1-jre'
+	}
+}
