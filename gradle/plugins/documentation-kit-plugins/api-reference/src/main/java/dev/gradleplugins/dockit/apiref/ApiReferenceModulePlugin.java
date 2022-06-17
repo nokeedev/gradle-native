@@ -15,23 +15,11 @@
  */
 package dev.gradleplugins.dockit.apiref;
 
-import org.apache.tools.ant.taskdefs.optional.depend.Depend;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Transformer;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.attributes.Bundling;
 import org.gradle.api.attributes.Category;
 import org.gradle.api.attributes.DocsType;
-import org.gradle.api.attributes.LibraryElements;
-import org.gradle.api.attributes.Usage;
-import org.gradle.api.file.ConfigurableFileTree;
-import org.gradle.api.file.FileVisitDetails;
-import org.gradle.api.file.FileVisitor;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
@@ -40,9 +28,6 @@ import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 abstract class ApiReferenceModulePlugin implements Plugin<Project> {
 	private final ObjectFactory objects;
@@ -74,34 +59,17 @@ abstract class ApiReferenceModulePlugin implements Plugin<Project> {
 
 		project.getPluginManager().withPlugin("java", __ -> {
 			Provider<SourceSet> mainSourceSet = sourceSets(project).flatMap(it -> it.named("main"));
+
 			project.getConfigurations().register("apiReferenceElements", configuration -> {
 				configuration.setCanBeConsumed(true);
 				configuration.setCanBeResolved(false);
-				configuration.getDependencies().addAllLater(mainSourceSet.map(SourceSet::getImplementationConfigurationName).map(project.getConfigurations()::getByName).map(this::allDep));
-				configuration.getDependencies().addAllLater(mainSourceSet.map(SourceSet::getCompileOnlyApiConfigurationName).map(project.getConfigurations()::getByName).map(this::allDep));
-				configuration.getDependencies().addAllLater(mainSourceSet.map(SourceSet::getCompileOnlyConfigurationName).map(project.getConfigurations()::getByName).map(this::allDep));
-				configuration.attributes(attributes -> {
-					attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, "java-api"));
-				});
+				configuration.getDependencies().addLater(mainSourceSet.map(it -> project.getDependencies().create(project.files(it.getCompileClasspath().getFiles()))));
 			});
 
 			syncTask.configure(task -> {
 				task.from(mainSourceSet.map(it -> it.getAllSource()));
 			});
 		});
-	}
-
-	private Iterable<Dependency> allDep(Configuration it) {
-		return it.getDependencies().stream().map(dependency -> {
-			final Dependency result = dependency.copy();
-			if (result instanceof ModuleDependency) {
-				((ModuleDependency) result).attributes(attributes -> {
-					attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.JAVA_API));
-					attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.CLASSES));
-				});
-			}
-			return result;
-		}).collect(Collectors.toList());
 	}
 
 	private static Provider<SourceSetContainer> sourceSets(Project project) {
