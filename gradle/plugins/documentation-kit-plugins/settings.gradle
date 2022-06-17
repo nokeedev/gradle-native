@@ -6,6 +6,7 @@ rootProject.name = 'documentation-kit-ex'
 
 include 'api-reference'
 include 'common'
+include 'dsl'
 include 'javadoc'
 include 'samples'
 include 'user-manual'
