@@ -85,6 +85,10 @@ dependencies {
 	content project(':runtimeNative')
 }
 
+jbake {
+	content.from(fileTree('src/docs') { include('dsl/index.adoc') })
+}
+
 documentation {
 	samples {
 		'kotlin-cpp-jni-library' {
