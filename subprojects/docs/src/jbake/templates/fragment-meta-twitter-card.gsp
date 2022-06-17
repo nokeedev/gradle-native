@@ -11,9 +11,9 @@
 	}
 
 	def twitterCard = 'summary'
-	if (content.type == 'sample_chapter') {
-		twitterCard = 'player'
-	}
+//	if (content.type == 'sample_chapter') {
+//		twitterCard = 'player'
+//	}
 	if (content.twitter && content.twitter.card) {
 		twitterCard = content.twitter.card
 	}
