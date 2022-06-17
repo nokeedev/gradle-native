@@ -20,11 +20,17 @@ gradlePlugin {
 			id = 'nokeedocs.javadoc'
 			implementationClass = 'nokeedocs.NokeeJavadocPlugin'
 		}
+		documentationModule {
+			id = 'nokeedocs.documentation-module'
+			implementationClass = 'nokeedocs.NokeeDocumentationModulePlugin'
+		}
 	}
 	dependencies {
 		implementation 'dev.gradleplugins:user-manual'
 		implementation 'dev.gradleplugins:samples'
 		implementation 'dev.gradleplugins:javadoc'
+		implementation 'dev.gradleplugins:dsl-reference'
 		implementation 'net.nokeedev:jbake-gradle-plugin'
+		implementation 'commons-io:commons-io:2.6'
 	}
 }
