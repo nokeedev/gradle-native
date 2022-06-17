@@ -1,4 +1,5 @@
 = Nokee Build Language Reference
+:jbake-status: published
 :jbake-type: dsl_index
 :jbake-tags: user manual, gradle plugin dsl, nokee build language
 :jbake-description: Learn about the build language for all Nokee plugins.
