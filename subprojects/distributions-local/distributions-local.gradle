@@ -1,4 +1,4 @@
-def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':docs:exemplarKit'), project(':distributions'), project(':internalTesting'), project(':distributionsLocal')])*.path
+def allPluginProjectPaths = (rootProject.allprojects - [project(':docs'), project(':docs:exemplarKit'), project(':distributions'), project(':internalTesting'), project(':distributionsLocal'), project(':nokeeVersionManagement')])*.path
 
 def publishToStaging = tasks.register('publishToStaging') {
 	group = 'publishing'
