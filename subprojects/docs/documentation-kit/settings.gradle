@@ -6,7 +6,6 @@ includeBuild 'gradle/plugins'
 
 rootProject.name = 'documentation-kit'
 
-include 'build-language-reference'
 include 'publishing-github-pages'
 include 'site-base'
 include 'site-github-pages'
