@@ -17,7 +17,6 @@ repositories {
 dependencies {
 	api project(':build-language-reference')
 	api project(':publishing-github-pages')
-	api project(':rendering-jbake')
 	api project(':site-base')
 	api project(':site-github-pages')
 }
