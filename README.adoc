@@ -12,23 +12,14 @@ It allows compilation of languages such C, {cpp}, Objective-C and Objective-{cpp
 Copy the following inside your `settings.gradle[.kts]`:
 
 .settings.gradle[.kts]
-[source,groovy,subs=attributes+,file=settings]
+[source,groovy,file=settings]
 ----
-pluginManagement {
-   repositories {
-      gradlePluginPortal()
-      maven { url = uri("https://repo.nokee.dev/release") }
-      maven { url = uri("https://repo.nokee.dev/snapshot") }
-   }
-   resolutionStrategy {
-      eachPlugin {
-         if (requested.id.id.startsWith("dev.nokee.")) {
-            useModule("${requested.id.id}:${requested.id.id}.gradle.plugin:{jbake-version}")
-         }
-      }
-   }
+plugins {
+    id("dev.nokee.nokee-version-management") version("latest.release")
 }
 ----
+
+For more information, refer to the link:https://docs.nokee.dev/manual/getting-started.html[Getting Started chapter].
 
 == Usage
 
