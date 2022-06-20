@@ -15,8 +15,8 @@
  */
 package dev.gradleplugins.dockit.dslref
 
-import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import dev.gradleplugins.dockit.DocGenerationException
 import dev.gradleplugins.dockit.dsl.docbook.AsciidoctorRenderer
 import dev.gradleplugins.dockit.dsl.docbook.DocLinkBuilder
@@ -41,8 +41,8 @@ import org.gradle.api.Transformer
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.w3c.dom.Element
 
@@ -217,37 +217,36 @@ abstract class AssembleDslDocTask extends DefaultTask {
 		return getDestinationDirectory().file(element.name + ".adoc").get().getAsFile();
 	}
 
-	private static final ThreadLocal<Context> CONTEXT_THREAD_LOCAL = new ThreadLocal<>()
-	private static boolean BINDING_PATCH = false
-	private static final Object BINDING_PATCH_LOCK = new Object()
 	private String serialize(ClassDoc element, DocLinkBuilder linkBuilder) {
-		try {
-			def bindings = ImmutableMap.of("content", element, "linkBuilder", linkBuilder, "renderer", new AsciidoctorRenderer())
-			def workingDirectory = getTemplateFile().get().getAsFile().parentFile.toPath()
-			CONTEXT_THREAD_LOCAL.set(new Context(bindings: bindings, workingDirectory: workingDirectory))
+		def bindings = ImmutableMap.of("content", element, "linkBuilder", linkBuilder, "renderer", new AsciidoctorRenderer())
+		def workingDirectory = getTemplateFile().get().getAsFile().parentFile.toPath()
 
-			if (!BINDING_PATCH) {
-				synchronized (BINDING_PATCH_LOCK) {
-					if (!BINDING_PATCH) {
-						Binding.metaClass.include << { path ->
-							Path p = CONTEXT_THREAD_LOCAL.get().workingDirectory.resolve(path)
-							return new GStringTemplateEngine().createTemplate(p.toFile()).make(CONTEXT_THREAD_LOCAL.get().bindings).toString()
-						}
-						BINDING_PATCH = true
-					}
-				}
-			}
-			return new GStringTemplateEngine().createTemplate(getTemplateFile().get().getAsFile()).make(bindings).toString();
-		} catch (ClassNotFoundException | IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			CONTEXT_THREAD_LOCAL.set(null)
-		}
+		Closure make = (Closure) new GStringTemplateEngine().createTemplate(getTemplateFile().get().getAsFile()).make();
+		make.setDelegate(new DslTemplateBinding(workingDirectory, bindings))
+		return make.toString()
 	}
 
-	private static final class Context {
-		Map bindings
-		Path workingDirectory
+	private static class DslTemplateBinding extends Binding {
+		private final Path workingDirectory
+		private final Map bindings
+
+		DslTemplateBinding(Path workingDirectory, Map bindings) {
+			super(bindings)
+			this.bindings = bindings
+			this.workingDirectory = workingDirectory
+		}
+
+		def invokeMethod(String name, Object args) {
+			if (name == 'include') {
+				def path = ((String[]) args)[0]
+				Path p = workingDirectory.resolve(path)
+				Closure make = (Closure) new GStringTemplateEngine().createTemplate(p.toFile()).make();
+				make.setDelegate(this)
+				return make.toString()
+			} else {
+				super.invokeMethod(name, args);
+			}
+		}
 	}
 }
 
