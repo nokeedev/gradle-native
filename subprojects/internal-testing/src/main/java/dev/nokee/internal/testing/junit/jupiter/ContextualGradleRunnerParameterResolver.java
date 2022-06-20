@@ -44,13 +44,31 @@ public class ContextualGradleRunnerParameterResolver implements ParameterResolve
 		return VersionNumber.parse(System.getProperty("dev.gradleplugins.defaultGradleVersion"));
 	}
 
-	private static final ConditionEvaluationResult ENABLED = ConditionEvaluationResult.enabled(
+	private static final ConditionEvaluationResult DEFAULT_REQUIRES_GRADLE_FEATURE_ENABLED = ConditionEvaluationResult.enabled(
 		"No @RequiresGradleFeature conditions resulting in 'disabled' execution encountered");
+	private static final ConditionEvaluationResult DEFAULT_GRADLE_AT_LEAST_VERSION_ENABLED = ConditionEvaluationResult.enabled(
+		"No @GradleAtLeast conditions resulting in 'disabled' execution encountered");
 
 	@Override
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-		return findAnnotation(context.getElement(), RequiresGradleFeature.class)
+		ConditionEvaluationResult result = findAnnotation(context.getElement(), RequiresGradleFeature.class)
 			.map(requirements -> requirements.value().isSupported(getGradleVersion()))
-			.orElse(ENABLED);
+			.orElse(DEFAULT_REQUIRES_GRADLE_FEATURE_ENABLED);
+
+		if (!result.isDisabled()) {
+			result = findAnnotation(context.getElement(), GradleAtLeast.class)
+				.map(requirements -> isAtLeast(VersionNumber.parse(requirements.value())))
+				.orElse(DEFAULT_GRADLE_AT_LEAST_VERSION_ENABLED);
+		}
+
+		return result;
+	}
+
+	private ConditionEvaluationResult isAtLeast(VersionNumber atLeastVersion) {
+		if (atLeastVersion.compareTo(getGradleVersion()) <= 0) {
+			return ConditionEvaluationResult.enabled(String.format("%s is at least %s", getGradleVersion(), atLeastVersion));
+		} else {
+			return ConditionEvaluationResult.disabled(String.format("%s is not at least %s", getGradleVersion(), atLeastVersion));
+		}
 	}
 }

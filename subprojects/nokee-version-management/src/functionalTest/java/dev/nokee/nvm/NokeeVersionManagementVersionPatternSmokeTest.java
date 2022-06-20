@@ -17,6 +17,7 @@ package dev.nokee.nvm;
 
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
+import dev.nokee.internal.testing.junit.jupiter.GradleAtLeast;
 import dev.nokee.nvm.fixtures.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
@@ -34,6 +35,7 @@ class NokeeVersionManagementVersionPatternSmokeTest {
 	@TestDirectory Path testDirectory;
 
 	@Test
+	@GradleAtLeast("6.9")
 	void canLoadVersionFromNokeeServices(GradleRunner runner) {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(applyAnyNokeePlugin().andThen(writeVersionFile("0.4.+")));
 		runner/*.publishBuildScans()*/.withTasks("verify").build(); // manually checked, it resolves a nightly version
