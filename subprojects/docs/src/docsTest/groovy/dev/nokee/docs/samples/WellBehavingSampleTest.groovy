@@ -40,6 +40,7 @@ import org.gradle.internal.logging.ConsoleRenderer
 import org.gradle.internal.os.OperatingSystem
 import org.junit.Rule
 import org.junit.experimental.categories.Category
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -208,6 +209,7 @@ abstract class WellBehavingSampleTest extends Specification {
 		}
 	}
 
+	@Ignore // sample player is deactivated
 	@Category(Baked)
 	def "has the twitter player meta data"() {
 		expect:
