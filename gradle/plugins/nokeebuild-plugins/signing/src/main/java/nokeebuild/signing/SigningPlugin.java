@@ -39,15 +39,17 @@ abstract class SigningPlugin implements Plugin<Project> {
 		project.getPluginManager().apply("signing");
 
 		project.getPlugins().withType(PublishingPlugin.class, new Once<>(__ -> {
-			signing(project, extension -> {
-				extension.sign(publishing(project).map(PublishingExtension::getPublications).get());
-				ifNotPresent(providers.gradleProperty("signing.secretKeyRingFile"), () -> {
-					final String signingKeyId = providers.gradleProperty("signing.keyId").getOrNull();
-					final String signingKey = providers.gradleProperty("signing.key").getOrNull();
-					final String signingPassword = providers.gradleProperty("signing.password").getOrNull();
-					extension.useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword);
+			if (project.getProviders().systemProperty("nokee.signing.enabled").orElse(project.getProviders().gradleProperty("nokee.signing.enabled")).map(Boolean::parseBoolean).getOrElse(Boolean.TRUE)) {
+				signing(project, extension -> {
+					extension.sign(publishing(project).map(PublishingExtension::getPublications).get());
+					ifNotPresent(providers.gradleProperty("signing.secretKeyRingFile"), () -> {
+						final String signingKeyId = providers.gradleProperty("signing.keyId").getOrNull();
+						final String signingKey = providers.gradleProperty("signing.key").getOrNull();
+						final String signingPassword = providers.gradleProperty("signing.password").getOrNull();
+						extension.useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword);
+					});
 				});
-			});
+			}
 		}));
 	}
 
