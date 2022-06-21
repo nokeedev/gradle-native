@@ -147,7 +147,11 @@ Hello, World!
 ----
 == 6. Test and explore different possibilities & summaries
 Here is an example and link to download this demo application for you to test out:
+link:TODO[Complete_Example]
 //TODO a downloadable example with more complex application code
+[source,terminal]
+----
+----
 //TODO add box with demo of the app with both toggles like other pages
 
 == 7. Customization and Other helpful Guides
