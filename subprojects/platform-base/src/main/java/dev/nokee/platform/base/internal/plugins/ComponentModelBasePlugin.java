@@ -98,17 +98,20 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
 import java.util.Objects;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	@Override
@@ -124,8 +127,15 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_consumableBucketFactory", new ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getObjects()));
 
 		project.getConfigurations().configureEach(configuration -> {
-			((ConfigurationInternal) configuration).beforeLocking(it -> {
+			final Provider<Object> g = finalizeValueOnRead(project.getObjects().property(Object.class).value(project.provider(() -> {
 				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::realize);
+				return null;
+			})));
+			configuration.defaultDependencies(it -> {
+				g.getOrNull();
+			});
+			((ConfigurationInternal) configuration).beforeLocking(it -> {
+				g.getOrNull();
 			});
 		});
 		project.getTasks().configureEach(task -> {
