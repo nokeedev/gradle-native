@@ -24,7 +24,7 @@ final class ProviderUtils {
 	private ProviderUtils() {}
 
 	public static <T> Provider<T> forUseAtConfigurationTime(Provider<T> self) {
-		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0 && GradleVersion.current().compareTo(GradleVersion.version("7.0")) < 0) {
+		if (GradleVersion.current().compareTo(GradleVersion.version("6.5")) >= 0 && GradleVersion.current().compareTo(GradleVersion.version("7.4")) < 0) {
 			try {
 				@SuppressWarnings("unchecked")
 				final Provider<T> result = (Provider<T>) Provider.class.getMethod("forUseAtConfigurationTime").invoke(self);
