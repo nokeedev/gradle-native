@@ -109,7 +109,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	}
 
 	@Unroll
-	def "ensure root project name is configured for the sample"(dsl) {
+	def "ensure root project name is configured for the sample [#dsl]"(dsl) {
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		expect:
@@ -136,7 +136,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	}
 
 	@Unroll
-	def "ensure sample source files matches source layout"(dsl) {
+	def "ensure sample source files matches source layout [#dsl]"(dsl) {
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		def pluginIdsToExtensions = [
@@ -228,7 +228,7 @@ abstract class WellBehavingSampleTest extends Specification {
 	}
 
 	@Unroll
-	def "can run './gradlew #taskName' successfully"(taskName, dsl) {
+	def "can run './gradlew #taskName' successfully [#dsl]"(taskName, dsl) {
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
 
 		def executer = configureLocalPluginResolution(GradleRunner.create(GradleExecutor.gradleWrapper()).inDirectory(testDirectory))
@@ -236,8 +236,7 @@ abstract class WellBehavingSampleTest extends Specification {
 		executer.withTasks(taskName).build()
 
 		where:
-		taskName << ['help', 'tasks']
-		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
+		[taskName, dsl] << [['help', 'tasks'], [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]].combinations()
 	}
 
 	protected ToolChainRequirement getToolChainRequirement() {
@@ -246,7 +245,7 @@ abstract class WellBehavingSampleTest extends Specification {
 
 	AvailableToolChains.InstalledToolChain toolChain;
 	@Unroll
-	def "can execute commands successfully"(dsl) {
+	def "can execute commands successfully [#dsl]"(dsl) {
 		println "Sample under test directory: " + temporaryFolder.testDirectory.absolutePath
 		toolChain = AvailableToolChains.getToolChain(toolChainRequirement)
 		assumeTrue(toolChain != null && toolChain.meets(ToolChainRequirement.AVAILABLE))
