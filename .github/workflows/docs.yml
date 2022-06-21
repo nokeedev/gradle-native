@@ -10,18 +10,16 @@ jobs:
             -   uses: actions/checkout@v2
                 with:
                     submodules: true
-            -   uses: actions/setup-java@v1
-                with:
-                    java-version: '8'
-            -   name: Install documentation dependencies
-                run: sudo apt-get update && sudo apt-get -y install graphviz asciinema imagemagick gifsicle ffmpeg tree && sudo npm --global install asciicast2gif giflossy --unsafe-perm
-            -   name: Build all code
+            -   uses: ./.github/actions/install-documentation-dependencies
+            -   name: Build all template
                 id: gradle
-                uses: eskatos/gradle-command-action@v1
+                uses: ./.github/actions/gradle
                 with:
-                    arguments: :docs:publishJbakePublicationToDocsNokeeDevRepository --scan --continue --no-daemon --no-build-cache "-PnokeeBuildCacheUsername=${{ secrets.GRADLE_CACHE_USERNAME }}" "-PnokeeBuildCachePassword=${{ secrets.GRADLE_CACHE_PASSWORD }}" "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
-                    wrapper-cache-enabled: true
-                    dependencies-cache-enabled: true
+                    arguments: :docs:publishJbakePublicationToDocsNokeeDevRepository -PskipAllAsciinemaTasks --continue --no-daemon --no-build-cache "-PdocsNokeeDevAccessKey=${{ secrets.AWS_ACCESS_KEY }}" "-PdocsNokeeDevSecretKey=${{ secrets.AWS_SECRET_KEY }}"
+                    build-cache-username: ${{ secrets.GRADLE_CACHE_USERNAME }}
+                    build-cache-password: ${{ secrets.GRADLE_CACHE_PASSWORD }}
+                    build-scan-access-key: ${{ secrets.BUILD_SCAN_ACCESS_KEY }}
+                    github-token: ${{ secrets.GITHUB_TOKEN }}
             -   name: Trigger nokeedev.gitlab.io rebuild (main-only)
                 shell: bash
                 run: |
