@@ -15,12 +15,12 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.VariantDimensionBuilder;
 import dev.nokee.platform.base.VariantDimensions;
@@ -40,11 +40,11 @@ import static dev.nokee.model.internal.type.GradlePropertyTypes.setProperty;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ModelBackedVariantDimensions implements VariantDimensions, ModelComponent {
-	private final DomainObjectIdentifier owner;
+	private final ModelNode owner;
 	private final ModelRegistry registry;
 	private final DimensionPropertyRegistrationFactory dimensionsPropertyFactory;
 
-	public ModelBackedVariantDimensions(DomainObjectIdentifier owner, ModelRegistry registry, DimensionPropertyRegistrationFactory dimensionsPropertyFactory) {
+	public ModelBackedVariantDimensions(ModelNode owner, ModelRegistry registry, DimensionPropertyRegistrationFactory dimensionsPropertyFactory) {
 		this.owner = owner;
 		this.registry = registry;
 		this.dimensionsPropertyFactory = dimensionsPropertyFactory;
@@ -52,9 +52,9 @@ public final class ModelBackedVariantDimensions implements VariantDimensions, Mo
 
 	@Override
 	public <T> SetProperty<T> newAxis(Class<T> axisType) {
-		val identifier = ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName()));
 		val result = registry.register(ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
+			.withComponent(new ElementNameComponent(StringUtils.uncapitalize(axisType.getSimpleName())))
+			.withComponent(new ParentComponent(owner))
 			.mergeFrom(dimensionsPropertyFactory.newAxisProperty(CoordinateAxis.of(axisType)))
 			.build());
 		return ((ModelProperty<?>) result).asProperty(setProperty(of(axisType)));
@@ -64,9 +64,9 @@ public final class ModelBackedVariantDimensions implements VariantDimensions, Mo
 	public <T> SetProperty<T> newAxis(Class<T> axisType, Action<? super VariantDimensionBuilder<T>> action) {
 		Objects.requireNonNull(axisType);
 		Objects.requireNonNull(action);
-		val identifier = ModelPropertyIdentifier.of(owner, StringUtils.uncapitalize(axisType.getSimpleName()));
 		val builder = ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier));
+			.withComponent(new ElementNameComponent(StringUtils.uncapitalize(axisType.getSimpleName())))
+			.withComponent(new ParentComponent(owner));
 		val axisBuilder = dimensionsPropertyFactory.newAxisProperty();
 		axisBuilder.axis(CoordinateAxis.of(axisType));
 

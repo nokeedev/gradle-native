@@ -24,6 +24,8 @@ import dev.nokee.model.internal.core.ModelPathComponent;
 final class GenerateModelPathFromIdentifier extends ModelActionWithInputs.ModelAction1<IdentifierComponent> {
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier) {
-		entity.addComponent(new ModelPathComponent(DomainObjectIdentifierUtils.toPath(identifier.get())));
+		if (!entity.has(ModelPathComponent.class)) {
+			entity.addComponent(new ModelPathComponent(DomainObjectIdentifierUtils.toPath(identifier.get())));
+		}
 	}
 }

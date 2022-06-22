@@ -15,39 +15,38 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
-import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.BuildType;
 import dev.nokee.runtime.nativebase.TargetBuildType;
-import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.TargetBuildTypes;
 import lombok.val;
 
-public final class TargetBuildTypesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction2<ModelProjection, IdentifierComponent> {
+public final class TargetBuildTypesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
 	private final DimensionPropertyRegistrationFactory dimensions;
 	private final ModelRegistry registry;
 
 	public TargetBuildTypesPropertyRegistrationRule(DimensionPropertyRegistrationFactory dimensions, ModelRegistry registry) {
-		super(ModelComponentReference.ofProjection(ModelBackedTargetBuildTypeAwareComponentMixIn.class), ModelComponentReference.of(IdentifierComponent.class));
+		super(ModelComponentReference.ofProjection(ModelBackedTargetBuildTypeAwareComponentMixIn.class));
 		this.dimensions = dimensions;
 		this.registry = registry;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection tag, IdentifierComponent identifier) {
-		val targetBuildTypes = registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier.get(), "targetBuildTypes"))
+	protected void execute(ModelNode entity, ModelProjection tag) {
+		val targetBuildTypes = registry.register(ModelRegistration.builder().withComponent(new ElementNameComponent("targetBuildTypes")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.newAxisProperty()
 			.elementType(TargetBuildType.class)
 			.axis(BuildType.BUILD_TYPE_COORDINATE_AXIS)
 			.defaultValue(TargetBuildTypes.DEFAULT)
-			.build());
+			.build()).build());
 		entity.addComponent(new TargetBuildTypesPropertyComponent(ModelNodes.of(targetBuildTypes)));
 	}
 }

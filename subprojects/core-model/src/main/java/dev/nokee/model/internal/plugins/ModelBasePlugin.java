@@ -18,19 +18,35 @@ package dev.nokee.model.internal.plugins;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.ancestors.AncestryCapabilityPlugin;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.core.ModelPropertyTag;
+import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.names.NamesCapabilityPlugin;
+import dev.nokee.model.internal.properties.ModelPropertiesCapabilityPlugin;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.tasks.ModelReportTask;
 import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public class ModelBasePlugin implements Plugin<Project> {
 	@Override
@@ -39,14 +55,40 @@ public class ModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
 		project.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
 		project.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
-		project.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory(project.getObjects()));
+		project.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory());
 
 		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
 
 		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
-		modelRegistry.configure(new UseModelPropertyIdentifierAsDisplayName());
+		project.getPluginManager().apply(ModelPropertiesCapabilityPlugin.class);
 		new ModelActionSystem().execute(project);
+		modelRegistry.configure(new GenerateModelPathFromParents());
 		modelRegistry.configure(new GenerateModelPathFromIdentifier());
+
+		modelRegistry.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelPropertyTag.class), ModelComponentReference.of(ModelPropertyTypeComponent.class), (entity, tag, propertyType) -> {
+			if (propertyType.get().equals(set(of(File.class)))) {
+				val property = project.getObjects().fileCollection();
+				entity.addComponent(new GradlePropertyComponent(property));
+				entity.addComponent(new ModelElementProviderSourceComponent(property.getElements()));
+			} else if (propertyType.get().isSubtypeOf(Map.class)) {
+				val property = project.getObjects().mapProperty(propertyType.get().getTypeVariables().get(0).getConcreteType(), propertyType.get().getTypeVariables().get(1).getConcreteType());
+				entity.addComponent(new GradlePropertyComponent(property));
+				entity.addComponent(new ModelElementProviderSourceComponent(property));
+			} else if (propertyType.get().isSubtypeOf(List.class)) {
+				val property = project.getObjects().listProperty(propertyType.get().getTypeVariables().get(0).getConcreteType());
+				entity.addComponent(new GradlePropertyComponent(property));
+				entity.addComponent(new ModelElementProviderSourceComponent(property));
+			} else if (propertyType.get().isSubtypeOf(Set.class)) {
+				val property = project.getObjects().setProperty(propertyType.get().getTypeVariables().get(0).getConcreteType());
+				entity.addComponent(new GradlePropertyComponent(property));
+				entity.addComponent(new ModelElementProviderSourceComponent(property));
+			} else {
+				val property = project.getObjects().property(propertyType.get().getConcreteType());
+				entity.addComponent(new GradlePropertyComponent(property));
+				entity.addComponent(new ModelElementProviderSourceComponent(property));
+			}
+		}));
+
 		project.getPluginManager().apply(AncestryCapabilityPlugin.class);
 		project.getPluginManager().apply(NamesCapabilityPlugin.class);
 

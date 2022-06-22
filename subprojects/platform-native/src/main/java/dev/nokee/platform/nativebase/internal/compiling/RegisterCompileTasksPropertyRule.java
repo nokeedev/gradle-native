@@ -17,7 +17,6 @@ package dev.nokee.platform.nativebase.internal.compiling;
 
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
@@ -56,7 +55,7 @@ final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.Model
 
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> tag) {
-		val compileTasks = registry.register(tasksPropertyRegistrationFactory.create(ModelPropertyIdentifier.of(identifier.get(), "compileTasks"), SourceCompile.class));
+		val compileTasks = registry.register(tasksPropertyRegistrationFactory.create("compileTasks", entity, SourceCompile.class));
 		entity.addComponent(new ObjectFiles(compileTasks.as(TASK_VIEW_MODEL_TYPE).flatMap(toObjectFiles())));
 	}
 
