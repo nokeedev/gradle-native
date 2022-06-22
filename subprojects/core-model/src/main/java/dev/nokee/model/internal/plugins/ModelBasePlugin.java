@@ -65,30 +65,6 @@ public class ModelBasePlugin implements Plugin<Project> {
 		modelRegistry.configure(new GenerateModelPathFromParents());
 		modelRegistry.configure(new GenerateModelPathFromIdentifier());
 
-		modelRegistry.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelPropertyTag.class), ModelComponentReference.of(ModelPropertyTypeComponent.class), (entity, tag, propertyType) -> {
-			if (propertyType.get().equals(set(of(File.class)))) {
-				val property = project.getObjects().fileCollection();
-				entity.addComponent(new GradlePropertyComponent(property));
-				entity.addComponent(new ModelElementProviderSourceComponent(property.getElements()));
-			} else if (propertyType.get().isSubtypeOf(Map.class)) {
-				val property = project.getObjects().mapProperty(propertyType.get().getTypeVariables().get(0).getConcreteType(), propertyType.get().getTypeVariables().get(1).getConcreteType());
-				entity.addComponent(new GradlePropertyComponent(property));
-				entity.addComponent(new ModelElementProviderSourceComponent(property));
-			} else if (propertyType.get().isSubtypeOf(List.class)) {
-				val property = project.getObjects().listProperty(propertyType.get().getTypeVariables().get(0).getConcreteType());
-				entity.addComponent(new GradlePropertyComponent(property));
-				entity.addComponent(new ModelElementProviderSourceComponent(property));
-			} else if (propertyType.get().isSubtypeOf(Set.class)) {
-				val property = project.getObjects().setProperty(propertyType.get().getTypeVariables().get(0).getConcreteType());
-				entity.addComponent(new GradlePropertyComponent(property));
-				entity.addComponent(new ModelElementProviderSourceComponent(property));
-			} else {
-				val property = project.getObjects().property(propertyType.get().getConcreteType());
-				entity.addComponent(new GradlePropertyComponent(property));
-				entity.addComponent(new ModelElementProviderSourceComponent(property));
-			}
-		}));
-
 		project.getPluginManager().apply(AncestryCapabilityPlugin.class);
 		project.getPluginManager().apply(NamesCapabilityPlugin.class);
 
