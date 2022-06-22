@@ -15,35 +15,37 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import lombok.val;
 
-public final class TargetLinkagesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction2<ModelProjection, IdentifierComponent> {
+public final class TargetLinkagesPropertyRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
 	private final DimensionPropertyRegistrationFactory dimensions;
 	private final ModelRegistry registry;
 
 	public TargetLinkagesPropertyRegistrationRule(DimensionPropertyRegistrationFactory dimensions, ModelRegistry registry) {
-		super(ModelComponentReference.ofProjection(ModelBackedTargetLinkageAwareComponentMixIn.class), ModelComponentReference.of(IdentifierComponent.class));
+		super(ModelComponentReference.ofProjection(ModelBackedTargetLinkageAwareComponentMixIn.class));
 		this.dimensions = dimensions;
 		this.registry = registry;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection tag, IdentifierComponent identifier) {
-		val targetLinkages = registry.register(dimensions.newAxisProperty(ModelPropertyIdentifier.of(identifier.get(), "targetLinkages"))
+	protected void execute(ModelNode entity, ModelProjection tag) {
+		val targetLinkages = registry.register(ModelRegistration.builder().withComponent(new ElementNameComponent("targetLinkages")).withComponent(new ParentComponent(entity)).mergeFrom(dimensions.newAxisProperty()
 			.elementType(TargetLinkage.class)
 			.axis(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)
-			.build());
+			.build()).build());
 		entity.addComponent(new TargetLinkagesPropertyComponent(ModelNodes.of(targetLinkages)));
 	}
 }

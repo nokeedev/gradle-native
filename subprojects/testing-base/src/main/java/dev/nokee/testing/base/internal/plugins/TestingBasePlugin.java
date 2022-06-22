@@ -15,9 +15,6 @@
  */
 package dev.nokee.testing.base.internal.plugins;
 
-import dev.nokee.model.internal.ModelPropertyIdentifier;
-import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -25,6 +22,8 @@ import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.NodeRegistrationFactories;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
@@ -49,10 +48,12 @@ public class TestingBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
+		val modelLookup = project.getExtensions().getByType(ModelLookup.class);
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		val testSuites = modeRegistry.register(ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(ProjectIdentifier.of(project), "testSuites")))
+			.withComponent(new ElementNameComponent("testSuites"))
+			.withComponent(new ParentComponent(modelLookup.get(ModelPath.root())))
 			.mergeFrom(elementsPropertyFactory.newProperty()
 				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
 				.elementType(of(TestSuiteComponent.class))

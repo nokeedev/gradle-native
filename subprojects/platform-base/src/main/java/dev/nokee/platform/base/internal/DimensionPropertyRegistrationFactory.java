@@ -17,9 +17,7 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
-import dev.nokee.model.internal.ModelPropertyIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -51,10 +49,6 @@ public final class DimensionPropertyRegistrationFactory {
 		this.objectFactory = objectFactory;
 	}
 
-	public Builder newAxisProperty(ModelPropertyIdentifier identifier) {
-		return new Builder(identifier);
-	}
-
 	public <T> ModelRegistration newAxisProperty(CoordinateAxis<T> axis) {
 		return newAxisProperty().axis(axis).build();
 	}
@@ -64,7 +58,6 @@ public final class DimensionPropertyRegistrationFactory {
 	}
 
 	public final class Builder {
-		private final ModelPropertyIdentifier identifier;
 		private Class<Object> elementType;
 		private CoordinateAxis<Object> axis;
 		private Object defaultValues = ImmutableSet.of();
@@ -72,13 +65,7 @@ public final class DimensionPropertyRegistrationFactory {
 		private boolean includeEmptyCoordinate = false;
 		private List<Predicate<? super BuildVariantInternal>> filters = new ArrayList<>();
 
-		private Builder() {
-			this.identifier = null;
-		}
-
-		private Builder(ModelPropertyIdentifier identifier) {
-			this.identifier = identifier;
-		}
+		private Builder() {}
 
 		@SuppressWarnings("unchecked")
 		public Builder axis(CoordinateAxis<?> axis) {
@@ -140,10 +127,6 @@ public final class DimensionPropertyRegistrationFactory {
 
 			val result = ModelRegistration.builder();
 
-			if (identifier != null) {
-				result.withComponent(new IdentifierComponent(identifier));
-			}
-
 			result
 				.withComponent(tag(ModelPropertyTag.class))
 				.withComponent(new ModelPropertyTypeComponent(set(of(elementType))))
@@ -168,12 +151,11 @@ public final class DimensionPropertyRegistrationFactory {
 	}
 
 	// TODO: We register build variant
-	public ModelRegistration buildVariants(ModelPropertyIdentifier identifier, Provider<Set<BuildVariant>> buildVariantProvider) {
+	public ModelRegistration buildVariants(Provider<Set<BuildVariant>> buildVariantProvider) {
 		val property = objectFactory.setProperty(BuildVariant.class).convention(buildVariantProvider);
 		property.finalizeValueOnRead();
 		property.disallowChanges();
 		return ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(ModelPropertyTag.class))
 			.withComponent(new ModelPropertyTypeComponent(set(of(BuildVariant.class))))
 			.withComponent(new GradlePropertyComponent(property))
