@@ -66,10 +66,15 @@ import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
 import dev.nokee.platform.base.internal.BuildVariantsPropertyComponent;
 import dev.nokee.platform.base.internal.ComponentContainerAdapter;
-import dev.nokee.platform.base.internal.ComponentTasksPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.ComponentDependenciesProperty;
+import dev.nokee.platform.base.internal.ComponentVariantsProperty;
+import dev.nokee.platform.base.internal.DevelopmentVariantProperty;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsBinary;
+import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.IsTask;
+import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -93,17 +98,20 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
 import java.util.Objects;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
 	@Override
@@ -114,15 +122,20 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
 
-		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory(project.getExtensions().getByType(ModelLookup.class)));
-
 		project.getExtensions().add("__nokee_declarableBucketFactory", new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 		project.getExtensions().add("__nokee_resolvableBucketFactory", new ResolvableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 		project.getExtensions().add("__nokee_consumableBucketFactory", new ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getObjects()));
 
 		project.getConfigurations().configureEach(configuration -> {
-			((ConfigurationInternal) configuration).beforeLocking(it -> {
+			final Provider<Object> g = finalizeValueOnRead(project.getObjects().property(Object.class).value(project.provider(() -> {
 				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::realize);
+				return null;
+			})));
+			configuration.defaultDependencies(it -> {
+				g.getOrNull();
+			});
+			((ConfigurationInternal) configuration).beforeLocking(it -> {
+				g.getOrNull();
 			});
 		});
 		project.getTasks().configureEach(task -> {
@@ -142,11 +155,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			val bv = registry.register(dimensions.buildVariants(ModelPropertyIdentifier.of(identifier.get(), "buildVariants"), buildVariants.get()));
 			entity.addComponent(new BuildVariantsPropertyComponent(ModelNodes.of(bv)));
 
-			registry.register(ModelRegistration.builder()
+			val variantsProperty = registry.register(ModelRegistration.builder()
 				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "variants")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(parent.get()).elementType(of(variantType((ModelType<VariantAwareComponent<? extends Variant>>) component.getType()))).build())
 				.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends Variant>>() {})))))
 				.build());
+			entity.addComponent(new ComponentVariantsProperty(ModelNodes.of(variantsProperty)));
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
 			// TODO: Each plugins should just map the build variants into the variants.
@@ -168,7 +182,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedDependencyAwareComponentMixIn<? extends ComponentDependencies, ? extends ComponentDependencies>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 			Class<ComponentDependencies> type = (Class<ComponentDependencies>) dependenciesType((ModelType<DependencyAwareComponent<? extends ComponentDependencies>>)projection.getType());
-			modeRegistry.register(ModelRegistration.builder()
+			val dependenciesProperty = modeRegistry.register(ModelRegistration.builder()
 				.withComponent(new IdentifierComponent(ModelPropertyIdentifier.of(identifier.get(), "dependencies")))
 				.mergeFrom(elementsPropertyFactory.newProperty().baseRef(entity).elementType(of(DependencyBucket.class)).build())
 				.withComponent(createdUsing(of(type), () -> {
@@ -179,13 +193,14 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 					}
 				}))
 				.build());
+			entity.addComponent(new ComponentDependenciesProperty(ModelNodes.of(dependenciesProperty)));
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Artifact.class, NamingScheme::prefixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Task.class, NamingScheme::suffixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Component.class, NamingScheme::prefixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(DependencyBucket.class, NamingScheme::prefixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Variant.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsBinary.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsTask.class, NamingScheme::suffixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsComponent.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsDependencyBucket.class, NamingScheme::prefixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem<>(IsVariant.class, NamingScheme::prefixTo));
 
 		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
 
@@ -223,14 +238,20 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		})));
 
 		// ComponentFromEntity<GradlePropertyComponent> on BaseNamePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, property, elementName) -> {
-			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(elementName.get().toString());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), (entity, baseName) -> {
+			((Property<String>) baseName.get().get(GradlePropertyComponent.class).get()).convention(project.provider(() -> {
+				return entity.find(ParentComponent.class).map(ParentComponent::get)
+					.flatMap(it -> it.find(BaseNamePropertyComponent.class))
+					.map(it -> ((Provider<String>) it.get().get(GradlePropertyComponent.class).get()).getOrNull())
+					.orElseGet(() -> entity.find(ElementNameComponent.class).map(it -> it.get().toString()).orElse(null));
+			}));
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(TaskRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasDevelopmentVariantMixIn.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
-			modeRegistry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "developmentVariant"), developmentVariantType((ModelType<? extends HasDevelopmentVariant<? extends Variant>>) tag.getType())));
+			val developmentVariantProperty = modeRegistry.register(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(ModelPropertyIdentifier.of(identifier.get(), "developmentVariant"), developmentVariantType((ModelType<? extends HasDevelopmentVariant<? extends Variant>>) tag.getType())));
+			entity.addComponent(new DevelopmentVariantProperty(ModelNodes.of(developmentVariantProperty)));
 		})));
 	}
 

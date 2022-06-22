@@ -25,17 +25,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class ModelSpec_StateAtLeastTest implements ModelSpecTester<StateAtLeastSpec> {
 	@Override
 	public StateAtLeastSpec subject() {
-		return new StateAtLeastSpec(ModelState.Realized);
+		return new StateAtLeastSpec(ModelState.Finalized);
 	}
 
 	@Override
 	public DomainObjectIdentity satisfyingInput() {
-		return DomainObjectIdentity.of(ModelState.Realized);
+		return DomainObjectIdentity.of(ModelState.Finalized);
 	}
 
 	@Override
 	public DomainObjectIdentity notSatisfyingInput() {
-		return DomainObjectIdentity.of(ModelState.Created);
+		return DomainObjectIdentity.of(ModelState.Realized);
 	}
 
 	@Test
@@ -45,6 +45,6 @@ class ModelSpec_StateAtLeastTest implements ModelSpecTester<StateAtLeastSpec> {
 
 	@Test
 	void canCreateSpecUsingFactoryMethod() {
-		assertEquals(new StateAtLeastSpec(ModelState.Created), stateAtLeast(ModelState.Created));
+		assertEquals(new StateAtLeastSpec(ModelState.Finalized), stateAtLeast(ModelState.Finalized));
 	}
 }

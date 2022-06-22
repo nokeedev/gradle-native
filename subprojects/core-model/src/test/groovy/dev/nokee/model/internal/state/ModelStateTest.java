@@ -39,27 +39,7 @@ class ModelStateTest {
 	}
 
 	@Test
-	void isAtLeastCreated() {
-		assertTrue(ModelState.Created.isAtLeast(ModelState.Created));
-		assertTrue(ModelState.Initialized.isAtLeast(ModelState.Created));
-		assertTrue(ModelState.Registered.isAtLeast(ModelState.Created));
-		assertTrue(ModelState.Realized.isAtLeast(ModelState.Created));
-		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Created));
-	}
-
-	@Test
-	void isAtLeastInitialized() {
-		assertFalse(ModelState.Created.isAtLeast(ModelState.Initialized));
-		assertTrue(ModelState.Initialized.isAtLeast(ModelState.Initialized));
-		assertTrue(ModelState.Registered.isAtLeast(ModelState.Initialized));
-		assertTrue(ModelState.Realized.isAtLeast(ModelState.Initialized));
-		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Initialized));
-	}
-
-	@Test
 	void isAtLeastRegistered() {
-		assertFalse(ModelState.Created.isAtLeast(ModelState.Registered));
-		assertFalse(ModelState.Initialized.isAtLeast(ModelState.Registered));
 		assertTrue(ModelState.Registered.isAtLeast(ModelState.Registered));
 		assertTrue(ModelState.Realized.isAtLeast(ModelState.Registered));
 		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Registered));
@@ -67,8 +47,6 @@ class ModelStateTest {
 
 	@Test
 	void isAtLeastRealized() {
-		assertFalse(ModelState.Created.isAtLeast(ModelState.Realized));
-		assertFalse(ModelState.Initialized.isAtLeast(ModelState.Realized));
 		assertFalse(ModelState.Registered.isAtLeast(ModelState.Realized));
 		assertTrue(ModelState.Realized.isAtLeast(ModelState.Realized));
 		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Realized));
@@ -76,8 +54,6 @@ class ModelStateTest {
 
 	@Test
 	void isAtLeastFinalized() {
-		assertFalse(ModelState.Created.isAtLeast(ModelState.Finalized));
-		assertFalse(ModelState.Initialized.isAtLeast(ModelState.Finalized));
 		assertFalse(ModelState.Registered.isAtLeast(ModelState.Finalized));
 		assertFalse(ModelState.Realized.isAtLeast(ModelState.Finalized));
 		assertTrue(ModelState.Finalized.isAtLeast(ModelState.Finalized));
@@ -88,60 +64,6 @@ class ModelStateTest {
 		@Override
 		public ModelNode subject() {
 			return subject;
-		}
-	}
-
-	@Nested
-	class CreateTest implements ModelStateTester.Created {
-		@BeforeEach
-		void transitionNodeToCreated() {
-			ModelStates.create(subject);
-		}
-
-		@Override
-		public ModelNode subject() {
-			return subject;
-		}
-
-		@Test
-		void changeStateBeforeAddingTag() {
-			val inOrder = Mockito.inOrder(listener);
-			inOrder.verify(listener).projectionAdded(subject, ModelState.Created);
-			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastCreated.class));
-		}
-
-		@Test
-		void doesNotChangeStateWhenCreateMultipleTime() {
-			Mockito.reset(listener);
-			ModelStates.create(subject);
-			Mockito.verifyNoInteractions(listener);
-		}
-	}
-
-	@Nested
-	class InitializeTest implements ModelStateTester.Initialized {
-		@BeforeEach
-		void transitionNodeToInitialized() {
-			ModelStates.initialize(subject);
-		}
-
-		@Override
-		public ModelNode subject() {
-			return subject;
-		}
-
-		@Test
-		void changeStateBeforeAddingTag() {
-			val inOrder = Mockito.inOrder(listener);
-			inOrder.verify(listener).projectionAdded(subject, ModelState.Initialized);
-			inOrder.verify(listener).projectionAdded(eq(subject), isA(ModelState.IsAtLeastInitialized.class));
-		}
-
-		@Test
-		void doesNotChangeStateWhenInitializeMultipleTime() {
-			Mockito.reset(listener);
-			ModelStates.initialize(subject);
-			Mockito.verifyNoInteractions(listener);
 		}
 	}
 

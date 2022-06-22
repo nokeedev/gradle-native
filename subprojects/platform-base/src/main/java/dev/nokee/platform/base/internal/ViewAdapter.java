@@ -152,6 +152,11 @@ public final class ViewAdapter<T> implements View<T> {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return strategy.toString();
+	}
+
 	public interface Strategy {
 		<T> void configureEach(Class<T> elementType, Action<? super T> action);
 		<T> Provider<Set<T>> getElements(Class<T> elementType);

@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelIdentifier;
@@ -89,7 +88,7 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 	@Test
 	void realizesEntityWhenFlatMappedProviderQueried() {
 		subject.flatMap(ProviderUtils::fixed).getOrNull();
-		assertThat(ModelStates.getState(node), equalTo(ModelState.Realized));
+		assertTrue(node.has(ModelState.IsAtLeastRealized.class));
 	}
 
 	@Test
@@ -100,13 +99,13 @@ class DefaultModelObjectBackedByModelEntityIntegrationTest implements ModelObjec
 	@Test
 	void realizesEntityWhenMappedProviderQueried() {
 		subject.map(it -> it).getOrNull();
-		assertThat(ModelStates.getState(node), equalTo(ModelState.Realized));
+		assertTrue(node.has(ModelState.IsAtLeastRealized.class));
 	}
 
 	@Test
 	void realizesEntityWhenObjectQueried() {
 		subject.get();
-		assertThat(ModelStates.getState(node), equalTo(ModelState.Realized));
+		assertTrue(node.has(ModelState.IsAtLeastRealized.class));
 	}
 
 	@Test

@@ -20,7 +20,6 @@ import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -179,7 +178,7 @@ public final class ModelTestUtils {
 		builder.withListener(new ModelNodeListener() {
 			@Override
 			public void projectionAdded(ModelNode node, ModelComponent newComponent) {
-				if (newComponent instanceof ModelState.IsAtLeastCreated) {
+				if (nodeProvider.getValue() == null) {
 					nodeProvider.setValue(node);
 				}
 				val size = actions.size(); // avoid replaying new actions

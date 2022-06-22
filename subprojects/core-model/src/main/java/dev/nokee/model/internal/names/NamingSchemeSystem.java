@@ -19,19 +19,22 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.tags.ModelTags;
 
 import java.util.function.Function;
 
-public final class NamingSchemeSystem extends ModelActionWithInputs.ModelAction2<ModelProjection, ElementNameComponent> {
+public final class NamingSchemeSystem<T extends ModelTag> extends ModelActionWithInputs.ModelAction2<ModelComponentTag<T>, ElementNameComponent> {
 	private final Function<? super ElementName, ? extends NamingScheme> namingSchemeFactory;
 
-	public NamingSchemeSystem(Class<?> projectionType, Function<? super ElementName, ? extends NamingScheme> namingSchemeFactory) {
-		super(ModelComponentReference.ofProjection(projectionType), ModelComponentReference.of(ElementNameComponent.class));
+	public NamingSchemeSystem(Class<T> tag, Function<? super ElementName, ? extends NamingScheme> namingSchemeFactory) {
+		super(ModelTags.referenceOf(tag), ModelComponentReference.of(ElementNameComponent.class));
 		this.namingSchemeFactory = namingSchemeFactory;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection projection, ElementNameComponent elementName) {
+	protected void execute(ModelNode entity, ModelComponentTag<T> tag, ElementNameComponent elementName) {
 		// Deduplication required because of the old component elements implementation
 		if (!entity.has(NamingSchemeComponent.class)) {
 			entity.addComponent(new NamingSchemeComponent(namingSchemeFactory.apply(elementName.get())));

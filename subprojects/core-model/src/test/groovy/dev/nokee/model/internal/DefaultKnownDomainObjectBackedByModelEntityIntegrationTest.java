@@ -15,7 +15,6 @@
  */
 package dev.nokee.model.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.KnownDomainObjectTester;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -39,7 +38,10 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -75,7 +77,7 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 	@Test
 	void realizesEntityWhenFlatMappedProviderQueried() {
 		subject.flatMap(ProviderUtils::fixed).getOrNull();
-		assertThat(ModelStates.getState(node), equalTo(ModelState.Realized));
+		assertTrue(node.has(ModelState.IsAtLeastRealized.class));
 	}
 
 	@Test
@@ -86,7 +88,7 @@ class DefaultKnownDomainObjectBackedByModelEntityIntegrationTest implements Know
 	@Test
 	void realizesEntityWhenMappedProviderQueried() {
 		subject.map(it -> it).getOrNull();
-		assertThat(ModelStates.getState(node), equalTo(ModelState.Realized));
+		assertTrue(node.has(ModelState.IsAtLeastRealized.class));
 	}
 
 	@Test

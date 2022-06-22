@@ -27,16 +27,16 @@ import static dev.nokee.model.internal.tags.ModelTags.tag;
 class ModelActionByStateIntegrationTest extends ModelActionIntegrationTester {
 	@Override
 	public ModelSpec spec() {
-		return stateAtLeast(ModelState.Realized);
+		return stateAtLeast(ModelState.Finalized);
 	}
 
 	@Override
 	public ModelRegistration newEntityMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(ModelState.Realized).build();
+		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(ModelState.Finalized).build();
 	}
 
 	@Override
 	public ModelRegistration newEntityNotMatchingSpec() {
-		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(ModelState.Created).build();
+		return builder().withComponent(tag(ConfigurableTag.class)).withComponent(ModelState.Realized).build();
 	}
 }

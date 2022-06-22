@@ -25,7 +25,6 @@ import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.BindManagedProjectionService;
 import dev.nokee.model.internal.core.Bits;
 import dev.nokee.model.internal.core.DescendantNodes;
-import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -33,7 +32,6 @@ import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelElement;
-import dev.nokee.model.internal.core.ModelEntityId;
 import dev.nokee.model.internal.core.ModelIdentifier;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeListener;
@@ -46,18 +44,15 @@ import dev.nokee.model.internal.core.ModelSpec;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.RelativeRegistrationService;
 import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 public final class DefaultModelRegistry implements ModelRegistry, ModelConfigurer, ModelLookup {
 	private final Instantiator instantiator;
@@ -74,50 +69,46 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		this.instantiator = instantiator;
 		this.elementFactory = new ModelElementFactory(instantiator);
 		this.bindingService = new BindManagedProjectionService(instantiator);
-		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-			private final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
-
-			@Override
-			public void execute(ModelNode node, ModelPathComponent path, ModelState state) {
-				if (state.isAtLeast(ModelState.Created) && alreadyExecuted.add(node.getId())) {
-					if (!path.get().equals(ModelPath.root()) && (!path.get().getParent().isPresent() || !nodes.containsKey(path.get().getParent().get()))) {
-						throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path.get()));
-					}
-
-					node.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
-					node.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
-					node.addComponent(new BindManagedProjectionService(instantiator));
-					if (!node.has(ElementNameComponent.class)) {
-						node.addComponent(new ElementNameComponent(path.get().getName()));
-					}
-					path.get().getParent().ifPresent(parentPath -> {
-						node.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
-					});
-					if (!node.has(DisplayNameComponent.class)) {
-						node.addComponent(new DisplayNameComponent(path.get().toString()));
-					}
-				}
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+			if (!path.get().equals(ModelPath.root()) && (!path.get().getParent().isPresent() || !nodes.containsKey(path.get().getParent().get()))) {
+				throw new IllegalArgumentException(String.format("Model %s has to be direct descendant", path.get()));
 			}
 		}));
-		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.class), new ModelActionWithInputs.A2<ModelPathComponent, ModelState>() {
-			public final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
-
-			@Override
-			public void execute(ModelNode node, ModelPathComponent path, ModelState state) {
-				if (state.isAtLeast(ModelState.Registered) && alreadyExecuted.add(node.getId())) {
-					assert !nodes.values().contains(node) : "duplicated registered notification";
-					nodes.put(path.get(), node);
-				}
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+			entity.addComponent(new DescendantNodes(DefaultModelRegistry.this, path.get()));
+		}));
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+			if (!entity.has(ParentComponent.class) && !path.get().equals(ModelPath.root())) {
+				path.get().getParent().ifPresent(parentPath -> {
+					entity.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
+				});
 			}
+		}));
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (entity, path) -> {
+			if (!entity.has(ElementNameComponent.class) && !path.get().equals(ModelPath.root())) {
+				entity.addComponent(new ElementNameComponent(path.get().getName()));
+			}
+		}));
+		configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), (node, path) -> {
+			assert !nodes.values().contains(node) : "duplicated registered notification";
+			nodes.put(path.get(), node);
 		}));
 		rootNode = ModelStates.register(createRootNode());
 	}
 
+	private ModelNode newEntity() {
+		val entity = new ModelNode();
+		entity.addComponent(elementFactory);
+		entity.addComponent(new RelativeRegistrationService(DefaultModelRegistry.this));
+		entity.addComponent(new BindManagedProjectionService(instantiator));
+		entity.addComponent(new ModelNodeListenerComponent(nodeStateListener));
+		entities.add(entity);
+		return entity;
+	}
+
 	private ModelNode createRootNode() {
 		val path = ModelPath.root();
-		val entity = new ModelNode();
-		entities.add(entity);
-		entity.addComponent(new ModelNodeListenerComponent(nodeStateListener));
+		val entity = newEntity();
 		entity.addComponent(new ModelPathComponent(path));
 		return entity;
 	}
@@ -133,8 +124,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public ModelNode instantiate(ModelRegistration registration) {
-		val node = new ModelNode(nodeStateListener);
-		entities.add(node);
+		val node = newEntity();
 		return newNode(node, registration);
 	}
 
@@ -144,7 +134,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 	}
 
 	private ModelNode newNode(ModelNode entity, ModelRegistration registration) {
-		entity.addComponent(elementFactory);
 		for (Object component : registration.getComponents()) {
 			if (component instanceof ModelProjection) {
 				entity.addComponent(bindingService.bindManagedProjectionWithInstantiator((ModelProjection) component));
@@ -172,8 +161,7 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 
 	@Override
 	public Result query(ModelSpec spec) {
-		val result = entities.stream().filter(spec::isSatisfiedBy).collect(ImmutableList.toImmutableList());
-		return new ModelLookupDefaultResult(result);
+		return new ModelLookupReactiveResult(entities, spec::isSatisfiedBy);
 	}
 
 	@Override

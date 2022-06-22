@@ -21,6 +21,7 @@ import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelSpec;
+import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -121,6 +122,11 @@ public final class ModelNodeBackedViewStrategy implements ViewAdapter.Strategy {
 					return ((MapProperty<String, Object>) entity.get(GradlePropertyComponent.class).get()).getting(name);
 				}))
 			.build());
+	}
+
+	@Override
+	public String toString() {
+		return entity.get(DisplayNameComponent.class).get().toString();
 	}
 
 	private static final class RunOnceRunnable implements Runnable {

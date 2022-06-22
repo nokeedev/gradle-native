@@ -63,7 +63,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().add("__nokee_defaultCppSourceSet", new DefaultCppSourceSetRegistrationFactory(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(CppSourceSetTag.class))).findFirst().ifPresent(ignored -> {
-				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultCppSourceSetRegistrationFactory.class).create(identifier.get()));
+				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder().withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(DefaultCppSourceSetRegistrationFactory.class).create(identifier.get())).build());
 				entity.addComponent(new CppSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));

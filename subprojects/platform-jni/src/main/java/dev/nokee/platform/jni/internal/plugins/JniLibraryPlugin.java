@@ -25,8 +25,11 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguagePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguagePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -40,13 +43,16 @@ import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.plugins.NativeBasePlugin;
@@ -60,6 +66,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import static dev.nokee.model.internal.core.ModelPath.path;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.CURRENT_MODEL_PLUGIN_IDS;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_APPLICATION_PLUGIN_ID;
 import static dev.nokee.platform.jni.internal.plugins.JniLibraryPlugin.IncompatiblePluginsAdvice.JAVA_LIBRARY_PLUGIN_ID;
@@ -181,6 +188,20 @@ public class JniLibraryPlugin implements Plugin<Project> {
 	}
 
 	private void configureJavaJniRuntime(Project project, JavaNativeInterfaceLibrary library) {
+		project.getExtensions().getByType(SourceSetContainer.class).named("main", sourceSet -> {
+			project.getTasks().named(sourceSet.getCompileJavaTaskName(), new Action<Task>() {
+				@Override
+				public void execute(Task task) {
+					realize(path("main.java.compile"));
+				}
+
+				private void realize(ModelPath path) {
+					path.getParent().ifPresent(this::realize);
+					ModelStates.realize(project.getExtensions().getByType(ModelLookup.class).get(path));
+				}
+			});
+		});
+
 		project.getTasks().named("test", Test.class, task -> {
 			task.dependsOn((Callable<Iterable<File>>)() -> {
 				val variant = library.getDevelopmentVariant().getOrNull();

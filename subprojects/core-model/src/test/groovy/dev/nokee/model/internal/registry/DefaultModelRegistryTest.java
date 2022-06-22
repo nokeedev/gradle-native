@@ -111,23 +111,6 @@ public class DefaultModelRegistryTest {
 		}
 
 		@Test
-		void failsLookupForInitializedNode() {
-			val action = Mockito.mock(ModelAction.class);
-			doAnswer(invocation -> {
-				assertEquals(path("foo"), ModelNodeUtils.getPath(invocation.getArgument(0, ModelNode.class)));
-				assertThrows(IllegalArgumentException.class, () -> modelLookup.get(path("foo")));
-				return null;
-			}).when(action).execute(any());
-			subject.configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.class), (node, state) -> {
-				if (state.equals(ModelState.Initialized)) {
-					action.execute(node);
-				}
-			}));
-			register("foo");
-			verify(action, times(1)).execute(any());
-		}
-
-		@Test
 		void succeedLookupForRegisteredNode() {
 			val action = Mockito.mock(ModelAction.class);
 			doAnswer(invocation -> {

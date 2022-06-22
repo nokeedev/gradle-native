@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal.plugins;
+package dev.nokee.platform.jni.internal;
 
-import dev.nokee.model.internal.DomainObjectIdentifierUtils;
-import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelPathComponent;
+import dev.nokee.platform.base.internal.dependencybuckets.LinkedConfiguration;
 
-final class GenerateModelPathFromIdentifier extends ModelActionWithInputs.ModelAction1<IdentifierComponent> {
+public final class JvmImplementationConfigurationComponent implements ModelComponent, LinkedConfiguration {
+	private final ModelNode value;
+
+	public JvmImplementationConfigurationComponent(ModelNode value) {
+		this.value = value;
+	}
+
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier) {
-		if (!entity.has(ModelPathComponent.class)) {
-			entity.addComponent(new ModelPathComponent(DomainObjectIdentifierUtils.toPath(identifier.get())));
-		}
+	public ModelNode get() {
+		return value;
 	}
 }

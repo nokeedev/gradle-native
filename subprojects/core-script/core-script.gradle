@@ -6,6 +6,8 @@ plugins {
 }
 
 dependencies {
+	implementation "com.google.guava:guava:${guavaVersion}"
+
 	testImplementation gradleApi(minimumGradleVersion)
 
 	testFixturesApi gradleApi(minimumGradleVersion)

@@ -27,6 +27,7 @@ import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.attributes.HasConfigurableAttributes;
 import org.gradle.api.attributes.Usage;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -469,5 +470,9 @@ public final class ConfigurationUtils {
 	public static BiConsumer<Configuration, DependencySet> add(Function<? super Configuration, ? extends Dependency> mapper) {
 		requireNonNull(mapper);
 		return (configuration, dependencies) -> dependencies.add(mapper.apply(configuration));
+	}
+
+	public static ActionUtils.Action<Configuration> beforeLocking(Action<? super Configuration> action) {
+		return configuration -> ((ConfigurationInternal) configuration).beforeLocking(action);
 	}
 }

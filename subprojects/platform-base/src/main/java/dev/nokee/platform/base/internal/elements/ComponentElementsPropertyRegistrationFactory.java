@@ -20,8 +20,10 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.ViewConfigurationBaseComponent;
+import lombok.val;
 
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -35,6 +37,7 @@ public final class ComponentElementsPropertyRegistrationFactory {
 	public static final class Builder {
 		private ModelNode baseEntity;
 		private ModelType<?> elementType;
+		private Class<? extends ModelTag> discoverableTag;
 
 		public Builder baseRef(ModelNode baseEntity) {
 			this.baseEntity = baseEntity;
@@ -46,15 +49,25 @@ public final class ComponentElementsPropertyRegistrationFactory {
 			return this;
 		}
 
+		public Builder discoverEntityWithTag(Class<? extends ModelTag> discoverableTag) {
+			this.discoverableTag = discoverableTag;
+			return this;
+		}
+
 		public ModelRegistration build() {
-			return ModelRegistration.builder()
+			val result = ModelRegistration.builder()
 				.withComponent(tag(ModelPropertyTag.class))
 				.withComponent(tag(ConfigurableTag.class))
 				.withComponent(tag(ComponentElementsTag.class))
 				.withComponent(new ViewConfigurationBaseComponent(baseEntity))
 				.withComponent(new ComponentElementTypeComponent(elementType))
-				.withComponent(new ModelPropertyTypeComponent(map(of(String.class), elementType)))
-				.build();
+				.withComponent(new ModelPropertyTypeComponent(map(of(String.class), elementType)));
+
+			if (discoverableTag != null) {
+				result.withComponent(new ComponentElementsDiscoveryTagComponent(discoverableTag));
+			}
+
+			return result.build();
 		}
 	}
 }

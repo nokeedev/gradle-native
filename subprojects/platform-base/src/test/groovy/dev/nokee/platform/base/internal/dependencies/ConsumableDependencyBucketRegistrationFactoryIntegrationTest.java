@@ -23,7 +23,6 @@ import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -41,7 +40,12 @@ import org.mockito.Mockito;
 
 import java.io.File;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.*;
+import static dev.nokee.internal.testing.ConfigurationMatchers.dependencies;
+import static dev.nokee.internal.testing.ConfigurationMatchers.description;
+import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
+import static dev.nokee.internal.testing.ConfigurationMatchers.hasConfiguration;
+import static dev.nokee.internal.testing.ConfigurationMatchers.hasPublishArtifact;
+import static dev.nokee.internal.testing.ConfigurationMatchers.ofFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.ProjectMatchers.extensions;
@@ -53,8 +57,15 @@ import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.gradle.api.reflect.TypeOf.typeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
 class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends AbstractPluginTest {
@@ -165,13 +176,13 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 
 		@Test
 		void doesNotRealizeNodeWhenConfigurationIsRealized() {
-			assertFalse(ModelStates.getState(ModelNodes.of(element)).isAtLeast(ModelState.Realized));
+			assertFalse(ModelNodes.of(element).has(ModelState.IsAtLeastRealized.class));
 		}
 
 		@Test
 		void realizeNodeWhenConfigurationIsResolved() {
 			((ConfigurationInternal) subject()).preventFromFurtherMutation();
-			assertTrue(ModelStates.getState(ModelNodes.of(element)).isAtLeast(ModelState.Realized));
+			assertTrue(ModelNodes.of(element).has(ModelState.IsAtLeastRealized.class));
 		}
 	}
 

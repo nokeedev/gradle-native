@@ -25,7 +25,9 @@ import static dev.nokee.model.internal.core.ModelNodes.stateAtLeast;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModelNodes_StateAtLeastTest {
 	@Test
@@ -38,19 +40,8 @@ public class ModelNodes_StateAtLeastTest {
 	void checkEquals() {
 		new EqualsTester()
 			.addEqualityGroup(stateAtLeast(ModelState.Registered), stateAtLeast(ModelState.Registered))
-			.addEqualityGroup(stateAtLeast(ModelState.Initialized))
 			.addEqualityGroup(stateAtLeast(ModelState.Realized))
 			.testEquals();
-	}
-
-	@Test
-	void canCreatePredicateFilterForModelNodeByStateAtLeastInitialized() {
-		val predicate = stateAtLeast(ModelState.Initialized);
-		assertAll(() -> {
-			assertTrue(predicate.test(node()));
-			assertTrue(predicate.test(ModelStates.register(node())));
-			assertTrue(predicate.test(ModelStates.realize(node())));
-		});
 	}
 
 	@Test
