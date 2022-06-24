@@ -19,6 +19,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
@@ -35,6 +36,7 @@ public final class ComponentTasksPropertyRegistrationFactory {
 	public ModelRegistration create(String elementName, ModelNode owner, Class<? extends Task> elementType) {
 		return ModelRegistration.builder()
 			.withComponent(new ElementNameComponent(elementName))
+			.withComponent(new ParentComponent(owner))
 			.mergeFrom(factory.newProperty().baseRef(owner).elementType(of(elementType)).build())
 			.withComponent(createdUsing(of(TaskView.class), () -> new TaskViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), ModelType.of(new TypeOf<ViewAdapter<Task>>() {})))))
 			.build();

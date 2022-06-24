@@ -16,15 +16,20 @@
 package dev.nokee.language.swift.internal.plugins;
 
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
+@DomainObjectEntities.Tag({SwiftSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public class SwiftSourceSetSpec implements SwiftSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn, HasNativeCompileTaskMixIn<SwiftCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {
@@ -40,4 +45,6 @@ public class SwiftSourceSetSpec implements SwiftSourceSet, HasPublicType, ModelB
 	public String toString() {
 		return "Swift sources '" + getName() + "'";
 	}
+
+	public interface Tag extends ModelTag {}
 }

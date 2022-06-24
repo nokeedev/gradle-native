@@ -17,12 +17,17 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.model.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.model.internal.tags.ModelTag;
 import org.gradle.api.tasks.TaskProvider;
 
+@DomainObjectEntities.Tag(HasNativeCompileTaskMixIn.Tag.class)
 public interface HasNativeCompileTaskMixIn<T extends SourceCompile> extends HasCompileTask {
 	@SuppressWarnings("unchecked") // IntelliJ is incompetent
 	default TaskProvider<T> getCompileTask() {
 		return (TaskProvider<T>) ModelElements.of(this, NativeCompileTask.class).as(SourceCompile.class).asProvider();
 	}
+
+	interface Tag extends ModelTag {}
 }

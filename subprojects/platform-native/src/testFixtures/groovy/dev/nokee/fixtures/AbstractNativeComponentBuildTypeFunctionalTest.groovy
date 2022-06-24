@@ -15,9 +15,9 @@
  */
 package dev.nokee.fixtures
 
+import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.gradleplugins.fixtures.sources.SourceElement
 import spock.lang.Ignore
 
 abstract class AbstractNativeComponentBuildTypeFunctionalTest extends AbstractInstalledToolChainIntegrationSpec {

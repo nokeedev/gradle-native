@@ -27,7 +27,5 @@ public class CHeaderLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
 
 		DefaultImporter.forProject(project).defaultImport(CHeaderSet.class);
-
-		project.getExtensions().add("__nokee_cHeaderSetFactory", new CHeaderSetRegistrationFactory());
 	}
 }

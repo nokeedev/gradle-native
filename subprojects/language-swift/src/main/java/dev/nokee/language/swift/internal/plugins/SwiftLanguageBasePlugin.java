@@ -15,17 +15,17 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
+import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -54,31 +54,27 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		project.getExtensions().add("__nokee_swiftSourceSetFactory", new SwiftSourceSetRegistrationFactory());
-
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new ImportModulesConfigurationRegistrationAction(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachImportModulesToCompileTaskRule(project.getExtensions().getByType(ModelRegistry.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new SwiftCompileTaskDefaultConfigurationRule(project.getExtensions().getByType(ModelRegistry.class)));
 
-		project.getExtensions().add("__nokee_defaultSwiftFactory", new DefaultSwiftSourceSetRegistrationFactory(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class)));
+		val registrationFactory = new DefaultSwiftSourceSetRegistrationFactory();
+		project.getExtensions().add("__nokee_defaultSwiftFactory", registrationFactory);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(SwiftSourceSetSpec.Tag.class), (entity, ignored) -> {
+			entity.addComponent(new NativeCompileTypeComponent(SwiftCompileTask.class));
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SwiftSourceSetTag.class))).findFirst().ifPresent(ignored -> {
-				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultSwiftSourceSetRegistrationFactory.class).create(identifier.get()));
+				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultSwiftSourceSetRegistrationFactory.class).create(entity));
 				entity.addComponent(new SwiftSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));
 	}
 
 	static final class DefaultSwiftSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
-		private final SwiftSourceSetRegistrationFactory factory;
-
-		private DefaultSwiftSourceSetRegistrationFactory(SwiftSourceSetRegistrationFactory factory) {
-			this.factory = factory;
-		}
-
 		@Override
-		public ModelRegistration create(DomainObjectIdentifier owner) {
-			return ModelRegistration.builder().mergeFrom(factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("swift", "Swift sources")))).withComponent(new DisplayNameComponent("Swift sources")).build();
+		public ModelRegistration create(ModelNode owner) {
+			return DomainObjectEntities.newEntity("swift", SwiftSourceSetSpec.class).ownedBy(owner).displayName("Swift sources").build();
 		}
 	}
 }

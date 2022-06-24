@@ -39,26 +39,27 @@ import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
 import java.io.File;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
-public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction2<ModelProjection, ModelComponentTag<IsLanguageSourceSet>> {
+public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction2<ModelComponentTag<HasConfigurableHeadersMixIn.Tag>, ModelComponentTag<IsLanguageSourceSet>> {
 	private final ModelRegistry registry;
 	private final SourceSetFactory sourceSetFactory;
 	private final ObjectFactory objects;
 
 	HasConfigurableHeadersMixInRule(ModelRegistry registry, SourceSetFactory sourceSetFactory, ObjectFactory objects) {
-		super(ModelComponentReference.ofProjection(HasConfigurableHeadersMixIn.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
+		super(ModelTags.referenceOf(HasConfigurableHeadersMixIn.Tag.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.sourceSetFactory = sourceSetFactory;
 		this.objects = objects;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, ModelProjection knownObject, ModelComponentTag<IsLanguageSourceSet> ignored) {
+	protected void execute(ModelNode entity, ModelComponentTag<HasConfigurableHeadersMixIn.Tag> ignored1, ModelComponentTag<IsLanguageSourceSet> ignored2) {
 		val element = registry.register(ModelRegistration.builder()
 			.withComponent(new ElementNameComponent("headers"))
 			.withComponent(new ParentComponent(entity))
@@ -71,7 +72,7 @@ public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs
 			}))
 			.build());
 		entity.addComponent(new HasConfigurableHeadersPropertyComponent(ModelNodes.of(element)));
-		entity.addComponent(new ProjectHeaderSearchPaths(element.as(SourceSet.class).flatMap(elementsOf(SourceSet::getSourceDirectories))));
+		entity.addComponent(new ProjectHeaderSearchPaths(objects.fileCollection().from((Callable<?>) () -> element.as(SourceSet.class).get().getSourceDirectories())));
 	}
 
 }

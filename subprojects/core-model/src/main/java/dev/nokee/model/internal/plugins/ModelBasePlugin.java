@@ -18,35 +18,20 @@ package dev.nokee.model.internal.plugins;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.ancestors.AncestryCapabilityPlugin;
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
-import dev.nokee.model.internal.core.ModelPropertyTag;
-import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.names.NamesCapabilityPlugin;
 import dev.nokee.model.internal.properties.ModelPropertiesCapabilityPlugin;
 import dev.nokee.model.internal.registry.DefaultModelRegistry;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.tasks.ModelReportTask;
 import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public class ModelBasePlugin implements Plugin<Project> {
 	@Override

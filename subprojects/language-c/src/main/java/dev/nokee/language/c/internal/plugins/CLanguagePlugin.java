@@ -15,32 +15,24 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.c.internal.CSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
-import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.core.DisplayNameComponent;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -55,7 +47,7 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 		modelConfigurer.configure(matching(discoveringInstanceOf(CSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().get(IdentifierComponent.class).get(), "c"), true));
+			registry.register(newEntity("c", LegacyCSourceSet.class).build());
 		}))));
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(CSourceSetTag.class));
 	}

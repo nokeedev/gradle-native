@@ -16,15 +16,14 @@
 package dev.nokee.language.cpp;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.LanguageSourceSetLegacyTester;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
+import dev.nokee.language.cpp.internal.plugins.LegacyCppSourceSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 
 class CppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<CppSourceSet> {
 	@Override
@@ -32,8 +31,7 @@ class CppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<CppSourceSet>
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply("dev.nokee.cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val factory = project.getExtensions().getByType(CppSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), true)).as(CppSourceSet.class).get();
+		return registry.register(newEntity("test", LegacyCppSourceSet.class).build()).as(CppSourceSet.class).get();
 	}
 
 	@Override
@@ -41,7 +39,6 @@ class CppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<CppSourceSet>
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
 		project.getPluginManager().apply("dev.nokee.cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val factory = project.getExtensions().getByType(CppSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), true)).as(CppSourceSet.class).get();
+		return registry.register(newEntity("test", LegacyCppSourceSet.class).build()).as(CppSourceSet.class).get();
 	}
 }

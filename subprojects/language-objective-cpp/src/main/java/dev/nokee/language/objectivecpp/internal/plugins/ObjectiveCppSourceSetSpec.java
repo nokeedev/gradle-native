@@ -16,16 +16,21 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
+import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
+@DomainObjectEntities.Tag({ObjectiveCppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public class ObjectiveCppSourceSetSpec implements ObjectiveCppSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<ObjectiveCppCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {
@@ -41,4 +46,6 @@ public class ObjectiveCppSourceSetSpec implements ObjectiveCppSourceSet, HasPubl
 	public String toString() {
 		return "Objective-C++ sources '" + getName() + "'";
 	}
+
+	public interface Tag extends ModelTag {}
 }

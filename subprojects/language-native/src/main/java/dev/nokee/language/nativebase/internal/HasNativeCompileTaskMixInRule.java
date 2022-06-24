@@ -56,20 +56,20 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<NativeCompileTypeComponent, IdentifierComponent, ModelComponentTag<IsLanguageSourceSet>> {
+public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<NativeCompileTypeComponent, IdentifierComponent, ModelComponentTag<HasNativeCompileTaskMixIn.Tag>> {
 	private final ModelRegistry registry;
 	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.of(NativeCompileTypeComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
+		super(ModelComponentReference.of(NativeCompileTypeComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(HasNativeCompileTaskMixIn.Tag.class));
 		this.registry = registry;
 		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, ModelComponentTag<IsLanguageSourceSet> ignored) {
+	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, ModelComponentTag<HasNativeCompileTaskMixIn.Tag> ignored) {
 		val implementationType = knownObject.getNativeCompileTaskType();
 
 		val compileTask = ModelNodes.of(registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, identifier.get()), implementationType).build()));

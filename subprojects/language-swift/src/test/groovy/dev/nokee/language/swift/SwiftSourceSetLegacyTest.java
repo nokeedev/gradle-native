@@ -16,15 +16,14 @@
 package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.LanguageSourceSetLegacyTester;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
+import dev.nokee.language.swift.internal.plugins.LegacySwiftSourceSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 
 class SwiftSourceSetLegacyTest extends LanguageSourceSetLegacyTester<SwiftSourceSet> {
 	@Override
@@ -32,8 +31,7 @@ class SwiftSourceSetLegacyTest extends LanguageSourceSetLegacyTester<SwiftSource
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply("dev.nokee.swift-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val factory = project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), true)).as(SwiftSourceSet.class).get();
+		return registry.register(newEntity("test", LegacySwiftSourceSet.class).build()).as(SwiftSourceSet.class).get();
 	}
 
 	@Override
@@ -41,7 +39,6 @@ class SwiftSourceSetLegacyTest extends LanguageSourceSetLegacyTester<SwiftSource
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
 		project.getPluginManager().apply("dev.nokee.swift-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val factory = project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), true)).as(SwiftSourceSet.class).get();
+		return registry.register(newEntity("test", LegacySwiftSourceSet.class).build()).as(SwiftSourceSet.class).get();
 	}
 }

@@ -19,15 +19,16 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.testers.*;
+import dev.nokee.language.base.testers.HasCompileTaskTester;
+import dev.nokee.language.base.testers.HasConfigurableSourceTester;
+import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableCompileTaskIntegrationTester;
+import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableSourceIntegrationTester;
+import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
 import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.SwiftCompile;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
 import lombok.val;
@@ -47,10 +48,16 @@ import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createDependency;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
-import static dev.nokee.utils.ConfigurationUtils.*;
+import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
+import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
+import static dev.nokee.utils.ConfigurationUtils.forUsage;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInRelativeOrder;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
 class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSourceSetTester
@@ -65,7 +72,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	@Subject DomainObjectProvider<SwiftSourceSetSpec> subject;
 
 	DomainObjectProvider<SwiftSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "riku"))).as(SwiftSourceSetSpec.class);
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("riku", SwiftSourceSetSpec.class).build()).as(SwiftSourceSetSpec.class);
 	}
 
 	@BeforeEach

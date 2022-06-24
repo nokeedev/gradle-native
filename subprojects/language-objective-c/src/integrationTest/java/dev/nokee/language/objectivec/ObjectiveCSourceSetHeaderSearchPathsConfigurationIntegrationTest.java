@@ -19,15 +19,15 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
-import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
+import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
@@ -37,7 +37,7 @@ class ObjectiveCSourceSetHeaderSearchPathsConfigurationIntegrationTest extends A
 	@Subject Configuration subject;
 
 	Configuration createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "xuqo"))).element("headerSearchPaths", Configuration.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("xuqo", ObjectiveCSourceSetSpec.class).build()).element("headerSearchPaths", Configuration.class).get();
 	}
 
 	@Test
