@@ -16,15 +16,14 @@
 package dev.nokee.language.objectivecpp;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.testers.LanguageSourceSetLegacyTester;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetRegistrationFactory;
+import dev.nokee.language.objectivecpp.internal.plugins.LegacyObjectiveCppSourceSet;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 
 class ObjectiveCppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<ObjectiveCppSourceSet> {
 	@Override
@@ -32,8 +31,7 @@ class ObjectiveCppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<Obje
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply("dev.nokee.objective-cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val factory = project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), true)).as(ObjectiveCppSourceSet.class).get();
+		return registry.register(newEntity("test", LegacyObjectiveCppSourceSet.class).build()).as(ObjectiveCppSourceSet.class).get();
 	}
 
 	@Override
@@ -41,7 +39,6 @@ class ObjectiveCppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<Obje
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
 		project.getPluginManager().apply("dev.nokee.objective-cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		val factory = project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class);
-		return registry.register(factory.create(LanguageSourceSetIdentifier.of(ofRootProject(), "test"), true)).as(ObjectiveCppSourceSet.class).get();
+		return registry.register(newEntity("test", LegacyObjectiveCppSourceSet.class).build()).as(ObjectiveCppSourceSet.class).get();
 	}
 }

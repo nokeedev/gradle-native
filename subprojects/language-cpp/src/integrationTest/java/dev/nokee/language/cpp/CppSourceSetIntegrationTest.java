@@ -18,14 +18,20 @@ package dev.nokee.language.cpp;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.testers.*;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory;
+import dev.nokee.language.base.testers.HasCompileTaskTester;
+import dev.nokee.language.base.testers.HasConfigurableSourceTester;
+import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableCompileTaskIntegrationTester;
+import dev.nokee.language.base.testers.LanguageSourceSetHasBuildableSourceIntegrationTester;
+import dev.nokee.language.base.testers.LanguageSourceSetTester;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.cpp.tasks.CppCompile;
-import dev.nokee.language.nativebase.*;
+import dev.nokee.language.nativebase.HasConfigurableHeadersTester;
+import dev.nokee.language.nativebase.LanguageSourceSetHasBuildableHeadersIntegrationTester;
+import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledHeaderSearchPathsIntegrationTester;
+import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledHeadersIntegrationTester;
+import dev.nokee.language.nativebase.LanguageSourceSetHasCompiledSourceIntegrationTester;
+import dev.nokee.language.nativebase.LanguageSourceSetNativeCompileTaskIntegrationTester;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.testers.HasPublicTypeTester;
 import org.gradle.api.artifacts.Configuration;
@@ -34,6 +40,7 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 
@@ -54,7 +61,7 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 	@Subject DomainObjectProvider<CppSourceSetSpec> subject;
 
 	DomainObjectProvider<CppSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "zomi"))).as(CppSourceSetSpec.class);
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("zomi", CppSourceSetSpec.class).build()).as(CppSourceSetSpec.class);
 	}
 
 	@Override

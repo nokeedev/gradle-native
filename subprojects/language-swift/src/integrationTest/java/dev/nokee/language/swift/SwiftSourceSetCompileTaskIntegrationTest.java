@@ -19,12 +19,10 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.language.swift.SwiftVersion;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
@@ -33,13 +31,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.*;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.parentFile;
+import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasItem;
 
 @PluginRequirement.Require(id = "dev.nokee.swift-language-base")
 class SwiftSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implements SwiftCompileTester
@@ -55,7 +58,7 @@ class SwiftSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implem
 
 	SwiftCompileTask createSubject() {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "rubi"))).element("compile", SwiftCompileTask.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("rubi", SwiftSourceSetSpec.class).build()).element("compile", SwiftCompileTask.class).get();
 	}
 
 	@BeforeEach

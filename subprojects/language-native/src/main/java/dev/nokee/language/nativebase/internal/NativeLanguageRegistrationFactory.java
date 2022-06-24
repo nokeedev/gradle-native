@@ -15,9 +15,9 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
 
 public interface NativeLanguageRegistrationFactory {
-	ModelRegistration create(DomainObjectIdentifier owner);
+	ModelRegistration create(ModelNode owner);
 }

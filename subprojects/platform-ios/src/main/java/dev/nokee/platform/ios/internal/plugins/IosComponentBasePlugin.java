@@ -16,12 +16,11 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.language.c.internal.plugins.DefaultCHeaderSet;
+import dev.nokee.language.objectivec.internal.plugins.LegacyObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory;
+import dev.nokee.language.swift.internal.plugins.LegacySwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
@@ -67,7 +66,7 @@ import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationVariant;
 import dev.nokee.platform.ios.internal.IosApplicationComponentTag;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
-import dev.nokee.platform.ios.internal.IosResourceSetRegistrationFactory;
+import dev.nokee.platform.ios.internal.IosResourceSetSpec;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyComponent;
@@ -94,6 +93,7 @@ import org.gradle.api.provider.SetProperty;
 
 import java.util.Collections;
 
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
@@ -118,12 +118,12 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
-				registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "objectiveC"), true));
-				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "headers")));
+				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class).ownedBy(entity).build());
+				registry.register(newEntity("headers", DefaultCHeaderSet.class).ownedBy(entity).build());
 			} else if (entity.hasComponent(typeOf(SwiftSourceSetTag.class))) {
-				registry.register(project.getExtensions().getByType(SwiftSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "swift"), true));
+				registry.register(newEntity("swift", LegacySwiftSourceSet.class).ownedBy(entity).build());
 			}
-			registry.register(project.getExtensions().getByType(IosResourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "resources")));
+			registry.register(newEntity("resources", IosResourceSetSpec.class).ownedBy(entity).build());
 
 			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 

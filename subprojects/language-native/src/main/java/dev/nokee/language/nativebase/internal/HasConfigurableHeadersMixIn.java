@@ -16,10 +16,15 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.ConfigurableSourceSet;
+import dev.nokee.model.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.model.internal.tags.ModelTag;
 
+@DomainObjectEntities.Tag(HasConfigurableHeadersMixIn.Tag.class)
 public interface HasConfigurableHeadersMixIn extends HasConfigurableHeaders {
 	default ConfigurableSourceSet getHeaders() {
 		return ModelElements.of(this, HasConfigurableHeadersPropertyComponent.class).as(ConfigurableSourceSet.class).get();
 	}
+
+	interface Tag extends ModelTag {}
 }

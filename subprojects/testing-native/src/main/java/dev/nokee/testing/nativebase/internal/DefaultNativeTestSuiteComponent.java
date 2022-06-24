@@ -17,7 +17,6 @@ package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -31,7 +30,6 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -102,6 +100,7 @@ import java.util.concurrent.Callable;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
@@ -246,7 +245,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 			}));
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			instantiate(component.getNode(), ModelAction.whenElementKnown(ModelSpec.descendantOf(component.getNode().getId()), LanguageSourceSet.class, knownSourceSet -> {
+			registry.instantiate(ModelAction.whenElementKnown(ModelSpec.descendantOf(component.getNode().getId()), LanguageSourceSet.class, knownSourceSet -> {
 				// TODO: should have a way to report the public type of the "main" projection
 				//   The known and provider should use the public type of the projection... instead of the "assumed type"
 				//   BUT should it... seems a bit hacky... check what Software Model did.
@@ -257,9 +256,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 					val identifier = getNode().get(IdentifierComponent.class).get();
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, "headers"), sourceSetType).build());
+						registry.register(newEntity("headers", sourceSetType).ownedBy(getNode()).build());
 					} else {
-						registry.register(ModelRegistration.managedBuilder(LanguageSourceSetIdentifier.of(identifier, ((HasName) knownSourceSet.getIdentifier()).getName().toString()), sourceSetType).build());
+						registry.register(newEntity(((HasName) knownSourceSet.getIdentifier()).getName().toString(), sourceSetType).ownedBy(getNode()).build());
 					}
 				}
 			}));

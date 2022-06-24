@@ -16,9 +16,9 @@
 package dev.nokee.language.cpp
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetRegistrationFactory
+import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
+import dev.nokee.model.internal.DomainObjectEntities
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp
@@ -34,17 +34,16 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 				id 'dev.nokee.native-runtime-base'
 			}
 
-			import ${CppSourceSetRegistrationFactory.canonicalName}
-			import ${LanguageSourceSetIdentifier.canonicalName}
+			import ${DomainObjectEntities.canonicalName}
 			import ${ProjectIdentifier.canonicalName}
 			import ${NativePlatformFactory.canonicalName}
 			import ${TargetMachines.canonicalName}
 			import ${CppSourceSet.canonicalName}
+			import ${CppSourceSetSpec.canonicalName}
 			import ${ModelRegistry.canonicalName}
 
 			def registry = extensions.getByType(ModelRegistry)
-			def identifier = LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "qise")
-			def sourceSet = registry.register(extensions.getByType(CppSourceSetRegistrationFactory).create(identifier)).as(CppSourceSet).get()
+			def sourceSet = registry.register(DomainObjectEntities.newEntity("qise", CppSourceSetSpec).build()).as(CppSourceSet).get()
 			tasks.compileQise.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

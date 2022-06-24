@@ -15,24 +15,16 @@
  */
 package dev.nokee.language.nativebase.internal;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.internal.core.ModelComponent;
-import org.gradle.api.file.FileSystemLocation;
-import org.gradle.api.provider.Provider;
+import org.gradle.api.file.FileCollection;
 
-import java.nio.file.Path;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 public final class ProjectHeaderSearchPaths implements Callable<Object>, ModelComponent {
-	private final Provider<Set<FileSystemLocation>> delegate;
+	private final FileCollection delegate;
 
-	ProjectHeaderSearchPaths(Provider<Set<FileSystemLocation>> delegate) {
+	ProjectHeaderSearchPaths(FileCollection delegate) {
 		this.delegate = delegate;
-	}
-
-	public Set<Path> get() {
-		return delegate.get().stream().map(it -> it.getAsFile().toPath()).collect(ImmutableSet.toImmutableSet());
 	}
 
 	@Override

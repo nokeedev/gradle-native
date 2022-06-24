@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.jni.internal;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import org.gradle.api.Action;
 import org.gradle.api.file.ProjectLayout;
@@ -23,17 +23,17 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.util.GradleVersion;
 
 public final class ConfigureJniHeaderDirectoryOnJavaCompileAction implements Action<JavaCompile> {
-	private final LanguageSourceSetIdentifier identifier;
+	private final DomainObjectIdentifier identifier;
 	private final ProjectLayout layout;
 
-	public ConfigureJniHeaderDirectoryOnJavaCompileAction(LanguageSourceSetIdentifier identifier, ProjectLayout layout) {
+	public ConfigureJniHeaderDirectoryOnJavaCompileAction(DomainObjectIdentifier identifier, ProjectLayout layout) {
 		this.identifier = identifier;
 		this.layout = layout;
 	}
 
 	@Override
 	public void execute(JavaCompile task) {
-		task.getOptions().getHeaderOutputDirectory().convention(layout.getBuildDirectory().dir("generated/jni-headers/" + OutputDirectoryPath.fromIdentifier(identifier.getOwnerIdentifier())));
+		task.getOptions().getHeaderOutputDirectory().convention(layout.getBuildDirectory().dir("generated/jni-headers/" + OutputDirectoryPath.fromIdentifier(identifier)));
 
 		// The nested output is not marked automatically as an output of the task regarding task dependencies.
 		// So we mark it manually here.

@@ -15,21 +15,21 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentity;
 import dev.nokee.language.c.internal.plugins.CHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
+import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.model.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -60,26 +60,23 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		// No need to register anything as ObjectiveCSourceSet are managed instance compatible,
 		//   but don't depend on this behaviour.
 
-		project.getExtensions().add("__nokee_objectiveCSourceSetFactory", new ObjectiveCSourceSetRegistrationFactory());
-		project.getExtensions().add("__nokee_defaultObjectiveCFactory", new DefaultObjectiveCSourceSetRegistrationFactory(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class)));
+		val registrationFactory = new DefaultObjectiveCSourceSetRegistrationFactory();
+		project.getExtensions().add("__nokee_defaultObjectiveCFactory", registrationFactory);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ObjectiveCSourceSetSpec.Tag.class), (entity, ignored) -> {
+			entity.addComponent(new NativeCompileTypeComponent(ObjectiveCCompileTask.class));
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
 			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(ObjectiveCSourceSetTag.class))).findFirst().ifPresent(ignored -> {
-				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultObjectiveCSourceSetRegistrationFactory.class).create(identifier.get()));
+				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(entity));
 				entity.addComponent(new ObjectiveCSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));
 	}
 
 	static final class DefaultObjectiveCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
-		private final ObjectiveCSourceSetRegistrationFactory factory;
-
-		private DefaultObjectiveCSourceSetRegistrationFactory(ObjectiveCSourceSetRegistrationFactory factory) {
-			this.factory = factory;
-		}
-
 		@Override
-		public ModelRegistration create(DomainObjectIdentifier owner) {
-			return ModelRegistration.builder().mergeFrom(factory.create(LanguageSourceSetIdentifier.of(owner, LanguageSourceSetIdentity.of("objectiveC", "Objective-C sources")))).withComponent(new DisplayNameComponent("Objective-C sources")).build();
+		public ModelRegistration create(ModelNode owner) {
+			return DomainObjectEntities.newEntity("objectiveC", ObjectiveCSourceSetSpec.class).ownedBy(owner).displayName("Objective-C sources").build();
 		}
 	}
 }

@@ -16,11 +16,12 @@
 package dev.nokee.language.jvm.internal;
 
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.JavaSourceSet;
+import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.file.SourceDirectorySet;
@@ -32,21 +33,12 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.util.PatternFilterable;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
-
 public final class JavaSourceSetRegistrationFactory {
-	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		assert identifier.getName().get().equals("java");
-		return ModelRegistration.managedBuilder(identifier, DefaultJavaSourceSet.class)
-			.withComponent(tag(JvmSourceSetTag.class))
-			.withComponent(tag(DefaultJavaSourceSet.Tag.class))
-			.build();
-	}
-
 	public static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
 		return sourceSet.getJava();
 	}
 
+	@DomainObjectEntities.Tag({DefaultJavaSourceSet.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
 	public static class DefaultJavaSourceSet implements JavaSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasConfigurableSourceMixIn {
 		public TaskProvider<JavaCompile> getCompileTask() {
 			return (TaskProvider<JavaCompile>) ModelElements.of(this).element("compile", JavaCompile.class).asProvider();

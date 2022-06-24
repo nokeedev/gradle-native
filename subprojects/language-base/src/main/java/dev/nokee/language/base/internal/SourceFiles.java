@@ -16,20 +16,15 @@
 package dev.nokee.language.base.internal;
 
 import dev.nokee.model.internal.core.ModelComponent;
-import org.gradle.api.file.FileTree;
-import org.gradle.api.provider.Provider;
+import org.gradle.api.file.FileCollection;
 
 import java.util.concurrent.Callable;
 
 public final class SourceFiles implements Callable<Object>, ModelComponent {
-	private final Provider<FileTree> delegate;
+	private final FileCollection delegate;
 
-	public SourceFiles(Provider<FileTree> delegate) {
+	public SourceFiles(FileCollection delegate) {
 		this.delegate = delegate;
-	}
-
-	public FileTree get() {
-		return delegate.get();
 	}
 
 	@Override

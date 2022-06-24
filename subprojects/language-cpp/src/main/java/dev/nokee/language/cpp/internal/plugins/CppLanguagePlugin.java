@@ -15,12 +15,10 @@
  */
 package dev.nokee.language.cpp.internal.plugins;
 
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.cpp.internal.CppSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPath;
@@ -34,6 +32,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -48,7 +47,7 @@ public class CppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin 
 		modelConfigurer.configure(matching(discoveringInstanceOf(CppSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(project.getExtensions().getByType(CppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(parentEntity.get().get(IdentifierComponent.class).get(), "cpp"), true));
+			registry.register(newEntity("cpp", LegacyCppSourceSet.class).ownedBy(entity).build());
 		}))));
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(CppSourceSetTag.class));
 	}

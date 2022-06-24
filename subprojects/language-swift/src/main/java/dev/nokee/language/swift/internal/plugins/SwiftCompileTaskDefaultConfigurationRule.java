@@ -18,7 +18,6 @@ package dev.nokee.language.swift.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.language.base.internal.LanguageSourceSetName;
 import dev.nokee.language.base.internal.SourceFiles;
 import dev.nokee.language.nativebase.internal.NativeCompileTask;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
@@ -29,6 +28,7 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
@@ -63,7 +63,7 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	@Override
 	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, NativeCompileTask compileTask, SourceFiles sourceFiles) {
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureModuleFile(convention(ofFileSystemLocationInModulesDirectory(identifier.get(), asModuleFileOfModuleName())))));
-		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureModuleName(convention(toModuleName((LanguageSourceSetName) ((HasName) identifier.get()).getName())))));
+		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureModuleName(convention(toModuleName((ElementName) ((HasName) identifier.get()).getName())))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureSourceCompatibility(set(SwiftVersion.SWIFT5))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureSources(from(sourceFiles))));
 		registry.instantiate(configure(compileTask.get().getId(), SwiftCompileTask.class, configureDebuggable(convention(false))));
@@ -111,7 +111,7 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 		return task -> action.accept(task, wrap(task.getModuleName()));
 	}
 
-	private static String toModuleName(LanguageSourceSetName name) {
+	private static String toModuleName(ElementName name) {
 		return GUtil.toCamelCase(name.toString());
 	}
 	//endregion

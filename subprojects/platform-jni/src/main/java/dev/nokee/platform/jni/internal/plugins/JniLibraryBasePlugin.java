@@ -18,7 +18,6 @@ package dev.nokee.platform.jni.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
@@ -163,6 +162,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.platformNameFor;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
@@ -263,15 +263,14 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
 
 			project.getPluginManager().withPlugin("groovy", ignored -> {
-				val sourceSet = registry.register(project.getExtensions().getByType(GroovySourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "groovy")));
+				val sourceSet = registry.register(newEntity("groovy", GroovySourceSetRegistrationFactory.DefaultGroovySourceSet.class).ownedBy(entity).build());
 				entity.addComponent(new GroovyLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("java", ignored -> {
-				val sourceSetIdentifier = LanguageSourceSetIdentifier.of(identifier.get(), "java");
-				val sourceSet = registry.register(project.getExtensions().getByType(JavaSourceSetRegistrationFactory.class).create(sourceSetIdentifier));
+				val sourceSet = registry.register(newEntity("java", JavaSourceSetRegistrationFactory.DefaultJavaSourceSet.class).ownedBy(entity).build());
 
-				sourceSet.configure(JavaSourceSet.class, it -> {
-					it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(sourceSetIdentifier, project.getLayout()));
+				sourceSet.as(JavaSourceSet.class).configure(it -> {
+					it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(identifier.get(), project.getLayout()));
 				});
 
 				entity.addComponent(new GeneratedJniHeadersComponent(project.getObjects().fileCollection().from((Callable<?>) () -> {
@@ -280,7 +279,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(new JavaLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-				val sourceSet = registry.register(project.getExtensions().getByType(KotlinSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(identifier.get(), "kotlin")));
+				val sourceSet = registry.register(newEntity("kotlin", KotlinSourceSetRegistrationFactory.DefaultKotlinSourceSet.class).ownedBy(entity).build());
 				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 
@@ -596,6 +595,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
 			// Attach generated JNI headers
+			// FIXME shoul not stream parent in a callable...
 			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
 				return ParentUtils.stream(parent).filter(it -> it.has(GeneratedJniHeadersComponent.class)).map(it -> it.get(GeneratedJniHeadersComponent.class).get()).collect(Collectors.toList());
 			});

@@ -19,15 +19,14 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetRegistrationFactory;
-import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
@@ -37,7 +36,7 @@ class ObjectiveCppSourceSetHeaderSearchPathsConfigurationIntegrationTest extends
 	@Subject Configuration subject;
 
 	Configuration createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(ObjectiveCppSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "dozo"))).element("headerSearchPaths", Configuration.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("dozo", ObjectiveCppSourceSetSpec.class).build()).element("headerSearchPaths", Configuration.class).get();
 	}
 
 	@Test

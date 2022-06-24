@@ -16,11 +16,12 @@
 package dev.nokee.language.jvm.internal;
 
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.jvm.KotlinSourceSet;
+import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.tags.ModelTag;
 import lombok.val;
 import org.gradle.api.Task;
@@ -35,17 +36,7 @@ import org.gradle.api.tasks.util.PatternFilterable;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static dev.nokee.model.internal.tags.ModelTags.tag;
-
 public final class KotlinSourceSetRegistrationFactory {
-	public ModelRegistration create(LanguageSourceSetIdentifier identifier) {
-		assert identifier.getName().get().equals("kotlin");
-		return ModelRegistration.managedBuilder(identifier, DefaultKotlinSourceSet.class)
-			.withComponent(tag(JvmSourceSetTag.class))
-			.withComponent(tag(DefaultKotlinSourceSet.Tag.class))
-			.build();
-	}
-
 	public static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
 		try {
 			val kotlinSourceSet = new DslObject(sourceSet).getConvention().getPlugins().get("kotlin");
@@ -57,6 +48,7 @@ public final class KotlinSourceSetRegistrationFactory {
 		}
 	}
 
+	@DomainObjectEntities.Tag({DefaultKotlinSourceSet.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
 	public static class DefaultKotlinSourceSet implements KotlinSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasConfigurableSourceMixIn {
 		@Override
 		public TaskProvider<? extends Task> getCompileTask() {

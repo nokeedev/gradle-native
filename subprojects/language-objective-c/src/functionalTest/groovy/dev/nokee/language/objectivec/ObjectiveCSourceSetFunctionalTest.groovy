@@ -18,9 +18,9 @@ package dev.nokee.language.objectivec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec
+import dev.nokee.model.internal.DomainObjectEntities
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCGreeterApp
@@ -40,17 +40,16 @@ class ObjectiveCSourceSetFunctionalTest extends AbstractInstalledToolChainIntegr
 				id 'dev.nokee.native-runtime-base'
 			}
 
-			import ${ObjectiveCSourceSetRegistrationFactory.canonicalName}
-			import ${LanguageSourceSetIdentifier.canonicalName}
+			import ${DomainObjectEntities.canonicalName}
 			import ${ProjectIdentifier.canonicalName}
 			import ${NativePlatformFactory.canonicalName}
 			import ${TargetMachines.canonicalName}
 			import ${ObjectiveCSourceSet.canonicalName}
+			import ${ObjectiveCSourceSetSpec.canonicalName}
 			import ${ModelRegistry.canonicalName}
 
 			def registry = extensions.getByType(ModelRegistry)
-			def identifier = LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "jure")
-			def sourceSet = registry.register(extensions.getByType(ObjectiveCSourceSetRegistrationFactory).create(identifier)).as(ObjectiveCSourceSet).get()
+			def sourceSet = registry.register(DomainObjectEntities.newEntity("jure", ObjectiveCSourceSetSpec).build()).as(ObjectiveCSourceSet).get()
 			tasks.compileJure.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

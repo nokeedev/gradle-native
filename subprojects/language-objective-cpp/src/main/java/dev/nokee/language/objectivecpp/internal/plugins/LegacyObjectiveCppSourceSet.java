@@ -16,12 +16,17 @@
 package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
+import dev.nokee.language.base.internal.IsLanguageSourceSet;
+import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
+@DomainObjectEntities.Tag({LegacySourceSetTag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public class LegacyObjectiveCppSourceSet implements ObjectiveCppSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TaskDependency getBuildDependencies() {

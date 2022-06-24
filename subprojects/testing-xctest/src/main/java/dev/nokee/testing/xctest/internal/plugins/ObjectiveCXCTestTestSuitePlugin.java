@@ -17,9 +17,8 @@ package dev.nokee.testing.xctest.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.c.internal.plugins.CHeaderSetRegistrationFactory;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetRegistrationFactory;
+import dev.nokee.language.c.internal.plugins.DefaultCHeaderSet;
+import dev.nokee.language.objectivec.internal.plugins.LegacyObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.DependencyFactory;
@@ -113,6 +112,7 @@ import org.gradle.util.GUtil;
 import javax.inject.Inject;
 import java.util.Collections;
 
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
@@ -145,8 +145,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
-				registry.register(project.getExtensions().getByType(ObjectiveCSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "objectiveC"), true));
-				registry.register(project.getExtensions().getByType(CHeaderSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(entity.get(IdentifierComponent.class).get(), "headers")));
+				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class).ownedBy(entity).build());
+				registry.register(newEntity("headers", DefaultCHeaderSet.class).ownedBy(entity).build());
 			}
 
 			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));

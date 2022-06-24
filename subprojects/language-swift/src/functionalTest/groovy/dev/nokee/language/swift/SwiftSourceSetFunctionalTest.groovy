@@ -18,9 +18,9 @@ package dev.nokee.language.swift
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToolChain
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetRegistrationFactory
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec
+import dev.nokee.model.internal.DomainObjectEntities
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp
@@ -37,17 +37,16 @@ class SwiftSourceSetFunctionalTest extends AbstractInstalledToolChainIntegration
 				id 'dev.nokee.native-runtime-base'
 			}
 
-			import ${SwiftSourceSetRegistrationFactory.canonicalName}
-			import ${LanguageSourceSetIdentifier.canonicalName}
+			import ${DomainObjectEntities.canonicalName}
 			import ${ProjectIdentifier.canonicalName}
 			import ${NativePlatformFactory.canonicalName}
 			import ${TargetMachines.canonicalName}
 			import ${SwiftSourceSet.canonicalName}
+			import ${SwiftSourceSetSpec.canonicalName}
 			import ${ModelRegistry.canonicalName}
 
 			def registry = extensions.getByType(ModelRegistry)
-			def identifier = LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "pihe")
-			def sourceSet = registry.register(extensions.getByType(SwiftSourceSetRegistrationFactory).create(identifier)).as(SwiftSourceSet).get()
+			def sourceSet = registry.register(DomainObjectEntities.newEntity("pihe", SwiftSourceSetSpec).build()).as(SwiftSourceSet).get()
 			tasks.compilePihe.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

@@ -25,7 +25,6 @@ import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.BindManagedProjectionService;
 import dev.nokee.model.internal.core.Bits;
 import dev.nokee.model.internal.core.DescendantNodes;
-import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.HasInputs;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -93,9 +92,6 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 					path.get().getParent().ifPresent(parentPath -> {
 						node.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
 					});
-					if (!node.has(DisplayNameComponent.class)) {
-						node.addComponent(new DisplayNameComponent(path.get().toString()));
-					}
 				}
 			}
 		}));

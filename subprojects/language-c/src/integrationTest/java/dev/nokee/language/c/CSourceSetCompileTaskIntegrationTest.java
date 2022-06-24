@@ -19,18 +19,17 @@ import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.junit.jupiter.Subject;
-import dev.nokee.language.base.internal.LanguageSourceSetIdentifier;
-import dev.nokee.language.c.internal.plugins.CSourceSetRegistrationFactory;
+import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.NativeCompileTaskObjectFilesTester;
 import dev.nokee.language.nativebase.NativeCompileTaskTester;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.language.nativebase.internal.NativePlatformFactory.create;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.internal.TargetMachines.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -48,7 +47,7 @@ class CSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implements
 	}
 
 	CCompileTask createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(CSourceSetRegistrationFactory.class).create(LanguageSourceSetIdentifier.of(ProjectIdentifier.of(project), "mufa"))).element("compile", CCompileTask.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("mufa", CSourceSetSpec.class).build()).element("compile", CCompileTask.class).get();
 	}
 
 	@BeforeEach

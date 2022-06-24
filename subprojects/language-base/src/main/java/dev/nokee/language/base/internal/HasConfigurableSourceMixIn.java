@@ -16,10 +16,15 @@
 package dev.nokee.language.base.internal;
 
 import dev.nokee.language.base.ConfigurableSourceSet;
+import dev.nokee.model.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.model.internal.tags.ModelTag;
 
+@DomainObjectEntities.Tag(HasConfigurableSourceMixIn.Tag.class)
 public interface HasConfigurableSourceMixIn extends HasConfigurableSource {
 	default ConfigurableSourceSet getSource() {
 		return ModelElements.of(this, SourcePropertyComponent.class).as(ConfigurableSourceSet.class).get();
 	}
+
+	interface Tag extends ModelTag {}
 }
