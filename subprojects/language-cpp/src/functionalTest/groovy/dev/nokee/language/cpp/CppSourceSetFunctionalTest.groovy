@@ -43,7 +43,7 @@ class CppSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSp
 			import ${ModelRegistry.canonicalName}
 
 			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity("qise", CppSourceSetSpec).build()).as(CppSourceSet).get()
+			def sourceSet = registry.register(DomainObjectEntities.newEntity("qise", CppSourceSetSpec)).as(CppSourceSet).get()
 			tasks.compileQise.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

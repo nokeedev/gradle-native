@@ -43,7 +43,7 @@ class CSourceSetFunctionalTest extends AbstractInstalledToolChainIntegrationSpec
 			import ${ModelRegistry.canonicalName}
 
 			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity('jixa', CSourceSetSpec).build()).as(CSourceSet).get()
+			def sourceSet = registry.register(DomainObjectEntities.newEntity('jixa', CSourceSetSpec)).as(CSourceSet).get()
 			tasks.compileJixa.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}
