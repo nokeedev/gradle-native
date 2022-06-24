@@ -34,19 +34,19 @@ import static org.hamcrest.Matchers.hasItem;
 class DomainObjectEntitiesTagTest {
 	@Test
 	void hasCustomTagDirectlyOnType() {
-		val subject = newEntity("my-name", MyTypeSpec.class).build();
+		val subject = newEntity("my-name", MyTypeSpec.class);
 		assertThat(subject.getComponents(), hasTag(MyTypeSpec.Tag.class));
 	}
 
 	@Test
 	void hasCustomTagInheritedFromInterface() {
-		val subject = newEntity("my-name", MyOtherTypeSpec.class).build();
+		val subject = newEntity("my-name", MyOtherTypeSpec.class);
 		assertThat(subject.getComponents(), allOf(hasTag(MyOtherTypeSpec.Tag.class),  hasTag(MyTypeSpec.Tag.class)));
 	}
 
 	@Test
 	void hasCustomTagInheritedFromSuperClass() {
-		val subject = newEntity("my-name", ConcreteTypeSpec.class).build();
+		val subject = newEntity("my-name", ConcreteTypeSpec.class);
 		assertThat(subject.getComponents(), hasTag(AbstractTypeSpec.Tag.class));
 	}
 

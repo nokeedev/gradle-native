@@ -39,22 +39,32 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public final class DomainObjectEntities {
+	private static final Consumer<Builder> DO_NOTHING = __ -> {};
+
 	// TODO: Should bound type to something that is common between domain object and model
-	public static <T> Builder newEntity(String elementName, Class<T> type) {
-		val result = new Builder();
-		result.delegate.withComponent(new ElementNameComponent(elementName));
-		result.delegate.withComponent(ModelProjections.managed(ModelType.of(type)));
+	public static <T> ModelRegistration newEntity(String elementName, Class<T> type) {
+		return newEntity(elementName, type, DO_NOTHING);
+	}
+
+	public static <T> ModelRegistration newEntity(String elementName, Class<T> type, Consumer<? super Builder> builderConsumer) {
+		val result = ModelRegistration.builder();
+		val builder = new Builder(result);
+		builderConsumer.accept(builder);
+
+		result.withComponent(new ElementNameComponent(elementName));
+		result.withComponent(ModelProjections.managed(ModelType.of(type)));
 
 		val tagAnnotations = new LinkedHashSet<Tag>();
 		findAnnotations(type, Tag.class, tagAnnotations);
 		for (Tag tags : tagAnnotations) {
 			for (Class<? extends ModelTag> tag : tags.value()) {
-				result.delegate.withComponent(ModelTags.tag(tag));
+				result.withComponent(ModelTags.tag(tag));
 			}
 		}
-		return result;
+		return result.build();
 	}
 
 	private static <A extends Annotation> void findAnnotations(AnnotatedElement element, Class<A> annotationType, Set<A> found) {
@@ -83,7 +93,11 @@ public final class DomainObjectEntities {
 	}
 
 	public static final class Builder {
-		private final ModelRegistration.Builder delegate = ModelRegistration.builder();
+		private final ModelRegistration.Builder delegate;
+
+		private Builder(ModelRegistration.Builder delegate) {
+			this.delegate = delegate;
+		}
 
 		public Builder ownedBy(ModelNode owner) {
 			delegate.withComponent(new ParentComponent(owner));

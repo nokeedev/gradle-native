@@ -47,7 +47,7 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLangua
 		modelConfigurer.configure(matching(discoveringInstanceOf(ObjectiveCppSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class).ownedBy(entity).build());
+			registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class, it -> it.ownedBy(entity)));
 		}))));
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(ObjectiveCppSourceSetTag.class));
 	}

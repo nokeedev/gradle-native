@@ -31,7 +31,7 @@ class CppHeaderSetLegacyTest extends LanguageSourceSetLegacyTester<CppHeaderSet>
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply("dev.nokee.cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", DefaultCppHeaderSet.class).build()).as(CppHeaderSet.class).get();
+		return registry.register(newEntity("test", DefaultCppHeaderSet.class)).as(CppHeaderSet.class).get();
 	}
 
 	@Override
@@ -39,6 +39,6 @@ class CppHeaderSetLegacyTest extends LanguageSourceSetLegacyTester<CppHeaderSet>
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
 		project.getPluginManager().apply("dev.nokee.cpp-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", DefaultCppHeaderSet.class).build()).as(CppHeaderSet.class).get();
+		return registry.register(newEntity("test", DefaultCppHeaderSet.class)).as(CppHeaderSet.class).get();
 	}
 }

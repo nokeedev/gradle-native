@@ -36,7 +36,7 @@ class SwiftSourceSetImportModulesConfigurationIntegrationTest extends AbstractPl
 	@Subject Configuration subject;
 
 	Configuration createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("cavu", SwiftSourceSetSpec.class).build()).element("importModules", Configuration.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("cavu", SwiftSourceSetSpec.class)).element("importModules", Configuration.class).get();
 	}
 
 	@Test

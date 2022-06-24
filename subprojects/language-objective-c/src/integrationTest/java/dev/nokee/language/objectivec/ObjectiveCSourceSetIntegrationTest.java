@@ -61,7 +61,7 @@ class ObjectiveCSourceSetIntegrationTest extends AbstractPluginTest implements L
 	@Subject DomainObjectProvider<ObjectiveCSourceSetSpec> subject;
 
 	DomainObjectProvider<ObjectiveCSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("gote", ObjectiveCSourceSetSpec.class).build()).as(ObjectiveCSourceSetSpec.class);
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("gote", ObjectiveCSourceSetSpec.class)).as(ObjectiveCSourceSetSpec.class);
 	}
 
 	@Override

@@ -37,7 +37,7 @@ class ObjectiveCSourceSetHeaderSearchPathsConfigurationIntegrationTest extends A
 	@Subject Configuration subject;
 
 	Configuration createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("xuqo", ObjectiveCSourceSetSpec.class).build()).element("headerSearchPaths", Configuration.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("xuqo", ObjectiveCSourceSetSpec.class)).element("headerSearchPaths", Configuration.class).get();
 	}
 
 	@Test

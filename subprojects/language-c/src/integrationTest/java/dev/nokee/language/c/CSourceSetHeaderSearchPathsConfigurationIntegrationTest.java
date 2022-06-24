@@ -36,7 +36,7 @@ class CSourceSetHeaderSearchPathsConfigurationIntegrationTest extends AbstractPl
 	@Subject Configuration subject;
 
 	Configuration createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("xawa", CSourceSetSpec.class).build()).element("headerSearchPaths", Configuration.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("xawa", CSourceSetSpec.class)).element("headerSearchPaths", Configuration.class).get();
 	}
 
 	@Test

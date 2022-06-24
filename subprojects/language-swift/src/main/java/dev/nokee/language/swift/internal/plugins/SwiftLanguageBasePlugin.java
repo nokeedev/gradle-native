@@ -74,7 +74,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 	static final class DefaultSwiftSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
 		@Override
 		public ModelRegistration create(ModelNode owner) {
-			return DomainObjectEntities.newEntity("swift", SwiftSourceSetSpec.class).ownedBy(owner).displayName("Swift sources").build();
+			return DomainObjectEntities.newEntity("swift", SwiftSourceSetSpec.class, it -> it.ownedBy(owner).displayName("Swift sources"));
 		}
 	}
 }

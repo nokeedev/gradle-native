@@ -31,7 +31,7 @@ class CHeaderSetLegacyTest extends LanguageSourceSetLegacyTester<CHeaderSet> {
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply("dev.nokee.c-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", DefaultCHeaderSet.class).build()).as(CHeaderSet.class).get();
+		return registry.register(newEntity("test", DefaultCHeaderSet.class)).as(CHeaderSet.class).get();
 	}
 
 	@Override
@@ -39,6 +39,6 @@ class CHeaderSetLegacyTest extends LanguageSourceSetLegacyTester<CHeaderSet> {
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
 		project.getPluginManager().apply("dev.nokee.c-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", DefaultCHeaderSet.class).build()).as(CHeaderSet.class).get();
+		return registry.register(newEntity("test", DefaultCHeaderSet.class)).as(CHeaderSet.class).get();
 	}
 }

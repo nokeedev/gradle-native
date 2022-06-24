@@ -221,19 +221,19 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			if (entity.hasComponent(typeOf(CSourceSetTag.class))) {
-				registry.register(newEntity("c", LegacyCSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("c", LegacyCSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(CppSourceSetTag.class))) {
-				registry.register(newEntity("cpp", LegacyCppSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCppHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("cpp", LegacyCppSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
-				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(ObjectiveCppSourceSetTag.class))) {
-				registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCppHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(SwiftSourceSetTag.class))) {
-				registry.register(newEntity("swift", LegacySwiftSourceSet.class).ownedBy(entity).build());
+				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 
 			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
@@ -306,23 +306,23 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			if (entity.hasComponent(typeOf(CSourceSetTag.class))) {
-				registry.register(newEntity("c", LegacyCSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCHeaderSet.class).ownedBy(entity).build());
-				registry.register(newEntity("public", DefaultCHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("c", LegacyCSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("public", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(CppSourceSetTag.class))) {
-				registry.register(newEntity("cpp", LegacyCppSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCppHeaderSet.class).ownedBy(entity).build());
-				registry.register(newEntity("public", DefaultCppHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("cpp", LegacyCppSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("public", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
-				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCHeaderSet.class).ownedBy(entity).build());
-				registry.register(newEntity("public", DefaultCHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("public", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(ObjectiveCppSourceSetTag.class))) {
-				registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCppHeaderSet.class).ownedBy(entity).build());
-				registry.register(newEntity("public", DefaultCppHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("public", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(SwiftSourceSetTag.class))) {
-				registry.register(newEntity("swift", LegacySwiftSourceSet.class).ownedBy(entity).build());
+				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 
 			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));

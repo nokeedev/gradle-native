@@ -263,11 +263,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
 
 			project.getPluginManager().withPlugin("groovy", ignored -> {
-				val sourceSet = registry.register(newEntity("groovy", GroovySourceSetSpec.class).ownedBy(entity).build());
+				val sourceSet = registry.register(newEntity("groovy", GroovySourceSetSpec.class, it -> it.ownedBy(entity)));
 				entity.addComponent(new GroovyLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("java", ignored -> {
-				val sourceSet = registry.register(newEntity("java", JavaSourceSetSpec.class).ownedBy(entity).build());
+				val sourceSet = registry.register(newEntity("java", JavaSourceSetSpec.class, it -> it.ownedBy(entity)));
 
 				sourceSet.as(JavaSourceSet.class).configure(it -> {
 					it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(identifier.get(), project.getLayout()));
@@ -279,7 +279,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(new JavaLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-				val sourceSet = registry.register(newEntity("kotlin", KotlinSourceSetSpec.class).ownedBy(entity).build());
+				val sourceSet = registry.register(newEntity("kotlin", KotlinSourceSetSpec.class, it -> it.ownedBy(entity)));
 				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 

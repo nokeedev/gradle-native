@@ -256,9 +256,9 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 					val identifier = getNode().get(IdentifierComponent.class).get();
 					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
 						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						registry.register(newEntity("headers", sourceSetType).ownedBy(getNode()).build());
+						registry.register(newEntity("headers", sourceSetType, it -> it.ownedBy(getNode())));
 					} else {
-						registry.register(newEntity(((HasName) knownSourceSet.getIdentifier()).getName().toString(), sourceSetType).ownedBy(getNode()).build());
+						registry.register(newEntity(((HasName) knownSourceSet.getIdentifier()).getName().toString(), sourceSetType, it -> it.ownedBy(getNode())));
 					}
 				}
 			}));
