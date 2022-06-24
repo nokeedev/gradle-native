@@ -17,21 +17,20 @@ package dev.nokee.language.jvm.internal.plugins;
 
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
-import dev.nokee.language.jvm.internal.GroovySourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
-import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
-import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
 import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelTypeUtils;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -43,10 +42,15 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.JavaBasePlugin;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class JvmLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -54,10 +58,6 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
 		project.getPlugins().withType(JavaBasePlugin.class, ignored -> {
-			project.getExtensions().add("__nokee_javaSourceSetFactory", new JavaSourceSetRegistrationFactory());
-			project.getExtensions().add("__nokee_groovySourceSetFactory", new GroovySourceSetRegistrationFactory());
-			project.getExtensions().add("__nokee_kotlinSourceSetFactory", new KotlinSourceSetRegistrationFactory());
-
 			val sourceSetRegistry = NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class));
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -77,19 +77,71 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 			})));
 
 			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), (entity, tag, parent, sourceProperty) -> {
-				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
-				sourceSetProvider.get();
-				((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(GroovySourceSetRegistrationFactory::asSourceDirectorySet));
-			}));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(JavaSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), (entity, tag, parent, sourceProperty) -> {
-				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
-				((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(JavaSourceSetRegistrationFactory::asSourceDirectorySet));
-			}));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), (entity, tag, parent, sourceProperty) -> {
-				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
-				((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(KotlinSourceSetRegistrationFactory::asSourceDirectorySet));
-			}));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), new AttachGroovySourcesToGroovySourceSet(sourceSetRegistry)));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(JavaSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), new AttachJavaSourcesToJavaSourceSet(sourceSetRegistry)));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), new AttachKotlinSourcesToKotlinSourceSet(sourceSetRegistry)));
 		});
+	}
+
+	private static final class AttachGroovySourcesToGroovySourceSet implements ModelActionWithInputs.A3<ModelComponentTag<GroovySourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent> {
+		private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
+
+		private AttachGroovySourcesToGroovySourceSet(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry) {
+			this.sourceSetRegistry = sourceSetRegistry;
+		}
+
+		@Override
+		public void execute(ModelNode entity, ModelComponentTag<GroovySourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty) {
+			val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+			sourceSetProvider.get();
+			((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(AttachGroovySourcesToGroovySourceSet::asSourceDirectorySet));
+		}
+
+		private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+			return ((org.gradle.api.tasks.GroovySourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("groovy")).getGroovy();
+		}
+	}
+
+	private static final class AttachJavaSourcesToJavaSourceSet implements ModelActionWithInputs.A3<ModelComponentTag<JavaSourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent> {
+		private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
+
+		private AttachJavaSourcesToJavaSourceSet(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry) {
+			this.sourceSetRegistry = sourceSetRegistry;
+		}
+
+		@Override
+		public void execute(ModelNode entity, ModelComponentTag<JavaSourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty) {
+			val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+			((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(AttachJavaSourcesToJavaSourceSet::asSourceDirectorySet));
+		}
+
+		private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+			return sourceSet.getJava();
+		}
+	}
+
+	private static final class AttachKotlinSourcesToKotlinSourceSet implements ModelActionWithInputs.A3<ModelComponentTag<KotlinSourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent> {
+		private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
+
+		private AttachKotlinSourcesToKotlinSourceSet(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry) {
+			this.sourceSetRegistry = sourceSetRegistry;
+		}
+
+		@Override
+		public void execute(ModelNode entity, ModelComponentTag<KotlinSourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty) {
+			val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+			((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(AttachKotlinSourcesToKotlinSourceSet::asSourceDirectorySet));
+		}
+
+		private static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
+			try {
+				val kotlinSourceSet = new DslObject(sourceSet).getConvention().getPlugins().get("kotlin");
+				val DefaultKotlinSourceSet = kotlinSourceSet.getClass();
+				val getKotlin = DefaultKotlinSourceSet.getMethod("getKotlin");
+				return (SourceDirectorySet) getKotlin.invoke(kotlinSourceSet);
+			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 }
