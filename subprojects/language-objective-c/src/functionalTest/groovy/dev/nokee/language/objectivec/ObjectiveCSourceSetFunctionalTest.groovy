@@ -49,7 +49,7 @@ class ObjectiveCSourceSetFunctionalTest extends AbstractInstalledToolChainIntegr
 			import ${ModelRegistry.canonicalName}
 
 			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity("jure", ObjectiveCSourceSetSpec).build()).as(ObjectiveCSourceSet).get()
+			def sourceSet = registry.register(DomainObjectEntities.newEntity("jure", ObjectiveCSourceSetSpec)).as(ObjectiveCSourceSet).get()
 			tasks.compileJure.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

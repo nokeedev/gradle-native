@@ -49,7 +49,7 @@ class ObjectiveCppSourceSetFunctionalTest extends AbstractInstalledToolChainInte
 			import ${ModelRegistry.canonicalName}
 
 			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity("kupa", ObjectiveCppSourceSetSpec).build()).as(ObjectiveCppSourceSet).get()
+			def sourceSet = registry.register(DomainObjectEntities.newEntity("kupa", ObjectiveCppSourceSetSpec)).as(ObjectiveCppSourceSet).get()
 			tasks.compileKupa.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}

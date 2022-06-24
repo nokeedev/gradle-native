@@ -46,7 +46,7 @@ class SwiftSourceSetFunctionalTest extends AbstractInstalledToolChainIntegration
 			import ${ModelRegistry.canonicalName}
 
 			def registry = extensions.getByType(ModelRegistry)
-			def sourceSet = registry.register(DomainObjectEntities.newEntity("pihe", SwiftSourceSetSpec).build()).as(SwiftSourceSet).get()
+			def sourceSet = registry.register(DomainObjectEntities.newEntity("pihe", SwiftSourceSetSpec)).as(SwiftSourceSet).get()
 			tasks.compilePihe.targetPlatform.set(NativePlatformFactory.create(TargetMachines.host()))
 		"""
 	}
