@@ -58,7 +58,7 @@ class SwiftSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implem
 
 	SwiftCompileTask createSubject() {
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("rubi", SwiftSourceSetSpec.class).build()).element("compile", SwiftCompileTask.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("rubi", SwiftSourceSetSpec.class)).element("compile", SwiftCompileTask.class).get();
 	}
 
 	@BeforeEach

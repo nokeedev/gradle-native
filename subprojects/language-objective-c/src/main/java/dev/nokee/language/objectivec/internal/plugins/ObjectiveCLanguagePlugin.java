@@ -47,7 +47,7 @@ public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguage
 		modelConfigurer.configure(matching(discoveringInstanceOf(ObjectiveCSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class).ownedBy(entity).build());
+			registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
 		}))));
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(ObjectiveCSourceSetTag.class));
 	}

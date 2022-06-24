@@ -36,7 +36,7 @@ class ObjectiveCppSourceSetHeaderSearchPathsConfigurationIntegrationTest extends
 	@Subject Configuration subject;
 
 	Configuration createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("dozo", ObjectiveCppSourceSetSpec.class).build()).element("headerSearchPaths", Configuration.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("dozo", ObjectiveCppSourceSetSpec.class)).element("headerSearchPaths", Configuration.class).get();
 	}
 
 	@Test

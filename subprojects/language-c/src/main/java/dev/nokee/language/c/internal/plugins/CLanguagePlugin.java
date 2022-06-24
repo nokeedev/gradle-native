@@ -47,7 +47,7 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 		modelConfigurer.configure(matching(discoveringInstanceOf(CSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(newEntity("c", LegacyCSourceSet.class).build());
+			registry.register(newEntity("c", LegacyCSourceSet.class));
 		}))));
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(CSourceSetTag.class));
 	}

@@ -47,7 +47,7 @@ class ObjectiveCSourceSetCompileTaskIntegrationTest extends AbstractPluginTest i
 	}
 
 	ObjectiveCCompileTask createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("gugo", ObjectiveCSourceSetSpec.class).build()).element("compile", ObjectiveCCompileTask.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("gugo", ObjectiveCSourceSetSpec.class)).element("compile", ObjectiveCCompileTask.class).get();
 	}
 
 	@BeforeEach

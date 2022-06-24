@@ -76,7 +76,7 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 	static final class DefaultObjectiveCppSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
 		@Override
 		public ModelRegistration create(ModelNode owner) {
-			return DomainObjectEntities.newEntity("objectiveCpp", ObjectiveCppSourceSetSpec.class).ownedBy(owner).displayName("Objective-C++ sources").build();
+			return DomainObjectEntities.newEntity("objectiveCpp", ObjectiveCppSourceSetSpec.class, it -> it.ownedBy(owner).displayName("Objective-C++ sources"));
 		}
 	}
 }

@@ -47,7 +47,7 @@ class CppSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implemen
 	}
 
 	CppCompileTask createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("gali", CppSourceSetSpec.class).build()).element("compile", CppCompileTask.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("gali", CppSourceSetSpec.class)).element("compile", CppCompileTask.class).get();
 	}
 
 	@BeforeEach

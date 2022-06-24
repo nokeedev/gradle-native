@@ -61,7 +61,7 @@ class ObjectiveCppSourceSetIntegrationTest extends AbstractPluginTest implements
 	@Subject DomainObjectProvider<ObjectiveCppSourceSetSpec> subject;
 
 	DomainObjectProvider<ObjectiveCppSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("suhu", ObjectiveCppSourceSetSpec.class).build()).as(ObjectiveCppSourceSetSpec.class);
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("suhu", ObjectiveCppSourceSetSpec.class)).as(ObjectiveCppSourceSetSpec.class);
 	}
 
 	@Override

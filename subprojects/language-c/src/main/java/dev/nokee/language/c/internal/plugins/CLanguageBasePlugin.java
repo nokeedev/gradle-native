@@ -75,7 +75,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 	static final class DefaultCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
 		@Override
 		public ModelRegistration create(ModelNode owner) {
-			return DomainObjectEntities.newEntity("c", CSourceSetSpec.class).ownedBy(owner).displayName("C sources").build();
+			return DomainObjectEntities.newEntity("c", CSourceSetSpec.class, it -> it.ownedBy(owner).displayName("C sources"));
 		}
 	}
 }

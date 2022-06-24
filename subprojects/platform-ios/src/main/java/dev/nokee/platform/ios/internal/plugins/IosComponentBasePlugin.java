@@ -118,12 +118,12 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
-				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class).ownedBy(entity).build());
-				registry.register(newEntity("headers", DefaultCHeaderSet.class).ownedBy(entity).build());
+				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
+				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 			} else if (entity.hasComponent(typeOf(SwiftSourceSetTag.class))) {
-				registry.register(newEntity("swift", LegacySwiftSourceSet.class).ownedBy(entity).build());
+				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
-			registry.register(newEntity("resources", IosResourceSetSpec.class).ownedBy(entity).build());
+			registry.register(newEntity("resources", IosResourceSetSpec.class, it -> it.ownedBy(entity)));
 
 			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
 

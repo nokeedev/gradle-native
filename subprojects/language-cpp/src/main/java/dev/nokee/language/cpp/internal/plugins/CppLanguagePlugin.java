@@ -47,7 +47,7 @@ public class CppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin 
 		modelConfigurer.configure(matching(discoveringInstanceOf(CppSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			registry.register(newEntity("cpp", LegacyCppSourceSet.class).ownedBy(entity).build());
+			registry.register(newEntity("cpp", LegacyCppSourceSet.class, it -> it.ownedBy(entity)));
 		}))));
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(CppSourceSetTag.class));
 	}

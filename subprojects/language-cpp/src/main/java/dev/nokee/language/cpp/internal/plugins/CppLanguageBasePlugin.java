@@ -74,7 +74,7 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 	static final class DefaultCppSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {
 		@Override
 		public ModelRegistration create(ModelNode owner) {
-			return DomainObjectEntities.newEntity("cpp", CppSourceSetSpec.class).ownedBy(owner).displayName("C++ sources").build();
+			return DomainObjectEntities.newEntity("cpp", CppSourceSetSpec.class, it -> it.ownedBy(owner).displayName("C++ sources"));
 		}
 	}
 }

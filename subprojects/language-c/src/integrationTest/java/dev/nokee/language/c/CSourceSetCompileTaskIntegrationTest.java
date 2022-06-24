@@ -47,7 +47,7 @@ class CSourceSetCompileTaskIntegrationTest extends AbstractPluginTest implements
 	}
 
 	CCompileTask createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("mufa", CSourceSetSpec.class).build()).element("compile", CCompileTask.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("mufa", CSourceSetSpec.class)).element("compile", CCompileTask.class).get();
 	}
 
 	@BeforeEach

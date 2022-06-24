@@ -61,7 +61,7 @@ class CSourceSetIntegrationTest extends AbstractPluginTest implements LanguageSo
 	@Subject DomainObjectProvider<CSourceSetSpec> subject;
 
 	DomainObjectProvider<CSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("nopu", CSourceSetSpec.class).build()).as(CSourceSetSpec.class);
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("nopu", CSourceSetSpec.class)).as(CSourceSetSpec.class);
 	}
 
 	@Override

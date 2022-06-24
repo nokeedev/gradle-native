@@ -36,7 +36,7 @@ class CppSourceSetHeaderSearchPathsConfigurationIntegrationTest extends Abstract
 	@Subject Configuration subject;
 
 	Configuration createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("zare", CppSourceSetSpec.class).build()).element("headerSearchPaths", Configuration.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("zare", CppSourceSetSpec.class)).element("headerSearchPaths", Configuration.class).get();
 	}
 
 	@Test

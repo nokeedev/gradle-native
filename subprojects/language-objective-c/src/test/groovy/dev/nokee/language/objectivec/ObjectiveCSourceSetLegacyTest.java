@@ -31,7 +31,7 @@ class ObjectiveCSourceSetLegacyTest extends LanguageSourceSetLegacyTester<Object
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply("dev.nokee.objective-c-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", LegacyObjectiveCSourceSet.class).build()).as(ObjectiveCSourceSet.class).get();
+		return registry.register(newEntity("test", LegacyObjectiveCSourceSet.class)).as(ObjectiveCSourceSet.class).get();
 	}
 
 	@Override
@@ -39,6 +39,6 @@ class ObjectiveCSourceSetLegacyTest extends LanguageSourceSetLegacyTester<Object
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
 		project.getPluginManager().apply("dev.nokee.objective-c-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", LegacyObjectiveCSourceSet.class).build()).as(ObjectiveCSourceSet.class).get();
+		return registry.register(newEntity("test", LegacyObjectiveCSourceSet.class)).as(ObjectiveCSourceSet.class).get();
 	}
 }

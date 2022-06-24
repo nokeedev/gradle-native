@@ -49,7 +49,7 @@ class ObjectiveCppSourceSetCompileTaskIntegrationTest extends AbstractPluginTest
 	}
 
 	ObjectiveCppCompileTask createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("jobu", ObjectiveCppSourceSetSpec.class).build()).element("compile", ObjectiveCppCompileTask.class).get();
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("jobu", ObjectiveCppSourceSetSpec.class)).element("compile", ObjectiveCppCompileTask.class).get();
 	}
 
 	@BeforeEach

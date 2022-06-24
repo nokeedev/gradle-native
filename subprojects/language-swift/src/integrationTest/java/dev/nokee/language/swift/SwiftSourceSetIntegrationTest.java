@@ -72,7 +72,7 @@ class SwiftSourceSetIntegrationTest extends AbstractPluginTest implements Langua
 	@Subject DomainObjectProvider<SwiftSourceSetSpec> subject;
 
 	DomainObjectProvider<SwiftSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("riku", SwiftSourceSetSpec.class).build()).as(SwiftSourceSetSpec.class);
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("riku", SwiftSourceSetSpec.class)).as(SwiftSourceSetSpec.class);
 	}
 
 	@BeforeEach

@@ -61,7 +61,7 @@ class CppSourceSetIntegrationTest extends AbstractPluginTest implements Language
 	@Subject DomainObjectProvider<CppSourceSetSpec> subject;
 
 	DomainObjectProvider<CppSourceSetSpec> createSubject() {
-		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("zomi", CppSourceSetSpec.class).build()).as(CppSourceSetSpec.class);
+		return project.getExtensions().getByType(ModelRegistry.class).register(newEntity("zomi", CppSourceSetSpec.class)).as(CppSourceSetSpec.class);
 	}
 
 	@Override

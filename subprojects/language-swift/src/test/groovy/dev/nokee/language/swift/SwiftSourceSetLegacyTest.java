@@ -31,7 +31,7 @@ class SwiftSourceSetLegacyTest extends LanguageSourceSetLegacyTester<SwiftSource
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply("dev.nokee.swift-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", LegacySwiftSourceSet.class).build()).as(SwiftSourceSet.class).get();
+		return registry.register(newEntity("test", LegacySwiftSourceSet.class)).as(SwiftSourceSet.class).get();
 	}
 
 	@Override
@@ -39,6 +39,6 @@ class SwiftSourceSetLegacyTest extends LanguageSourceSetLegacyTester<SwiftSource
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
 		project.getPluginManager().apply("dev.nokee.swift-language-base");
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", LegacySwiftSourceSet.class).build()).as(SwiftSourceSet.class).get();
+		return registry.register(newEntity("test", LegacySwiftSourceSet.class)).as(SwiftSourceSet.class).get();
 	}
 }

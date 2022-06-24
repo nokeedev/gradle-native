@@ -32,7 +32,7 @@ class IosResourceSetLegacyTest extends LanguageSourceSetLegacyTester<IosResource
 		val project = ProjectTestUtils.rootProject();
 		project.getPluginManager().apply(IosResourcePlugin.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", IosResourceSetSpec.class).build()).as(IosResourceSet.class).get();
+		return registry.register(newEntity("test", IosResourceSetSpec.class)).as(IosResourceSet.class).get();
 	}
 
 	@Override
@@ -40,6 +40,6 @@ class IosResourceSetLegacyTest extends LanguageSourceSetLegacyTester<IosResource
 		val project = ProjectTestUtils.createRootProject(temporaryDirectory);
 		project.getPluginManager().apply(IosResourcePlugin.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		return registry.register(newEntity("test", IosResourceSetSpec.class).build()).as(IosResourceSet.class).get();
+		return registry.register(newEntity("test", IosResourceSetSpec.class)).as(IosResourceSet.class).get();
 	}
 }
