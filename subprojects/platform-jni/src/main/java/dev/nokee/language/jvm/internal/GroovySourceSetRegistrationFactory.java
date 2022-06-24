@@ -15,68 +15,12 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
-import dev.nokee.language.jvm.GroovySourceSet;
-import dev.nokee.model.internal.DomainObjectEntities;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.TaskDependency;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.compile.GroovyCompile;
-import org.gradle.api.tasks.util.PatternFilterable;
-
-import static dev.nokee.utils.TaskDependencyUtils.of;
 
 public final class GroovySourceSetRegistrationFactory {
 	public static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
 		return ((org.gradle.api.tasks.GroovySourceSet) new DslObject(sourceSet).getConvention().getPlugins().get("groovy")).getGroovy();
-	}
-
-	@DomainObjectEntities.Tag({DefaultGroovySourceSet.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-	public static class DefaultGroovySourceSet implements GroovySourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<GroovySourceSet>, HasConfigurableSourceMixIn {
-		public TaskProvider<GroovyCompile> getCompileTask() {
-			return (TaskProvider<GroovyCompile>) ModelElements.of(this).element("compile", GroovyCompile.class).asProvider();
-		}
-
-		@Override
-		public GroovySourceSet from(Object... paths) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setFrom(Object... paths) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public PatternFilterable getFilter() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public GroovySourceSet convention(Object... path) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public TaskDependency getBuildDependencies() {
-			return TaskDependencyUtils.composite(getSource().getBuildDependencies(), of(getCompileTask()));
-		}
-
-		@Override
-		public TypeOf<?> getPublicType() {
-			return TypeOf.typeOf(GroovySourceSet.class);
-		}
-
-		public interface Tag extends ModelTag {}
 	}
 }

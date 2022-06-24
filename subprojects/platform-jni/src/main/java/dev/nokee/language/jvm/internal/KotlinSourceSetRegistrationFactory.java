@@ -15,24 +15,10 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
-import dev.nokee.language.jvm.KotlinSourceSet;
-import dev.nokee.model.internal.DomainObjectEntities;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.tags.ModelTag;
 import lombok.val;
-import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.TaskDependency;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.util.PatternFilterable;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -46,45 +32,5 @@ public final class KotlinSourceSetRegistrationFactory {
 		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@DomainObjectEntities.Tag({DefaultKotlinSourceSet.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-	public static class DefaultKotlinSourceSet implements KotlinSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasConfigurableSourceMixIn {
-		@Override
-		public TaskProvider<? extends Task> getCompileTask() {
-			return (TaskProvider<Task>) ModelElements.of(this).element("compile", Task.class).asProvider();
-		}
-
-		@Override
-		public TaskDependency getBuildDependencies() {
-			return getSource().getBuildDependencies();
-		}
-
-		@Override
-		public KotlinSourceSet from(Object... paths) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setFrom(Object... paths) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public PatternFilterable getFilter() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public KotlinSourceSet convention(Object... path) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public TypeOf<?> getPublicType() {
-			return TypeOf.typeOf(KotlinSourceSet.class);
-		}
-
-		public interface Tag extends ModelTag {}
 	}
 }

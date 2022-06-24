@@ -23,11 +23,11 @@ import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
 import dev.nokee.language.jvm.internal.GroovyLanguageSourceSetComponent;
-import dev.nokee.language.jvm.internal.GroovySourceSetRegistrationFactory;
+import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
 import dev.nokee.language.jvm.internal.JavaLanguageSourceSetComponent;
-import dev.nokee.language.jvm.internal.JavaSourceSetRegistrationFactory;
+import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
 import dev.nokee.language.jvm.internal.KotlinLanguageSourceSetComponent;
-import dev.nokee.language.jvm.internal.KotlinSourceSetRegistrationFactory;
+import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
@@ -263,11 +263,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			registry.instantiate(configureEach(descendantOf(entity.getId()), NativeSourceCompileTask.class, includeRoots(from(jvmIncludes()))));
 
 			project.getPluginManager().withPlugin("groovy", ignored -> {
-				val sourceSet = registry.register(newEntity("groovy", GroovySourceSetRegistrationFactory.DefaultGroovySourceSet.class).ownedBy(entity).build());
+				val sourceSet = registry.register(newEntity("groovy", GroovySourceSetSpec.class).ownedBy(entity).build());
 				entity.addComponent(new GroovyLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("java", ignored -> {
-				val sourceSet = registry.register(newEntity("java", JavaSourceSetRegistrationFactory.DefaultJavaSourceSet.class).ownedBy(entity).build());
+				val sourceSet = registry.register(newEntity("java", JavaSourceSetSpec.class).ownedBy(entity).build());
 
 				sourceSet.as(JavaSourceSet.class).configure(it -> {
 					it.getCompileTask().configure(new ConfigureJniHeaderDirectoryOnJavaCompileAction(identifier.get(), project.getLayout()));
@@ -279,7 +279,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(new JavaLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 			project.getPluginManager().withPlugin("org.jetbrains.kotlin.jvm", ignored -> {
-				val sourceSet = registry.register(newEntity("kotlin", KotlinSourceSetRegistrationFactory.DefaultKotlinSourceSet.class).ownedBy(entity).build());
+				val sourceSet = registry.register(newEntity("kotlin", KotlinSourceSetSpec.class).ownedBy(entity).build());
 				entity.addComponent(new KotlinLanguageSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 
