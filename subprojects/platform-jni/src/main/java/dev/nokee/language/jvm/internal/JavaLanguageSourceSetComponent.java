@@ -15,10 +15,11 @@
  */
 package dev.nokee.language.jvm.internal;
 
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 
-public final class JavaLanguageSourceSetComponent implements ModelComponent {
+public final class JavaLanguageSourceSetComponent implements ModelComponent, LinkedEntity {
 	private final ModelNode value;
 
 	public JavaLanguageSourceSetComponent(ModelNode value) {
