@@ -31,7 +31,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.util.PatternFilterable;
 
 @DomainObjectEntities.Tag({KotlinSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-public class KotlinSourceSetSpec implements KotlinSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ class KotlinSourceSetSpec implements KotlinSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<KotlinSourceSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TaskProvider<? extends Task> getCompileTask() {
 		return (TaskProvider<Task>) ModelElements.of(this).element("compile", Task.class).asProvider();

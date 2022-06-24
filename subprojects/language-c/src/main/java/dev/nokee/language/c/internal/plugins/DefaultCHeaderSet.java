@@ -28,7 +28,7 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
 @DomainObjectEntities.Tag({LegacySourceSetTag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
-public class DefaultCHeaderSet implements CHeaderSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet>, HasConfigurableSourceMixIn {
+public /*final*/ class DefaultCHeaderSet implements CHeaderSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<NativeHeaderSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TypeOf<?> getPublicType() {
 		return TypeOf.typeOf(CHeaderSet.class);
