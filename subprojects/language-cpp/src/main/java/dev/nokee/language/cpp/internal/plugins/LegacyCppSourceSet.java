@@ -27,7 +27,7 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
 @DomainObjectEntities.Tag({LegacySourceSetTag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
-public class LegacyCppSourceSet implements CppSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn {
+public /*final*/ class LegacyCppSourceSet implements CppSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();

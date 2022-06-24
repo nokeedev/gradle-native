@@ -31,7 +31,7 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
 @DomainObjectEntities.Tag({ObjectiveCSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
-public class ObjectiveCSourceSetSpec implements ObjectiveCSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<ObjectiveCCompileTask> {
+public /*final*/ class ObjectiveCSourceSetSpec implements ObjectiveCSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<ObjectiveCCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.composite(getSource().getBuildDependencies(), getHeaders().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
