@@ -15,65 +15,11 @@
  */
 package dev.nokee.language.jvm.internal;
 
-import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
-import dev.nokee.language.base.internal.IsLanguageSourceSet;
-import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
-import dev.nokee.language.jvm.JavaSourceSet;
-import dev.nokee.model.internal.DomainObjectEntities;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.model.internal.tags.ModelTag;
-import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.reflect.HasPublicType;
-import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.TaskDependency;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.compile.JavaCompile;
-import org.gradle.api.tasks.util.PatternFilterable;
 
 public final class JavaSourceSetRegistrationFactory {
 	public static SourceDirectorySet asSourceDirectorySet(SourceSet sourceSet) {
 		return sourceSet.getJava();
-	}
-
-	@DomainObjectEntities.Tag({DefaultJavaSourceSet.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, JvmSourceSetTag.class})
-	public static class DefaultJavaSourceSet implements JavaSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<JavaSourceSet>, HasConfigurableSourceMixIn {
-		public TaskProvider<JavaCompile> getCompileTask() {
-			return (TaskProvider<JavaCompile>) ModelElements.of(this).element("compile", JavaCompile.class).asProvider();
-		}
-
-		@Override
-		public JavaSourceSet from(Object... paths) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setFrom(Object... paths) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public PatternFilterable getFilter() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public JavaSourceSet convention(Object... path) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public TaskDependency getBuildDependencies() {
-			return TaskDependencyUtils.composite(getSource().getBuildDependencies(), TaskDependencyUtils.of(getCompileTask()));
-		}
-
-		@Override
-		public TypeOf<?> getPublicType() {
-			return TypeOf.typeOf(JavaSourceSet.class);
-		}
-
-		public interface Tag extends ModelTag {}
 	}
 }
