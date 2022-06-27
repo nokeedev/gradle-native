@@ -90,7 +90,9 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 						node.addComponent(new ElementNameComponent(path.get().getName()));
 					}
 					path.get().getParent().ifPresent(parentPath -> {
-						node.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
+						if (!node.has(ParentComponent.class)) { // We are migrating away from implicit parents
+							node.addComponent(new ParentComponent(DefaultModelRegistry.this.get(parentPath)));
+						}
 					});
 				}
 			}
