@@ -15,6 +15,18 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.core.ModelComponent;
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.ModuleDependency;
 
-public interface ConsumableDependencyBucketTag extends ModelTag {}
+public final class DependencyDefaultActionComponent implements ModelComponent {
+	private final Action<ModuleDependency> value;
+
+	public DependencyDefaultActionComponent(Action<? super ModuleDependency> value) {
+		this.value = value::execute;
+	}
+
+	public Action<ModuleDependency> get() {
+		return value;
+	}
+}

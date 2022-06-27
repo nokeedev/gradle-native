@@ -17,6 +17,7 @@ package dev.nokee.model;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 
 /**
  * A factory to create {@link Dependency} instance.
@@ -32,6 +33,10 @@ public interface DependencyFactory {
 	 */
 	static DependencyFactory forProject(Project project) {
 		return new DefaultDependencyFactory(project.getDependencies());
+	}
+
+	static DependencyFactory of(DependencyHandler dependencies) {
+		return new DefaultDependencyFactory(dependencies);
 	}
 
 	/**

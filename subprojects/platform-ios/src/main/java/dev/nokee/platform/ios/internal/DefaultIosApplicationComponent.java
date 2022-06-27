@@ -20,6 +20,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -37,7 +38,6 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -47,8 +47,7 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.ios.IosApplication;
@@ -167,11 +166,10 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 
 	protected void onEachVariant(KnownDomainObject<IosApplication> variant) {
 		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();
-		ConfigurationNamer configurationNamer = ConfigurationNamer.INSTANCE;
 		// Create iOS application specific tasks
-		Configuration interfaceBuilderToolConfiguration = configurations.create(configurationNamer.determineName(DependencyBucketIdentifier.of(DependencyBucketIdentity.resolvable("interfaceBuilderTool"), variantIdentifier)));
-		interfaceBuilderToolConfiguration.getDependencies().add(dependencyHandler.create("dev.nokee.tool:ibtool:latest.release"));
-		Provider<CommandLineTool> interfaceBuilderTool = providers.provider(() -> new DescriptorCommandLineTool(interfaceBuilderToolConfiguration.getSingleFile()));
+		val interfaceBuilderToolConfiguration = registry.register(DomainObjectEntities.newEntity("interfaceBuilderTool", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(Configuration.class);
+		interfaceBuilderToolConfiguration.configure(it -> it.getDependencies().add(dependencyHandler.create("dev.nokee.tool:ibtool:latest.release")));
+		Provider<CommandLineTool> interfaceBuilderTool = interfaceBuilderToolConfiguration.map(it -> new DescriptorCommandLineTool(it.getSingleFile()));
 
 		Provider<CommandLineTool> assetCompilerTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/actool")));
 		Provider<CommandLineTool> codeSignatureTool = providers.provider(() -> CommandLineTool.of(new File("/usr/bin/codesign")));

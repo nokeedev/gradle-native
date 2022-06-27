@@ -88,12 +88,12 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 
 	@Test
 	void runtimeOnlyConfigurationExtendsFromJvmRuntimeOnlyConfiguration() {
-		assertThat(project.getConfigurations().getByName("qezuRuntimeOnly"), extendsFrom(hasItem(named("qezuJvmRuntimeOnly"))));
+		assertThat(realize(project.getConfigurations().getByName("qezuRuntimeOnly")), extendsFrom(hasItem(named("qezuJvmRuntimeOnly"))));
 	}
 
 	@Test
 	void implementationConfigurationExtendsFromJvmImplementationConfiguration() {
-		assertThat(project.getConfigurations().getByName("qezuImplementation"), extendsFrom(hasItem(named("qezuJvmImplementation"))));
+		assertThat(realize(project.getConfigurations().getByName("qezuImplementation")), extendsFrom(hasItem(named("qezuJvmImplementation"))));
 	}
 
 	@Nested
@@ -230,5 +230,10 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 		void dependsOnJvmJarBinary() {
 			assertThat(subject(), TaskMatchers.dependsOn(hasItem(allOf(named("jarQezu"), isA(Jar.class)))));
 		}
+	}
+
+	private static Configuration realize(Configuration configuration) {
+		((ConfigurationInternal) configuration).preventFromFurtherMutation();
+		return configuration;
 	}
 }

@@ -15,6 +15,19 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.core.ModelComponent;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
+import org.gradle.api.artifacts.Configuration;
 
-public interface ResolvableDependencyBucketTag extends ModelTag {}
+final class ConfigurationComponent implements ModelComponent {
+	final NamedDomainObjectProvider<Configuration> configuration;
+
+	ConfigurationComponent(NamedDomainObjectProvider<Configuration> configuration) {
+		this.configuration = configuration;
+	}
+
+	public void configure(Action<? super Configuration> action) {
+		configuration.configure(action);
+	}
+}

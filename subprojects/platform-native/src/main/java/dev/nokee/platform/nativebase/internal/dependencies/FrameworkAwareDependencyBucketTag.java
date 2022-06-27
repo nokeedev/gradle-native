@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal.dependencies;
+package dev.nokee.platform.nativebase.internal.dependencies;
 
-import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.model.internal.tags.ModelTag;
 
-public interface DependencyBucketFactory {
-	DependencyBucket create(DependencyBucketIdentifier identifier);
-}
+public interface FrameworkAwareDependencyBucketTag extends ModelTag {}
