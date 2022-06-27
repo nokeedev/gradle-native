@@ -30,7 +30,6 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
 
@@ -49,7 +48,6 @@ public final class HasConfigurableSourceMixInRule extends ModelActionWithInputs.
 	private final ObjectFactory objects;
 
 	public HasConfigurableSourceMixInRule(Factory<ConfigurableSourceSet> sourceSetFactory, ModelRegistry registry, ObjectFactory objects) {
-		super(ModelTags.referenceOf(HasConfigurableSourceMixIn.Tag.class));
 		this.sourceSetFactory = sourceSetFactory;
 		this.registry = registry;
 		this.objects = objects;

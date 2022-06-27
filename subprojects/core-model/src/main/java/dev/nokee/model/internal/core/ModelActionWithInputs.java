@@ -17,7 +17,12 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.tags.ModelComponentTag;
+import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.tags.ModelTags;
+import lombok.val;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,14 +58,13 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction1<I0 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final List<ModelComponentReference<I0>> inputs;
 		private final Bits inputBits;
 
 		protected ModelAction1() {
-			this.i0 = ModelComponentReference.of((Class<I0>)new TypeToken<I0>(getClass()) {}.getRawType());
+			this.i0 = referenceOf(new TypeToken<I0>(getClass()) {});
 			this.inputs = ImmutableList.of(i0);
 			this.inputBits = i0.componentBits();
 		}
@@ -109,7 +113,6 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction2<I0 extends ModelComponent, I1 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
@@ -117,8 +120,8 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		private final Bits inputBits;
 
 		protected ModelAction2() {
-			this.i0 = ModelComponentReference.of((Class<I0>)new TypeToken<I0>(getClass()) {}.getRawType());
-			this.i1 = ModelComponentReference.of((Class<I1>)new TypeToken<I1>(getClass()) {}.getRawType());
+			this.i0 = referenceOf(new TypeToken<I0>(getClass()) {});
+			this.i1 = referenceOf(new TypeToken<I1>(getClass()) {});
 			this.inputs = ImmutableList.of(i0, i1);
 			this.inputBits = i0.componentBits().or(i1.componentBits());
 		}
@@ -168,7 +171,6 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1, I2 i2);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction3<I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
@@ -177,9 +179,9 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		private final Bits inputBits;
 
 		protected ModelAction3() {
-			this.i0 = ModelComponentReference.of((Class<I0>)new TypeToken<I0>(getClass()) {}.getRawType());
-			this.i1 = ModelComponentReference.of((Class<I1>)new TypeToken<I1>(getClass()) {}.getRawType());
-			this.i2 = ModelComponentReference.of((Class<I2>)new TypeToken<I2>(getClass()) {}.getRawType());
+			this.i0 = referenceOf(new TypeToken<I0>(getClass()) {});
+			this.i1 = referenceOf(new TypeToken<I1>(getClass()) {});
+			this.i2 = referenceOf(new TypeToken<I2>(getClass()) {});
 			this.inputs = ImmutableList.of(i0, i1, i2);
 			this.inputBits = i0.componentBits().or(i1.componentBits()).or(i2.componentBits());
 		}
@@ -230,7 +232,6 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1, I2 i2, I3 i3);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction4<I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent, I3 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
@@ -240,10 +241,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		private final Bits inputBits;
 
 		protected ModelAction4() {
-			this.i0 = ModelComponentReference.of((Class<I0>)new TypeToken<I0>(getClass()) {}.getRawType());
-			this.i1 = ModelComponentReference.of((Class<I1>)new TypeToken<I1>(getClass()) {}.getRawType());
-			this.i2 = ModelComponentReference.of((Class<I2>)new TypeToken<I2>(getClass()) {}.getRawType());
-			this.i3 = ModelComponentReference.of((Class<I3>)new TypeToken<I3>(getClass()) {}.getRawType());
+			this.i0 = referenceOf(new TypeToken<I0>(getClass()) {});
+			this.i1 = referenceOf(new TypeToken<I1>(getClass()) {});
+			this.i2 = referenceOf(new TypeToken<I2>(getClass()) {});
+			this.i3 = referenceOf(new TypeToken<I3>(getClass()) {});
 			this.inputs = ImmutableList.of(i0, i1, i2, i3);
 			this.inputBits = i0.componentBits().or(i1.componentBits()).or(i2.componentBits()).or(i3.componentBits());
 		}
@@ -295,7 +296,6 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		void execute(ModelNode node, I0 i0, I1 i1, I2 i2, I3 i3, I4 i4);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static abstract class ModelAction5<I0 extends ModelComponent, I1 extends ModelComponent, I2 extends ModelComponent, I3 extends ModelComponent, I4 extends ModelComponent> implements ModelAction, HasInputs {
 		private final ModelComponentReference<I0> i0;
 		private final ModelComponentReference<I1> i1;
@@ -306,11 +306,11 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		private final Bits inputBits;
 
 		protected ModelAction5() {
-			this.i0 = ModelComponentReference.of((Class<I0>)new TypeToken<I0>(getClass()) {}.getRawType());
-			this.i1 = ModelComponentReference.of((Class<I1>)new TypeToken<I1>(getClass()) {}.getRawType());
-			this.i2 = ModelComponentReference.of((Class<I2>)new TypeToken<I2>(getClass()) {}.getRawType());
-			this.i3 = ModelComponentReference.of((Class<I3>)new TypeToken<I3>(getClass()) {}.getRawType());
-			this.i4 = ModelComponentReference.of((Class<I4>)new TypeToken<I4>(getClass()) {}.getRawType());
+			this.i0 = referenceOf(new TypeToken<I0>(getClass()) {});
+			this.i1 = referenceOf(new TypeToken<I1>(getClass()) {});
+			this.i2 = referenceOf(new TypeToken<I2>(getClass()) {});
+			this.i3 = referenceOf(new TypeToken<I3>(getClass()) {});
+			this.i4 = referenceOf(new TypeToken<I4>(getClass()) {});
 			this.inputs = ImmutableList.of(i0, i1, i2, i3, i4);
 			this.inputBits = i0.componentBits().or(i1.componentBits()).or(i2.componentBits()).or(i3.componentBits()).or(i4.componentBits());
 		}
@@ -346,6 +346,18 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		@Override
 		public String toString() {
 			return displayName(this) + " (" + inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", ")) + ")";
+		}
+	}
+
+	private static <T extends ModelComponent> ModelComponentReference<T> referenceOf(TypeToken<T> type) {
+		if (type.isSubtypeOf(ModelComponentTag.class)) {
+			@SuppressWarnings("unchecked")
+			val result = (ModelComponentReference<T>) ModelTags.referenceOf((Class<? extends ModelTag>) ((ParameterizedType) type.getType()).getActualTypeArguments()[0]);
+			return result;
+		} else {
+			@SuppressWarnings("unchecked")
+			val componentType = (Class<T>) type.getRawType();
+			return ModelComponentReference.of(componentType);
 		}
 	}
 }

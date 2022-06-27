@@ -245,11 +245,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 	// ComponentFromEntity<DisplayNameComponent> read/write self
 	// ComponentFromEntity<DeclarableDependencyBucketSpec.Tag> read-only self
 	private static final class DisplayNameRule extends ModelActionWithInputs.ModelAction3<ModelComponentTag<IsDependencyBucket>, ElementNameComponent, ModelState.IsAtLeastCreated> {
-
-		public DisplayNameRule() {
-			super(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class));
-		}
-
 		@Override
 		protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored1, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored2) {
 			if (!entity.has(DisplayNameComponent.class)) {
@@ -264,10 +259,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 	// ComponentFromEntity<IdentifierComponent> read-only parent
 	private static final class DescriptionRule extends ModelActionWithInputs.ModelAction4<ModelComponentTag<IsDependencyBucket>, ConfigurationComponent, ParentComponent, DisplayNameComponent> {
-		public DescriptionRule() {
-			super(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(DisplayNameComponent.class));
-		}
-
 		@Override
 		protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored, ConfigurationComponent configuration, ParentComponent parent, DisplayNameComponent displayName) {
 			ifPresentOrElse(parent.get().find(IdentifierComponent.class).map(IdentifierComponent::get),
