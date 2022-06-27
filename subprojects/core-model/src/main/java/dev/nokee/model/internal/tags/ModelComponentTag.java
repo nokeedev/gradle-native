@@ -21,7 +21,7 @@ import dev.nokee.model.internal.core.ModelComponentType;
 public final class ModelComponentTag<T extends ModelTag> implements ModelComponent {
 	private final Class<T> tagType;
 
-	public ModelComponentTag(Class<T> tagType) {
+	ModelComponentTag(Class<T> tagType) {
 		this.tagType = tagType;
 	}
 
