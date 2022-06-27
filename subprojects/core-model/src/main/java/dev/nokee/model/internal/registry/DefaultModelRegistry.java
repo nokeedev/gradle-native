@@ -205,15 +205,17 @@ public final class DefaultModelRegistry implements ModelRegistry, ModelConfigure
 		public void projectionAdded(ModelNode node, ModelComponent newComponent) {
 			List<ModelAction> c = null;
 			if (newComponent instanceof ModelProjection) {
-				c = ImmutableList.copyOf(config.get(ModelComponentType.componentOf(ModelProjection.class)));
+				c = new ArrayList<>(config.get(ModelComponentType.componentOf(ModelProjection.class)));
 			} else {
-				c = ImmutableList.copyOf(config.get(newComponent.getComponentType()));
+				c = new ArrayList<>(config.get(newComponent.getComponentType()));
 			}
 
 			Bits newComponentBits = newComponent.getComponentType().familyBits();
+			c.removeIf(configuration -> !newComponentBits.intersects(((HasInputs) configuration).getInputBits()) || !node.getComponentBits().containsAll(((HasInputs) configuration).getInputBits()));
+
 			for (int i = 0; i < c.size(); ++i) {
 				val configuration = c.get(i);
-				if (newComponentBits.intersects(((HasInputs) configuration).getInputBits())) {
+				if (newComponentBits.intersects(((HasInputs) configuration).getInputBits())) { // recheck condition in case something changes
 					configuration.execute(node);
 				}
 			}
