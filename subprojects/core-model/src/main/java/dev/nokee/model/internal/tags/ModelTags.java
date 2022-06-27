@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentMap;
 public final class ModelTags {
 	private static final ConcurrentMap<Class<? extends ModelTag>, ModelComponentTag<?>> tags = new ConcurrentHashMap<>();
 
+	private ModelTags() {}
+
 	private static <T extends ModelTag> ModelComponentTag<T> newTag(Class<T> type) {
 		return new ModelComponentTag<>(type);
 	}
