@@ -19,11 +19,9 @@ import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.TaskView;
@@ -48,7 +46,6 @@ final class RegisterCompileTasksPropertyRule extends ModelActionWithInputs.Model
 	private final ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory;
 
 	public RegisterCompileTasksPropertyRule(ModelRegistry registry, ComponentTasksPropertyRegistrationFactory tasksPropertyRegistrationFactory) {
-		super(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class));
 		this.registry = registry;
 		this.tasksPropertyRegistrationFactory = tasksPropertyRegistrationFactory;
 	}

@@ -21,11 +21,9 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.SourceSetFactory;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ModelPropertyTag;
 import dev.nokee.model.internal.core.ModelPropertyTypeComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -33,7 +31,6 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
-import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.model.ObjectFactory;
@@ -44,7 +41,6 @@ import java.util.concurrent.Callable;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelTypes.set;
-import static dev.nokee.utils.FileCollectionUtils.elementsOf;
 
 public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs.ModelAction2<ModelComponentTag<HasConfigurableHeadersMixIn.Tag>, ModelComponentTag<IsLanguageSourceSet>> {
 	private final ModelRegistry registry;
@@ -52,7 +48,6 @@ public final class HasConfigurableHeadersMixInRule extends ModelActionWithInputs
 	private final ObjectFactory objects;
 
 	HasConfigurableHeadersMixInRule(ModelRegistry registry, SourceSetFactory sourceSetFactory, ObjectFactory objects) {
-		super(ModelTags.referenceOf(HasConfigurableHeadersMixIn.Tag.class), ModelTags.referenceOf(IsLanguageSourceSet.class));
 		this.registry = registry;
 		this.sourceSetFactory = sourceSetFactory;
 		this.objects = objects;
