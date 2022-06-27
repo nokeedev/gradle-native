@@ -17,6 +17,9 @@ package dev.nokee.model.internal.core;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.internal.buffers.ModelBufferComponent;
+import dev.nokee.model.internal.buffers.ModelBufferElement;
+import dev.nokee.model.internal.buffers.ModelBuffers;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
@@ -353,6 +356,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 		if (type.isSubtypeOf(ModelComponentTag.class)) {
 			@SuppressWarnings("unchecked")
 			val result = (ModelComponentReference<T>) ModelTags.referenceOf((Class<? extends ModelTag>) ((ParameterizedType) type.getType()).getActualTypeArguments()[0]);
+			return result;
+		} else if (type.isSubtypeOf(ModelBufferComponent.class)) {
+			@SuppressWarnings("unchecked")
+			val result = (ModelComponentReference<T>) ModelBuffers.referenceOf((Class<? extends ModelBufferElement>) ((ParameterizedType) type.getType()).getActualTypeArguments()[0]);
 			return result;
 		} else {
 			@SuppressWarnings("unchecked")
