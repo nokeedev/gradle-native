@@ -17,7 +17,6 @@ package dev.nokee.model.internal;
 
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentType;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import lombok.val;
@@ -50,6 +49,12 @@ class DomainObjectEntitiesTagTest {
 		assertThat(subject.getComponents(), hasTag(AbstractTypeSpec.Tag.class));
 	}
 
+	@Test
+	void canAddAdditionalTags() {
+		val subject = newEntity("my-name", MyTypeSpec.class, it -> it.withTag(MyTag.class));
+		assertThat(subject.getComponents(), hasTag(MyTag.class));
+	}
+
 	private static Matcher<Iterable<? super ModelComponent>> hasTag(Class<? extends ModelTag> tag) {
 		return hasItem(new FeatureMatcher<ModelComponent, ModelComponentType<?>>(equalTo(ModelTags.typeOf(tag)), "", "") {
 			@Override
@@ -58,6 +63,8 @@ class DomainObjectEntitiesTagTest {
 			}
 		});
 	}
+
+	interface MyTag extends ModelTag {}
 
 	@DomainObjectEntities.Tag(MyTypeSpec.Tag.class)
 	interface MyTypeSpec {

@@ -109,6 +109,11 @@ public final class DomainObjectEntities {
 			return this;
 		}
 
+		public <T extends ModelTag> Builder withTag(Class<T> tag) {
+			delegate.withComponent(ModelTags.tag(tag));
+			return this;
+		}
+
 		public Builder withComponent(ModelComponent component) {
 			delegate.withComponent(component);
 			return this;
