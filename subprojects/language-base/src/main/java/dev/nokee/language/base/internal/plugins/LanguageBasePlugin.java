@@ -15,26 +15,21 @@
  */
 package dev.nokee.language.base.internal.plugins;
 
-import com.google.common.collect.Iterators;
 import com.google.common.collect.MoreCollectors;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.internal.HasConfigurableSourceMixInRule;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.SourceSetFactory;
-import dev.nokee.model.DomainObjectIdentifier;
-import dev.nokee.model.HasName;
-import dev.nokee.model.internal.core.DisplayName;
+import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.NamingScheme;
 import dev.nokee.model.internal.names.NamingSchemeSystem;
@@ -57,11 +52,9 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.util.Iterator;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -90,7 +83,7 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		// ComponentFromEntity<ParentComponent> read-only self
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsLanguageSourceSet.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
 			val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
-			entity.addComponent(new IdentifierComponent(new DefaultIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
+			entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedSourceAwareComponentMixIn<? extends ComponentSources, ? extends ComponentSources>>() {})), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
@@ -130,36 +123,4 @@ public class LanguageBasePlugin implements Plugin<Project> {
 		}
 	}
 
-	private static final class DefaultIdentifier implements DomainObjectIdentifier, HasName {
-		private final ElementName elementName;
-		@Nullable private final DomainObjectIdentifier parentIdentifier;
-		private final DisplayName displayName;
-		private final ModelPath path;
-
-		private DefaultIdentifier(ElementName elementName, @Nullable DomainObjectIdentifier parentIdentifier, DisplayName displayName, ModelPath path) {
-			this.elementName = elementName;
-			this.parentIdentifier = parentIdentifier;
-			this.displayName = displayName;
-			this.path = path;
-		}
-
-		@Override
-		public Object getName() {
-			return elementName;
-		}
-
-		@Override
-		public Iterator<Object> iterator() {
-			if (parentIdentifier == null) {
-				return Iterators.forArray(this);
-			} else {
-				return Iterators.concat(parentIdentifier.iterator(), Iterators.forArray(this));
-			}
-		}
-
-		@Override
-		public String toString() {
-			return displayName + " ':" + path.toString().replace(".", ":") + "'";
-		}
-	}
 }
