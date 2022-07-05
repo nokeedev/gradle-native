@@ -39,7 +39,6 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
 public final class ResolvableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -56,7 +55,6 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		val incoming = new IncomingArtifacts(configurationProvider);
 		val bucket = new DefaultResolvableDependencyBucket(bucketFactory.create(identifier), incoming);
 		configurationProvider.configure(ConfigurationUtils.configureAsResolvable());
-		configurationProvider.configure(ConfigurationUtils.configureDescription(toDescription(identifier)));
 		configurationProvider.configure(configuration -> {
 			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
 			if (extension == null) {
