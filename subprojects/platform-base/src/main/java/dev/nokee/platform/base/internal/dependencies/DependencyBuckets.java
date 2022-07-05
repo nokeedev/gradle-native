@@ -16,8 +16,13 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.Iterables;
+import dev.nokee.model.internal.names.ElementName;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.gradle.util.GUtil;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public final class DependencyBuckets {
 	public static String toDescription(DependencyBucketIdentifier identifier) {
@@ -33,5 +38,38 @@ public final class DependencyBuckets {
 		}
 		builder.append(".");
 		return builder.toString();
+	}
+
+	/**
+	 * Returns the default display name for the specified dependency bucket name.
+	 *
+	 * Note: For declarable buckets, use {@link #defaultDisplayNameOfDeclarableBucket(ElementName)} instead.
+	 *
+	 * @param name  the dependency bucket name, must not be null
+	 * @return the default display name, never null
+	 */
+	public static String defaultDisplayName(ElementName name) {
+		assert name != null;
+		return Arrays.stream(GUtil.toWords(name.toString()).split(" ")).map(it -> {
+			if (it.equals("api")) {
+				return "API";
+			} else if (it.equals("jvm")) {
+				return "JVM";
+			} else {
+				return it;
+			}
+		}).collect(Collectors.joining(" "));
+	}
+
+	/**
+	 * Returns the default display name for the specified declarable dependency bucket name.
+	 *
+	 * Note: For consumable/resolvable buckets, use {@link #defaultDisplayName(ElementName)} instead.
+	 *
+	 * @param name  the dependency bucket name, must not be null
+	 * @return the default display name, never null
+	 */
+	public static String defaultDisplayNameOfDeclarableBucket(ElementName name) {
+		return defaultDisplayName(name) + " dependencies";
 	}
 }

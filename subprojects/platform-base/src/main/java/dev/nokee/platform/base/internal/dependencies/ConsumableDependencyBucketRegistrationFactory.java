@@ -42,7 +42,6 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
 public final class ConsumableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -61,7 +60,6 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		val bucket = new DefaultConsumableDependencyBucket(bucketFactory.create(identifier), outgoing);
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		configurationProvider.configure(ConfigurationUtils.configureAsConsumable());
-		configurationProvider.configure(ConfigurationUtils.configureDescription(toDescription(identifier)));
 		configurationProvider.configure(configuration -> {
 			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
 			if (extension == null) {

@@ -19,13 +19,8 @@ import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
-import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.artifacts.Configuration;
-
-import java.util.function.Supplier;
-
-import static dev.nokee.utils.ConfigurationUtils.configureDescription;
 
 public final class DependencyBucketFactoryImpl implements DependencyBucketFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -40,31 +35,7 @@ public final class DependencyBucketFactoryImpl implements DependencyBucketFactor
 	public DependencyBucket create(DependencyBucketIdentifier identifier) {
 		val configurationProvider = configurationRegistry.registerIfAbsent(ConfigurationNamer.INSTANCE.determineName(identifier));
 		configurationProvider.configure(identifier.getType()::configure);
-		configurationProvider.configure(configureDescription(mapDisplayName(identifier)));
 
 		return new DefaultDependencyBucket(identifier.getName().get(), configurationProvider, dependencyFactory);
-	}
-
-	public static Supplier<String> mapDisplayName(DependencyBucketIdentifier identifier) {
-		return new MapDisplayName(identifier);
-	}
-
-	@EqualsAndHashCode
-	private static class MapDisplayName implements Supplier<String> {
-		private final DependencyBucketIdentifier identifier;
-
-		public MapDisplayName(DependencyBucketIdentifier identifier) {
-			this.identifier = identifier;
-		}
-
-		@Override
-		public String get() {
-			return DependencyBuckets.toDescription(identifier);
-		}
-
-		@Override
-		public String toString() {
-			return "DomainObjectIdentifierUtils.mapDisplayName(" + identifier + ")";
-		}
 	}
 }

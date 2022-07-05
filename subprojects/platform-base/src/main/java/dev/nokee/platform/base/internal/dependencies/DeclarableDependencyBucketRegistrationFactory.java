@@ -37,7 +37,6 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInjec
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.toDescription;
 
 public final class DeclarableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -53,7 +52,6 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
-		configurationProvider.configure(ConfigurationUtils.configureDescription(toDescription(identifier)));
 		configurationProvider.configure(configuration -> {
 			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
 			if (extension == null) {
