@@ -30,7 +30,6 @@ import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.plugins.ExtensionAware;
 
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -49,14 +48,6 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		val incoming = new IncomingArtifacts(configurationProvider);
 		val bucket = new DefaultResolvableDependencyBucket(bucketFactory.create(identifier), incoming);
-		configurationProvider.configure(configuration -> {
-			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
-			if (extension == null) {
-				((ExtensionAware) configuration).getExtensions().add(ResolvableDependencyBucket.class, "__bucket", bucket);
-			} else if (!(extension instanceof ResolvableDependencyBucket)) {
-				throw new IllegalStateException("Bucket registration mismatch!");
-			}
-		});
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsDependencyBucket.class))

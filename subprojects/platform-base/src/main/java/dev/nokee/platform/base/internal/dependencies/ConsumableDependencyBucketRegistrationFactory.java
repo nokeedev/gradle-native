@@ -31,7 +31,6 @@ import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 
@@ -54,14 +53,6 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		val outgoing = objects.newInstance(OutgoingArtifacts.class);
 		val bucket = new DefaultConsumableDependencyBucket(bucketFactory.create(identifier), outgoing);
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
-		configurationProvider.configure(configuration -> {
-			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
-			if (extension == null) {
-				((ExtensionAware) configuration).getExtensions().add(ConsumableDependencyBucket.class, "__bucket", bucket);
-			} else if (!(extension instanceof ConsumableDependencyBucket)) {
-				throw new IllegalStateException("Bucket registration mismatch!");
-			}
-		});
 		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
