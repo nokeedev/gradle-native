@@ -16,9 +16,13 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
@@ -41,12 +45,14 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
 	private final ObjectFactory objects;
+	private final ModelLookup lookup;
 	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
-	public ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ObjectFactory objects) {
+	public ConsumableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ObjectFactory objects, ModelLookup lookup) {
 		this.configurationRegistry = configurationRegistry;
 		this.bucketFactory = bucketFactory;
 		this.objects = objects;
+		this.lookup = lookup;
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
@@ -55,7 +61,8 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
 		return ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
+			.withComponent(new ElementNameComponent(identifier.getName()))
+			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(ofInstance(bucket))
