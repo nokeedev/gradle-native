@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.dependencies
 
 
 import dev.nokee.model.internal.ProjectIdentifier
+import dev.nokee.model.internal.names.ElementName
 import dev.nokee.platform.base.DependencyBucket
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
@@ -30,7 +31,7 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "can create identifier owned by a project using factory method"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def bucketName = DependencyBucketName.of('implementation')
+		def bucketName = ElementName.of('implementation')
 
 		when:
 		def identifier = DependencyBucketIdentifier.of(bucketName, TestableBucket, projectIdentifier)
@@ -44,7 +45,7 @@ class DependencyBucketIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def bucketName = DependencyBucketName.of('implementation')
+		def bucketName = ElementName.of('implementation')
 
 		when:
 		def identifier = DependencyBucketIdentifier.of(bucketName, TestableBucket, componentIdentifier)
@@ -59,7 +60,7 @@ class DependencyBucketIdentifierTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
-		def bucketName = DependencyBucketName.of('implementation')
+		def bucketName = ElementName.of('implementation')
 
 		when:
 		def identifier = DependencyBucketIdentifier.of(bucketName, TestableBucket, variantIdentifier)
@@ -79,7 +80,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "throws exception when bucket type is null"() {
 		when:
-		DependencyBucketIdentifier.of(DependencyBucketName.of('implementation'), null, ProjectIdentifier.ofRootProject())
+		DependencyBucketIdentifier.of(ElementName.of('implementation'), null, ProjectIdentifier.ofRootProject())
 
 		then:
 		thrown(NullPointerException)

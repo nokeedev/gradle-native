@@ -17,43 +17,44 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.base.Preconditions;
 import dev.nokee.model.HasName;
+import dev.nokee.model.internal.names.ElementName;
 import lombok.EqualsAndHashCode;
 import lombok.val;
-import org.gradle.util.GUtil;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
+
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.defaultDisplayName;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.defaultDisplayNameOfDeclarableBucket;
 
 @EqualsAndHashCode
 public final class DependencyBucketIdentity implements HasName {
 	public static DependencyBucketIdentity declarable(String name) {
-		val bucketName = DependencyBucketName.of(name);
+		val bucketName = ElementName.of(name);
 		return new DependencyBucketIdentity(bucketName, DependencyBucketType.Declarable, defaultDisplayNameOfDeclarableBucket(bucketName));
 	}
 
 	public static DependencyBucketIdentity consumable(String name) {
-		val bucketName = DependencyBucketName.of(name);
+		val bucketName = ElementName.of(name);
 		return new DependencyBucketIdentity(bucketName, DependencyBucketType.Consumable, defaultDisplayName(bucketName));
 	}
 
 	public static DependencyBucketIdentity resolvable(String name) {
-		val bucketName = DependencyBucketName.of(name);
+		val bucketName = ElementName.of(name);
 		return new DependencyBucketIdentity(bucketName, DependencyBucketType.Resolvable, defaultDisplayName(bucketName));
 	}
 
-	private final DependencyBucketName name;
+	private final ElementName name;
 	private final DependencyBucketType type;
 	private final String displayName;
 
-	private DependencyBucketIdentity(DependencyBucketName name, DependencyBucketType type, String displayName) {
+	private DependencyBucketIdentity(ElementName name, DependencyBucketType type, String displayName) {
 		this.name = Objects.requireNonNull(name);
 		this.type = Objects.requireNonNull(type);
 		this.displayName = Objects.requireNonNull(displayName);
 	}
 
 	@Override
-	public DependencyBucketName getName() {
+	public ElementName getName() {
 		return name;
 	}
 
@@ -76,10 +77,10 @@ public final class DependencyBucketIdentity implements HasName {
 
 	public static final class Builder {
 		private String displayName;
-		private DependencyBucketName name;
+		private ElementName name;
 		private DependencyBucketType type = DependencyBucketType.Declarable;
 
-		public Builder name(DependencyBucketName name) {
+		public Builder name(ElementName name) {
 			this.name = Objects.requireNonNull(name);
 			return this;
 		}
@@ -107,21 +108,5 @@ public final class DependencyBucketIdentity implements HasName {
 
 			return new DependencyBucketIdentity(name, type, displayName);
 		}
-	}
-
-	private static String defaultDisplayName(DependencyBucketName name) {
-		return Arrays.stream(GUtil.toWords(name.toString()).split(" ")).map(it -> {
-			if (it.equals("api")) {
-				return "API";
-			} else if (it.equals("jvm")) {
-				return "JVM";
-			} else {
-				return it;
-			}
-		}).collect(Collectors.joining(" "));
-	}
-
-	private static String defaultDisplayNameOfDeclarableBucket(DependencyBucketName name) {
-		return defaultDisplayName(name) + " dependencies";
 	}
 }

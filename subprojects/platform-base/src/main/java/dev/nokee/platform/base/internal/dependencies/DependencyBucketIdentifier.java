@@ -17,6 +17,7 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.DependencyBucket;
 import lombok.EqualsAndHashCode;
 
@@ -38,7 +39,7 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 		this.ownerIdentifier = ownerIdentifier;
 	}
 
-	public DependencyBucketName getName() {
+	public ElementName getName() {
 		return identity.getName();
 	}
 
@@ -47,7 +48,7 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 	}
 
 	// FIXME: Remove this API
-	public static DependencyBucketIdentifier of(DependencyBucketName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
+	public static DependencyBucketIdentifier of(ElementName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
 		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), ownerIdentifier);
 	}
 
