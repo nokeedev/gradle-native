@@ -17,6 +17,8 @@ package dev.nokee.model.internal.names;
 
 import lombok.EqualsAndHashCode;
 
+import java.util.Objects;
+
 /**
  * An element name represent the name of a domain object regardless of its owners.
  * The name is non-unique across all domain objects of a project.
@@ -39,6 +41,6 @@ public final class ElementName {
 	}
 
 	public static ElementName of(String name) {
-		return new ElementName(name);
+		return new ElementName(Objects.requireNonNull(name));
 	}
 }
