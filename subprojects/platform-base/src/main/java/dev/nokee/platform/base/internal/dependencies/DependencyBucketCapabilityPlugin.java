@@ -15,22 +15,34 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
+import lombok.val;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 
+import javax.inject.Inject;
+
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
+import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsResolvable;
@@ -38,8 +50,17 @@ import static dev.nokee.utils.ConfigurationUtils.configureDescription;
 import static dev.nokee.utils.Optionals.ifPresentOrElse;
 
 public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
+	private final NamedDomainObjectRegistry<Configuration> registry;
+
+	@Inject
+	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations) {
+		this.registry = NamedDomainObjectRegistry.of(configurations);
+	}
+
 	@Override
 	public void apply(T target) {
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), this::createConfiguration));
+
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DisplayNameRule());
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DescriptionRule());
@@ -90,5 +111,13 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 				it -> configuration.configure(configureDescription(DependencyBucketDescription.of(displayName.get()).forOwner(it)::toString)),
 				() -> configuration.configure(configureDescription(DependencyBucketDescription.of(displayName.get())::toString)));
 		}
+	}
+
+	private void createConfiguration(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored, FullyQualifiedNameComponent fullyQualifiedName) {
+		val configurationProvider = registry.registerIfAbsent(fullyQualifiedName.get().toString());
+		entity.addComponent(new ConfigurationComponent(configurationProvider));
+		entity.addComponent(new ModelElementProviderSourceComponent(configurationProvider));
+		entity.addComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider));
+		entity.addComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get));
 	}
 }

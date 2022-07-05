@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
@@ -33,10 +32,8 @@ import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.ExtensionAware;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
-import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ResolvableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -64,13 +61,9 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(new ModelElementProviderSourceComponent(configurationProvider))
-			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
-			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
 			.withComponent(ofInstance(incoming))
 			.withComponent(tag(ResolvableDependencyBucketTag.class))
-			.withComponent(new ConfigurationComponent(configurationProvider))
 			.build();
 	}
 

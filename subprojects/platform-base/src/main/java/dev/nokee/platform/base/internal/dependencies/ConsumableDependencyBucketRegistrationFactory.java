@@ -25,7 +25,6 @@ import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -36,10 +35,8 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
-import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ConsumableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -70,12 +67,9 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
-			.withComponent(createdUsing(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
 			.withComponent(ofInstance(outgoing))
 			.withComponent(tag(ConsumableDependencyBucketTag.class))
-			.withComponent(new ConfigurationComponent(configurationProvider))
 			.build();
 	}
 
