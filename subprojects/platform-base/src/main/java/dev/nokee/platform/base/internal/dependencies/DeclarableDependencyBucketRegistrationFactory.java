@@ -22,7 +22,6 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -31,7 +30,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.plugins.ExtensionAware;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
@@ -59,7 +57,6 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 				throw new IllegalStateException("Bucket registration mismatch!");
 			}
 		});
-		val entityPath = toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsDependencyBucket.class))
