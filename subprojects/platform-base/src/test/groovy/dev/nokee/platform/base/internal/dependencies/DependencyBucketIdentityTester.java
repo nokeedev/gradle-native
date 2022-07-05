@@ -16,15 +16,7 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.testers.HasNameTester;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public interface DependencyBucketIdentityTester extends HasNameTester {
 	DependencyBucketIdentity subject();
-
-	@Test
-	default void hasType() {
-		assertNotNull(subject().getType());
-	}
 }

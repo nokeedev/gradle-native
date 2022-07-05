@@ -77,14 +77,6 @@ class DependencyBucketIdentifierTest extends Specification {
 		thrown(NullPointerException)
 	}
 
-	def "throws exception when bucket type is null"() {
-		when:
-		DependencyBucketIdentifier.of(ElementName.of('implementation'), null, ProjectIdentifier.ofRootProject())
-
-		then:
-		thrown(NullPointerException)
-	}
-
 	def "throws exception when owner is null"() {
 		when:
 		DependencyBucketIdentifier.of(declarable('implementation'), null)

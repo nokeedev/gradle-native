@@ -33,9 +33,4 @@ class DependencyBucketIdentityDeclarableTest implements DependencyBucketIdentity
 	public void hasName() {
 		assertEquals(ElementName.of("sesu"), subject().getName());
 	}
-
-	@Test
-	public void hasType() {
-		assertEquals(DependencyBucketType.Declarable, subject().getType());
-	}
 }

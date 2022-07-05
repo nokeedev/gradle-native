@@ -25,7 +25,6 @@ import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.from;
 
 @EqualsAndHashCode
 public final class DependencyBucketIdentifier implements DomainObjectIdentifier {
@@ -48,7 +47,7 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 
 	// FIXME: Remove this API
 	public static DependencyBucketIdentifier of(ElementName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(builder().name(name).type(from(type)).build(), ownerIdentifier);
+		return new DependencyBucketIdentifier(builder().name(name).build(), ownerIdentifier);
 	}
 
 	public static DependencyBucketIdentifier of(DependencyBucketIdentity identity, DomainObjectIdentifier ownerIdentifier) {

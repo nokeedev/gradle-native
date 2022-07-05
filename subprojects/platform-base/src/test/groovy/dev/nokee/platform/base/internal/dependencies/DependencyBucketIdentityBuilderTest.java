@@ -20,25 +20,13 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.names.ElementName.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Consumable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Declarable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DependencyBucketIdentityBuilderTest {
 	@Test
-	void defaultsTypeToDeclarable() {
-		assertEquals(Declarable, builder().name(of("juno")).build().getType());
-	}
-
-	@Test
 	void hasNameFromBuilder() {
 		assertEquals(of("seza"), builder().name(of("seza")).build().getName());
-	}
-
-	@Test
-	void hasTypeFromBuilder() {
-		assertEquals(Consumable, builder().name(of("haka")).type(Consumable).build().getType());
 	}
 
 	@Test
