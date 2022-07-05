@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
@@ -34,6 +35,9 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.file.FileCollection;
 
+import javax.inject.Inject;
+
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 
@@ -52,23 +56,23 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		val incoming = new IncomingArtifacts(configurationProvider);
-		val bucket = new DefaultResolvableDependencyBucket(bucketFactory.create(identifier), incoming);
 		return ModelRegistration.builder()
 			.withComponent(new ElementNameComponent(identifier.getName()))
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(ofInstance(bucket))
+			.withComponent(managed(ModelType.of(DefaultResolvableDependencyBucket.class), bucketFactory.create(identifier), incoming))
 			.withComponent(ofInstance(incoming))
 			.withComponent(tag(ResolvableDependencyBucketTag.class))
 			.build();
 	}
 
-	private static final class DefaultResolvableDependencyBucket implements ResolvableDependencyBucket {
+	public static class DefaultResolvableDependencyBucket implements ResolvableDependencyBucket {
 		private final DependencyBucket delegate;
 		private final IncomingArtifacts incoming;
 
-		private DefaultResolvableDependencyBucket(DependencyBucket delegate, IncomingArtifacts incoming) {
+		@Inject
+		public DefaultResolvableDependencyBucket(DependencyBucket delegate, IncomingArtifacts incoming) {
 			this.delegate = delegate;
 			this.incoming = incoming;
 		}

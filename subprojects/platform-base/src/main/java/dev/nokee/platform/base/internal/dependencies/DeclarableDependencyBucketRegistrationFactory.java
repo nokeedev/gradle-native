@@ -25,14 +25,16 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import javax.inject.Inject;
+
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class DeclarableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -47,21 +49,21 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
-		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
 		return ModelRegistration.builder()
 			.withComponent(new ElementNameComponent(identifier.getName()))
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(ofInstance(bucket))
+			.withComponent(managed(of(DefaultDeclarableDependencyBucket.class), bucketFactory.create(identifier)))
 			.withComponent(tag(DeclarableDependencyBucketTag.class))
 			.build();
 	}
 
-	private static final class DefaultDeclarableDependencyBucket implements DeclarableDependencyBucket {
+	public static class DefaultDeclarableDependencyBucket implements DeclarableDependencyBucket {
 		private final DependencyBucket delegate;
 
-		private DefaultDeclarableDependencyBucket(DependencyBucket delegate) {
+		@Inject
+		public DefaultDeclarableDependencyBucket(DependencyBucket delegate) {
 			this.delegate = delegate;
 		}
 
