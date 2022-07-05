@@ -18,13 +18,10 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.type.ModelType;
@@ -37,28 +34,31 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.plugins.ExtensionAware;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.*;
+import static dev.nokee.internal.testing.ConfigurationMatchers.dependencies;
+import static dev.nokee.internal.testing.ConfigurationMatchers.description;
+import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
+import static dev.nokee.internal.testing.ConfigurationMatchers.hasConfiguration;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.internal.testing.ProjectMatchers.extensions;
-import static dev.nokee.internal.testing.ProjectMatchers.publicType;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
-import static org.gradle.api.reflect.TypeOf.typeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @PluginRequirement.Require(type = ComponentModelBasePlugin.class)
 class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends AbstractPluginTest {
@@ -163,11 +163,6 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		}
 
 		@Test
-		void hasDependencyBucketExtension() {
-			assertThat(subject(), extensions(hasItem(publicType(typeOf(ResolvableDependencyBucket.class)))));
-		}
-
-		@Test
 		void doesNotRealizeNodeWhenConfigurationIsRealized() {
 			assertFalse(ModelStates.getState(ModelNodes.of(element)).isAtLeast(Realized));
 		}
@@ -215,32 +210,5 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		});
 		ModelNodeUtils.get(ModelNodes.of(bucketProvider), Configuration.class).resolve();
 		assertThat(ModelStates.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
-	}
-
-	@Nested
-	class DependencyBucketExtensionTest {
-		@Test
-		void throwsExceptionWhenDeclarableDependencyBucketExtensionAlreadyExists() {
-			project.getConfigurations().register("wizi", configuration -> {
-				((ExtensionAware) configuration).getExtensions().add(DeclarableDependencyBucket.class, "__bucket", Mockito.mock(DeclarableDependencyBucket.class));
-			});
-			assertThrows(RuntimeException.class, () -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(resolvable("wizi"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
-		}
-
-		@Test
-		void throwsExceptionWhenConsumableDependencyBucketExtensionAlreadyExists() {
-			project.getConfigurations().register("zuja", configuration -> {
-				((ExtensionAware) configuration).getExtensions().add(ConsumableDependencyBucket.class, "__bucket", Mockito.mock(ConsumableDependencyBucket.class));
-			});
-			assertThrows(RuntimeException.class, () -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(consumable("zuja"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
-		}
-
-		@Test
-		void doesNotThrowExceptionWhenResolvableDependencyBucketExtensionAlreadyExists() {
-			project.getConfigurations().register("gono", configuration -> {
-				((ExtensionAware) configuration).getExtensions().add(ResolvableDependencyBucket.class, "__bucket", Mockito.mock(ResolvableDependencyBucket.class));
-			});
-			assertDoesNotThrow(() -> project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(resolvable("gono"), ProjectIdentifier.ofRootProject()))).as(Configuration.class).get());
-		}
 	}
 }
