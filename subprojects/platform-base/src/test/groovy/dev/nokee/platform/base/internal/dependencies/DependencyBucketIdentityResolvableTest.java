@@ -33,9 +33,4 @@ class DependencyBucketIdentityResolvableTest implements DependencyBucketIdentity
 	public void hasName() {
 		assertEquals(ElementName.of("huzo"), subject().getName());
 	}
-
-	@Test
-	public void hasType() {
-		assertEquals(DependencyBucketType.Resolvable, subject().getType());
-	}
 }

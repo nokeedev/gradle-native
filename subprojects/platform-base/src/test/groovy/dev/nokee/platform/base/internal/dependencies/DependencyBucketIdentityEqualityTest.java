@@ -20,11 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.names.ElementName.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Consumable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Resolvable;
 
 class DependencyBucketIdentityEqualityTest {
 	@Test
@@ -32,8 +28,6 @@ class DependencyBucketIdentityEqualityTest {
 	void checkEquals() {
 		new EqualsTester()
 			.addEqualityGroup(declarable("gugu"), builder().name(of("gugu")).build())
-			.addEqualityGroup(consumable("gugu"), builder().name(of("gugu")).type(Consumable).build())
-			.addEqualityGroup(resolvable("gugu"), builder().name(of("gugu")).type(Resolvable).build())
 			.addEqualityGroup(declarable("naxa"), builder().name(of("naxa")).build())
 			.testEquals();
 	}

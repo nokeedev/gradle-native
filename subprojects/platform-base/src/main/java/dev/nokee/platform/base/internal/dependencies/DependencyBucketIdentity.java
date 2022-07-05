@@ -27,34 +27,28 @@ import java.util.Objects;
 public final class DependencyBucketIdentity implements HasName {
 	public static DependencyBucketIdentity declarable(String name) {
 		val bucketName = ElementName.of(name);
-		return new DependencyBucketIdentity(bucketName, DependencyBucketType.Declarable);
+		return new DependencyBucketIdentity(bucketName);
 	}
 
 	public static DependencyBucketIdentity consumable(String name) {
 		val bucketName = ElementName.of(name);
-		return new DependencyBucketIdentity(bucketName, DependencyBucketType.Consumable);
+		return new DependencyBucketIdentity(bucketName);
 	}
 
 	public static DependencyBucketIdentity resolvable(String name) {
 		val bucketName = ElementName.of(name);
-		return new DependencyBucketIdentity(bucketName, DependencyBucketType.Resolvable);
+		return new DependencyBucketIdentity(bucketName);
 	}
 
 	private final ElementName name;
-	private final DependencyBucketType type;
 
-	private DependencyBucketIdentity(ElementName name, DependencyBucketType type) {
+	private DependencyBucketIdentity(ElementName name) {
 		this.name = Objects.requireNonNull(name);
-		this.type = Objects.requireNonNull(type);
 	}
 
 	@Override
 	public ElementName getName() {
 		return name;
-	}
-
-	public DependencyBucketType getType() {
-		return type;
 	}
 
 	public static Builder builder() {
@@ -63,22 +57,16 @@ public final class DependencyBucketIdentity implements HasName {
 
 	public static final class Builder {
 		private ElementName name;
-		private DependencyBucketType type = DependencyBucketType.Declarable;
 
 		public Builder name(ElementName name) {
 			this.name = Objects.requireNonNull(name);
 			return this;
 		}
 
-		public Builder type(DependencyBucketType type) {
-			this.type = Objects.requireNonNull(type);
-			return this;
-		}
-
 		public DependencyBucketIdentity build() {
 			Preconditions.checkState(name != null);
 
-			return new DependencyBucketIdentity(name, type);
+			return new DependencyBucketIdentity(name);
 		}
 	}
 }

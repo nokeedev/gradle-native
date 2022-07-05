@@ -33,9 +33,4 @@ class DependencyBucketIdentityConsumableTest implements DependencyBucketIdentity
 	public void hasName() {
 		assertEquals(ElementName.of("fasi"), subject().getName());
 	}
-
-	@Test
-	public void hasType() {
-		assertEquals(DependencyBucketType.Consumable, subject().getType());
-	}
 }
