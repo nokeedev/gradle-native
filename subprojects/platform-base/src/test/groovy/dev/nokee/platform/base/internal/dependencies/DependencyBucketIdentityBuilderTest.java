@@ -16,14 +16,12 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.testing.NullPointerTester;
-import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.names.ElementName.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Declarable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Resolvable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -31,40 +29,6 @@ class DependencyBucketIdentityBuilderTest {
 	@Test
 	void defaultsTypeToDeclarable() {
 		assertEquals(Declarable, builder().name(of("juno")).build().getType());
-	}
-
-	@Test
-	void defaultsDisplayNameToBucketNameFollowedByDependenciesStringByDefault() {
-		assertEquals("ronu dependencies", builder().name(of("ronu")).build().getDisplayName());
-	}
-
-	@Test
-	void defaultsDisplayNameToBucketNameFollowedByDependenciesStringForDeclarableBucket() {
-		assertEquals("pama dependencies", builder().name(of("pama")).type(Declarable).build().getDisplayName());
-	}
-
-	@Test
-	void defaultsDisplayNameToBucketNameForConsumableBucket() {
-		assertEquals("qipa", builder().name(of("qipa")).type(Consumable).build().getDisplayName());
-	}
-
-	@Test
-	void defaultsDisplayNameToBucketNameForResolvableBucket() {
-		assertEquals("qeba", builder().name(of("qeba")).type(Resolvable).build().getDisplayName());
-	}
-
-	@Test
-	void canOverrideDisplayName() {
-		val subject =  builder().name(of("mulu"));
-		assertEquals("libever", subject.displayName("libever").build().getDisplayName());
-		assertEquals("mevulum", subject.type(Declarable).displayName("mevulum").build().getDisplayName());
-		assertEquals("wanoqaf", subject.type(Consumable).displayName("wanoqaf").build().getDisplayName());
-		assertEquals("xosemut", subject.type(Resolvable).displayName("xosemut").build().getDisplayName());
-	}
-
-	@Test
-	void useDisplayNameForToString() {
-		assertEquals("leqijug", builder().name(of("nora")).displayName("leqijug").build().toString());
 	}
 
 	@Test

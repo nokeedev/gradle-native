@@ -35,7 +35,6 @@ class DependencyBucketIdentityEqualityTest {
 			.addEqualityGroup(consumable("gugu"), builder().name(of("gugu")).type(Consumable).build())
 			.addEqualityGroup(resolvable("gugu"), builder().name(of("gugu")).type(Resolvable).build())
 			.addEqualityGroup(declarable("naxa"), builder().name(of("naxa")).build())
-			.addEqualityGroup(builder().name(of("gugu")).displayName("keldsed").build())
 			.testEquals();
 	}
 }
