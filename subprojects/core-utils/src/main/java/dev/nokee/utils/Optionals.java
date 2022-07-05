@@ -16,6 +16,7 @@
 package dev.nokee.utils;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public final class Optionals {
@@ -24,6 +25,14 @@ public final class Optionals {
 			return Stream.of(self.get());
 		} else {
 			return Stream.empty();
+		}
+	}
+
+	public static <T> void ifPresentOrElse(Optional<T> self, Consumer<? super T> action, Runnable emptyAction) {
+		if (self.isPresent()) {
+			action.accept(self.get());
+		} else {
+			emptyAction.run();
 		}
 	}
 }
