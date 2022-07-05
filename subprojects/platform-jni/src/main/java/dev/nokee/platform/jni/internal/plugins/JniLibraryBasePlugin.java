@@ -174,8 +174,6 @@ import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
@@ -213,9 +211,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-			val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("api"), identifier.get())));
-			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmImplementation"), identifier.get())));
-			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("jvmRuntimeOnly"), identifier.get())));
+			val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("api", identifier.get())));
+			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("jvmImplementation", identifier.get())));
+			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("jvmRuntimeOnly", identifier.get())));
 			project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 				private boolean alreadyExecuted = false;
 
@@ -223,14 +221,14 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				public void execute(NativeLanguagePlugin appliedPlugin) {
 					if (!alreadyExecuted) {
 						alreadyExecuted = true;
-						val nativeCompileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier.get())));
+						val nativeCompileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeCompileOnly", identifier.get())));
 						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(nativeCompileOnly)));
 					}
 				}
 			});
-			val nativeImplementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeImplementation"), identifier.get())));
-			val nativeLinkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeLinkOnly"), identifier.get())));
-			val nativeRuntimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeRuntimeOnly"), identifier.get())));
+			val nativeImplementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeImplementation", identifier.get())));
+			val nativeLinkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeLinkOnly", identifier.get())));
+			val nativeRuntimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeRuntimeOnly", identifier.get())));
 			implementation.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 
 			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(nativeImplementation)));
@@ -238,11 +236,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(nativeLinkOnly)));
 
 			val consumableFactory = project.getExtensions().getByType(ConsumableDependencyBucketRegistrationFactory.class);
-			val apiElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("apiElements"), identifier.get())));
+			val apiElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("apiElements", identifier.get())));
 			apiElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
 			apiElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 			entity.addComponent(new ApiElementsConfiguration(ModelNodes.of(apiElements)));
-			val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of(consumable("runtimeElements"), identifier.get())));
+			val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("runtimeElements", identifier.get())));
 			runtimeElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
 			runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 			entity.addComponent(new RuntimeElementsConfiguration(ModelNodes.of(runtimeElements)));
@@ -287,8 +285,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				// We use getByName instead of named as it doesn't really matter because Configuration are always realized
 				//   but also we have nested configure actions
 				// We should avoid extendsFrom outside the Universal Model
-				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("implementation"), identifier.get())), configureExtendsFrom(implementation.as(Configuration.class)));
-				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of(declarable("runtimeOnly"), identifier.get())), configureExtendsFrom(runtimeOnly.as(Configuration.class)));
+				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of("implementation", identifier.get())), configureExtendsFrom(implementation.as(Configuration.class)));
+				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of("runtimeOnly", identifier.get())), configureExtendsFrom(runtimeOnly.as(Configuration.class)));
 			});
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, jvmJar, apiElements) -> {
@@ -498,9 +496,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			}
 
 			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeImplementation"), identifier)));
-			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeLinkOnly"), identifier)));
-			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeRuntimeOnly"), identifier)));
+			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeImplementation", identifier)));
+			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeLinkOnly", identifier)));
+			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeRuntimeOnly", identifier)));
 
 			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
@@ -566,7 +564,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
-				val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of(declarable("nativeCompileOnly"), identifier.get())));
+				val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeCompileOnly", identifier.get())));
 				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
 			})));
 		}));

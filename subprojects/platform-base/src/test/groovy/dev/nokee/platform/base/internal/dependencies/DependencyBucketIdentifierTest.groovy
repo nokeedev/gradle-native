@@ -23,8 +23,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable
-
 @Subject(DependencyBucketIdentifier)
 class DependencyBucketIdentifierTest extends Specification {
 	def "can create identifier owned by a project using factory method"() {
@@ -79,7 +77,7 @@ class DependencyBucketIdentifierTest extends Specification {
 
 	def "throws exception when owner is null"() {
 		when:
-		DependencyBucketIdentifier.of(declarable('implementation'), null)
+		DependencyBucketIdentifier.of('implementation', null)
 
 		then:
 		def ex = thrown(IllegalArgumentException)

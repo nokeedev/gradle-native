@@ -18,27 +18,11 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.names.ElementName;
 import lombok.EqualsAndHashCode;
-import lombok.val;
 
 import java.util.Objects;
 
 @EqualsAndHashCode
 public final class DependencyBucketIdentity implements HasName {
-	public static DependencyBucketIdentity declarable(String name) {
-		val bucketName = ElementName.of(name);
-		return new DependencyBucketIdentity(bucketName);
-	}
-
-	public static DependencyBucketIdentity consumable(String name) {
-		val bucketName = ElementName.of(name);
-		return new DependencyBucketIdentity(bucketName);
-	}
-
-	public static DependencyBucketIdentity resolvable(String name) {
-		val bucketName = ElementName.of(name);
-		return new DependencyBucketIdentity(bucketName);
-	}
-
 	public static DependencyBucketIdentity of(ElementName name) {
 		return new DependencyBucketIdentity(name);
 	}

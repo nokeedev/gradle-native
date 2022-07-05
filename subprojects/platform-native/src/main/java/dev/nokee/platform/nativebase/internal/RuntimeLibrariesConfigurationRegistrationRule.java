@@ -35,7 +35,6 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 
 import static dev.nokee.model.internal.tags.ModelTags.tag;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 
 public final class RuntimeLibrariesConfigurationRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, ModelComponentTag<IsBinary>, ModelProjection> {
@@ -52,7 +51,7 @@ public final class RuntimeLibrariesConfigurationRegistrationRule extends ModelAc
 
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelComponentTag<IsBinary> ignored, ModelProjection projection) {
-		val runtimeLibraries = registry.register(ModelRegistration.builder().mergeFrom(resolvableFactory.create(DependencyBucketIdentifier.of(resolvable("runtimeLibraries"), identifier.get()))).withComponent(tag(RuntimeLibrariesDependencyBucketTag.class)).build());
+		val runtimeLibraries = registry.register(ModelRegistration.builder().mergeFrom(resolvableFactory.create(DependencyBucketIdentifier.of("runtimeLibraries", identifier.get()))).withComponent(tag(RuntimeLibrariesDependencyBucketTag.class)).build());
 		runtimeLibraries.configure(Configuration.class, forNativeRuntimeUsage());
 		entity.addComponent(new RuntimeLibrariesConfiguration(ModelNodes.of(runtimeLibraries)));
 		entity.addComponent(new DependentRuntimeLibraries(runtimeLibraries.as(Configuration.class).flatMap(it -> it.getIncoming().getFiles().getElements())));
