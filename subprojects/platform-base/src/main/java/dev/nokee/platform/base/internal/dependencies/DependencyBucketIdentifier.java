@@ -17,20 +17,22 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.HasName;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.platform.base.DependencyBucket;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 @EqualsAndHashCode
 public final class DependencyBucketIdentifier implements DomainObjectIdentifier {
-	private final DependencyBucketIdentity identity;
+	private final Identity identity;
 	private final DomainObjectIdentifier ownerIdentifier;
 
-	private DependencyBucketIdentifier(DependencyBucketIdentity identity, DomainObjectIdentifier ownerIdentifier) {
+	private DependencyBucketIdentifier(Identity identity, DomainObjectIdentifier ownerIdentifier) {
 		checkArgument(ownerIdentifier != null, "Cannot construct a dependency identifier because the owner identifier is null.");
 		this.identity = identity;
 		this.ownerIdentifier = ownerIdentifier;
@@ -46,11 +48,11 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 
 	// FIXME: Remove this API
 	public static DependencyBucketIdentifier of(ElementName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(DependencyBucketIdentity.of(name), ownerIdentifier);
+		return new DependencyBucketIdentifier(new Identity(name), ownerIdentifier);
 	}
 
 	public static DependencyBucketIdentifier of(String name, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(DependencyBucketIdentity.of(ElementName.of(name)), ownerIdentifier);
+		return new DependencyBucketIdentifier(new Identity(ElementName.of(name)), ownerIdentifier);
 	}
 
 	@Override
@@ -61,5 +63,19 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 	@Override
 	public String toString() {
 		throw new UnsupportedOperationException("not expecting a call");
+	}
+
+	@EqualsAndHashCode
+	public static final class Identity implements HasName {
+		private final ElementName name;
+
+		private Identity(ElementName name) {
+			this.name = Objects.requireNonNull(name);
+		}
+
+		@Override
+		public ElementName getName() {
+			return name;
+		}
 	}
 }
