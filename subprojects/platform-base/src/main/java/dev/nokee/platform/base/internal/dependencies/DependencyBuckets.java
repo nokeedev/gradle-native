@@ -15,31 +15,13 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.names.ElementName;
-import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.util.GUtil;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public final class DependencyBuckets {
-	public static String toDescription(DependencyBucketIdentifier identifier) {
-		val builder = new StringBuilder();
-		val identities = (Iterable<Object>) identifier;
-		val identity = Iterables.getLast(identifier);
-		builder.append(StringUtils.capitalize(identity.toString()));
-		builder.append(" for ");
-		if (Iterables.size(identities) == 1) {
-			builder.append("<unknown>");
-		} else {
-			builder.append(identifier.getOwnerIdentifier());
-		}
-		builder.append(".");
-		return builder.toString();
-	}
-
 	/**
 	 * Returns the default display name for the specified dependency bucket name.
 	 *
