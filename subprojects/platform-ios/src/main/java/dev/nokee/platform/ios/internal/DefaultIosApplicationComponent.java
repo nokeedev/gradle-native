@@ -48,7 +48,6 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.ios.IosApplication;
@@ -169,7 +168,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();
 		ConfigurationNamer configurationNamer = ConfigurationNamer.INSTANCE;
 		// Create iOS application specific tasks
-		Configuration interfaceBuilderToolConfiguration = configurations.create(configurationNamer.determineName(DependencyBucketIdentifier.of(DependencyBucketIdentity.resolvable("interfaceBuilderTool"), variantIdentifier)));
+		Configuration interfaceBuilderToolConfiguration = configurations.create(configurationNamer.determineName(DependencyBucketIdentifier.of("interfaceBuilderTool", variantIdentifier)));
 		interfaceBuilderToolConfiguration.getDependencies().add(dependencyHandler.create("dev.nokee.tool:ibtool:latest.release"));
 		Provider<CommandLineTool> interfaceBuilderTool = providers.provider(() -> new DescriptorCommandLineTool(interfaceBuilderToolConfiguration.getSingleFile()));
 

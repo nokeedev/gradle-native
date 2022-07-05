@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.model.internal.ProjectIdentifier.ofRootProject;
 import static dev.nokee.platform.base.internal.ComponentIdentifier.ofMain;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DependencyBucketConfigurationNameTest {
@@ -33,85 +32,85 @@ class DependencyBucketConfigurationNameTest {
 
 	@Test
 	void canGenerateConfigurationNameForProjectOwnedIdentifierIsTheSameAsBucketName() {
-		assertEquals("implementation", configurationName(of(declarable("implementation"), ofRootProject())));
-		assertEquals("compileOnly", configurationName(of(declarable("compileOnly"), ofRootProject())));
-		assertEquals("linkLibraries", configurationName(of(resolvable("linkLibraries"), ofRootProject())));
-		assertEquals("headerSearchPaths", configurationName(of(consumable("headerSearchPaths"), ofRootProject())));
+		assertEquals("implementation", configurationName(of("implementation", ofRootProject())));
+		assertEquals("compileOnly", configurationName(of("compileOnly", ofRootProject())));
+		assertEquals("linkLibraries", configurationName(of("linkLibraries", ofRootProject())));
+		assertEquals("headerSearchPaths", configurationName(of("headerSearchPaths", ofRootProject())));
 	}
 
 	@Test
 	void canGenerateConfigurationNameForMainComponentOwnedIdentifierIsTheSameAsBucketName() {
-		assertEquals("implementation", configurationName(of(declarable("implementation"), ofMain(ofRootProject()))));
-		assertEquals("compileOnly", configurationName(of(declarable("compileOnly"), ofMain(ofRootProject()))));
-		assertEquals("linkLibraries", configurationName(of(resolvable("linkLibraries"), ofMain(ofRootProject()))));
-		assertEquals("headerSearchPaths", configurationName(of(consumable("headerSearchPaths"), ofMain(ofRootProject()))));
+		assertEquals("implementation", configurationName(of("implementation", ofMain(ofRootProject()))));
+		assertEquals("compileOnly", configurationName(of("compileOnly", ofMain(ofRootProject()))));
+		assertEquals("linkLibraries", configurationName(of("linkLibraries", ofMain(ofRootProject()))));
+		assertEquals("headerSearchPaths", configurationName(of("headerSearchPaths", ofMain(ofRootProject()))));
 	}
 
 	@Test
 	void canGenerateConfigurationNameForNonMainComponentOwnedIdentifierStartsWithComponentName() {
 		assertEquals("testImplementation",
-			configurationName(of(declarable("implementation"), ComponentIdentifier.of("test", ofRootProject()))));
+			configurationName(of("implementation", ComponentIdentifier.of("test", ofRootProject()))));
 		assertEquals("testCompileOnly",
-			configurationName(of(declarable("compileOnly"), ComponentIdentifier.of("test", ofRootProject()))));
+			configurationName(of("compileOnly", ComponentIdentifier.of("test", ofRootProject()))));
 		assertEquals("testLinkLibraries",
-			configurationName(of(resolvable("linkLibraries"), ComponentIdentifier.of("test", ofRootProject()))));
+			configurationName(of("linkLibraries", ComponentIdentifier.of("test", ofRootProject()))));
 		assertEquals("testHeaderSearchPaths",
-			configurationName(of(consumable("headerSearchPaths"), ComponentIdentifier.of("test", ofRootProject()))));
+			configurationName(of("headerSearchPaths", ComponentIdentifier.of("test", ofRootProject()))));
 	}
 
 	@Test
 	void canGenerateConfigurationNameForVariantOwnedIdentifierOfMainComponentStartsWithAmbiguousVariantName() {
 		assertEquals("macosDebugImplementation",
-			configurationName(of(declarable("implementation"), VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
+			configurationName(of("implementation", VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
 		assertEquals("macosDebugCompileOnly",
-			configurationName(of(declarable("compileOnly"), VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
+			configurationName(of("compileOnly", VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
 		assertEquals("macosDebugLinkLibraries",
-			configurationName(of(resolvable("linkLibraries"), VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
+			configurationName(of("linkLibraries", VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
 		assertEquals("macosDebugHeaderSearchPaths",
-			configurationName(of(consumable("headerSearchPaths"), VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
+			configurationName(of("headerSearchPaths", VariantIdentifier.of("macosDebug", ofMain(ofRootProject())))));
 	}
 
 	@Test
 	void canGenerateConfigurationNameForVariantOwnedIdentifierOfNonMainComponentStartsWithComponentNameFollowedByAmbiguousVariantName() {
 		assertEquals("testMacosDebugImplementation",
-			configurationName(of(declarable("implementation"),
+			configurationName(of("implementation",
 				VariantIdentifier.of("macosDebug", ComponentIdentifier.of("test", ofRootProject())))));
 		assertEquals("testMacosDebugCompileOnly",
-			configurationName(of(declarable("compileOnly"),
+			configurationName(of("compileOnly",
 				VariantIdentifier.of("macosDebug", ComponentIdentifier.of("test", ofRootProject())))));
 		assertEquals("testMacosDebugLinkLibraries",
-			configurationName(of(resolvable("linkLibraries"),
+			configurationName(of("linkLibraries",
 				VariantIdentifier.of("macosDebug", ComponentIdentifier.of("test", ofRootProject())))));
 		assertEquals("testMacosDebugHeaderSearchPaths",
-			configurationName(of(consumable("headerSearchPaths"),
+			configurationName(of("headerSearchPaths",
 				VariantIdentifier.of("macosDebug", ComponentIdentifier.of("test", ofRootProject())))));
 	}
 
 	@Test
 	void canGenerateConfigurationNameForUniqueVariantOwnedIdentifierOfMainComponentIsTheSameAsBucketName() {
 		assertEquals("implementation",
-			configurationName(of(declarable("implementation"), VariantIdentifier.of("", ofMain(ofRootProject())))));
+			configurationName(of("implementation", VariantIdentifier.of("", ofMain(ofRootProject())))));
 		assertEquals("compileOnly",
-			configurationName(of(declarable("compileOnly"), VariantIdentifier.of("", ofMain(ofRootProject())))));
+			configurationName(of("compileOnly", VariantIdentifier.of("", ofMain(ofRootProject())))));
 		assertEquals("linkLibraries",
-			configurationName(of(resolvable("linkLibraries"), VariantIdentifier.of("", ofMain(ofRootProject())))));
+			configurationName(of("linkLibraries", VariantIdentifier.of("", ofMain(ofRootProject())))));
 		assertEquals("headerSearchPaths",
-			configurationName(of(consumable("headerSearchPaths"), VariantIdentifier.of("", ofMain(ofRootProject())))));
+			configurationName(of("headerSearchPaths", VariantIdentifier.of("", ofMain(ofRootProject())))));
 	}
 
 	@Test
 	void canGenerateConfigurationNameForUniqueVariantOwnedIdentifierOfNonMainComponentStartsWithComponentName() {
 		assertEquals("testImplementation",
-			configurationName(of(declarable("implementation"),
+			configurationName(of("implementation",
 				VariantIdentifier.of("", ComponentIdentifier.of("test", ofRootProject())))));
 		assertEquals("testCompileOnly",
-			configurationName(of(declarable("compileOnly"),
+			configurationName(of("compileOnly",
 				VariantIdentifier.of("", ComponentIdentifier.of("test", ofRootProject())))));
 		assertEquals("testLinkLibraries",
-			configurationName(of(resolvable("linkLibraries"),
+			configurationName(of("linkLibraries",
 				VariantIdentifier.of("", ComponentIdentifier.of("test", ofRootProject())))));
 		assertEquals("testHeaderSearchPaths",
-			configurationName(of(consumable("headerSearchPaths"),
+			configurationName(of("headerSearchPaths",
 				VariantIdentifier.of("", ComponentIdentifier.of("test", ofRootProject())))));
 	}
 }

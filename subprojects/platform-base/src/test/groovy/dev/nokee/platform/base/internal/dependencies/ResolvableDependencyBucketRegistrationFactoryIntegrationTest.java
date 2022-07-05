@@ -46,7 +46,6 @@ import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
 import static dev.nokee.model.internal.state.ModelState.Realized;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
@@ -69,7 +68,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 	@BeforeEach
 	void setup() {
 		subject = project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class);
-		element = project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of(consumable("goju"), ProjectIdentifier.of(project()))));
+		element = project().getExtensions().getByType(ModelRegistry.class).register(subject.create(DependencyBucketIdentifier.of("goju", ProjectIdentifier.of(project()))));
 	}
 
 	@Test

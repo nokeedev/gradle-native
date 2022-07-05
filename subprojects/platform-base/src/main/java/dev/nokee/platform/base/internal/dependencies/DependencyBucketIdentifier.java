@@ -49,8 +49,8 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 		return new DependencyBucketIdentifier(DependencyBucketIdentity.of(name), ownerIdentifier);
 	}
 
-	public static DependencyBucketIdentifier of(DependencyBucketIdentity identity, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(identity, ownerIdentifier);
+	public static DependencyBucketIdentifier of(String name, DomainObjectIdentifier ownerIdentifier) {
+		return new DependencyBucketIdentifier(DependencyBucketIdentity.of(ElementName.of(name)), ownerIdentifier);
 	}
 
 	@Override
