@@ -51,7 +51,6 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
-		configurationProvider.configure(ConfigurationUtils.configureAsDeclarable());
 		configurationProvider.configure(configuration -> {
 			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
 			if (extension == null) {
