@@ -81,6 +81,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(ofInstance(bucket))
 			.withComponent(ofInstance(outgoing))
 			.withComponent(tag(ConsumableDependencyBucketTag.class))
+			.withComponent(new ConfigurationComponent(configurationProvider))
 			.build();
 	}
 

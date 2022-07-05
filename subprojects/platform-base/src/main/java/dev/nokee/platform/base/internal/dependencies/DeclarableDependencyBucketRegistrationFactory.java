@@ -71,6 +71,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
 			.withComponent(tag(DeclarableDependencyBucketTag.class))
+			.withComponent(new ConfigurationComponent(configurationProvider))
 			.build();
 	}
 
