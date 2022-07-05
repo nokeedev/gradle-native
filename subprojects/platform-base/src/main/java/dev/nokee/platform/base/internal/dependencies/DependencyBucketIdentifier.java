@@ -24,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
 
 @EqualsAndHashCode
 public final class DependencyBucketIdentifier implements DomainObjectIdentifier {
@@ -47,7 +46,7 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 
 	// FIXME: Remove this API
 	public static DependencyBucketIdentifier of(ElementName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(builder().name(name).build(), ownerIdentifier);
+		return new DependencyBucketIdentifier(DependencyBucketIdentity.of(name), ownerIdentifier);
 	}
 
 	public static DependencyBucketIdentifier of(DependencyBucketIdentity identity, DomainObjectIdentifier ownerIdentifier) {

@@ -18,17 +18,17 @@ package dev.nokee.platform.base.internal.dependencies;
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.model.internal.names.ElementName.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 
 class DependencyBucketIdentityEqualityTest {
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
 	void checkEquals() {
 		new EqualsTester()
-			.addEqualityGroup(declarable("gugu"), builder().name(of("gugu")).build())
-			.addEqualityGroup(declarable("naxa"), builder().name(of("naxa")).build())
+			.addEqualityGroup(declarable("gugu"), consumable("gugu"), resolvable("gugu"))
+			.addEqualityGroup(declarable("naxa"), consumable("naxa"), resolvable("naxa"))
 			.testEquals();
 	}
 }
