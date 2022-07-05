@@ -33,7 +33,6 @@ import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.ExtensionAware;
 
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toPath;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -61,7 +60,6 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 				throw new IllegalStateException("Bucket registration mismatch!");
 			}
 		});
-		val entityPath = toPath(identifier);
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsDependencyBucket.class))
