@@ -18,7 +18,6 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -38,8 +37,12 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 
+import javax.inject.Inject;
+
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ConsumableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
@@ -57,7 +60,6 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val outgoing = objects.newInstance(OutgoingArtifacts.class);
-		val bucket = new DefaultConsumableDependencyBucket(bucketFactory.create(identifier), outgoing);
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
 		return ModelRegistration.builder()
@@ -65,17 +67,18 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(ofInstance(bucket))
+			.withComponent(managed(of(DefaultConsumableDependencyBucket.class), bucketFactory.create(identifier), outgoing))
 			.withComponent(ofInstance(outgoing))
 			.withComponent(tag(ConsumableDependencyBucketTag.class))
 			.build();
 	}
 
-	private static final class DefaultConsumableDependencyBucket implements ConsumableDependencyBucket {
+	public static class DefaultConsumableDependencyBucket implements ConsumableDependencyBucket {
 		private final DependencyBucket delegate;
 		private final OutgoingArtifacts outgoing;
 
-		private DefaultConsumableDependencyBucket(DependencyBucket delegate, OutgoingArtifacts outgoing) {
+		@Inject
+		public DefaultConsumableDependencyBucket(DependencyBucket delegate, OutgoingArtifacts outgoing) {
 			this.delegate = delegate;
 			this.outgoing = outgoing;
 		}
