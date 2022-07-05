@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.names.ElementName;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.model.internal.names.ElementName.of;
@@ -55,7 +54,7 @@ class DependencyBucketDefaultDisplayNameTest {
 	@Test
 	void alwaysCapitalizeJvmWord() {
 		assertThat(defaultDisplayNameOfDeclarableBucket(of("jvmImplementation")), equalTo("JVM implementation dependencies"));
-		assertThat(defaultDisplayName(of("jvmRuntimeOnly")), equalTo("JVM runtime only dependencies"));
+		assertThat(defaultDisplayName(of("jvmClasspath")), equalTo("JVM classpath"));
 	}
 
 	@Test
