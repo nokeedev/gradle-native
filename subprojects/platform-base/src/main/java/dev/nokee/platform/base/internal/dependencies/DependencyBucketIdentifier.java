@@ -24,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static dev.nokee.model.internal.DomainObjectIdentifierUtils.toGradlePath;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.from;
 
@@ -63,6 +62,6 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 
 	@Override
 	public String toString() {
-		return identity.getDisplayName() + " '" + toGradlePath(this) + "'";
+		throw new UnsupportedOperationException("not expecting a call");
 	}
 }
