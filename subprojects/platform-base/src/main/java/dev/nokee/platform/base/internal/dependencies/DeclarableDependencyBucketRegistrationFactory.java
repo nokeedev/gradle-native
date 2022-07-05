@@ -70,6 +70,7 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(createdUsing(of(NamedDomainObjectProvider.class), () -> configurationProvider))
 			.withComponent(createdUsingNoInject(of(Configuration.class), configurationProvider::get))
 			.withComponent(ofInstance(bucket))
+			.withComponent(tag(DeclarableDependencyBucketTag.class))
 			.build();
 	}
 
