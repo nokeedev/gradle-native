@@ -19,9 +19,11 @@ import com.google.common.testing.NullPointerTester;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.internal.names.ElementName.of;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketName.of;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.*;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Consumable;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Declarable;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Resolvable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

@@ -18,8 +18,11 @@ package dev.nokee.platform.base.internal.dependencies;
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.*;
-import static dev.nokee.platform.base.internal.dependencies.DependencyBucketName.of;
+import static dev.nokee.model.internal.names.ElementName.of;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.builder;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Consumable;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketType.Resolvable;
 

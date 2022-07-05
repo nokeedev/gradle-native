@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
+import dev.nokee.model.internal.names.ElementName;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.declarable;
@@ -35,7 +36,7 @@ class DependencyBucketIdentityDeclarableTest implements DependencyBucketIdentity
 
 	@Test
 	public void hasName() {
-		assertEquals(DependencyBucketName.of("sesu"), subject().getName());
+		assertEquals(ElementName.of("sesu"), subject().getName());
 	}
 
 	@Test
