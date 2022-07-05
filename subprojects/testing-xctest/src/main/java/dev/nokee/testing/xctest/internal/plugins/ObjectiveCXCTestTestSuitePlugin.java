@@ -146,7 +146,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 			}
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class));
 
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
 			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("compileOnly", identifier.get())));

@@ -16,12 +16,14 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
@@ -62,6 +64,12 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), this::createConfiguration));
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DisplayNameRule());
+
+		// ComponentFromEntity<ParentComponent> read-only self
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, ignored1, path, displayName, elementName) -> {
+			val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
+			entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
+		}));
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DescriptionRule());
 

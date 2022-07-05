@@ -16,9 +16,12 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.NamedDomainObjectRegistry;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
@@ -34,17 +37,20 @@ import static dev.nokee.model.internal.tags.ModelTags.tag;
 public final class DeclarableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
+	private final ModelLookup lookup;
 	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
-	public DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory) {
+	public DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ModelLookup lookup) {
 		this.configurationRegistry = configurationRegistry;
 		this.bucketFactory = bucketFactory;
+		this.lookup = lookup;
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val bucket = new DefaultDeclarableDependencyBucket(bucketFactory.create(identifier));
 		return ModelRegistration.builder()
-			.withComponent(new IdentifierComponent(identifier))
+			.withComponent(new ElementNameComponent(identifier.getName()))
+			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(ofInstance(bucket))

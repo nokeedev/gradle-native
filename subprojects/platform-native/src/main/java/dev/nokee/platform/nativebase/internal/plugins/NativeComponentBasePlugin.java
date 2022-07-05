@@ -233,7 +233,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class));
 
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
 			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("compileOnly", identifier.get())));
@@ -322,7 +322,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class));
 
 			val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("api", identifier.get())));
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));

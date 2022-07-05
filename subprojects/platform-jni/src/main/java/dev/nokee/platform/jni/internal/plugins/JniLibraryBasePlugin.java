@@ -210,7 +210,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class));
 			val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("api", identifier.get())));
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("jvmImplementation", identifier.get())));
 			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("jvmRuntimeOnly", identifier.get())));
@@ -495,7 +495,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(tag(MultiVariantTag.class));
 			}
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class));
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeImplementation", identifier)));
 			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeLinkOnly", identifier)));
 			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeRuntimeOnly", identifier)));
@@ -563,7 +563,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getPlugins().withType(NativeLanguagePlugin.class, new OnceAction<>(ignored -> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
-				val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))));
+				val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class));
 				val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeCompileOnly", identifier.get())));
 				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
 			})));
