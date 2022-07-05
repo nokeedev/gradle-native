@@ -23,7 +23,6 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.utils.ConfigurationUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
@@ -54,7 +53,6 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
 		val incoming = new IncomingArtifacts(configurationProvider);
 		val bucket = new DefaultResolvableDependencyBucket(bucketFactory.create(identifier), incoming);
-		configurationProvider.configure(ConfigurationUtils.configureAsResolvable());
 		configurationProvider.configure(configuration -> {
 			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
 			if (extension == null) {

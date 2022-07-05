@@ -59,7 +59,6 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		val outgoing = objects.newInstance(OutgoingArtifacts.class);
 		val bucket = new DefaultConsumableDependencyBucket(bucketFactory.create(identifier), outgoing);
 		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
-		configurationProvider.configure(ConfigurationUtils.configureAsConsumable());
 		configurationProvider.configure(configuration -> {
 			val extension = ((ExtensionAware) configuration).getExtensions().findByName("__bucket");
 			if (extension == null) {

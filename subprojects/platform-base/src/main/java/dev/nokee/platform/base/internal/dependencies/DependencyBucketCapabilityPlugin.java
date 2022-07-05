@@ -31,6 +31,9 @@ import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 
+import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
+import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
+import static dev.nokee.utils.ConfigurationUtils.configureAsResolvable;
 import static dev.nokee.utils.ConfigurationUtils.configureDescription;
 import static dev.nokee.utils.Optionals.ifPresentOrElse;
 
@@ -40,6 +43,16 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DisplayNameRule());
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DescriptionRule());
+
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
+			configuration.configure(configureAsConsumable());
+		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ResolvableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
+			configuration.configure(configureAsResolvable());
+		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(DeclarableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
+			configuration.configure(configureAsDeclarable());
+		}));
 	}
 
 	// ComponentFromEntity<DisplayNameComponent> read/write self
