@@ -17,7 +17,6 @@ package dev.nokee.platform.base.internal.dependencies
 
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.model.internal.names.ElementName
-import dev.nokee.platform.base.DependencyBucket
 import dev.nokee.platform.base.internal.ComponentIdentifier
 import dev.nokee.platform.base.internal.VariantIdentifier
 import spock.lang.Specification
@@ -28,13 +27,12 @@ class DependencyBucketIdentifierTest extends Specification {
 	def "can create identifier owned by a project using factory method"() {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
-		def bucketName = ElementName.of('implementation')
 
 		when:
-		def identifier = DependencyBucketIdentifier.of(bucketName, TestableBucket, projectIdentifier)
+		def identifier = DependencyBucketIdentifier.of('implementation', projectIdentifier)
 
 		then:
-		identifier.name == bucketName
+		identifier.name ==  ElementName.of('implementation')
 		identifier.ownerIdentifier == projectIdentifier
 	}
 
@@ -42,13 +40,12 @@ class DependencyBucketIdentifierTest extends Specification {
 		given:
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
-		def bucketName = ElementName.of('implementation')
 
 		when:
-		def identifier = DependencyBucketIdentifier.of(bucketName, TestableBucket, componentIdentifier)
+		def identifier = DependencyBucketIdentifier.of('implementation', componentIdentifier)
 
 		then:
-		identifier.name == bucketName
+		identifier.name == ElementName.of('implementation')
 		identifier.ownerIdentifier == componentIdentifier
 	}
 
@@ -57,19 +54,18 @@ class DependencyBucketIdentifierTest extends Specification {
 		def projectIdentifier = ProjectIdentifier.ofRootProject()
 		def componentIdentifier = ComponentIdentifier.ofMain(projectIdentifier)
 		def variantIdentifier = VariantIdentifier.of('debug', componentIdentifier)
-		def bucketName = ElementName.of('implementation')
 
 		when:
-		def identifier = DependencyBucketIdentifier.of(bucketName, TestableBucket, variantIdentifier)
+		def identifier = DependencyBucketIdentifier.of('implementation', variantIdentifier)
 
 		then:
-		identifier.name == bucketName
+		identifier.name == ElementName.of('implementation')
 		identifier.ownerIdentifier == variantIdentifier
 	}
 
 	def "throws exception when dependency bucket name is null"() {
 		when:
-		DependencyBucketIdentifier.of(null, TestableBucket, ProjectIdentifier.of('root'))
+		DependencyBucketIdentifier.of(null, ProjectIdentifier.of('root'))
 
 		then:
 		thrown(NullPointerException)
@@ -83,6 +79,4 @@ class DependencyBucketIdentifierTest extends Specification {
 		def ex = thrown(IllegalArgumentException)
 		ex.message == 'Cannot construct a dependency identifier because the owner identifier is null.'
 	}
-
-	interface TestableBucket extends DependencyBucket {}
 }

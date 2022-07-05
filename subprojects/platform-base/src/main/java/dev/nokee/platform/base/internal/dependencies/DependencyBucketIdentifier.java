@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.platform.base.DependencyBucket;
 import lombok.EqualsAndHashCode;
 
 import java.util.Iterator;
@@ -44,11 +43,6 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 
 	public DomainObjectIdentifier getOwnerIdentifier() {
 		return ownerIdentifier;
-	}
-
-	// FIXME: Remove this API
-	public static DependencyBucketIdentifier of(ElementName name, Class<? extends DependencyBucket> type, DomainObjectIdentifier ownerIdentifier) {
-		return new DependencyBucketIdentifier(new Identity(name), ownerIdentifier);
 	}
 
 	public static DependencyBucketIdentifier of(String name, DomainObjectIdentifier ownerIdentifier) {
