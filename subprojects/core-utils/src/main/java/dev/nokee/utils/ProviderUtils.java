@@ -150,9 +150,29 @@ public final class ProviderUtils {
 	public static <S> void ifPresent(Provider<S> self, Action<? super S> action) {
 		Objects.requireNonNull(self);
 		Objects.requireNonNull(action);
-		final S value = self.getOrNull();
+		final S value = self.getOrNull(); // Important to use this API as there is no guarantee the value stays the same
 		if (value != null) {
 			action.execute(value);
+		}
+	}
+
+	/**
+	 * If a value is present, performs the given action with the value, otherwise performs the given empty-based action.
+	 *
+	 * @param self  the provider, must not be null
+	 * @param action  the action to be performed, if a value is present, must not be null
+	 * @param emptyAction  the empty-based action to be performed, if no value is present, must not be null
+	 * @param <S>  the provider type
+	 */
+	public static <S> void ifPresentOrElse(Provider<S> self, Action<? super S> action, Runnable emptyAction) {
+		Objects.requireNonNull(self);
+		Objects.requireNonNull(action);
+		Objects.requireNonNull(emptyAction);
+		final S value = self.getOrNull(); // Important to use this API as there is no guarantee the value stays the same
+		if (value != null) {
+			action.execute(value);
+		} else {
+			emptyAction.run();
 		}
 	}
 
