@@ -42,22 +42,6 @@ public final class DependencyBucketIdentifier implements DomainObjectIdentifier 
 		return identity.getName();
 	}
 
-	// FIXME: Remove this API
-	public ConfigurationBucketType getType() {
-		return bucketTypeOf(identity.getType().toBucketType());
-	}
-
-	private static ConfigurationBucketType bucketTypeOf(Class<?> type) {
-		if (DeclarableDependencyBucket.class.isAssignableFrom(type)) {
-			return ConfigurationBucketType.DECLARABLE;
-		} else if (ConsumableDependencyBucket.class.isAssignableFrom(type)) {
-			return ConfigurationBucketType.CONSUMABLE;
-		} else if (ResolvableDependencyBucket.class.isAssignableFrom(type)) {
-			return ConfigurationBucketType.RESOLVABLE;
-		}
-		throw new RuntimeException();
-	}
-
 	public DomainObjectIdentifier getOwnerIdentifier() {
 		return ownerIdentifier;
 	}
