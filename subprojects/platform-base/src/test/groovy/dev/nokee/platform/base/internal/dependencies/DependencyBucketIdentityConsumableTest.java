@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.consumable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DependencyBucketIdentityConsumableTest implements DependencyBucketIdentityTester, DependencyBucketIdentityDefaultDisplayNameTester {
+class DependencyBucketIdentityConsumableTest implements DependencyBucketIdentityTester {
 	private final DependencyBucketIdentity subject = consumable("fasi");
 
 	@Override
@@ -29,19 +29,9 @@ class DependencyBucketIdentityConsumableTest implements DependencyBucketIdentity
 		return subject;
 	}
 
-	@Override
-	public DependencyBucketIdentity createSubject(String name) {
-		return consumable(name);
-	}
-
 	@Test
 	public void hasName() {
 		assertEquals(ElementName.of("fasi"), subject().getName());
-	}
-
-	@Test
-	public void hasDisplayName() {
-		assertEquals("fasi", subject().getDisplayName());
 	}
 
 	@Test

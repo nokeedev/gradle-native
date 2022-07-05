@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentity.resolvable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DependencyBucketIdentityResolvableTest implements DependencyBucketIdentityTester, DependencyBucketIdentityDefaultDisplayNameTester {
+class DependencyBucketIdentityResolvableTest implements DependencyBucketIdentityTester {
 	private final DependencyBucketIdentity subject = resolvable("huzo");
 
 	@Override
@@ -29,19 +29,9 @@ class DependencyBucketIdentityResolvableTest implements DependencyBucketIdentity
 		return subject;
 	}
 
-	@Override
-	public DependencyBucketIdentity createSubject(String name) {
-		return resolvable(name);
-	}
-
 	@Test
 	public void hasName() {
 		assertEquals(ElementName.of("huzo"), subject().getName());
-	}
-
-	@Test
-	public void hasDisplayName() {
-		assertEquals("huzo", subject().getDisplayName());
 	}
 
 	@Test
