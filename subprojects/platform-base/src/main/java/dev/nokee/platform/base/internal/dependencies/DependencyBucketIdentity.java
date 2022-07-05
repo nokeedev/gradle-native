@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.model.HasName;
 import dev.nokee.model.internal.names.ElementName;
 import lombok.EqualsAndHashCode;
@@ -40,6 +39,10 @@ public final class DependencyBucketIdentity implements HasName {
 		return new DependencyBucketIdentity(bucketName);
 	}
 
+	public static DependencyBucketIdentity of(ElementName name) {
+		return new DependencyBucketIdentity(name);
+	}
+
 	private final ElementName name;
 
 	private DependencyBucketIdentity(ElementName name) {
@@ -49,24 +52,5 @@ public final class DependencyBucketIdentity implements HasName {
 	@Override
 	public ElementName getName() {
 		return name;
-	}
-
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	public static final class Builder {
-		private ElementName name;
-
-		public Builder name(ElementName name) {
-			this.name = Objects.requireNonNull(name);
-			return this;
-		}
-
-		public DependencyBucketIdentity build() {
-			Preconditions.checkState(name != null);
-
-			return new DependencyBucketIdentity(name);
-		}
 	}
 }
