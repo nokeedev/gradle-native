@@ -20,41 +20,20 @@ import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.file.FileCollection;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.buffers.ModelBuffers.typeOf;
-
 public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucket, ModelNodeAware
 	, ModelBackedNamedMixIn
+	, DependencyBucketMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final IncomingArtifacts incoming;
-	private final Configuration configuration;
 
 	@Inject
 	public ResolvableDependencyBucketSpec() {
 		this.incoming = ModelNodeUtils.get(entity, IncomingArtifacts.class);
-		this.configuration = ModelNodeUtils.get(entity, Configuration.class);
-	}
-
-	@Override
-	public void addDependency(Object notation) {
-		entity.setComponent(entity.getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation)));
-	}
-
-	@Override
-	public void addDependency(Object notation, Action<? super ModuleDependency> action) {
-		entity.setComponent(entity.getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation, action)));
-	}
-
-	@Override
-	public Configuration getAsConfiguration() {
-		return configuration;
 	}
 
 	@Override
