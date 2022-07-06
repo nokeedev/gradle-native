@@ -96,6 +96,10 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 			val outgoing = objects.newInstance(ConsumableDependencyBucketRegistrationFactory.OutgoingArtifacts.class);
 			entity.addComponent(ofInstance(outgoing));
 		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ResolvableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored, configuration) -> {
+			val incoming = new ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts(configuration.configuration);
+			entity.addComponent(ofInstance(incoming));
+		}));
 	}
 
 	private static final class AttachOutgoingArtifactRule extends ModelActionWithInputs.ModelAction4<ModelComponentTag<ConsumableDependencyBucketTag>, ModelProjection, ConfigurationComponent, ModelState.IsAtLeastRealized> {
