@@ -18,6 +18,9 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -59,7 +62,8 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.build();
 	}
 
-	public static class DefaultDeclarableDependencyBucket implements DeclarableDependencyBucket {
+	public static class DefaultDeclarableDependencyBucket implements DeclarableDependencyBucket, ModelNodeAware {
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 		private final DependencyBucket delegate;
 
 		@Inject
@@ -85,6 +89,11 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 		@Override
 		public Configuration getAsConfiguration() {
 			return delegate.getAsConfiguration();
+		}
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
 		}
 	}
 }

@@ -18,6 +18,9 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -73,7 +76,8 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.build();
 	}
 
-	public static class DefaultConsumableDependencyBucket implements ConsumableDependencyBucket {
+	public static class DefaultConsumableDependencyBucket implements ConsumableDependencyBucket, ModelNodeAware {
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 		private final DependencyBucket delegate;
 		private final OutgoingArtifacts outgoing;
 
@@ -107,6 +111,11 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		public ConsumableDependencyBucket artifact(Object artifact) {
 			outgoing.getArtifacts().add(new LazyPublishArtifact((Provider<?>) artifact));
 			return this;
+		}
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
 		}
 	}
 
