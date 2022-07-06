@@ -17,22 +17,12 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.model.ObjectFactory;
-
-import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -55,42 +45,10 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(createdUsing(of(DefaultDeclarableDependencyBucket.class), () -> {
-				return objects.newInstance(DefaultDeclarableDependencyBucket.class, bucketFactory.create(identifier));
+			.withComponent(createdUsing(of(DeclarableDependencyBucketSpec.class), () -> {
+				return objects.newInstance(DeclarableDependencyBucketSpec.class, bucketFactory.create(identifier));
 			}))
 			.withComponent(tag(DeclarableDependencyBucketTag.class))
 			.build();
-	}
-
-	public static class DefaultDeclarableDependencyBucket implements DeclarableDependencyBucket, ModelNodeAware
-		, ModelBackedNamedMixIn
-	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-		private final DependencyBucket delegate;
-
-		@Inject
-		public DefaultDeclarableDependencyBucket(DependencyBucket delegate) {
-			this.delegate = delegate;
-		}
-
-		@Override
-		public void addDependency(Object notation) {
-			delegate.addDependency(notation);
-		}
-
-		@Override
-		public void addDependency(Object notation, Action<? super ModuleDependency> action) {
-			delegate.addDependency(notation, action);
-		}
-
-		@Override
-		public Configuration getAsConfiguration() {
-			return delegate.getAsConfiguration();
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
-		}
 	}
 }

@@ -17,27 +17,14 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.PublishArtifact;
-import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.Provider;
-
-import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -60,51 +47,11 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(createdUsing(of(DefaultConsumableDependencyBucket.class), () -> {
-				return objects.newInstance(DefaultConsumableDependencyBucket.class, bucketFactory.create(identifier));
+			.withComponent(createdUsing(of(ConsumableDependencyBucketSpec.class), () -> {
+				return objects.newInstance(ConsumableDependencyBucketSpec.class, bucketFactory.create(identifier));
 			}))
 			.withComponent(tag(ConsumableDependencyBucketTag.class))
 			.build();
-	}
-
-	public static class DefaultConsumableDependencyBucket implements ConsumableDependencyBucket, ModelNodeAware
-		, ModelBackedNamedMixIn
-	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-		private final DependencyBucket delegate;
-		private final OutgoingArtifacts outgoing;
-
-		@Inject
-		public DefaultConsumableDependencyBucket(DependencyBucket delegate) {
-			this.delegate = delegate;
-			this.outgoing = ModelNodeUtils.get(entity, OutgoingArtifacts.class);
-		}
-
-		@Override
-		public void addDependency(Object notation) {
-			delegate.addDependency(notation);
-		}
-
-		@Override
-		public void addDependency(Object notation, Action<? super ModuleDependency> action) {
-			delegate.addDependency(notation, action);
-		}
-
-		@Override
-		public Configuration getAsConfiguration() {
-			return delegate.getAsConfiguration();
-		}
-
-		@Override
-		public ConsumableDependencyBucket artifact(Object artifact) {
-			outgoing.getArtifacts().add(new LazyPublishArtifact((Provider<?>) artifact));
-			return this;
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
-		}
 	}
 
 	interface OutgoingArtifacts {

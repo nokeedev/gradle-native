@@ -17,26 +17,16 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
-
-import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -59,55 +49,11 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(createdUsing(of(DefaultResolvableDependencyBucket.class), () -> {
-				return objects.newInstance(DefaultResolvableDependencyBucket.class, bucketFactory.create(identifier));
+			.withComponent(createdUsing(of(ResolvableDependencyBucketSpec.class), () -> {
+				return objects.newInstance(ResolvableDependencyBucketSpec.class, bucketFactory.create(identifier));
 			}))
 			.withComponent(tag(ResolvableDependencyBucketTag.class))
 			.build();
-	}
-
-	public static class DefaultResolvableDependencyBucket implements ResolvableDependencyBucket, ModelNodeAware
-		, ModelBackedNamedMixIn
-	{
-		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-		private final DependencyBucket delegate;
-		private final IncomingArtifacts incoming;
-
-		@Inject
-		public DefaultResolvableDependencyBucket(DependencyBucket delegate) {
-			this.delegate = delegate;
-			this.incoming = ModelNodeUtils.get(entity, IncomingArtifacts.class);
-		}
-
-		@Override
-		public void addDependency(Object notation) {
-			delegate.addDependency(notation);
-		}
-
-		@Override
-		public void addDependency(Object notation, Action<? super ModuleDependency> action) {
-			delegate.addDependency(notation, action);
-		}
-
-		@Override
-		public Configuration getAsConfiguration() {
-			return delegate.getAsConfiguration();
-		}
-
-		@Override
-		public FileCollection getAsLenientFileCollection() {
-			return incoming.getAsLenient();
-		}
-
-		@Override
-		public FileCollection getAsFileCollection() {
-			return incoming.get();
-		}
-
-		@Override
-		public ModelNode getNode() {
-			return entity;
-		}
 	}
 
 	static final class IncomingArtifacts {
