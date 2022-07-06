@@ -27,6 +27,8 @@ import org.gradle.api.artifacts.ModuleDependency;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.buffers.ModelBuffers.typeOf;
+
 public class DeclarableDependencyBucketSpec implements DeclarableDependencyBucket, ModelNodeAware
 	, ModelBackedNamedMixIn
 {
@@ -42,12 +44,12 @@ public class DeclarableDependencyBucketSpec implements DeclarableDependencyBucke
 
 	@Override
 	public void addDependency(Object notation) {
-		delegate.addDependency(notation);
+		entity.setComponent(entity.getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation)));
 	}
 
 	@Override
 	public void addDependency(Object notation, Action<? super ModuleDependency> action) {
-		delegate.addDependency(notation, action);
+		entity.setComponent(entity.getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation, action)));
 	}
 
 	@Override

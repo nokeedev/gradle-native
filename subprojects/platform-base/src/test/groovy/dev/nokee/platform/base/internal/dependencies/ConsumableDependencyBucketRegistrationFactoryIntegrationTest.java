@@ -47,6 +47,7 @@ import static dev.nokee.internal.testing.ConfigurationMatchers.hasPublishArtifac
 import static dev.nokee.internal.testing.ConfigurationMatchers.ofFile;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.model.internal.core.ModelNodes.of;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
@@ -113,12 +114,14 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		@Test
 		void canAddDependency() {
 			subject().addDependency("com.example:foo:4.2");
+			ModelStates.finalize(of(subject()));
 			assertThat(project, hasConfiguration(dependencies(hasItem(forCoordinate("com.example:foo:4.2")))));
 		}
 
 		@Test
 		void canAddDependencyWithConfigurationAction() {
 			subject().addDependency("com.example:foo:4.2", doSomething());
+			ModelStates.finalize(of(subject()));
 			assertThat(project, hasConfiguration(dependencies(hasItem(forCoordinate("com.example:foo:4.2")))));
 		}
 
@@ -131,6 +134,7 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		void canConfigureDependencyBeforeAddingIt() {
 			val action = ActionTestUtils.mockAction(ModuleDependency.class);
 			subject().addDependency("com.example:foo:4.2", action);
+			ModelStates.finalize(of(subject()));
 			assertThat(action, calledOnceWith(singleArgumentOf(forCoordinate("com.example:foo:4.2"))));
 		}
 	}
@@ -169,7 +173,7 @@ class ConsumableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		@Test
 		void realizeNodeWhenConfigurationIsResolved() {
 			((ConfigurationInternal) subject()).preventFromFurtherMutation();
-			assertTrue(ModelStates.getState(ModelNodes.of(element)).isAtLeast(ModelState.Realized));
+			assertTrue(ModelStates.getState(ModelNodes.of(element)).isAtLeast(ModelState.Finalized));
 		}
 	}
 
