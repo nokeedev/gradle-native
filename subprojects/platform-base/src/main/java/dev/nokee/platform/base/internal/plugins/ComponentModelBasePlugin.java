@@ -124,7 +124,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getConfigurations().configureEach(configuration -> {
 			((ConfigurationInternal) configuration).beforeLocking(it -> {
-				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::realize);
+				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::finalize);
 			});
 		});
 		project.getTasks().configureEach(task -> {

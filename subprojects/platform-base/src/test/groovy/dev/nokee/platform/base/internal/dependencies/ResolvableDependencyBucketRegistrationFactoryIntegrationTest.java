@@ -45,6 +45,8 @@ import static dev.nokee.internal.testing.ConfigurationMatchers.hasConfiguration;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createChildProject;
+import static dev.nokee.model.internal.core.ModelNodes.of;
+import static dev.nokee.model.internal.state.ModelState.Finalized;
 import static dev.nokee.model.internal.state.ModelState.Realized;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
@@ -113,12 +115,14 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		@Test
 		void canAddDependency() {
 			subject().addDependency("com.example:foo:4.2");
+			ModelStates.finalize(of(subject()));
 			assertThat(project, hasConfiguration(dependencies(hasItem(forCoordinate("com.example:foo:4.2")))));
 		}
 
 		@Test
 		void canAddDependencyWithConfigurationAction() {
 			subject().addDependency("com.example:foo:4.2", doSomething());
+			ModelStates.finalize(of(subject()));
 			assertThat(project, hasConfiguration(dependencies(hasItem(forCoordinate("com.example:foo:4.2")))));
 		}
 
@@ -131,6 +135,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		void canConfigureDependencyBeforeAddingIt() {
 			val action = ActionTestUtils.mockAction(ModuleDependency.class);
 			subject().addDependency("com.example:foo:4.2", action);
+			ModelStates.finalize(of(subject()));
 			assertThat(action, calledOnceWith(singleArgumentOf(forCoordinate("com.example:foo:4.2"))));
 		}
 	}
@@ -163,13 +168,13 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 
 		@Test
 		void doesNotRealizeNodeWhenConfigurationIsRealized() {
-			assertFalse(ModelStates.getState(ModelNodes.of(element)).isAtLeast(Realized));
+			assertFalse(ModelStates.getState(of(element)).isAtLeast(Realized));
 		}
 
 		@Test
 		void realizeNodeWhenConfigurationIsResolved() {
 			subject().resolve();
-			assertTrue(ModelStates.getState(ModelNodes.of(element)).isAtLeast(Realized));
+			assertTrue(ModelStates.getState(of(element)).isAtLeast(Finalized));
 		}
 	}
 
@@ -185,6 +190,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		bucket.getAsConfiguration().getAttributes().attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "foo"));
 		bucket.addDependency(producerProjectA);
 		bucket.addDependency(producerProjectB);
+		ModelStates.finalize(of(bucket));
 		assertThat(bucket.getAsLenientFileCollection(), contains(producerProjectB.file("foo")));
 	}
 
@@ -198,6 +204,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		val bucket = element.as(ResolvableDependencyBucket.class).get();
 		bucket.getAsConfiguration().getAttributes().attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "bar"));
 		bucket.addDependency(producerProject);
+		ModelStates.finalize(of(bucket));
 		assertThat(bucket.getAsFileCollection(), contains(producerProject.file("bar")));
 	}
 
@@ -207,7 +214,7 @@ class ResolvableDependencyBucketRegistrationFactoryIntegrationTest extends Abstr
 		bucketProvider.configure(bucket -> {
 			bucket.getAsConfiguration().getAttributes().attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, Usage.JAVA_API));
 		});
-		ModelNodeUtils.get(ModelNodes.of(bucketProvider), Configuration.class).resolve();
-		assertThat(ModelStates.getState(ModelNodes.of(bucketProvider)), equalTo(Realized));
+		ModelNodeUtils.get(of(bucketProvider), Configuration.class).resolve();
+		assertThat(ModelStates.getState(of(bucketProvider)), equalTo(Finalized));
 	}
 }

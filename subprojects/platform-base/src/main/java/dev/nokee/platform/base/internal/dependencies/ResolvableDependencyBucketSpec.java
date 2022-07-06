@@ -28,6 +28,8 @@ import org.gradle.api.file.FileCollection;
 
 import javax.inject.Inject;
 
+import static dev.nokee.model.internal.buffers.ModelBuffers.typeOf;
+
 public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucket, ModelNodeAware
 	, ModelBackedNamedMixIn
 {
@@ -45,12 +47,12 @@ public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucke
 
 	@Override
 	public void addDependency(Object notation) {
-		delegate.addDependency(notation);
+		entity.setComponent(entity.getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation)));
 	}
 
 	@Override
 	public void addDependency(Object notation, Action<? super ModuleDependency> action) {
-		delegate.addDependency(notation, action);
+		entity.setComponent(entity.getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation, action)));
 	}
 
 	@Override
