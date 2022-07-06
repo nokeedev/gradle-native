@@ -29,15 +29,18 @@ import org.gradle.api.file.FileCollection;
 import javax.inject.Inject;
 
 public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucket, ModelNodeAware
-	, ModelBackedNamedMixIn {
+	, ModelBackedNamedMixIn
+{
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final DependencyBucket delegate;
 	private final IncomingArtifacts incoming;
+	private final Configuration configuration;
 
 	@Inject
 	public ResolvableDependencyBucketSpec(DependencyBucket delegate) {
 		this.delegate = delegate;
 		this.incoming = ModelNodeUtils.get(entity, IncomingArtifacts.class);
+		this.configuration = ModelNodeUtils.get(entity, Configuration.class);
 	}
 
 	@Override
@@ -52,7 +55,7 @@ public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucke
 
 	@Override
 	public Configuration getAsConfiguration() {
-		return delegate.getAsConfiguration();
+		return configuration;
 	}
 
 	@Override
