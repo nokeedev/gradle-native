@@ -54,7 +54,7 @@ import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
-import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
@@ -199,8 +199,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 
-			val consumableFactory = project.getExtensions().getByType(ConsumableDependencyBucketRegistrationFactory.class);
-			val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("runtimeElements", identifier.get())));
+			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
 				.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects())));

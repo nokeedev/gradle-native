@@ -74,7 +74,7 @@ import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
-import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
@@ -232,12 +232,11 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(nativeRuntimeOnly)));
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(nativeLinkOnly)));
 
-			val consumableFactory = project.getExtensions().getByType(ConsumableDependencyBucketRegistrationFactory.class);
-			val apiElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("apiElements", identifier.get())));
+			val apiElements = registry.register(newEntity("apiElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			apiElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_API)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
 			apiElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 			entity.addComponent(new ApiElementsConfiguration(ModelNodes.of(apiElements)));
-			val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("runtimeElements", identifier.get())));
+			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			runtimeElements.configure(Configuration.class, configureAttributes(builder -> builder.usage(project.getObjects().named(Usage.class, Usage.JAVA_RUNTIME)).attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, project.getObjects().named(LibraryElements.class, LibraryElements.JAR))));
 			runtimeElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 			entity.addComponent(new RuntimeElementsConfiguration(ModelNodes.of(runtimeElements)));

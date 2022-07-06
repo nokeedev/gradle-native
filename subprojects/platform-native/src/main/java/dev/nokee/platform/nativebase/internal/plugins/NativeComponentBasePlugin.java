@@ -79,7 +79,7 @@ import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
-import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyDefaultActionComponent;
@@ -292,8 +292,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 
-			val consumableFactory = project.getExtensions().getByType(ConsumableDependencyBucketRegistrationFactory.class);
-			val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("runtimeElements", identifier.get())));
+			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
 				.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects())));
@@ -387,26 +386,25 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 
-			val consumableFactory = project.getExtensions().getByType(ConsumableDependencyBucketRegistrationFactory.class);
 			ModelElement apiElements = null;
 			if (hasSwift) {
-				apiElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("apiElements", identifier.get())));
+				apiElements = registry.register(newEntity("apiElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 				apiElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))))
 					.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 			} else {
-				apiElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("apiElements", identifier.get())));
+				apiElements = registry.register(newEntity("apiElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 				apiElements.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
 					.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 			}
-			val linkElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("linkElements", identifier.get())));
+			val linkElements = registry.register(newEntity("linkElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			linkElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))))
 				.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects())));
-			val runtimeElements = registry.register(consumableFactory.create(DependencyBucketIdentifier.of("runtimeElements", identifier.get())));
+			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
 				.andThen(ConfigurationUtilsEx.configureOutgoingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects())));
