@@ -15,23 +15,20 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.Namer;
 import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -41,36 +38,29 @@ import org.gradle.api.model.ObjectFactory;
 import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ResolvableDependencyBucketRegistrationFactory {
-	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
 	private final ModelLookup lookup;
 	private final ObjectFactory objects;
-	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
-	public ResolvableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ModelLookup lookup, ObjectFactory objects) {
-		this.configurationRegistry = configurationRegistry;
+	public ResolvableDependencyBucketRegistrationFactory(DependencyBucketFactory bucketFactory, ModelLookup lookup, ObjectFactory objects) {
 		this.bucketFactory = bucketFactory;
 		this.lookup = lookup;
 		this.objects = objects;
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
-		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
-		val incoming = new IncomingArtifacts(configurationProvider);
 		return ModelRegistration.builder()
 			.withComponent(new ElementNameComponent(identifier.getName()))
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(createdUsing(of(DefaultResolvableDependencyBucket.class), () -> {
-				return objects.newInstance(DefaultResolvableDependencyBucket.class, bucketFactory.create(identifier), incoming);
+				return objects.newInstance(DefaultResolvableDependencyBucket.class, bucketFactory.create(identifier));
 			}))
-			.withComponent(ofInstance(incoming))
 			.withComponent(tag(ResolvableDependencyBucketTag.class))
 			.build();
 	}
@@ -81,9 +71,9 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		private final IncomingArtifacts incoming;
 
 		@Inject
-		public DefaultResolvableDependencyBucket(DependencyBucket delegate, IncomingArtifacts incoming) {
+		public DefaultResolvableDependencyBucket(DependencyBucket delegate) {
 			this.delegate = delegate;
-			this.incoming = incoming;
+			this.incoming = ModelNodeUtils.get(entity, IncomingArtifacts.class);
 		}
 
 		@Override

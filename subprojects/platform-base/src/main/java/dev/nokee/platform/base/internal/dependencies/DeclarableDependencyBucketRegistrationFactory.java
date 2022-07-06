@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelNode;
@@ -26,10 +25,8 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import org.gradle.api.Action;
-import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.model.ObjectFactory;
@@ -41,14 +38,11 @@ import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class DeclarableDependencyBucketRegistrationFactory {
-	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
 	private final ModelLookup lookup;
 	private final ObjectFactory objects;
-	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
-	public DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ModelLookup lookup, ObjectFactory objects) {
-		this.configurationRegistry = configurationRegistry;
+	public DeclarableDependencyBucketRegistrationFactory(DependencyBucketFactory bucketFactory, ModelLookup lookup, ObjectFactory objects) {
 		this.bucketFactory = bucketFactory;
 		this.lookup = lookup;
 		this.objects = objects;
