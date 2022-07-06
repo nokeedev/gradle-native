@@ -36,7 +36,7 @@ public final class ModelBufferComponent<E extends ModelBufferElement> implements
 
 	@Override
 	public ModelComponentType<?> getComponentType() {
-		return ModelComponentType.componentOf(elementType);
+		return ModelBuffers.typeOf(elementType);
 	}
 
 	@Override
