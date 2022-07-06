@@ -36,4 +36,14 @@ public class DependencyFactoryTest {
 			return subject;
 		}
 	}
+
+	@Nested
+	class ForHandlerTest implements DependencyFactoryTester {
+		private final DependencyFactory subject = DependencyFactory.forHandler(rootProject().getDependencies());
+
+		@Override
+		public DependencyFactory subject() {
+			return subject;
+		}
+	}
 }
