@@ -17,8 +17,6 @@ package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
-import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -82,7 +80,6 @@ import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
@@ -116,9 +113,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory());
 
-		project.getExtensions().add("__nokee_declarableBucketFactory", new DeclarableDependencyBucketRegistrationFactory(new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));
-		project.getExtensions().add("__nokee_resolvableBucketFactory", new ResolvableDependencyBucketRegistrationFactory(new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getExtensions().getByType(ModelLookup.class), project.getObjects()));
-		project.getExtensions().add("__nokee_consumableBucketFactory", new ConsumableDependencyBucketRegistrationFactory(new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getObjects(), project.getExtensions().getByType(ModelLookup.class)));
+		project.getExtensions().add("__nokee_declarableBucketFactory", new DeclarableDependencyBucketRegistrationFactory(project.getExtensions().getByType(ModelLookup.class)));
+		project.getExtensions().add("__nokee_resolvableBucketFactory", new ResolvableDependencyBucketRegistrationFactory(project.getExtensions().getByType(ModelLookup.class)));
+		project.getExtensions().add("__nokee_consumableBucketFactory", new ConsumableDependencyBucketRegistrationFactory(project.getExtensions().getByType(ModelLookup.class)));
 
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 
