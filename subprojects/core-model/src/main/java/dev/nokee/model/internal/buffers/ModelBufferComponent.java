@@ -43,4 +43,9 @@ public final class ModelBufferComponent<E extends ModelBufferElement> implements
 	public Iterator<E> iterator() {
 		return elements.iterator();
 	}
+
+	@Override
+	public String toString() {
+		return "buffer of " + elementType.getSimpleName() + " " + elements;
+	}
 }
