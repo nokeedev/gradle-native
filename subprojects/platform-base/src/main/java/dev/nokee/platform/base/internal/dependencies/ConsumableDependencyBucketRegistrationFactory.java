@@ -28,7 +28,6 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
@@ -63,8 +62,6 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
 		val outgoing = objects.newInstance(OutgoingArtifacts.class);
-		val configurationProvider = configurationRegistry.registerIfAbsent(namer.determineName(identifier));
-		configurationProvider.configure(attachOutgoingArtifactToConfiguration(outgoing));
 		return ModelRegistration.builder()
 			.withComponent(new ElementNameComponent(identifier.getName()))
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
@@ -121,11 +118,5 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 
 	interface OutgoingArtifacts {
 		ListProperty<PublishArtifact> getArtifacts();
-	}
-
-	private static ActionUtils.Action<Configuration> attachOutgoingArtifactToConfiguration(OutgoingArtifacts outgoing) {
-		return configuration -> {
-			configuration.getOutgoing().getArtifacts().addAllLater(outgoing.getArtifacts());
-		};
 	}
 }

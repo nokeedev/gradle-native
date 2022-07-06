@@ -23,7 +23,9 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelPathComponent;
+import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
@@ -32,6 +34,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
+import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
@@ -82,6 +85,25 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(DeclarableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored1, configuration) -> {
 			configuration.configure(configureAsDeclarable());
 		}));
+
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new AttachOutgoingArtifactRule());
+	}
+
+	private static final class AttachOutgoingArtifactRule extends ModelActionWithInputs.ModelAction4<ModelComponentTag<ConsumableDependencyBucketTag>, ModelProjection, ConfigurationComponent, ModelState.IsAtLeastRealized> {
+		public AttachOutgoingArtifactRule() {
+			super(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), ModelComponentReference.ofProjection(ConsumableDependencyBucketRegistrationFactory.OutgoingArtifacts.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class));
+		}
+
+		@Override
+		protected void execute(ModelNode entity, ModelComponentTag<ConsumableDependencyBucketTag> ignored1, ModelProjection ignored2, ConfigurationComponent configuration, ModelState.IsAtLeastRealized ignored3) {
+			configuration.configure(attachOutgoingArtifactToConfiguration(ModelNodeUtils.get(entity, ConsumableDependencyBucketRegistrationFactory.OutgoingArtifacts.class)));
+		}
+
+		private static ActionUtils.Action<Configuration> attachOutgoingArtifactToConfiguration(ConsumableDependencyBucketRegistrationFactory.OutgoingArtifacts outgoing) {
+			return configuration -> {
+				configuration.getOutgoing().getArtifacts().addAllLater(outgoing.getArtifacts());
+			};
+		}
 	}
 
 	// ComponentFromEntity<DisplayNameComponent> read/write self
