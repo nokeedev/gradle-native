@@ -30,15 +30,18 @@ import org.gradle.api.provider.Provider;
 import javax.inject.Inject;
 
 public class ConsumableDependencyBucketSpec implements ConsumableDependencyBucket, ModelNodeAware
-	, ModelBackedNamedMixIn {
+	, ModelBackedNamedMixIn
+{
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final DependencyBucket delegate;
 	private final OutgoingArtifacts outgoing;
+	private final Configuration configuration;
 
 	@Inject
 	public ConsumableDependencyBucketSpec(DependencyBucket delegate) {
 		this.delegate = delegate;
 		this.outgoing = ModelNodeUtils.get(entity, OutgoingArtifacts.class);
+		this.configuration = ModelNodeUtils.get(entity, Configuration.class);
 	}
 
 	@Override
@@ -53,7 +56,7 @@ public class ConsumableDependencyBucketSpec implements ConsumableDependencyBucke
 
 	@Override
 	public Configuration getAsConfiguration() {
-		return delegate.getAsConfiguration();
+		return configuration;
 	}
 
 	@Override
