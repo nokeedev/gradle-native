@@ -41,7 +41,7 @@ import org.gradle.api.provider.Provider;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -65,7 +65,9 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(managed(of(DefaultConsumableDependencyBucket.class), bucketFactory.create(identifier)))
+			.withComponent(createdUsing(of(DefaultConsumableDependencyBucket.class), () -> {
+				return objects.newInstance(DefaultConsumableDependencyBucket.class, bucketFactory.create(identifier));
+			}))
 			.withComponent(tag(ConsumableDependencyBucketTag.class))
 			.build();
 	}

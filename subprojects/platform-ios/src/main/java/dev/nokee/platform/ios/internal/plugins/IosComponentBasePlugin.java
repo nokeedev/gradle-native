@@ -122,7 +122,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			}
 			registry.register(newEntity("resources", IosResourceSetSpec.class, it -> it.ownedBy(entity)));
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class));
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class), project.getObjects());
 
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
 			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("compileOnly", identifier.get())));
@@ -141,7 +141,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getExtensions().getByType(ModelLookup.class));
+			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getExtensions().getByType(ModelLookup.class), project.getObjects());
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
 			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("compileOnly", identifier.get())));
 			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("linkOnly", identifier.get())));
