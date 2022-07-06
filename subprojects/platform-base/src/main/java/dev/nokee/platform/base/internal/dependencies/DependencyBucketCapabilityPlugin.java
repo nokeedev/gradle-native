@@ -40,6 +40,7 @@ import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Plugin;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 
@@ -47,6 +48,7 @@ import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
+import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
@@ -56,10 +58,12 @@ import static dev.nokee.utils.Optionals.ifPresentOrElse;
 
 public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final NamedDomainObjectRegistry<Configuration> registry;
+	private final ObjectFactory objects;
 
 	@Inject
-	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations) {
+	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations, ObjectFactory objects) {
 		this.registry = NamedDomainObjectRegistry.of(configurations);
+		this.objects = objects;
 	}
 
 	@Override
@@ -87,6 +91,11 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		}));
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new AttachOutgoingArtifactRule());
+
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), (entity, ignored1) -> {
+			val outgoing = objects.newInstance(ConsumableDependencyBucketRegistrationFactory.OutgoingArtifacts.class);
+			entity.addComponent(ofInstance(outgoing));
+		}));
 	}
 
 	private static final class AttachOutgoingArtifactRule extends ModelActionWithInputs.ModelAction4<ModelComponentTag<ConsumableDependencyBucketTag>, ModelProjection, ConfigurationComponent, ModelState.IsAtLeastRealized> {
