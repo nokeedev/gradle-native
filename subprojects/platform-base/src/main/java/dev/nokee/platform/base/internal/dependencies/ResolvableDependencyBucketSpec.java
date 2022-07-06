@@ -32,12 +32,12 @@ public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucke
 	, ModelBackedNamedMixIn {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final DependencyBucket delegate;
-	private final ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts incoming;
+	private final IncomingArtifacts incoming;
 
 	@Inject
 	public ResolvableDependencyBucketSpec(DependencyBucket delegate) {
 		this.delegate = delegate;
-		this.incoming = ModelNodeUtils.get(entity, ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class);
+		this.incoming = ModelNodeUtils.get(entity, IncomingArtifacts.class);
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import org.gradle.api.provider.Provider;
  */
 public interface ConsumableDependencyBucket extends DependencyBucket {
 	default ConsumableDependencyBucket artifact(Object artifact) {
-		ModelNodeUtils.get(ModelNodes.of(this), ConsumableDependencyBucketRegistrationFactory.OutgoingArtifacts.class).getArtifacts().add(new LazyPublishArtifact((Provider<?>) artifact));
+		ModelNodeUtils.get(ModelNodes.of(this), OutgoingArtifacts.class).getArtifacts().add(new LazyPublishArtifact((Provider<?>) artifact));
 		return this;
 	}
 }

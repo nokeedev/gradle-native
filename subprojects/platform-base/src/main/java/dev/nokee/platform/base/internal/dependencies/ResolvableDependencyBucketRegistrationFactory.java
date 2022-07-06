@@ -22,10 +22,6 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.artifacts.ArtifactView;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
@@ -54,25 +50,5 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 			}))
 			.withComponent(tag(ResolvableDependencyBucketTag.class))
 			.build();
-	}
-
-	static final class IncomingArtifacts {
-		private final NamedDomainObjectProvider<Configuration> delegate;
-
-		public IncomingArtifacts(NamedDomainObjectProvider<Configuration> delegate) {
-			this.delegate = delegate;
-		}
-
-		public FileCollection get() {
-			return delegate.get().getIncoming().getFiles();
-		}
-
-		public FileCollection getAsLenient() {
-			return delegate.get().getIncoming().artifactView(this::asLenient).getFiles();
-		}
-
-		private void asLenient(ArtifactView.ViewConfiguration view) {
-			view.setLenient(true);
-		}
 	}
 }
