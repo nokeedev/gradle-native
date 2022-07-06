@@ -21,6 +21,7 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -28,7 +29,6 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
@@ -42,7 +42,6 @@ import org.gradle.api.provider.Provider;
 import javax.inject.Inject;
 
 import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -61,14 +60,12 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
-		val outgoing = objects.newInstance(OutgoingArtifacts.class);
 		return ModelRegistration.builder()
 			.withComponent(new ElementNameComponent(identifier.getName()))
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(managed(of(DefaultConsumableDependencyBucket.class), bucketFactory.create(identifier), outgoing))
-			.withComponent(ofInstance(outgoing))
+			.withComponent(managed(of(DefaultConsumableDependencyBucket.class), bucketFactory.create(identifier)))
 			.withComponent(tag(ConsumableDependencyBucketTag.class))
 			.build();
 	}
@@ -79,9 +76,9 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 		private final OutgoingArtifacts outgoing;
 
 		@Inject
-		public DefaultConsumableDependencyBucket(DependencyBucket delegate, OutgoingArtifacts outgoing) {
+		public DefaultConsumableDependencyBucket(DependencyBucket delegate) {
 			this.delegate = delegate;
-			this.outgoing = outgoing;
+			this.outgoing = ModelNodeUtils.get(entity, OutgoingArtifacts.class);
 		}
 
 		@Override
