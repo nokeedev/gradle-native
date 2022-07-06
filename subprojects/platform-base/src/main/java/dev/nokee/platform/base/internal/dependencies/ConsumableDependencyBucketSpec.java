@@ -20,42 +20,21 @@ import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
-import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.provider.Provider;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.buffers.ModelBuffers.typeOf;
-
 public class ConsumableDependencyBucketSpec implements ConsumableDependencyBucket, ModelNodeAware
 	, ModelBackedNamedMixIn
+	, DependencyBucketMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final OutgoingArtifacts outgoing;
-	private final Configuration configuration;
 
 	@Inject
 	public ConsumableDependencyBucketSpec() {
 		this.outgoing = ModelNodeUtils.get(entity, OutgoingArtifacts.class);
-		this.configuration = ModelNodeUtils.get(entity, Configuration.class);
-	}
-
-	@Override
-	public void addDependency(Object notation) {
-		entity.setComponent(entity.getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation)));
-	}
-
-	@Override
-	public void addDependency(Object notation, Action<? super ModuleDependency> action) {
-		entity.setComponent(entity.getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation, action)));
-	}
-
-	@Override
-	public Configuration getAsConfiguration() {
-		return configuration;
 	}
 
 	@Override
