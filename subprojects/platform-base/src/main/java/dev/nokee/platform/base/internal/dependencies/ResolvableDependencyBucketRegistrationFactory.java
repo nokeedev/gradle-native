@@ -27,6 +27,7 @@ import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.ArtifactView;
@@ -65,7 +66,9 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 			.build();
 	}
 
-	public static class DefaultResolvableDependencyBucket implements ResolvableDependencyBucket, ModelNodeAware {
+	public static class DefaultResolvableDependencyBucket implements ResolvableDependencyBucket, ModelNodeAware
+		, ModelBackedNamedMixIn
+	{
 		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 		private final DependencyBucket delegate;
 		private final IncomingArtifacts incoming;
@@ -74,11 +77,6 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 		public DefaultResolvableDependencyBucket(DependencyBucket delegate) {
 			this.delegate = delegate;
 			this.incoming = ModelNodeUtils.get(entity, IncomingArtifacts.class);
-		}
-
-		@Override
-		public String getName() {
-			return delegate.getName();
 		}
 
 		@Override
