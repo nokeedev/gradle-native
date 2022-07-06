@@ -22,20 +22,15 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import org.gradle.api.model.ObjectFactory;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ConsumableDependencyBucketRegistrationFactory {
-	private final DependencyBucketFactory bucketFactory;
-	private final ObjectFactory objects;
 	private final ModelLookup lookup;
 
-	public ConsumableDependencyBucketRegistrationFactory(DependencyBucketFactory bucketFactory, ObjectFactory objects, ModelLookup lookup) {
-		this.bucketFactory = bucketFactory;
-		this.objects = objects;
+	public ConsumableDependencyBucketRegistrationFactory(ModelLookup lookup) {
 		this.lookup = lookup;
 	}
 
@@ -45,9 +40,7 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(createdUsing(of(ConsumableDependencyBucketSpec.class), () -> {
-				return objects.newInstance(ConsumableDependencyBucketSpec.class, bucketFactory.create(identifier));
-			}))
+			.withComponent(managed(of(ConsumableDependencyBucketSpec.class)))
 			.withComponent(tag(ConsumableDependencyBucketTag.class))
 			.build();
 	}

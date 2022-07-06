@@ -19,7 +19,6 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
@@ -33,12 +32,10 @@ public class DeclarableDependencyBucketSpec implements DeclarableDependencyBucke
 	, ModelBackedNamedMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	private final DependencyBucket delegate;
 	private final Configuration configuration;
 
 	@Inject
-	public DeclarableDependencyBucketSpec(DependencyBucket delegate) {
-		this.delegate = delegate;
+	public DeclarableDependencyBucketSpec() {
 		this.configuration = ModelNodeUtils.get(entity, Configuration.class);
 	}
 
