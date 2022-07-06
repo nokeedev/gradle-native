@@ -32,10 +32,11 @@ import org.gradle.api.Action;
 import org.gradle.api.Namer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 
@@ -43,12 +44,14 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
 	private final ModelLookup lookup;
+	private final ObjectFactory objects;
 	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
-	public DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ModelLookup lookup) {
+	public DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ModelLookup lookup, ObjectFactory objects) {
 		this.configurationRegistry = configurationRegistry;
 		this.bucketFactory = bucketFactory;
 		this.lookup = lookup;
+		this.objects = objects;
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
@@ -57,7 +60,9 @@ public final class DeclarableDependencyBucketRegistrationFactory {
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(managed(of(DefaultDeclarableDependencyBucket.class), bucketFactory.create(identifier)))
+			.withComponent(createdUsing(of(DefaultDeclarableDependencyBucket.class), () -> {
+				return objects.newInstance(DefaultDeclarableDependencyBucket.class, bucketFactory.create(identifier));
+			}))
 			.withComponent(tag(DeclarableDependencyBucketTag.class))
 			.build();
 	}

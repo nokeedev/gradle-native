@@ -25,7 +25,6 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
@@ -37,23 +36,27 @@ import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-import static dev.nokee.model.internal.core.ModelProjections.managed;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
+import static dev.nokee.model.internal.type.ModelType.of;
 
 public final class ResolvableDependencyBucketRegistrationFactory {
 	private final NamedDomainObjectRegistry<Configuration> configurationRegistry;
 	private final DependencyBucketFactory bucketFactory;
 	private final ModelLookup lookup;
+	private final ObjectFactory objects;
 	private final Namer<DependencyBucketIdentifier> namer = ConfigurationNamer.INSTANCE;
 
-	public ResolvableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ModelLookup lookup) {
+	public ResolvableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry<Configuration> configurationRegistry, DependencyBucketFactory bucketFactory, ModelLookup lookup, ObjectFactory objects) {
 		this.configurationRegistry = configurationRegistry;
 		this.bucketFactory = bucketFactory;
 		this.lookup = lookup;
+		this.objects = objects;
 	}
 
 	public ModelRegistration create(DependencyBucketIdentifier identifier) {
@@ -64,7 +67,9 @@ public final class ResolvableDependencyBucketRegistrationFactory {
 			.withComponent(new ParentComponent(lookup.get(DomainObjectIdentifierUtils.toPath(identifier.getOwnerIdentifier()))))
 			.withComponent(tag(IsDependencyBucket.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(managed(ModelType.of(DefaultResolvableDependencyBucket.class), bucketFactory.create(identifier), incoming))
+			.withComponent(createdUsing(of(DefaultResolvableDependencyBucket.class), () -> {
+				return objects.newInstance(DefaultResolvableDependencyBucket.class, bucketFactory.create(identifier), incoming);
+			}))
 			.withComponent(ofInstance(incoming))
 			.withComponent(tag(ResolvableDependencyBucketTag.class))
 			.build();
