@@ -149,7 +149,7 @@ public final class ModelNode {
 	}
 
 	public <T extends ModelComponent> void setComponent(T component) {
-		val componentType = ModelComponentType.ofInstance(component);
+		val componentType = component.getComponentType();
 		if (!components.containsKey(componentType)) {
 			throw new RuntimeException();
 		}
