@@ -33,12 +33,12 @@ public class ConsumableDependencyBucketSpec implements ConsumableDependencyBucke
 	, ModelBackedNamedMixIn {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final DependencyBucket delegate;
-	private final ConsumableDependencyBucketRegistrationFactory.OutgoingArtifacts outgoing;
+	private final OutgoingArtifacts outgoing;
 
 	@Inject
 	public ConsumableDependencyBucketSpec(DependencyBucket delegate) {
 		this.delegate = delegate;
-		this.outgoing = ModelNodeUtils.get(entity, ConsumableDependencyBucketRegistrationFactory.OutgoingArtifacts.class);
+		this.outgoing = ModelNodeUtils.get(entity, OutgoingArtifacts.class);
 	}
 
 	@Override

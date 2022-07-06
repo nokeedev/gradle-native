@@ -22,9 +22,7 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ListProperty;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -52,9 +50,5 @@ public final class ConsumableDependencyBucketRegistrationFactory {
 			}))
 			.withComponent(tag(ConsumableDependencyBucketTag.class))
 			.build();
-	}
-
-	interface OutgoingArtifacts {
-		ListProperty<PublishArtifact> getArtifacts();
 	}
 }

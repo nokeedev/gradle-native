@@ -27,10 +27,10 @@ import org.gradle.api.file.FileCollection;
  */
 public interface ResolvableDependencyBucket extends DependencyBucket {
 	default FileCollection getAsLenientFileCollection() {
-		return ModelNodeUtils.get(ModelNodes.of(this), ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class).getAsLenient();
+		return ModelNodeUtils.get(ModelNodes.of(this), IncomingArtifacts.class).getAsLenient();
 	}
 
 	default FileCollection getAsFileCollection() {
-		return ModelNodeUtils.get(ModelNodes.of(this), ResolvableDependencyBucketRegistrationFactory.IncomingArtifacts.class).get();
+		return ModelNodeUtils.get(ModelNodes.of(this), IncomingArtifacts.class).get();
 	}
 }
