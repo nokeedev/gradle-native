@@ -114,16 +114,22 @@ public final class ModelStates {
 		if (!self.has(ModelState.IsAtLeastFinalized.class)) {
 			realize(self);
 			if (!isAtLeast(self, ModelState.Finalized)) {
-				if (self.has(ModelState.class)) {
-					self.setComponent(ModelState.class, ModelState.Finalized);
-				} else {
-					self.addComponent(ModelState.Finalized);
+				if (!self.has(Finalizing.class)) {
+					self.addComponent(new Finalizing());
+					ModelNodeUtils.getParent(self).ifPresent(ModelStates::finalize);
+					if (self.has(ModelState.class)) {
+						self.setComponent(ModelState.class, ModelState.Finalized);
+					} else {
+						self.addComponent(ModelState.Finalized);
+					}
 				}
 			}
 			self.addComponent(FINALIZED_TAG);
 		}
 		return self;
 	}
+
+	public static final class Finalizing implements ModelComponent {}
 
 	/**
 	 * Checks the state of the specified node is at or later that the specified state.
