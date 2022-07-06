@@ -16,6 +16,8 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.DependencyFactory;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.DependencyBucket;
 import lombok.Getter;
 import org.gradle.api.Action;
@@ -25,6 +27,7 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
 
 public final class DefaultDependencyBucket implements DependencyBucket {
+	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	@Getter private final String name;
 	private final NamedDomainObjectProvider<Configuration> bucket;
 	private final DependencyFactory dependencyFactory;
@@ -38,12 +41,18 @@ public final class DefaultDependencyBucket implements DependencyBucket {
 	@Override
 	public void addDependency(Object notation) {
 		Dependency dependency = dependencyFactory.create(notation);
+		entity.find(DependencyDefaultActionComponent.class).map(DependencyDefaultActionComponent::get).ifPresent(defaultAction -> {
+			defaultAction.execute((ModuleDependency) dependency);
+		});
 		bucket.configure(it -> it.getDependencies().add(dependency));
 	}
 
 	@Override
 	public void addDependency(Object notation, Action<? super ModuleDependency> action) {
 		Dependency dependency = dependencyFactory.create(notation);
+		entity.find(DependencyDefaultActionComponent.class).map(DependencyDefaultActionComponent::get).ifPresent(defaultAction -> {
+			defaultAction.execute((ModuleDependency) dependency);
+		});
 		action.execute((ModuleDependency) dependency);
 		bucket.configure(it -> it.getDependencies().add(dependency));
 	}

@@ -22,9 +22,7 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.LegacySwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
-import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -50,7 +48,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
@@ -73,7 +70,7 @@ import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependenciesComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
@@ -122,7 +119,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			}
 			registry.register(newEntity("resources", IosResourceSetSpec.class, it -> it.ownedBy(entity)));
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class), project.getObjects());
+			val bucketFactory = new FrameworkAwareDependencyBucketRegistrationFactory(project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class));
 
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
 			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("compileOnly", identifier.get())));
@@ -141,7 +138,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project)), project.getExtensions().getByType(ModelLookup.class), project.getObjects());
+			val bucketFactory = new FrameworkAwareDependencyBucketRegistrationFactory(project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class));
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
 			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("compileOnly", identifier.get())));
 			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("linkOnly", identifier.get())));

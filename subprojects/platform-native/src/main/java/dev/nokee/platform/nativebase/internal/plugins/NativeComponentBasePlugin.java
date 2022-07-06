@@ -41,9 +41,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.LegacySwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -83,8 +81,8 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
-import dev.nokee.platform.base.internal.dependencies.DefaultDependencyBucketFactory;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
+import dev.nokee.platform.base.internal.dependencies.DependencyDefaultActionComponent;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencybuckets.ApiConfigurationComponent;
@@ -121,11 +119,13 @@ import dev.nokee.platform.nativebase.internal.TargetMachinesPropertyRegistration
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.compiling.NativeCompileCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
-import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketFactory;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeApplicationOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependenciesComponent;
+import dev.nokee.platform.nativebase.internal.dependencies.RequestFrameworkAction;
 import dev.nokee.platform.nativebase.internal.dependencies.SwiftLibraryOutgoingDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.linking.LinkLibrariesConfiguration;
@@ -192,6 +192,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DarwinRuntimePlugin.class); // for now, later we will be more smart
 		project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(FrameworkAwareDependencyBucketTag.class), (entity, ignored) -> {
+			entity.addComponent(new DependencyDefaultActionComponent(new RequestFrameworkAction(project.getObjects())));
+		}));
+
 		project.getExtensions().add("__nokee_sharedLibraryFactory", new SharedLibraryBinaryRegistrationFactory(
 			project.getObjects()
 		));
@@ -233,7 +237,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class), project.getObjects());
+			val bucketFactory = new FrameworkAwareDependencyBucketRegistrationFactory(project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class));
 
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
 			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("compileOnly", identifier.get())));
@@ -322,7 +326,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 
-			val bucketFactory = new DeclarableDependencyBucketRegistrationFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), new FrameworkAwareDependencyBucketFactory(project.getObjects(), new DefaultDependencyBucketFactory(NamedDomainObjectRegistry.of(project.getConfigurations()), DependencyFactory.forProject(project))), project.getExtensions().getByType(ModelLookup.class), project.getObjects());
+			val bucketFactory = new FrameworkAwareDependencyBucketRegistrationFactory(project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class));
 
 			val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("api", identifier.get())));
 			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
