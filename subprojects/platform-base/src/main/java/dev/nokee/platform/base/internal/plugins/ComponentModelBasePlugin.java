@@ -120,9 +120,11 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 
 		project.getConfigurations().configureEach(configuration -> {
-			((ConfigurationInternal) configuration).beforeLocking(it -> {
+			val bucketResolver = (Runnable) () -> {
 				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::finalize);
-			});
+			};
+			configuration.defaultDependencies(__ -> bucketResolver.run());
+			((ConfigurationInternal) configuration).beforeLocking(__ -> bucketResolver.run());
 		});
 		project.getTasks().configureEach(task -> {
 			project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsTask.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
