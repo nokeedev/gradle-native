@@ -20,6 +20,7 @@ import com.google.common.reflect.TypeToken;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
@@ -33,6 +34,10 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 	public abstract void execute(ModelNode node, List<?> inputs);
 
 	public abstract List<? extends ModelComponentReference<?>> getInputs();
+
+	private static String displayName(ModelAction self) {
+		return Optional.ofNullable(self.getClass().getCanonicalName()).orElse("rule");
+	}
 
 
 	public static <I0 extends ModelComponent> ModelAction of(ModelComponentReference<I0> i0, A1<? super I0> action) {
@@ -87,7 +92,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 
 		@Override
 		public String toString() {
-			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
+			return displayName(this) + " (" + inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", ")) + ")";
 		}
 	}
 
@@ -146,7 +151,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 
 		@Override
 		public String toString() {
-			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
+			return displayName(this) + " (" + inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", ")) + ")";
 		}
 	}
 
@@ -208,7 +213,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 
 		@Override
 		public String toString() {
-			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
+			return displayName(this) + " (" + inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", ")) + ")";
 		}
 	}
 
@@ -273,7 +278,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 
 		@Override
 		public String toString() {
-			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
+			return displayName(this) + " (" + inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", ")) + ")";
 		}
 	}
 
@@ -340,7 +345,7 @@ public abstract class ModelActionWithInputs implements ModelAction, HasInputs {
 
 		@Override
 		public String toString() {
-			return inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", "));
+			return displayName(this) + " (" + inputs.stream().map(ModelComponentReference::getType).map(Objects::toString).collect(Collectors.joining(", ")) + ")";
 		}
 	}
 }
