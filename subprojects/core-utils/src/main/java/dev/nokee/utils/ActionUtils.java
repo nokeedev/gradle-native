@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import com.google.common.collect.Streams;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Transformer;
@@ -123,6 +124,11 @@ public final class ActionUtils {
 			for (org.gradle.api.Action<? super T> action : actions) {
 				action.execute(t);
 			}
+		}
+
+		@Override
+		public String toString() {
+			return "ActionUtils.composite(" + Streams.stream(actions).map(Object::toString).collect(Collectors.joining(", ")) + ")";
 		}
 	}
 
