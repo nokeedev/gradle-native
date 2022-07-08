@@ -55,7 +55,6 @@ public final class DomainObjectEntities {
 		builderConsumer.accept(builder);
 
 		result.withComponent(new ElementNameComponent(elementName));
-		result.withComponent(ModelProjections.managed(ModelType.of(type)));
 
 		val tagAnnotations = new LinkedHashSet<Tag>();
 		findAnnotations(type, Tag.class, tagAnnotations);
@@ -64,6 +63,14 @@ public final class DomainObjectEntities {
 				result.withComponent(ModelTags.tag(tag));
 			}
 		}
+
+		// It's important to add the projection at the end because there is a tiny bug with ModelProjection specifically.
+		//   The issue is the projection should really be ModelBufferElement but instead are "multi-component".
+		//   Multi-components are a feature we don't really support which is having multiple components of the same type.
+		//   The executor has some support specifically for ModelProjection.
+		//   However, it lacks support for executing a rule for multiple ModelProjection after the fact,
+		//   i.e. once the other inputs, say ConfigurableTag, matches.
+		result.withComponent(ModelProjections.managed(ModelType.of(type)));
 		return result.build();
 	}
 
