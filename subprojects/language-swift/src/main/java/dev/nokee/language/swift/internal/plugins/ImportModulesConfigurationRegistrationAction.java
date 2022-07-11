@@ -25,8 +25,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
@@ -40,25 +39,24 @@ import java.nio.file.Path;
 import java.util.Set;
 
 import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts.frameworks;
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 final class ImportModulesConfigurationRegistrationAction extends ModelActionWithInputs.ModelAction3<ModelProjection, IdentifierComponent, ModelState.IsAtLeastRegistered> {
 	private final ModelRegistry registry;
-	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
-	ImportModulesConfigurationRegistrationAction(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
+	ImportModulesConfigurationRegistrationAction(ModelRegistry registry, ObjectFactory objects) {
 		super(ModelComponentReference.ofProjection(SwiftSourceSetSpec.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRegistered.class));
 		this.registry = registry;
-		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
 	}
 
 	@Override
 	protected void execute(ModelNode entity, ModelProjection knownSourceSet, IdentifierComponent identifier, ModelState.IsAtLeastRegistered isAtLeastRegistered) {
-		val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("importModules", identifier.get())));
+		val importModules = registry.register(newEntity("importModules", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 		importModules.configure(Configuration.class, forSwiftApiUsage());
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));
 		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
