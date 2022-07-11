@@ -75,14 +75,14 @@ public final class TaskDependencyUtils {
 	 * @return a task dependency for specified task provider, never null
 	 */
 	public static TaskDependency of(Provider<? extends Task> taskProvider) {
-		return new OfTaskDependency(taskProvider);
+		return new OfTaskProviderDependency(taskProvider);
 	}
 
 	@EqualsAndHashCode
-	private static final class OfTaskDependency implements TaskDependency {
+	private static final class OfTaskProviderDependency implements TaskDependency {
 		private final Provider<? extends Task> taskProvider;
 
-		private OfTaskDependency(Provider<? extends Task> taskProvider) {
+		private OfTaskProviderDependency(Provider<? extends Task> taskProvider) {
 			this.taskProvider = requireNonNull(taskProvider);
 		}
 
