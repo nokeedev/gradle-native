@@ -43,6 +43,11 @@ class TaskDependencyUtils_OfTest {
 	}
 
 	@Test
+	void canCreateTaskDependencyFromTask() {
+		assertThat(of(T0).getDependencies(ANY), contains(T0));
+	}
+
+	@Test
 	void doesNotResolveProviderUponCreation() {
 		assertDoesNotThrow(() -> of(providerFactory().provider(throwingCallable())));
 	}
@@ -57,6 +62,8 @@ class TaskDependencyUtils_OfTest {
 		new EqualsTester()
 			.addEqualityGroup(of(P0), of(P0))
 			.addEqualityGroup(of(P1))
+			.addEqualityGroup(of(T0), of(T0))
+			.addEqualityGroup(of(T1))
 			.testEquals();
 	}
 

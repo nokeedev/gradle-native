@@ -97,6 +97,29 @@ public final class TaskDependencyUtils {
 		}
 	}
 
+	public static TaskDependency of(Task task) {
+		return new OfTaskDependency(task);
+	}
+
+	@EqualsAndHashCode
+	private static final class OfTaskDependency implements TaskDependency {
+		private final Task task;
+
+		private OfTaskDependency(Task task) {
+			this.task = requireNonNull(task);
+		}
+
+		@Override
+		public Set<? extends Task> getDependencies(@Nullable Task task) {
+			return Collections.singleton(task);
+		}
+
+		@Override
+		public String toString() {
+			return "TaskDependencyUtils.of(" + task + ")";
+		}
+	}
+
 	/**
 	 * Creates task dependency for specified iterable provider of tasks.
 	 * The provider is only realize when querying task dependency via {@link TaskDependency#getDependencies(Task)}.
