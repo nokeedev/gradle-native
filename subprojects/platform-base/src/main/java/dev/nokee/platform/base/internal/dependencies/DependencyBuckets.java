@@ -16,6 +16,8 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.names.ElementName;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.util.GUtil;
 
 import java.util.Arrays;
@@ -53,5 +55,10 @@ public final class DependencyBuckets {
 	 */
 	public static String defaultDisplayNameOfDeclarableBucket(ElementName name) {
 		return defaultDisplayName(name) + " dependencies";
+	}
+
+	public static Configuration finalize(Configuration self) {
+		((ConfigurationInternal) self).preventFromFurtherMutation();
+		return self;
 	}
 }

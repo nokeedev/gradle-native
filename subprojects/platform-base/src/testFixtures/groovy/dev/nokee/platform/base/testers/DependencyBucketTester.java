@@ -15,7 +15,9 @@
  */
 package dev.nokee.platform.base.testers;
 
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
 import groovy.lang.Closure;
@@ -29,6 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.*;
+import static dev.nokee.model.internal.core.ModelNodes.of;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.externalDependency;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.projectDependency;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
@@ -64,7 +67,7 @@ public interface DependencyBucketTester<T> {
 	@MethodSource("provideDependencyNotations")
 	default void canAddDependency(DependencyUnderTest dependency) {
 		addDependency(subject(), dependency.asNotation());
-		assertThat(get(subject()).getAsConfiguration(), dependencies(contains(dependency.asMatcher())));
+		assertThat(DependencyBuckets.finalize(get(subject()).getAsConfiguration()), dependencies(contains(dependency.asMatcher())));
 	}
 	//endregion
 
@@ -74,7 +77,7 @@ public interface DependencyBucketTester<T> {
 	default void canAddAttributesToDependency(DependencyUnderTest dependency) {
 		addDependency(subject(), dependency.asNotation(),
 			configureAttributes(it -> it.attribute(of("com.example.attribute", String.class), "foo")));
-		assertThat(get(subject()).getAsConfiguration().getDependencies(),
+		assertThat(DependencyBuckets.finalize(get(subject()).getAsConfiguration()).getDependencies(),
 			contains(module(attributes(hasEntry(of("com.example.attribute", String.class), "foo")))));
 	}
 	//endregion
@@ -85,7 +88,7 @@ public interface DependencyBucketTester<T> {
 	default void canConfigureDependencyViaTypeSafeMethodUsingAction(DependencyUnderTest dependency) {
 		val action = ActionTestUtils.mockAction(ModuleDependency.class);
 		addDependency(subject(), dependency.asNotation(), action);
-		assertThat(get(subject()).getAsConfiguration().getDependencies(), hasSize(1)); // force realize
+		assertThat(DependencyBuckets.finalize(get(subject()).getAsConfiguration()).getDependencies(), hasSize(1)); // force realize
 		assertThat(action, calledOnceWith(singleArgumentOf(dependency.asMatcher())));
 	}
 
@@ -94,7 +97,7 @@ public interface DependencyBucketTester<T> {
 	default void canConfigureDependencyViaTypeSafeMethodUsingClosure(DependencyUnderTest dependency) {
 		val closure = ClosureTestUtils.mockClosure(ModuleDependency.class);
 		addDependency(subject(), dependency.asNotation(), closure);
-		assertThat(get(subject()).getAsConfiguration().getDependencies(), hasSize(1)); // force realize
+		assertThat(DependencyBuckets.finalize(get(subject()).getAsConfiguration()).getDependencies(), hasSize(1)); // force realize
 		assertAll(
 			() -> assertThat(closure, calledOnceWith(singleArgumentOf(dependency.asMatcher()))),
 			() -> assertThat(closure, calledOnceWith(allOf(delegateOf(dependency.asMatcher()), delegateFirstStrategy())))
