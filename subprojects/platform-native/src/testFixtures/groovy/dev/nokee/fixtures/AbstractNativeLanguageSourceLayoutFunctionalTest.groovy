@@ -249,10 +249,10 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			}
 			afterEvaluate {
 				pluginManager.withPlugin('java') {
-					${dsl}.sources.configureEach(CSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-					${dsl}.sources.configureEach(CppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-					${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-					${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+					${dsl}.sources.configureEach(CSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
+					${dsl}.sources.configureEach(CppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
+					${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
+					${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
 				}
 			}
 			pluginManager.withPlugin('groovy') {
@@ -310,10 +310,10 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			}
 			afterEvaluate {
 				pluginManager.withPlugin('java-base') {
-					${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-					${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-					${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
-					${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.getOptions().getHeaderOutputDirectory() }) }
+					${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
+					${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
+					${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
+					${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
 				}
 			}
 			pluginManager.withPlugin('groovy-base') {
