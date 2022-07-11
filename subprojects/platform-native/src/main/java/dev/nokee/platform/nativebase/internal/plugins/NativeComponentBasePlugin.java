@@ -84,7 +84,7 @@ import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketR
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyDefaultActionComponent;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencybuckets.ApiConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
@@ -215,7 +215,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				return ParentUtils.stream(parent).map(it -> it.find(FullyQualifiedNameComponent.class)).filter(Optional::isPresent).map(Optional::get).map(FullyQualifiedNameComponent::get).map(it -> "src/" + it + "/headers").collect(Collectors.toList());
 			});
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class), project.getObjects())));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachAttributesToConfigurationRule<>(RuntimeLibrariesConfiguration.class, project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, identifier, tag) -> {
@@ -266,27 +266,26 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
-			val resolvableFactory = project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class);
 			boolean hasSwift = project.getExtensions().getByType(ModelLookup.class).anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
 			if (hasSwift) {
-				val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("importSwiftModules", identifier.get())));
+				val importModules = registry.register(newEntity("importSwiftModules", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 				importModules.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 			} else {
-				val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("headerSearchPaths", identifier.get())));
+				val headerSearchPaths = registry.register(newEntity("headerSearchPaths", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 				headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 			}
-			val linkLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("linkLibraries", identifier.get())));
+			val linkLibraries = registry.register(newEntity("linkLibraries", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			linkLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))))
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-			val runtimeLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("runtimeLibraries", identifier.get())));
+			val runtimeLibraries = registry.register(newEntity("runtimeLibraries", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			runtimeLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
@@ -360,27 +359,26 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
-			val resolvableFactory = project.getExtensions().getByType(ResolvableDependencyBucketRegistrationFactory.class);
 			boolean hasSwift = project.getExtensions().getByType(ModelLookup.class).anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
 			if (hasSwift) {
-				val importModules = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("importSwiftModules", identifier.get())));
+				val importModules = registry.register(newEntity("importSwiftModules", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 				importModules.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 			} else {
-				val headerSearchPaths = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("headerSearchPaths", identifier.get())));
+				val headerSearchPaths = registry.register(newEntity("headerSearchPaths", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 				headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
 					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 			}
-			val linkLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("linkLibraries", identifier.get())));
+			val linkLibraries = registry.register(newEntity("linkLibraries", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			linkLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))))
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-			val runtimeLibraries = registry.register(resolvableFactory.create(DependencyBucketIdentifier.of("runtimeLibraries", identifier.get())));
+			val runtimeLibraries = registry.register(newEntity("runtimeLibraries", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			runtimeLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
 				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
