@@ -208,7 +208,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		}
 	}
 
-	// ComponentFromEntity<ParentComponent> read-only self
 	// ComponentFromEntity<IdentifierComponent> read-only parent
 	private static final class DescriptionRule extends ModelActionWithInputs.ModelAction4<ModelComponentTag<IsDependencyBucket>, ConfigurationComponent, ParentComponent, DisplayNameComponent> {
 
@@ -218,8 +217,7 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 		@Override
 		protected void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored, ConfigurationComponent configuration, ParentComponent parent, DisplayNameComponent displayName) {
-			ifPresentOrElse(entity.find(ParentComponent.class).flatMap(it -> it.get().find(IdentifierComponent.class))
-					.map(IdentifierComponent::get),
+			ifPresentOrElse(parent.get().find(IdentifierComponent.class).map(IdentifierComponent::get),
 				it -> configuration.configure(configureDescription(DependencyBucketDescription.of(displayName.get()).forOwner(it)::toString)),
 				() -> configuration.configure(configureDescription(DependencyBucketDescription.of(displayName.get())::toString)));
 		}
