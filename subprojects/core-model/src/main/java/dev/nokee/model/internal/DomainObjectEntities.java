@@ -55,7 +55,12 @@ public final class DomainObjectEntities {
 		builderConsumer.accept(builder);
 
 		result.withComponent(new ElementNameComponent(elementName));
+		result.mergeFrom(from(type));
+		return result.build();
+	}
 
+	public static <T> ModelRegistration from(Class<T> type) {
+		val result = ModelRegistration.builder();
 		val tagAnnotations = new LinkedHashSet<Tag>();
 		findAnnotations(type, Tag.class, tagAnnotations);
 		for (Tag tags : tagAnnotations) {

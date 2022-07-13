@@ -20,14 +20,18 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.artifacts.Configuration;
 
-final class ConfigurationComponent implements ModelComponent {
+public final class ConfigurationComponent implements ModelComponent {
 	final NamedDomainObjectProvider<Configuration> configuration;
 
-	ConfigurationComponent(NamedDomainObjectProvider<Configuration> configuration) {
+	public ConfigurationComponent(NamedDomainObjectProvider<Configuration> configuration) {
 		this.configuration = configuration;
 	}
 
 	public void configure(Action<? super Configuration> action) {
 		configuration.configure(action);
+	}
+
+	public NamedDomainObjectProvider<Configuration> get() {
+		return configuration;
 	}
 }
