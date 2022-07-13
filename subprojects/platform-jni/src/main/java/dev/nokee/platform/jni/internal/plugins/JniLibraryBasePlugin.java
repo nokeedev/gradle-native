@@ -22,12 +22,15 @@ import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
+import dev.nokee.language.jvm.internal.CompileTaskComponent;
 import dev.nokee.language.jvm.internal.GroovyLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
 import dev.nokee.language.jvm.internal.JavaLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
+import dev.nokee.language.jvm.internal.JvmSourceSetTag;
 import dev.nokee.language.jvm.internal.KotlinLanguageSourceSetComponent;
 import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
+import dev.nokee.language.jvm.internal.SourceSetComponent;
 import dev.nokee.language.jvm.internal.plugins.JvmLanguageBasePlugin;
 import dev.nokee.language.nativebase.HasObjectFiles;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
@@ -38,6 +41,7 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.model.internal.ModelElementFactory;
+import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -68,7 +72,6 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
@@ -76,7 +79,9 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
+import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
@@ -208,9 +213,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
 			val bucketFactory = new FrameworkAwareDependencyBucketRegistrationFactory(project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class));
-			val api = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("api", identifier.get())));
-			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("jvmImplementation", identifier.get())));
-			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("jvmRuntimeOnly", identifier.get())));
+			val api = registry.register(newEntity("api", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
+			val implementation = registry.register(newEntity("jvmImplementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
+			val runtimeOnly = registry.register(newEntity("jvmRuntimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			project.getPlugins().withType(NativeLanguagePlugin.class, new Action<NativeLanguagePlugin>() {
 				private boolean alreadyExecuted = false;
 
@@ -278,13 +283,17 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			});
 
 			project.getPluginManager().withPlugin("java", appliedPlugin -> {
-				// We use getByName instead of named as it doesn't really matter because Configuration are always realized
-				//   but also we have nested configure actions
-				// We should avoid extendsFrom outside the Universal Model
-				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of("implementation", identifier.get())), configureExtendsFrom(implementation.as(Configuration.class)));
-				project.getConfigurations().getByName(ConfigurationNamer.INSTANCE.determineName(DependencyBucketIdentifier.of("runtimeOnly", identifier.get())), configureExtendsFrom(runtimeOnly.as(Configuration.class)));
+				registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class)));
+				registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.configure(Configuration.class, configureExtendsFrom(runtimeOnly.as(Configuration.class)));
 			});
 		})));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(JvmSourceSetTag.class), ModelComponentReference.of(SourceSetComponent.class), ModelComponentReference.of(CompileTaskComponent.class), (entity, ignored1, sourceSet, compileTask) -> {
+			sourceSet.get().configure(it -> {
+				project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelAction.configure(compileTask.get().getId(), Task.class, configureDependsOn((Callable<?>) () -> DependencyBuckets.finalize(project.getConfigurations().getByName(it.getCompileClasspathConfigurationName())))));
+			});
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(JvmJarArtifactComponent.class), ModelComponentReference.of(ApiElementsConfiguration.class), (entity, jvmJar, apiElements) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			registry.instantiate(configure(apiElements.get().getId(), Configuration.class, configuration -> {
