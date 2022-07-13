@@ -56,6 +56,7 @@ import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
+import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
@@ -156,11 +157,10 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val bucketFactory = project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class);
-			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("implementation", identifier.get())));
-			val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("compileOnly", identifier.get())));
-			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("linkOnly", identifier.get())));
-			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("runtimeOnly", identifier.get())));
+			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
+			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
+			val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
+			val runtimeOnly = registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 
 			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
 			entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
