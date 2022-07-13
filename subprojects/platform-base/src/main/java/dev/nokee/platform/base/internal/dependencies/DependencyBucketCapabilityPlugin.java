@@ -55,7 +55,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 
 import javax.inject.Inject;
 
@@ -73,14 +72,12 @@ import static dev.nokee.utils.Optionals.ifPresentOrElse;
 public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final NamedDomainObjectRegistry<Configuration> registry;
 	private final ObjectFactory objects;
-	private final ProviderFactory providers;
 	private final DependencyFactory factory;
 
 	@Inject
-	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations, ObjectFactory objects, ProviderFactory providers, DependencyHandler dependencies) {
+	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations, ObjectFactory objects, DependencyHandler dependencies) {
 		this.registry = NamedDomainObjectRegistry.of(configurations);
 		this.objects = objects;
-		this.providers = providers;
 		this.factory = DependencyFactory.forHandler(dependencies);
 	}
 
