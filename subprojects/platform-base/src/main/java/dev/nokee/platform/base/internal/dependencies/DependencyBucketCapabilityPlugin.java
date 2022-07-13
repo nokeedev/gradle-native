@@ -51,6 +51,7 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
@@ -58,9 +59,12 @@ import org.gradle.api.provider.Provider;
 
 import javax.inject.Inject;
 
+import java.util.Objects;
+
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
 import static dev.nokee.utils.ConfigurationUtils.configureAsDeclarable;
@@ -71,12 +75,14 @@ import static dev.nokee.utils.Optionals.ifPresentOrElse;
 
 public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final NamedDomainObjectRegistry<Configuration> registry;
+	private final ConfigurationContainer configurations;
 	private final ObjectFactory objects;
 	private final DependencyFactory factory;
 
 	@Inject
 	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations, ObjectFactory objects, DependencyHandler dependencies) {
 		this.registry = NamedDomainObjectRegistry.of(configurations);
+		this.configurations = configurations;
 		this.objects = objects;
 		this.factory = DependencyFactory.forHandler(dependencies);
 	}
@@ -128,6 +134,25 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 			val incoming = new IncomingArtifacts(configuration.configuration);
 			entity.addComponent(ofInstance(incoming));
 		}));
+
+		configurations.configureEach(configuration -> {
+			val bucketResolver = (Runnable) new Runnable() {
+				@Override
+				public void run() {
+					finalize(configuration);
+				}
+
+				private /*static*/ void finalize(Configuration configuration) {
+					val projections = target.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false));
+					for (Configuration config : configuration.getExtendsFrom()) {
+						finalize(config);
+					}
+					projections.forEach(ModelStates::finalize);
+				}
+			};
+			configuration.defaultDependencies(__ -> bucketResolver.run());
+			((ConfigurationInternal) configuration).beforeLocking(__ -> bucketResolver.run());
+		});
 	}
 
 	// We have to delay until realize because Kotlin plugin suck big time.
