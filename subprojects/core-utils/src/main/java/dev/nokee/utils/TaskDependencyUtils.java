@@ -111,7 +111,7 @@ public final class TaskDependencyUtils {
 
 		@Override
 		public Set<? extends Task> getDependencies(@Nullable Task task) {
-			return Collections.singleton(task);
+			return Collections.singleton(this.task);
 		}
 
 		@Override
