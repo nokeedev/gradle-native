@@ -19,13 +19,16 @@ import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
 import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
 import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
+import dev.nokee.language.jvm.internal.JvmSourceSetTag;
 import dev.nokee.language.jvm.internal.KotlinSourceSetSpec;
+import dev.nokee.language.jvm.internal.SourceSetComponent;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
@@ -58,7 +61,12 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 
 		project.getPlugins().withType(JavaBasePlugin.class, ignored -> {
-			val sourceSetRegistry = NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class));
+			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(JvmSourceSetTag.class), ModelComponentReference.of(ParentComponent.class), (entity, projection, parent) -> {
+				val sourceSetRegistry = NamedDomainObjectRegistry.of(project.getExtensions().getByType(SourceSetContainer.class));
+				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+				entity.addComponent(new SourceSetComponent(sourceSetProvider));
+			})));
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val taskRegistrationFactory = project.getExtensions().getByType(TaskRegistrationFactory.class);
@@ -68,31 +76,28 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), GroovyCompile.class, identifier.get()), GroovyCompile.class).build());
 			})));
-			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, projection, identifier, parent, fullyQualifiedName) -> {
-				val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourceSetComponent.class), (entity, projection, identifier, parent, sourceSet) -> {
+				val sourceSetProvider = sourceSet.get();
 				@SuppressWarnings("unchecked")
 				val KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.flatMap(it -> project.getTasks().named(it.getCompileTaskName("kotlin"))).get().getClass());
 				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), KotlinCompile, identifier.get()), KotlinCompile).build());
 			})));
 
 			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), new AttachGroovySourcesToGroovySourceSet(sourceSetRegistry)));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(JavaSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), new AttachJavaSourcesToJavaSourceSet(sourceSetRegistry)));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), new AttachKotlinSourcesToKotlinSourceSet(sourceSetRegistry)));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachGroovySourcesToGroovySourceSet());
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachJavaSourcesToJavaSourceSet());
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachKotlinSourcesToKotlinSourceSet());
 		});
 	}
 
-	private static final class AttachGroovySourcesToGroovySourceSet implements ModelActionWithInputs.A3<ModelComponentTag<GroovySourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent> {
-		private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
-
-		private AttachGroovySourcesToGroovySourceSet(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry) {
-			this.sourceSetRegistry = sourceSetRegistry;
+	private static final class AttachGroovySourcesToGroovySourceSet extends ModelActionWithInputs.ModelAction4<ModelComponentTag<GroovySourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent, SourceSetComponent> {
+		private AttachGroovySourcesToGroovySourceSet() {
+			super(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(SourceSetComponent.class));
 		}
 
 		@Override
-		public void execute(ModelNode entity, ModelComponentTag<GroovySourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty) {
-			val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+		protected void execute(ModelNode entity, ModelComponentTag<GroovySourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty, SourceSetComponent sourceSet) {
+			val sourceSetProvider = sourceSet.get();
 			sourceSetProvider.get();
 			((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(AttachGroovySourcesToGroovySourceSet::asSourceDirectorySet));
 		}
@@ -102,16 +107,14 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		}
 	}
 
-	private static final class AttachJavaSourcesToJavaSourceSet implements ModelActionWithInputs.A3<ModelComponentTag<JavaSourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent> {
-		private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
-
-		private AttachJavaSourcesToJavaSourceSet(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry) {
-			this.sourceSetRegistry = sourceSetRegistry;
+	private static final class AttachJavaSourcesToJavaSourceSet extends ModelActionWithInputs.ModelAction4<ModelComponentTag<JavaSourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent, SourceSetComponent> {
+		private AttachJavaSourcesToJavaSourceSet() {
+			super(ModelTags.referenceOf(JavaSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(SourceSetComponent.class));
 		}
 
 		@Override
-		public void execute(ModelNode entity, ModelComponentTag<JavaSourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty) {
-			val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+		protected void execute(ModelNode entity, ModelComponentTag<JavaSourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty, SourceSetComponent sourceSet) {
+			val sourceSetProvider = sourceSet.get();
 			((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(AttachJavaSourcesToJavaSourceSet::asSourceDirectorySet));
 		}
 
@@ -120,16 +123,14 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 		}
 	}
 
-	private static final class AttachKotlinSourcesToKotlinSourceSet implements ModelActionWithInputs.A3<ModelComponentTag<KotlinSourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent> {
-		private final NamedDomainObjectRegistry<SourceSet> sourceSetRegistry;
-
-		private AttachKotlinSourcesToKotlinSourceSet(NamedDomainObjectRegistry<SourceSet> sourceSetRegistry) {
-			this.sourceSetRegistry = sourceSetRegistry;
+	private static final class AttachKotlinSourcesToKotlinSourceSet extends ModelActionWithInputs.ModelAction4<ModelComponentTag<KotlinSourceSetSpec.Tag>, ParentComponent, SourcePropertyComponent, SourceSetComponent> {
+		private AttachKotlinSourcesToKotlinSourceSet() {
+			super(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(SourceSetComponent.class));
 		}
 
 		@Override
-		public void execute(ModelNode entity, ModelComponentTag<KotlinSourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty) {
-			val sourceSetProvider = sourceSetRegistry.registerIfAbsent(parent.get().get(FullyQualifiedNameComponent.class).get().toString());
+		protected void execute(ModelNode entity, ModelComponentTag<KotlinSourceSetSpec.Tag> tag, ParentComponent parent, SourcePropertyComponent sourceProperty, SourceSetComponent sourceSet) {
+			val sourceSetProvider = sourceSet.get();
 			((ConfigurableFileCollection) sourceProperty.get().get(GradlePropertyComponent.class).get()).from(sourceSetProvider.map(AttachKotlinSourcesToKotlinSourceSet::asSourceDirectorySet));
 		}
 
