@@ -36,7 +36,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -55,17 +54,17 @@ public final class DomainObjectEntities {
 		builderConsumer.accept(builder);
 
 		result.withComponent(new ElementNameComponent(elementName));
-		result.mergeFrom(from(type));
+		result.mergeFrom(entityOf(type));
 		return result.build();
 	}
 
-	public static <T> ModelRegistration from(Class<T> type) {
-		val result = ModelRegistration.builder();
+	public static <T> ModelRegistration entityOf(Class<T> type) {
+		val builder = ModelRegistration.builder();
 		val tagAnnotations = new LinkedHashSet<Tag>();
 		findAnnotations(type, Tag.class, tagAnnotations);
 		for (Tag tags : tagAnnotations) {
 			for (Class<? extends ModelTag> tag : tags.value()) {
-				result.withComponent(ModelTags.tag(tag));
+				builder.withComponent(ModelTags.tag(tag));
 			}
 		}
 
@@ -75,8 +74,8 @@ public final class DomainObjectEntities {
 		//   The executor has some support specifically for ModelProjection.
 		//   However, it lacks support for executing a rule for multiple ModelProjection after the fact,
 		//   i.e. once the other inputs, say ConfigurableTag, matches.
-		result.withComponent(ModelProjections.managed(ModelType.of(type)));
-		return result.build();
+		builder.withComponent(ModelProjections.managed(ModelType.of(type)));
+		return builder.build();
 	}
 
 	private static <A extends Annotation> void findAnnotations(AnnotatedElement element, Class<A> annotationType, Set<A> found) {
