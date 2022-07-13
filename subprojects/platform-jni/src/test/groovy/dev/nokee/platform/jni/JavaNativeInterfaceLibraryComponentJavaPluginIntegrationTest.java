@@ -31,6 +31,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpe
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.runtime.nativebase.internal.TargetMachines;
 import groovy.lang.Closure;
@@ -88,12 +89,12 @@ class JavaNativeInterfaceLibraryComponentJavaPluginIntegrationTest extends Abstr
 
 	@Test
 	void runtimeOnlyConfigurationExtendsFromJvmRuntimeOnlyConfiguration() {
-		assertThat(project.getConfigurations().getByName("qezuRuntimeOnly"), extendsFrom(hasItem(named("qezuJvmRuntimeOnly"))));
+		assertThat(DependencyBuckets.finalize(project.getConfigurations().getByName("qezuRuntimeOnly")), extendsFrom(hasItem(named("qezuJvmRuntimeOnly"))));
 	}
 
 	@Test
 	void implementationConfigurationExtendsFromJvmImplementationConfiguration() {
-		assertThat(project.getConfigurations().getByName("qezuImplementation"), extendsFrom(hasItem(named("qezuJvmImplementation"))));
+		assertThat(DependencyBuckets.finalize(project.getConfigurations().getByName("qezuImplementation")), extendsFrom(hasItem(named("qezuJvmImplementation"))));
 	}
 
 	@Nested

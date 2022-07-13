@@ -88,6 +88,7 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -120,8 +121,19 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 
 		project.getConfigurations().configureEach(configuration -> {
-			val bucketResolver = (Runnable) () -> {
-				project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false)).forEach(ModelStates::finalize);
+			val bucketResolver = (Runnable) new Runnable() {
+				@Override
+				public void run() {
+					finalize(configuration);
+				}
+
+				private /*static*/ void finalize(Configuration configuration) {
+					val projections = project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false));
+					for (Configuration config : configuration.getExtendsFrom()) {
+						finalize(config);
+					}
+					projections.forEach(ModelStates::finalize);
+				}
 			};
 			configuration.defaultDependencies(__ -> bucketResolver.run());
 			((ConfigurationInternal) configuration).beforeLocking(__ -> bucketResolver.run());
