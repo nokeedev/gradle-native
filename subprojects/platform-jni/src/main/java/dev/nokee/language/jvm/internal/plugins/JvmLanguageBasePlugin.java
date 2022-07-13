@@ -17,6 +17,7 @@ package dev.nokee.language.jvm.internal.plugins;
 
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.language.jvm.internal.CompileTaskComponent;
 import dev.nokee.language.jvm.internal.GroovySourceSetSpec;
 import dev.nokee.language.jvm.internal.JavaSourceSetSpec;
 import dev.nokee.language.jvm.internal.JvmSourceSetTag;
@@ -71,16 +72,19 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val taskRegistrationFactory = project.getExtensions().getByType(TaskRegistrationFactory.class);
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(JavaSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
-				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), JavaCompile.class, identifier.get()), JavaCompile.class).build());
+				val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), JavaCompile.class, identifier.get()), JavaCompile.class).build());
+				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 			})));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), GroovyCompile.class, identifier.get()), GroovyCompile.class).build());
+				val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), GroovyCompile.class, identifier.get()), GroovyCompile.class).build());
+				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 			})));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourceSetComponent.class), (entity, projection, identifier, parent, sourceSet) -> {
 				val sourceSetProvider = sourceSet.get();
 				@SuppressWarnings("unchecked")
 				val KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.flatMap(it -> project.getTasks().named(it.getCompileTaskName("kotlin"))).get().getClass());
-				registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), KotlinCompile, identifier.get()), KotlinCompile).build());
+				val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), KotlinCompile, identifier.get()), KotlinCompile).build());
+				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 			})));
 
 			// ComponentFromEntity<FullyQualifiedNameComponent> read-only (on parent only)
