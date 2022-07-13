@@ -28,7 +28,6 @@ import lombok.val;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.internal.provider.Providers;
@@ -50,12 +49,13 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 		this.linkElements = linkElements;
 		this.runtimeElements = runtimeElements;
 
-		linkElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
+		val linkArtifacts = objects.listProperty(PublishArtifact.class);
+		linkArtifacts.addAll(getExportedBinary().flatMap(this::getOutgoingLinkLibrary));
+		linkElements.getOutgoing().getArtifacts().addAllLater(linkArtifacts);
 
-		val artifacts = objects.listProperty(PublishArtifact.class);
-		artifacts.addAll(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
-		runtimeElements.getOutgoing().getArtifacts().addAllLater(artifacts);
-//		runtimeElements.getOutgoing().artifact(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
+		val runtimeArtifacts = objects.listProperty(PublishArtifact.class);
+		runtimeArtifacts.addAll(getExportedBinary().flatMap(this::getOutgoingRuntimeLibrary));
+		runtimeElements.getOutgoing().getArtifacts().addAllLater(runtimeArtifacts);
 	}
 
 	public Configuration getLinkElements() {
@@ -66,16 +66,16 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 		return runtimeElements;
 	}
 
-	private Provider<RegularFile> getOutgoingLinkLibrary(Binary binary) {
+	private Provider<Iterable<PublishArtifact>> getOutgoingLinkLibrary(Binary binary) {
 		if (binary instanceof SharedLibraryBinaryInternal) {
 			if (((SharedLibraryBinaryInternal) binary).getTargetMachine().getOperatingSystemFamily().isWindows()) {
-				return ((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(it -> ((LinkSharedLibraryTask) it).getImportLibrary());
+				return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(it -> ((LinkSharedLibraryTask) it).getImportLibrary()))));
 			}
-			return ((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile);
+			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile))));
 		} else if (binary instanceof StaticLibraryBinary) {
-			return ((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile);
+			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile))));
 		} else if (binary instanceof HasOutputFile) {
-			return ((HasOutputFile) binary).getOutputFile();
+			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((HasOutputFile) binary).getOutputFile())));
 		}
 		throw new IllegalArgumentException("Unsupported binary to export");
 	}
