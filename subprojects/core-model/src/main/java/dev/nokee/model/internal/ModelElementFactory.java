@@ -96,7 +96,7 @@ public final class ModelElementFactory implements ModelComponent {
 				assert type != null;
 				assert action != null;
 				if (!ModelNodeUtils.canBeViewedAs(entity, type)) {
-					throw new RuntimeException("...");
+					throw new RuntimeException(entity + " cannot be viewed as " + type);
 				}
 				if (type.isSubtypeOf(Property.class)) {
 					action.execute(castableStrategy.castTo(type).get());
