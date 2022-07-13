@@ -59,6 +59,9 @@ public final class DependencyBuckets {
 
 	public static Configuration finalize(Configuration self) {
 		((ConfigurationInternal) self).preventFromFurtherMutation();
+		for (Configuration configuration : self.getExtendsFrom()) {
+			finalize(configuration);
+		}
 		return self;
 	}
 }
