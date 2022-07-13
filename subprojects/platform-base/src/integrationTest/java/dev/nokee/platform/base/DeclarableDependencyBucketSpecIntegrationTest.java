@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static dev.nokee.model.internal.DomainObjectEntities.from;
+import static dev.nokee.model.internal.DomainObjectEntities.entityOf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,7 +49,7 @@ class DeclarableDependencyBucketSpecIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		entity = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.mergeFrom(from(DeclarableDependencyBucketSpec.class))
+			.mergeFrom(entityOf(DeclarableDependencyBucketSpec.class))
 			.withComponent(new FullyQualifiedNameComponent("rufiTevo"))
 			.build());
 	}
