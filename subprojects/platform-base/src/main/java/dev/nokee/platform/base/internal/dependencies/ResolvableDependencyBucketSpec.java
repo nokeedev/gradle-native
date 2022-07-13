@@ -22,14 +22,12 @@ import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import org.gradle.api.file.FileCollection;
 
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, ResolvableDependencyBucketTag.class, ConfigurableTag.class})
 public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucket, ModelNodeAware
-	, ModelBackedNamedMixIn
 	, DependencyBucketMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();

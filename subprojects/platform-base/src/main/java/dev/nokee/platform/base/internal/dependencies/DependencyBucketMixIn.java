@@ -18,13 +18,14 @@ package dev.nokee.platform.base.internal.dependencies;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ModuleDependency;
 
 import static dev.nokee.model.internal.buffers.ModelBuffers.typeOf;
 
-interface DependencyBucketMixIn extends DependencyBucket {
+interface DependencyBucketMixIn extends DependencyBucket, ModelBackedNamedMixIn {
 	default void addDependency(Object notation) {
 		ModelNodes.of(this).setComponent(ModelNodes.of(this).getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation)));
 	}
