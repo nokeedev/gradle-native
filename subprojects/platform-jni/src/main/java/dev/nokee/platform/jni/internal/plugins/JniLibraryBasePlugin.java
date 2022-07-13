@@ -80,7 +80,6 @@ import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
-import dev.nokee.platform.base.internal.dependencies.DependencyBucketIdentifier;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
 import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
@@ -121,6 +120,7 @@ import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFac
 import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.ConfigurationUtilsEx;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
@@ -212,7 +212,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			val bucketFactory = new FrameworkAwareDependencyBucketRegistrationFactory(project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class));
 			val api = registry.register(newEntity("api", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			val implementation = registry.register(newEntity("jvmImplementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			val runtimeOnly = registry.register(newEntity("jvmRuntimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
@@ -223,14 +222,14 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				public void execute(NativeLanguagePlugin appliedPlugin) {
 					if (!alreadyExecuted) {
 						alreadyExecuted = true;
-						val nativeCompileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeCompileOnly", identifier.get())));
+						val nativeCompileOnly = registry.register(newEntity("nativeCompileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 						entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(nativeCompileOnly)));
 					}
 				}
 			});
-			val nativeImplementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeImplementation", identifier.get())));
-			val nativeLinkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeLinkOnly", identifier.get())));
-			val nativeRuntimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeRuntimeOnly", identifier.get())));
+			val nativeImplementation = registry.register(newEntity("nativeImplementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+			val nativeLinkOnly = registry.register(newEntity("nativeLinkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+			val nativeRuntimeOnly = registry.register(newEntity("nativeRuntimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 			implementation.configure(Configuration.class, configureExtendsFrom(api.as(Configuration.class)));
 
 			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(nativeImplementation)));
@@ -500,10 +499,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				entity.addComponent(tag(MultiVariantTag.class));
 			}
 
-			val bucketFactory = new FrameworkAwareDependencyBucketRegistrationFactory(project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class));
-			val implementation = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeImplementation", identifier)));
-			val linkOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeLinkOnly", identifier)));
-			val runtimeOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeRuntimeOnly", identifier)));
+			val implementation = registry.register(newEntity("nativeImplementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+			val linkOnly = registry.register(newEntity("nativeLinkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
+			val runtimeOnly = registry.register(newEntity("nativeRuntimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 
 			entity.addComponent(new ImplementationConfigurationComponent(ModelNodes.of(implementation)));
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
@@ -569,7 +567,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(DependencyAwareComponent.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
 				val registry = project.getExtensions().getByType(ModelRegistry.class);
 				val bucketFactory = new FrameworkAwareDependencyBucketRegistrationFactory(project.getExtensions().getByType(DeclarableDependencyBucketRegistrationFactory.class));
-				val compileOnly = registry.register(bucketFactory.create(DependencyBucketIdentifier.of("nativeCompileOnly", identifier.get())));
+				val compileOnly = registry.register(newEntity("nativeCompileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
 			})));
 		}));
