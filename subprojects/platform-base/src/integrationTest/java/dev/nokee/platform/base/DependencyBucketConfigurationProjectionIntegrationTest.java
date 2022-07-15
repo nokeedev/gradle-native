@@ -48,7 +48,8 @@ class DependencyBucketConfigurationProjectionIntegrationTest {
 	@BeforeEach
 	void createSubject(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
-			.withComponent(tag(IsDependencyBucket.class)).build());
+			.withComponent(tag(IsDependencyBucket.class))
+			.build());
 	}
 
 	@Test

@@ -15,11 +15,9 @@
  */
 package dev.nokee.platform.base;
 
-import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.ConfigurationComponent;
@@ -30,7 +28,6 @@ import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +49,8 @@ class DependencyBucketConfigurationTypeIntegrationTest {
 	void setUp(Project project) {
 		subject = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
 			.withComponent(tag(IsDependencyBucket.class))
-			.withComponent(new ConfigurationComponent(configuration = project.getConfigurations().register("test"))).build());
+			.withComponent(new ConfigurationComponent(configuration = project.getConfigurations().register("test")))
+			.build());
 	}
 
 	@Test

@@ -268,7 +268,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 	// ComponentFromEntity<IdentifierComponent> read-only parent
 	private static final class DescriptionRule extends ModelActionWithInputs.ModelAction4<ModelComponentTag<IsDependencyBucket>, ConfigurationComponent, ParentComponent, DisplayNameComponent> {
-
 		public DescriptionRule() {
 			super(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(DisplayNameComponent.class));
 		}
