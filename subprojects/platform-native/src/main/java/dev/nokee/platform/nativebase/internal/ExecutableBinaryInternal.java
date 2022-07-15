@@ -20,6 +20,9 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -55,7 +58,9 @@ import java.util.stream.Stream;
 
 public class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary
 	, Buildable
+	, ModelNodeAware
 {
+	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final TaskProvider<LinkExecutableTask> linkTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
@@ -138,5 +143,10 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	private static boolean isBuildable(LinkExecutable linkTask) {
 		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
 		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return entity;
 	}
 }

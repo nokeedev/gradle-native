@@ -17,6 +17,9 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -48,7 +51,9 @@ import java.util.Set;
 
 public class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
+	, ModelNodeAware
 {
+	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final TaskProvider<CreateStaticLibraryTask> createTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
@@ -102,5 +107,10 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 				return ImmutableSet.of(createTask.get());
 			}
 		};
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return entity;
 	}
 }

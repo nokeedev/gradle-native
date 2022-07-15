@@ -17,6 +17,9 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -47,7 +50,9 @@ import javax.inject.Inject;
 
 public class BundleBinaryInternal extends BaseNativeBinary implements BundleBinary
 	, Buildable
+	, ModelNodeAware
 {
+	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final TaskProvider<LinkBundleTask> linkTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
@@ -117,5 +122,10 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	private static boolean isBuildable(LinkBundle linkTask) {
 		AbstractLinkTask linkTaskInternal = (AbstractLinkTask)linkTask;
 		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return entity;
 	}
 }
