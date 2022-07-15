@@ -23,6 +23,9 @@ import dev.nokee.language.nativebase.HeaderSearchPath;
 import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -68,7 +71,9 @@ import java.util.stream.Stream;
 
 public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
 	, Buildable
+	, ModelNodeAware
 {
+	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
 	private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -207,5 +212,10 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 	public FileCollection getRuntimeLibrariesDependencies() {
 		return dependencies.getRuntimeLibraries();
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return entity;
 	}
 }
