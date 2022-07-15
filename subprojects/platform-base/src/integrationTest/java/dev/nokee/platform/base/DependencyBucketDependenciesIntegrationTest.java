@@ -45,6 +45,7 @@ import java.util.stream.Stream;
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
+import static dev.nokee.model.internal.state.ModelStates.discover;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.externalDependency;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.projectDependency;
@@ -70,18 +71,21 @@ class DependencyBucketDependenciesIntegrationTest {
 	}
 
 	@Test
-	void hasBucketDependenciesProperty() {
-		assertTrue(subject.has(BucketDependenciesProperty.class));
+	void hasBucketDependenciesPropertyWhenDiscovered() {
+		assertFalse(subject.has(BucketDependenciesProperty.class));
+		assertTrue(discover(subject).has(BucketDependenciesProperty.class));
 	}
 
 	@Test
 	void hasBucketDependenciesWhenBucketFinalized() {
 		assertFalse(subject.has(BucketDependencies.class));
+		assertFalse(discover(subject).has(BucketDependencies.class));
 		assertTrue(ModelStates.finalize(subject).has(BucketDependencies.class));
 	}
 
 	@Test
 	void syncsBucketDependenciesFromPropertyToComponentWhenFinalized() {
+		discover(subject);
 		ModelProperties.add(subject.get(BucketDependenciesProperty.class).get(), new DependencyElement("com.example:aaaa:6.7"));
 		ModelProperties.add(subject.get(BucketDependenciesProperty.class).get(), new DependencyElement("com.example:bbbb:7.8"));
 		assertThat(ModelStates.finalize(subject).get(BucketDependencies.class).get(), containsInAnyOrder(
@@ -91,7 +95,7 @@ class DependencyBucketDependenciesIntegrationTest {
 	@ParameterizedTest
 	@MethodSource("provideModuleDependencyNotations")
 	void usesDefaultActionForModuleDependencies(DependencyUnderTest dependency) {
-		ModelProperties.add(subject.get(BucketDependenciesProperty.class).get(), new DependencyElement(dependency.asNotation()));
+		ModelProperties.add(discover(subject).get(BucketDependenciesProperty.class).get(), new DependencyElement(dependency.asNotation()));
 
 		val action = ActionTestUtils.mockAction(ModuleDependency.class);
 		subject.addComponent(new DependencyDefaultActionComponent(action));
@@ -105,7 +109,7 @@ class DependencyBucketDependenciesIntegrationTest {
 
 	@Test
 	void doesNotUsesDefaultActionForFileCollectionDependencies() {
-		ModelProperties.add(subject.get(BucketDependenciesProperty.class).get(), new DependencyElement(objectFactory().fileCollection()));
+		ModelProperties.add(discover(subject).get(BucketDependenciesProperty.class).get(), new DependencyElement(objectFactory().fileCollection()));
 
 		val action = ActionTestUtils.mockAction(ModuleDependency.class);
 		subject.addComponent(new DependencyDefaultActionComponent(action));
@@ -121,7 +125,7 @@ class DependencyBucketDependenciesIntegrationTest {
 	void callsDefaultActionBeforeModuleDependencyMutatorAction() {
 		@SuppressWarnings("unchecked")
 		val dependencyAction = (Action<ModuleDependency>) Mockito.mock(Action.class);
-		ModelProperties.add(subject.get(BucketDependenciesProperty.class).get(), new DependencyElement("com.example:kels:6.4", dependencyAction));
+		ModelProperties.add(discover(subject).get(BucketDependenciesProperty.class).get(), new DependencyElement("com.example:kels:6.4", dependencyAction));
 
 		@SuppressWarnings("unchecked")
 		val defaultAction = (Action<ModuleDependency>) Mockito.mock(Action.class);

@@ -43,6 +43,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
+import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -138,14 +139,14 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 			val incoming = new IncomingArtifacts(configuration.configuration);
 			entity.addComponent(ofInstance(incoming));
 		}));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), (entity, ignored1) -> {
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), (entity, ignored1) -> {
 			val propertyEntity = target.getExtensions().getByType(ModelRegistry.class).register(builder()
 				.withComponent(new ElementNameComponent("dependencies"))
 				.withComponent(new ParentComponent(entity))
 				.mergeFrom(setProperty(DependencyElement.class))
 				.build());
 			entity.addComponent(new BucketDependenciesProperty(ModelNodes.of(propertyEntity)));
-		}));
+		})));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new ComputeBucketDependenciesRule(factory));
 
 		configurations.configureEach(configuration -> {
