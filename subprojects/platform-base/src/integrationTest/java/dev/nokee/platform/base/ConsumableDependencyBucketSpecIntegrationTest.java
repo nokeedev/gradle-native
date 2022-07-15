@@ -72,7 +72,7 @@ class ConsumableDependencyBucketSpecIntegrationTest {
 	}
 
 	@Nested
-	class ConsumableDependencyBucketProjectionTest implements NamedTester, BucketDependenciesTester {
+	class ConsumableDependencyBucketProjectionTest implements NamedTester, BucketDependenciesTester, BucketArtifactsTester {
 		ConsumableDependencyBucketSpec subject;
 
 		@BeforeEach

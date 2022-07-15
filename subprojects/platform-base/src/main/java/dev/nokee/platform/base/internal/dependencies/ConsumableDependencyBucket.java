@@ -15,11 +15,11 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.DependencyBucket;
-import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.provider.Provider;
+
+import java.util.Set;
 
 /**
  * Represent a bucket of consumable dependencies also known as outgoing dependencies.
@@ -27,8 +27,7 @@ import org.gradle.api.provider.Provider;
  * @since 0.5
  */
 public interface ConsumableDependencyBucket extends DependencyBucket {
-	default ConsumableDependencyBucket artifact(Object artifact) {
-		ModelNodeUtils.get(ModelNodes.of(this), OutgoingArtifacts.class).getArtifacts().add(new LazyPublishArtifact((Provider<?>) artifact));
-		return this;
-	}
+	ConsumableDependencyBucket artifact(Object artifact);
+
+	Provider<Set<PublishArtifact>> getArtifacts();
 }

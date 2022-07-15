@@ -20,29 +20,34 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.IsDependencyBucket;
-import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
+import dev.nokee.utils.ProviderUtils;
+import lombok.val;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.provider.Provider;
 
-import javax.inject.Inject;
+import java.util.Set;
+
+import static dev.nokee.model.internal.core.ModelProperties.add;
 
 @DomainObjectEntities.Tag({IsDependencyBucket.class, ConsumableDependencyBucketTag.class, ConfigurableTag.class})
 public class ConsumableDependencyBucketSpec implements ConsumableDependencyBucket, ModelNodeAware
 	, DependencyBucketMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	private final OutgoingArtifacts outgoing;
-
-	@Inject
-	public ConsumableDependencyBucketSpec() {
-		this.outgoing = ModelNodeUtils.get(entity, OutgoingArtifacts.class);
-	}
 
 	@Override
 	public ConsumableDependencyBucket artifact(Object artifact) {
-		outgoing.getArtifacts().add(new LazyPublishArtifact((Provider<?>) artifact));
+		val entity = ModelNodes.of(this).get(BucketArtifactsProperty.class).get();
+		add(entity, new PublishedArtifactElement((Provider<?>) artifact));
 		return this;
+	}
+
+	@Override
+	public Provider<Set<PublishArtifact>> getArtifacts() {
+		return ProviderUtils.supplied(() -> ModelStates.finalize(ModelNodes.of(this)).get(BucketArtifacts.class).get());
 	}
 
 	@Override
