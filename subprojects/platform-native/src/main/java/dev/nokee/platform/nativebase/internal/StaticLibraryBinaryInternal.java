@@ -20,15 +20,17 @@ import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
+import dev.nokee.platform.nativebase.internal.archiving.HasCreateTask;
+import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTask;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AccessLevel;
@@ -58,18 +60,18 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	, ModelNodeAware
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
+	, HasCreateTask
+	, HasObjectFilesToBinaryTask
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	private final TaskProvider<CreateStaticLibraryTask> createTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, TaskProvider<CreateStaticLibraryTask> createTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
+	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
-		this.createTask = createTask;
 		this.tasks = tasks;
 
-		createTask.configure(this::configureStaticLibraryTask);
+		getCreateOrLinkTask().configure(this::configureStaticLibraryTask);
 	}
 
 	private void configureStaticLibraryTask(CreateStaticLibraryTask task) {
@@ -96,13 +98,15 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public TaskProvider<CreateStaticLibrary> getCreateTask() {
-		return getTasks().named(createTask.getName(), CreateStaticLibrary.class);
+		return (TaskProvider<CreateStaticLibrary>) ModelProperties.of(this, NativeArchiveTask.class).asProvider();
 	}
 
 	@Override
-	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
-		return getTasks().named(createTask.getName(), ObjectFilesToBinaryTask.class);
+	@SuppressWarnings("unchecked")
+	public TaskProvider<CreateStaticLibraryTask> getCreateOrLinkTask() {
+		return (TaskProvider<CreateStaticLibraryTask>) ModelProperties.of(this, NativeArchiveTask.class).asProvider();
 	}
 
 	@Override
@@ -110,7 +114,7 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 		return new TaskDependency() {
 			@Override
 			public Set<? extends Task> getDependencies(@Nullable Task task) {
-				return ImmutableSet.of(createTask.get());
+				return ImmutableSet.of(getCreateOrLinkTask().get());
 			}
 		};
 	}

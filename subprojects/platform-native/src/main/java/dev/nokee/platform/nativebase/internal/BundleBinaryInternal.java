@@ -20,15 +20,17 @@ import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
+import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
-import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AccessLevel;
@@ -57,19 +59,19 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	, ModelNodeAware
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
+	, HasLinkTask<LinkBundle, LinkBundleTask>
+	, HasObjectFilesToBinaryTask
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	private final TaskProvider<LinkBundleTask> linkTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public BundleBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
+	public BundleBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
 
-		this.linkTask = linkTask;
 		this.tasks = tasks;
 
-		linkTask.configure(this::configureBundleTask);
+		getCreateOrLinkTask().configure(this::configureBundleTask);
 	}
 
 	private void configureBundleTask(LinkBundleTask task) {
@@ -107,19 +109,21 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkBundle> getLinkTask() {
-		return getTasks().named(linkTask.getName(), LinkBundle.class);
+		return (TaskProvider<LinkBundle>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
 	}
 
 	@Override
-	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
-		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
+	@SuppressWarnings("unchecked")
+	public TaskProvider<LinkBundleTask> getCreateOrLinkTask() {
+		return (TaskProvider<LinkBundleTask>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
 	}
 
 	@Override
 	public boolean isBuildable() {
 		try {
-			return super.isBuildable() && isBuildable(linkTask.get());
+			return super.isBuildable() && isBuildable(getCreateOrLinkTask().get());
 		} catch (Throwable ex) { // because toolchain selection calls xcrun for macOS which doesn't exists on non-mac system
 			return false;
 		}
