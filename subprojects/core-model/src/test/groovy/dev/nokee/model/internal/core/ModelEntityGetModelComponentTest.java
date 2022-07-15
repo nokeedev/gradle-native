@@ -46,13 +46,13 @@ class ModelEntityGetModelComponentTest {
 	@Test
 	void throwsExceptionWhenModelComponentByTypeDoesNotExistsOnEntity() {
 		val ex = assertThrows(RuntimeException.class, () -> subject.getComponent(ModelComponentType.componentOf(MyOtherComponent.class)));
-		assertThat(ex.getMessage(), equalTo("No components of type 'MyOtherComponent'. Available: MyComponent"));
+		assertThat(ex.getMessage(), equalTo("No components of type 'ModelEntityGetModelComponentTest.MyOtherComponent'. Available: ModelEntityGetModelComponentTest.MyComponent"));
 	}
 
 	@Test
 	void throwsExceptionWhenModelComponentByClassDoesNotExistsOnEntity() {
 		val ex = assertThrows(RuntimeException.class, () -> subject.get(MyOtherComponent.class));
-		assertThat(ex.getMessage(), equalTo("No components of type 'MyOtherComponent'. Available: MyComponent"));
+		assertThat(ex.getMessage(), equalTo("No components of type 'ModelEntityGetModelComponentTest.MyOtherComponent'. Available: ModelEntityGetModelComponentTest.MyComponent"));
 	}
 
 	private static final class MyComponent implements ModelComponent {}
