@@ -37,8 +37,8 @@ public final class OnDiscover implements ModelAction, HasInputs {
 		this.delegate = ModelActions.once(delegate);
 		val builder = ImmutableList.<ModelComponentReference<?>>builder();
 		builder.add(ModelComponentReference.of(ModelState.class));
-		if (delegate instanceof HasInputs) {
-			builder.addAll(((HasInputs) delegate).getInputs());
+		if (this.delegate instanceof HasInputs) {
+			builder.addAll(((HasInputs) this.delegate).getInputs());
 		}
 		this.inputs = builder.build();
 		this.inputBits = inputs.stream().map(it -> it.componentBits()).reduce(Bits.empty(), Bits::or);
