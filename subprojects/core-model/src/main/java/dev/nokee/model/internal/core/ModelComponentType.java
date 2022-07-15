@@ -131,7 +131,7 @@ public abstract class ModelComponentType<T> {
 
 		@Override
 		public String toString() {
-			return value.getSimpleName();
+			return value.getName().substring(value.getName().lastIndexOf('.') + 1).replace('$', '.');
 		}
 	}
 
