@@ -61,7 +61,7 @@ class DependencyBucketConfigurationDescriptionIntegrationTest {
 	}
 
 	@Test
-	void configuresConfigurationProjectionDescription() {
+	void configuresConfigurationProjectionDescriptionWithOwnerIdentifier() {
 		owner.addComponent(new IdentifierComponent(new DomainObjectIdentifier() {
 			@Nonnull
 			@Override
@@ -76,5 +76,11 @@ class DependencyBucketConfigurationDescriptionIntegrationTest {
 		}));
 		subject.addComponent(new ParentComponent(owner));
 		assertThat(configuration.get(), ConfigurationMatchers.description("Xune dependencies for artifact ':zimo'."));
+	}
+
+	@Test
+	void configuresConfigurationProjectionDescriptionWithoutOwnerIdentifier() {
+		subject.addComponent(new ParentComponent(owner));
+		assertThat(configuration.get(), ConfigurationMatchers.description("Xune dependencies."));
 	}
 }
