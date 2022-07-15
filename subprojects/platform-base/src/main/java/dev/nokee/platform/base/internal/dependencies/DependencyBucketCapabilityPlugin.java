@@ -53,8 +53,10 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
+import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
@@ -149,6 +151,17 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		})));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new ComputeBucketDependenciesRule(factory));
 
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), (entity, ignored1) -> {
+			val propertyEntity = target.getExtensions().getByType(ModelRegistry.class).register(builder()
+				.withComponent(new ElementNameComponent("artifacts"))
+				.withComponent(new ParentComponent(entity))
+				.mergeFrom(setProperty(PublishedArtifactElement.class))
+				.build());
+			entity.addComponent(new BucketArtifactsProperty(ModelNodes.of(propertyEntity)));
+		})));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ComputeBucketArtifactsRule());
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new SyncBucketArtifactsToConfigurationProjectionRule());
+
 		configurations.configureEach(configuration -> {
 			val bucketResolver = (Runnable) new Runnable() {
 				@Override
@@ -223,6 +236,27 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 					// ignores
 				}
 			};
+		}
+	}
+
+	// ComponentFromEntity<GradlePropertyComponent> read/write on BucketArtifactsProperty
+	private static final class ComputeBucketArtifactsRule extends ModelActionWithInputs.ModelAction2<BucketArtifactsProperty, ModelStates.Finalizing> {
+		@Override
+		protected void execute(ModelNode entity, BucketArtifactsProperty propertyEntity, ModelStates.Finalizing ignored1) {
+			@SuppressWarnings("unchecked")
+			val property = (SetProperty<PublishedArtifactElement>) propertyEntity.get().get(GradlePropertyComponent.class).get();
+			property.finalizeValue();
+
+			val bucketArtifacts = (Set<PublishArtifact>) property.get().stream().map(it -> new LazyPublishArtifact(it.get()))
+				.collect(ImmutableSet.<PublishArtifact>toImmutableSet());
+			entity.addComponent(new BucketArtifacts(bucketArtifacts));
+		}
+	}
+
+	private static final class SyncBucketArtifactsToConfigurationProjectionRule extends ModelActionWithInputs.ModelAction2<BucketArtifacts, ConfigurationComponent> {
+		@Override
+		protected void execute(ModelNode entity, BucketArtifacts bucketArtifacts, ConfigurationComponent configuration) {
+			configuration.configure(it -> it.getOutgoing().getArtifacts().addAll(bucketArtifacts.get()));
 		}
 	}
 
