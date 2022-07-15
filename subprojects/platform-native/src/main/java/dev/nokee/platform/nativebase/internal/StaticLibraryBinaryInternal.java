@@ -20,9 +20,9 @@ import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
@@ -55,14 +55,15 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	, Buildable
 	, HasPublicType
 	, ModelNodeAware
+	, ModelBackedNamedMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final TaskProvider<CreateStaticLibraryTask> createTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public StaticLibraryBinaryInternal(FullyQualifiedName name, BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, TaskProvider<CreateStaticLibraryTask> createTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
-		super(name, identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
+	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, TaskProvider<CreateStaticLibraryTask> createTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
+		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
 		this.createTask = createTask;
 		this.tasks = tasks;
 
