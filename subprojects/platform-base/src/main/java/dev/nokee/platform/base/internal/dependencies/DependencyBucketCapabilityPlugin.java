@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.dependencies;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
@@ -31,7 +30,6 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -61,7 +59,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
-import java.util.Objects;
 import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
@@ -99,8 +96,7 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		// ComponentFromEntity<IsDependencyBucket> read-only
 		// ComponentFromEntity<FullyQualifiedNameComponent> read-only
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelStates.Finalizing.class), (entity, ignored1, configuration, ignored2) -> {
-			val fullyQualifiedNames = configuration.get().get().getExtendsFrom().stream().map(Configuration::getName).map(FullyQualifiedName::of).collect(ImmutableList.toImmutableList());
-			target.getExtensions().getByType(ModelLookup.class).query(e -> e.hasComponent(ModelTags.typeOf(IsDependencyBucket.class)) && e.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(fullyQualifiedNames::contains).orElse(false)).forEach(ModelStates::finalize);
+			configuration.get().get().getExtendsFrom().forEach(it -> ((ConfigurationInternal) it).preventFromFurtherMutation());
 		}));
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new SyncBucketDependenciesToConfigurationProjectionRule());
@@ -156,7 +152,7 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 				}
 
 				private /*static*/ void finalize(Configuration configuration) {
-					val projections = target.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(configuration.getName()::equals).orElse(false));
+					val projections = target.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(ConfigurationComponent.class).map(it -> it.get().getName()).map(configuration.getName()::equals).orElse(false));
 					for (Configuration config : configuration.getExtendsFrom()) {
 						finalize(config);
 					}
