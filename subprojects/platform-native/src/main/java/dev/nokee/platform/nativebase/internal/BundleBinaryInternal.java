@@ -45,7 +45,9 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
-public class BundleBinaryInternal extends BaseNativeBinary implements BundleBinary, Buildable {
+public class BundleBinaryInternal extends BaseNativeBinary implements BundleBinary
+	, Buildable
+{
 	private final TaskProvider<LinkBundleTask> linkTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 

@@ -53,7 +53,9 @@ import java.io.File;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary, Buildable {
+public class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary
+	, Buildable
+{
 	private final TaskProvider<LinkExecutableTask> linkTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
