@@ -27,10 +27,8 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedName;
@@ -57,11 +55,9 @@ import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
@@ -85,17 +81,13 @@ import static dev.nokee.utils.Optionals.ifPresentOrElse;
 public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final NamedDomainObjectRegistry<Configuration> registry;
 	private final ConfigurationContainer configurations;
-	private final ObjectFactory objects;
 	private final DependencyFactory factory;
-	private final ProviderFactory providers;
 
 	@Inject
-	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations, ObjectFactory objects, DependencyHandler dependencies, ProviderFactory providers) {
+	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations, DependencyHandler dependencies) {
 		this.registry = NamedDomainObjectRegistry.of(configurations);
 		this.configurations = configurations;
-		this.objects = objects;
 		this.factory = DependencyFactory.forHandler(dependencies);
-		this.providers = providers;
 	}
 
 	@Override
@@ -131,12 +123,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 			configuration.configure(configureAsDeclarable());
 		}));
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new AttachOutgoingArtifactRule());
-
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), (entity, ignored1) -> {
-			val outgoing = objects.newInstance(OutgoingArtifacts.class);
-			entity.addComponent(ofInstance(outgoing));
-		}));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ResolvableDependencyBucketTag.class), ModelComponentReference.of(ConfigurationComponent.class), (entity, ignored, configuration) -> {
 			val incoming = new IncomingArtifacts(configuration.configuration);
 			entity.addComponent(ofInstance(incoming));
@@ -257,23 +243,6 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 		@Override
 		protected void execute(ModelNode entity, BucketArtifacts bucketArtifacts, ConfigurationComponent configuration) {
 			configuration.configure(it -> it.getOutgoing().getArtifacts().addAll(bucketArtifacts.get()));
-		}
-	}
-
-	private static final class AttachOutgoingArtifactRule extends ModelActionWithInputs.ModelAction4<ModelComponentTag<ConsumableDependencyBucketTag>, ModelProjection, ConfigurationComponent, ModelState.IsAtLeastRealized> {
-		public AttachOutgoingArtifactRule() {
-			super(ModelTags.referenceOf(ConsumableDependencyBucketTag.class), ModelComponentReference.ofProjection(OutgoingArtifacts.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelState.IsAtLeastRealized.class));
-		}
-
-		@Override
-		protected void execute(ModelNode entity, ModelComponentTag<ConsumableDependencyBucketTag> ignored1, ModelProjection ignored2, ConfigurationComponent configuration, ModelState.IsAtLeastRealized ignored3) {
-			configuration.configure(attachOutgoingArtifactToConfiguration(ModelNodeUtils.get(entity, OutgoingArtifacts.class)));
-		}
-
-		private static ActionUtils.Action<Configuration> attachOutgoingArtifactToConfiguration(OutgoingArtifacts outgoing) {
-			return configuration -> {
-				configuration.getOutgoing().getArtifacts().addAllLater(outgoing.getArtifacts());
-			};
 		}
 	}
 
