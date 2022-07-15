@@ -64,14 +64,13 @@ public final class ModelActions {
 	@EqualsAndHashCode
 	private static final class OnceModelAction implements ModelAction, HasInputs {
 		private final ModelAction action;
-		@EqualsAndHashCode.Exclude private final Set<ModelPath> alreadyExecuted = new HashSet<>();
+		@EqualsAndHashCode.Exclude private final Set<ModelEntityId> alreadyExecuted = new HashSet<>();
 		private final List<ModelComponentReference<?>> inputs;
 		private final Bits inputBits;
 
 		public OnceModelAction(ModelAction action) {
 			this.action = requireNonNull(action);
 			val builder = ImmutableList.<ModelComponentReference<?>>builder();
-			builder.add(ModelComponentReference.of(ModelPathComponent.class));
 			if (action instanceof HasInputs) {
 				builder.addAll(((HasInputs) action).getInputs());
 			}
@@ -82,7 +81,7 @@ public final class ModelActions {
 		@Override
 		public void execute(ModelNode node) {
 			if (node.getComponentBits().containsAll(inputBits)) {
-				if (alreadyExecuted.add(ModelNodeUtils.getPath(node))) {
+				if (alreadyExecuted.add(node.getId())) {
 					action.execute(node);
 				}
 			}
