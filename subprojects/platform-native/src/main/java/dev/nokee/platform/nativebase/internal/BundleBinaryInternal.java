@@ -20,9 +20,9 @@ import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
-import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
@@ -54,14 +54,15 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	, Buildable
 	, HasPublicType
 	, ModelNodeAware
+	, ModelBackedNamedMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final TaskProvider<LinkBundleTask> linkTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public BundleBinaryInternal(FullyQualifiedName name, BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
-		super(name, identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
+	public BundleBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, TaskProvider<LinkBundleTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
+		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
 
 		this.linkTask = linkTask;
 		this.tasks = tasks;
