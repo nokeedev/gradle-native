@@ -45,6 +45,8 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.reflect.HasPublicType;
+import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
@@ -58,6 +60,7 @@ import java.util.stream.Stream;
 
 public class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary
 	, Buildable
+	, HasPublicType
 	, ModelNodeAware
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
@@ -148,5 +151,10 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	@Override
 	public ModelNode getNode() {
 		return entity;
+	}
+
+	@Override
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(ExecutableBinary.class);
 	}
 }
