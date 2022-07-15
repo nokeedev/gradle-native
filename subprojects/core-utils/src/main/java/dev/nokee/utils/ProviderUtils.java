@@ -187,4 +187,14 @@ public final class ProviderUtils {
 		self.finalizeValueOnRead();
 		return self;
 	}
+
+	/**
+	 * Resolves the provider by forcing the computation of a/its value.
+	 * Note that since provider value are <b>not</b> memoized, using this API may result cause issues for called-sensitive value provider.
+	 *
+	 * @param self  the provider to resolve, must not be null
+	 */
+	public static void resolve(Provider<?> self) {
+		self.getOrNull();
+	}
 }
