@@ -33,6 +33,7 @@ import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -55,7 +56,6 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.HasMultipleValues;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
@@ -91,7 +91,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
-	@Getter private final Property<String> baseName;
 
 	public BaseNativeBinary(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskView<Task> compileTasks) {
 		this.identifier = identifier;
@@ -103,7 +102,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 		this.layout = layout;
 		this.providers = providers;
 		this.configurations = configurations;
-		this.baseName = objects.property(String.class);
 		this.toolChainSelector = objects.newInstance(ToolChainSelectorInternal.class);
 
 		compileTasks.configureEach(AbstractNativeCompileTask.class, this::configureNativeSourceCompileTask);
@@ -232,7 +230,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 		task.getToolChain().finalizeValueOnRead();
 		task.getToolChain().disallowChanges();
 
-		task.getModuleName().convention(getBaseName().map(this::toModuleName));
+		task.getModuleName().convention(((HasBaseName) this).getBaseName().map(this::toModuleName));
 		task.getModuleFile().convention(task.getModuleName().flatMap(this::toSwiftModuleFile));
 
 		if (targetMachine.getOperatingSystemFamily().isMacOs()) {

@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
@@ -56,6 +57,7 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	, HasPublicType
 	, ModelNodeAware
 	, ModelBackedNamedMixIn
+	, ModelBackedHasBaseNameMixIn
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final TaskProvider<CreateStaticLibraryTask> createTask;
