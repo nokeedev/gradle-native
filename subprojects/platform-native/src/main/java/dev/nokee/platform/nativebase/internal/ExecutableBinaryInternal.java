@@ -23,15 +23,17 @@ import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
+import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AccessLevel;
@@ -65,19 +67,19 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	, ModelNodeAware
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
+	, HasLinkTask<LinkExecutable, LinkExecutableTask>
+	, HasObjectFilesToBinaryTask
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	private final TaskProvider<LinkExecutableTask> linkTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
-	public ExecutableBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, TaskProvider<LinkExecutableTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
+	public ExecutableBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
-		this.linkTask = linkTask;
 		this.tasks = tasks;
 
-		linkTask.configure(this::configureExecutableTask);
-		linkTask.configure(task -> {
+		getCreateOrLinkTask().configure(this::configureExecutableTask);
+		getCreateOrLinkTask().configure(task -> {
 			task.getLibs().from(dependencies.getLinkLibraries());
 			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
 
@@ -123,13 +125,15 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkExecutable> getLinkTask() {
-		return getTasks().named(linkTask.getName(), LinkExecutable.class);
+		return (TaskProvider<LinkExecutable>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
 	}
 
 	@Override
-	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
-		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
+	@SuppressWarnings("unchecked")
+	public TaskProvider<LinkExecutableTask> getCreateOrLinkTask() {
+		return (TaskProvider<LinkExecutableTask>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
 	}
 
 	@Override
@@ -140,7 +144,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	@Override
 	public boolean isBuildable() {
 		try {
-			return super.isBuildable() && isBuildable(linkTask.get());
+			return super.isBuildable() && isBuildable(getCreateOrLinkTask().get());
 		} catch (Throwable ex) { // because toolchain selection calls xcrun for macOS which doesn't exists on non-mac system
 			return false;
 		}

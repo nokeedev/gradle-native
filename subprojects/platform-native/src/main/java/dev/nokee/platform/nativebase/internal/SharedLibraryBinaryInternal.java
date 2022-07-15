@@ -26,15 +26,17 @@ import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
+import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.platform.nativebase.tasks.internal.ObjectFilesToBinaryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import lombok.AccessLevel;
@@ -78,9 +80,10 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	, ModelNodeAware
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
+	, HasLinkTask<LinkSharedLibrary, LinkSharedLibraryTask>
+	, HasObjectFilesToBinaryTask
 {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	private final TaskProvider<LinkSharedLibraryTask> linkTask;
 	private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
@@ -90,9 +93,8 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, TaskProvider<LinkSharedLibraryTask> linkTask, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
+	public SharedLibraryBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskContainer tasks, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, configurations, compileTasks);
-		this.linkTask = linkTask;
 		this.dependencies = dependencies;
 		this.objects = objects;
 		this.providerFactory = providers;
@@ -100,7 +102,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		this.tasks = tasks;
 		this.linkedFile = objects.fileProperty();
 
-		linkTask.configure(task -> {
+		getCreateOrLinkTask().configure(task -> {
 			task.getLibs().from(dependencies.getLinkLibraries());
 			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
 
@@ -119,9 +121,9 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 				return ImmutableList.of();
 			}));
 		});
-		linkTask.configure(this::configureSharedLibraryTask);
+		getCreateOrLinkTask().configure(this::configureSharedLibraryTask);
 
-		getLinkedFile().set(linkTask.flatMap(AbstractLinkTask::getLinkedFile));
+		getLinkedFile().set(getCreateOrLinkTask().flatMap(AbstractLinkTask::getLinkedFile));
 		getLinkedFile().disallowChanges();
 	}
 
@@ -180,19 +182,21 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkSharedLibrary> getLinkTask() {
-		return getTasks().named(linkTask.getName(), LinkSharedLibrary.class);
+		return (TaskProvider<LinkSharedLibrary>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
 	}
 
 	@Override
-	public TaskProvider<ObjectFilesToBinaryTask> getCreateOrLinkTask() {
-		return getTasks().named(linkTask.getName(), ObjectFilesToBinaryTask.class);
+	@SuppressWarnings("unchecked")
+	public TaskProvider<LinkSharedLibraryTask> getCreateOrLinkTask() {
+		return (TaskProvider<LinkSharedLibraryTask>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
 	}
 
 	@Override
 	public boolean isBuildable() {
 		try {
-			return super.isBuildable() && isBuildable(linkTask.get());
+			return super.isBuildable() && isBuildable(getCreateOrLinkTask().get());
 		} catch (Throwable ex) { // because toolchain selection calls xcrun for macOS which doesn't exists on non-mac system
 			return false;
 		}
