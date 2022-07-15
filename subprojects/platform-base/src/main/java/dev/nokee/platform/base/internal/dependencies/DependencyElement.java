@@ -16,29 +16,32 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.DependencyFactory;
-import dev.nokee.model.internal.buffers.ModelBufferElement;
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
 
-final class DependencyElement implements ModelBufferElement {
+public final class DependencyElement {
 	private final Object notation;
-	private final Action<? super ModuleDependency> mutator;
+	private final Action<? super Dependency> mutator;
 
-	DependencyElement(Object notation) {
-		this(notation, ActionUtils.doNothing());
+	public DependencyElement(Object notation) {
+		this.notation = notation;
+		this.mutator = ActionUtils.doNothing();
 	}
 
-	DependencyElement(Object notation, Action<? super ModuleDependency> mutator) {
+	public DependencyElement(Object notation, Action<? super ModuleDependency> mutator) {
 		this.notation = notation;
-		this.mutator = mutator;
+		this.mutator = dependency -> {
+			assert dependency instanceof ModuleDependency;
+			mutator.execute((ModuleDependency) dependency);
+		};
 	}
 
 	public Dependency resolve(DependencyFactory factory) {
 		val result = factory.create(notation);
-		mutator.execute((ModuleDependency) result);
+		mutator.execute(result);
 		return result;
 	}
 

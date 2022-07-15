@@ -16,18 +16,19 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.model.DependencyFactory;
 import dev.nokee.model.NamedDomainObjectRegistry;
 import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
-import dev.nokee.model.internal.buffers.ModelBuffers;
 import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -36,6 +37,7 @@ import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
@@ -56,14 +58,18 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
-
 import java.util.Objects;
+import java.util.Set;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.core.ModelProjections.ofInstance;
+import static dev.nokee.model.internal.core.ModelPropertyRegistrationFactory.setProperty;
+import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.utils.ConfigurationUtils.configureAsConsumable;
@@ -78,13 +84,15 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 	private final ConfigurationContainer configurations;
 	private final ObjectFactory objects;
 	private final DependencyFactory factory;
+	private final ProviderFactory providers;
 
 	@Inject
-	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations, ObjectFactory objects, DependencyHandler dependencies) {
+	public DependencyBucketCapabilityPlugin(ConfigurationContainer configurations, ObjectFactory objects, DependencyHandler dependencies, ProviderFactory providers) {
 		this.registry = NamedDomainObjectRegistry.of(configurations);
 		this.configurations = configurations;
 		this.objects = objects;
 		this.factory = DependencyFactory.forHandler(dependencies);
+		this.providers = providers;
 	}
 
 	@Override
@@ -95,16 +103,12 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 		// ComponentFromEntity<IsDependencyBucket> read-only
 		// ComponentFromEntity<FullyQualifiedNameComponent> read-only
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ModelStates.Finalizing.class), (entity, ignored1, ignored2) -> {
-			val fullyQualifiedNames = ModelNodeUtils.get(entity, Configuration.class).getExtendsFrom().stream().map(Configuration::getName).map(FullyQualifiedName::of).collect(ImmutableList.toImmutableList());
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelStates.Finalizing.class), (entity, ignored1, configuration, ignored2) -> {
+			val fullyQualifiedNames = configuration.get().get().getExtendsFrom().stream().map(Configuration::getName).map(FullyQualifiedName::of).collect(ImmutableList.toImmutableList());
 			target.getExtensions().getByType(ModelLookup.class).query(e -> e.hasComponent(ModelTags.typeOf(IsDependencyBucket.class)) && e.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(fullyQualifiedNames::contains).orElse(false)).forEach(ModelStates::finalize);
 		}));
 
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), (entity, ignored) -> {
-			entity.addComponent(ModelBuffers.empty(DependencyElement.class));
-		}));
-
-		target.getExtensions().getByType(ModelConfigurer.class).configure(new AttachDependenciesRule(factory));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new SyncBucketDependenciesToConfigurationProjectionRule());
 
 		// ComponentFromEntity<ParentComponent> read-only self
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, ignored1, path, displayName, elementName) -> {
@@ -134,6 +138,15 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 			val incoming = new IncomingArtifacts(configuration.configuration);
 			entity.addComponent(ofInstance(incoming));
 		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), (entity, ignored1) -> {
+			val propertyEntity = target.getExtensions().getByType(ModelRegistry.class).register(builder()
+				.withComponent(new ElementNameComponent("dependencies"))
+				.withComponent(new ParentComponent(entity))
+				.mergeFrom(setProperty(DependencyElement.class))
+				.build());
+			entity.addComponent(new BucketDependenciesProperty(ModelNodes.of(propertyEntity)));
+		}));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(new ComputeBucketDependenciesRule(factory));
 
 		configurations.configureEach(configuration -> {
 			val bucketResolver = (Runnable) new Runnable() {
@@ -156,43 +169,59 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 	}
 
 	// We have to delay until realize because Kotlin plugin suck big time.
-	private static final class AttachDependenciesRule extends ModelActionWithInputs.ModelAction3<ModelComponentTag<IsDependencyBucket>, ConfigurationComponent, ModelState.IsAtLeastFinalized> {
+	private static final class SyncBucketDependenciesToConfigurationProjectionRule extends ModelActionWithInputs.ModelAction2<BucketDependencies, ConfigurationComponent> {
+		@Override
+		protected void execute(ModelNode entity, BucketDependencies bucketDependencies, ConfigurationComponent projection) {
+			projection.configure(configureDependencies((self, dependencies) -> dependencies.addAll(bucketDependencies.get())));
+		}
+	}
+
+	// ComponentFromEntity<GradlePropertyComponent> read/write on BucketDependenciesProperty
+	private static final class ComputeBucketDependenciesRule extends ModelActionWithInputs.ModelAction2<BucketDependenciesProperty, ModelStates.Finalizing> {
 		private final DependencyFactory factory;
 
-		AttachDependenciesRule(DependencyFactory factory) {
-			super(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class));
+		private ComputeBucketDependenciesRule(DependencyFactory factory) {
 			this.factory = factory;
 		}
 
 		@Override
-		public void execute(ModelNode entity, ModelComponentTag<IsDependencyBucket> ignored1, ConfigurationComponent configuration, ModelState.IsAtLeastFinalized ignored2) {
-			configuration.configure(configureDependencies((self, set) -> {
-				// There is a strange conflict where using addAllLater here result in an unrelated exception
-				set.addAll(Streams.stream(entity.getComponent(ModelBuffers.typeOf(DependencyElement.class))).map(it -> it.resolve(new DependencyFactory() {
-					private final Action<ModuleDependency> action = defaultAction(entity);
+		protected void execute(ModelNode entity, BucketDependenciesProperty propertyEntity, ModelStates.Finalizing ignored1) {
+			@SuppressWarnings("unchecked")
+			val property = (SetProperty<DependencyElement>) propertyEntity.get().get(GradlePropertyComponent.class).get();
+			property.finalizeValue();
 
-					@Override
-					public Dependency create(Object notation) {
-						val result = toDependency(notation);
-						action.execute((ModuleDependency) result);
-						return result;
-					}
+			val bucketDependencies = (Set<Dependency>) property.get().stream().map(it -> it.resolve(new DependencyFactory() {
+				private final Action<Dependency> action = defaultAction(entity);
 
-					private Dependency toDependency(Object notation) {
-						if (notation instanceof Provider) {
-							return factory.create(((Provider<?>) notation).get());
-						} else {
-							return factory.create(notation);
-						}
+				@Override
+				public Dependency create(Object notation) {
+					val result = toDependency(notation);
+					action.execute(result);
+					return result;
+				}
+
+				private Dependency toDependency(Object notation) {
+					if (notation instanceof Provider) {
+						return factory.create(((Provider<?>) notation).get());
+					} else {
+						return factory.create(notation);
 					}
-				})).collect(ImmutableList.toImmutableList()));
-			}));
+				}
+			})).collect(ImmutableSet.toImmutableSet());
+			entity.addComponent(new BucketDependencies(bucketDependencies));
 		}
 
-		private static ActionUtils.Action<ModuleDependency> defaultAction(ModelNode entity) {
+		private static ActionUtils.Action<Dependency> defaultAction(ModelNode entity) {
 			assert entity.hasComponent(ModelTags.typeOf(IsDependencyBucket.class));
-			return entity.find(DependencyDefaultActionComponent.class).map(DependencyDefaultActionComponent::get)
+			val action = entity.find(DependencyDefaultActionComponent.class).map(DependencyDefaultActionComponent::get)
 				.map(ActionUtils.Action::of).orElse(ActionUtils.doNothing());
+			return dependency -> {
+				if (dependency instanceof ModuleDependency) {
+					action.execute((ModuleDependency) dependency);
+				} else {
+					// ignores
+				}
+			};
 		}
 	}
 

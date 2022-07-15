@@ -17,7 +17,9 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.names.ElementName;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
+import org.gradle.api.provider.Provider;
 import org.gradle.util.GUtil;
 
 import java.util.Arrays;
@@ -63,5 +65,14 @@ public final class DependencyBuckets {
 			finalize(configuration);
 		}
 		return self;
+	}
+
+	public static Object assertConfigurableNotation(Object notation) {
+		if (notation instanceof FileCollection) {
+			throw new IllegalArgumentException("file collection are not configurable dependency notation");
+		} else if (notation instanceof Provider) {
+			return ((Provider<?>) notation).map(DependencyBuckets::assertConfigurableNotation);
+		}
+		return notation;
 	}
 }

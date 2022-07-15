@@ -17,21 +17,35 @@ package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
+import dev.nokee.utils.ProviderUtils;
+import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ModuleDependency;
+import org.gradle.api.provider.Provider;
 
-import static dev.nokee.model.internal.buffers.ModelBuffers.typeOf;
+import java.util.Set;
+
+import static dev.nokee.model.internal.core.ModelProperties.add;
+import static dev.nokee.platform.base.internal.dependencies.DependencyBuckets.assertConfigurableNotation;
 
 interface DependencyBucketMixIn extends DependencyBucket, ModelBackedNamedMixIn {
 	default void addDependency(Object notation) {
-		ModelNodes.of(this).setComponent(ModelNodes.of(this).getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation)));
+		val entity = ModelNodes.of(this).get(BucketDependenciesProperty.class).get();
+		add(entity, new DependencyElement(notation));
 	}
 
 	default void addDependency(Object notation, Action<? super ModuleDependency> action) {
-		ModelNodes.of(this).setComponent(ModelNodes.of(this).getComponent(typeOf(DependencyElement.class)).appended(new DependencyElement(notation, action)));
+		val entity = ModelNodes.of(this).get(BucketDependenciesProperty.class).get();
+		add(entity, new DependencyElement(assertConfigurableNotation(notation), action));
+	}
+
+	default Provider<Set<Dependency>> getDependencies() {
+		return ProviderUtils.supplied(() -> ModelStates.finalize(ModelNodes.of(this)).get(BucketDependencies.class).get());
 	}
 
 	@Override
