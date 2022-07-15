@@ -37,7 +37,6 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ConfigurationNamer;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -165,7 +164,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 
 	protected void onEachVariant(KnownDomainObject<IosApplication> variant) {
 		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();
-		ConfigurationNamer configurationNamer = ConfigurationNamer.INSTANCE;
 		// Create iOS application specific tasks
 		Configuration interfaceBuilderToolConfiguration = configurations.create(variantIdentifier.getFullName() + "InterfaceBuilderTool");
 		interfaceBuilderToolConfiguration.getDependencies().add(dependencyHandler.create("dev.nokee.tool:ibtool:latest.release"));
