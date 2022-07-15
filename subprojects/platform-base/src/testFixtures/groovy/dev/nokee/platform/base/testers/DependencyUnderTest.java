@@ -20,18 +20,25 @@ import com.google.common.collect.ImmutableSet;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ExternalModuleDependency;
+import org.gradle.api.artifacts.FileCollectionDependency;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.testfixtures.ProjectBuilder;
+import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.isA;
 
 public abstract class DependencyUnderTest {
@@ -109,6 +116,20 @@ public abstract class DependencyUnderTest {
 		default Stream<DependencyUnderTest> allDeclaration() {
 			return Stream.of(declaredAsMap(), declaredAsString());
 		}
+	}
+
+	public static DependencyUnderTest filesDependency(File... files) {
+		return new DependencyUnderTest("files dependencies [" + Arrays.stream(files).map(File::getAbsolutePath).collect(Collectors.joining(", ")) + "]", objectFactory().fileCollection().from(files)) {
+			@Override
+			public Matcher<Dependency> asMatcher() {
+				return allOf(isA(FileCollectionDependency.class), new FeatureMatcher<Dependency, Set<File>>(containsInAnyOrder(files), "", "") {
+					@Override
+					protected Set<File> featureValueOf(Dependency actual) {
+						return ((FileCollectionDependency) actual).getFiles().getFiles();
+					}
+				});
+			}
+		};
 	}
 
 	public static Set<DependencyUnderTest> dependencyNotations() {

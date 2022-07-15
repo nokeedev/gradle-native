@@ -17,6 +17,9 @@ package dev.nokee.model.internal.core;
 
 import dev.nokee.model.internal.ModelElementFactory;
 import lombok.val;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.SetProperty;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,5 +49,30 @@ public final class ModelProperties {
 
 	private static ModelProperty<?> newElement(ModelNode entity) {
 		return entity.get(ModelElementFactory.class).createProperty(entity);
+	}
+
+	public static <T extends ModelComponent & LinkedEntity> ModelProperty<?> of(Object target, Class<T> type) {
+		val entity = ModelNodes.of(target);
+		return entity.get(ModelElementFactory.class).createProperty(entity.get(type).get());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> void add(ModelNode self, T element) {
+		val property = self.get(GradlePropertyComponent.class).get();
+		if (property instanceof ConfigurableFileCollection) {
+			((ConfigurableFileCollection) property).from(element);
+		} else if (property instanceof SetProperty) {
+			((SetProperty<T>) property).add(element);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> void add(ModelNode self, Provider<T> element) {
+		val property = self.get(GradlePropertyComponent.class).get();
+		if (property instanceof ConfigurableFileCollection) {
+			((ConfigurableFileCollection) property).from(element);
+		} else if (property instanceof SetProperty) {
+			((SetProperty<T>) property).add(element);
+		}
 	}
 }

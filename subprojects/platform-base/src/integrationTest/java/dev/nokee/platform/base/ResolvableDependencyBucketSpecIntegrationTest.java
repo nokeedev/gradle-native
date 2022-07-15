@@ -34,10 +34,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
 import static dev.nokee.model.internal.DomainObjectEntities.entityOf;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -70,7 +72,7 @@ class ResolvableDependencyBucketSpecIntegrationTest {
 	}
 
 	@Nested
-	class ResolvableDependencyBucketProjectionTest implements NamedTester {
+	class ResolvableDependencyBucketProjectionTest implements NamedTester, BucketDependenciesTester {
 		ResolvableDependencyBucketSpec subject;
 
 		@BeforeEach
@@ -86,6 +88,11 @@ class ResolvableDependencyBucketSpecIntegrationTest {
 		@Test
 		void isFullyQualifiedNamed() {
 			assertThat(subject.getName(), equalTo("fuvuKuku"));
+		}
+
+		@Test
+		void hasNoDependencies() {
+			assertThat(subject.getDependencies(), providerOf(emptyIterable()));
 		}
 	}
 }
