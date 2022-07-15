@@ -27,7 +27,6 @@ import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketRegistrationFactory;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import lombok.val;
 import org.gradle.api.Action;
@@ -43,13 +42,11 @@ import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 
 final class LinkLibrariesConfigurationRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, ModelComponentTag<IsBinary>, ModelProjection> {
 	private final ModelRegistry registry;
-	private final ResolvableDependencyBucketRegistrationFactory resolvableFactory;
 	private final ObjectFactory objects;
 
-	public LinkLibrariesConfigurationRegistrationRule(ModelRegistry registry, ResolvableDependencyBucketRegistrationFactory resolvableFactory, ObjectFactory objects) {
+	public LinkLibrariesConfigurationRegistrationRule(ModelRegistry registry, ObjectFactory objects) {
 		super(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), ModelComponentReference.ofProjection(HasLinkLibrariesDependencyBucket.class));
 		this.registry = registry;
-		this.resolvableFactory = resolvableFactory;
 		this.objects = objects;
 	}
 
