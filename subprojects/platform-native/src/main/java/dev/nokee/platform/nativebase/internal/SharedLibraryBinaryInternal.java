@@ -66,7 +66,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary, Buildable {
+public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
+	, Buildable
+{
 	private final TaskProvider<LinkSharedLibraryTask> linkTask;
 	private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;

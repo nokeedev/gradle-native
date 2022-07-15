@@ -46,7 +46,9 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.Set;
 
-public class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary, Buildable {
+public class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
+	, Buildable
+{
 	private final TaskProvider<CreateStaticLibraryTask> createTask;
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
