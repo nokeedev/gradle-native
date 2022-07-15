@@ -108,6 +108,10 @@ public final class ModelStates {
 		return self;
 	}
 
+	public static ModelNode discover(ModelNode self) {
+		return register(self);
+	}
+
 	private static final class Registering implements ModelComponent {}
 
 	public static ModelNode finalize(ModelNode self) {
