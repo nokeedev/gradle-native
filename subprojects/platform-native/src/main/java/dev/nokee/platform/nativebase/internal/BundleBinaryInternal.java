@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.TaskView;
@@ -30,6 +29,7 @@ import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.TaskDependencyUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Buildable;
@@ -96,7 +96,7 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 
 	@Override
 	public TaskDependency getBuildDependencies() {
-		return task -> ImmutableSet.of(getLinkTask().get());
+		return TaskDependencyUtils.of(getCreateOrLinkTask());
 	}
 
 	@Override

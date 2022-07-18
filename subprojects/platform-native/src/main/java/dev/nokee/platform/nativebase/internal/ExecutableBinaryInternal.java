@@ -16,7 +16,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
@@ -33,6 +32,7 @@ import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.TaskDependencyUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
@@ -127,7 +127,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 
 	@Override
 	public TaskDependency getBuildDependencies() {
-		return task -> ImmutableSet.of(getLinkTask().get());
+		return TaskDependencyUtils.of(getCreateOrLinkTask());
 	}
 
 	@Override
