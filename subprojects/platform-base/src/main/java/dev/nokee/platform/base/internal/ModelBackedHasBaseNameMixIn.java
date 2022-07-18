@@ -24,6 +24,6 @@ import static dev.nokee.model.internal.type.ModelType.of;
 
 public interface ModelBackedHasBaseNameMixIn extends HasBaseName {
 	default Property<String> getBaseName() {
-		return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
+		return ModelProperties.of(this, BaseNamePropertyComponent.class).asProperty(property(of(String.class)));
 	}
 }
