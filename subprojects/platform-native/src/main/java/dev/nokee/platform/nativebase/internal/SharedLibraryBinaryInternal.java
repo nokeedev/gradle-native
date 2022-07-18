@@ -23,9 +23,6 @@ import dev.nokee.language.nativebase.HeaderSearchPath;
 import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -77,13 +74,11 @@ import java.util.stream.Stream;
 public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
 	, Buildable
 	, HasPublicType
-	, ModelNodeAware
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, HasLinkTask<LinkSharedLibrary, LinkSharedLibraryTask>
 	, HasObjectFilesToBinaryTask
 {
-	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
@@ -225,12 +220,12 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	}
 
 	@Override
-	public ModelNode getNode() {
-		return entity;
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(SharedLibraryBinary.class);
 	}
 
 	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(SharedLibraryBinary.class);
+	public String toString() {
+		return "shared library binary '" + getName() + "'";
 	}
 }

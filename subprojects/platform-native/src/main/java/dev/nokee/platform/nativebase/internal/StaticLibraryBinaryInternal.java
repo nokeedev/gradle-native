@@ -17,9 +17,6 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -57,13 +54,11 @@ import java.util.Set;
 public class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
 	, HasPublicType
-	, ModelNodeAware
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, HasCreateTask
 	, HasObjectFilesToBinaryTask
 {
-	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
@@ -120,12 +115,12 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	}
 
 	@Override
-	public ModelNode getNode() {
-		return entity;
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(StaticLibraryBinary.class);
 	}
 
 	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(StaticLibraryBinary.class);
+	public String toString() {
+		return "static library binary '" + getName() + "'";
 	}
 }
