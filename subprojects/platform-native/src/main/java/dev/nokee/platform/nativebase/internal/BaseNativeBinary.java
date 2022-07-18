@@ -51,7 +51,6 @@ import lombok.val;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
-import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.ProjectLayout;
@@ -92,9 +91,8 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
-	@Getter(AccessLevel.PROTECTED) private final ConfigurationContainer configurations;
 
-	public BaseNativeBinary(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, ConfigurationContainer configurations, TaskView<Task> compileTasks) {
+	public BaseNativeBinary(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
 		this.identifier = identifier;
 		this.compileTasks = compileTasks;
 		this.objectSourceSets = objectSourceSets;
@@ -103,7 +101,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 		this.objects = objects;
 		this.layout = layout;
 		this.providers = providers;
-		this.configurations = configurations;
 		this.toolChainSelector = objects.newInstance(ToolChainSelectorInternal.class);
 
 		compileTasks.configureEach(AbstractNativeCompileTask.class, this::configureNativeSourceCompileTask);
