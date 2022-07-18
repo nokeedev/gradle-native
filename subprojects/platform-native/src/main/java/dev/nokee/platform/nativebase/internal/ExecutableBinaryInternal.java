@@ -33,8 +33,6 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
@@ -46,7 +44,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -65,12 +62,9 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	, HasLinkTask<LinkExecutable, LinkExecutableTask>
 	, HasObjectFilesToBinaryTask
 {
-	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
-
 	@Inject
-	public ExecutableBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskContainer tasks, TaskView<Task> compileTasks) {
+	public ExecutableBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
-		this.tasks = tasks;
 
 		getCreateOrLinkTask().configure(this::configureExecutableTask);
 		getCreateOrLinkTask().configure(task -> {
