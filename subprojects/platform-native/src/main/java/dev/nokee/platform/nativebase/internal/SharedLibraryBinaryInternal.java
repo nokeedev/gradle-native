@@ -88,7 +88,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 		getCreateOrLinkTask().configure(task -> {
 			task.getLibs().from(dependencies.getLinkLibraries());
-			task.getLinkerArgs().addAll(getProviders().provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
+			task.getLinkerArgs().addAll(providers.provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
 
 			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
 				if (it instanceof Swiftc && targetMachine.getOperatingSystemFamily().isMacOs()) {
