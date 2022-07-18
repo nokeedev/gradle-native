@@ -15,10 +15,11 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.LinkedEntity;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 
-public final class BaseNamePropertyComponent implements ModelComponent {
+public final class BaseNamePropertyComponent implements ModelComponent, LinkedEntity {
 	private final ModelNode entity;
 
 	public BaseNamePropertyComponent(ModelNode entity) {
