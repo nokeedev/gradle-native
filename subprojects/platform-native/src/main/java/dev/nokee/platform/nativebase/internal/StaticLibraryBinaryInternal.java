@@ -17,7 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -78,10 +78,6 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 		task.getTargetPlatform().disallowChanges();
 
 		task.getOutputFile().set(getStaticLibraryCreatedFile());
-
-		task.getToolChain().set(selectNativeToolChain(getTargetMachine()));
-		task.getToolChain().finalizeValueOnRead();
-		task.getToolChain().disallowChanges();
 	}
 
 	private Provider<RegularFile> getStaticLibraryCreatedFile() {
@@ -93,15 +89,13 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public TaskProvider<CreateStaticLibrary> getCreateTask() {
-		return (TaskProvider<CreateStaticLibrary>) ModelProperties.of(this, NativeArchiveTask.class).asProvider();
+		return (TaskProvider<CreateStaticLibrary>) ModelElements.of(this, NativeArchiveTask.class).as(CreateStaticLibrary.class).asProvider();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public TaskProvider<CreateStaticLibraryTask> getCreateOrLinkTask() {
-		return (TaskProvider<CreateStaticLibraryTask>) ModelProperties.of(this, NativeArchiveTask.class).asProvider();
+		return (TaskProvider<CreateStaticLibraryTask>) ModelElements.of(this, NativeArchiveTask.class).as(CreateStaticLibraryTask.class).asProvider();
 	}
 
 	@Override
