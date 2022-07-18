@@ -21,8 +21,10 @@ import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
@@ -30,6 +32,7 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -82,11 +85,12 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 			});
 			val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
 			if (linkage.isExecutable()) {
-				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "executable");
+				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, BinaryIdentity.ofMain("executable", "executable binary"));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(tag(IsBinary.class))
 					.withComponent(tag(ConfigurableTag.class))
+					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						val binary = objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, incomingDependencies.get(), taskView.get());
@@ -95,11 +99,12 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					}))
 					.build());
 			} else if (linkage.isShared()) {
-				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "sharedLibrary");
+				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, BinaryIdentity.ofMain("sharedLibrary", "shared library binary"));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(tag(IsBinary.class))
 					.withComponent(tag(ConfigurableTag.class))
+					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
 						val binary = objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, incomingDependencies.get(), taskView.get());
@@ -108,11 +113,12 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					}))
 					.build());
 			} else if (linkage.isBundle()) {
-				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "bundle");
+				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, BinaryIdentity.ofMain("bundle", "bundle binary"));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(tag(IsBinary.class))
 					.withComponent(tag(ConfigurableTag.class))
+					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
 						val binary = objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, incomingDependencies.get(), taskView.get());
@@ -121,11 +127,12 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					}))
 					.build());
 			} else if (linkage.isStatic()) {
-				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, "staticLibrary");
+				val binaryIdentifier = BinaryIdentifier.of(variantIdentifier, BinaryIdentity.ofMain("staticLibrary", "static library binary"));
 
 				registry.register(ModelRegistration.builder()
 					.withComponent(tag(IsBinary.class))
 					.withComponent(tag(ConfigurableTag.class))
+					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
 						val binary = objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, incomingDependencies.get(), taskView.get());
