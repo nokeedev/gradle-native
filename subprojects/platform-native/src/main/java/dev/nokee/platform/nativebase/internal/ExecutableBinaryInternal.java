@@ -20,9 +20,6 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -64,13 +61,11 @@ import java.util.stream.Stream;
 public class ExecutableBinaryInternal extends BaseNativeBinary implements ExecutableBinary
 	, Buildable
 	, HasPublicType
-	, ModelNodeAware
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, HasLinkTask<LinkExecutable, LinkExecutableTask>
 	, HasObjectFilesToBinaryTask
 {
-	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
@@ -156,12 +151,12 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	}
 
 	@Override
-	public ModelNode getNode() {
-		return entity;
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(ExecutableBinary.class);
 	}
 
 	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(ExecutableBinary.class);
+	public String toString() {
+		return "executable binary '" + getName() + "'";
 	}
 }

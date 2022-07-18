@@ -32,6 +32,9 @@ import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.language.objectivecpp.tasks.ObjectiveCppCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.TaskView;
@@ -78,7 +81,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths {
+public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths, ModelNodeAware {
+	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	private final ToolChainSelectorInternal toolChainSelector;
 	@Getter protected final BinaryIdentifier identifier;
 	protected final TaskView<Task> compileTasks; // Until the compile tasks is clean up
@@ -327,5 +331,10 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Override
 	public TaskView<SourceCompile> getCompileTasks() {
 		return compileTasks.withType(SourceCompile.class);
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return entity;
 	}
 }

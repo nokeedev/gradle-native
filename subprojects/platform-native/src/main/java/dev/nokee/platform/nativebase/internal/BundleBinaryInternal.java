@@ -17,9 +17,6 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeAware;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
@@ -56,13 +53,11 @@ import javax.inject.Inject;
 public class BundleBinaryInternal extends BaseNativeBinary implements BundleBinary
 	, Buildable
 	, HasPublicType
-	, ModelNodeAware
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, HasLinkTask<LinkBundle, LinkBundleTask>
 	, HasObjectFilesToBinaryTask
 {
-	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	@Getter(AccessLevel.PROTECTED) private final TaskContainer tasks;
 
 	@Inject
@@ -135,12 +130,12 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	}
 
 	@Override
-	public ModelNode getNode() {
-		return entity;
+	public TypeOf<?> getPublicType() {
+		return TypeOf.typeOf(BundleBinary.class);
 	}
 
 	@Override
-	public TypeOf<?> getPublicType() {
-		return TypeOf.typeOf(BundleBinary.class);
+	public String toString() {
+		return "bundle binary '" + getName() + "'";
 	}
 }
