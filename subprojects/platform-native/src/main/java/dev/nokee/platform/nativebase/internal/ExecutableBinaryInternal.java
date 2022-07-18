@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -105,10 +105,6 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 
 		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("exes")));
 		task.getLinkedFile().convention(getExecutableLinkedFile());
-
-		task.getToolChain().set(selectNativeToolChain(getTargetMachine()));
-		task.getToolChain().finalizeValueOnRead();
-		task.getToolChain().disallowChanges();
 	}
 
 	private Provider<RegularFile> getExecutableLinkedFile() {
@@ -120,15 +116,13 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkExecutable> getLinkTask() {
-		return (TaskProvider<LinkExecutable>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
+		return (TaskProvider<LinkExecutable>) ModelElements.of(this, NativeLinkTask.class).as(LinkExecutable.class).asProvider();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkExecutableTask> getCreateOrLinkTask() {
-		return (TaskProvider<LinkExecutableTask>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
+		return (TaskProvider<LinkExecutableTask>) ModelElements.of(this, NativeLinkTask.class).as(LinkExecutableTask.class).asProvider();
 	}
 
 	@Override

@@ -17,7 +17,7 @@ package dev.nokee.platform.nativebase.internal;
 
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -84,10 +84,6 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 		task.getLinkedFile().convention(getBundleLinkedFile());
 
 		task.getLinkerArgs().addAll("-Xlinker", "-bundle"); // Required when not building swift
-
-		task.getToolChain().set(selectNativeToolChain(getTargetMachine()));
-		task.getToolChain().finalizeValueOnRead();
-		task.getToolChain().disallowChanges();
 	}
 
 	private Provider<RegularFile> getBundleLinkedFile() {
@@ -104,15 +100,13 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkBundle> getLinkTask() {
-		return (TaskProvider<LinkBundle>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
+		return (TaskProvider<LinkBundle>) ModelElements.of(this, NativeLinkTask.class).as(LinkBundle.class).asProvider();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkBundleTask> getCreateOrLinkTask() {
-		return (TaskProvider<LinkBundleTask>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
+		return (TaskProvider<LinkBundleTask>) ModelElements.of(this, NativeLinkTask.class).as(LinkBundleTask.class).asProvider();
 	}
 
 	@Override

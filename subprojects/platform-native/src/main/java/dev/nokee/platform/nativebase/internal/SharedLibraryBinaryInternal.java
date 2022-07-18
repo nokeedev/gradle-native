@@ -21,9 +21,8 @@ import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.nativebase.HeaderSearchPath;
 import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
-import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
-import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -42,7 +41,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
-import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
@@ -58,10 +56,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
-import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.Swiftc;
-import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
-import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
@@ -142,30 +137,6 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
 		task.getLinkedFile().convention(getSharedLibraryLinkedFile());
-
-		// For windows
-		task.getImportLibrary().convention(getImportLibraryFile(task.getToolChain().map(selectToolProvider(getTargetMachine()))));
-
-		task.getToolChain().set(selectNativeToolChain(getTargetMachine()));
-		task.getToolChain().finalizeValueOnRead();
-		task.getToolChain().disallowChanges();
-	}
-
-	private Transformer<PlatformToolProvider, NativeToolChain> selectToolProvider(TargetMachine targetMachine) {
-		return toolChain -> {
-			NativeToolChainInternal toolChainInternal = (NativeToolChainInternal) toolChain;
-			return toolChainInternal.select(NativePlatformFactory.create(targetMachine));
-		};
-	}
-
-	private Provider<RegularFile> getImportLibraryFile(Provider<PlatformToolProvider> platformToolProvider) {
-		return getProviders().provider(() -> {
-			PlatformToolProvider toolProvider = platformToolProvider.get();
-			if (toolProvider.producesImportLibrary()) {
-				return getLayout().getBuildDirectory().file(toolProvider.getImportLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + getBaseName().get())).get();
-			}
-			return null;
-		});
 	}
 
 	private Provider<RegularFile> getSharedLibraryLinkedFile() {
@@ -177,15 +148,13 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkSharedLibrary> getLinkTask() {
-		return (TaskProvider<LinkSharedLibrary>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
+		return (TaskProvider<LinkSharedLibrary>) ModelElements.of(this, NativeLinkTask.class).as(LinkSharedLibrary.class).asProvider();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public TaskProvider<LinkSharedLibraryTask> getCreateOrLinkTask() {
-		return (TaskProvider<LinkSharedLibraryTask>) ModelProperties.of(this, NativeLinkTask.class).asProvider();
+		return (TaskProvider<LinkSharedLibraryTask>) ModelElements.of(this, NativeLinkTask.class).as(LinkSharedLibraryTask.class).asProvider();
 	}
 
 	@Override
