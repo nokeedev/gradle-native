@@ -45,7 +45,6 @@ import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.Cast;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.DomainObjectSet;
@@ -88,7 +87,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	private final DomainObjectSet<ObjectSourceSet> objectSourceSets;
 	@Getter private final TargetMachine targetMachine;
 	@Getter private final NativeIncomingDependencies dependencies;
-	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
+	private final ObjectFactory objects;
 	private final ProjectLayout layout;
 	private final ProviderFactory providers;
 
@@ -116,7 +115,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
-		return getObjects().fileCollection()
+		return objects.fileCollection()
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getIncludes().getElements()).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(FileSystemLocation.class)))))
 			.from(getDependencies().getHeaderSearchPaths())
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> it.getSystemIncludes().getElements()).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(FileSystemLocation.class)))))
@@ -150,14 +149,14 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	public Provider<Set<FileSystemLocation>> getImportSearchPaths() {
-		return getObjects().fileCollection()
+		return objects.fileCollection()
 			.from(getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile().map(it -> it.getAsFile().getParentFile())).flatMap(new ToProviderOfIterableTransformer<>(() -> Cast.uncheckedCastBecauseOfTypeErasure(objects.listProperty(File.class)))))
 			.from(getDependencies().getSwiftModules().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
 			.getElements();
 	}
 
 	public Provider<Set<FileSystemLocation>> getFrameworkSearchPaths() {
-		return getObjects().fileCollection()
+		return objects.fileCollection()
 			.from(getDependencies().getFrameworkSearchPaths())
 			.from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> extractFrameworkSearchPaths(it.getCompilerArgs().get())).flatMap(it -> providers.provider(() -> it)))
