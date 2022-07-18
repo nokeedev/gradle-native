@@ -62,9 +62,12 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	, HasLinkTask<LinkExecutable, LinkExecutableTask>
 	, HasObjectFilesToBinaryTask
 {
+	private final ProjectLayout layout;
+
 	@Inject
 	public ExecutableBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
+		this.layout = layout;
 
 		getCreateOrLinkTask().configure(this::configureExecutableTask);
 		getCreateOrLinkTask().configure(task -> {
@@ -96,12 +99,12 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 		// Until we model the build type
 		task.getDebuggable().set(false);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("exes")));
+		task.getDestinationDirectory().convention(layout.getBuildDirectory().dir(identifier.getOutputDirectoryBase("exes")));
 		task.getLinkedFile().convention(getExecutableLinkedFile());
 	}
 
 	private Provider<RegularFile> getExecutableLinkedFile() {
-		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
+		return layout.getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
 			return osOperations.getExecutableName(identifier.getOutputDirectoryBase("exes") + "/" + it);

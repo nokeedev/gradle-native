@@ -54,9 +54,12 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	, HasLinkTask<LinkBundle, LinkBundleTask>
 	, HasObjectFilesToBinaryTask
 {
+	private final ProjectLayout layout;
+
 	@Inject
 	public BundleBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
+		this.layout = layout;
 
 		getCreateOrLinkTask().configure(this::configureBundleTask);
 	}
@@ -72,14 +75,14 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 		// Until we model the build type
 		task.getDebuggable().set(false);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
+		task.getDestinationDirectory().convention(layout.getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
 		task.getLinkedFile().convention(getBundleLinkedFile());
 
 		task.getLinkerArgs().addAll("-Xlinker", "-bundle"); // Required when not building swift
 	}
 
 	private Provider<RegularFile> getBundleLinkedFile() {
-		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
+		return layout.getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
 			return osOperations.getExecutableName(identifier.getOutputDirectoryBase("libs") + "/" + it);
