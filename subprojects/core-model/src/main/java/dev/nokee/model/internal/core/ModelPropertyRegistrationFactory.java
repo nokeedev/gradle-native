@@ -29,6 +29,13 @@ public final class ModelPropertyRegistrationFactory {
 			.build();
 	}
 
+	public static <T> ModelRegistration property(Class<T> type) {
+		return ModelRegistration.builder()
+			.withComponent(tag(ModelPropertyTag.class))
+			.withComponent(new ModelPropertyTypeComponent(of(type)))
+			.build();
+	}
+
 	public static <T> ModelRegistration setProperty(Class<T> type) {
 		assert !File.class.isAssignableFrom(type);
 		return ModelRegistration.builder()
