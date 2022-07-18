@@ -28,6 +28,7 @@ import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -155,7 +156,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		// TODO: Use component binary view instead once finish cleanup, it remove one level of indirection
 		getVariants().configureEach(variant -> {
 			variant.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
-				binary.getBaseName().convention(GUtil.toCamelCase(project.getName()));
+				((HasBaseName) binary).getBaseName().convention(GUtil.toCamelCase(project.getName()));
 			});
 		});
 		whenElementKnown(this.getNode(), this::onEachVariant);
