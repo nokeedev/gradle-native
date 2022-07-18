@@ -20,6 +20,7 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.NativeSourceCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -92,6 +93,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					.withComponent(tag(ConfigurableTag.class))
 					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
+					.withComponent(new DisplayNameComponent("executable binary"))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						val binary = objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, incomingDependencies.get(), taskView.get());
 						binary.getBaseName().convention(getBaseName());
@@ -106,6 +108,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					.withComponent(tag(ConfigurableTag.class))
 					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
+					.withComponent(new DisplayNameComponent("shared library binary"))
 					.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
 						val binary = objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, incomingDependencies.get(), taskView.get());
 						binary.getBaseName().convention(getBaseName());
@@ -120,6 +123,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					.withComponent(tag(ConfigurableTag.class))
 					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
+					.withComponent(new DisplayNameComponent("bundle binary"))
 					.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
 						val binary = objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, incomingDependencies.get(), taskView.get());
 						binary.getBaseName().convention(getBaseName());
@@ -134,6 +138,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					.withComponent(tag(ConfigurableTag.class))
 					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
+					.withComponent(new DisplayNameComponent("static library binary"))
 					.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
 						val binary = objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, incomingDependencies.get(), taskView.get());
 						binary.getBaseName().convention(getBaseName());
