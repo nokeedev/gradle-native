@@ -207,7 +207,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasBaseNameMixIn.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-			val baseNameProperty = modeRegistry.instantiate(builder().withComponent(new ElementNameComponent("baseName")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(String.class)).build());
+			val baseNameProperty = modeRegistry.instantiate(builder().withComponent(new ElementNameComponent("baseName")).withComponent(new ParentComponent(entity)).mergeFrom(ModelPropertyRegistrationFactory.property(String.class)).build());
 			ModelStates.register(baseNameProperty);
 			entity.addComponent(new BaseNamePropertyComponent(baseNameProperty));
 		})));
