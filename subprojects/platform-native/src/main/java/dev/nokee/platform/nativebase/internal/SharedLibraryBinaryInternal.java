@@ -76,6 +76,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
 	@Getter RegularFileProperty linkedFile;
+	private final ProjectLayout layout;
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
@@ -85,6 +86,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		this.objects = objects;
 		this.providerFactory = providers;
 		this.linkedFile = objects.fileProperty();
+		this.layout = layout;
 
 		getCreateOrLinkTask().configure(task -> {
 			task.getLibs().from(dependencies.getLinkLibraries());
@@ -129,12 +131,12 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 		task.getInstallName().set(installName);
 
-		task.getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
+		task.getDestinationDirectory().convention(layout.getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
 		task.getLinkedFile().convention(getSharedLibraryLinkedFile());
 	}
 
 	private Provider<RegularFile> getSharedLibraryLinkedFile() {
-		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
+		return layout.getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
 			return osOperations.getSharedLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + it);

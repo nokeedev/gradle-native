@@ -89,7 +89,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Getter private final TargetMachine targetMachine;
 	@Getter private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
+	private final ProjectLayout layout;
 	private final ProviderFactory providers;
 
 	public BaseNativeBinary(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
@@ -179,7 +179,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	private void configureNativeSourceCompileTask(AbstractNativeCompileTask task) {
-		((HasDestinationDirectory) task).getDestinationDirectory().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
+		((HasDestinationDirectory) task).getDestinationDirectory().convention(languageNameSuffixFor(task).flatMap(languageNameSuffix -> layout.getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/main" + languageNameSuffix)));
 
 		task.getTargetPlatform().set(getTargetPlatform());
 		task.getTargetPlatform().finalizeValueOnRead();
@@ -214,7 +214,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	private void configureSwiftCompileTask(SwiftCompileTask task) {
-		((HasDestinationDirectory) task).getDestinationDirectory().convention(getLayout().getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/mainSwift"));
+		((HasDestinationDirectory) task).getDestinationDirectory().convention(layout.getBuildDirectory().dir(identifier.getOutputDirectoryBase("objs") + "/mainSwift"));
 
 		// TODO: Select the right value based on the build type dimension, once modeled
 		task.getDebuggable().set(false);
@@ -248,7 +248,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	private Provider<RegularFile> toSwiftModuleFile(String moduleName) {
-		return getLayout().getBuildDirectory().file(identifier.getOutputDirectoryBase("modules") + "/" + moduleName + ".swiftmodule");
+		return layout.getBuildDirectory().file(identifier.getOutputDirectoryBase("modules") + "/" + moduleName + ".swiftmodule");
 	}
 
 	Provider<NativeToolChain> selectNativeToolChain(TargetMachine targetMachine) {

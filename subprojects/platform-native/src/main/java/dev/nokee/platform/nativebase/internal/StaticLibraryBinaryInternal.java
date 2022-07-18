@@ -53,9 +53,12 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	, HasCreateTask
 	, HasObjectFilesToBinaryTask
 {
+	private final ProjectLayout layout;
+
 	@Inject
 	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
+		this.layout = layout;
 
 		getCreateOrLinkTask().configure(this::configureStaticLibraryTask);
 	}
@@ -72,7 +75,7 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	}
 
 	private Provider<RegularFile> getStaticLibraryCreatedFile() {
-		return getLayout().getBuildDirectory().file(getBaseName().map(it -> {
+		return layout.getBuildDirectory().file(getBaseName().map(it -> {
 			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
 			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
 			return osOperations.getStaticLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + it);
