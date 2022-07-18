@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.TaskView;
@@ -30,6 +29,7 @@ import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.TaskDependencyUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Buildable;
@@ -47,9 +47,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.Set;
 
 public class StaticLibraryBinaryInternal extends BaseNativeBinary implements StaticLibraryBinary
 	, Buildable
@@ -100,12 +98,7 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 
 	@Override
 	public TaskDependency getBuildDependencies() {
-		return new TaskDependency() {
-			@Override
-			public Set<? extends Task> getDependencies(@Nullable Task task) {
-				return ImmutableSet.of(getCreateOrLinkTask().get());
-			}
-		};
+		return TaskDependencyUtils.of(getCreateOrLinkTask());
 	}
 
 	@Override
