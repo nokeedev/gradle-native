@@ -90,7 +90,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	@Getter private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProjectLayout layout;
-	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
+	private final ProviderFactory providers;
 
 	public BaseNativeBinary(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
 		this.identifier = identifier;
@@ -106,12 +106,12 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 		compileTasks.configureEach(AbstractNativeCompileTask.class, this::configureNativeSourceCompileTask);
 		compileTasks.configureEach(AbstractNativeCompileTask.class, task -> {
 			task.getIncludes().from(dependencies.getHeaderSearchPaths());
-			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
+			task.getCompilerArgs().addAll(providers.provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 		});
 		compileTasks.configureEach(SwiftCompileTask.class, this::configureSwiftCompileTask);
 		compileTasks.configureEach(SwiftCompileTask.class, task -> {
 			task.getModules().from(dependencies.getSwiftModules());
-			task.getCompilerArgs().addAll(getProviders().provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
+			task.getCompilerArgs().addAll(providers.provider(() -> dependencies.getFrameworkSearchPaths().getFiles().stream().flatMap(this::toFrameworkSearchPathFlags).collect(Collectors.toList())));
 		});
 	}
 
@@ -198,7 +198,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	private Provider<String> languageNameSuffixFor(AbstractNativeCompileTask task) {
-		return getProviders().provider(() -> {
+		return providers.provider(() -> {
 			if (task instanceof CCompile) {
 				return "C";
 			} else if (task instanceof CppCompile) {
@@ -235,7 +235,7 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 		if (targetMachine.getOperatingSystemFamily().isMacOs()) {
 			task.getCompilerArgs().add("-sdk");
 			// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
-			task.getCompilerArgs().add(getProviders().provider(() -> CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim()));
+			task.getCompilerArgs().add(providers.provider(() -> CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim()));
 		}
 
 		if (this instanceof SharedLibraryBinary || this instanceof StaticLibraryBinary) {
@@ -252,15 +252,15 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	}
 
 	Provider<NativeToolChain> selectNativeToolChain(TargetMachine targetMachine) {
-		return getProviders().provider(() -> toolChainSelector.select(targetMachine));
+		return providers.provider(() -> toolChainSelector.select(targetMachine));
 	}
 
 	private Provider<NativeToolChain> selectSwiftToolChain(TargetMachine targetMachine) {
-		return getProviders().provider(() -> toolChainSelector.selectSwift(targetMachine));
+		return providers.provider(() -> toolChainSelector.selectSwift(targetMachine));
 	}
 
 	Provider<NativePlatform> getTargetPlatform() {
-		return getProviders().provider(() -> NativePlatformFactory.create(targetMachine));
+		return providers.provider(() -> NativePlatformFactory.create(targetMachine));
 	}
 
 	private ToolType getToolType(Class<? extends Task> taskType) {
