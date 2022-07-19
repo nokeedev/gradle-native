@@ -158,7 +158,6 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 	public Provider<Set<FileSystemLocation>> getFrameworkSearchPaths() {
 		return objects.fileCollection()
 			.from(getDependencies().getFrameworkSearchPaths())
-			.from(getDependencies().getLinkFrameworks().getElements().map(files -> files.stream().map(it -> it.getAsFile().getParentFile()).collect(Collectors.toList())))
 			.from(compileTasks.withType(AbstractNativeSourceCompileTask.class).map(it -> extractFrameworkSearchPaths(it.getCompilerArgs().get())).flatMap(it -> providers.provider(() -> it)))
 			.getElements();
 	}

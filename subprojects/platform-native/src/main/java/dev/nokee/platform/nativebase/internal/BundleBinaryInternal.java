@@ -23,6 +23,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
@@ -50,6 +51,8 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	, ModelBackedHasBaseNameMixIn
 	, HasLinkTask<LinkBundle, LinkBundleTask>
 	, HasObjectFilesToBinaryTask
+	, HasLinkLibrariesDependencyBucket
+	, HasRuntimeLibrariesDependencyBucket
 {
 	@Inject
 	public BundleBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {

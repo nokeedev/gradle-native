@@ -22,7 +22,4 @@ public interface NativeIncomingDependencies extends ResolvableComponentDependenc
 	FileCollection getHeaderSearchPaths();
 	FileCollection getFrameworkSearchPaths();
 	FileCollection getSwiftModules();
-	FileCollection getLinkLibraries();
-	FileCollection getLinkFrameworks();
-	FileCollection getRuntimeLibraries();
 }

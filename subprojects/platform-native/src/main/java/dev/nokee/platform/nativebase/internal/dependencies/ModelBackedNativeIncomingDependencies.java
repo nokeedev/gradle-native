@@ -40,7 +40,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
@@ -53,8 +52,6 @@ public class ModelBackedNativeIncomingDependencies implements NativeIncomingDepe
 	private static final Logger LOGGER = Logger.getLogger(ModelBackedNativeIncomingDependencies.class.getCanonicalName());
 	private final Supplier<IncomingHeaders> headers;
 	private final Supplier<IncomingSwiftModules> swiftModules;
-	private final Supplier<DependencyBucket> linkLibrariesBucket;
-	private final Supplier<DependencyBucket> runtimeLibrariesBucket;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 
@@ -73,26 +70,6 @@ public class ModelBackedNativeIncomingDependencies implements NativeIncomingDepe
 			lookup.find(owner.child(prefix.apply("importSwiftModules"))).ifPresent(ModelStates::realize);
 			return lookup.find(owner.child(prefix.apply("importSwiftModules"))).<IncomingSwiftModules>map(entity -> new DefaultIncomingSwiftModules(ModelNodeUtils.get(entity, DependencyBucket.class))).orElseGet(AbsentIncomingSwiftModules::new);
 		});
-		this.linkLibrariesBucket = Suppliers.memoize(() -> {
-			ModelStates.realize(lookup.get(owner.child(prefix.apply("linkLibraries"))));
-			return ModelNodeUtils.get(lookup.get(owner.child(prefix.apply("linkLibraries"))), DependencyBucket.class);
-		});
-		this.runtimeLibrariesBucket = Suppliers.memoize(() -> {
-			ModelStates.realize(lookup.get(owner.child(prefix.apply("runtimeLibraries"))));
-			return ModelNodeUtils.get(lookup.get(owner.child(prefix.apply("runtimeLibraries"))), DependencyBucket.class);
-		});
-
-		this.linkerInputs = objects.listProperty(LinkerInput.class);
-
-		configureLinkerInputs();
-	}
-
-	public DependencyBucket getLinkLibrariesBucket() {
-		return linkLibrariesBucket.get();
-	}
-
-	public DependencyBucket getRuntimeLibrariesBucket() {
-		return runtimeLibrariesBucket.get();
 	}
 
 	@Override
@@ -109,52 +86,6 @@ public class ModelBackedNativeIncomingDependencies implements NativeIncomingDepe
 	public FileCollection getFrameworkSearchPaths() {
 		return objects.fileCollection().from((Callable<Object>) () -> headers.get().getFrameworkSearchPaths()).from((Callable<Object>) () -> swiftModules.get().getFrameworkSearchPaths());
 	}
-
-	//region Linker inputs
-	public FileCollection getLinkLibraries() {
-		return objects.fileCollection().from(getLinkerInputs().map(this::toLinkLibraries)).builtBy((Callable<Object>) () -> linkLibrariesBucket.get().getAsConfiguration());
-	}
-
-	public FileCollection getLinkFrameworks() {
-		return objects.fileCollection().from(getLinkerInputs().map(this::toLinkFrameworks)).builtBy((Callable<Object>) () -> linkLibrariesBucket.get().getAsConfiguration());
-	}
-
-	private void configureLinkerInputs() {
-		getLinkerInputs().set(fromLinkConfiguration());
-		getLinkerInputs().finalizeValueOnRead();
-		getLinkerInputs().disallowChanges();
-	}
-
-	private Provider<List<LinkerInput>> fromLinkConfiguration() {
-		return providers.provider(() -> linkLibrariesBucket.get().getAsConfiguration().getIncoming().artifactView(it -> it.getAttributes().attribute(ARTIFACT_COMPRESSION_STATE_ATTRIBUTE, UNCOMPRESSED)).getArtifacts().getArtifacts().stream().map(LinkerInput::of).collect(Collectors.toList()));
-	}
-
-	@Getter private final ListProperty<LinkerInput> linkerInputs;
-
-	private List<File> toLinkLibraries(List<LinkerInput> inputs) {
-		return inputs.stream().filter(it -> !it.isFramework()).map(LinkerInput::getFile).collect(Collectors.toList());
-	}
-
-	private List<File> toLinkFrameworks(List<LinkerInput> inputs) {
-		return inputs.stream().filter(it -> it.isFramework()).map(LinkerInput::getFile).collect(Collectors.toList());
-	}
-
-	@Value
-	static class LinkerInput {
-		boolean framework;
-		File file;
-
-		public static LinkerInput of(ResolvedArtifactResult result) {
-			return new LinkerInput(isFrameworkDependency(result), result.getFile());
-		}
-	}
-	//endregion
-
-	@Override
-	public FileCollection getRuntimeLibraries() {
-		return objects.fileCollection().from(runtimeLibrariesBucket.get().getAsConfiguration());
-	}
-
 
 
 	public static boolean isFrameworkDependency(ResolvedArtifactResult result) {
