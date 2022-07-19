@@ -66,8 +66,6 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 
 		// Until we model the build type
 		task.getDebuggable().set(false);
-
-		task.getLinkerArgs().addAll("-Xlinker", "-bundle"); // Required when not building swift
 	}
 
 	@Override
