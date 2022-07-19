@@ -15,9 +15,6 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableList;
-import dev.nokee.core.exec.CommandLine;
-import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.TaskView;
@@ -44,7 +41,6 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
-import org.gradle.nativeplatform.toolchain.Swiftc;
 
 import javax.inject.Inject;
 
@@ -63,15 +59,6 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
 
 		getCreateOrLinkTask().configure(this::configureExecutableTask);
-		getCreateOrLinkTask().configure(task -> {
-			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
-				if (it instanceof Swiftc && targetMachine.getOperatingSystemFamily().isMacOs()) {
-					// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
-					return ImmutableList.of("-sdk", CommandLine.of("xcrun", "--show-sdk-path").execute(new ProcessBuilderEngine()).waitFor().assertNormalExitValue().getStandardOutput().getAsString().trim());
-				}
-				return ImmutableList.of();
-			}));
-		});
 	}
 
 	private void configureExecutableTask(LinkExecutableTask task) {
