@@ -15,15 +15,20 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.HasBaseName;
 import org.gradle.api.provider.Property;
 
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 
+@DomainObjectEntities.Tag(ModelBackedHasBaseNameMixIn.Tag.class)
 public interface ModelBackedHasBaseNameMixIn extends HasBaseName {
 	default Property<String> getBaseName() {
 		return ModelProperties.of(this, BaseNamePropertyComponent.class).asProperty(property(of(String.class)));
 	}
+
+	interface Tag extends ModelTag {}
 }

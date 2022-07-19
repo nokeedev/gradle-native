@@ -18,6 +18,8 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.ModelElementFactory;
 import lombok.val;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 
@@ -74,5 +76,28 @@ public final class ModelProperties {
 		} else if (property instanceof SetProperty) {
 			((SetProperty<T>) property).add(element);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> void set(ModelNode self, T value) {
+		val property = self.get(GradlePropertyComponent.class).get();
+		if (property instanceof SetProperty) {
+			assert value instanceof Iterable;
+			((SetProperty<Object>) property).set((Iterable<Object>) value);
+		} else if (property instanceof ListProperty) {
+			assert value instanceof Iterable;
+			((ListProperty<Object>) property).set((Iterable<Object>) value);
+		} else if (property instanceof Property) {
+			((Property<T>) property).set(value);
+		}
+	}
+
+	public static void clear(ModelNode self) {
+		set(self, null);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Provider<T> valueOf(ModelNode self) {
+		return (Provider<T>) self.get(GradlePropertyComponent.class).get();
 	}
 }
