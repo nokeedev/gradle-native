@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
-import com.google.common.base.Suppliers;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
@@ -58,6 +57,7 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.BaseNameComponent;
 import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
 import dev.nokee.platform.base.internal.BinaryViewAdapter;
 import dev.nokee.platform.base.internal.BuildVariants;
@@ -94,6 +94,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
@@ -215,15 +216,19 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			entity.addComponent(new BaseNamePropertyComponent(baseNameProperty));
 		})));
 
-		// ComponentFromEntity<GradlePropertyComponent> on BaseNamePropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), (entity, property) -> {
 			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(project.getProviders().provider(() -> {
 				return entity.find(ParentComponent.class)
-					.flatMap(parent -> ParentUtils.stream(parent).filter(it -> it.has(BaseNamePropertyComponent.class)).findFirst())
-					.map(it -> (Supplier<String>) ((Provider<String>) property.get().get(GradlePropertyComponent.class).get())::getOrNull)
-					.orElseGet(() -> entity.find(ElementNameComponent.class).map(it -> (Supplier<String>) it.get()::toString).orElse(Suppliers.ofInstance(null)))
+					.flatMap(parent -> ParentUtils.stream(parent).map(ModelStates::finalize).filter(it -> it.has(BaseNameComponent.class)).findFirst())
+					.map(parent -> (Supplier<String>) parent.get(BaseNameComponent.class)::get)
+					.orElseGet(() -> entity.find(ElementNameComponent.class).map(it -> (Supplier<String>) it.get()::toString).orElse(ofInstance(null)))
 					.get();
 			}));
+		}));
+
+		// ComponentFromEntity<GradlePropertyComponent> read-write on BaseNamePropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ModelStates.Finalizing.class), (entity, property, ignored1) -> {
+			entity.addComponent(new BaseNameComponent(((Property<String>) property.get().get(GradlePropertyComponent.class).get()).get()));
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(TaskRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
