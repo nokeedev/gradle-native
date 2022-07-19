@@ -61,10 +61,6 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 
 	private void configureStaticLibraryTask(CreateStaticLibraryTask task) {
 		task.source(getObjectFiles());
-
-		task.getTargetPlatform().set(getTargetPlatform());
-		task.getTargetPlatform().finalizeValueOnRead();
-		task.getTargetPlatform().disallowChanges();
 	}
 
 	@Override

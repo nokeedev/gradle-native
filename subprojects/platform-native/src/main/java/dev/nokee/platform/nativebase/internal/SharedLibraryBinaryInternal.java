@@ -118,10 +118,6 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	private void configureSharedLibraryTask(LinkSharedLibraryTask task) {
 		task.source(getObjectFiles());
 
-		task.getTargetPlatform().set(getTargetPlatform());
-		task.getTargetPlatform().finalizeValueOnRead();
-		task.getTargetPlatform().disallowChanges();
-
 		// Until we model the build type
 		task.getDebuggable().set(false);
 
