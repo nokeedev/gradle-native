@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
@@ -28,6 +29,7 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.names.NamingScheme;
@@ -90,6 +92,7 @@ import org.gradle.api.provider.Provider;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
@@ -213,8 +216,14 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		})));
 
 		// ComponentFromEntity<GradlePropertyComponent> on BaseNamePropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, property, elementName) -> {
-			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(elementName.get().toString());
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), (entity, property) -> {
+			((Property<String>) property.get().get(GradlePropertyComponent.class).get()).convention(project.getProviders().provider(() -> {
+				return entity.find(ParentComponent.class)
+					.flatMap(parent -> ParentUtils.stream(parent).filter(it -> it.has(BaseNamePropertyComponent.class)).findFirst())
+					.map(it -> (Supplier<String>) ((Provider<String>) property.get().get(GradlePropertyComponent.class).get())::getOrNull)
+					.orElseGet(() -> entity.find(ElementNameComponent.class).map(it -> (Supplier<String>) it.get()::toString).orElse(Suppliers.ofInstance(null)))
+					.get();
+			}));
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(TaskRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
