@@ -61,10 +61,6 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	private void configureBundleTask(LinkBundleTask task) {
 		task.source(getObjectFiles());
 
-		task.getTargetPlatform().set(getTargetPlatform());
-		task.getTargetPlatform().finalizeValueOnRead();
-		task.getTargetPlatform().disallowChanges();
-
 		// Until we model the build type
 		task.getDebuggable().set(false);
 

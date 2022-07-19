@@ -33,6 +33,7 @@ import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.BinaryIdentity;
+import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
@@ -93,6 +94,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(new DisplayNameComponent("executable binary"))
+					.withComponent(new BuildVariantComponent(buildVariant))
 					.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
 						return objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, incomingDependencies.get(), taskView.get());
 					}))
@@ -106,6 +108,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(new DisplayNameComponent("shared library binary"))
+					.withComponent(new BuildVariantComponent(buildVariant))
 					.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
 						return objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, incomingDependencies.get(), taskView.get());
 					}))
@@ -119,6 +122,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(new DisplayNameComponent("bundle binary"))
+					.withComponent(new BuildVariantComponent(buildVariant))
 					.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
 						return objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal, objectSourceSets, incomingDependencies.get(), taskView.get());
 					}))
@@ -132,6 +136,7 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 					.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 					.withComponent(new IdentifierComponent(binaryIdentifier))
 					.withComponent(new DisplayNameComponent("static library binary"))
+					.withComponent(new BuildVariantComponent(buildVariant))
 					.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
 						return objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, objectSourceSets, targetMachineInternal, incomingDependencies.get(), taskView.get());
 					}))
