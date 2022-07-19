@@ -183,17 +183,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
 					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 			}
-			val linkLibraries = registry.register(newEntity("linkLibraries", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			linkLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), linkOnly.as(Configuration.class))
-				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_LINK))))
-				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
-				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-			val runtimeLibraries = registry.register(newEntity("runtimeLibraries", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-			runtimeLibraries.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
-				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))
-				.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
-				.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-
 			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))

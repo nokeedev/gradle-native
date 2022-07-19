@@ -18,8 +18,6 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.ProcessBuilderEngine;
-import dev.nokee.language.nativebase.HeaderSearchPath;
-import dev.nokee.language.nativebase.internal.DefaultHeaderSearchPath;
 import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.platform.base.TaskView;
@@ -28,6 +26,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
@@ -36,12 +35,9 @@ import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -56,11 +52,6 @@ import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
 	, Buildable
@@ -69,6 +60,8 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	, ModelBackedHasBaseNameMixIn
 	, HasLinkTask<LinkSharedLibrary, LinkSharedLibraryTask>
 	, HasObjectFilesToBinaryTask
+	, HasLinkLibrariesDependencyBucket
+	, HasRuntimeLibrariesDependencyBucket
 {
 	private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
@@ -87,9 +80,6 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		this.layout = layout;
 
 		getCreateOrLinkTask().configure(task -> {
-			task.getLibs().from(dependencies.getLinkLibraries());
-			task.getLinkerArgs().addAll(providers.provider(() -> dependencies.getLinkFrameworks().getFiles().stream().flatMap(this::toFrameworkFlags).collect(Collectors.toList())));
-
 			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
 				if (it instanceof Swiftc && targetMachine.getOperatingSystemFamily().isMacOs()) {
 					// TODO: Support DEVELOPER_DIR or request the xcrun tool from backend
@@ -149,21 +139,9 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 		return isBuildable(linkTaskInternal.getToolChain().get(), linkTaskInternal.getTargetPlatform().get());
 	}
 
-	private static List<HeaderSearchPath> toHeaderSearchPaths(Set<FileSystemLocation> paths) {
-		return paths.stream().map(FileSystemLocation::getAsFile).map(DefaultHeaderSearchPath::new).collect(Collectors.toList());
-	}
-
-	private Stream<String> toFrameworkFlags(File it) {
-		return ImmutableList.of("-F", it.getParent(), "-framework", FilenameUtils.removeExtension(it.getName())).stream();
-	}
-
 	@Override
 	public TaskDependency getBuildDependencies() {
 		return TaskDependencyUtils.of(getCreateOrLinkTask());
-	}
-
-	public FileCollection getRuntimeLibrariesDependencies() {
-		return dependencies.getRuntimeLibraries();
 	}
 
 	@Override

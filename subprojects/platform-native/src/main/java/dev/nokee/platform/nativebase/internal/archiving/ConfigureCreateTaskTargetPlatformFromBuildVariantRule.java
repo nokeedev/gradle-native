@@ -65,8 +65,8 @@ final class ConfigureCreateTaskTargetPlatformFromBuildVariantRule extends ModelA
 	}
 
 	private static Property<NativePlatform> targetPlatformProperty(Task task) {
-		if (task instanceof AbstractLinkTask) {
-			return ((AbstractLinkTask) task).getTargetPlatform();
+		if (task instanceof CreateStaticLibraryTask) {
+			return ((CreateStaticLibraryTask) task).getTargetPlatform();
 		} else {
 			throw new IllegalArgumentException();
 		}
