@@ -30,7 +30,6 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -38,9 +37,7 @@ import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -62,12 +59,9 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	, HasLinkTask<LinkExecutable, LinkExecutableTask>
 	, HasObjectFilesToBinaryTask
 {
-	private final ProjectLayout layout;
-
 	@Inject
 	public ExecutableBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
-		this.layout = layout;
 
 		getCreateOrLinkTask().configure(this::configureExecutableTask);
 		getCreateOrLinkTask().configure(task -> {
@@ -89,7 +83,6 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	}
 
 	private void configureExecutableTask(LinkExecutableTask task) {
-		task.setDescription("Links the executable.");
 		task.source(getObjectFiles());
 
 		task.getTargetPlatform().set(getTargetPlatform());
@@ -98,17 +91,6 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 
 		// Until we model the build type
 		task.getDebuggable().set(false);
-
-		task.getDestinationDirectory().convention(layout.getBuildDirectory().dir(identifier.getOutputDirectoryBase("exes")));
-		task.getLinkedFile().convention(getExecutableLinkedFile());
-	}
-
-	private Provider<RegularFile> getExecutableLinkedFile() {
-		return layout.getBuildDirectory().file(getBaseName().map(it -> {
-			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
-			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getExecutableName(identifier.getOutputDirectoryBase("exes") + "/" + it);
-		}));
 	}
 
 	@Override

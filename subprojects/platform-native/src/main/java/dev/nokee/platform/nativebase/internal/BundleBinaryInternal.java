@@ -27,16 +27,13 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -54,18 +51,14 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	, HasLinkTask<LinkBundle, LinkBundleTask>
 	, HasObjectFilesToBinaryTask
 {
-	private final ProjectLayout layout;
-
 	@Inject
 	public BundleBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
 		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
-		this.layout = layout;
 
 		getCreateOrLinkTask().configure(this::configureBundleTask);
 	}
 
 	private void configureBundleTask(LinkBundleTask task) {
-		task.setDescription("Links the bundle.");
 		task.source(getObjectFiles());
 
 		task.getTargetPlatform().set(getTargetPlatform());
@@ -75,18 +68,7 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 		// Until we model the build type
 		task.getDebuggable().set(false);
 
-		task.getDestinationDirectory().convention(layout.getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
-		task.getLinkedFile().convention(getBundleLinkedFile());
-
 		task.getLinkerArgs().addAll("-Xlinker", "-bundle"); // Required when not building swift
-	}
-
-	private Provider<RegularFile> getBundleLinkedFile() {
-		return layout.getBuildDirectory().file(getBaseName().map(it -> {
-			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
-			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getExecutableName(identifier.getOutputDirectoryBase("libs") + "/" + it);
-		}));
 	}
 
 	@Override

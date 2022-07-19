@@ -32,7 +32,6 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.runtime.nativebase.OperatingSystemFamily;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.AccessLevel;
@@ -44,7 +43,6 @@ import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -118,7 +116,6 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	}
 
 	private void configureSharedLibraryTask(LinkSharedLibraryTask task) {
-		task.setDescription("Links the shared library.");
 		task.source(getObjectFiles());
 
 		task.getTargetPlatform().set(getTargetPlatform());
@@ -130,17 +127,6 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 		Provider<String> installName = task.getLinkedFile().getLocationOnly().map(linkedFile -> linkedFile.getAsFile().getName());
 		task.getInstallName().set(installName);
-
-		task.getDestinationDirectory().convention(layout.getBuildDirectory().dir(identifier.getOutputDirectoryBase("libs")));
-		task.getLinkedFile().convention(getSharedLibraryLinkedFile());
-	}
-
-	private Provider<RegularFile> getSharedLibraryLinkedFile() {
-		return layout.getBuildDirectory().file(getBaseName().map(it -> {
-			OperatingSystemFamily osFamily = getTargetMachine().getOperatingSystemFamily();
-			OperatingSystemOperations osOperations = OperatingSystemOperations.of(osFamily);
-			return osOperations.getSharedLibraryName(identifier.getOutputDirectoryBase("libs") + "/" + it);
-		}));
 	}
 
 	@Override
