@@ -114,7 +114,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 
 	@Inject
 	public DefaultIosApplicationComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, objects, taskRegistry, registry, providers);
+		super(identifier);
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;

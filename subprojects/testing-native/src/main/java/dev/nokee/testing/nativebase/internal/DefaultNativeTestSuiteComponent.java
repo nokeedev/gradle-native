@@ -132,8 +132,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	private final ModelLookup modelLookup;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup, ModelRegistry registry, ProviderFactory providers) {
-		super(identifier, objects, taskRegistry, registry, providers);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup) {
+		super(identifier);
 		this.objects = objects;
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
