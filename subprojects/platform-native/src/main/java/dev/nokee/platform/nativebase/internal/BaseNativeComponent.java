@@ -31,6 +31,7 @@ import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
+import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.DisplayNameComponent;
@@ -190,6 +191,12 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 						return objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal);
 					}))
 					.build());
+			}
+
+			if (linkage.isShared() || linkage.isStatic()) {
+				registry.instantiate(configureEach(descendantOf(ModelNodes.of(knownVariant).getId()), SwiftCompileTask.class, task -> {
+					task.getCompilerArgs().add("-parse-as-library");
+				}));
 			}
 		}
 	}
