@@ -19,6 +19,7 @@ import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.View;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
@@ -67,6 +68,11 @@ public /*final*/ class TaskViewAdapter<T extends Task> implements TaskView<T> {
 	@Override
 	public <S extends T> TaskView<S> withType(Class<S> type) {
 		return new TaskViewAdapter<>(delegate.withType(type));
+	}
+
+	@Override
+	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
+		return ((ViewAdapter<T>) delegate).named(name, type);
 	}
 
 	@Override

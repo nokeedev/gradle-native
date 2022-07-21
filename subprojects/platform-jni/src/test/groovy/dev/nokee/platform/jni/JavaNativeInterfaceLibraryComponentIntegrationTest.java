@@ -647,7 +647,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		@BeforeEach
 		void configureTargetMachines() {
 			subject.getTargetMachines().set(ImmutableSet.of(of("macos-x64")));
-			subject();
 		}
 
 		public JniLibrary subject() {
@@ -693,6 +692,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		class NativeHeaderSearchPathsAttributesTest {
 			@Test
 			void noNativeHeaderSearchPathsConfigurationWhenNoNativeLanguageApplied() {
+				SingleVariantTest.this.subject(); // realize variant
 				assertThat(project().getConfigurations(), not(hasItem(named(endsWith("HeaderSearchPaths")))));
 			}
 
@@ -701,6 +701,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class WhenCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
+					SingleVariantTest.this.subject(); // realize variant
 					return realize(project().getConfigurations().getByName("quzuCHeaderSearchPaths"));
 				}
 			}
@@ -710,6 +711,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class WhenCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
+					SingleVariantTest.this.subject(); // realize variant
 					return realize(project().getConfigurations().getByName("quzuCppHeaderSearchPaths"));
 				}
 			}
@@ -719,6 +721,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class WhenObjectiveCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
+					SingleVariantTest.this.subject(); // realize variant
 					return realize(project().getConfigurations().getByName("quzuObjectiveCHeaderSearchPaths"));
 				}
 			}
@@ -728,6 +731,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class WhenObjectiveCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
+					SingleVariantTest.this.subject(); // realize variant
 					return realize(project().getConfigurations().getByName("quzuObjectiveCppHeaderSearchPaths"));
 				}
 			}
@@ -737,6 +741,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 			@Override
 			public Configuration subject() {
+				SingleVariantTest.this.subject(); // realize variant
 				return realize(project().getConfigurations().getByName("quzuLinkLibraries"));
 			}
 		}
@@ -745,6 +750,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 			@Override
 			public Configuration subject() {
+				SingleVariantTest.this.subject(); // realize variant
 				return realize(project().getConfigurations().getByName("quzuRuntimeLibraries"));
 			}
 		}
@@ -755,6 +761,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			@PluginRequirement.Require(id = "dev.nokee.c-language")
 			class WhenCLanguagePluginApplied {
 				public CCompileTask subject() {
+					SingleVariantTest.this.subject(); // realize variant
 					return (CCompileTask) project().getTasks().getByName("compileQuzuC");
 				}
 
@@ -768,6 +775,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			@PluginRequirement.Require(id = "dev.nokee.cpp-language")
 			class WhenCppLanguagePluginApplied {
 				public CppCompileTask subject() {
+					SingleVariantTest.this.subject(); // realize variant
 					return (CppCompileTask) project().getTasks().getByName("compileQuzuCpp");
 				}
 
@@ -781,6 +789,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
 			class WhenObjectiveCLanguagePluginApplied {
 				public ObjectiveCCompileTask subject() {
+					SingleVariantTest.this.subject(); // realize variant
 					return (ObjectiveCCompileTask) project().getTasks().getByName("compileQuzuObjectiveC");
 				}
 
@@ -794,6 +803,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
 			class WhenObjectiveCppLanguagePluginApplied {
 				public ObjectiveCppCompileTask subject() {
+					SingleVariantTest.this.subject(); // realize variant
 					return (ObjectiveCppCompileTask) project().getTasks().getByName("compileQuzuObjectiveCpp");
 				}
 
@@ -807,6 +817,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 		@Nested
 		class NativeLinkTask {
 			public LinkSharedLibraryTask subject() {
+				SingleVariantTest.this.subject(); // realize variant
 				return (LinkSharedLibraryTask) project().getTasks().getByName("linkQuzu");
 			}
 
@@ -844,11 +855,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 		@Nested
 		class WindowsX64VariantTest {
-			@BeforeEach
-			void realizeVariant() {
-				subject();
-			}
-
 			public JniLibrary subject() {
 				return Iterables.get(subject.getVariants().get(), 0);
 			}
@@ -868,18 +874,21 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 			@Test
 			void nativeImplementationExtendsFromMatchingParentConfiguration() {
+				subject(); // realize variant
 				assertThat(project().getConfigurations().getByName("quzuWindowsX64NativeImplementation"),
 					extendsFrom(hasItem(named("quzuNativeImplementation"))));
 			}
 
 			@Test
 			void nativeLinkOnlyExtendsFromMatchingParentConfiguration() {
+				subject(); // realize variant
 				assertThat(project().getConfigurations().getByName("quzuWindowsX64NativeLinkOnly"),
 					extendsFrom(hasItem(named("quzuNativeLinkOnly"))));
 			}
 
 			@Test
 			void nativeRuntimeOnlyExtendsFromMatchingParentConfiguration() {
+				subject(); // realize variant
 				assertThat(project().getConfigurations().getByName("quzuWindowsX64NativeRuntimeOnly"),
 					extendsFrom(hasItem(named("quzuNativeRuntimeOnly"))));
 			}
@@ -913,6 +922,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
+						WindowsX64VariantTest.this.subject(); // realize variant
 						return realize(project().getConfigurations().getByName("quzuWindowsX64CHeaderSearchPaths"));
 					}
 				}
@@ -922,6 +932,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
+						WindowsX64VariantTest.this.subject(); // realize variant
 						return realize(project().getConfigurations().getByName("quzuWindowsX64CppHeaderSearchPaths"));
 					}
 				}
@@ -931,6 +942,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenObjectiveCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
+						WindowsX64VariantTest.this.subject(); // realize variant
 						return realize(project().getConfigurations().getByName("quzuWindowsX64ObjectiveCHeaderSearchPaths"));
 					}
 				}
@@ -940,6 +952,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenObjectiveCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
+						WindowsX64VariantTest.this.subject(); // realize variant
 						return realize(project().getConfigurations().getByName("quzuWindowsX64ObjectiveCppHeaderSearchPaths"));
 					}
 				}
@@ -949,6 +962,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
+					WindowsX64VariantTest.this.subject(); // realize variant
 					return realize(project().getConfigurations().getByName("quzuWindowsX64LinkLibraries"));
 				}
 			}
@@ -957,6 +971,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
+					WindowsX64VariantTest.this.subject(); // realize variant
 					return realize(project().getConfigurations().getByName("quzuWindowsX64RuntimeLibraries"));
 				}
 			}
@@ -967,6 +982,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				@PluginRequirement.Require(id = "dev.nokee.c-language")
 				class WhenCLanguagePluginApplied {
 					public CCompileTask subject() {
+						WindowsX64VariantTest.this.subject(); // realize variant
 						return (CCompileTask) project().getTasks().getByName("compileQuzuWindowsX64C");
 					}
 
@@ -980,6 +996,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				@PluginRequirement.Require(id = "dev.nokee.cpp-language")
 				class WhenCppLanguagePluginApplied {
 					public CppCompileTask subject() {
+						WindowsX64VariantTest.this.subject(); // realize variant
 						return (CppCompileTask) project().getTasks().getByName("compileQuzuWindowsX64Cpp");
 					}
 
@@ -993,6 +1010,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
 				class WhenObjectiveCLanguagePluginApplied {
 					public ObjectiveCCompileTask subject() {
+						WindowsX64VariantTest.this.subject(); // realize variant
 						return (ObjectiveCCompileTask) project().getTasks().getByName("compileQuzuWindowsX64ObjectiveC");
 					}
 
@@ -1006,6 +1024,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
 				class WhenObjectiveCppLanguagePluginApplied {
 					public ObjectiveCppCompileTask subject() {
+						WindowsX64VariantTest.this.subject(); // realize variant
 						return (ObjectiveCppCompileTask) project().getTasks().getByName("compileQuzuWindowsX64ObjectiveCpp");
 					}
 
@@ -1019,6 +1038,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			@Nested
 			class NativeLinkTask {
 				public LinkSharedLibraryTask subject() {
+					WindowsX64VariantTest.this.subject(); // realize variant
 					return (LinkSharedLibraryTask) project().getTasks().getByName("linkQuzuWindowsX64");
 				}
 
@@ -1031,11 +1051,6 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 		@Nested
 		class LinuxX86VariantTest {
-			@BeforeEach
-			void realizeVariant() {
-				subject();
-			}
-
 			public JniLibrary subject() {
 				return Iterables.get(subject.getVariants().get(), 1);
 			}
@@ -1049,24 +1064,28 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 			@Test
 			void putsJniJarInComponentNamedFolderInsideLibsDirectory() {
+				subject(); // realize variant
 				assertThat(subject().getJavaNativeInterfaceJar().getJarTask().flatMap(Jar::getDestinationDirectory),
 					providerOf(aFile(withAbsolutePath(endsWith("/build/libs/quzu")))));
 			}
 
 			@Test
 			void nativeImplementationExtendsFromMatchingParentConfiguration() {
+				subject(); // realize variant
 				assertThat(project().getConfigurations().getByName("quzuLinuxX86NativeImplementation"),
 					extendsFrom(hasItem(named("quzuNativeImplementation"))));
 			}
 
 			@Test
 			void nativeLinkOnlyExtendsFromMatchingParentConfiguration() {
+				subject(); // realize variant
 				assertThat(project().getConfigurations().getByName("quzuLinuxX86NativeLinkOnly"),
 					extendsFrom(hasItem(named("quzuNativeLinkOnly"))));
 			}
 
 			@Test
 			void nativeRuntimeOnlyExtendsFromMatchingParentConfiguration() {
+				subject(); // realize variant
 				assertThat(project().getConfigurations().getByName("quzuLinuxX86NativeRuntimeOnly"),
 					extendsFrom(hasItem(named("quzuNativeRuntimeOnly"))));
 			}
@@ -1100,6 +1119,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
+						LinuxX86VariantTest.this.subject(); // realize variant
 						return realize(project().getConfigurations().getByName("quzuLinuxX86CHeaderSearchPaths"));
 					}
 				}
@@ -1109,6 +1129,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
+						LinuxX86VariantTest.this.subject(); // realize variant
 						return realize(project().getConfigurations().getByName("quzuLinuxX86CppHeaderSearchPaths"));
 					}
 				}
@@ -1118,6 +1139,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenObjectiveCLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
+						LinuxX86VariantTest.this.subject(); // realize variant
 						return realize(project().getConfigurations().getByName("quzuLinuxX86ObjectiveCHeaderSearchPaths"));
 					}
 				}
@@ -1127,6 +1149,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				class WhenObjectiveCppLanguagePluginApplied extends ResolvableConfigurationAttributeTester {
 					@Override
 					public Configuration subject() {
+						LinuxX86VariantTest.this.subject(); // realize variant
 						return realize(project().getConfigurations().getByName("quzuLinuxX86ObjectiveCppHeaderSearchPaths"));
 					}
 				}
@@ -1136,6 +1159,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class NativeLinkLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
+					LinuxX86VariantTest.this.subject(); // realize variant
 					return realize(project().getConfigurations().getByName("quzuLinuxX86LinkLibraries"));
 				}
 			}
@@ -1144,6 +1168,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			class NativeRuntimeLibrariesAttributesTest extends ResolvableConfigurationAttributeTester {
 				@Override
 				public Configuration subject() {
+					LinuxX86VariantTest.this.subject(); // realize variant
 					return realize(project().getConfigurations().getByName("quzuLinuxX86RuntimeLibraries"));
 				}
 			}
@@ -1154,6 +1179,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				@PluginRequirement.Require(id = "dev.nokee.c-language")
 				class WhenCLanguagePluginApplied {
 					public CCompileTask subject() {
+						LinuxX86VariantTest.this.subject(); // realize variant
 						return (CCompileTask) project().getTasks().getByName("compileQuzuLinuxX86C");
 					}
 
@@ -1167,6 +1193,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				@PluginRequirement.Require(id = "dev.nokee.cpp-language")
 				class WhenCppLanguagePluginApplied {
 					public CppCompileTask subject() {
+						LinuxX86VariantTest.this.subject(); // realize variant
 						return (CppCompileTask) project().getTasks().getByName("compileQuzuLinuxX86Cpp");
 					}
 
@@ -1180,6 +1207,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				@PluginRequirement.Require(id = "dev.nokee.objective-c-language")
 				class WhenObjectiveCLanguagePluginApplied {
 					public ObjectiveCCompileTask subject() {
+						LinuxX86VariantTest.this.subject(); // realize variant
 						return (ObjectiveCCompileTask) project().getTasks().getByName("compileQuzuLinuxX86ObjectiveC");
 					}
 
@@ -1193,6 +1221,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 				@PluginRequirement.Require(id = "dev.nokee.objective-cpp-language")
 				class WhenObjectiveCppLanguagePluginApplied {
 					public ObjectiveCppCompileTask subject() {
+						LinuxX86VariantTest.this.subject(); // realize variant
 						return (ObjectiveCppCompileTask) project().getTasks().getByName("compileQuzuLinuxX86ObjectiveCpp");
 					}
 
@@ -1206,6 +1235,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 			@Nested
 			class NativeLinkTask {
 				public LinkSharedLibraryTask subject() {
+					LinuxX86VariantTest.this.subject(); // realize variant
 					return (LinkSharedLibraryTask) project().getTasks().getByName("linkQuzuLinuxX86");
 				}
 
