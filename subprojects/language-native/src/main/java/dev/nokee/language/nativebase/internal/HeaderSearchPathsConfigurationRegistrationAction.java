@@ -26,6 +26,7 @@ import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import lombok.val;
 import org.gradle.api.Action;
@@ -74,6 +75,6 @@ public final class HeaderSearchPathsConfigurationRegistrationAction extends Mode
 	}
 
 	private Provider<ResolvableDependencies> incomingArtifactsOf(ModelElement element) {
-		return element.as(Configuration.class).map(Configuration::getIncoming);
+		return element.as(Configuration.class).map(DependencyBuckets::finalize).map(Configuration::getIncoming);
 	}
 }
