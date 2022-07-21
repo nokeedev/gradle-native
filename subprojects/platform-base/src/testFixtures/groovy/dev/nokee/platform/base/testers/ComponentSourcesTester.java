@@ -69,13 +69,15 @@ public interface ComponentSourcesTester<T extends ComponentSources> {
 	@ParameterizedTest
 	@MethodSource("provideSourceSetUnderTest")
 	default void canConfigureSourceSetViaTypeSafeMethodUsingAction(SourceSetUnderTest sourceSet) {
-		assertThat(executeWith(action(sourceSet.typeSafeConfigureUsingAction(createSubject()))), calledOnceWith(sourceSet.asMatcher()));
+		assertThat(executeWith(action(sourceSet.typeSafeConfigureUsingAction(createSubject()))),
+			allOf(called(anyOf(equalTo(1), equalTo(2))), lastArgument(sourceSet.asMatcher())));
 	}
 
 	@ParameterizedTest
 	@MethodSource("provideSourceSetUnderTest")
 	default void canConfigureSourceSetViaTypeSafeMethodUsingClosure(SourceSetUnderTest sourceSet) {
-		assertThat(executeWith(closure(sourceSet.typeSafeConfigureUsingClosure(createSubject()))), calledOnceWith(sourceSet.asMatcher()));
+		assertThat(executeWith(closure(sourceSet.typeSafeConfigureUsingClosure(createSubject()))),
+			allOf(called(anyOf(equalTo(1), equalTo(2))), lastArgument(sourceSet.asMatcher())));
 	}
 
 	@ParameterizedTest

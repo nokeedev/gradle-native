@@ -33,9 +33,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.File;
 import java.util.stream.Stream;
 
-import static dev.nokee.internal.testing.ExecuteWith.*;
+import static dev.nokee.internal.testing.ExecuteWith.action;
+import static dev.nokee.internal.testing.ExecuteWith.called;
+import static dev.nokee.internal.testing.ExecuteWith.closure;
+import static dev.nokee.internal.testing.ExecuteWith.executeWith;
+import static dev.nokee.internal.testing.ExecuteWith.lastArgument;
 import static dev.nokee.language.base.testing.LanguageSourceSetMatchers.sourceSetOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 
@@ -60,7 +66,8 @@ public interface SourceAwareComponentTester<T extends SourceAwareComponent<?>> {
 	default void canConfigureSourceSetViaMethodUsingAction(SourcesUnderTest sources) {
 		val subject = createSubject();
 		((FunctionalSourceSet) subject.getSources()).get();
-		assertThat(executeWith(action(sources.configureUsingAction(subject)::invoke)), calledOnceWith(sources.asMatcher()));
+		assertThat(executeWith(action(sources.configureUsingAction(subject)::invoke)),
+			allOf(called(anyOf(equalTo(1), equalTo(2))), lastArgument(sources.asMatcher())));
 	}
 
 	@ParameterizedTest
@@ -68,7 +75,8 @@ public interface SourceAwareComponentTester<T extends SourceAwareComponent<?>> {
 	default void canConfigureSourceSetViaMethodUsingClosure(SourcesUnderTest sources) {
 		val subject = createSubject();
 		((FunctionalSourceSet) subject.getSources()).get();
-		assertThat(executeWith(closure(sources.configureUsingClosure(subject)::invoke)), calledOnceWith(sources.asMatcher()));
+		assertThat(executeWith(closure(sources.configureUsingClosure(subject)::invoke)),
+			allOf(called(anyOf(equalTo(1), equalTo(2))), lastArgument(sources.asMatcher())));
 	}
 
 	@ParameterizedTest

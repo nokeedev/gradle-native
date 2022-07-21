@@ -169,20 +169,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
-			boolean hasSwift = project.getExtensions().getByType(ModelLookup.class).anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
-			if (hasSwift) {
-				val importModules = registry.register(newEntity("importSwiftModules", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-				importModules.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
-					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.SWIFT_API))))
-					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
-					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-			} else {
-				val headerSearchPaths = registry.register(newEntity("headerSearchPaths", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
-				headerSearchPaths.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), compileOnly.as(Configuration.class))
-					.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.C_PLUS_PLUS_API))))
-					.andThen(ConfigurationUtilsEx.configureIncomingAttributes((BuildVariantInternal) ((VariantIdentifier) identifier.get()).getBuildVariant(), project.getObjects()))
-					.andThen(ConfigurationUtilsEx::configureAsGradleDebugCompatible));
-			}
 			val runtimeElements = registry.register(newEntity("runtimeElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
 			runtimeElements.configure(Configuration.class, configureExtendsFrom(implementation.as(Configuration.class), runtimeOnly.as(Configuration.class))
 				.andThen(configureAttributes(it -> it.usage(project.getObjects().named(Usage.class, Usage.NATIVE_RUNTIME))))

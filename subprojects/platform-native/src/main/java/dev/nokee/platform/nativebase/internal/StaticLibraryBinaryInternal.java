@@ -15,24 +15,18 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.archiving.HasCreateTask;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTask;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
-import org.gradle.api.DomainObjectSet;
-import org.gradle.api.Task;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.reflect.HasPublicType;
@@ -51,13 +45,8 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	, HasObjectFilesToBinaryTask
 {
 	@Inject
-	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, DomainObjectSet<ObjectSourceSet> objectSourceSets, TargetMachine targetMachine, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
-		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
-		getCreateOrLinkTask().configure(this::configureStaticLibraryTask);
-	}
-
-	private void configureStaticLibraryTask(CreateStaticLibraryTask task) {
-		task.source(getObjectFiles());
+	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, ObjectFactory objects, ProviderFactory providers) {
+		super(identifier, targetMachine, objects, providers);
 	}
 
 	@Override
