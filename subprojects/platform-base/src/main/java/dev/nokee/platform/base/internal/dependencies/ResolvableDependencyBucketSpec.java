@@ -52,4 +52,9 @@ public class ResolvableDependencyBucketSpec implements ResolvableDependencyBucke
 	public ModelNode getNode() {
 		return entity;
 	}
+
+	@Override
+	public String toString() {
+		return "resolvable dependency bucket '" + getName() + "'";
+	}
 }

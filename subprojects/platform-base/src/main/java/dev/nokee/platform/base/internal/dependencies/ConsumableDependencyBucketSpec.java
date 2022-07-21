@@ -54,4 +54,9 @@ public class ConsumableDependencyBucketSpec implements ConsumableDependencyBucke
 	public ModelNode getNode() {
 		return entity;
 	}
+
+	@Override
+	public String toString() {
+		return "consumable dependency bucket '" + getName() + "'";
+	}
 }
