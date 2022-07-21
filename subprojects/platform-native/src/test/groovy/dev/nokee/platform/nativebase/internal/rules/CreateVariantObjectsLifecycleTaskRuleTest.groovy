@@ -42,11 +42,11 @@ import static org.mockito.ArgumentMatchers.any
 @Subject(CreateVariantObjectsLifecycleTaskRule)
 class CreateVariantObjectsLifecycleTaskRuleTest extends Specification {
 	KnownDomainObject newSubject(VariantIdentifier identifier) {
-		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { Stub(NamedDomainObjectProvider) }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { Stub(NamedDomainObjectProvider) }, {}, {})
 	}
 
 	KnownDomainObject newSubject(VariantIdentifier identifier, Provider provider) {
-		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { mockConfigurableProvider(provider) }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { mockConfigurableProvider(provider) }, {}, {})
 	}
 
 	def "creates an objects task owned by the variant"() {

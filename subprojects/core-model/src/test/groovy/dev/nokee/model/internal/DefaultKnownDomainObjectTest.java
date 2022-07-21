@@ -18,6 +18,7 @@ package dev.nokee.model.internal;
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
 import lombok.val;
@@ -43,7 +44,8 @@ class DefaultKnownDomainObjectTest {
 	@SuppressWarnings("unchecked") private final Supplier<DomainObjectIdentifier> identifierSupplier = Mockito.mock(Supplier.class);
 	private final ConfigurableStrategy configurableStrategy = Mockito.mock(ConfigurableStrategy.class);
 	private final ConfigurableProviderConvertibleStrategy providerConvertibleStrategy = Mockito.mock(ConfigurableProviderConvertibleStrategy.class);
-	private final DefaultKnownDomainObject<MyType> subject = new DefaultKnownDomainObject<>(identifierSupplier, of(MyType.class), providerConvertibleStrategy, configurableStrategy);
+	@SuppressWarnings("unchecked") private final Supplier<ModelNode> entitySupplier = Mockito.mock(Supplier.class);
+	private final DefaultKnownDomainObject<MyType> subject = new DefaultKnownDomainObject<>(identifierSupplier, of(MyType.class), providerConvertibleStrategy, configurableStrategy, entitySupplier);
 
 	@Test
 	@SuppressWarnings("UnstableApiUsage")
@@ -120,13 +122,13 @@ class DefaultKnownDomainObjectTest {
 		val identifier = Mockito.mock(DomainObjectIdentifier.class);
 		new EqualsTester()
 			.addEqualityGroup(
-				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy),
-				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy),
-				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, Mockito.mock(ConfigurableStrategy.class)),
-				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), Mockito.mock(ConfigurableProviderConvertibleStrategy.class), configurableStrategy)
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, entitySupplier),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, configurableStrategy, entitySupplier),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), providerConvertibleStrategy, Mockito.mock(ConfigurableStrategy.class), entitySupplier),
+				new DefaultKnownDomainObject<>(ofInstance(identifier), of(MyType.class), Mockito.mock(ConfigurableProviderConvertibleStrategy.class), configurableStrategy, entitySupplier)
 			)
-			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(identifier), of(Object.class), providerConvertibleStrategy, configurableStrategy))
-			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(Mockito.mock(DomainObjectIdentifier.class)), of(Object.class), providerConvertibleStrategy, configurableStrategy))
+			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(identifier), of(Object.class), providerConvertibleStrategy, configurableStrategy, entitySupplier))
+			.addEqualityGroup(new DefaultKnownDomainObject<>(ofInstance(Mockito.mock(DomainObjectIdentifier.class)), of(Object.class), providerConvertibleStrategy, configurableStrategy, entitySupplier))
 			.testEquals();
 	}
 
