@@ -46,11 +46,11 @@ import static org.mockito.ArgumentMatchers.any
 @Subject(CreateNativeBinaryLifecycleTaskRule)
 class CreateNativeBinaryLifecycleTaskRuleTest extends Specification {
 	KnownDomainObject newSubject(VariantIdentifier identifier) {
-		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { Stub(NamedDomainObjectProvider) }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { Stub(NamedDomainObjectProvider) }, {}, {})
 	}
 
 	KnownDomainObject newSubject(VariantIdentifier identifier, Provider provider) {
-		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { mockConfigurableProvider(provider) }, {})
+		return new DefaultKnownDomainObject<>(ofInstance(identifier), ModelType.of(Variant.class), { mockConfigurableProvider(provider) }, {}, {})
 	}
 
 	VariantIdentifier newIdentifier() {
