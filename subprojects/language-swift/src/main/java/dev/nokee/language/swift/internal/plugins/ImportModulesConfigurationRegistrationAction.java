@@ -63,6 +63,7 @@ final class ImportModulesConfigurationRegistrationAction extends ModelActionWith
 		val incomingArtifacts = FrameworkAwareIncomingArtifacts.from(incomingArtifactsOf(importModules));
 		entity.addComponent(new DependentFrameworkSearchPaths(incomingArtifacts.getAs(frameworks()).map(parentFiles())));
 		entity.addComponent(new DependentImportModules(incomingArtifacts.getAs(frameworks().negate())));
+		entity.addComponent(new ImportModulesConfigurationComponent(ModelNodes.of(importModules)));
 	}
 
 	private Action<Configuration> forSwiftApiUsage() {
