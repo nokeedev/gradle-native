@@ -22,9 +22,11 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import lombok.val;
 import org.gradle.api.Action;
@@ -72,6 +74,6 @@ final class ImportModulesConfigurationRegistrationAction extends ModelActionWith
 	}
 
 	private Provider<ResolvableDependencies> incomingArtifactsOf(ModelElement element) {
-		return element.as(Configuration.class).map(Configuration::getIncoming);
+		return element.as(Configuration.class).map(DependencyBuckets::finalize).map(Configuration::getIncoming);
 	}
 }
