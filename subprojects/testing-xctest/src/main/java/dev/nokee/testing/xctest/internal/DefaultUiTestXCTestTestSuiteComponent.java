@@ -97,7 +97,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	private final ModelRegistry registry;
 
 	public DefaultUiTestXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, objects, providers, layout, taskRegistry, registry);
+		super(identifier, objects, providers, layout, taskRegistry);
 		this.providers = providers;
 		this.taskRegistry = taskRegistry;
 		this.layout = layout;

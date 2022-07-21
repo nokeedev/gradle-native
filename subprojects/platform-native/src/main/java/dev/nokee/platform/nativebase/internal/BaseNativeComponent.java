@@ -15,18 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ProviderFactory;
 
 public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> implements VariantAwareComponentInternal<T> {
-	public BaseNativeComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry, ProviderFactory providers) {
+	public BaseNativeComponent(ComponentIdentifier identifier) {
 		super(identifier);
 	}
 

@@ -22,7 +22,6 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
@@ -77,8 +76,8 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Getter private final Property<String> moduleName;
 	@Getter private final Property<String> productBundleIdentifier;
 
-	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, objects, taskRegistry, registry, providers);
+	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry) {
+		super(identifier);
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = taskRegistry;

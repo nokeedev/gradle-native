@@ -75,8 +75,8 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLib
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry, ProviderFactory providers) {
-		super(identifier, objects, taskRegistry, registry, providers);
+	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, TaskRegistry taskRegistry) {
+		super(identifier);
 		this.taskRegistry = taskRegistry;
 	}
 
