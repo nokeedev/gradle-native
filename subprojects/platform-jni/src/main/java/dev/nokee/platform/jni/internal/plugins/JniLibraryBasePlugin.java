@@ -340,7 +340,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			component.getBuildVariants().get().forEach(buildVariant -> {
 				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 				val variant = project.getExtensions().getByType(ModelRegistry.class).register(variantFactory.create(variantIdentifier));
-				variant.configure(JniLibrary.class, it -> it.getBaseName().convention(ModelProperties.getProperty(entity, "baseName").as(String.class).asProvider()));
 
 				// See https://github.com/nokeedev/gradle-native/issues/543
 				if (component.getBuildVariants().get().size() > 1) {
@@ -532,12 +531,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from(sharedLibrary.as(SharedLibraryBinary.class).flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile));
 			((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from((Callable<Object>) () -> ModelNodes.of(sharedLibrary).get(DependentRuntimeLibraries.class));
 
-			ModelProperties.getProperty(sharedLibrary, "baseName").asProperty(property(of(String.class))).convention(project.provider(() -> new Object()).flatMap(it -> ModelProperties.getProperty(entity, "baseName").as(String.class).asProvider()));
-
 			val resourcePathProperty = registry.register(builder().withComponent(new ElementNameComponent("resourcePath")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(String.class)).build());
 			((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
-
-			sharedLibrary.configure(SharedLibraryBinary.class, binary -> binary.getBaseName().convention(project.provider(() -> new Object()).flatMap(it -> ModelProperties.getProperty(entity, "baseName").as(String.class).asProvider())));
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
