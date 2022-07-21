@@ -197,7 +197,6 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	}
 
 	public void finalizeExtension(Project project) {
-		whenElementKnown(this, this::createBinaries);
 		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));

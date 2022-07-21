@@ -20,31 +20,44 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.internal.HasConfigurableSource;
 import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
+import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.c.internal.plugins.CSourceSetTag;
 import dev.nokee.language.c.internal.plugins.DefaultCHeaderSet;
 import dev.nokee.language.c.internal.plugins.LegacyCSourceSet;
+import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.DefaultCppHeaderSet;
 import dev.nokee.language.cpp.internal.plugins.LegacyCppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationComponent;
+import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
+import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.LegacyObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.LegacyObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.ImportModulesConfigurationComponent;
 import dev.nokee.language.swift.internal.plugins.LegacySwiftSourceSet;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.actions.ConfigurableTag;
+import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -57,10 +70,12 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -74,11 +89,15 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.AssembleTaskComponent;
+import dev.nokee.platform.base.internal.BaseNameComponent;
+import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
@@ -100,18 +119,22 @@ import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
+import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
+import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeApplicationTag;
 import dev.nokee.platform.nativebase.internal.NativeLibraryTag;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
+import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
+import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryInternal;
 import dev.nokee.platform.nativebase.internal.StaticLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyRegistrationRule;
 import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
@@ -137,7 +160,9 @@ import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCppSourceLayo
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
+import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetLinkage;
+import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ActionUtils;
@@ -153,6 +178,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.util.GUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -169,15 +195,21 @@ import java.util.stream.Stream;
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
+import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
+import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
+import static dev.nokee.model.internal.core.ModelNodeUtils.canBeViewedAs;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
+import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
@@ -244,6 +276,116 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			});
 			registry.instantiate(configure(importModules.get().getId(), Configuration.class, ConfigurationUtilsEx::configureAsGradleDebugCompatible));
 		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, buildVariantComponent, identifier, parent) -> {
+			val objects = project.getObjects();
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val buildVariant = (BuildVariantInternal) buildVariantComponent.get();
+			final TargetMachine targetMachineInternal = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
+
+			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
+				registry.instantiate(configureEach(descendantOf(entity.getId()).and(subtypeOf(of(HasConfigurableHeaders.class))), LanguageSourceSet.class, sourceSet -> {
+					((HasConfigurableHeaders) sourceSet).getHeaders().setFrom((Callable<?>) () -> {
+						return ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(NativeHeaderSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, NativeHeaderSet.class).getSourceDirectories());
+					});
+				}));
+				registry.instantiate(configureEach(descendantOf(entity.getId()), CSourceSetSpec.class, sourceSet -> {
+					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(CSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, CSourceSet.class).getAsFileTree()));
+					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+				}));
+				registry.instantiate(configureEach(descendantOf(entity.getId()), CppSourceSetSpec.class, sourceSet -> {
+					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(CppSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, CppSourceSet.class).getAsFileTree()));
+					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+				}));
+				registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCSourceSetSpec.class, sourceSet -> {
+					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(ObjectiveCSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, ObjectiveCSourceSet.class).getAsFileTree()));
+					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+				}));
+				registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCppSourceSetSpec.class, sourceSet -> {
+					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(ObjectiveCppSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, ObjectiveCppSourceSet.class).getAsFileTree()));
+					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+				}));
+				registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftSourceSetSpec.class, sourceSet -> {
+					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(SwiftSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, SwiftSourceSet.class).getAsFileTree()));
+					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
+					sourceSet.getCompileTask().configure(task -> task.getModuleName().set(project.getProviders().provider(() -> GUtil.toCamelCase(ModelStates.finalize(ModelNodes.of(sourceSet).get(ParentComponent.class).get()).get(BaseNameComponent.class).get()))));
+					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
+				}));
+
+				val linkage = buildVariant.getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS);
+				if (linkage.isExecutable()) {
+					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("executable", "executable binary"));
+
+					registry.register(ModelRegistration.builder()
+						.withComponent(tag(IsBinary.class))
+						.withComponent(tag(ConfigurableTag.class))
+						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
+						.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
+						.withComponent(new IdentifierComponent(binaryIdentifier))
+						.withComponent(new DisplayNameComponent("executable binary"))
+						.withComponent(new BuildVariantComponent(buildVariant))
+						.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
+							return objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, targetMachineInternal);
+						}))
+						.build());
+				} else if (linkage.isShared()) {
+					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("sharedLibrary", "shared library binary"));
+
+					registry.register(ModelRegistration.builder()
+						.withComponent(tag(IsBinary.class))
+						.withComponent(tag(ConfigurableTag.class))
+						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
+						.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
+						.withComponent(new IdentifierComponent(binaryIdentifier))
+						.withComponent(new DisplayNameComponent("shared library binary"))
+						.withComponent(new BuildVariantComponent(buildVariant))
+						.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
+							return objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal);
+						}))
+						.build());
+				} else if (linkage.isBundle()) {
+					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("bundle", "bundle binary"));
+
+					registry.register(ModelRegistration.builder()
+						.withComponent(tag(IsBinary.class))
+						.withComponent(tag(ConfigurableTag.class))
+						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
+						.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
+						.withComponent(new IdentifierComponent(binaryIdentifier))
+						.withComponent(new DisplayNameComponent("bundle binary"))
+						.withComponent(new BuildVariantComponent(buildVariant))
+						.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
+							return objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal);
+						}))
+						.build());
+				} else if (linkage.isStatic()) {
+					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("staticLibrary", "static library binary"));
+
+					registry.register(ModelRegistration.builder()
+						.withComponent(tag(IsBinary.class))
+						.withComponent(tag(ConfigurableTag.class))
+						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
+						.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
+						.withComponent(new IdentifierComponent(binaryIdentifier))
+						.withComponent(new DisplayNameComponent("static library binary"))
+						.withComponent(new BuildVariantComponent(buildVariant))
+						.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
+							return objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal);
+						}))
+						.build());
+				}
+
+				if (linkage.isShared() || linkage.isStatic()) {
+					registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftCompileTask.class, task -> {
+						task.getCompilerArgs().add("-parse-as-library");
+					}));
+				}
+			}
+		})));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
 			// Configure headers according to convention
@@ -457,11 +599,11 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class)));
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, path, ignored, tag) -> {
-			new CalculateNativeApplicationVariantAction(project).execute(entity, path);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, ignored, tag) -> {
+			new CalculateNativeApplicationVariantAction(project).execute(entity);
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, path, ignored, tag) -> {
-			new CalculateNativeLibraryVariantAction(project).execute(entity, path);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, ignored, tag) -> {
+			new CalculateNativeLibraryVariantAction(project).execute(entity);
 		}));
 	}
 
@@ -505,16 +647,15 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		};
 	}
 
-	private static class CalculateNativeApplicationVariantAction extends ModelActionWithInputs.ModelAction1<ModelPathComponent> {
+	private static class CalculateNativeApplicationVariantAction {
 		private final Project project;
 
 		public CalculateNativeApplicationVariantAction(Project project) {
 			this.project = project;
 		}
 
-		@Override
 		@SuppressWarnings("unchecked")
-		protected void execute(ModelNode entity, ModelPathComponent path) {
+		public void execute(ModelNode entity) {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeApplicationComponent.class));
 
@@ -524,6 +665,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				public void accept(BuildVariant buildVariant) {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 					val variant = registry.register(nativeApplicationVariant(variantIdentifier, component, project));
+					ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
 
 					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
@@ -540,16 +682,15 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}
 	}
 
-	private static class CalculateNativeLibraryVariantAction extends ModelActionWithInputs.ModelAction1<ModelPathComponent> {
+	private static class CalculateNativeLibraryVariantAction {
 		private final Project project;
 
 		private CalculateNativeLibraryVariantAction(Project project) {
 			this.project = project;
 		}
 
-		@Override
 		@SuppressWarnings("unchecked")
-		protected void execute(ModelNode entity, ModelPathComponent path) {
+		public void execute(ModelNode entity) {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
 
@@ -561,6 +702,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				public void accept(BuildVariant buildVariant) {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 					val variant = registry.register(nativeLibraryVariant(variantIdentifier, component, project));
+					ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
 
 					variants.put(buildVariant, ModelNodes.of(variant));
 					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
