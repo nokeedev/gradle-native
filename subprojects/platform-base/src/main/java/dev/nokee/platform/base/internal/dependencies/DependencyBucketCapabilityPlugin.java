@@ -93,9 +93,7 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 		target.getExtensions().getByType(ModelConfigurer.class).configure(new DisplayNameRule());
 
-		// ComponentFromEntity<IsDependencyBucket> read-only
-		// ComponentFromEntity<FullyQualifiedNameComponent> read-only
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelStates.Finalizing.class), (entity, ignored1, configuration, ignored2) -> {
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ConfigurationComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, ignored1, configuration, ignored2) -> {
 			configuration.get().get().getExtendsFrom().forEach(it -> ((ConfigurationInternal) it).preventFromFurtherMutation());
 		}));
 
@@ -146,17 +144,25 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 		configurations.configureEach(configuration -> {
 			val bucketResolver = (Runnable) new Runnable() {
+				private boolean locking = false;
+				private boolean alreadyExecuted = false;
+
 				@Override
 				public void run() {
-					finalize(configuration);
+					if (!alreadyExecuted) {
+						assert !locking;
+						locking = true;
+						finalize(configuration);
+						alreadyExecuted = true;
+					}
 				}
 
 				private /*static*/ void finalize(Configuration configuration) {
 					val projections = target.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsDependencyBucket.class)) && entity.find(ConfigurationComponent.class).map(it -> it.get().getName()).map(configuration.getName()::equals).orElse(false));
+					projections.forEach(ModelStates::finalize);
 					for (Configuration config : configuration.getExtendsFrom()) {
 						finalize(config);
 					}
-					projections.forEach(ModelStates::finalize);
 				}
 			};
 			configuration.defaultDependencies(__ -> bucketResolver.run());
