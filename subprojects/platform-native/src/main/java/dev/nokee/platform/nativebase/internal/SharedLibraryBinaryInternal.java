@@ -15,15 +15,11 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import com.google.common.collect.ImmutableList;
-import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
@@ -34,9 +30,6 @@ import dev.nokee.utils.TaskDependencyUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Buildable;
-import org.gradle.api.DomainObjectSet;
-import org.gradle.api.Task;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -46,8 +39,6 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
-import org.gradle.nativeplatform.toolchain.Swiftc;
-import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
@@ -61,43 +52,24 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	, HasLinkLibrariesDependencyBucket
 	, HasRuntimeLibrariesDependencyBucket
 {
-	private final NativeIncomingDependencies dependencies;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providerFactory;
 	@Getter RegularFileProperty linkedFile;
-	private final ProjectLayout layout;
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
-		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
-		this.dependencies = dependencies;
+	public SharedLibraryBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, ObjectFactory objects, ProviderFactory providers) {
+		super(identifier, targetMachine, objects, providers);
 		this.objects = objects;
 		this.providerFactory = providers;
 		this.linkedFile = objects.fileProperty();
-		this.layout = layout;
-
-		getCreateOrLinkTask().configure(task -> {
-			task.getLinkerArgs().addAll(task.getToolChain().map(it -> {
-				if (it instanceof Swiftc) {
-					return ImmutableList.of("-module-name", toModuleName(getBaseName().get()));
-				}
-				return ImmutableList.of();
-			}));
-		});
 		getCreateOrLinkTask().configure(this::configureSharedLibraryTask);
 
 		getLinkedFile().set(getCreateOrLinkTask().flatMap(AbstractLinkTask::getLinkedFile));
 		getLinkedFile().disallowChanges();
 	}
 
-	private String toModuleName(String baseName) {
-		return GUtil.toCamelCase(baseName);
-	}
-
 	private void configureSharedLibraryTask(LinkSharedLibraryTask task) {
-		task.source(getObjectFiles());
-
 		// Until we model the build type
 		task.getDebuggable().set(false);
 

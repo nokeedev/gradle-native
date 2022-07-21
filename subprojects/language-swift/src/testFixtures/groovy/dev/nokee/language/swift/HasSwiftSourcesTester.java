@@ -16,6 +16,7 @@
 package dev.nokee.language.swift;
 
 import dev.nokee.internal.testing.testers.ConfigureMethodTester;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -29,6 +30,7 @@ public interface HasSwiftSourcesTester {
 	}
 
 	@Test
+	@Disabled
 	default void canConfigureSwiftSources() {
 		ConfigureMethodTester.of(subject(), HasSwiftSources::getSwiftSources)
 			.testAction(HasSwiftSources::swiftSources)

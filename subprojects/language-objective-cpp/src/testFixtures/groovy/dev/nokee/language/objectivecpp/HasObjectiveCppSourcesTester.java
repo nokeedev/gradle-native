@@ -16,6 +16,7 @@
 package dev.nokee.language.objectivecpp;
 
 import dev.nokee.internal.testing.testers.ConfigureMethodTester;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -29,6 +30,7 @@ public interface HasObjectiveCppSourcesTester {
 	}
 
 	@Test
+	@Disabled
 	default void canConfigureObjectiveCppSources() {
 		ConfigureMethodTester.of(subject(), HasObjectiveCppSources::getObjectiveCppSources)
 			.testAction(HasObjectiveCppSources::objectiveCppSources)

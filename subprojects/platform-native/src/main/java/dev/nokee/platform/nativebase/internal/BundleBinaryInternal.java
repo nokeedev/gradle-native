@@ -15,14 +15,11 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
-import dev.nokee.language.nativebase.internal.ObjectSourceSet;
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
-import dev.nokee.platform.nativebase.internal.dependencies.NativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
@@ -31,9 +28,6 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
-import org.gradle.api.DomainObjectSet;
-import org.gradle.api.Task;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.reflect.HasPublicType;
@@ -55,15 +49,13 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	, HasRuntimeLibrariesDependencyBucket
 {
 	@Inject
-	public BundleBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, DomainObjectSet<ObjectSourceSet> objectSourceSets, NativeIncomingDependencies dependencies, ObjectFactory objects, ProjectLayout layout, ProviderFactory providers, TaskView<Task> compileTasks) {
-		super(identifier, objectSourceSets, targetMachine, dependencies, objects, layout, providers, compileTasks);
+	public BundleBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, ObjectFactory objects, ProviderFactory providers) {
+		super(identifier, targetMachine, objects, providers);
 
 		getCreateOrLinkTask().configure(this::configureBundleTask);
 	}
 
 	private void configureBundleTask(LinkBundleTask task) {
-		task.source(getObjectFiles());
-
 		// Until we model the build type
 		task.getDebuggable().set(false);
 	}
