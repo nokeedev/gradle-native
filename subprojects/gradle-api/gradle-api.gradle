@@ -32,6 +32,9 @@ test {
 		strategies.coverageForGradleVersion('7.0'),
 		strategies.coverageForGradleVersion('7.1'),
 		strategies.coverageForGradleVersion('7.2'),
+		strategies.coverageForGradleVersion('7.3'),
+		strategies.coverageForGradleVersion('7.4'),
+		strategies.coverageForGradleVersion('7.5'),
 	]
 	testTasks.configureEach {
 		def testRuntimeClasspath = files(testingStrategy.map { strategy ->
