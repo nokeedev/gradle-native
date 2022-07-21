@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base;
 
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 
 /**
@@ -33,4 +34,6 @@ public interface TaskView<T extends Task> extends View<T>, ComponentTasks {
 	 * @return the matching element as a {@link TaskView}, never null.
 	 */
 	<S extends T> TaskView<S> withType(Class<S> type);
+
+	<S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type);
 }
