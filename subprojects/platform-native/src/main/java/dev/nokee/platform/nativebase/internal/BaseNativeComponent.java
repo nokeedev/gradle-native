@@ -49,6 +49,7 @@ import lombok.val;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeCompileTask;
+import org.gradle.api.provider.ProviderFactory;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
@@ -60,12 +61,14 @@ public abstract class BaseNativeComponent<T extends Variant> extends BaseCompone
 	private final TaskRegistry taskRegistry;
 	private final ObjectFactory objects;
 	private final ModelRegistry registry;
+	private final ProviderFactory providers;
 
-	public BaseNativeComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry) {
+	public BaseNativeComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry, ProviderFactory providers) {
 		super(identifier);
 		this.objects = objects;
 		this.registry = registry;
 		this.taskRegistry = taskRegistry;
+		this.providers = providers;
 	}
 
 	public abstract NativeComponentDependencies getDependencies();

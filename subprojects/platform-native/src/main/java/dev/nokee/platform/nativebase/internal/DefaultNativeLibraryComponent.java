@@ -48,6 +48,7 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
@@ -74,8 +75,8 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLib
 	private final TaskRegistry taskRegistry;
 
 	@Inject
-	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, objects, taskRegistry, registry);
+	public DefaultNativeLibraryComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskRegistry taskRegistry, ModelRegistry registry, ProviderFactory providers) {
+		super(identifier, objects, taskRegistry, registry, providers);
 		this.taskRegistry = taskRegistry;
 	}
 

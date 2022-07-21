@@ -79,7 +79,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Getter private final Property<String> productBundleIdentifier;
 
 	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(identifier, objects, taskRegistry, registry);
+		super(identifier, objects, taskRegistry, registry, providers);
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = taskRegistry;
