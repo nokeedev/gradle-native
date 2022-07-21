@@ -32,4 +32,9 @@ public class DeclarableDependencyBucketSpec implements DeclarableDependencyBucke
 	public ModelNode getNode() {
 		return entity;
 	}
+
+	@Override
+	public String toString() {
+		return "declarable dependency bucket '" + getName() + "'";
+	}
 }
