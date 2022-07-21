@@ -33,7 +33,6 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -160,7 +159,6 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 			});
 		});
 		whenElementKnown(this.getNode(), this::onEachVariant);
-		whenElementKnown(this.getNode(), this::createBinaries);
 		whenElementKnown(this.getNode(), new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 

@@ -39,6 +39,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
@@ -160,6 +161,8 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 
 				val variant = registry.register(iosApplicationVariant(variantIdentifier, component, project));
+				ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
+
 				variants.put(buildVariant, ModelNodes.of(variant));
 				onEachVariantDependencies(variant.as(DefaultIosApplicationVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 			});

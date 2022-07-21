@@ -119,7 +119,6 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Nativ
 
 	public void finalizeExtension(Project project) {
 		whenElementKnown(this, new CreateNativeBinaryLifecycleTaskRule(taskRegistry));
-		whenElementKnown(this, this::createBinaries);
 		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
 		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
 		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));

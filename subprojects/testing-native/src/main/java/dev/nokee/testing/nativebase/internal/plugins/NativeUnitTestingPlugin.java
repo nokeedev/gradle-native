@@ -17,7 +17,16 @@ package dev.nokee.testing.nativebase.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
+import dev.nokee.language.c.internal.plugins.CSourceSetTag;
+import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
+import dev.nokee.language.cpp.internal.plugins.CppSourceSetTag;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
+import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
+import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
+import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -34,7 +43,6 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
@@ -46,6 +54,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
+import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
@@ -57,7 +66,6 @@ import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
-import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
@@ -182,6 +190,8 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 
 				val variant = registry.register(nativeTestSuiteVariant(variantIdentifier, component, project));
+				ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
+
 				variants.put(buildVariant, ModelNodes.of(variant));
 				onEachVariantDependencies(variant.as(DefaultNativeTestSuiteVariant.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
 			});
@@ -216,6 +226,19 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 							return ProviderUtils.notDefined();
 						}
 					}).orElse(ImmutableSet.of(TargetMachines.host())));
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), (entity, ignored1) -> {
+			if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {
+				entity.addComponent(tag(CSourceSetTag.class));
+			} else if (project.getPlugins().hasPlugin(CppLanguageBasePlugin.class)) {
+				entity.addComponent(tag(CppSourceSetTag.class));
+			} else if (project.getPlugins().hasPlugin(ObjectiveCLanguageBasePlugin.class)) {
+				entity.addComponent(tag(ObjectiveCSourceSetTag.class));
+			} else if (project.getPlugins().hasPlugin(ObjectiveCppLanguageBasePlugin.class)) {
+				entity.addComponent(tag(ObjectiveCppSourceSetTag.class));
+			} else if (project.getPlugins().hasPlugin(SwiftLanguageBasePlugin.class)) {
+				entity.addComponent(tag(SwiftSourceSetTag.class));
+			}
 		}));
 
 		project.afterEvaluate(proj -> {
