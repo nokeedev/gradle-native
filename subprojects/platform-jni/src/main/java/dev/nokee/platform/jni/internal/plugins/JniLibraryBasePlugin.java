@@ -370,27 +370,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			}));
 		}));
 
-		// Variant rules
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
-			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
-				.withComponent(new ParentComponent(entity))
-				.withComponent(tag(JniJarArtifactTag.class))
-				.withComponent(tag(ExcludeFromQualifyingNameTag.class))
-				.build());
-			registry.instantiate(configure(jniJar.getId(), JniJarBinary.class, binary -> {
-				binary.getJarTask().configure(task -> {
-					task.getArchiveBaseName().set(project.provider(() -> {
-						val baseName = ModelProperties.getProperty(entity, "baseName").as(String.class).get();
-						return baseName + ((VariantIdentifier) identifier.get()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
-					}));
-				});
-			}));
-			ModelStates.register(jniJar);
-			entity.addComponent(new JniJarArtifactComponent(jniJar));
-		})));
-
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedJniJarBinary.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsBinary.class), (entity, projection, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val taskRegistrationFactory = project.getExtensions().getByType(TaskRegistrationFactory.class);
@@ -535,6 +514,25 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
+		})));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("jniJar", "JNI JAR binary"));
+			val jniJar = registry.instantiate(project.getExtensions().getByType(JniJarBinaryRegistrationFactory.class).create(binaryIdentifier)
+				.withComponent(new ParentComponent(entity))
+				.withComponent(tag(JniJarArtifactTag.class))
+				.withComponent(tag(ExcludeFromQualifyingNameTag.class))
+				.build());
+			registry.instantiate(configure(jniJar.getId(), JniJarBinary.class, binary -> {
+				binary.getJarTask().configure(task -> {
+					task.getArchiveBaseName().set(project.provider(() -> {
+						val baseName = ModelProperties.getProperty(entity, "baseName").as(String.class).get();
+						return baseName + ((VariantIdentifier) identifier.get()).getAmbiguousDimensions().getAsKebabCase().map(it -> "-" + it).orElse("");
+					}));
+				});
+			}));
+			ModelStates.register(jniJar);
+			entity.addComponent(new JniJarArtifactComponent(jniJar));
 		})));
 
 		val unbuildableWarningService = (Provider<UnbuildableWarningService>) project.getGradle().getSharedServices().getRegistrations().getByName("unbuildableWarningService").getService();
