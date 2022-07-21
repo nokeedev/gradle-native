@@ -86,6 +86,7 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
@@ -131,8 +132,8 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	private final ModelLookup modelLookup;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup, ModelRegistry registry) {
-		super(identifier, objects, taskRegistry, registry);
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup, ModelRegistry registry, ProviderFactory providers) {
+		super(identifier, objects, taskRegistry, registry, providers);
 		this.objects = objects;
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
