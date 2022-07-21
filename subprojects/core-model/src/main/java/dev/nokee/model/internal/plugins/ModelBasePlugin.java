@@ -28,6 +28,7 @@ import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tasks.ModelReportTask;
+import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -36,6 +37,8 @@ import org.gradle.api.Project;
 public class ModelBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		project.getConfigurations().all(ActionUtils.doNothing()); // Because... don't get me started with this... :'(
+
 		val modelRegistry = new DefaultModelRegistry(project.getObjects()::newInstance);
 		project.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
 		project.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
