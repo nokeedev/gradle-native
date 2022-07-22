@@ -52,6 +52,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -309,7 +310,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 					if (component instanceof DefaultNativeApplicationComponent) {
 						val relocateTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("relocateMainSymbolFor"), UnexportMainSymbol.class, ((BaseVariant) variant).getIdentifier()), task -> {
 							task.getObjects().from(componentObjects);
-							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(binary.getIdentifier().getOutputDirectoryBase("objs/for-test")));
+							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(OutputDirectoryPath.fromIdentifier(binary.getIdentifier()) + "/objs/for-test"));
 						});
 						objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
 					}
