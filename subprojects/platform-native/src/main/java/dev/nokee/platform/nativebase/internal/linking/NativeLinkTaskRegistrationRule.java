@@ -33,9 +33,6 @@ import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -64,6 +61,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
@@ -74,13 +72,11 @@ import static dev.nokee.utils.TaskUtils.configureDescription;
 
 final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelProjection> {
 	private final ModelRegistry registry;
-	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
-	public NativeLinkTaskRegistrationRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
+	public NativeLinkTaskRegistrationRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
 		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasLinkTask.class));
 		this.registry = registry;
-		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
@@ -89,7 +85,7 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 		@SuppressWarnings("unchecked")
 		val implementationType = taskType((ModelType<? extends HasLinkTask<? extends ObjectLink, ? extends ObjectLink>>) projection.getType());
 
-		val linkTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("link"), implementationType, identifier.get()), implementationType).build());
+		val linkTask = registry.register(newEntity("link", implementationType, it -> it.ownedBy(entity)));
 		linkTask.configure(implementationType, configureDescription("Links the %s.", identifier.get()));
 		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));

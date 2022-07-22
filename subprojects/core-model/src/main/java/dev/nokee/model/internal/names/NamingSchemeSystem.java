@@ -16,22 +16,35 @@
 package dev.nokee.model.internal.names;
 
 import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjection;
+import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.model.internal.tags.ModelTags;
 
 import java.util.function.Function;
 
-public final class NamingSchemeSystem extends ModelActionWithInputs.ModelAction2<ModelProjection, ElementNameComponent> {
+public final class NamingSchemeSystem extends ModelActionWithInputs.ModelAction2<ModelComponent, ElementNameComponent> {
 	private final Function<? super ElementName, ? extends NamingScheme> namingSchemeFactory;
 
-	public NamingSchemeSystem(Class<?> projectionType, Function<? super ElementName, ? extends NamingScheme> namingSchemeFactory) {
-		super(ModelComponentReference.ofProjection(projectionType), ModelComponentReference.of(ElementNameComponent.class));
+	@SuppressWarnings("unchecked")
+	public NamingSchemeSystem(Class<?> type, Function<? super ElementName, ? extends NamingScheme> namingSchemeFactory) {
+		super((ModelComponentReference<ModelComponent>) forType(type), ModelComponentReference.of(ElementNameComponent.class));
 		this.namingSchemeFactory = namingSchemeFactory;
 	}
 
+	@SuppressWarnings("unchecked")
+	private static ModelComponentReference<? extends ModelComponent> forType(Class<?> type) {
+		if (ModelTag.class.isAssignableFrom(type)) {
+			return ModelTags.referenceOf((Class<ModelTag>) type);
+		} else {
+			return ModelComponentReference.ofProjection(type);
+		}
+	}
+
 	@Override
-	protected void execute(ModelNode entity, ModelProjection projection, ElementNameComponent elementName) {
+	protected void execute(ModelNode entity, ModelComponent ignored, ElementNameComponent elementName) {
 		// Deduplication required because of the old component elements implementation
 		if (!entity.has(NamingSchemeComponent.class)) {
 			entity.addComponent(new NamingSchemeComponent(namingSchemeFactory.apply(elementName.get())));
