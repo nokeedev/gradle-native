@@ -18,7 +18,6 @@ package dev.nokee.platform.nativebase.internal.archiving;
 import dev.nokee.language.nativebase.internal.DefaultNativeToolChainSelector;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -40,7 +39,7 @@ public class NativeArchiveCapabilityPlugin<T extends ExtensionAware & PluginAwar
 	@Override
 	public void apply(T target) {
 		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
-		configurer.configure(new OnDiscover(new NativeArchiveTaskRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), target.getExtensions().getByType(TaskRegistrationFactory.class), new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers))));
+		configurer.configure(new OnDiscover(new NativeArchiveTaskRegistrationRule(target.getExtensions().getByType(ModelRegistry.class), new DefaultNativeToolChainSelector(((ProjectInternal) target).getModelRegistry(), providers))));
 		configurer.configure(new ConfigureCreateTaskFromBaseNameRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new ConfigureCreateTaskTargetPlatformFromBuildVariantRule(target.getExtensions().getByType(ModelRegistry.class)));
 		configurer.configure(new AttachObjectFilesToCreateTaskRule(target.getExtensions().getByType(ModelRegistry.class)));

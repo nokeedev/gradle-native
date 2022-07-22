@@ -20,6 +20,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
@@ -58,6 +59,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComp
 import dev.nokee.testing.xctest.tasks.internal.CreateIosXCTestBundleTask;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
+import org.gradle.api.Task;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -70,6 +72,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -171,7 +174,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 			});
 		});
 
-		val bundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("bundle"), variantIdentifier), task -> {
+		registry.register(newEntity("bundle", Task.class, it -> it.ownedBy(ModelNodes.of(variant)))).configure(Task.class, task -> {
 			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}

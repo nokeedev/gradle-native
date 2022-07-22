@@ -18,14 +18,18 @@ package dev.nokee.platform.base.internal.plugins;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.model.PolymorphicDomainObjectRegistry;
+import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
+import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
@@ -39,6 +43,7 @@ import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Artifact;
@@ -82,12 +87,14 @@ import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
+import dev.nokee.model.internal.tasks.TaskTypeComponent;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.TaskProvider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -96,6 +103,7 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -175,10 +183,25 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		})));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Artifact.class, NamingScheme::prefixTo));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Task.class, NamingScheme::suffixTo));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(IsTask.class, NamingScheme::suffixTo));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Component.class, NamingScheme::prefixTo));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(DependencyBucket.class, NamingScheme::prefixTo));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(Variant.class, NamingScheme::prefixTo));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(TaskTypeComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, ignored1, implementationType, fullyQualifiedName) -> {
+			val taskRegistry = PolymorphicDomainObjectRegistry.of(project.getTasks());
+			val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(fullyQualifiedName.get().toString(), implementationType.get());
+			entity.addComponent(new ModelElementProviderSourceComponent(taskProvider));
+			entity.addComponent(createdUsingNoInject(ModelType.of((Class<Task>)implementationType.get()), taskProvider::get));
+			entity.addComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider));
+		}));
+		// ComponentFromEntity<ParentComponent> read-only self
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
+			if (!entity.has(IdentifierComponent.class)) {
+				val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
+				entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
+			}
+		}));
 
 		project.getPluginManager().apply(ComponentElementsCapabilityPlugin.class);
 
@@ -231,7 +254,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 			entity.addComponent(new BaseNameComponent(((Property<String>) property.get().get(GradlePropertyComponent.class).get()).get()));
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(TaskRegistrationFactory.class), project.getExtensions().getByType(ModelRegistry.class))));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(ModelRegistry.class))));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasDevelopmentVariantMixIn.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
 			modeRegistry.register(builder().withComponent(new ElementNameComponent("developmentVariant")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(developmentVariantType((ModelType<? extends HasDevelopmentVariant<? extends Variant>>) tag.getType()))).build());

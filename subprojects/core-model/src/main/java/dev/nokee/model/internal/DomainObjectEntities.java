@@ -15,6 +15,7 @@
  */
 package dev.nokee.model.internal;
 
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
@@ -24,8 +25,10 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.tasks.TaskTypeComponent;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
+import org.gradle.api.Task;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -68,13 +71,28 @@ public final class DomainObjectEntities {
 			}
 		}
 
-		// It's important to add the projection at the end because there is a tiny bug with ModelProjection specifically.
-		//   The issue is the projection should really be ModelBufferElement but instead are "multi-component".
-		//   Multi-components are a feature we don't really support which is having multiple components of the same type.
-		//   The executor has some support specifically for ModelProjection.
-		//   However, it lacks support for executing a rule for multiple ModelProjection after the fact,
-		//   i.e. once the other inputs, say ConfigurableTag, matches.
-		builder.withComponent(ModelProjections.managed(ModelType.of(type)));
+		if (Task.class.isAssignableFrom(type)) {
+			try {
+				@SuppressWarnings("unchecked")
+				val taskTag = (Class<? extends ModelTag>) Class.forName("dev.nokee.platform.base.internal.IsTask");
+				builder.withComponent(ModelTags.tag(taskTag));
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+			builder.withComponent(ModelTags.tag(ConfigurableTag.class));
+
+			@SuppressWarnings("unchecked")
+			val taskType = (Class<? extends Task>) type;
+			builder.withComponent(new TaskTypeComponent(taskType));
+		} else {
+			// It's important to add the projection at the end because there is a tiny bug with ModelProjection specifically.
+			//   The issue is the projection should really be ModelBufferElement but instead are "multi-component".
+			//   Multi-components are a feature we don't really support which is having multiple components of the same type.
+			//   The executor has some support specifically for ModelProjection.
+			//   However, it lacks support for executing a rule for multiple ModelProjection after the fact,
+			//   i.e. once the other inputs, say ConfigurableTag, matches.
+			builder.withComponent(ModelProjections.managed(ModelType.of(type)));
+		}
 		return builder.build();
 	}
 

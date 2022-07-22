@@ -30,9 +30,6 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProjection;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
@@ -59,6 +56,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
@@ -67,13 +65,11 @@ import static dev.nokee.utils.TaskUtils.configureDescription;
 
 final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelProjection> {
 	private final ModelRegistry registry;
-	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
-	public NativeArchiveTaskRegistrationRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
+	public NativeArchiveTaskRegistrationRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
 		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasCreateTask.class));
 		this.registry = registry;
-		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
@@ -81,7 +77,7 @@ final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.Mode
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelProjection projection) {
 		val implementationType = CreateStaticLibraryTask.class;
 
-		val createTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("create"), implementationType, identifier.get()), implementationType).build());
+		val createTask = registry.register(newEntity("create", implementationType, it -> it.ownedBy(entity)));
 		createTask.configure(implementationType, configureDescription("Creates the %s.", identifier.get()));
 //		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		createTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));

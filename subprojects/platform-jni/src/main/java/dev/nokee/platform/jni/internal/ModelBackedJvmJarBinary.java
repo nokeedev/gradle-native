@@ -15,10 +15,13 @@
  */
 package dev.nokee.platform.jni.internal;
 
+import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.jni.JvmJarBinary;
 import dev.nokee.utils.TaskDependencyUtils;
@@ -29,6 +32,7 @@ import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 
+@DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class})
 public class ModelBackedJvmJarBinary implements JvmJarBinary, Buildable, ModelNodeAware, HasPublicType, ModelBackedNamedMixIn {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 

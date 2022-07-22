@@ -20,6 +20,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
@@ -73,6 +74,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -128,7 +130,8 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 			task.getOutputFile().set(layout.getBuildDirectory().file("ios/uiTest/Info.plist"));
 		});
 
-		TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = taskRegistry.register(TaskIdentifier.of("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, variantIdentifier), task -> {
+		TaskProvider<CreateIosXCTestBundleTask> createUiTestXCTestBundle = (TaskProvider<CreateIosXCTestBundleTask>) registry.register(newEntity("createUiTestXCTestBundle", CreateIosXCTestBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(CreateIosXCTestBundleTask.class).asProvider();
+		createUiTestXCTestBundle.configure(task -> {
 			task.getXCTestBundle().set(layout.getBuildDirectory().file("ios/products/uiTest/" + moduleName + "-Runner-unsigned.xctest"));
 			task.getSources().from(processUiTestPropertyListTask.flatMap(it -> it.getOutputFile()));
 			task.getSources().from(variant.flatMap(testSuite -> testSuite.getBinaries().withType(BundleBinary.class).getElements().map(binaries -> binaries.stream().map(binary -> binary.getLinkTask().flatMap(LinkBundle::getLinkedFile)).collect(Collectors.toList()))));
@@ -189,7 +192,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 			});
 		});
 
-		TaskProvider<Task> bundle = taskRegistry.register(TaskIdentifier.of(TaskName.of("bundle"), variantIdentifier), task -> {
+		registry.register(newEntity("bundle", Task.class, it -> it.ownedBy(ModelNodes.of(variant)))).configure(Task.class, task -> {
 			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}

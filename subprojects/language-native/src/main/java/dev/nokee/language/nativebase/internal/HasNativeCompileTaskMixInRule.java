@@ -26,9 +26,6 @@ import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import lombok.val;
 import org.gradle.api.Action;
@@ -46,6 +43,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.from;
@@ -55,12 +53,10 @@ import static dev.nokee.utils.TaskUtils.configureDescription;
 
 public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.ModelAction3<NativeCompileTypeComponent, IdentifierComponent, ModelComponentTag<HasNativeCompileTaskMixIn.Tag>> {
 	private final ModelRegistry registry;
-	private final TaskRegistrationFactory taskRegistrationFactory;
 	private final NativeToolChainSelector toolChainSelector;
 
-	public HasNativeCompileTaskMixInRule(ModelRegistry registry, TaskRegistrationFactory taskRegistrationFactory, NativeToolChainSelector toolChainSelector) {
+	public HasNativeCompileTaskMixInRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
 		this.registry = registry;
-		this.taskRegistrationFactory = taskRegistrationFactory;
 		this.toolChainSelector = toolChainSelector;
 	}
 
@@ -68,7 +64,7 @@ public final class HasNativeCompileTaskMixInRule extends ModelActionWithInputs.M
 	protected void execute(ModelNode entity, NativeCompileTypeComponent knownObject, IdentifierComponent identifier, ModelComponentTag<HasNativeCompileTaskMixIn.Tag> ignored) {
 		val implementationType = knownObject.getNativeCompileTaskType();
 
-		val compileTask = ModelNodes.of(registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), implementationType, identifier.get()), implementationType).build()));
+		val compileTask = ModelNodes.of(registry.register(newEntity("compile", implementationType, it -> it.ownedBy(entity))));
 		registry.instantiate(configure(compileTask.getId(), implementationType, configureDescription("Compiles the %s.", identifier.get())));
 		registry.instantiate(configure(compileTask.getId(), implementationType, configureDestinationDirectory(convention(forObjects(identifier.get())))));
 		registry.instantiate(configure(compileTask.getId(), implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty()))));

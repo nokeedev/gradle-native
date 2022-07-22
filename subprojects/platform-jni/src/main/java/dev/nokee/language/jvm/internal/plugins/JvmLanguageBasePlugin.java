@@ -37,10 +37,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelTypeUtils;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -56,6 +53,8 @@ import org.gradle.api.tasks.compile.JavaCompile;
 
 import java.lang.reflect.InvocationTargetException;
 
+import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
+
 public class JvmLanguageBasePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
@@ -70,20 +69,19 @@ public class JvmLanguageBasePlugin implements Plugin<Project> {
 			})));
 
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val taskRegistrationFactory = project.getExtensions().getByType(TaskRegistrationFactory.class);
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(JavaSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
-				val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), JavaCompile.class, identifier.get()), JavaCompile.class).build());
+				val compileTask = registry.register(newEntity("compile", JavaCompile.class, it -> it.ownedBy(entity)));
 				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 			})));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(GroovySourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
-				val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), GroovyCompile.class, identifier.get()), GroovyCompile.class).build());
+				val compileTask = registry.register(newEntity("compile", GroovyCompile.class, it -> it.ownedBy(entity)));
 				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 			})));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(KotlinSourceSetSpec.Tag.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(SourceSetComponent.class), (entity, projection, identifier, parent, sourceSet) -> {
 				val sourceSetProvider = sourceSet.get();
 				@SuppressWarnings("unchecked")
 				val KotlinCompile  = (Class<Task>) ModelTypeUtils.toUndecoratedType(sourceSetProvider.flatMap(it -> project.getTasks().named(it.getCompileTaskName("kotlin"))).get().getClass());
-				val compileTask = registry.register(taskRegistrationFactory.create(TaskIdentifier.of(TaskName.of("compile"), KotlinCompile, identifier.get()), KotlinCompile).build());
+				val compileTask = registry.register(newEntity("compile", KotlinCompile, it -> it.ownedBy(entity)));
 				entity.addComponent(new CompileTaskComponent(ModelNodes.of(compileTask)));
 			})));
 
