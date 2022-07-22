@@ -54,7 +54,7 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths, ModelNodeAware {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	@Getter protected final BinaryIdentifier identifier;
+	protected final BinaryIdentifier identifier;
 	@Getter private final TargetMachine targetMachine;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
@@ -64,6 +64,11 @@ public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeade
 		this.targetMachine = targetMachine;
 		this.objects = objects;
 		this.providers = providers;
+	}
+
+	// Still required for output path generation
+	public BinaryIdentifier getIdentifier() {
+		return identifier;
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {
