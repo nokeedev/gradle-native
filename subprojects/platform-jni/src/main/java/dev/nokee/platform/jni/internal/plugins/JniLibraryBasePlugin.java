@@ -474,6 +474,9 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
+			val resourcePathProperty = registry.register(builder().withComponent(new ElementNameComponent("resourcePath")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(String.class)).build());
+			((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
+
 			val sharedLibrary = registry.register(builder().mergeFrom(project.getExtensions().getByType(SharedLibraryBinaryRegistrationFactory.class).create(BinaryIdentifier.of(identifier, BinaryIdentity.ofMain("sharedLibrary", "shared library binary")))).withComponent(tag(ExcludeFromQualifyingNameTag.class)).withComponent(new BuildVariantComponent(identifier.getBuildVariant())).build());
 			val sharedLibraryTask = registry.register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
 			sharedLibraryTask.configure(Task.class, configureBuildGroup());
@@ -505,9 +508,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from(sharedLibrary.as(SharedLibraryBinary.class).flatMap(SharedLibraryBinary::getLinkTask).flatMap(LinkSharedLibrary::getLinkedFile));
 			((ModelProperty<Set<File>>) nativeRuntimeFiles).asProperty(of(ConfigurableFileCollection.class)).from((Callable<Object>) () -> ModelNodes.of(sharedLibrary).get(DependentRuntimeLibraries.class));
 
-			val resourcePathProperty = registry.register(builder().withComponent(new ElementNameComponent("resourcePath")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(String.class)).build());
-			((ModelProperty<String>) resourcePathProperty).asProperty(property(of(String.class))).convention(identifier.getAmbiguousDimensions().getAsKebabCase().orElse(""));
-
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryInternal.class), ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IsVariant.class), (entity, projection, identifier, tag) -> {
@@ -518,6 +518,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				.withComponent(tag(JniJarArtifactTag.class))
 				.withComponent(tag(ExcludeFromQualifyingNameTag.class))
 				.build());
+			entity.addComponent(new JniJarArtifactComponent(jniJar));
+			ModelStates.register(jniJar);
 			registry.instantiate(configure(jniJar.getId(), JniJarBinary.class, binary -> {
 				binary.getJarTask().configure(task -> {
 					task.getArchiveBaseName().set(project.provider(() -> {
@@ -526,8 +528,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 					}));
 				});
 			}));
-			ModelStates.register(jniJar);
-			entity.addComponent(new JniJarArtifactComponent(jniJar));
 		})));
 
 		val unbuildableWarningService = (Provider<UnbuildableWarningService>) project.getGradle().getSharedServices().getRegistrations().getByName("unbuildableWarningService").getService();
