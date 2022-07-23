@@ -19,12 +19,9 @@ import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
-import dev.nokee.model.internal.names.NamingScheme;
-import dev.nokee.model.internal.names.NamingSchemeComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import lombok.val;
@@ -57,7 +54,6 @@ class FullyQualifiedNameIntegrationTest {
 			.build()
 		);
 		subject = registry.instantiate(ModelRegistration.builder()
-			.withComponent(new NamingSchemeComponent(NamingScheme.prefixTo(ElementName.of("jaqi"))))
 			.withComponent(new ElementNameComponent("jaqi"))
 			.withComponent(new ParentComponent(parent))
 			.build());

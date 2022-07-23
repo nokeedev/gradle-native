@@ -31,8 +31,6 @@ import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.NamingScheme;
-import dev.nokee.model.internal.names.NamingSchemeSystem;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -69,7 +67,6 @@ public class LanguageBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_sourceSetFactory", new SourceSetFactory(project.getObjects()));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new HasConfigurableSourceMixInRule(project.getExtensions().getByType(SourceSetFactory.class)::sourceSet, project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new NamingSchemeSystem(LanguageSourceSet.class, NamingScheme::prefixTo));
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 
