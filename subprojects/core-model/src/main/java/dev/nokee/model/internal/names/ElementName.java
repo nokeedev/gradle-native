@@ -15,8 +15,6 @@
  */
 package dev.nokee.model.internal.names;
 
-import lombok.EqualsAndHashCode;
-
 import java.util.Objects;
 
 /**
@@ -27,20 +25,8 @@ import java.util.Objects;
  * In some cases, the element name may be the same as the fully qualified name such as the assemble task of the {@literal main} component.
  * It's important to keep in mind that both name represent different things.
  */
-@EqualsAndHashCode
-public final class ElementName {
-	private final String name;
-
-	private ElementName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String toString() {
-		return name;
-	}
-
-	public static ElementName of(String name) {
-		return new ElementName(Objects.requireNonNull(name));
+public interface ElementName {
+	static ElementName of(String name) {
+		return new DefaultElementName(Objects.requireNonNull(name));
 	}
 }
