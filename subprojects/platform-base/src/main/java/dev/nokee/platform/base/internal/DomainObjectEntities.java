@@ -26,6 +26,7 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
@@ -53,7 +54,11 @@ public final class DomainObjectEntities {
 	}
 
 	public static <T> ModelRegistration newEntity(String elementName, Class<T> type, Consumer<? super Builder> builderConsumer) {
-		return newEntity(ElementName.of(elementName), type, builderConsumer);
+		if (Task.class.isAssignableFrom(type)) {
+			return newEntity(TaskName.of(elementName), type, builderConsumer);
+		} else {
+			return newEntity(ElementName.of(elementName), type, builderConsumer);
+		}
 	}
 
 	public static <T> ModelRegistration newEntity(ElementName elementName, Class<T> type, Consumer<? super Builder> builderConsumer) {

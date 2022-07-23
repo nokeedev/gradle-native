@@ -20,6 +20,7 @@ import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.FullyQualifiedName;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
@@ -49,6 +50,7 @@ public final class TaskRegistrationFactory {
 		val name = FullyQualifiedName.of(taskNamer.determineName(identifier));
 		val taskProvider = (TaskProvider<T>) taskRegistry.registerIfAbsent(name.toString(), type);
 		return ModelRegistration.builder()
+			.withComponent(new ElementNameComponent(identifier.getName()))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsTask.class))
 			.withComponent(tag(ConfigurableTag.class))
