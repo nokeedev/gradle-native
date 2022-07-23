@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal;
 
-import dev.nokee.model.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.HasBaseName;

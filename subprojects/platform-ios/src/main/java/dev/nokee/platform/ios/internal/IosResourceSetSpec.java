@@ -19,7 +19,7 @@ import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
-import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.platform.ios.IosResourceSet;
 import org.gradle.api.reflect.HasPublicType;

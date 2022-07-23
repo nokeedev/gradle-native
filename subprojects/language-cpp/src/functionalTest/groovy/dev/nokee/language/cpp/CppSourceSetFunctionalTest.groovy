@@ -18,7 +18,7 @@ package dev.nokee.language.cpp
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
-import dev.nokee.model.internal.DomainObjectEntities
+import dev.nokee.platform.base.internal.DomainObjectEntities
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.CppGreeterApp

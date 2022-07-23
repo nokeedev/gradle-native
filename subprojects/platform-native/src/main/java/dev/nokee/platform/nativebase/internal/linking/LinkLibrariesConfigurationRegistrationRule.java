@@ -37,7 +37,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 
 import static dev.nokee.language.nativebase.internal.FrameworkAwareIncomingArtifacts.frameworks;
-import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 
 final class LinkLibrariesConfigurationRegistrationRule extends ModelActionWithInputs.ModelAction3<IdentifierComponent, ModelComponentTag<IsBinary>, ModelProjection> {

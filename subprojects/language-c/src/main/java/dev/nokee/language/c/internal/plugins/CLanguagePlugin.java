@@ -32,7 +32,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
-import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.core.ModelActions.matching;
 import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.tags.ModelTags.tag;

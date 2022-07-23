@@ -17,7 +17,7 @@ package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.internal.HasCompileTask;
 import dev.nokee.language.base.tasks.SourceCompile;
-import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
 import org.gradle.api.tasks.TaskProvider;
