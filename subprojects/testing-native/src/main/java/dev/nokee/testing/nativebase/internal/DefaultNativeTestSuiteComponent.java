@@ -23,6 +23,7 @@ import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.HasName;
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelSpec;
@@ -31,6 +32,7 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
@@ -82,6 +84,7 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
@@ -101,7 +104,6 @@ import java.util.concurrent.Callable;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
@@ -109,6 +111,7 @@ import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
@@ -130,13 +133,15 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	private final TaskRegistry taskRegistry;
 	private final TaskContainer tasks;
 	private final ModelLookup modelLookup;
+	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup) {
+	public DefaultNativeTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup, ModelRegistry registry) {
 		super(identifier);
 		this.objects = objects;
 		this.tasks = tasks;
 		this.modelLookup = modelLookup;
+		this.registry = registry;
 
 		this.getBaseName().convention(BaseNameUtils.from(identifier).getAsString());
 
@@ -206,7 +211,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 			val variantIdentifier = VariantIdentifier.builder().withComponentIdentifier(getIdentifier()).withBuildVariant((BuildVariantInternal) buildVariant).build();
 
 			// TODO: The variant should have give access to the testTask
-			val runTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("run"), RunTestExecutable.class, variantIdentifier), task -> {
+			val runTask = registry.register(newEntity("run", RunTestExecutable.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(RunTestExecutable.class).configure(task -> {
 				// TODO: Use a provider of the variant here
 				task.dependsOn((Callable) () -> getVariants().filter(it -> it.getBuildVariant().equals(buildVariant)).flatMap(it -> it.get(0).getDevelopmentBinary()));
 				task.setOutputDir(task.getTemporaryDir());
@@ -217,11 +222,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 						return binary.getLinkTask().flatMap(LinkExecutable::getLinkedFile).get().getAsFile().getAbsolutePath();
 					}
 				});
-			});
+			}).asProvider();
 			// TODO: The following is a gap is how we declare task, it should be possible to register a lifecycle task for a entity
-			val testTask = taskRegistry.register(TaskIdentifier.ofLifecycle(variantIdentifier), task -> {
+			val testTask = registry.register(newEntity(TaskName.lifecycle(), Task.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(Task.class).configure(task -> {
 				task.dependsOn(runTask);
-			});
+			}).asProvider();
 		});
 
 		// Ensure the task is registered before configuring
@@ -307,10 +312,10 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 					ConfigurableFileCollection objects = this.objects.fileCollection();
 					objects.from(componentObjects);
 					if (component instanceof DefaultNativeApplicationComponent) {
-						val relocateTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("relocateMainSymbolFor"), UnexportMainSymbol.class, ((BaseVariant) variant).getIdentifier()), task -> {
+						val relocateTask = registry.register(newEntity("relocateMainSymbolFor", UnexportMainSymbol.class, it -> it.ownedBy(((BaseVariant) variant).getNode()))).as(UnexportMainSymbol.class).configure(task -> {
 							task.getObjects().from(componentObjects);
 							task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir(OutputDirectoryPath.fromIdentifier(binary.getIdentifier()) + "/objs/for-test"));
-						});
+						}).asProvider();
 						objects.setFrom(relocateTask.map(UnexportMainSymbol::getRelocatedObjects));
 					}
 					binary.getLinkTask().configure(task -> {
