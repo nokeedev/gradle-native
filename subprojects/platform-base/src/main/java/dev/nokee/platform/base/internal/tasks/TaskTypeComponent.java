@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.model.internal.tasks;
+package dev.nokee.platform.base.internal.tasks;
 
 import dev.nokee.model.internal.core.ModelComponent;
 import org.gradle.api.Task;
