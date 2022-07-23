@@ -16,13 +16,10 @@
 package dev.nokee.model;
 
 import dev.nokee.internal.testing.util.ProjectTestUtils;
-import dev.nokee.model.internal.names.ElementName;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.NamingScheme;
-import dev.nokee.model.internal.names.NamingSchemeComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.RelativeName;
 import dev.nokee.model.internal.names.RelativeNamesComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
@@ -57,7 +54,6 @@ class RelativeNameIntegrationTest {
 			.build()
 		);
 		subject = registry.instantiate(ModelRegistration.builder()
-			.withComponent(new NamingSchemeComponent(NamingScheme.prefixTo(ElementName.of("ekal"))))
 			.withComponent(new ElementNameComponent("ekal"))
 			.withComponent(new ParentComponent(parent))
 			.build());
