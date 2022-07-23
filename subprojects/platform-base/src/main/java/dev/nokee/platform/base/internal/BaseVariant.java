@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import lombok.AccessLevel;
@@ -24,7 +27,8 @@ import org.gradle.api.provider.Property;
 
 import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
 
-public class BaseVariant {
+public class BaseVariant implements ModelNodeAware {
+	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	@Getter private final VariantIdentifier identifier;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 	private final Property<Binary> developmentBinary;
@@ -45,5 +49,10 @@ public class BaseVariant {
 
 	public Property<Binary> getDevelopmentBinary() {
 		return developmentBinary;
+	}
+
+	@Override
+	public ModelNode getNode() {
+		return entity;
 	}
 }
