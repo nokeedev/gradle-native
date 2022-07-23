@@ -88,6 +88,7 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.internal.MutationGuards;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
@@ -180,10 +181,12 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(TaskTypeComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, ignored1, implementationType, fullyQualifiedName) -> {
 			val taskRegistry = PolymorphicDomainObjectRegistry.of(project.getTasks());
-			val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(fullyQualifiedName.get().toString(), implementationType.get());
-			entity.addComponent(new ModelElementProviderSourceComponent(taskProvider));
-			entity.addComponent(createdUsingNoInject(ModelType.of((Class<Task>)implementationType.get()), taskProvider::get));
-			entity.addComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider));
+			MutationGuards.of(project.getTasks()).withMutationEnabled(__ -> {
+				val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(fullyQualifiedName.get().toString(), implementationType.get());
+				entity.addComponent(new ModelElementProviderSourceComponent(taskProvider));
+				entity.addComponent(createdUsingNoInject(ModelType.of((Class<Task>)implementationType.get()), taskProvider::get));
+				entity.addComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider));
+			}).execute(null);
 		}));
 		// ComponentFromEntity<ParentComponent> read-only self
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
