@@ -19,6 +19,8 @@ import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 
+import static dev.nokee.model.internal.core.ModelNodeUtils.getParent;
+
 public final class ModelStates {
 	private static final ModelState.IsAtLeastCreated CREATED_TAG = new ModelState.IsAtLeastCreated();
 	private static final ModelState.IsAtLeastRealized REALIZED_TAG = new ModelState.IsAtLeastRealized();
@@ -65,7 +67,7 @@ public final class ModelStates {
 	private static final class Realizing implements ModelComponent {}
 
 	private static void useRealizingComponentBeforeRealizingParentNodeIfPresentToAvoidDuplicateRealizedCallback(ModelNode self) {
-		ModelNodeUtils.getParent(self).ifPresent(ModelStates::realize);
+		getParent(self).ifPresent(ModelStates::realize);
 		if (self.has(ModelState.class)) {
 			self.setComponent(ModelState.class, ModelState.Realized);
 		} else {
@@ -93,6 +95,7 @@ public final class ModelStates {
 			initialize(self);
 			if (!isAtLeast(self, ModelState.Registered)) {
 				if (!self.has(Registering.class)) {
+					getParent(self).ifPresent(ModelStates::discover);
 					self.addComponent(new Registering());
 					if (self.has(ModelState.class)) {
 						if (!self.get(ModelState.class).isAtLeast(ModelState.Registered)) {
@@ -120,7 +123,7 @@ public final class ModelStates {
 			if (!isAtLeast(self, ModelState.Finalized)) {
 				if (!self.has(Finalizing.class)) {
 					self.addComponent(new Finalizing());
-					ModelNodeUtils.getParent(self).ifPresent(ModelStates::finalize);
+					getParent(self).ifPresent(ModelStates::finalize);
 					if (self.has(ModelState.class)) {
 						self.setComponent(ModelState.class, ModelState.Finalized);
 					} else {
