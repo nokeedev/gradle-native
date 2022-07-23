@@ -26,7 +26,7 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.model.internal.tasks.TaskTypeComponent;
+import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
 import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Task;

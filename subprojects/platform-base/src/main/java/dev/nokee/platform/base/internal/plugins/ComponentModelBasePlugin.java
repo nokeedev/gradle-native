@@ -87,7 +87,7 @@ import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
-import dev.nokee.model.internal.tasks.TaskTypeComponent;
+import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
