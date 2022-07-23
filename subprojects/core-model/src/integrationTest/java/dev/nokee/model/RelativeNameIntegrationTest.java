@@ -29,6 +29,7 @@ import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.internal.state.ModelStates.register;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -44,25 +45,22 @@ class RelativeNameIntegrationTest {
 	void applyPlugins() {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		grandParent = registry.instantiate(ModelRegistration.builder()
-			.withComponent(new ElementNameComponent("poel"))
-			.build()
-		);
-		parent = registry.instantiate(ModelRegistration.builder()
+		grandParent = register(registry.instantiate(ModelRegistration.builder()
+			.build()));
+		parent = register(registry.instantiate(ModelRegistration.builder()
 			.withComponent(new ElementNameComponent("pwle"))
 			.withComponent(new ParentComponent(grandParent))
-			.build()
-		);
-		subject = registry.instantiate(ModelRegistration.builder()
+			.build()));
+		subject = register(registry.instantiate(ModelRegistration.builder()
 			.withComponent(new ElementNameComponent("ekal"))
 			.withComponent(new ParentComponent(parent))
-			.build());
+			.build()));
 	}
 
 	@Test
-	void hasRelativeNamesComponentOnlyIfElementNameAndNamingSchemePresent() {
+	void hasRelativeNamesComponentWhenElementNamePresent() {
 		assertTrue(subject.has(RelativeNamesComponent.class));
-		assertFalse(parent.has(RelativeNamesComponent.class));
+		assertTrue(parent.has(RelativeNamesComponent.class));
 		assertFalse(grandParent.has(RelativeNamesComponent.class));
 	}
 
