@@ -36,7 +36,7 @@ class FullyQualifiedNameFromEntityStreamTest {
 		grandParent.addComponent(new ElementNameComponent("robo"));
 		greatGrandParent.addComponent(new ElementNameComponent("zite"));
 
-		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(NamingScheme.prefixTo(ElementName.of("ruba")))), equalTo(FullyQualifiedName.of("ziteRoboBopuRuba")));
+		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(ElementName.of("ruba"))), equalTo(FullyQualifiedName.of("ziteRoboBopuRuba")));
 	}
 
 	@Test
@@ -45,7 +45,7 @@ class FullyQualifiedNameFromEntityStreamTest {
 		// grand-parent has no element name
 		greatGrandParent.addComponent(new ElementNameComponent("zite"));
 
-		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(NamingScheme.prefixTo(ElementName.of("ruba")))), equalTo(FullyQualifiedName.of("ziteBopuRuba")));
+		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(ElementName.of("ruba"))), equalTo(FullyQualifiedName.of("ziteBopuRuba")));
 	}
 
 	@Test
@@ -55,7 +55,7 @@ class FullyQualifiedNameFromEntityStreamTest {
 		grandParent.addComponent(tag(ExcludeFromQualifyingNameTag.class));
 		greatGrandParent.addComponent(new ElementNameComponent("zite"));
 
-		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(NamingScheme.prefixTo(ElementName.of("ruba")))), equalTo(FullyQualifiedName.of("ziteBopuRuba")));
+		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(ElementName.of("ruba"))), equalTo(FullyQualifiedName.of("ziteBopuRuba")));
 	}
 
 	@Test
@@ -64,6 +64,6 @@ class FullyQualifiedNameFromEntityStreamTest {
 		grandParent.addComponent(new ElementNameComponent("robo"));
 		greatGrandParent.addComponent(new ElementNameComponent(""));
 
-		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(NamingScheme.prefixTo(ElementName.of("ruba")))), equalTo(FullyQualifiedName.of("roboBopuRuba")));
+		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toFullyQualifiedName(ElementName.of("ruba"))), equalTo(FullyQualifiedName.of("roboBopuRuba")));
 	}
 }

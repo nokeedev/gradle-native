@@ -37,7 +37,7 @@ class RelativeNameFromEntityStreamTest {
 		grandParent.addComponent(new ElementNameComponent("wova"));
 		greatGrandParent.addComponent(new ElementNameComponent("buqe"));
 
-		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(NamingScheme.prefixTo(of("kles")))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "tomoKles"), RelativeName.of(greatGrandParent, "wovaTomoKles")));
+		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(of("kles"))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "tomoKles"), RelativeName.of(greatGrandParent, "wovaTomoKles")));
 	}
 
 	@Test
@@ -46,7 +46,7 @@ class RelativeNameFromEntityStreamTest {
 		// grand-parent has no element name
 		greatGrandParent.addComponent(new ElementNameComponent("buqe"));
 
-		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(NamingScheme.prefixTo(of("kles")))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "tomoKles"), RelativeName.of(greatGrandParent, "tomoKles")));
+		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(of("kles"))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "tomoKles"), RelativeName.of(greatGrandParent, "tomoKles")));
 	}
 
 	@Test
@@ -56,7 +56,7 @@ class RelativeNameFromEntityStreamTest {
 		grandParent.addComponent(tag(ExcludeFromQualifyingNameTag.class));
 		greatGrandParent.addComponent(new ElementNameComponent("buqe"));
 
-		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(NamingScheme.prefixTo(of("kles")))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "tomoKles"), RelativeName.of(greatGrandParent, "tomoKles")));
+		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(of("kles"))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "tomoKles"), RelativeName.of(greatGrandParent, "tomoKles")));
 	}
 
 	@Test
@@ -65,6 +65,6 @@ class RelativeNameFromEntityStreamTest {
 		grandParent.addComponent(new ElementNameComponent("wova"));
 		greatGrandParent.addComponent(new ElementNameComponent("buqe"));
 
-		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(NamingScheme.prefixTo(of("kles")))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "kles"), RelativeName.of(greatGrandParent, "wovaKles")));
+		assertThat(Stream.of(parent, grandParent, greatGrandParent).collect(toRelativeNames(of("kles"))), containsInAnyOrder(RelativeName.of(parent, "kles"), RelativeName.of(grandParent, "kles"), RelativeName.of(greatGrandParent, "wovaKles")));
 	}
 }

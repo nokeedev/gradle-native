@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
  * Typically, the qualifying name will be use as a prefix or suffix to the element name to create {@link FullyQualifiedName} or {@link RelativeName}.
  */
 @EqualsAndHashCode
-final class QualifyingName {
+public final class QualifyingName {
 	private static final QualifyingName EMPTY = new QualifyingName("");
 	private final String name;
 

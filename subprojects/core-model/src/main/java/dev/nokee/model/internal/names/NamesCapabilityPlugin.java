@@ -42,12 +42,12 @@ public abstract class NamesCapabilityPlugin<T extends ExtensionAware & PluginAwa
 	// ComponentFromEntity<MainComponentTag> read-only ancestors
 	// ComponentFromEntity<ElementNameComponent> read-only ancestors
 	private static void computeRelativelyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, NamingSchemeComponent namingScheme) {
-		entity.addComponent(new RelativeNamesComponent(ParentUtils.stream(parent).collect(toRelativeNames(namingScheme.get()))));
+		entity.addComponent(new RelativeNamesComponent(ParentUtils.stream(parent).collect(toRelativeNames(elementName.get()))));
 	}
 
 	// ComponentFromEntity<MainComponentTag> read-only ancestors
 	// ComponentFromEntity<ElementNameComponent> read-only ancestors
 	private static void computeFullyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, NamingSchemeComponent namingScheme) {
-		entity.addComponent(new FullyQualifiedNameComponent(ParentUtils.stream(parent).collect(toFullyQualifiedName(namingScheme.get()))));
+		entity.addComponent(new FullyQualifiedNameComponent(ParentUtils.stream(parent).collect(toFullyQualifiedName(elementName.get()))));
 	}
 }

@@ -26,6 +26,8 @@ import java.util.Objects;
  * It's important to keep in mind that both name represent different things.
  */
 public interface ElementName {
+	String toQualifiedName(QualifyingName qualifyingName);
+
 	static ElementName of(String name) {
 		return new DefaultElementName(Objects.requireNonNull(name));
 	}
