@@ -20,7 +20,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec
-import dev.nokee.model.internal.DomainObjectEntities
+import dev.nokee.platform.base.internal.DomainObjectEntities
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.SwiftGreeterApp

@@ -16,7 +16,7 @@
 package dev.nokee.language.nativebase.internal;
 
 import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.model.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.tags.ModelTag;
 

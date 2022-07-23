@@ -53,7 +53,7 @@ import org.gradle.api.tasks.compile.JavaCompile;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
 public class JvmLanguageBasePlugin implements Plugin<Project> {
 	@Override

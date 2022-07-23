@@ -26,7 +26,7 @@ import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 import org.gradle.api.Task;
 
-import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 import static dev.nokee.utils.TaskUtils.configureGroup;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;

@@ -20,7 +20,7 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.RequiresInstalledToo
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.nokee.language.nativebase.internal.NativePlatformFactory
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec
-import dev.nokee.model.internal.DomainObjectEntities
+import dev.nokee.platform.base.internal.DomainObjectEntities
 import dev.nokee.model.internal.ProjectIdentifier
 import dev.nokee.model.internal.registry.ModelRegistry
 import dev.nokee.platform.nativebase.fixtures.ObjectiveCppGreeterApp

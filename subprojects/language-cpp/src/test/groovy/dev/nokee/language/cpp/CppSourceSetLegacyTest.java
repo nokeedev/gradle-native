@@ -23,7 +23,7 @@ import lombok.val;
 
 import java.io.File;
 
-import static dev.nokee.model.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
 class CppSourceSetLegacyTest extends LanguageSourceSetLegacyTester<CppSourceSet> {
 	@Override

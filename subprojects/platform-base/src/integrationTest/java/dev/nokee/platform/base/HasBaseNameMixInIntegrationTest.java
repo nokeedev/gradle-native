@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static dev.nokee.model.internal.DomainObjectEntities.entityOf;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 import static dev.nokee.model.internal.state.ModelStates.discover;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
