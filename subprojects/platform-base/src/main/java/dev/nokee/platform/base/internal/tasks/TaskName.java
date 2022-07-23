@@ -63,6 +63,10 @@ public final class TaskName implements ElementName {
 		return EMPTY_TASK_NAME;
 	}
 
+	public static TaskName lifecycle() {
+		return EMPTY_TASK_NAME;
+	}
+
 	@Override
 	public String toQualifiedName(QualifyingName qualifyingName) {
 		return StringUtils.uncapitalize(Stream.of(verb, qualifyingName.toString(), object == null ? "" : object)
