@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.state.ModelState;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
@@ -32,8 +33,8 @@ import static dev.nokee.model.internal.names.RelativeNames.toRelativeNames;
 public abstract class NamesCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(NamingSchemeComponent.class), NamesCapabilityPlugin::computeRelativelyQualifiedName));
-		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(NamingSchemeComponent.class), NamesCapabilityPlugin::computeFullyQualifiedName));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), NamesCapabilityPlugin::computeRelativelyQualifiedName));
+		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), NamesCapabilityPlugin::computeFullyQualifiedName));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(RelativeNamesComponent.class));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(FullyQualifiedNameComponent.class));
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionSystem.updateSelectorForTag(ElementNameComponent.class));
@@ -41,13 +42,13 @@ public abstract class NamesCapabilityPlugin<T extends ExtensionAware & PluginAwa
 
 	// ComponentFromEntity<MainComponentTag> read-only ancestors
 	// ComponentFromEntity<ElementNameComponent> read-only ancestors
-	private static void computeRelativelyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, NamingSchemeComponent namingScheme) {
+	private static void computeRelativelyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored1) {
 		entity.addComponent(new RelativeNamesComponent(ParentUtils.stream(parent).collect(toRelativeNames(elementName.get()))));
 	}
 
 	// ComponentFromEntity<MainComponentTag> read-only ancestors
 	// ComponentFromEntity<ElementNameComponent> read-only ancestors
-	private static void computeFullyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, NamingSchemeComponent namingScheme) {
+	private static void computeFullyQualifiedName(ModelNode entity, ParentComponent parent, ElementNameComponent elementName, ModelState.IsAtLeastCreated ignored1) {
 		entity.addComponent(new FullyQualifiedNameComponent(ParentUtils.stream(parent).collect(toFullyQualifiedName(elementName.get()))));
 	}
 }
