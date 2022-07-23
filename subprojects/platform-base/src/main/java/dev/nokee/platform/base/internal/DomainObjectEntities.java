@@ -26,9 +26,9 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
-import dev.nokee.model.internal.type.ModelType;
 import lombok.val;
 import org.gradle.api.Task;
 
@@ -82,13 +82,7 @@ public final class DomainObjectEntities {
 		}
 
 		if (Task.class.isAssignableFrom(type)) {
-			try {
-				@SuppressWarnings("unchecked")
-				val taskTag = (Class<? extends ModelTag>) Class.forName("dev.nokee.platform.base.internal.IsTask");
-				builder.withComponent(ModelTags.tag(taskTag));
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+			builder.withComponent(ModelTags.tag(IsTask.class));
 			builder.withComponent(ModelTags.tag(ConfigurableTag.class));
 
 			@SuppressWarnings("unchecked")
