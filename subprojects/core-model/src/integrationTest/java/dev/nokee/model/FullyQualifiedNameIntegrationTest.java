@@ -29,6 +29,7 @@ import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.model.internal.state.ModelStates.register;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -44,30 +45,27 @@ class FullyQualifiedNameIntegrationTest {
 	void applyPlugins() {
 		project.getPluginManager().apply(ModelBasePlugin.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
-		grandParent = registry.instantiate(ModelRegistration.builder()
-			.withComponent(new ElementNameComponent("xehu"))
-			.build()
-		);
-		parent = registry.instantiate(ModelRegistration.builder()
+		grandParent = register(registry.instantiate(ModelRegistration.builder()
+			.build()));
+		parent = register(registry.instantiate(ModelRegistration.builder()
 			.withComponent(new ElementNameComponent("lifu"))
 			.withComponent(new ParentComponent(grandParent))
-			.build()
-		);
-		subject = registry.instantiate(ModelRegistration.builder()
+			.build()));
+		subject = register(registry.instantiate(ModelRegistration.builder()
 			.withComponent(new ElementNameComponent("jaqi"))
 			.withComponent(new ParentComponent(parent))
-			.build());
+			.build()));
 	}
 
 	@Test
-	void hasFullyQualifiedNameComponentOnlyIfElementNameAndNamingSchemePresent() {
+	void hasFullyQualifiedNameComponentWhenElementNamePresent() {
 		assertTrue(subject.has(FullyQualifiedNameComponent.class));
-		assertFalse(parent.has(FullyQualifiedNameComponent.class));
+		assertTrue(parent.has(FullyQualifiedNameComponent.class));
 		assertFalse(grandParent.has(FullyQualifiedNameComponent.class));
 	}
 
 	@Test
 	void hasNamesRelativeToItsParents() {
-		assertThat(subject.get(FullyQualifiedNameComponent.class).get(), equalTo(FullyQualifiedName.of("xehuLifuJaqi")));
+		assertThat(subject.get(FullyQualifiedNameComponent.class).get(), equalTo(FullyQualifiedName.of("lifuJaqi")));
 	}
 }
