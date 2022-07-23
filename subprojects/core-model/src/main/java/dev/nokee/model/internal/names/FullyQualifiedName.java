@@ -56,7 +56,7 @@ public final class FullyQualifiedName {
 		return new FullyQualifiedName(name);
 	}
 
-	public static Collector<ModelNode, ?, FullyQualifiedName> toFullyQualifiedName(Namer<QualifyingName> namer) {
+	public static Collector<ModelNode, ?, FullyQualifiedName> toFullyQualifiedName(ElementName elementName) {
 		return new Collector<ModelNode, QualifyingName.Builder, FullyQualifiedName>() {
 			@Override
 			public Supplier<QualifyingName.Builder> supplier() {
@@ -75,7 +75,7 @@ public final class FullyQualifiedName {
 
 			@Override
 			public Function<QualifyingName.Builder, FullyQualifiedName> finisher() {
-				return builder -> of(namer.determineName(builder.build()));
+				return builder -> of(elementName.toQualifiedName(builder.build()));
 			}
 
 			@Override

@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.names;
 
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 
 @EqualsAndHashCode
 final class DefaultElementName implements ElementName {
@@ -28,5 +29,14 @@ final class DefaultElementName implements ElementName {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public String toQualifiedName(QualifyingName qualifyingName) {
+		if (qualifyingName.isEmpty()) {
+			return name;
+		} else {
+			return qualifyingName + StringUtils.capitalize(name);
+		}
 	}
 }

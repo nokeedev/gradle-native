@@ -58,7 +58,7 @@ public final class RelativeNames implements Iterable<RelativeName> {
 		return new RelativeNames(Stream.concat(Stream.of(firstName), Arrays.stream(otherNames)).collect(ImmutableMap.toImmutableMap(RelativeName::baseRef, it -> it)));
 	}
 
-	public static Collector<ModelNode, ?, RelativeNames> toRelativeNames(Namer<QualifyingName> namer) {
+	public static Collector<ModelNode, ?, RelativeNames> toRelativeNames(ElementName elementName) {
 		return new Collector<ModelNode, ImmutableSet.Builder<RelativeName>, RelativeNames>() {
 			@Override
 			public Supplier<ImmutableSet.Builder<RelativeName>> supplier() {
@@ -73,7 +73,7 @@ public final class RelativeNames implements Iterable<RelativeName> {
 
 					@Override
 					public void accept(ImmutableSet.Builder<RelativeName> builder, ModelNode parentEntity) {
-						builder.add(RelativeName.of(parentEntity, namer.determineName(this.builder.build())));
+						builder.add(RelativeName.of(parentEntity, elementName.toQualifiedName(this.builder.build())));
 						accumulator.accept(this.builder, parentEntity);
 					}
 				};

@@ -17,10 +17,13 @@ package dev.nokee.platform.base.internal.tasks;
 
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.model.internal.names.QualifyingName;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -58,6 +61,13 @@ public final class TaskName implements ElementName {
  	 */
 	static TaskName empty() {
 		return EMPTY_TASK_NAME;
+	}
+
+	@Override
+	public String toQualifiedName(QualifyingName qualifyingName) {
+		return StringUtils.uncapitalize(Stream.of(verb, qualifyingName.toString(), object == null ? "" : object)
+			.map(StringUtils::capitalize)
+			.collect(Collectors.joining()));
 	}
 
 	public static TaskName of(String taskName) {
