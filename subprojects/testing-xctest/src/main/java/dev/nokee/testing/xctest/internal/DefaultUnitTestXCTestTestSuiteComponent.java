@@ -37,7 +37,6 @@ import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
-import dev.nokee.platform.base.internal.TaskNamer;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -72,10 +71,10 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
 public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
@@ -110,7 +109,6 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();
 
 		String moduleName = BaseNameUtils.from(variantIdentifier).getAsCamelCase();
-		TaskNamer namer = TaskNamer.INSTANCE;
 
 		// XCTest Unit Testing
 		val processUnitTestPropertyListTask = taskRegistry.register(TaskIdentifier.of(TaskName.of("process", "propertyList"), ProcessPropertyListTask.class, variantIdentifier), task -> {
