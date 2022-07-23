@@ -22,6 +22,7 @@ import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProjections;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.model.internal.tags.ModelTags;
@@ -52,6 +53,10 @@ public final class DomainObjectEntities {
 	}
 
 	public static <T> ModelRegistration newEntity(String elementName, Class<T> type, Consumer<? super Builder> builderConsumer) {
+		return newEntity(ElementName.of(elementName), type, builderConsumer);
+	}
+
+	public static <T> ModelRegistration newEntity(ElementName elementName, Class<T> type, Consumer<? super Builder> builderConsumer) {
 		val result = ModelRegistration.builder();
 		val builder = new Builder(result);
 		builderConsumer.accept(builder);
