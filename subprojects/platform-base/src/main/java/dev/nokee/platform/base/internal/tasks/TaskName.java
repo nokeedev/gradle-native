@@ -16,6 +16,7 @@
 package dev.nokee.platform.base.internal.tasks;
 
 import dev.nokee.model.DomainObjectIdentifier;
+import dev.nokee.model.internal.names.ElementName;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,7 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 @EqualsAndHashCode
-public final class TaskName {
+public final class TaskName implements ElementName {
 	private static final TaskName EMPTY_TASK_NAME = new TaskName("", null);
 	private final String verb;
 	private final String object;
