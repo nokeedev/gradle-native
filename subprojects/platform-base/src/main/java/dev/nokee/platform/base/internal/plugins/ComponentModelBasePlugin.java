@@ -79,7 +79,6 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
 import dev.nokee.platform.base.internal.RegisterAssembleLifecycleTaskRule;
-import dev.nokee.platform.base.internal.TaskNamer;
 import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
@@ -127,7 +126,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		});
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
-		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory(project.getTasks(), PolymorphicDomainObjectRegistry.of(project.getTasks()), TaskNamer.INSTANCE));
+		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory());
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, component, identifier, parent) -> {
