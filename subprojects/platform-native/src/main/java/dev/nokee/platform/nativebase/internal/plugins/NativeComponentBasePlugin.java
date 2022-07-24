@@ -54,7 +54,6 @@ import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -90,7 +89,6 @@ import dev.nokee.platform.base.internal.BinaryIdentity;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
@@ -643,14 +641,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		};
 	}
 
-	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(String name, Project project) {
-		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-		return () -> new DefaultNativeApplicationComponent(identifier, ModelBackedTaskRegistry.newInstance(project));
+	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(Project project) {
+		return () -> project.getObjects().newInstance(DefaultNativeApplicationComponent.class, ModelBackedTaskRegistry.newInstance(project));
 	}
 
-	public static Factory<DefaultNativeLibraryComponent> nativeLibraryProjection(String name, Project project) {
-		val identifier = ComponentIdentifier.of(ComponentName.of(name), ProjectIdentifier.of(project));
-		return () -> new DefaultNativeLibraryComponent(identifier, ModelBackedTaskRegistry.newInstance(project));
+	public static Factory<DefaultNativeLibraryComponent> nativeLibraryProjection(Project project) {
+		return () -> project.getObjects().newInstance(DefaultNativeLibraryComponent.class, ModelBackedTaskRegistry.newInstance(project));
 	}
 
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {

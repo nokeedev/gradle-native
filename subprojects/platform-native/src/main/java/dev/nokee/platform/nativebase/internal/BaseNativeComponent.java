@@ -17,14 +17,9 @@ package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.VariantAwareComponentInternal;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 
 public abstract class BaseNativeComponent<T extends Variant> extends BaseComponent<T> implements VariantAwareComponentInternal<T> {
-	public BaseNativeComponent(ComponentIdentifier identifier) {
-		super(identifier);
-	}
-
 	public abstract NativeComponentDependencies getDependencies();
 }
