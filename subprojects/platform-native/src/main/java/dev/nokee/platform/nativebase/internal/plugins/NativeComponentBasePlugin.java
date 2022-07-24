@@ -335,7 +335,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new DisplayNameComponent("executable binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
-							return objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier);
+							return objects.newInstance(ExecutableBinaryInternal.class);
 						}))
 						.build());
 					entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
@@ -351,7 +351,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new DisplayNameComponent("shared library binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
-							return objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier);
+							return objects.newInstance(SharedLibraryBinaryInternal.class);
 						}))
 						.build());
 					entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
@@ -367,7 +367,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new DisplayNameComponent("bundle binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
-							return objects.newInstance(BundleBinaryInternal.class, binaryIdentifier);
+							return objects.newInstance(BundleBinaryInternal.class);
 						}))
 						.build());
 				} else if (linkage.isStatic()) {
@@ -382,7 +382,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new DisplayNameComponent("static library binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
-							return objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier);
+							return objects.newInstance(StaticLibraryBinaryInternal.class);
 						}))
 						.build());
 					entity.addComponent(new NativeStaticLibraryBinaryComponent(ModelNodes.of(staticLibraryBinary)));

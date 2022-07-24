@@ -16,7 +16,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
@@ -44,8 +43,8 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	, HasObjectFilesToBinaryTask
 {
 	@Inject
-	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, ObjectFactory objects, ProviderFactory providers) {
-		super(identifier, objects, providers);
+	public StaticLibraryBinaryInternal(ObjectFactory objects, ProviderFactory providers) {
+		super(objects, providers);
 	}
 
 	@Override

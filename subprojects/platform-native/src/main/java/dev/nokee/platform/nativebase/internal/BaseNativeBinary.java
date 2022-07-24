@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.tasks.SourceCompile;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -26,9 +27,7 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.TaskView;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.nativebase.NativeBinary;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.Cast;
-import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.FileSystemLocation;
@@ -54,19 +53,17 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths, ModelNodeAware {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	protected final BinaryIdentifier identifier;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 
-	public BaseNativeBinary(BinaryIdentifier identifier, ObjectFactory objects, ProviderFactory providers) {
-		this.identifier = identifier;
+	public BaseNativeBinary(ObjectFactory objects, ProviderFactory providers) {
 		this.objects = objects;
 		this.providers = providers;
 	}
 
 	// Still required for output path generation
 	public BinaryIdentifier getIdentifier() {
-		return identifier;
+		return (BinaryIdentifier) entity.get(IdentifierComponent.class).get();
 	}
 
 	public Provider<Set<FileSystemLocation>> getHeaderSearchPaths() {

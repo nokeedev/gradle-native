@@ -16,7 +16,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -57,8 +56,8 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(BinaryIdentifier identifier, ObjectFactory objects, ProviderFactory providers) {
-		super(identifier, objects, providers);
+	public SharedLibraryBinaryInternal(ObjectFactory objects, ProviderFactory providers) {
+		super(objects, providers);
 		this.objects = objects;
 		this.providerFactory = providers;
 		this.linkedFile = objects.fileProperty();
