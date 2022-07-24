@@ -208,7 +208,7 @@ import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.canBeViewedAs;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -334,9 +334,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new IdentifierComponent(binaryIdentifier))
 						.withComponent(new DisplayNameComponent("executable binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
-						.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
-							return objects.newInstance(ExecutableBinaryInternal.class);
-						}))
+						.withComponent(managed(of(ExecutableBinaryInternal.class)))
 						.build());
 					entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
 				} else if (linkage.isShared()) {
@@ -350,9 +348,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new IdentifierComponent(binaryIdentifier))
 						.withComponent(new DisplayNameComponent("shared library binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
-						.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
-							return objects.newInstance(SharedLibraryBinaryInternal.class);
-						}))
+						.withComponent(managed(of(SharedLibraryBinaryInternal.class)))
 						.build());
 					entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
 				} else if (linkage.isBundle()) {
@@ -366,9 +362,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new IdentifierComponent(binaryIdentifier))
 						.withComponent(new DisplayNameComponent("bundle binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
-						.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
-							return objects.newInstance(BundleBinaryInternal.class);
-						}))
+						.withComponent(managed(of(BundleBinaryInternal.class)))
 						.build());
 				} else if (linkage.isStatic()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("staticLibrary", "static library binary"));
@@ -381,9 +375,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new IdentifierComponent(binaryIdentifier))
 						.withComponent(new DisplayNameComponent("static library binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
-						.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
-							return objects.newInstance(StaticLibraryBinaryInternal.class);
-						}))
+						.withComponent(managed(of(StaticLibraryBinaryInternal.class)))
 						.build());
 					entity.addComponent(new NativeStaticLibraryBinaryComponent(ModelNodes.of(staticLibraryBinary)));
 				}
