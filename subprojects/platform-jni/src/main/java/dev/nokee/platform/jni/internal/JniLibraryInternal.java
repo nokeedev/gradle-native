@@ -90,7 +90,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 
 	@Override
 	public Property<Binary> getDevelopmentBinary() {
-		return ModelProperties.getProperty(this, "developmentBinary").asProperty(property(of(Binary.class)));
+		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {

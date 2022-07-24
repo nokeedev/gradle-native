@@ -42,6 +42,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
+			.withComponent(tag(JniLibraryComponentTag.class))
 			.mergeFrom(tagsOf(JniLibraryComponentInternal.class))
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup))))
 			;
