@@ -15,7 +15,11 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
+import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
@@ -40,6 +44,7 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import javax.inject.Inject;
 
+@DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
 public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
 	, Buildable
 	, HasPublicType

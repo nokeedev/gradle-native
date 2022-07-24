@@ -37,7 +37,6 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationComponent;
-import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
@@ -56,8 +55,6 @@ import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
-import dev.nokee.model.internal.actions.ConfigurableTag;
-import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -70,7 +67,6 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
@@ -96,7 +92,6 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
-import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
@@ -208,8 +203,6 @@ import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelNodeUtils.canBeViewedAs;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
-import static dev.nokee.model.internal.core.ModelProjections.managed;
-import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
@@ -285,7 +278,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, buildVariantComponent, identifier, parent) -> {
-			val objects = project.getObjects();
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val buildVariant = (BuildVariantInternal) buildVariantComponent.get();
 
@@ -326,65 +318,41 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				if (linkage.isExecutable()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("executable", "executable binary"));
 
-					val executableBinary = registry.register(ModelRegistration.builder()
-						.withComponent(tag(IsBinary.class))
-						.withComponent(tag(ConfigurableTag.class))
-						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
-						.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
-						.withComponent(new ElementNameComponent("executable"))
-						.withComponent(new ParentComponent(entity))
+					val executableBinary = registry.register(newEntity("executable", ExecutableBinaryInternal.class, it -> it.ownedBy(entity)
+						.displayName("executable binary")
 						.withComponent(new IdentifierComponent(binaryIdentifier))
-						.withComponent(new DisplayNameComponent("executable binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
-						.withComponent(managed(of(ExecutableBinaryInternal.class)))
-						.build());
+						.withTag(ExcludeFromQualifyingNameTag.class)
+					));
 					entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
 				} else if (linkage.isShared()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("sharedLibrary", "shared library binary"));
 
-					val sharedLibraryBinary = registry.register(ModelRegistration.builder()
-						.withComponent(tag(IsBinary.class))
-						.withComponent(tag(ConfigurableTag.class))
-						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
-						.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
-						.withComponent(new ElementNameComponent("sharedLibrary"))
-						.withComponent(new ParentComponent(entity))
+					val sharedLibraryBinary = registry.register(newEntity("sharedLibrary", SharedLibraryBinaryInternal.class, it -> it.ownedBy(entity)
+						.displayName("shared library binary")
 						.withComponent(new IdentifierComponent(binaryIdentifier))
-						.withComponent(new DisplayNameComponent("shared library binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
-						.withComponent(managed(of(SharedLibraryBinaryInternal.class)))
-						.build());
+						.withTag(ExcludeFromQualifyingNameTag.class)
+					));
 					entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
 				} else if (linkage.isBundle()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("bundle", "bundle binary"));
 
-					registry.register(ModelRegistration.builder()
-						.withComponent(tag(IsBinary.class))
-						.withComponent(tag(ConfigurableTag.class))
-						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
-						.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
-						.withComponent(new ElementNameComponent("bundle"))
-						.withComponent(new ParentComponent(entity))
+					registry.register(newEntity("bundle", BundleBinaryInternal.class, it -> it.ownedBy(entity)
+						.displayName("bundle binary")
 						.withComponent(new IdentifierComponent(binaryIdentifier))
-						.withComponent(new DisplayNameComponent("bundle binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
-						.withComponent(managed(of(BundleBinaryInternal.class)))
-						.build());
+						.withTag(ExcludeFromQualifyingNameTag.class)
+					));
 				} else if (linkage.isStatic()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("staticLibrary", "static library binary"));
 
-					val staticLibraryBinary = registry.register(ModelRegistration.builder()
-						.withComponent(tag(IsBinary.class))
-						.withComponent(tag(ConfigurableTag.class))
-						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
-						.withComponent(tag(NativeLanguageSourceSetAwareTag.class))
-						.withComponent(new ElementNameComponent("staticLibrary"))
-						.withComponent(new ParentComponent(entity))
-						.withComponent(new IdentifierComponent(binaryIdentifier))
-						.withComponent(new DisplayNameComponent("static library binary"))
-						.withComponent(new BuildVariantComponent(buildVariant))
-						.withComponent(managed(of(StaticLibraryBinaryInternal.class)))
-						.build());
+					val staticLibraryBinary = registry.register(newEntity("staticLibrary", StaticLibraryBinaryInternal.class, it -> it.ownedBy(entity)
+							.displayName("static library binary")
+							.withComponent(new IdentifierComponent(binaryIdentifier))
+							.withComponent(new BuildVariantComponent(buildVariant))
+							.withTag(ExcludeFromQualifyingNameTag.class)
+						));
 					entity.addComponent(new NativeStaticLibraryBinaryComponent(ModelNodes.of(staticLibraryBinary)));
 				}
 
