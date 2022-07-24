@@ -34,6 +34,7 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
@@ -113,6 +114,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		, ModelBackedHasBaseNameMixIn
 		, ModelBackedNamedMixIn
 		, ModelBackedHasAssembleTaskMixIn
+		, HasDevelopmentVariantMixIn<NativeLibrary>
 	{
 	}
 
