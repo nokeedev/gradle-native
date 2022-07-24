@@ -40,7 +40,7 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -100,7 +100,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 	, ModelBackedVariantAwareComponentMixIn<IosApplication>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedHasDevelopmentVariantMixIn<IosApplication>
+	, HasDevelopmentVariantMixIn<IosApplication>
 	, ModelBackedNamedMixIn
 {
 	@Getter private final Property<GroupId> groupId;
@@ -147,7 +147,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 
 	@Override
 	public Property<IosApplication> getDevelopmentVariant() {
-		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
+		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override

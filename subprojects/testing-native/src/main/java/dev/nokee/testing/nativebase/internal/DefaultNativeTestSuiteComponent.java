@@ -32,7 +32,6 @@ import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
-import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
@@ -50,7 +49,7 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
@@ -120,7 +119,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, NativeApplicationSourcesAdapter>
 	, ModelBackedVariantAwareComponentMixIn<NativeTestSuiteVariant>
-	, ModelBackedHasDevelopmentVariantMixIn<NativeTestSuiteVariant>
+	, HasDevelopmentVariantMixIn<NativeTestSuiteVariant>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedNamedMixIn
 	, ModelBackedHasAssembleTaskMixIn
@@ -174,7 +173,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 
 	@Override
 	public Property<NativeTestSuiteVariant> getDevelopmentVariant() {
-		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
+		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override

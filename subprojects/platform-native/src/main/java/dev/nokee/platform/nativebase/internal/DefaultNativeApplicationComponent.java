@@ -29,7 +29,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -61,7 +61,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Nativ
 	, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedHasDevelopmentVariantMixIn<NativeApplication>
+	, HasDevelopmentVariantMixIn<NativeApplication>
 	, ModelBackedNamedMixIn
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
@@ -93,7 +93,7 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Nativ
 
 	@Override
 	public Property<NativeApplication> getDevelopmentVariant() {
-		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
+		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override

@@ -52,7 +52,6 @@ import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.DependencyBucket;
-import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.SourceAwareComponent;
 import dev.nokee.platform.base.TaskAwareComponent;
 import dev.nokee.platform.base.TaskView;
@@ -71,7 +70,6 @@ import dev.nokee.platform.base.internal.IsTask;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
@@ -82,6 +80,7 @@ import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryCapability;
+import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantCapability;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
@@ -128,6 +127,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory());
 
 		project.getPluginManager().apply(DevelopmentBinaryCapability.class);
+		project.getPluginManager().apply(DevelopmentVariantCapability.class);
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, component, identifier, parent) -> {
@@ -251,16 +251,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(ModelRegistry.class))));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelBackedHasDevelopmentVariantMixIn.class), ModelComponentReference.of(IdentifierComponent.class), (entity, tag, identifier) -> {
-			modeRegistry.register(builder().withComponent(new ElementNameComponent("developmentVariant")).withComponent(new ParentComponent(entity)).mergeFrom(project.getExtensions().getByType(ModelPropertyRegistrationFactory.class).createProperty(developmentVariantType((ModelType<? extends HasDevelopmentVariant<? extends Variant>>) tag.getType()))).build());
-		})));
-	}
-
-	@SuppressWarnings("unchecked")
-	private static Class<? extends Variant> developmentVariantType(ModelType<? extends HasDevelopmentVariant<? extends Variant>> type) {
-		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(ModelBackedHasDevelopmentVariantMixIn.class)).map(it -> (ModelType<ModelBackedHasDevelopmentVariantMixIn<?>>) it).collect(MoreCollectors.onlyElement());
-		return (Class<? extends Variant>) ((ParameterizedType) t.getType()).getActualTypeArguments()[0];
 	}
 
 	@SuppressWarnings("unchecked")

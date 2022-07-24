@@ -27,7 +27,7 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -55,7 +55,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> imple
 	, ModelBackedHasBaseNameMixIn
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
-	, ModelBackedHasDevelopmentVariantMixIn<JniLibrary>
+	, HasDevelopmentVariantMixIn<JniLibrary>
 	, ModelBackedHasAssembleTaskMixIn
 {
 	@Getter private final GroupId groupId;
@@ -77,7 +77,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> imple
 
 	@Override
 	public Property<JniLibrary> getDevelopmentVariant() {
-		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
+		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override
