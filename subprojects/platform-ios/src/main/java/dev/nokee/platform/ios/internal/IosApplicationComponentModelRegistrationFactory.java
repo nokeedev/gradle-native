@@ -36,6 +36,7 @@ import org.gradle.internal.Cast;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 
 public final class IosApplicationComponentModelRegistrationFactory {
 	private final Class<Component> implementationComponentType;
@@ -54,6 +55,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(IosApplicationComponentTag.class))
+			.withComponent(entityOf(implementationComponentType))
 			.withComponent(createdUsing(of(DefaultIosApplicationComponent.class), () -> create(identifier.getName().get(), project)))
 			;
 

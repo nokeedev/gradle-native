@@ -261,6 +261,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeTestSuiteComponentTag.class))
 			.withComponent(new IdentifierComponent(identifier))
+			.mergeFrom(entityOf(DefaultNativeTestSuiteComponent.class))
 			.build()
 			;
 	}

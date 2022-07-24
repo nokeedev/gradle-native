@@ -251,6 +251,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(tag(IsTestComponent.class))
 			.withComponent(tag(XCTestTestSuiteComponentTag.class))
 			.withComponent(tag(ObjectiveCSourceSetTag.class))
+			.mergeFrom(entityOf(DefaultUnitTestXCTestTestSuiteComponent.class))
 			.build()
 			;
 	}
@@ -273,6 +274,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))
+			.mergeFrom(entityOf(DefaultUiTestXCTestTestSuiteComponent.class))
 			.build()
 			;
 	}
