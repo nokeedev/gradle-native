@@ -25,7 +25,6 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -58,8 +57,8 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 
 	// TODO: The dependencies passed over here should be a read-only like only FileCollections
 	@Inject
-	public SharedLibraryBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, ObjectFactory objects, ProviderFactory providers) {
-		super(identifier, targetMachine, objects, providers);
+	public SharedLibraryBinaryInternal(BinaryIdentifier identifier, ObjectFactory objects, ProviderFactory providers) {
+		super(identifier, objects, providers);
 		this.objects = objects;
 		this.providerFactory = providers;
 		this.linkedFile = objects.fileProperty();
