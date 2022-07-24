@@ -20,7 +20,6 @@ import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.Task;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -28,8 +27,8 @@ public class BaseNativeVariant extends BaseVariant {
 	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	private final TaskProvider<Task> assembleTask;
 
-	public BaseNativeVariant(VariantIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, objects);
+	public BaseNativeVariant(VariantIdentifier identifier, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+		super(identifier);
 		this.providers = providers;
 		this.assembleTask = assembleTask;
 	}
