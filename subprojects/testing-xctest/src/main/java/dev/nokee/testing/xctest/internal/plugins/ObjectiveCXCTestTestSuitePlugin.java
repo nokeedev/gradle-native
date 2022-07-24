@@ -295,7 +295,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.mergeFrom(tagsOf(DefaultXCTestTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
-				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);
+				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, assembleTask);
 			}))
 			.build()
 			;

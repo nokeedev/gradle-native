@@ -26,7 +26,6 @@ import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
@@ -59,8 +58,8 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeTestSuiteVariant(VariantIdentifier identifier, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, providers, assembleTask);
+	public DefaultNativeTestSuiteVariant(ProviderFactory providers, TaskProvider<Task> assembleTask) {
+		super(providers, assembleTask);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 	}
