@@ -32,13 +32,12 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
@@ -88,7 +87,7 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, ModelBackedHasAssembleTaskMixIn
-	, ModelBackedHasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
+	, HasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
@@ -226,6 +225,6 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 
 	@Override
 	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
-		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
+		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 }

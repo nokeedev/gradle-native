@@ -111,6 +111,7 @@ import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigur
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkedConfiguration;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
@@ -182,6 +183,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFile;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.util.GUtil;
@@ -645,6 +647,17 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), StaticLibraryBinary.class)));
 			}
 		}));
+
+		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, developmentVariant, ignored1) -> {
+			((Property<NativeApplication>) developmentVariant.get().get(GradlePropertyComponent.class).get())
+				.convention((Provider<? extends DefaultNativeApplicationVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, developmentVariant, ignored1) -> {
+			((Property<NativeLibrary>) developmentVariant.get().get(GradlePropertyComponent.class).get())
+				.convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) ModelNodeUtils.get(entity, of(DefaultNativeLibraryComponent.class)).getVariants().map(VariantInternal.class::cast).get())));
+		}));
 	}
 
 	private static <T extends ModelComponent & LinkedConfiguration> Callable<Iterable<Configuration>> firstParentConfigurationOf(ParentComponent parent, Class<T> type) {
@@ -694,10 +707,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			this.project = project;
 		}
 
-		@SuppressWarnings("unchecked")
 		public void execute(ModelNode entity) {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeApplicationComponent.class));
+			val component = ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class));
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
@@ -718,7 +730,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			entity.addComponent(new Variants(variants.build()));
 
 			component.finalizeExtension(null);
-			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeApplicationVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 		}
 	}
 
@@ -729,10 +740,9 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			this.project = project;
 		}
 
-		@SuppressWarnings("unchecked")
 		public void execute(ModelNode entity) {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			val component = ModelNodeUtils.get(entity, ModelType.of(DefaultNativeLibraryComponent.class));
+			val component = ModelNodeUtils.get(entity, of(DefaultNativeLibraryComponent.class));
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
 			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
@@ -750,7 +760,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 
 				private void onEachVariantDependencies(DomainObjectProvider<NativeLibrary> variant, VariantComponentDependencies<?> dependencies) {
 					if (NativeLibrary.class.isAssignableFrom(DefaultNativeLibraryVariant.class)) {
-						if (modelLookup.anyMatch(ModelSpecs.of(withType(ModelType.of(SwiftSourceSet.class))))) {
+						if (modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))))) {
 							dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
 								List<? extends Provider<RegularFile>> result = it.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
 									List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();
@@ -775,7 +785,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			entity.addComponent(new Variants(variants.build()));
 
 			component.finalizeExtension(null);
-			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeLibraryVariant>) project.provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
 		}
 	}
 }

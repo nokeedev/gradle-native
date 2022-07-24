@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.platform.base.internal.developmentvariant;
 
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.tags.ModelTag;
 import dev.nokee.platform.base.HasDevelopmentVariant;
 import dev.nokee.platform.base.Variant;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import org.gradle.api.provider.Property;
 
 import static dev.nokee.model.internal.type.ModelType.of;
 
-public interface ModelBackedHasDevelopmentVariantMixIn<T extends Variant> extends HasDevelopmentVariant<T> {
+@DomainObjectEntities.Tag(HasDevelopmentVariantMixIn.Tag.class)
+public interface HasDevelopmentVariantMixIn<T extends Variant> extends HasDevelopmentVariant<T> {
 	@Override
 	@SuppressWarnings("unchecked")
 	default Property<T> getDevelopmentVariant() {
-		return (Property<T>) ModelProperties.getProperty(this, "developmentVariant").asProperty(of(Property.class));
+		return (Property<T>) ModelProperties.of(this, DevelopmentVariantPropertyComponent.class).asProperty(of(Property.class));
 	}
+
+	interface Tag extends ModelTag {}
 }

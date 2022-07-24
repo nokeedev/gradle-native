@@ -32,7 +32,7 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -85,7 +85,7 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, ModelBackedHasAssembleTaskMixIn
-	, ModelBackedHasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
+	, HasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
@@ -201,6 +201,6 @@ public final class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTestTes
 
 	@Override
 	public Property<DefaultXCTestTestSuiteVariant> getDevelopmentVariant() {
-		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
+		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 }

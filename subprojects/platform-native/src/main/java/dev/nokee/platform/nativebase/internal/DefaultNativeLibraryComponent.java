@@ -29,7 +29,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -61,7 +61,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLib
 	, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedHasDevelopmentVariantMixIn<NativeLibrary>
+	, HasDevelopmentVariantMixIn<NativeLibrary>
 	, ModelBackedNamedMixIn
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
@@ -98,7 +98,7 @@ public class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLib
 
 	@Override
 	public Property<NativeLibrary> getDevelopmentVariant() {
-		return ModelBackedHasDevelopmentVariantMixIn.super.getDevelopmentVariant();
+		return HasDevelopmentVariantMixIn.super.getDevelopmentVariant();
 	}
 
 	@Override
