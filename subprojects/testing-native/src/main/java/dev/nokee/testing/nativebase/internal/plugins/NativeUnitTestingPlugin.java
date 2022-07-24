@@ -113,6 +113,7 @@ import org.gradle.api.provider.SetProperty;
 import java.util.Collections;
 import java.util.Set;
 
+import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
@@ -271,6 +272,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(NativeVariantTag.class))
+			.mergeFrom(entityOf(DefaultNativeTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);
