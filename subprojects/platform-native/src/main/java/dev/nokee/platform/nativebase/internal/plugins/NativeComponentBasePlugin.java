@@ -83,7 +83,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -169,7 +168,6 @@ import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetLinkage;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ActionUtils;
@@ -201,7 +199,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
@@ -215,9 +212,9 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
-import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
@@ -291,7 +288,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			val objects = project.getObjects();
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val buildVariant = (BuildVariantInternal) buildVariantComponent.get();
-			final TargetMachine targetMachineInternal = buildVariant.getAxisValue(TARGET_MACHINE_COORDINATE_AXIS);
 
 			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
 				registry.instantiate(configureEach(descendantOf(entity.getId()).and(subtypeOf(of(HasConfigurableHeaders.class))), LanguageSourceSet.class, sourceSet -> {
@@ -339,7 +335,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new DisplayNameComponent("executable binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withComponent(createdUsing(of(ExecutableBinaryInternal.class), () -> {
-							return objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, targetMachineInternal);
+							return objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier);
 						}))
 						.build());
 					entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
@@ -355,7 +351,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new DisplayNameComponent("shared library binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withComponent(createdUsing(of(SharedLibraryBinaryInternal.class), () -> {
-							return objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal);
+							return objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier);
 						}))
 						.build());
 					entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
@@ -371,7 +367,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new DisplayNameComponent("bundle binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withComponent(createdUsing(of(BundleBinaryInternal.class), () -> {
-							return objects.newInstance(BundleBinaryInternal.class, binaryIdentifier, targetMachineInternal);
+							return objects.newInstance(BundleBinaryInternal.class, binaryIdentifier);
 						}))
 						.build());
 				} else if (linkage.isStatic()) {
@@ -386,7 +382,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 						.withComponent(new DisplayNameComponent("static library binary"))
 						.withComponent(new BuildVariantComponent(buildVariant))
 						.withComponent(createdUsing(of(StaticLibraryBinaryInternal.class), () -> {
-							return objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal);
+							return objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier);
 						}))
 						.build());
 					entity.addComponent(new NativeStaticLibraryBinaryComponent(ModelNodes.of(staticLibraryBinary)));

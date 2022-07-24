@@ -24,7 +24,6 @@ import dev.nokee.platform.nativebase.internal.archiving.HasCreateTask;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTask;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.model.ObjectFactory;
@@ -45,8 +44,8 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	, HasObjectFilesToBinaryTask
 {
 	@Inject
-	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, ObjectFactory objects, ProviderFactory providers) {
-		super(identifier, targetMachine, objects, providers);
+	public StaticLibraryBinaryInternal(BinaryIdentifier identifier, ObjectFactory objects, ProviderFactory providers) {
+		super(identifier, objects, providers);
 	}
 
 	@Override

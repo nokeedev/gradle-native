@@ -55,13 +55,11 @@ import static dev.nokee.utils.TransformerUtils.transformEach;
 public abstract class BaseNativeBinary implements Binary, NativeBinary, HasHeaderSearchPaths, ModelNodeAware {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	protected final BinaryIdentifier identifier;
-	@Getter private final TargetMachine targetMachine;
 	private final ObjectFactory objects;
 	private final ProviderFactory providers;
 
-	public BaseNativeBinary(BinaryIdentifier identifier, TargetMachine targetMachine, ObjectFactory objects, ProviderFactory providers) {
+	public BaseNativeBinary(BinaryIdentifier identifier, ObjectFactory objects, ProviderFactory providers) {
 		this.identifier = identifier;
-		this.targetMachine = targetMachine;
 		this.objects = objects;
 		this.providers = providers;
 	}

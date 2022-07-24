@@ -25,7 +25,6 @@ import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
-import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.Buildable;
 import org.gradle.api.model.ObjectFactory;
@@ -49,8 +48,8 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	, HasRuntimeLibrariesDependencyBucket
 {
 	@Inject
-	public ExecutableBinaryInternal(BinaryIdentifier identifier, TargetMachine targetMachine, ObjectFactory objects, ProviderFactory providers) {
-		super(identifier, targetMachine, objects, providers);
+	public ExecutableBinaryInternal(BinaryIdentifier identifier, ObjectFactory objects, ProviderFactory providers) {
+		super(identifier, objects, providers);
 
 		getCreateOrLinkTask().configure(this::configureExecutableTask);
 	}
