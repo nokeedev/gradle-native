@@ -68,10 +68,7 @@ public abstract class AbstractNativeLibraryOutgoingDependencies {
 
 	private Provider<Iterable<PublishArtifact>> getOutgoingLinkLibrary(Binary binary) {
 		if (binary instanceof SharedLibraryBinaryInternal) {
-			if (((SharedLibraryBinaryInternal) binary).getTargetMachine().getOperatingSystemFamily().isWindows()) {
-				return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(it -> ((LinkSharedLibraryTask) it).getImportLibrary()))));
-			}
-			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(LinkSharedLibrary::getLinkedFile))));
+			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((SharedLibraryBinaryInternal) binary).getLinkTask().flatMap(it -> ((LinkSharedLibraryTask) it).getImportLibrary().orElse(((LinkSharedLibraryTask) it).getLinkedFile())))));
 		} else if (binary instanceof StaticLibraryBinary) {
 			return Providers.of(ImmutableList.of(new LazyPublishArtifact(((StaticLibraryBinary) binary).getCreateTask().flatMap(CreateStaticLibrary::getOutputFile))));
 		} else if (binary instanceof HasOutputFile) {
