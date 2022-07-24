@@ -114,10 +114,13 @@ import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurati
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
+import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibrary;
+import dev.nokee.platform.nativebase.SharedLibraryBinary;
+import dev.nokee.platform.nativebase.StaticLibraryBinary;
 import dev.nokee.platform.nativebase.internal.AttachAttributesToConfigurationRule;
 import dev.nokee.platform.nativebase.internal.BundleBinaryInternal;
 import dev.nokee.platform.nativebase.internal.BundleBinaryRegistrationFactory;
@@ -128,7 +131,10 @@ import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.ExecutableBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.NativeApplicationTag;
+import dev.nokee.platform.nativebase.internal.NativeExecutableBinaryComponent;
 import dev.nokee.platform.nativebase.internal.NativeLibraryTag;
+import dev.nokee.platform.nativebase.internal.NativeSharedLibraryBinaryComponent;
+import dev.nokee.platform.nativebase.internal.NativeStaticLibraryBinaryComponent;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.RuntimeLibrariesConfigurationRegistrationRule;
@@ -213,7 +219,9 @@ import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINA
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
+import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
+import static dev.nokee.utils.TaskUtils.configureDescription;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
@@ -320,7 +328,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				if (linkage.isExecutable()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("executable", "executable binary"));
 
-					registry.register(ModelRegistration.builder()
+					val executableBinary = registry.register(ModelRegistration.builder()
 						.withComponent(tag(IsBinary.class))
 						.withComponent(tag(ConfigurableTag.class))
 						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
@@ -332,10 +340,11 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 							return objects.newInstance(ExecutableBinaryInternal.class, binaryIdentifier, targetMachineInternal);
 						}))
 						.build());
+					entity.addComponent(new NativeExecutableBinaryComponent(ModelNodes.of(executableBinary)));
 				} else if (linkage.isShared()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("sharedLibrary", "shared library binary"));
 
-					registry.register(ModelRegistration.builder()
+					val sharedLibraryBinary = registry.register(ModelRegistration.builder()
 						.withComponent(tag(IsBinary.class))
 						.withComponent(tag(ConfigurableTag.class))
 						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
@@ -347,6 +356,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 							return objects.newInstance(SharedLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal);
 						}))
 						.build());
+					entity.addComponent(new NativeSharedLibraryBinaryComponent(ModelNodes.of(sharedLibraryBinary)));
 				} else if (linkage.isBundle()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("bundle", "bundle binary"));
 
@@ -365,7 +375,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				} else if (linkage.isStatic()) {
 					val binaryIdentifier = BinaryIdentifier.of(identifier.get(), BinaryIdentity.ofMain("staticLibrary", "static library binary"));
 
-					registry.register(ModelRegistration.builder()
+					val staticLibraryBinary = registry.register(ModelRegistration.builder()
 						.withComponent(tag(IsBinary.class))
 						.withComponent(tag(ConfigurableTag.class))
 						.withComponent(tag(ExcludeFromQualifyingNameTag.class))
@@ -377,6 +387,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 							return objects.newInstance(StaticLibraryBinaryInternal.class, binaryIdentifier, targetMachineInternal);
 						}))
 						.build());
+					entity.addComponent(new NativeStaticLibraryBinaryComponent(ModelNodes.of(staticLibraryBinary)));
 				}
 
 				if (linkage.isShared() || linkage.isStatic()) {
@@ -604,6 +615,35 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, ignored, tag) -> {
 			new CalculateNativeLibraryVariantAction(project).execute(entity);
+		}));
+
+		// TODO: Should be part of native-application-base plugin
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeExecutableBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
+			if (parent.get().hasComponent(ModelTags.typeOf(NativeApplicationTag.class))) {
+				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("executable", Task.class, it -> it.ownedBy(entity)));
+				lifecycleTask.configure(Task.class, configureBuildGroup());
+				lifecycleTask.configure(Task.class, configureDescription("Assembles a executable binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), ExecutableBinary.class)));
+			}
+		}));
+
+		// TODO: Should be part of native-library-base plugin
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeSharedLibraryBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
+			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
+				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("sharedLibrary", Task.class, it -> it.ownedBy(entity)));
+				lifecycleTask.configure(Task.class, configureBuildGroup());
+				lifecycleTask.configure(Task.class, configureDescription("Assembles a shared library binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), SharedLibraryBinary.class)));
+			}
+		}));
+		// TODO: Should be part of native-library-base plugin
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeVariantTag.class), ModelComponentReference.of(BuildVariantComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(NativeStaticLibraryBinaryComponent.class), (entity, ignored1, buildVariant, parent, binary) -> {
+			if (parent.get().hasComponent(ModelTags.typeOf(NativeLibraryTag.class))) {
+				val lifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity("staticLibrary", Task.class, it -> it.ownedBy(entity)));
+				lifecycleTask.configure(Task.class, configureBuildGroup());
+				lifecycleTask.configure(Task.class, configureDescription("Assembles a static library binary containing the objects files of %s.", binary.get().get(IdentifierComponent.class).get()));
+				lifecycleTask.configure(Task.class, configureDependsOn((Callable<?>) () -> ModelNodeUtils.get(ModelStates.finalize(binary.get()), StaticLibraryBinary.class)));
+			}
 		}));
 	}
 
