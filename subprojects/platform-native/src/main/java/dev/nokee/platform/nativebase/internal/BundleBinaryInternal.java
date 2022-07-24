@@ -16,7 +16,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.model.internal.core.ModelElements;
-import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
@@ -48,8 +47,8 @@ public class BundleBinaryInternal extends BaseNativeBinary implements BundleBina
 	, HasRuntimeLibrariesDependencyBucket
 {
 	@Inject
-	public BundleBinaryInternal(BinaryIdentifier identifier, ObjectFactory objects, ProviderFactory providers) {
-		super(identifier, objects, providers);
+	public BundleBinaryInternal(ObjectFactory objects, ProviderFactory providers) {
+		super(objects, providers);
 
 		getCreateOrLinkTask().configure(this::configureBundleTask);
 	}
