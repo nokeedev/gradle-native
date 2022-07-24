@@ -35,6 +35,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibr
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -58,6 +59,11 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
 		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
+	}
+
+	@Override
+	public Property<Binary> getDevelopmentBinary() {
+		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
 	}
 
 	@Override

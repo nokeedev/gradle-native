@@ -37,6 +37,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComp
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -67,6 +68,11 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	@Override
 	public NativeComponentDependencies getDependencies() {
 		return ModelProperties.getProperty(this, "dependencies").as(NativeComponentDependencies.class).get();
+	}
+
+	@Override
+	public Property<Binary> getDevelopmentBinary() {
+		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
 	}
 
 	@Override
