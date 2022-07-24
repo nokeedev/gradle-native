@@ -40,7 +40,6 @@ import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
@@ -58,8 +57,8 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeTestSuiteVariant(ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(providers, assembleTask);
+	public DefaultNativeTestSuiteVariant(TaskProvider<Task> assembleTask) {
+		super(assembleTask);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 	}
