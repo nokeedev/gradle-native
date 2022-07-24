@@ -28,6 +28,7 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
+import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
@@ -46,6 +47,7 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedNamedMixIn
+	, HasDevelopmentBinaryMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
