@@ -20,19 +20,15 @@ import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import lombok.AccessLevel;
 import lombok.Getter;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 
 public class BaseVariant implements ModelNodeAware {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	@Getter private final VariantIdentifier identifier;
-	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
-	protected BaseVariant(VariantIdentifier identifier, ObjectFactory objects) {
+	protected BaseVariant(VariantIdentifier identifier) {
 		this.identifier = identifier;
-		this.objects = objects;
 	}
 
 	public BuildVariantInternal getBuildVariant() {

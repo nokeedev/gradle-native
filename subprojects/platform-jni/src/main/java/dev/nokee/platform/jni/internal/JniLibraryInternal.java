@@ -46,7 +46,6 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
@@ -70,8 +69,8 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public JniLibraryInternal(VariantIdentifier identifier, ObjectFactory objects) {
-		super(identifier, objects);
+	public JniLibraryInternal(VariantIdentifier identifier) {
+		super(identifier);
 	}
 
 	@Override

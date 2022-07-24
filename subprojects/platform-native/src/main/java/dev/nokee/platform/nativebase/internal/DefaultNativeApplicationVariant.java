@@ -34,7 +34,6 @@ import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
@@ -53,8 +52,8 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeApplicationVariant(VariantIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, objects, providers, assembleTask);
+	public DefaultNativeApplicationVariant(VariantIdentifier identifier, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+		super(identifier, providers, assembleTask);
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {

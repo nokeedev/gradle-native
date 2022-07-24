@@ -34,7 +34,6 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
@@ -53,8 +52,8 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeLibraryVariant(VariantIdentifier identifier, ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, objects, providers, assembleTask);
+	public DefaultNativeLibraryVariant(VariantIdentifier identifier, ProviderFactory providers, TaskProvider<Task> assembleTask) {
+		super(identifier, providers, assembleTask);
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {
