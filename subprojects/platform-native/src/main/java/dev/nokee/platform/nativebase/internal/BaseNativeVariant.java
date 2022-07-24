@@ -16,18 +16,13 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.BaseVariant;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.gradle.api.Task;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
 public class BaseNativeVariant extends BaseVariant {
-	@Getter(AccessLevel.PROTECTED) private final ProviderFactory providers;
 	private final TaskProvider<Task> assembleTask;
 
-	public BaseNativeVariant(ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		this.providers = providers;
+	public BaseNativeVariant(TaskProvider<Task> assembleTask) {
 		this.assembleTask = assembleTask;
 	}
 

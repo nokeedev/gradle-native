@@ -36,7 +36,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComp
 import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
@@ -53,8 +52,8 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultXCTestTestSuiteVariant(ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(providers, assembleTask);
+	public DefaultXCTestTestSuiteVariant(TaskProvider<Task> assembleTask) {
+		super(assembleTask);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}

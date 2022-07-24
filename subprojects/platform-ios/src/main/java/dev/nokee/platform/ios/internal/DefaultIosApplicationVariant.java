@@ -38,7 +38,6 @@ import lombok.Getter;
 import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
@@ -56,8 +55,8 @@ public class DefaultIosApplicationVariant extends BaseNativeVariant implements I
 	@Getter private final Property<String> productBundleIdentifier;
 
 	@Inject
-	public DefaultIosApplicationVariant(ObjectFactory objects, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(providers, assembleTask);
+	public DefaultIosApplicationVariant(ObjectFactory objects, TaskProvider<Task> assembleTask) {
+		super(assembleTask);
 		this.productBundleIdentifier = objects.property(String.class);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
