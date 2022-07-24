@@ -258,7 +258,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUnitTestXCTestTestSuiteComponent> newUnitTestFactory(Project project) {
 		return identifier -> {
-			return new DefaultUnitTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelRegistry.class));
+			return project.getObjects().newInstance(DefaultUnitTestXCTestTestSuiteComponent.class, ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelRegistry.class));
 		};
 	}
 
@@ -281,7 +281,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 	private static DomainObjectFactory<DefaultUiTestXCTestTestSuiteComponent> newUiTestFactory(Project project) {
 		return identifier -> {
-			return new DefaultUiTestXCTestTestSuiteComponent((ComponentIdentifier)identifier, project.getObjects(), project.getProviders(), project.getLayout(), ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelRegistry.class));
+			return project.getObjects().newInstance(DefaultUiTestXCTestTestSuiteComponent.class, ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelRegistry.class));
 		};
 	}
 

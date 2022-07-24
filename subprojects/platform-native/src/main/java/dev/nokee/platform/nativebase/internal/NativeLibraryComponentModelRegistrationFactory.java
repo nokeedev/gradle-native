@@ -49,7 +49,7 @@ public final class NativeLibraryComponentModelRegistrationFactory {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeLibraryTag.class))
 			.mergeFrom(tagsOf(implementationComponentType))
-			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(identifier.getName().toString(), project)))
+			.withComponent(createdUsing(of(DefaultNativeLibraryComponent.class), nativeLibraryProjection(project)))
 			;
 
 		if (identifier.isMainComponent()) {

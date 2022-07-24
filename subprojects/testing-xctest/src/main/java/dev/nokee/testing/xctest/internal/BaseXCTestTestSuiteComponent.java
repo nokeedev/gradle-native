@@ -30,7 +30,6 @@ import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.BundleBinary;
@@ -76,8 +75,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 	@Getter private final Property<String> moduleName;
 	@Getter private final Property<String> productBundleIdentifier;
 
-	public BaseXCTestTestSuiteComponent(ComponentIdentifier identifier, ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry) {
-		super(identifier);
+	public BaseXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry) {
 		this.providers = providers;
 		this.layout = layout;
 		this.taskRegistry = taskRegistry;

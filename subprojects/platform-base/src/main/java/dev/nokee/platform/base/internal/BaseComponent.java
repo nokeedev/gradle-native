@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
@@ -25,8 +26,6 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.VariantView;
-import lombok.Getter;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
@@ -37,14 +36,13 @@ import static dev.nokee.model.internal.type.ModelType.of;
 
 public abstract class BaseComponent<T extends Variant> implements Component, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-	@Getter private final ComponentIdentifier identifier;
 
 	public Property<String> getBaseName() {
 		return ModelProperties.getProperty(this, "baseName").asProperty(property(of(String.class)));
 	}
 
-	protected BaseComponent(ComponentIdentifier identifier) {
-		this.identifier = identifier;
+	public ComponentIdentifier getIdentifier() {
+		return (ComponentIdentifier) node.get(IdentifierComponent.class).get();
 	}
 
 	public abstract Provider<T> getDevelopmentVariant();

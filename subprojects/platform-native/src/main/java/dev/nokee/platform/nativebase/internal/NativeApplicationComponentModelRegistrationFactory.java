@@ -49,7 +49,7 @@ public final class NativeApplicationComponentModelRegistrationFactory {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeApplicationTag.class))
 			.mergeFrom(tagsOf(implementationComponentType))
-			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(identifier.getName().toString(), project)))
+			.withComponent(createdUsing(of(DefaultNativeApplicationComponent.class), nativeApplicationProjection(project)))
 			;
 
 		if (identifier.isMainComponent()) {
