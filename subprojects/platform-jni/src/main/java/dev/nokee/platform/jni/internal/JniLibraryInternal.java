@@ -33,13 +33,11 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
@@ -82,10 +80,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	@Override
 	public Property<Binary> getDevelopmentBinary() {
 		return HasDevelopmentBinaryMixIn.super.getDevelopmentBinary();
-	}
-
-	public ResolvableComponentDependencies getResolvableDependencies() {
-		return node.get(ModelBackedNativeIncomingDependencies.class);
 	}
 
 	@Override

@@ -49,7 +49,6 @@ import dev.nokee.model.internal.core.ModelElements;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelProperty;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
@@ -58,7 +57,6 @@ import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
-import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
@@ -116,10 +114,8 @@ import dev.nokee.platform.jni.internal.actions.WhenPlugin;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.DependentRuntimeLibraries;
 import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryInternal;
-import dev.nokee.platform.nativebase.internal.SharedLibraryBinaryRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.TargetLinkagesPropertyComponent;
 import dev.nokee.platform.nativebase.internal.dependencies.FrameworkAwareDependencyBucketTag;
-import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeIncomingDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
@@ -187,7 +183,6 @@ import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public class JniLibraryBasePlugin implements Plugin<Project> {
@@ -561,10 +556,6 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				val compileOnly = registry.register(newEntity("nativeCompileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 				entity.addComponent(new CompileOnlyConfigurationComponent(ModelNodes.of(compileOnly)));
 			})));
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelTags.referenceOf(IsVariant.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, path, tag, ignored) -> {
-			entity.addComponent(new ModelBackedNativeIncomingDependencies(path.get(), project.getObjects(), project.getProviders(), project.getExtensions().getByType(ModelLookup.class), s -> "native" + capitalize(s)));
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {

@@ -27,14 +27,12 @@ import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.NativeApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
 import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
@@ -43,8 +41,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
-
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
 public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements NativeTestSuiteVariant, VariantInternal, ModelNodeAware
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
@@ -61,10 +57,6 @@ public class DefaultNativeTestSuiteVariant extends BaseNativeVariant implements 
 		super(assembleTask);
 
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
-	}
-
-	public ResolvableComponentDependencies getResolvableDependencies() {
-		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
 	}
 
 	@Override

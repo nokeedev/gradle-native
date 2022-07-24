@@ -23,27 +23,15 @@ import java.util.function.Supplier;
 
 public final class VariantComponentDependencies<T extends NativeComponentDependencies> implements ModelComponent {
 	private final Supplier<T> dependencies;
-	private final NativeIncomingDependencies incoming;
 	private final NativeOutgoingDependencies outgoing;
 
-	public VariantComponentDependencies(Supplier<T> dependencies, NativeIncomingDependencies incoming, NativeOutgoingDependencies outgoing) {
+	public VariantComponentDependencies(Supplier<T> dependencies, NativeOutgoingDependencies outgoing) {
 		this.dependencies = dependencies;
-		this.incoming = incoming;
-		this.outgoing = outgoing;
-	}
-
-	public VariantComponentDependencies(T dependencies, NativeIncomingDependencies incoming, NativeOutgoingDependencies outgoing) {
-		this.dependencies = Suppliers.ofInstance(dependencies);
-		this.incoming = incoming;
 		this.outgoing = outgoing;
 	}
 
 	public T getDependencies() {
 		return dependencies.get();
-	}
-
-	public NativeIncomingDependencies getIncoming() {
-		return incoming;
 	}
 
 	public NativeOutgoingDependencies getOutgoing() {

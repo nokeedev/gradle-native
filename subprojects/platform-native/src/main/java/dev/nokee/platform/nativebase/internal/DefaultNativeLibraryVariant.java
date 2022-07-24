@@ -26,19 +26,15 @@ import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
-import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDependencies;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
-
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
 public class DefaultNativeLibraryVariant extends BaseNativeVariant implements NativeLibrary, VariantInternal, ModelNodeAware
 	, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
@@ -52,10 +48,6 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	@Inject
 	public DefaultNativeLibraryVariant(TaskProvider<Task> assembleTask) {
 		super(assembleTask);
-	}
-
-	public ResolvableComponentDependencies getResolvableDependencies() {
-		return node.getComponent(componentOf(VariantComponentDependencies.class)).getIncoming();
 	}
 
 	@Override
