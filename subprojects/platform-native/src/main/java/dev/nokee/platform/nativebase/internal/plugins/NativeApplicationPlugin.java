@@ -65,6 +65,7 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
@@ -107,6 +108,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(NativeVariantTag.class))
+			.mergeFrom(entityOf(DefaultNativeApplicationVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeApplicationVariant.class), () -> {
 				val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
