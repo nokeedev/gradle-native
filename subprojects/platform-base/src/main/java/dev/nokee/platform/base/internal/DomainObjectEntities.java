@@ -71,6 +71,18 @@ public final class DomainObjectEntities {
 		return result.build();
 	}
 
+	public static <T> ModelRegistration tagsOf(Class<T> type) {
+		val builder = ModelRegistration.builder();
+		val tagAnnotations = new LinkedHashSet<Tag>();
+		findAnnotations(type, Tag.class, tagAnnotations);
+		for (Tag tags : tagAnnotations) {
+			for (Class<? extends ModelTag> tag : tags.value()) {
+				builder.withComponent(ModelTags.tag(tag));
+			}
+		}
+		return builder.build();
+	}
+
 	public static <T> ModelRegistration entityOf(Class<T> type) {
 		val builder = ModelRegistration.builder();
 		val tagAnnotations = new LinkedHashSet<Tag>();

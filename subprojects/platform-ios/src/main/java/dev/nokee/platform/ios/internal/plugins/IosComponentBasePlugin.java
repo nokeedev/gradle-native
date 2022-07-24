@@ -86,8 +86,6 @@ import org.gradle.api.provider.SetProperty;
 
 import java.util.Collections;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
@@ -95,6 +93,8 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
@@ -194,7 +194,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			.withComponent(tag(IsVariant.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeVariantTag.class))
-			.mergeFrom(entityOf(DefaultIosApplicationVariant.class))
+			.mergeFrom(tagsOf(DefaultIosApplicationVariant.class))
 			.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);
