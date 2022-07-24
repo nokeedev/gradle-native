@@ -25,18 +25,14 @@ import lombok.Getter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 
-import static dev.nokee.utils.ConfigureUtils.configureDisplayName;
-
 public class BaseVariant implements ModelNodeAware {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
 	@Getter private final VariantIdentifier identifier;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
-	private final Property<Binary> developmentBinary;
 
 	protected BaseVariant(VariantIdentifier identifier, ObjectFactory objects) {
 		this.identifier = identifier;
 		this.objects = objects;
-		this.developmentBinary = configureDisplayName(objects.property(Binary.class), "developmentBinary");
 	}
 
 	public BuildVariantInternal getBuildVariant() {
@@ -48,7 +44,7 @@ public class BaseVariant implements ModelNodeAware {
 	}
 
 	public Property<Binary> getDevelopmentBinary() {
-		return developmentBinary;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
