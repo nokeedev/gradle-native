@@ -19,19 +19,13 @@ import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeUtils;
-import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.internal.BaseNameComponent;
-import dev.nokee.platform.base.internal.BaseNamePropertyComponent;
-import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryComponent;
 import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.base.testers.HasBaseNameTester;
 import dev.nokee.platform.base.testers.HasDevelopmentBinaryTester;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,13 +61,6 @@ class HasDevelopmentBinaryMixInIntegrationTest {
 	void hasDevelopmentBinaryPropertyWhenDiscovered() {
 		assertFalse(entity.has(DevelopmentBinaryPropertyComponent.class));
 		assertTrue(discover(entity).has(DevelopmentBinaryPropertyComponent.class));
-	}
-
-	@Test
-	void hasDevelopmentBinaryWhenFinalized() {
-		assertFalse(entity.has(DevelopmentBinaryComponent.class));
-		assertFalse(discover(entity).has(DevelopmentBinaryComponent.class));
-		assertTrue(ModelStates.finalize(entity).has(DevelopmentBinaryComponent.class));
 	}
 
 	@Nested

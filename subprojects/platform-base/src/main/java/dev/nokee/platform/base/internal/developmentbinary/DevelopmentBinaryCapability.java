@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.developmentbinary;
 
-import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -23,7 +22,6 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -31,19 +29,15 @@ import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.PluginAware;
-import org.gradle.api.provider.Property;
 
 import static dev.nokee.model.internal.core.ModelPropertyRegistrationFactory.property;
 import static dev.nokee.model.internal.state.ModelStates.register;
-import static dev.nokee.utils.ProviderUtils.finalizeValue;
 
 public class DevelopmentBinaryCapability<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	@Override
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class)
 			.configure(new OnDiscover(new RegisterDevelopmentBinaryPropertyRule(target.getExtensions().getByType(ModelRegistry.class))));
-		target.getExtensions().getByType(ModelConfigurer.class)
-			.configure(new FinalizeDevelopmentBinaryPropertyRule());
 	}
 
 	private static final class RegisterDevelopmentBinaryPropertyRule extends ModelActionWithInputs.ModelAction1<ModelComponentTag<HasDevelopmentBinaryMixIn.Tag>> {
@@ -61,15 +55,6 @@ public class DevelopmentBinaryCapability<T extends ExtensionAware & PluginAware>
 				.mergeFrom(property(Binary.class))
 				.build()));
 			entity.addComponent(new DevelopmentBinaryPropertyComponent(developmentBinaryProperty));
-		}
-	}
-
-	private static final class FinalizeDevelopmentBinaryPropertyRule extends ModelActionWithInputs.ModelAction2<DevelopmentBinaryPropertyComponent, ModelStates.Finalizing> {
-		@Override
-		protected void execute(ModelNode entity, DevelopmentBinaryPropertyComponent developmentBinary, ModelStates.Finalizing ignored1) {
-			@SuppressWarnings("unchecked")
-			val property = (Property<Binary>) developmentBinary.get().get(GradlePropertyComponent.class).get();
-			entity.addComponent(new DevelopmentBinaryComponent(finalizeValue(property).getOrNull()));
 		}
 	}
 }
