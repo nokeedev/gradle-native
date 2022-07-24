@@ -46,6 +46,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(tag(IsVariant.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(identifier))
+			.withComponent(tag(JniLibraryVariantTag.class))
 			.mergeFrom(tagsOf(JniLibraryInternal.class))
 			.withComponent(createdUsing(of(JniLibraryInternal.class), () -> project.getObjects().newInstance(JniLibraryInternal.class, identifier, project.getObjects())))
 			.build();
