@@ -113,8 +113,6 @@ import org.gradle.api.provider.SetProperty;
 import java.util.Collections;
 import java.util.Set;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
@@ -124,6 +122,8 @@ import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
@@ -261,7 +261,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeTestSuiteComponentTag.class))
 			.withComponent(new IdentifierComponent(identifier))
-			.mergeFrom(entityOf(DefaultNativeTestSuiteComponent.class))
+			.mergeFrom(tagsOf(DefaultNativeTestSuiteComponent.class))
 			.build()
 			;
 	}
@@ -273,7 +273,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(NativeVariantTag.class))
-			.mergeFrom(entityOf(DefaultNativeTestSuiteVariant.class))
+			.mergeFrom(tagsOf(DefaultNativeTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);

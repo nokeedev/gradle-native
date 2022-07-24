@@ -105,8 +105,6 @@ import org.gradle.util.GUtil;
 import javax.inject.Inject;
 import java.util.Collections;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
@@ -114,6 +112,8 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
@@ -251,7 +251,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(tag(IsTestComponent.class))
 			.withComponent(tag(XCTestTestSuiteComponentTag.class))
 			.withComponent(tag(ObjectiveCSourceSetTag.class))
-			.mergeFrom(entityOf(DefaultUnitTestXCTestTestSuiteComponent.class))
+			.mergeFrom(tagsOf(DefaultUnitTestXCTestTestSuiteComponent.class))
 			.build()
 			;
 	}
@@ -274,7 +274,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))
-			.mergeFrom(entityOf(DefaultUiTestXCTestTestSuiteComponent.class))
+			.mergeFrom(tagsOf(DefaultUiTestXCTestTestSuiteComponent.class))
 			.build()
 			;
 	}
@@ -292,7 +292,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(tag(IsVariant.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeVariantTag.class))
-			.mergeFrom(entityOf(DefaultXCTestTestSuiteVariant.class))
+			.mergeFrom(tagsOf(DefaultXCTestTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultXCTestTestSuiteVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
 				return project.getObjects().newInstance(DefaultXCTestTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);

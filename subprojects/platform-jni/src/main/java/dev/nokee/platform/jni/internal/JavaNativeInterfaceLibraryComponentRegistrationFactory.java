@@ -28,7 +28,7 @@ import org.gradle.api.Project;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 
 public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 	private final Project project;
@@ -42,7 +42,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.mergeFrom(entityOf(JniLibraryComponentInternal.class))
+			.mergeFrom(tagsOf(JniLibraryComponentInternal.class))
 			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, identifier, GroupId.of(project::getGroup))))
 			;
 
