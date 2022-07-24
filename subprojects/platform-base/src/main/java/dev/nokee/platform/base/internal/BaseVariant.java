@@ -15,24 +15,23 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
-import lombok.Getter;
 import org.gradle.api.provider.Property;
 
 public class BaseVariant implements ModelNodeAware {
 	private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
-	@Getter private final VariantIdentifier identifier;
 
-	protected BaseVariant(VariantIdentifier identifier) {
-		this.identifier = identifier;
+	public VariantIdentifier getIdentifier() {
+		return (VariantIdentifier) entity.get(IdentifierComponent.class).get();
 	}
 
 	public BuildVariantInternal getBuildVariant() {
-		return (BuildVariantInternal) identifier.getBuildVariant();
+		return (BuildVariantInternal) getIdentifier().getBuildVariant();
 	}
 
 	public BinaryView<Binary> getBinaries() {

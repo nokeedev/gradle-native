@@ -25,7 +25,6 @@ import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
@@ -52,8 +51,8 @@ public class DefaultNativeLibraryVariant extends BaseNativeVariant implements Na
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultNativeLibraryVariant(VariantIdentifier identifier, ProviderFactory providers, TaskProvider<Task> assembleTask) {
-		super(identifier, providers, assembleTask);
+	public DefaultNativeLibraryVariant(ProviderFactory providers, TaskProvider<Task> assembleTask) {
+		super(providers, assembleTask);
 	}
 
 	public ResolvableComponentDependencies getResolvableDependencies() {

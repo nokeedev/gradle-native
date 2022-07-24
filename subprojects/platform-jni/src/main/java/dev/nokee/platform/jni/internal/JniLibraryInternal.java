@@ -32,7 +32,6 @@ import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
-import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.dependencies.ResolvableComponentDependencies;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
@@ -52,8 +51,6 @@ import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.util.ConfigureUtil;
 
-import javax.inject.Inject;
-
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
@@ -67,11 +64,6 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	, HasDevelopmentBinaryMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
-	@Inject
-	public JniLibraryInternal(VariantIdentifier identifier) {
-		super(identifier);
-	}
 
 	@Override
 	public Property<String> getResourcePath() {

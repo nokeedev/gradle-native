@@ -276,7 +276,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.mergeFrom(tagsOf(DefaultNativeTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteVariant.class), () -> {
 				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
-				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, identifier, project.getObjects(), project.getProviders(), assembleTask);
+				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, assembleTask);
 			}))
 			.build()
 			;
