@@ -16,17 +16,15 @@
 package dev.nokee.platform.base.internal.tasks;
 
 import dev.nokee.model.internal.core.ModelComponent;
-import org.gradle.api.Task;
 
-public final class TaskTypeComponent implements ModelComponent {
-	private final Class<Task> value;
+public final class TaskDescriptionComponent implements ModelComponent {
+	private final String value;
 
-	@SuppressWarnings("unchecked")
-	public TaskTypeComponent(Class<? extends Task> value) {
-		this.value = (Class<Task>) value;
+	public TaskDescriptionComponent(String value) {
+		this.value = value;
 	}
 
-	public Class<Task> get() {
+	public String get() {
 		return value;
 	}
 }

@@ -83,6 +83,7 @@ import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryCapab
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantCapability;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.tasks.TaskCapabilityPlugin;
 import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -118,10 +119,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory());
 
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
-
-		project.getTasks().configureEach(task -> {
-			project.getExtensions().getByType(ModelLookup.class).query(entity -> entity.hasComponent(typeOf(IsTask.class)) && entity.find(FullyQualifiedNameComponent.class).map(FullyQualifiedNameComponent::get).map(Objects::toString).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
-		});
+		project.getPluginManager().apply(TaskCapabilityPlugin.class);
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory());
@@ -182,15 +180,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.build());
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(TaskTypeComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, ignored1, implementationType, fullyQualifiedName) -> {
-			val taskRegistry = PolymorphicDomainObjectRegistry.of(project.getTasks());
-			MutationGuards.of(project.getTasks()).withMutationEnabled(__ -> {
-				val taskProvider = (TaskProvider<Task>) taskRegistry.registerIfAbsent(fullyQualifiedName.get().toString(), implementationType.get());
-				entity.addComponent(new ModelElementProviderSourceComponent(taskProvider));
-				entity.addComponent(createdUsingNoInject(ModelType.of((Class<Task>)implementationType.get()), taskProvider::get));
-				entity.addComponent(createdUsing(ModelType.of(TaskProvider.class), () -> taskProvider));
-			}).execute(null);
-		}));
 		// ComponentFromEntity<ParentComponent> read-only self
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsTask.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastCreated.class), (entity, ignored1, path, displayName, elementName, ignored2) -> {
 			if (!entity.has(IdentifierComponent.class)) {

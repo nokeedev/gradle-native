@@ -98,7 +98,7 @@ public final class DomainObjectEntities {
 			builder.withComponent(ModelTags.tag(ConfigurableTag.class));
 
 			@SuppressWarnings("unchecked")
-			val taskType = (Class<? extends Task>) type;
+			val taskType = (Class<Task>) type;
 			builder.withComponent(new TaskTypeComponent(taskType));
 		} else {
 			// It's important to add the projection at the end because there is a tiny bug with ModelProjection specifically.

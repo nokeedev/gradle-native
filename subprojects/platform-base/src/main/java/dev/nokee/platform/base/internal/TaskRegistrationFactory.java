@@ -26,13 +26,14 @@ import org.gradle.api.Task;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 public final class TaskRegistrationFactory {
+	@SuppressWarnings("unchecked")
 	public <T extends Task> ModelRegistration.Builder create(TaskIdentifier<?> identifier, Class<T> type) {
 		return ModelRegistration.builder()
 			.withComponent(new ElementNameComponent(identifier.getName()))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsTask.class))
 			.withComponent(tag(ConfigurableTag.class))
-			.withComponent(new TaskTypeComponent(type))
+			.withComponent(new TaskTypeComponent((Class<Task>) type))
 			;
 	}
 }
