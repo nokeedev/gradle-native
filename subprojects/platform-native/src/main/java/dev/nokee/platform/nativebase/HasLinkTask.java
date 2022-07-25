@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal.linking;
+package dev.nokee.platform.nativebase;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import org.gradle.api.tasks.TaskProvider;
 
-public final class NativeLinkTask implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
-
-	public NativeLinkTask(ModelNode value) {
-		this.value = value;
-	}
-
-	public ModelNode get() {
-		return value;
-	}
+/**
+ * Represents a component that carries a native link task typically named {@literal link}.
+ *
+ * @since 0.5
+ */
+public interface HasLinkTask<T extends ObjectLink> {
+	/**
+	 * Returns a provider for the task that links the object files into this binary.
+	 *
+	 * @return a provider of {@link ObjectLink} task, never null.
+	 */
+	TaskProvider<T> getLinkTask();
 }

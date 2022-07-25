@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base;
+package dev.nokee.platform.nativebase;
 
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
@@ -23,10 +23,10 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
-import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
-import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
-import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
-import dev.nokee.platform.base.testers.HasDevelopmentVariantTester;
+import dev.nokee.platform.nativebase.internal.archiving.HasCreateTaskMixIn;
+import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTask;
+import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
+import dev.nokee.platform.nativebase.testers.HasCreateTaskTester;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -39,41 +39,40 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@PluginRequirement.Require(type = ComponentModelBasePlugin.class)
+@PluginRequirement.Require(type = NativeComponentBasePlugin.class)
 @ExtendWith(GradleTestExtension.class)
-class HasDevelopmentVariantMixInIntegrationTest {
+class HasCreateTaskMixInIntegrationTest {
 	ModelNode entity;
 
 	@BeforeEach
 	void createSubject(Project project) {
 		entity = project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelRegistration.builder()
-			.withComponent(new ElementNameComponent("lkew"))
-			.mergeFrom(entityOf(HasDevelopmentVariantMixIn.class))
+			.mergeFrom(entityOf(HasCreateTaskMixIn.class))
 			.build());
 	}
 
 	@Test
-	void hasDevelopmentVariantTag() {
-		assertTrue(entity.hasComponent(typeOf(HasDevelopmentVariantMixIn.Tag.class)));
+	void hasCreateTaskTag() {
+		assertTrue(entity.hasComponent(typeOf(HasCreateTaskMixIn.Tag.class)));
 	}
 
 	@Test
-	void hasDevelopmentVariantPropertyWhenDiscovered() {
-		assertFalse(entity.has(DevelopmentVariantPropertyComponent.class));
-		assertTrue(discover(entity).has(DevelopmentVariantPropertyComponent.class));
+	void hasNativeArchiveTaskWhenDiscovered() {
+		assertFalse(entity.has(NativeArchiveTask.class));
+		assertTrue(discover(entity).has(NativeArchiveTask.class));
 	}
 
 	@Nested
-	class HasDevelopmentVariantProjectionTest implements HasDevelopmentVariantTester {
-		HasDevelopmentVariantMixIn<?> subject;
+	class HasCreateTaskProjectionTest implements HasCreateTaskTester {
+		HasCreateTaskMixIn subject;
 
 		@BeforeEach
 		void realizeProjection() {
-			subject = ModelNodeUtils.get(ModelStates.realize(entity), HasDevelopmentVariantMixIn.class);
+			subject = ModelNodeUtils.get(ModelStates.realize(entity), HasCreateTaskMixIn.class);
 		}
 
 		@Override
-		public HasDevelopmentVariantMixIn<?> subject() {
+		public HasCreateTask subject() {
 			return subject;
 		}
 	}

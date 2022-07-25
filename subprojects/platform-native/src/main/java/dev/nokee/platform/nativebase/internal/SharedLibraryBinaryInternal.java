@@ -24,7 +24,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
-import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkTaskMixIn;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
@@ -50,7 +50,7 @@ public class SharedLibraryBinaryInternal extends BaseNativeBinary implements Sha
 	, HasPublicType
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
-	, HasLinkTask<LinkSharedLibrary, LinkSharedLibraryTask>
+	, HasLinkTaskMixIn<LinkSharedLibrary>
 	, HasObjectFilesToBinaryTask
 	, HasLinkLibrariesDependencyBucket
 	, HasRuntimeLibrariesDependencyBucket

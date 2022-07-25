@@ -15,18 +15,14 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.platform.nativebase.HasLinkTask;
+import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import org.gradle.api.tasks.TaskProvider;
 
-public final class NativeLinkTask implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
-
-	public NativeLinkTask(ModelNode value) {
-		this.value = value;
-	}
-
-	public ModelNode get() {
-		return value;
+public interface HasLinkTaskMixIn<T extends ObjectLink> extends HasLinkTask<T> {
+	@SuppressWarnings("unchecked") // IntelliJ is retarded
+	default TaskProvider<T> getLinkTask() {
+		return (TaskProvider<T>) ModelElements.of(this, NativeLinkTask.class).as(ObjectLink.class).asProvider();
 	}
 }

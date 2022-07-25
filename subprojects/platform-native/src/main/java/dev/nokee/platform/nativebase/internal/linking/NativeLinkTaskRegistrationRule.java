@@ -36,7 +36,13 @@ import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
+import dev.nokee.platform.nativebase.tasks.LinkBundle;
+import dev.nokee.platform.nativebase.tasks.LinkExecutable;
+import dev.nokee.platform.nativebase.tasks.LinkSharedLibrary;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
+import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
+import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -61,21 +67,20 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.model.internal.type.ModelType.of;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.addAll;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
-import static dev.nokee.utils.TaskUtils.configureDescription;
 
 final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelProjection> {
 	private final ModelRegistry registry;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public NativeLinkTaskRegistrationRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasLinkTask.class));
+		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasLinkTaskMixIn.class));
 		this.registry = registry;
 		this.toolChainSelector = toolChainSelector;
 	}
@@ -83,10 +88,9 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 	@Override
 	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelProjection projection) {
 		@SuppressWarnings("unchecked")
-		val implementationType = taskType((ModelType<? extends HasLinkTask<? extends ObjectLink, ? extends ObjectLink>>) projection.getType());
+		val implementationType = implementationType(taskType((ModelType<? extends HasLinkTaskMixIn<? extends ObjectLink>>) projection.getType()));
 
 		val linkTask = registry.register(newEntity("link", implementationType, it -> it.ownedBy(entity)));
-		linkTask.configure(implementationType, configureDescription("Links the %s.", identifier.get()));
 		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		linkTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
 		if (ModelNodeUtils.canBeViewedAs(entity, of(ExecutableBinary.class))) {
@@ -100,9 +104,21 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 	}
 
 	@SuppressWarnings("unchecked")
-	private static Class<? extends ObjectLink> taskType(ModelType<? extends HasLinkTask<? extends ObjectLink, ? extends ObjectLink>> type) {
-		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(HasLinkTask.class)).map(it -> (ModelType<Task>) it).collect(MoreCollectors.onlyElement());
-		return (Class<? extends ObjectLink>) ((ParameterizedType) t.getType()).getActualTypeArguments()[1];
+	private static Class<? extends ObjectLink> taskType(ModelType<? extends HasLinkTaskMixIn<? extends ObjectLink>> type) {
+		val t = type.getInterfaces().stream().filter(it -> it.getRawType().equals(HasLinkTaskMixIn.class)).map(it -> (ModelType<Task>) it).collect(MoreCollectors.onlyElement());
+		return (Class<? extends ObjectLink>) ((ParameterizedType) t.getType()).getActualTypeArguments()[0];
+	}
+
+	private static Class<? extends ObjectLink> implementationType(Class<? extends ObjectLink> type) {
+		if (LinkExecutable.class.isAssignableFrom(type)) {
+			return LinkExecutableTask.class;
+		} else if (LinkSharedLibrary.class.isAssignableFrom(type)) {
+			return LinkSharedLibraryTask.class;
+		} else if (LinkBundle.class.isAssignableFrom(type)) {
+			return LinkBundleTask.class;
+		} else {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	//region Destination directory

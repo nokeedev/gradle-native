@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal.linking;
+package dev.nokee.platform.nativebase.testers;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.platform.nativebase.HasLinkTask;
+import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import org.gradle.api.tasks.TaskProvider;
+import org.junit.jupiter.api.Test;
 
-public final class NativeLinkTask implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
 
-	public NativeLinkTask(ModelNode value) {
-		this.value = value;
-	}
+public interface HasLinkTaskTester<T extends ObjectLink> {
+	HasLinkTask<T> subject();
 
-	public ModelNode get() {
-		return value;
+	@Test
+	default void hasLinkTask() {
+		assertThat(subject().getLinkTask(), isA(TaskProvider.class));
 	}
 }

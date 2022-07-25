@@ -63,34 +63,32 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
 import static dev.nokee.utils.TaskUtils.configureDescription;
 
-final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.ModelAction2<IdentifierComponent, ModelProjection> {
+final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
 	private final ModelRegistry registry;
 	private final NativeToolChainSelector toolChainSelector;
 
 	public NativeArchiveTaskRegistrationRule(ModelRegistry registry, NativeToolChainSelector toolChainSelector) {
-		super(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasCreateTask.class));
+		super(ModelComponentReference.ofProjection(HasCreateTaskMixIn.class));
 		this.registry = registry;
 		this.toolChainSelector = toolChainSelector;
 	}
 
 	@Override
-	protected void execute(ModelNode entity, IdentifierComponent identifier, ModelProjection projection) {
+	protected void execute(ModelNode entity, ModelProjection projection) {
 		val implementationType = CreateStaticLibraryTask.class;
 
-		val createTask = registry.register(newEntity("create", implementationType, it -> it.ownedBy(entity)));
-		createTask.configure(implementationType, configureDescription("Creates the %s.", identifier.get()));
+		val createTask = registry.register(newEntity("create", CreateStaticLibraryTask.class, it -> it.ownedBy(entity)));
 //		linkTask.configure(implementationType, configureLinkerArgs(addAll(forMacOsSdkIfAvailable())));
 		createTask.configure(implementationType, configureToolChain(convention(selectToolChainUsing(toolChainSelector)).andThen(lockProperty())));
-		createTask.configure(implementationType, configureDestinationDirectory(convention(forLibrary(identifier.get()))));
 		entity.addComponent(new NativeArchiveTask(ModelNodes.of(createTask)));
 	}
 
 	//region Destination directory
-	private static <SELF extends Task & HasDestinationDirectory> Action<SELF> configureDestinationDirectory(BiConsumer<? super SELF, ? super PropertyUtils.Property<? extends Directory>> action) {
+	public static <SELF extends Task & HasDestinationDirectory> Action<SELF> configureDestinationDirectory(BiConsumer<? super SELF, ? super PropertyUtils.Property<? extends Directory>> action) {
 		return task -> action.accept(task, wrap(task.getDestinationDirectory()));
 	}
 
-	private static Function<Task, Provider<Directory>> forLibrary(DomainObjectIdentifier identifier) {
+	public static Function<Task, Provider<Directory>> forLibrary(DomainObjectIdentifier identifier) {
 		return task -> task.getProject().getLayout().getBuildDirectory().dir("libs/" + OutputDirectoryPath.fromIdentifier(identifier));
 	}
 	//endregion
