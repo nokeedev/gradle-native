@@ -21,7 +21,6 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
-import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
@@ -38,11 +37,9 @@ import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
-import lombok.Getter;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
-import javax.inject.Inject;
 import java.util.Set;
 
 public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
@@ -59,13 +56,6 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> imple
 	, ModelBackedHasAssembleTaskMixIn
 	, HasDevelopmentBinaryMixIn
 {
-	@Getter private final GroupId groupId;
-
-	@Inject
-	public JniLibraryComponentInternal(GroupId groupId) {
-		this.groupId = groupId;
-	}
-
 	public VariantView<JniLibrary> getVariants() {
 		return ModelBackedVariantAwareComponentMixIn.super.getVariants();
 	}
