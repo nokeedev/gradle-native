@@ -16,17 +16,22 @@
 package dev.nokee.platform.base.internal.tasks;
 
 import dev.nokee.model.internal.core.ModelComponent;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Task;
 
-public final class TaskTypeComponent implements ModelComponent {
-	private final Class<Task> value;
+public final class TaskProjectionComponent implements ModelComponent {
+	private final NamedDomainObjectProvider<Task> value;
 
-	@SuppressWarnings("unchecked")
-	public TaskTypeComponent(Class<? extends Task> value) {
-		this.value = (Class<Task>) value;
+	public TaskProjectionComponent(NamedDomainObjectProvider<Task> value) {
+		this.value = value;
 	}
 
-	public Class<Task> get() {
+	public void configure(Action<? super Task> action) {
+		value.configure(action);
+	}
+
+	public NamedDomainObjectProvider<Task> get() {
 		return value;
 	}
 }
