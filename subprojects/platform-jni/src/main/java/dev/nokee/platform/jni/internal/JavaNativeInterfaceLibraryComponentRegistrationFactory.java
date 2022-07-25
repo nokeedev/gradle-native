@@ -20,23 +20,15 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsComponent;
 import lombok.val;
-import org.gradle.api.Project;
 
-import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
+import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 
 public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
-	private final Project project;
-
-	public JavaNativeInterfaceLibraryComponentRegistrationFactory(Project project) {
-		this.project = project;
-	}
-
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val builder = ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
@@ -44,7 +36,7 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(JniLibraryComponentTag.class))
 			.mergeFrom(tagsOf(JniLibraryComponentInternal.class))
-			.withComponent(createdUsing(of(JniLibraryComponentInternal.class), () -> project.getObjects().newInstance(JniLibraryComponentInternal.class, GroupId.of(project::getGroup))))
+			.withComponent(managed(of(JniLibraryComponentInternal.class)))
 			;
 
 		if (identifier.isMainComponent()) {

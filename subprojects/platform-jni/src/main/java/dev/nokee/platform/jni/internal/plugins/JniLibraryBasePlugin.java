@@ -197,8 +197,8 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 
 		project.getExtensions().add("__nokee_jniJarBinaryFactory", new JniJarBinaryRegistrationFactory());
 		project.getExtensions().add("__nokee_jvmJarBinaryFactory", new JvmJarBinaryRegistrationFactory());
-		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory(project));
-		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory(project));
+		project.getExtensions().add("__nokee_jniLibraryComponentFactory", new JavaNativeInterfaceLibraryComponentRegistrationFactory());
+		project.getExtensions().add("__nokee_jniLibraryVariantFactory", new JavaNativeInterfaceLibraryVariantRegistrationFactory());
 
 		// Component rules
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, tag) -> {
@@ -331,7 +331,7 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 			runtimeElements.addAll(values);
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ElementNameComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, identifier, elementName, ignored, projection) -> {
-			val variantFactory = new JavaNativeInterfaceLibraryVariantRegistrationFactory(project);
+			val variantFactory = new JavaNativeInterfaceLibraryVariantRegistrationFactory();
 			val component = ModelNodeUtils.get(entity, JniLibraryComponentInternal.class);
 
 			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
