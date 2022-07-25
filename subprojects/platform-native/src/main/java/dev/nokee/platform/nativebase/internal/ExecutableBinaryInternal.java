@@ -24,7 +24,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
-import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkTaskMixIn;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkTask;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
@@ -46,7 +46,7 @@ public class ExecutableBinaryInternal extends BaseNativeBinary implements Execut
 	, HasPublicType
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
-	, HasLinkTask<LinkExecutable, LinkExecutableTask>
+	, HasLinkTaskMixIn<LinkExecutable>
 	, HasObjectFilesToBinaryTask
 	, HasLinkLibrariesDependencyBucket
 	, HasRuntimeLibrariesDependencyBucket

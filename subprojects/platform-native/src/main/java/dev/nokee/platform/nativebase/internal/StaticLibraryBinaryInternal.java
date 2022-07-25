@@ -23,7 +23,7 @@ import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
-import dev.nokee.platform.nativebase.internal.archiving.HasCreateTask;
+import dev.nokee.platform.nativebase.internal.archiving.HasCreateTaskMixIn;
 import dev.nokee.platform.nativebase.internal.archiving.NativeArchiveTask;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
@@ -44,7 +44,7 @@ public class StaticLibraryBinaryInternal extends BaseNativeBinary implements Sta
 	, HasPublicType
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
-	, HasCreateTask
+	, HasCreateTaskMixIn
 	, HasObjectFilesToBinaryTask
 {
 	@Inject

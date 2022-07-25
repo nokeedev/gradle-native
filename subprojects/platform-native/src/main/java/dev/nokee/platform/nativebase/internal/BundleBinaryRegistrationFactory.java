@@ -33,7 +33,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.internal.linking.HasLinkLibrariesDependencyBucket;
-import dev.nokee.platform.nativebase.internal.linking.HasLinkTask;
+import dev.nokee.platform.nativebase.internal.linking.HasLinkTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.LinkBundle;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.utils.TaskDependencyUtils;
@@ -77,7 +77,7 @@ public final class BundleBinaryRegistrationFactory {
 		, HasHeaderSearchPaths
 		, HasLinkLibrariesDependencyBucket
 		, HasRuntimeLibrariesDependencyBucket
-		, HasLinkTask<LinkBundle, LinkBundleTask>
+		, HasLinkTaskMixIn<LinkBundle>
 		, HasObjectFilesToBinaryTask
 	{
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();

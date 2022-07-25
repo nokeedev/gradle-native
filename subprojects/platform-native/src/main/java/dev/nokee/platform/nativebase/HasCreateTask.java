@@ -13,9 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.nativebase.internal.linking;
+package dev.nokee.platform.nativebase;
 
-import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
+import org.gradle.api.tasks.TaskProvider;
 
-public interface HasLinkTask<T extends ObjectLink, S extends T> {
+/**
+ * Represents a component that carries a native archive task typically named {@literal create}.
+ *
+ * @since 0.5
+ */
+public interface HasCreateTask {
+	/**
+	 * Returns a provider for the task that creates the static archive from the object files.
+	 *
+	 * @return a provider of {@link CreateStaticLibrary} task, never null.
+	 */
+	TaskProvider<CreateStaticLibrary> getCreateTask();
 }

@@ -32,7 +32,7 @@ import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.nativebase.StaticLibraryBinary;
-import dev.nokee.platform.nativebase.internal.archiving.HasCreateTask;
+import dev.nokee.platform.nativebase.internal.archiving.HasCreateTaskMixIn;
 import dev.nokee.platform.nativebase.tasks.CreateStaticLibrary;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
 import dev.nokee.utils.TaskDependencyUtils;
@@ -74,7 +74,7 @@ public final class StaticLibraryBinaryRegistrationFactory {
 		, ModelBackedNamedMixIn
 		, ModelBackedHasBaseNameMixIn
 		, HasHeaderSearchPaths
-		, HasCreateTask
+		, HasCreateTaskMixIn
 		, HasObjectFilesToBinaryTask
 	{
 		private final ModelNode node = ModelNodeContext.getCurrentModelNode();

@@ -15,18 +15,16 @@
  */
 package dev.nokee.platform.nativebase.internal.linking;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.nativebase.tasks.ObjectLink;
 
-public final class NativeLinkTask implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
+import java.util.function.Consumer;
 
-	public NativeLinkTask(ModelNode value) {
-		this.value = value;
-	}
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
-	public ModelNode get() {
-		return value;
+public final class NativeLinkTaskUtils {
+	public static ModelRegistration newLinkTaskEntity(Class<? extends ObjectLink> type, Consumer<? super DomainObjectEntities.Builder> builderConsumer) {
+		return newEntity("link", type, builderConsumer);
 	}
 }
