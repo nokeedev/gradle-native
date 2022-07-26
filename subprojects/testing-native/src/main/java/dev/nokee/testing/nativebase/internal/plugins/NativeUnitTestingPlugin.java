@@ -35,6 +35,7 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
@@ -71,9 +72,6 @@ import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigur
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.TargetBuildTypesPropertyComponent;
@@ -103,6 +101,7 @@ import dev.nokee.utils.ProviderUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.Property;
@@ -253,7 +252,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		val entityPath = ModelPath.path(identifier.getName().get());
 		return builder()
 			.withComponent(new ModelPathComponent(entityPath))
-			.withComponent(createdUsing(of(DefaultNativeTestSuiteComponent.class), () -> project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class))))
+			.withComponent(createdUsing(of(DefaultNativeTestSuiteComponent.class), () -> project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class))))
 			.withComponent(tag(IsTestComponent.class))
 			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
@@ -265,7 +264,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 	}
 
 	private static ModelRegistration nativeTestSuiteVariant(VariantIdentifier identifier, DefaultNativeTestSuiteComponent component, Project project) {
-		val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 		return builder()
 			.withComponent(tag(IsVariant.class))
 			.withComponent(tag(ConfigurableTag.class))
@@ -273,7 +271,7 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(tag(NativeVariantTag.class))
 			.mergeFrom(tagsOf(DefaultNativeTestSuiteVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteVariant.class), () -> {
-				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
+				val assembleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(ModelNodeContext.getCurrentModelNode()))).as(Task.class).asProvider();
 				return project.getObjects().newInstance(DefaultNativeTestSuiteVariant.class, assembleTask);
 			}))
 			.build()

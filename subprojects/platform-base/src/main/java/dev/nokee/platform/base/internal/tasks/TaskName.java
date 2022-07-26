@@ -15,7 +15,6 @@
  */
 package dev.nokee.platform.base.internal.tasks;
 
-import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.QualifyingName;
 import lombok.EqualsAndHashCode;
@@ -52,15 +51,6 @@ public final class TaskName implements ElementName {
 			return verb;
 		}
 		return verb + StringUtils.capitalize(object);
-	}
-
-	/**
-	 * Used as part of {@link TaskIdentifier#ofLifecycle(DomainObjectIdentifier)}
-	 *
-	 * @return an empty task name, never null.
- 	 */
-	static TaskName empty() {
-		return EMPTY_TASK_NAME;
 	}
 
 	public static TaskName lifecycle() {

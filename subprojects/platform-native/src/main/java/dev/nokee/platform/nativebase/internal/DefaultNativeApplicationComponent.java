@@ -19,6 +19,7 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -33,7 +34,6 @@ import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
@@ -67,11 +67,11 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Nativ
 	, ModelBackedTargetLinkageAwareComponentMixIn
 	, ModelBackedHasAssembleTaskMixIn
 {
-	private final TaskRegistry taskRegistry;
+	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultNativeApplicationComponent(TaskRegistry taskRegistry) {
-		this.taskRegistry = taskRegistry;
+	public DefaultNativeApplicationComponent(ModelRegistry registry) {
+		this.registry = registry;
 	}
 
 	@Override
@@ -112,9 +112,9 @@ public class DefaultNativeApplicationComponent extends BaseNativeComponent<Nativ
 	}
 
 	public void finalizeExtension(Project project) {
-		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
-		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(registry));
+		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
+		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(registry));
 	}
 
 	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<NativeApplication>> action) {

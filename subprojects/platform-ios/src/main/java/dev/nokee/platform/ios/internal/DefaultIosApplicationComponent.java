@@ -45,8 +45,6 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask;
@@ -67,6 +65,7 @@ import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -76,6 +75,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.util.ConfigureUtil;
 
@@ -91,6 +91,7 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
 public class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements Component
@@ -104,7 +105,6 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 {
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;
-	private final TaskRegistry taskRegistry;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
 	private final ConfigurationContainer configurations;
@@ -112,13 +112,12 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, TaskRegistry taskRegistry, ModelRegistry registry) {
+	public DefaultIosApplicationComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ConfigurationContainer configurations, DependencyHandler dependencyHandler, ModelRegistry registry) {
 		this.providers = providers;
 		this.layout = layout;
 		this.configurations = configurations;
 		this.dependencyHandler = dependencyHandler;
 		this.groupId = objects.property(GroupId.class);
-		this.taskRegistry = taskRegistry;
 		this.moduleName = objects.property(String.class).convention(getBaseName());
 		this.registry = registry;
 	}
@@ -160,6 +159,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 		return ModelProperties.getProperty(this, "variants").as(VariantView.class).get();
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void onEachVariant(KnownDomainObject<IosApplication> variant) {
 		val variantIdentifier = (VariantIdentifier) variant.getIdentifier();
 		// Create iOS application specific tasks
@@ -174,30 +174,30 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 		Provider<String> identifier = providers.provider(() -> getGroupId().get().get().map(it -> it + "." + moduleName).orElse(moduleName));
 		val resources = sourceViewOf(this).named("resources", IosResourceSet.class).get();
 
-		val compileStoryboardTask = taskRegistry.register(TaskIdentifier.of("compileStoryboard", StoryboardCompileTask.class, variantIdentifier), task -> {
+		val compileStoryboardTask = registry.register(newEntity("compileStoryboard", StoryboardCompileTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(StoryboardCompileTask.class).configure(task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/compiled/main"));
 			task.getModule().set(moduleName);
 			task.getSources().from(resources.getAsFileTree().matching(it -> it.include("*.lproj/*.storyboard")));
 			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
 			task.getInterfaceBuilderTool().finalizeValueOnRead();
-		});
+		}).asProvider();
 
-		val linkStoryboardTask = taskRegistry.register(TaskIdentifier.of("linkStoryboard", StoryboardLinkTask.class, variantIdentifier), task -> {
+		val linkStoryboardTask = registry.register(newEntity("linkStoryboard", StoryboardLinkTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(StoryboardLinkTask.class).configure(task -> {
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/storyboards/linked/main"));
 			task.getModule().set(moduleName);
 			task.getSources().from(compileStoryboardTask.flatMap(StoryboardCompileTask::getDestinationDirectory));
 			task.getInterfaceBuilderTool().set(interfaceBuilderTool);
 			task.getInterfaceBuilderTool().finalizeValueOnRead();
-		});
+		}).asProvider();
 
-		val assetCatalogCompileTaskTask = taskRegistry.register(TaskIdentifier.of("compileAssetCatalog", AssetCatalogCompileTask.class, variantIdentifier), task -> {
+		val assetCatalogCompileTaskTask = registry.register(newEntity("compileAssetCatalog", AssetCatalogCompileTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(AssetCatalogCompileTask.class).configure(task -> {
 			task.getSource().set(new File(resources.getSourceDirectories().getSingleFile(), "Assets.xcassets"));
 			task.getIdentifier().set(identifier);
 			task.getDestinationDirectory().set(layout.getBuildDirectory().dir("ios/assets/main"));
 			task.getAssetCompilerTool().set(assetCompilerTool);
-		});
+		}).asProvider();
 
-		val processPropertyListTask = taskRegistry.register(TaskIdentifier.of("processPropertyList", ProcessPropertyListTask.class, variantIdentifier), task -> {
+		val processPropertyListTask = registry.register(newEntity("processPropertyList", ProcessPropertyListTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(ProcessPropertyListTask.class).configure(task -> {
 			task.dependsOn(resources.getSourceDirectories());
 			task.getIdentifier().set(identifier);
 			task.getModule().set(moduleName);
@@ -212,9 +212,9 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 				return ImmutableList.of();
 			}));
 			task.getOutputFile().set(layout.getBuildDirectory().file("ios/Info.plist"));
-		});
+		}).asProvider();
 
-		val createApplicationBundleTask = taskRegistry.register(TaskIdentifier.of("createApplicationBundle", CreateIosApplicationBundleTask.class, variantIdentifier), task -> {
+		val createApplicationBundleTask = registry.register(newEntity("createApplicationBundle", CreateIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(CreateIosApplicationBundleTask.class).configure(task -> {
 			Provider<List<? extends Provider<RegularFile>>> binaries = variant.flatMap(application -> application.getBinaries().withType(ExecutableBinaryInternal.class).map(it -> it.getLinkTask().flatMap(LinkExecutable::getLinkedFile)));
 
 			task.getExecutable().set(binaries.flatMap(it -> it.iterator().next())); // TODO: Fix this approximation
@@ -225,22 +225,22 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 			task.getSources().from(binaries);
 			task.getSources().from(assetCatalogCompileTaskTask.flatMap(AssetCatalogCompileTask::getDestinationDirectory));
 			task.getSources().from(processPropertyListTask.flatMap(ProcessPropertyListTask::getOutputFile));
-		});
+		}).asProvider();
 		val applicationBundleIdentifier = BinaryIdentifier.of(variantIdentifier, "applicationBundle");
 		registry.register(ModelRegistration.builder()
 			.withComponent(tag(IsBinary.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(applicationBundleIdentifier))
 			.withComponent(createdUsing(of(IosApplicationBundleInternal.class), () -> {
-				return new IosApplicationBundleInternal(createApplicationBundleTask);
+				return new IosApplicationBundleInternal((TaskProvider<CreateIosApplicationBundleTask>) createApplicationBundleTask);
 			}))
 			.build());
 
-		val signApplicationBundleTask = taskRegistry.register(TaskIdentifier.of("signApplicationBundle", SignIosApplicationBundleTask.class, variantIdentifier), task -> {
+		val signApplicationBundleTask = registry.register(newEntity("signApplicationBundle", SignIosApplicationBundleTask.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(SignIosApplicationBundleTask.class).configure(task -> {
 			task.getUnsignedApplicationBundle().set(createApplicationBundleTask.flatMap(CreateIosApplicationBundleTask::getApplicationBundle));
 			task.getSignedApplicationBundle().set(layout.getBuildDirectory().file("ios/products/main/" + moduleName + ".app"));
 			task.getCodeSignatureTool().set(codeSignatureTool);
-		});
+		}).asProvider();
 
 
 		val signedApplicationBundleIdentifier = BinaryIdentifier.of(variantIdentifier, "signedApplicationBundle");
@@ -249,7 +249,7 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(signedApplicationBundleIdentifier))
 			.withComponent(createdUsing(of(SignedIosApplicationBundleInternal.class), () -> {
-				return new SignedIosApplicationBundleInternal(signApplicationBundleTask);
+				return new SignedIosApplicationBundleInternal((TaskProvider<SignIosApplicationBundleTask>) signApplicationBundleTask);
 			}))
 			.build());
 
@@ -286,16 +286,16 @@ public class DefaultIosApplicationComponent extends BaseNativeComponent<IosAppli
 			});
 		});
 
-		val bundle = taskRegistry.register(TaskIdentifier.of(variantIdentifier, "bundle"), task -> {
+		val bundle = registry.register(newEntity("bundle", Task.class, it -> it.ownedBy(ModelNodes.of(variant)))).as(Task.class).configure(task -> {
 			task.dependsOn(variant.map(it -> it.getBinaries().withType(SignedIosApplicationBundleInternal.class).get()));
 		});
 	}
 
 	public void finalizeValue() {
 		whenElementKnown(this, this::onEachVariant);
-		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
-		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(registry));
+		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
+		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(registry));
 	}
 
 	private static void whenElementKnown(Object target, Action<? super KnownDomainObject<IosApplication>> action) {

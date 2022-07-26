@@ -17,14 +17,12 @@ package dev.nokee.platform.base.internal.plugins;
 
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
-import dev.nokee.model.PolymorphicDomainObjectRegistry;
 import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
-import dev.nokee.model.internal.core.ModelElementProviderSourceComponent;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -34,7 +32,6 @@ import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementNameComponent;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.plugins.ModelBasePlugin;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -74,7 +71,6 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
 import dev.nokee.platform.base.internal.RegisterAssembleLifecycleTaskRule;
-import dev.nokee.platform.base.internal.TaskRegistrationFactory;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.ViewAdapter;
@@ -84,26 +80,20 @@ import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantCap
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.tasks.TaskCapabilityPlugin;
-import dev.nokee.platform.base.internal.tasks.TaskTypeComponent;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.internal.MutationGuards;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskProvider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.ofInstance;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
-import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
-import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
 
 public class ComponentModelBasePlugin implements Plugin<Project> {
@@ -122,7 +112,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getPluginManager().apply(TaskCapabilityPlugin.class);
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
-		project.getExtensions().add(TaskRegistrationFactory.class, "__nokee_taskRegistrationFactory", new TaskRegistrationFactory());
 
 		project.getPluginManager().apply(DevelopmentBinaryCapability.class);
 		project.getPluginManager().apply(DevelopmentVariantCapability.class);

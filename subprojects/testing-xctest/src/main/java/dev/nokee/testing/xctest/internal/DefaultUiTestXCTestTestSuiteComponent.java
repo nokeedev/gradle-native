@@ -38,7 +38,6 @@ import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
@@ -78,7 +77,7 @@ import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
-public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
+public /*final*/ class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements Component
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, ModelBackedSourceAwareComponentMixIn<NativeApplicationSources, NativeApplicationSourcesAdapter>
@@ -97,8 +96,8 @@ public final class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestS
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry, ModelRegistry registry) {
-		super(objects, providers, layout, taskRegistry);
+	public DefaultUiTestXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelRegistry registry) {
+		super(objects, providers, layout, registry);
 		this.providers = providers;
 		this.layout = layout;
 		this.registry = registry;

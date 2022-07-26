@@ -61,7 +61,7 @@ class TaskRegistrationIntegrationTest {
 	void hasTaskProjectionComponent() {
 		assertTrue(subject.has(TaskProjectionComponent.class));
 		assertThat(subject.get(TaskProjectionComponent.class).get(),
-			allOf(named("klseWlde"), isA(MyTask.class)));
+			providerOf(allOf(named("klseWlde"), isA(MyTask.class))));
 	}
 
 	@Test
