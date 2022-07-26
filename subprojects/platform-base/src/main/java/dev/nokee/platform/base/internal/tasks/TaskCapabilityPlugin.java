@@ -78,10 +78,14 @@ public class TaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implem
 	}
 
 	private static final class SyncDescriptionToTaskProjectionRule extends ModelActionWithInputs.ModelAction2<TaskDescriptionComponent, TaskProjectionComponent> {
-
 		@Override
-		protected void execute(ModelNode entity, TaskDescriptionComponent description, TaskProjectionComponent task) {
-			task.configure(configureDescription(description.get()));
+		protected void execute(ModelNode entity, TaskDescriptionComponent description, TaskProjectionComponent projection) {
+			projection.configure(task -> {
+				// FIXME: Should check if its single/multi variants
+				if (task.getDescription() == null) {
+					task.setDescription(description.get());
+				}
+			});
 		}
 	}
 
