@@ -23,7 +23,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.ModelBackedHasAssembleTaskMixIn;
+import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
@@ -53,7 +53,7 @@ public class JniLibraryComponentInternal extends BaseComponent<JniLibrary> imple
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn
 	, HasDevelopmentVariantMixIn<JniLibrary>
-	, ModelBackedHasAssembleTaskMixIn
+	, HasAssembleTaskMixIn
 	, HasDevelopmentBinaryMixIn
 {
 	public VariantView<JniLibrary> getVariants() {

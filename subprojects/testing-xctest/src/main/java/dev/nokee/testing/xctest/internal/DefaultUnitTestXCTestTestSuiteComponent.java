@@ -29,7 +29,7 @@ import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.ModelBackedHasAssembleTaskMixIn;
+import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
@@ -83,7 +83,7 @@ public /*final*/ class DefaultUnitTestXCTestTestSuiteComponent extends BaseXCTes
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
-	, ModelBackedHasAssembleTaskMixIn
+	, HasAssembleTaskMixIn
 	, HasDevelopmentVariantMixIn<DefaultXCTestTestSuiteVariant>
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn

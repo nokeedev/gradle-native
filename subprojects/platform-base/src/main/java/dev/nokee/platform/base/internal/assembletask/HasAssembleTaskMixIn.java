@@ -21,8 +21,8 @@ import dev.nokee.platform.base.internal.DomainObjectEntities;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 
-@DomainObjectEntities.Tag(ModelBackedHasAssembleTaskMixIn.Tag.class)
-public interface ModelBackedHasAssembleTaskMixIn {
+@DomainObjectEntities.Tag(HasAssembleTaskMixIn.Tag.class)
+public interface HasAssembleTaskMixIn {
 	default TaskProvider<Task> getAssembleTask() {
 		return (TaskProvider<Task>) ModelElements.of(this, AssembleTaskComponent.class).as(Task.class).asProvider();
 	}

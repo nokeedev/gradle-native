@@ -60,7 +60,7 @@ public class AssembleTaskCapabilityPlugin<T extends ExtensionAware & PluginAware
 		}
 	}
 
-	private static final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInputs.ModelAction1<ModelComponentTag<ModelBackedHasAssembleTaskMixIn.Tag>> {
+	private static final class RegisterAssembleLifecycleTaskRule extends ModelActionWithInputs.ModelAction1<ModelComponentTag<HasAssembleTaskMixIn.Tag>> {
 		private final ModelRegistry registry;
 
 		public RegisterAssembleLifecycleTaskRule(ModelRegistry registry) {
@@ -68,7 +68,7 @@ public class AssembleTaskCapabilityPlugin<T extends ExtensionAware & PluginAware
 		}
 
 		@Override
-		protected void execute(ModelNode entity, ModelComponentTag<ModelBackedHasAssembleTaskMixIn.Tag> ignored1) {
+		protected void execute(ModelNode entity, ModelComponentTag<HasAssembleTaskMixIn.Tag> ignored1) {
 			val task = registry.instantiate(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(entity)));
 			entity.addComponent(new AssembleTaskComponent(task));
 			ModelStates.register(task);
