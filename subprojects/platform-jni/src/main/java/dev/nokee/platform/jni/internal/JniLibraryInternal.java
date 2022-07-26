@@ -33,6 +33,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.assembletask.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
 import dev.nokee.platform.jni.JniJarBinary;
@@ -60,6 +61,7 @@ public class JniLibraryInternal extends BaseVariant implements JniLibrary, Varia
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedHasBaseNameMixIn
 	, HasDevelopmentBinaryMixIn
+	, ModelBackedHasAssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 

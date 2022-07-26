@@ -20,7 +20,6 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -28,13 +27,13 @@ import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.base.internal.assembletask.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -56,7 +55,6 @@ import lombok.Getter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
@@ -65,11 +63,9 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public class NativeLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
@@ -126,9 +122,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 			.withComponent(tag(NativeVariantTag.class))
 			.mergeFrom(tagsOf(DefaultNativeLibraryVariant.class))
 			.withComponent(createdUsing(of(DefaultNativeLibraryVariant.class), () -> {
-				val assembleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(ModelNodeContext.getCurrentModelNode()))).as(Task.class).asProvider();
-
-				val result = project.getObjects().newInstance(DefaultNativeLibraryVariant.class, assembleTask);
+				val result = project.getObjects().newInstance(DefaultNativeLibraryVariant.class);
 				result.getDevelopmentBinary().convention(result.getBinaries().getElements().flatMap(NativeDevelopmentBinaryConvention.of(result.getBuildVariant().getAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS))));
 				return result;
 			}))

@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.platform.base.internal.assembletask;
 
-import dev.nokee.model.internal.core.LinkedEntity;
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelElements;
+import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
-public final class AssembleTaskComponent implements ModelComponent, LinkedEntity {
-	private final ModelNode value;
-
-	public AssembleTaskComponent(ModelNode value) {
-		this.value = value;
+@DomainObjectEntities.Tag(ModelBackedHasAssembleTaskMixIn.Tag.class)
+public interface ModelBackedHasAssembleTaskMixIn {
+	default TaskProvider<Task> getAssembleTask() {
+		return (TaskProvider<Task>) ModelElements.of(this, AssembleTaskComponent.class).as(Task.class).asProvider();
 	}
 
-	@Override
-	public ModelNode get() {
-		return value;
-	}
+	interface Tag extends ModelTag {}
 }

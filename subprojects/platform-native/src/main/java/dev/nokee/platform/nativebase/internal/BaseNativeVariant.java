@@ -16,17 +16,6 @@
 package dev.nokee.platform.nativebase.internal;
 
 import dev.nokee.platform.base.internal.BaseVariant;
-import org.gradle.api.Task;
-import org.gradle.api.tasks.TaskProvider;
 
 public class BaseNativeVariant extends BaseVariant {
-	private final TaskProvider<Task> assembleTask;
-
-	public BaseNativeVariant(TaskProvider<Task> assembleTask) {
-		this.assembleTask = assembleTask;
-	}
-
-	public TaskProvider<Task> getAssembleTask() {
-		return assembleTask;
-	}
 }

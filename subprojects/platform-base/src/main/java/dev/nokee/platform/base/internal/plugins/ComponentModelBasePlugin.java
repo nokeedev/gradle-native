@@ -70,10 +70,10 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantDimensions;
-import dev.nokee.platform.base.internal.RegisterAssembleLifecycleTaskRule;
 import dev.nokee.platform.base.internal.TaskViewAdapter;
 import dev.nokee.platform.base.internal.VariantViewAdapter;
 import dev.nokee.platform.base.internal.ViewAdapter;
+import dev.nokee.platform.base.internal.assembletask.AssembleTaskCapabilityPlugin;
 import dev.nokee.platform.base.internal.dependencies.DependencyBucketCapabilityPlugin;
 import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryCapability;
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantCapability;
@@ -110,6 +110,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(TaskCapabilityPlugin.class);
+		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
 
@@ -227,8 +228,6 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(BaseNamePropertyComponent.class), ModelComponentReference.of(ModelStates.Finalizing.class), (entity, property, ignored1) -> {
 			entity.addComponent(new BaseNameComponent(((Property<String>) property.get().get(GradlePropertyComponent.class).get()).get()));
 		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RegisterAssembleLifecycleTaskRule(project.getExtensions().getByType(ModelRegistry.class))));
 	}
 
 	@SuppressWarnings("unchecked")

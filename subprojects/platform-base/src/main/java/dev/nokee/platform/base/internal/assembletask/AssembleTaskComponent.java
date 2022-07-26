@@ -13,7 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.platform.base.internal.assembletask;
 
-public interface ModelBackedHasAssembleTaskMixIn {
+import dev.nokee.model.internal.core.LinkedEntity;
+import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.model.internal.core.ModelNode;
+
+public final class AssembleTaskComponent implements ModelComponent, LinkedEntity {
+	private final ModelNode value;
+
+	public AssembleTaskComponent(ModelNode value) {
+		this.value = value;
+	}
+
+	@Override
+	public ModelNode get() {
+		return value;
+	}
 }
