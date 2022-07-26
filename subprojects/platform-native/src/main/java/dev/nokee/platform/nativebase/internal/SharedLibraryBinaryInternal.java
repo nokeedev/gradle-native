@@ -45,7 +45,7 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import javax.inject.Inject;
 
 @DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class, NativeLanguageSourceSetAwareTag.class})
-public class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
+public /*final*/ class SharedLibraryBinaryInternal extends BaseNativeBinary implements SharedLibraryBinary
 	, Buildable
 	, HasPublicType
 	, ModelBackedNamedMixIn

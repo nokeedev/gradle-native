@@ -29,7 +29,7 @@ import javax.inject.Inject;
 // TODO: Not sure about implementing NativeBinary...
 //  BaseNativeVariant#getDevelopmentBinary() assume a NativeBinary...
 //  There should probably be something high level in Variant or BaseNativeVariant shouldn't be used for iOS variant.
-public class IosApplicationBundleInternal implements Binary, Buildable {
+public /*final*/ class IosApplicationBundleInternal implements Binary, Buildable {
 	private final TaskProvider<CreateIosApplicationBundleTask> bundleTask;
 
 	@Inject

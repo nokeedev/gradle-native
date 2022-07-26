@@ -39,7 +39,7 @@ import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
 
-public class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
+public /*final*/ class DefaultIosApplicationVariant extends BaseVariant implements IosApplication, VariantInternal, ModelNodeAware
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn

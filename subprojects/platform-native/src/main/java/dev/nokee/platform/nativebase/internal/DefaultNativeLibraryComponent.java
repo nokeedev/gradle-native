@@ -54,7 +54,7 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
-public class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLibrary> implements Component
+public /*final*/ class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLibrary> implements Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, NativeLibrarySourcesAdapter>
 	, ModelBackedVariantAwareComponentMixIn<NativeLibrary>

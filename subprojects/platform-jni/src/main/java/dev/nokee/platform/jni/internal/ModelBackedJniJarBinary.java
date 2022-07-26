@@ -32,7 +32,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 
 @DomainObjectEntities.Tag({IsBinary.class, ConfigurableTag.class})
-public class ModelBackedJniJarBinary implements JniJarBinary, ModelNodeAware, HasPublicType, ModelBackedNamedMixIn {
+public /*final*/ class ModelBackedJniJarBinary implements JniJarBinary, ModelNodeAware, HasPublicType, ModelBackedNamedMixIn {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Override
