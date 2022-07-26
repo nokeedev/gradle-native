@@ -44,6 +44,7 @@ import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsingNoInject;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.TaskUtils.configureDescription;
+import static dev.nokee.utils.TaskUtils.configureGroup;
 
 public class TaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final TaskContainer tasks;
@@ -57,6 +58,8 @@ public class TaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implem
 	public void apply(T target) {
 		target.getExtensions().getByType(ModelConfigurer.class)
 			.configure(new SyncDescriptionToTaskProjectionRule());
+		target.getExtensions().getByType(ModelConfigurer.class)
+			.configure(new SyncGroupToTaskProjectionRule());
 
 		tasks.configureEach(task -> {
 			target.getExtensions().getByType(ModelLookup.class).query(entity -> entity.find(TaskProjectionComponent.class).map(it -> it.get().getName()).map(task.getName()::equals).orElse(false)).forEach(ModelStates::realize);
@@ -79,6 +82,13 @@ public class TaskCapabilityPlugin<T extends ExtensionAware & PluginAware> implem
 		@Override
 		protected void execute(ModelNode entity, TaskDescriptionComponent description, TaskProjectionComponent task) {
 			task.configure(configureDescription(description.get()));
+		}
+	}
+
+	private static final class SyncGroupToTaskProjectionRule extends ModelActionWithInputs.ModelAction2<TaskGroupComponent, TaskProjectionComponent> {
+		@Override
+		protected void execute(ModelNode entity, TaskGroupComponent group, TaskProjectionComponent task) {
+			task.configure(configureGroup(group.get()));
 		}
 	}
 }
