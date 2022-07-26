@@ -21,6 +21,7 @@ import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
@@ -33,7 +34,7 @@ import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import org.gradle.api.provider.Property;
 
-public class DefaultNativeLibraryVariant extends BaseNativeVariant implements NativeLibrary, VariantInternal, ModelNodeAware
+public class DefaultNativeLibraryVariant extends BaseVariant implements NativeLibrary, VariantInternal, ModelNodeAware
 	, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
