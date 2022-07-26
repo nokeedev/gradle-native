@@ -22,6 +22,7 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProperties;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
@@ -31,7 +32,6 @@ import dev.nokee.platform.base.HasBaseName;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeBinary;
@@ -69,20 +69,20 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 {
 	@Getter private final Property<GroupId> groupId;
 	@Getter private final Property<BaseNativeComponent<?>> testedComponent;
-	private final TaskRegistry taskRegistry;
 	private final ProviderFactory providers;
 	private final ProjectLayout layout;
 	@Getter private final Property<String> moduleName;
 	@Getter private final Property<String> productBundleIdentifier;
+	private final ModelRegistry registry;
 
-	public BaseXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, TaskRegistry taskRegistry) {
+	public BaseXCTestTestSuiteComponent(ObjectFactory objects, ProviderFactory providers, ProjectLayout layout, ModelRegistry registry) {
 		this.providers = providers;
 		this.layout = layout;
-		this.taskRegistry = taskRegistry;
 		this.groupId = objects.property(GroupId.class);
 		this.testedComponent = Cast.uncheckedCastBecauseOfTypeErasure(objects.property(BaseNativeComponent.class));
 		this.moduleName = configureDisplayName(objects.property(String.class), "moduleName");
 		this.productBundleIdentifier = configureDisplayName(objects.property(String.class), "productBundleIdentifier");
+		this.registry = registry;
 	}
 
 	@Override
@@ -156,11 +156,11 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 			});
 		});
 		whenElementKnown(this.getNode(), this::onEachVariant);
-		whenElementKnown(this.getNode(), new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
-		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
+		whenElementKnown(this.getNode(), new CreateVariantObjectsLifecycleTaskRule(registry));
+		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
 
-		whenElementKnown(this.getNode(), new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
-		new CreateVariantAwareComponentAssembleLifecycleTaskRule(taskRegistry).execute(this);
+		whenElementKnown(this.getNode(), new CreateVariantAssembleLifecycleTaskRule(registry));
+		new CreateVariantAwareComponentAssembleLifecycleTaskRule(registry).execute(this);
 	}
 
 	private static void whenElementKnown(ModelNode target, Action<? super KnownDomainObject<DefaultXCTestTestSuiteVariant>> action) {

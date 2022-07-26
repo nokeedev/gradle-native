@@ -24,12 +24,12 @@ import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.HasName;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
-import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.actions.ModelSpec;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
@@ -55,9 +55,7 @@ import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeBinary;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -88,7 +86,6 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
@@ -111,6 +108,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
+import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
 
@@ -128,21 +126,16 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	, ModelBackedTargetMachineAwareComponentMixIn
 {
 	private final ObjectFactory objects;
-	private final TaskRegistry taskRegistry;
-	private final TaskContainer tasks;
 	private final ModelLookup modelLookup;
 	private final ModelRegistry registry;
 
 	@Inject
-	public DefaultNativeTestSuiteComponent(ObjectFactory objects, TaskContainer tasks, TaskRegistry taskRegistry, ModelLookup modelLookup, ModelRegistry registry) {
+	public DefaultNativeTestSuiteComponent(ObjectFactory objects, ModelLookup modelLookup, ModelRegistry registry) {
 		this.objects = objects;
-		this.tasks = tasks;
 		this.modelLookup = modelLookup;
 		this.registry = registry;
 
 		this.getBaseName().convention(BaseNameUtils.from(getIdentifier()).getAsString());
-
-		this.taskRegistry = taskRegistry;
 	}
 
 	public Property<Component> getTestedComponent() {
@@ -199,9 +192,11 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 	}
 
 	public void finalizeExtension(Project project) {
-		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(taskRegistry));
-		new CreateVariantAwareComponentObjectsLifecycleTaskRule(taskRegistry).execute(this);
-		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(taskRegistry));
+		whenElementKnown(this, new CreateVariantObjectsLifecycleTaskRule(registry));
+		new CreateVariantAwareComponentObjectsLifecycleTaskRule(registry).execute(this);
+		whenElementKnown(this, new CreateVariantAssembleLifecycleTaskRule(registry));
+
+		val checkTask = registry.register(newEntity("check", Task.class, it -> it.ownedBy(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root())))).as(Task.class);
 
 		// HACK: This should really be solve using the variant whenElementKnown API
 		getBuildVariants().get().forEach(buildVariant -> {
@@ -224,12 +219,7 @@ public class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeT
 			val testTask = registry.register(newEntity(TaskName.lifecycle(), Task.class, it -> it.ownedBy(modelLookup.get(DomainObjectIdentifierUtils.toPath(variantIdentifier))))).as(Task.class).configure(task -> {
 				task.dependsOn(runTask);
 			}).asProvider();
-		});
-
-		// Ensure the task is registered before configuring
-		taskRegistry.registerIfAbsent(TaskIdentifier.of(ProjectIdentifier.of(project), "check")).configure(task -> {
-			// TODO: To eliminate access to the TaskContainer, we should have a getter on the variant for the relevant task in question
-			task.dependsOn(getDevelopmentVariant().flatMap(it -> tasks.named(TaskIdentifier.ofLifecycle(((BaseVariant) it).getIdentifier()).getTaskName())));
+			checkTask.configure(configureDependsOn(testTask));
 		});
 
 

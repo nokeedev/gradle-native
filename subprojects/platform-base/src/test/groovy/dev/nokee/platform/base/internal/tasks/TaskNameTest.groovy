@@ -128,34 +128,34 @@ class TaskNameTest extends Specification {
 
 	def "can create empty task name"() {
 		expect:
-		TaskName.empty().verb == ''
-		!TaskName.empty().object.present
+		TaskName.lifecycle().verb == ''
+		!TaskName.lifecycle().object.present
 	}
 
 	def "can compare task name"() {
 		expect:
-		TaskName.empty() == TaskName.empty()
+		TaskName.lifecycle() == TaskName.lifecycle()
 		TaskName.of('foo') == TaskName.of('foo')
 		TaskName.of('foo', 'bar') == TaskName.of('foo', 'bar')
 
 		and:
 		TaskName.of('foo') != TaskName.of('bar')
 		TaskName.of('foo') != TaskName.of('foo', 'bar')
-		TaskName.of('foo') != TaskName.empty()
+		TaskName.of('foo') != TaskName.lifecycle()
 	}
 
 	def "can get task name"() {
 		expect:
 		TaskName.of('foo').get() == 'foo'
 		TaskName.of('foo', 'bar').get() == 'fooBar'
-		TaskName.empty().get() == ''
+		TaskName.lifecycle().get() == ''
 	}
 
 	def "returns name value via toString()"() {
 		expect:
 		TaskName.of('foo').toString() == 'foo'
 		TaskName.of('foo', 'bar').toString() == 'fooBar'
-		TaskName.empty().toString() == ''
+		TaskName.lifecycle().toString() == ''
 	}
 
 	def "can create task name string using verb and object directly"() {

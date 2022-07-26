@@ -105,7 +105,6 @@ import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurati
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeBinary;
@@ -634,11 +633,11 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 	}
 
 	public static Factory<DefaultNativeApplicationComponent> nativeApplicationProjection(Project project) {
-		return () -> project.getObjects().newInstance(DefaultNativeApplicationComponent.class, ModelBackedTaskRegistry.newInstance(project));
+		return () -> project.getObjects().newInstance(DefaultNativeApplicationComponent.class, project.getExtensions().getByType(ModelRegistry.class));
 	}
 
 	public static Factory<DefaultNativeLibraryComponent> nativeLibraryProjection(Project project) {
-		return () -> project.getObjects().newInstance(DefaultNativeLibraryComponent.class, ModelBackedTaskRegistry.newInstance(project));
+		return () -> project.getObjects().newInstance(DefaultNativeLibraryComponent.class, project.getExtensions().getByType(ModelRegistry.class));
 	}
 
 	public static <T extends Component, PROJECTION> Action<T> configureUsingProjection(Class<PROJECTION> type, BiConsumer<? super T, ? super PROJECTION> action) {

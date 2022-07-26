@@ -16,16 +16,18 @@
 package dev.nokee.platform.nativebase.internal.rules;
 
 import dev.nokee.model.KnownDomainObject;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.platform.base.internal.tasks.TaskRegistry;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.Task;
 import org.gradle.api.provider.Provider;
 
+import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer.TO_DEVELOPMENT_BINARY;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureGroup;
@@ -33,20 +35,20 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK
 import static org.gradle.language.base.plugins.LifecycleBasePlugin.BUILD_GROUP;
 
 public class CreateVariantAssembleLifecycleTaskRule implements Action<KnownDomainObject<? extends Variant>> {
-	private final TaskRegistry taskRegistry;
+	private final ModelRegistry registry;
 
-	public CreateVariantAssembleLifecycleTaskRule(TaskRegistry taskRegistry) {
-		this.taskRegistry = taskRegistry;
+	public CreateVariantAssembleLifecycleTaskRule(ModelRegistry registry) {
+		this.registry = registry;
 	}
 
 	@Override
 	public void execute(KnownDomainObject<? extends Variant> knownVariant) {
-		doExecute((VariantIdentifier) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY));
+		doExecute((VariantIdentifier) knownVariant.getIdentifier(), knownVariant.flatMap(TO_DEVELOPMENT_BINARY), ModelNodes.of(knownVariant));
 	}
 
-	private void doExecute(VariantIdentifier variantIdentifier, Provider<Binary> binaryProvider) {
+	private void doExecute(VariantIdentifier variantIdentifier, Provider<Binary> binaryProvider, ModelNode entity) {
 		// For single variant component, the task may already exists, coming from 'lifecycle-base'.
-		val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), variantIdentifier), configureGroup(BUILD_GROUP));
+		val assembleTask = registry.register(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(entity))).as(Task.class).configure(configureGroup(BUILD_GROUP));
 
 		// Only multi-variant component should attach the proper dependency to the assemble task.
 		//   Single variant depends on the a more complex logic around buildability, see CreateVariantAwareComponentAssembleLifecycleTaskRule

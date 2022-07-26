@@ -24,7 +24,6 @@ import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import lombok.val;
 import org.gradle.api.Project;
@@ -65,7 +64,7 @@ public final class IosApplicationComponentModelRegistrationFactory {
 
 	@SuppressWarnings("unchecked")
 	private static DefaultIosApplicationComponent create(Project project) {
-		val result = project.getObjects().newInstance(DefaultIosApplicationComponent.class, ModelBackedTaskRegistry.newInstance(project), project.getExtensions().getByType(ModelRegistry.class));
+		val result = project.getObjects().newInstance(DefaultIosApplicationComponent.class, project.getExtensions().getByType(ModelRegistry.class));
 		result.getDevelopmentVariant().convention((Provider<? extends DefaultIosApplicationVariant>) project.getProviders().provider(new DevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) result.getVariants().map(VariantInternal.class::cast).get())));
 		return result;
 	}

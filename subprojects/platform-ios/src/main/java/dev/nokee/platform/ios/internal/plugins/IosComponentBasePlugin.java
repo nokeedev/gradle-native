@@ -29,6 +29,7 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -52,9 +53,6 @@ import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigur
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
-import dev.nokee.platform.base.internal.tasks.ModelBackedTaskRegistry;
-import dev.nokee.platform.base.internal.tasks.TaskIdentifier;
-import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationVariant;
 import dev.nokee.platform.ios.internal.IosApplicationComponentTag;
@@ -79,6 +77,7 @@ import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.SetProperty;
@@ -186,7 +185,6 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 	}
 
 	private static ModelRegistration iosApplicationVariant(VariantIdentifier identifier, DefaultIosApplicationComponent component, Project project) {
-		val taskRegistry = ModelBackedTaskRegistry.newInstance(project);
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(IsVariant.class))
@@ -194,7 +192,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			.withComponent(tag(NativeVariantTag.class))
 			.mergeFrom(tagsOf(DefaultIosApplicationVariant.class))
 			.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> {
-				val assembleTask = taskRegistry.registerIfAbsent(TaskIdentifier.of(TaskName.of(ASSEMBLE_TASK_NAME), identifier));
+				val assembleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(ModelNodeContext.getCurrentModelNode()))).as(Task.class).asProvider();
 				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class, assembleTask);
 				variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
 				return variant;
