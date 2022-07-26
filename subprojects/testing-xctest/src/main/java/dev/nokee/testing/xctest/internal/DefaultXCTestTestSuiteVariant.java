@@ -26,15 +26,14 @@ import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.assembletask.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.internal.rules.IosDevelopmentBinaryConvention;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.BaseNativeVariant;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
-import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.TaskProvider;
 
 import javax.inject.Inject;
 
@@ -44,13 +43,12 @@ public class DefaultXCTestTestSuiteVariant extends BaseNativeVariant implements 
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedNamedMixIn
 	, HasDevelopmentBinaryMixIn
+	, ModelBackedHasAssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
 
 	@Inject
-	public DefaultXCTestTestSuiteVariant(TaskProvider<Task> assembleTask) {
-		super(assembleTask);
-
+	public DefaultXCTestTestSuiteVariant() {
 		getDevelopmentBinary().convention(getBinaries().getElements().flatMap(IosDevelopmentBinaryConvention.INSTANCE));
 	}
 

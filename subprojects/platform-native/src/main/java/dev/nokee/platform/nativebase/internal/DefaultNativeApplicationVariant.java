@@ -26,15 +26,12 @@ import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.assembletask.ModelBackedHasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
-import org.gradle.api.Task;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.TaskProvider;
-
-import javax.inject.Inject;
 
 public class DefaultNativeApplicationVariant extends BaseNativeVariant implements NativeApplication, VariantInternal, ModelNodeAware
 	, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
@@ -42,13 +39,9 @@ public class DefaultNativeApplicationVariant extends BaseNativeVariant implement
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedNamedMixIn
 	, HasDevelopmentBinaryMixIn
+	, ModelBackedHasAssembleTaskMixIn
 {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
-
-	@Inject
-	public DefaultNativeApplicationVariant(TaskProvider<Task> assembleTask) {
-		super(assembleTask);
-	}
 
 	@Override
 	public Property<Binary> getDevelopmentBinary() {

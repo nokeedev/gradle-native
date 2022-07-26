@@ -192,8 +192,7 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 			.withComponent(tag(NativeVariantTag.class))
 			.mergeFrom(tagsOf(DefaultIosApplicationVariant.class))
 			.withComponent(createdUsing(of(DefaultIosApplicationVariant.class), () -> {
-				val assembleTask = project.getExtensions().getByType(ModelRegistry.class).register(newEntity(ASSEMBLE_TASK_NAME, Task.class, it -> it.ownedBy(ModelNodeContext.getCurrentModelNode()))).as(Task.class).asProvider();
-				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class, assembleTask);
+				val variant = project.getObjects().newInstance(DefaultIosApplicationVariant.class);
 				variant.getProductBundleIdentifier().convention(component.getGroupId().map(it -> it + "." + component.getModuleName().get()));
 				return variant;
 			}))

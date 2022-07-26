@@ -231,7 +231,7 @@ class JavaNativeInterfaceLibraryVariantIntegrationTest extends AbstractPluginTes
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Assembles the outputs of variant ':reqi:windowsX86'."));
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the variant ':reqi:windowsX86'."));
 		}
 	}
 

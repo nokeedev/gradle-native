@@ -472,7 +472,7 @@ class JavaNativeInterfaceLibraryComponentIntegrationTest extends AbstractPluginT
 
 		@Test
 		void hasDescription() {
-			assertThat(subject(), TaskMatchers.description("Assembles the outputs of " + displayName() + "."));
+			assertThat(subject(), TaskMatchers.description("Assembles the outputs of the " + displayName() + "."));
 		}
 
 		@Test
