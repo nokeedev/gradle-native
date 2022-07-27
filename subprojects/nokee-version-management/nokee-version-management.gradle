@@ -30,7 +30,7 @@ gradlePlugin {
 }
 
 pluginBundle {
-	website = 'https://docs.nokee.dev/nokee-version-management-plugin.html'
+	website = 'https://nokee.fyi/nokee-version-management-plugin/'
 	vcsUrl = 'https://github.com/nokeedev/gradle-native'
 
 	plugins {
