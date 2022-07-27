@@ -41,5 +41,5 @@ pluginBundle {
 }
 
 functionalTest {
-	testedGradleVersions.set(['minimum', '6.3', '6.4.1', '6.5.1', '6.6.1', '6.7.1', '6.8.3', '6.9.2', '7.0.2', '7.1.1', '7.2', '7.3.1', 'latestGA', 'latestNightly'])
+	testedGradleVersions.set(['minimum', '6.3', '6.4.1', '6.5.1', '6.6.1', '6.7.1', '6.8.3', '6.9.2', '7.0.2', '7.1.1', '7.2', '7.3.1', '7.4.2', 'latestGA', 'latestNightly'])
 }
