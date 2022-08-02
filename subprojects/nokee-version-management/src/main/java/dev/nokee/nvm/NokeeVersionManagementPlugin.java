@@ -75,7 +75,9 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 			public void execute(DefaultNokeeVersionManagementService.Parameters parameters) {
 				parameters.getNokeeVersion().value(fromParentNokeeBuilds()
 					.orElse(fromSystemProperty()).orElse(fromGradleProperty())
-					.orElse(fromEnvironmentVariable()).orElse(fromNokeeVersionFile()));
+					.orElse(fromEnvironmentVariable())
+					.orElse(fromBestEffortParent())
+					.orElse(fromNokeeVersionFile()));
 			}
 
 			private Provider<NokeeVersion> fromEnvironmentVariable() {
@@ -101,6 +103,12 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 
 			private <T> Transformer<T, Gradle> forEachParent(Function<Gradle, T> mapper) {
 				return new ForEachParentGradleTransformer<>(mapper);
+			}
+			//endregion
+
+			//region best effort
+			private Provider<NokeeVersion> fromBestEffortParent() {
+				return providers.provider(new BestEffortParentNokeeVersionFinder(settings.getGradle()));
 			}
 			//endregion
 
