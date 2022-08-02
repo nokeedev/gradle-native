@@ -52,6 +52,13 @@ public final class PluginsBlock extends AbstractBlock {
 			return this;
 		}
 
+		public Builder id(String pluginId, Consumer<? super IdStatement.Builder> action) {
+			final IdStatement.Builder builder = IdStatement.id(pluginId);
+			action.accept(builder);
+			this.builder.add(builder.build());
+			return this;
+		}
+
 		public PluginsBlock build() {
 			return new PluginsBlock(builder.build());
 		}
