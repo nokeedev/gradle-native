@@ -163,15 +163,17 @@ public final class ProjectBlock extends AbstractBlock {
 			}
 
 			public static BlockType classify(Statement statement) {
+				Statement nestedStatement = statement;
 				if (statement instanceof GroupStatement && ((GroupStatement) statement).size() == 1) {
-					Statement nestedStatement = ((GroupStatement) statement).iterator().next();
-					if (nestedStatement instanceof BlockStatement) {
-						Statement nestedBlockContentStatement = ((BlockStatement<?>) nestedStatement).getContent();
-						if (nestedBlockContentStatement instanceof PluginsBlock) {
-							return PLUGINS;
-						} else if (nestedBlockContentStatement instanceof BuildScriptBlock) {
-							return BUILDSCRIPT;
-						}
+					nestedStatement = ((GroupStatement) statement).iterator().next();
+				}
+
+				if (nestedStatement instanceof BlockStatement) {
+					Statement nestedBlockContentStatement = ((BlockStatement<?>) nestedStatement).getContent();
+					if (nestedBlockContentStatement instanceof PluginsBlock) {
+						return PLUGINS;
+					} else if (nestedBlockContentStatement instanceof BuildScriptBlock) {
+						return BUILDSCRIPT;
 					}
 				}
 				return OTHERS;

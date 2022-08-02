@@ -15,20 +15,28 @@
  */
 package dev.gradleplugins.buildscript.blocks;
 
+import dev.gradleplugins.buildscript.statements.BlockStatement;
 import dev.gradleplugins.buildscript.statements.ExpressionStatement;
 import dev.gradleplugins.buildscript.statements.GroupStatement;
 import dev.gradleplugins.buildscript.statements.Statement;
 import dev.gradleplugins.buildscript.syntax.Expression;
 import dev.gradleplugins.buildscript.syntax.PropertyExpression;
 import dev.gradleplugins.buildscript.syntax.Syntax;
+import lombok.val;
 
+import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import static dev.gradleplugins.buildscript.statements.GroupStatement.toGroupStatement;
 import static dev.gradleplugins.buildscript.syntax.Syntax.invoke;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 import static dev.gradleplugins.buildscript.syntax.Syntax.property;
+import static java.util.Map.Entry.comparingByKey;
+import static java.util.stream.Collectors.toList;
 
 public final class SettingsBlock extends AbstractBlock {
 	private SettingsBlock(Statement delegate) {
@@ -83,7 +91,69 @@ public final class SettingsBlock extends AbstractBlock {
 		}
 
 		public SettingsBlock build() {
-			return new SettingsBlock(builder.build());
+			return new SettingsBlock(normalize(builder.build()));
+		}
+
+		// TODO: Handle comment before block -> comment before group inside block
+		private static GroupStatement normalize(Iterable<Statement> statements) {
+			return StreamSupport.stream(statements.spliterator(), false)
+				.collect(Collectors.groupingBy(BlockType::classify, LinkedHashMap::new, toList()))
+				.entrySet().stream().sorted(comparingByKey()).flatMap(it -> {
+					if (it.getKey().equals(BlockType.OTHERS)) {
+						return it.getValue().stream();
+					} else {
+						val builder = GroupStatement.builder();
+						it.getValue().stream()
+							.map(Builder::unpackToBlockStatement)
+							.map(BlockStatement::getContent)
+							.forEach(builder::add);
+						return Stream.of(GroupStatement.of(BlockStatement.of(it.getKey().blockSelector(), builder.build())));
+					}
+				}).collect(toGroupStatement());
+		}
+
+		private static BlockStatement<?> unpackToBlockStatement(Statement statement) {
+			if (statement instanceof BlockStatement) {
+				return (BlockStatement<?>) statement;
+			} else if (statement instanceof GroupStatement) {
+				assert ((GroupStatement) statement).size() == 1;
+				return unpackToBlockStatement(((GroupStatement) statement).iterator().next());
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}
+
+		private enum BlockType {
+			PLUGIN_MANAGEMENT("pluginManagement"),
+			PLUGINS("plugins"),
+			OTHERS(null);
+
+			private final String selector;
+
+			BlockType(String selector) {
+				this.selector = selector;
+			}
+
+			public Expression blockSelector() {
+				return literal(selector);
+			}
+
+			public static Builder.BlockType classify(Statement statement) {
+				Statement nestedStatement = statement;
+				if (statement instanceof GroupStatement && ((GroupStatement) statement).size() == 1) {
+					nestedStatement = ((GroupStatement) statement).iterator().next();
+				}
+
+				if (nestedStatement instanceof BlockStatement) {
+					Statement nestedBlockContentStatement = ((BlockStatement<?>) nestedStatement).getContent();
+					if (nestedBlockContentStatement instanceof PluginsBlock) {
+						return PLUGINS;
+					} else if (nestedBlockContentStatement instanceof PluginManagementBlock) {
+						return PLUGIN_MANAGEMENT;
+					}
+				}
+				return OTHERS;
+			}
 		}
 	}
 
