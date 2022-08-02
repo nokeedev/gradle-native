@@ -52,6 +52,11 @@ public final class PluginManagementBlock extends AbstractBlock {
 			return this;
 		}
 
+		public Builder includeBuild(String buildPath) {
+			builder.add(SettingsBlock.IncludeBuildStatement.includeBuild(buildPath));
+			return this;
+		}
+
 		public PluginManagementBlock build() {
 			return new PluginManagementBlock(builder.build());
 		}
