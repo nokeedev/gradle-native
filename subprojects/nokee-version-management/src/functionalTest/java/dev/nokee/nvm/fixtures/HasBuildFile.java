@@ -21,4 +21,6 @@ import java.util.function.Consumer;
 
 public interface HasBuildFile {
 	void buildFile(Consumer<? super ProjectBlock.Builder> action);
+
+	BuildScriptFile getBuildFile();
 }
