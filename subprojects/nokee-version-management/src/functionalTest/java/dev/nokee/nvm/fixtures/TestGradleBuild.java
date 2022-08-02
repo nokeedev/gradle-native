@@ -18,7 +18,7 @@ package dev.nokee.nvm.fixtures;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-public interface TestGradleBuild extends HasSettingsFile, HasBuildFile, HasFileSystem {
+public interface TestGradleBuild extends HasSettingsFile, HasBuildFile, HasFileSystem, Configurable<TestGradleBuild> {
 	Path getLocation();
 
 	void subproject(String path);

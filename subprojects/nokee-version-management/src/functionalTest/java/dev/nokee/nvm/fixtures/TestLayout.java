@@ -16,9 +16,8 @@
 package dev.nokee.nvm.fixtures;
 
 import java.nio.file.Path;
-import java.util.function.Consumer;
 
-public final class TestLayout extends AbstractTestGradleBuild<TestLayout> implements TestGradleBuild, Configurable<TestLayout> {
+public final class TestLayout extends AbstractTestGradleBuild<TestLayout> implements TestGradleBuild {
 	private TestLayout(Path location) {
 		super(location);
 	}
@@ -30,12 +29,6 @@ public final class TestLayout extends AbstractTestGradleBuild<TestLayout> implem
 	// TODO: Return BuildScriptFile via getBuildFile()
 
 	// TODO: Return BuildScriptFile via getSettingsFile()
-
-	@Override
-	public TestLayout configure(Consumer<? super TestLayout> action) {
-		action.accept(this);
-		return this;
-	}
 
 //	interface SubprojectBuilder {
 //		// build filename -> build
