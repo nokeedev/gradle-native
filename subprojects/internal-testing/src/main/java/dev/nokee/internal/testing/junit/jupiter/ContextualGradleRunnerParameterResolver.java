@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
 import static dev.gradleplugins.runnerkit.GradleExecutor.gradleTestKit;
+import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
 
 public class ContextualGradleRunnerParameterResolver implements ParameterResolver, ExecutionCondition {
@@ -34,10 +35,14 @@ public class ContextualGradleRunnerParameterResolver implements ParameterResolve
 
 	@Override
 	public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-		GradleRunner result = GradleRunner.create(gradleTestKit()).inDirectory(() -> extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).get("temp.dir")).withPluginClasspath().withGradleVersion(System.getProperty("dev.gradleplugins.defaultGradleVersion")).beforeExecute(it -> {
-			System.out.println("Using Gradle v" + System.getProperty("dev.gradleplugins.defaultGradleVersion") + " in '" + it.getWorkingDirectory().getAbsolutePath() + "'");
-			return it;
-		});
+		GradleRunner result = GradleRunner.create(gradleTestKit())
+			.inDirectory(() -> extensionContext.getStore(GLOBAL).get("temp.dir"))
+			.withPluginClasspath()
+			.withGradleVersion(System.getProperty("dev.gradleplugins.defaultGradleVersion"))
+			.beforeExecute(it -> {
+				System.out.println("Using Gradle v" + System.getProperty("dev.gradleplugins.defaultGradleVersion") + " in '" + it.getWorkingDirectory().getAbsolutePath() + "'");
+				return it;
+			});
 		if (getGradleVersion().compareTo(VersionNumber.parse("7.6")) >= 0) {
 			result = result.withArgument("-Dorg.gradle.kotlin.dsl.precompiled.accessors.strict=true");
 		}
