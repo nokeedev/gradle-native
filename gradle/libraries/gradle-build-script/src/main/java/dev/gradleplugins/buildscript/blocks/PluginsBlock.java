@@ -24,11 +24,14 @@ import dev.gradleplugins.buildscript.statements.Statement;
 import dev.gradleplugins.buildscript.syntax.Expression;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static dev.gradleplugins.buildscript.syntax.Syntax.concat;
+import static dev.gradleplugins.buildscript.syntax.Syntax.gradle;
 import static dev.gradleplugins.buildscript.syntax.Syntax.invoke;
 import static dev.gradleplugins.buildscript.syntax.Syntax.literal;
 import static dev.gradleplugins.buildscript.syntax.Syntax.string;
@@ -85,6 +88,7 @@ public final class PluginsBlock extends AbstractBlock {
 			private String pluginId;
 			private String version = null;
 			private Boolean shouldApply = null;
+			private boolean useKotlinAccessor = false;
 
 			private Builder id(String pluginId) {
 				this.pluginId = Objects.requireNonNull(pluginId);
@@ -101,9 +105,26 @@ public final class PluginsBlock extends AbstractBlock {
 				return this;
 			}
 
+			public Builder useKotlinAccessor() {
+				this.useKotlinAccessor = true;
+				return this;
+			}
+
 			public IdStatement build() {
 				final List<Expression> builder = new ArrayList<>();
-				builder.add(invoke("id", string(pluginId)));
+				if (useKotlinAccessor) {
+					final String groovyLiteral = "id '" + pluginId + "'";
+					final String kotlinLiteral = Arrays.stream(pluginId.split("\\.")).map(it -> {
+						if (it.contains("-")) {
+							return "`" + it + "`";
+						} else {
+							return it;
+						}
+					}).collect(Collectors.joining("."));
+					builder.add(gradle(groovyLiteral, kotlinLiteral));
+				} else {
+					builder.add(invoke("id", string(pluginId)));
+				}
 				if (version != null) {
 					builder.add(literal(" "));
 					builder.add(invoke("version", string(version)));
