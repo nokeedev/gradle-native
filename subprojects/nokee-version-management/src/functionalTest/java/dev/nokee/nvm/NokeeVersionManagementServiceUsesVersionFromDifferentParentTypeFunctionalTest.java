@@ -18,6 +18,7 @@ package dev.nokee.nvm;
 import dev.gradleplugins.buildscript.blocks.RepositoriesBlock;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
+import dev.nokee.internal.testing.junit.jupiter.GradleAtLeast;
 import dev.nokee.nvm.fixtures.TestGradleBuild;
 import dev.nokee.nvm.fixtures.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
@@ -74,6 +75,7 @@ class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeFunctionalT
 		}
 
 		@Nested
+		@GradleAtLeast("6.4")
 		class GroovyPrecompiledPluginTest extends Tester {
 			@BeforeEach
 			void setUp() {
@@ -98,6 +100,7 @@ class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeFunctionalT
 		}
 
 		@Nested
+		@GradleAtLeast("6.4")
 		class GroovyPrecompiledScriptTest extends Tester {
 			@BeforeEach
 			void setUp() {
@@ -121,6 +124,7 @@ class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeFunctionalT
 
 
 		@Nested
+		@GradleAtLeast("6.4")
 		class GroovyPrecompiledScriptPluginTest extends Tester {
 			@BeforeEach
 			void setUp() {
