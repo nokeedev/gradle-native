@@ -179,7 +179,9 @@ abstract class AbstractTestGradleBuild<SELF extends TestGradleBuild> implements 
 	@Override
 	public void file(String path, String... lines) {
 		try {
-			Files.write(location.resolve(path), Arrays.asList(lines));
+			final Path location = this.location.resolve(path);
+			Files.createDirectories(location.getParent());
+			Files.write(location, Arrays.asList(lines));
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
