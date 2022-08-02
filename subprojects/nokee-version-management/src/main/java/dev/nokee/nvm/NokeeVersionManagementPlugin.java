@@ -35,8 +35,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.function.Function;
 
-import static dev.nokee.nvm.NokeeVersionManagementService.registerService;
-import static dev.nokee.nvm.NokeeVersionManagementService.toNokeeVersion;
+import static dev.nokee.nvm.DefaultNokeeVersionManagementService.registerService;
 import static dev.nokee.nvm.ProviderUtils.forUseAtConfigurationTime;
 
 // FIXME: Javadoc fail if no public class
@@ -50,8 +49,8 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 
 	@Override
 	public void apply(Settings settings) {
-		final Provider<NokeeVersionManagementService> service = forUseAtConfigurationTime(registerService(settings.getGradle(), defaultParameters(settings)));
-		final Provider<NokeeVersion> version = service.map(NokeeVersionManagementService::getVersion);
+		final Provider<DefaultNokeeVersionManagementService> service = forUseAtConfigurationTime(registerService(settings.getGradle(), defaultParameters(settings)));
+		final Provider<NokeeVersion> version = service.map(DefaultNokeeVersionManagementService::getVersion);
 
 		settings.pluginManagement(spec -> {
 			// TODO: Allow disable of the default gradlePluginPortal()
@@ -70,10 +69,10 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 	}
 
 	@SuppressWarnings("UnstableApiUsage")
-	private Action<NokeeVersionManagementService.Parameters> defaultParameters(Settings settings) {
-		return new Action<NokeeVersionManagementService.Parameters>() {
+	private Action<DefaultNokeeVersionManagementService.Parameters> defaultParameters(Settings settings) {
+		return new Action<DefaultNokeeVersionManagementService.Parameters>() {
 			@Override
-			public void execute(NokeeVersionManagementService.Parameters parameters) {
+			public void execute(DefaultNokeeVersionManagementService.Parameters parameters) {
 				parameters.getNokeeVersion().value(fromParentNokeeBuilds()
 					.orElse(fromSystemProperty()).orElse(fromGradleProperty())
 					.orElse(fromEnvironmentVariable()).orElse(fromNokeeVersionFile()));
@@ -93,7 +92,11 @@ public class NokeeVersionManagementPlugin implements Plugin<Settings> {
 
 			//region gradle.parent services
 			private Provider<NokeeVersion> fromParentNokeeBuilds() {
-				return providers.provider(() -> providers.provider(((SettingsInternal) settings)::getGradle).map(forEachParent(NokeeVersionManagementService::findServiceRegistration)).flatMap(BuildServiceRegistration::getService).map(toNokeeVersion()).getOrNull());
+				return providers.provider(() -> providers.provider(((SettingsInternal) settings)::getGradle)
+					.map(forEachParent(DefaultNokeeVersionManagementService::findServiceRegistration))
+					.flatMap(BuildServiceRegistration::getService)
+					.map(DefaultNokeeVersionManagementService::asNokeeVersion)
+					.getOrNull());
 			}
 
 			private <T> Transformer<T, Gradle> forEachParent(Function<Gradle, T> mapper) {
