@@ -158,6 +158,25 @@ abstract class AbstractTestGradleBuild<SELF extends TestGradleBuild> implements 
 	}
 
 	@Override
+	public SELF pluginBuild(String path, Consumer<? super TestIncludedBuild> action) {
+		try {
+			settingsBuilder.pluginManagement(it -> it.includeBuild(path)).build().writeTo(location.resolve("settings.gradle"));
+			TestIncludedBuild includedBuild = includedBuilds.get(path);
+			if (includedBuild == null) {
+				includedBuild = TestIncludedBuild.newInstance(this, path);
+				includedBuilds.put(path, includedBuild);
+			}
+			action.accept(includedBuild);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+
+		@SuppressWarnings("unchecked")
+		SELF result = (SELF) this;
+		return result;
+	}
+
+	@Override
 	public void file(String path, String... lines) {
 		try {
 			Files.write(location.resolve(path), Arrays.asList(lines));
