@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-public final class TestIncludedBuild extends AbstractTestGradleBuild implements TestGradleBuild, Configurable<TestIncludedBuild> {
+public final class TestIncludedBuild extends AbstractTestGradleBuild<TestIncludedBuild> implements TestGradleBuild, Configurable<TestIncludedBuild> {
 	private final TestGradleBuild parent;
 	private final String buildPath;
 

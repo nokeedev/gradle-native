@@ -18,7 +18,7 @@ package dev.nokee.nvm.fixtures;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-public final class TestLayout extends AbstractTestGradleBuild implements TestGradleBuild, Configurable<TestLayout> {
+public final class TestLayout extends AbstractTestGradleBuild<TestLayout> implements TestGradleBuild, Configurable<TestLayout> {
 	private TestLayout(Path location) {
 		super(location);
 	}
