@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-public final class TestIncludedBuild extends AbstractTestGradleBuild<TestIncludedBuild> implements TestGradleBuild, Configurable<TestIncludedBuild> {
+public final class TestIncludedBuild extends AbstractTestGradleBuild<TestIncludedBuild> implements TestGradleBuild {
 	private final TestGradleBuild parent;
 	private final String buildPath;
 
@@ -50,11 +50,5 @@ public final class TestIncludedBuild extends AbstractTestGradleBuild<TestInclude
 
 	public void parentBuild(Consumer<? super TestGradleBuild> action) {
 		action.accept(parent);
-	}
-
-	@Override
-	public TestIncludedBuild configure(Consumer<? super TestIncludedBuild> action) {
-		action.accept(this);
-		return this;
 	}
 }

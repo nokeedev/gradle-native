@@ -186,4 +186,13 @@ abstract class AbstractTestGradleBuild<SELF extends TestGradleBuild> implements 
 			throw new UncheckedIOException(e);
 		}
 	}
+
+	@Override
+	public SELF configure(Consumer<? super TestGradleBuild> action) {
+		action.accept(this);
+
+		@SuppressWarnings("unchecked")
+		SELF result = (SELF) this;
+		return result;
+	}
 }
