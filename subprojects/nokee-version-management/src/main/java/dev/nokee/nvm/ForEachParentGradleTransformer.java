@@ -66,11 +66,19 @@ class ForEachParentGradleTransformer<OUT> implements Transformer<OUT, Gradle> {
 				}
 			} else {
 				// walk backward
-				for (final GradleInternal parent : findParents(gradle.getParent(), gradle)) {
-					final OUT result = mapper.apply(parent);
-					if (result != null) {
-						return result;
+				try {
+					List<GradleInternal> parents = new ArrayList<>();
+					findParents(gradle.getParent(), gradle).forEach(parents::add);
+					for (final GradleInternal parent : parents) {
+						final OUT result = mapper.apply(parent);
+						if (result != null) {
+							return result;
+						}
 					}
+				} catch (IllegalStateException ex) {
+					// When the build applies enterprise plugin AND uses plugin builds,
+					//   we enter an illegal state.
+					// We will assume, at this stage, that we haven't found a parent service...
 				}
 			}
 			gradle = gradle.getParent();
@@ -85,8 +93,10 @@ class ForEachParentGradleTransformer<OUT> implements Transformer<OUT, Gradle> {
 	}
 
 	private static boolean findParents(List<GradleInternal> result, GradleInternal parent, GradleInternal childToFind) {
+		// getIncludedBuilds may throw an exception if, for some reason, we are too early.
+		//   In that scenario, we will try our best to find the Nokee version.
 		for (final IncludedBuild includedBuild : parent.getIncludedBuilds()) {
-			// To verify the child, we don't try to get the model for the included build because this can cause a realize loop
+			// To verify the child, we don't try to get the model for the included build because this can cause a realized loop
 			if (getBuildIdentifier(includedBuild).equals(childToFind.getOwner().getBuildIdentifier())) {
 				result.add(parent);
 				return true; // found our child
