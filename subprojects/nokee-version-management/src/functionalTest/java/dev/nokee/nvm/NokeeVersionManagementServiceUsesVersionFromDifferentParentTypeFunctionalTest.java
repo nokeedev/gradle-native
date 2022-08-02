@@ -37,7 +37,7 @@ import static dev.nokee.nvm.ProjectFixtures.registerVerifyTask;
 import static dev.nokee.nvm.ProjectFixtures.withVersion;
 
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
-class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeTest {
+class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeFunctionalTest {
 	@TestDirectory Path testDirectory;
 	TestLayout testLayout;
 	GradleRunner runner;
