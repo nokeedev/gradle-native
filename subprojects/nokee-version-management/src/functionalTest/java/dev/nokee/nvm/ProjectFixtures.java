@@ -142,7 +142,7 @@ public final class ProjectFixtures {
 
 	private static Consumer<TaskBlock.Builder> resolveNokeeVersion() {
 		return builder -> {
-			builder.doLast(task -> task.add(Statement.expressionOf(Syntax.groovy("gradle.sharedServices.registrations.nokeeVersionManagement.service.get().version.toString()"))));
+			builder.doLast(task -> task.add(Statement.expressionOf(Syntax.groovy("dev.nokee.nvm.NokeeVersionManagementService.fromBuild(gradle).get().version.toString()"))));
 		};
 	}
 
@@ -158,7 +158,10 @@ public final class ProjectFixtures {
 
 	public static Consumer<TaskBlock.Builder> assertNokeeVersion(String version) {
 		return builder -> {
-			builder.doLast(task -> task.add(Statement.expressionOf(Syntax.groovy("assert gradle.sharedServices.registrations.nokeeVersionManagement.service.get().version.toString() == '" + version + "'"))));
+			builder.doLast(task -> task.add(Statement.expressionOf(Syntax.gradle(
+				"assert dev.nokee.nvm.NokeeVersionManagementService.fromBuild(gradle).get().version.toString() == '" + version + "'",
+				"assert(dev.nokee.nvm.NokeeVersionManagementService.fromBuild(gradle).get().version.toString() == \"" + version + "\")"
+				))));
 		};
 	}
 }
