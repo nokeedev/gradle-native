@@ -55,4 +55,9 @@ public final class TestSubproject implements HasBuildFile {
 			throw new UncheckedIOException(e);
 		}
 	}
+
+	@Override
+	public BuildScriptFile getBuildFile() {
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
 }
