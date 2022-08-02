@@ -140,8 +140,6 @@ class NokeeVersionManagementServiceUsesVersionFromDifferentParentTypeFunctionalT
 			build.configure(applyPluginUnderTest());
 			build.buildFile(t -> {
 				t.plugins(i -> i.id("kotlin-dsl", id -> id.useKotlinAccessor())).repositories(RepositoriesBlock.Builder::mavenCentral);
-//				t.plugins(i -> i.add(expressionOf(kotlin("`kotlin-dsl`"))))
-//					.repositories(RepositoriesBlock.Builder::mavenCentral);
 			});
 			build.file("src/main/kotlin/foobuild.compile.gradle.kts", "plugins {", "  java", "}");
 			build.configure(registerVerifyTask().andThen(expect("0.6.9")));
