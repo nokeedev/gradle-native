@@ -38,8 +38,7 @@ import java.util.function.Function;
 import static dev.nokee.nvm.DefaultNokeeVersionManagementService.registerService;
 import static dev.nokee.nvm.ProviderUtils.forUseAtConfigurationTime;
 
-// FIXME: Javadoc fail if no public class
-public class NokeeVersionManagementPlugin implements Plugin<Settings> {
+class NokeeVersionManagementPlugin implements Plugin<Settings> {
 	private final ProviderFactory providers;
 
 	@Inject
