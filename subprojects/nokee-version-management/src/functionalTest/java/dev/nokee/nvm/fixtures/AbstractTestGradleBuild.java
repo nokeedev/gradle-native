@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-abstract class AbstractTestGradleBuild implements TestGradleBuild {
+abstract class AbstractTestGradleBuild<SELF extends TestGradleBuild> implements TestGradleBuild {
 	private final SettingsBlock.Builder settingsBuilder = SettingsBlock.builder();
 	private final ProjectBlock.Builder buildBuilder = ProjectBlock.builder();
 	private final Path location;
@@ -54,6 +54,7 @@ abstract class AbstractTestGradleBuild implements TestGradleBuild {
 		}
 	}
 
+	@Override
 	public BuildScriptFile getBuildFile() {
 		return new BuildScriptFile() {
 			@Override
@@ -126,15 +127,19 @@ abstract class AbstractTestGradleBuild implements TestGradleBuild {
 	}
 
 	@Override
-	public void buildSrc(Consumer<? super TestBuildSrc> action) {
+	public SELF buildSrc(Consumer<? super TestBuildSrc> action) {
 		if (buildSrcBuild == null) {
 			buildSrcBuild = TestBuildSrc.newInstance(this);
 		}
 		action.accept(buildSrcBuild);
+
+		@SuppressWarnings("unchecked")
+		SELF result = (SELF) this;
+		return result;
 	}
 
 	@Override
-	public void includeBuild(String path, Consumer<? super TestIncludedBuild> action) {
+	public SELF includeBuild(String path, Consumer<? super TestIncludedBuild> action) {
 		try {
 			settingsBuilder.includeBuild(path).build().writeTo(location.resolve("settings.gradle"));
 			TestIncludedBuild includedBuild = includedBuilds.get(path);
@@ -146,6 +151,10 @@ abstract class AbstractTestGradleBuild implements TestGradleBuild {
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
+
+		@SuppressWarnings("unchecked")
+		SELF result = (SELF) this;
+		return result;
 	}
 
 	@Override

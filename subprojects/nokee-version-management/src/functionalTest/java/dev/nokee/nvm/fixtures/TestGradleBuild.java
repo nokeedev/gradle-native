@@ -25,7 +25,7 @@ public interface TestGradleBuild extends HasSettingsFile, HasBuildFile, HasFileS
 
 	void subproject(String path, Consumer<? super TestSubproject> action);
 
-	void buildSrc(Consumer<? super TestBuildSrc> action);
+	TestGradleBuild buildSrc(Consumer<? super TestBuildSrc> action);
 
-	void includeBuild(String path, Consumer<? super TestIncludedBuild> action);
+	TestGradleBuild includeBuild(String path, Consumer<? super TestIncludedBuild> action);
 }
