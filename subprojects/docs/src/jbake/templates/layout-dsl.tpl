@@ -1,12 +1,10 @@
 layout 'layout-page.tpl', content: content, config: config,
 	components: [
 		[stylesheetUrl: '/component-multi-language-sample.css', scriptUrl: '/component-multi-language-sample.js'],
+		[scriptUrl: '/js/active-link.js'],
 	],
 	headContents: contents {
 		link(rel: 'stylesheet', href: '/css/docs-asciidoctor-docs-layout.css') newLine()
-	},
-	footContents: contents {
-		script(src: '/js/active-link.js') {}
 	},
 	primaryNavigationContents: contents {
 		layout 'fragment-dsl-navigation.tpl', content: content,
