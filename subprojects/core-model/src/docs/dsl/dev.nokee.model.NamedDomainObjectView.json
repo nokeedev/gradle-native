@@ -1,5 +1,0 @@
-{
-	"category": "Core types",
-	"properties": [],
-	"methods": ["configure", "get"]
-}

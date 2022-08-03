@@ -1,5 +1,0 @@
-{
-	"category": "Core types",
-	"properties": ["elements"],
-	"methods": ["configureEach", "get", "map", "flatMap", "filter"]
-}
