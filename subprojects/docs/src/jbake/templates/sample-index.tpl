@@ -15,40 +15,31 @@ def categories = sample_chapters.collectEntries {
 	}
 }
 
-layout 'layout-page.tpl', content: content, config: config,
-	headContents: contents {
-		link(rel: 'stylesheet', href: '/css/docs-asciidoctor-docs-layout.css') newLine()
-	},
-	pageContents: contents {
+layout 'layout-docs.tpl', content: content, config: config,
+	bodyContents: contents {
 		yieldUnescaped(content.body)
 
 		// The following HTML structure mirror how adoc render each document section
 		// It mostly allow anchors on h2
 		categories.forEach { id, category ->
 			yieldUnescaped """
-				<div class="sec1">
-				<h2 id="${id}">
-				<a class="anchor" href="#${id}"></a>
-							<a class="link" href="#${id}">${category}</a>
-				</h2>
-						<div class="sectionbody">
-							<ul>
+<div class="sec1">
+<h2 id="${id}">
+<a class="anchor" href="#${id}"></a>
+			<a class="link" href="#${id}">${category}</a>
+</h2>
+		<div class="sectionbody">
+			<ul>
 """
-				sample_chapters.findAll { it.category == category }.each {sample ->
-					yieldUnescaped """
-								<li><p><a href="${sample.permalink}/">${sample.title}</a>: ${sample.summary}</p></li>
+			sample_chapters.findAll { it.category == category }.each { sample ->
+				yieldUnescaped """
+				<li><p><a href="${sample.permalink}/">${sample.title}</a>: ${sample.summary}</p></li>
 """
-				}
+			}
 			yieldUnescaped """
-			</ul>
-						</div>
-			</div>
-			"""
+</ul>
+		</div>
+</div>
+"""
 		}
-	},
-	primaryNavigationContents: contents {
-		layout 'fragment-docs-navigation.tpl', content: content
-	},
-	secondaryNavigationContents: contents {
-		aside(class: 'secondary-navigation') {}
 	}
