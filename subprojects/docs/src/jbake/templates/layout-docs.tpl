@@ -1,5 +1,7 @@
 layout 'layout-page.tpl', content: content, config: config,
-	multiLanguageSampleEnabled: true,
+	components: [
+		[stylesheetUrl: '/component-multi-language-sample.css', scriptUrl: '/component-multi-language-sample.js'],
+	],
 	headContents: contents {
 		link(rel: 'stylesheet', href: '/css/docs-asciidoctor-docs-layout.css') newLine()
 	},
