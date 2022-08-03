@@ -11,5 +11,5 @@
 	================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
 	<script src="/js/prettify.js"></script>
-	<script src="/js/multi-language-sample.js"></script>
+	<script src="/component-multi-language-sample.js"></script>
 	<script src="/js/active-link.js"></script>
