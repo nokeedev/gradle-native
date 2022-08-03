@@ -10,6 +10,7 @@ layout 'layout-page.tpl', content: content, config: config,
 	],
 	headContents: contents {
 		link(rel: 'stylesheet', href: '/css/docs-asciidoctor-docs-layout.css') newLine()
+		if (headContents) headContents()
 	},
 	bodyContents: contents {
 		layout 'fragment-menu-content.tpl',
