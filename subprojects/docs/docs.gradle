@@ -75,6 +75,7 @@ dependencies {
 	docsTestImplementation testFixtures(project('exemplarKit'))
 
 	jbake 'dev.nokee.docs:layout-page:latest.release'
+	jbake 'dev.nokee.docs:component-multi-language-sample:latest.release'
 	content project(':ideXcode')
 	content project(':languageBase')
 	content project(':languageC')
