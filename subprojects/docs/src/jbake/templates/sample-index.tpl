@@ -19,7 +19,7 @@ layout 'layout-page.tpl', content: content, config: config,
 	headContents: contents {
 		link(rel: 'stylesheet', href: '/css/docs-asciidoctor-docs-layout.css') newLine()
 	},
-	bodyContents: contents {
+	pageContents: contents {
 		yieldUnescaped(content.body)
 
 		// The following HTML structure mirror how adoc render each document section
