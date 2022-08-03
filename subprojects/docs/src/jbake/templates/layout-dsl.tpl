@@ -6,10 +6,17 @@ layout 'layout-page.tpl', content: content, config: config,
 	headContents: contents {
 		link(rel: 'stylesheet', href: '/css/docs-asciidoctor-docs-layout.css') newLine()
 	},
-	primaryNavigationContents: contents {
-		layout 'fragment-dsl-navigation.tpl', content: content,
-			dsl_chapters: dsl_chapters
-	},
-	secondaryNavigationContents: contents {
-		aside(class: 'secondary-navigation') {}
+	bodyContents: contents {
+		layout 'fragment-menu-content.tpl',
+			leftNavigationContents: contents {
+				layout 'fragment-dsl-navigation.tpl', content: content,
+					dsl_chapters: dsl_chapters
+			},
+			bodyContents: contents {
+				layout 'fragment-chapter.tpl',
+					headerContents: contents { h1(content.title) },
+					bodyContents: contents { yieldUnescaped(content.body) }
+			}
+
+		layout 'fragment-copyright.tpl', ignored: false
 	}
