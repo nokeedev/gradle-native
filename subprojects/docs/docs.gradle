@@ -30,6 +30,14 @@ plugins {
 	id 'dev.gradleplugins.documentation.javadoc-api-reference'
 }
 
+repositories {
+	maven {
+		name 'docsNokeeDev'
+		url = 's3://docs.nokee.dev'
+		credentials(AwsCredentials)
+	}
+}
+
 docsTest.dependsOn({ project(':distributions').tasks.named('publishToStaging')})
 
 def readMeFile = rootProject.file('README.adoc')
@@ -66,6 +74,7 @@ dependencies {
 	docsTestImplementation project('exemplarKit')
 	docsTestImplementation testFixtures(project('exemplarKit'))
 
+	jbake 'dev.nokee.docs:layout-page:latest.release'
 	content project(':ideXcode')
 	content project(':languageBase')
 	content project(':languageC')

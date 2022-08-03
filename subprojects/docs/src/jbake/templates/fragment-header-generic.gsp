@@ -9,11 +9,11 @@
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <link href="/css/normalize-8.0.1.css" rel="stylesheet">
 <link href="/css/prettify.css" rel="stylesheet">
-<link href="/css/menu.css" rel="stylesheet">
+<link href="/component-menu.css" rel="stylesheet">
 <% if (content.colorscheme && content.colorscheme == 'dark') {%>
-<link href="/css/colorscheme-dark.css" rel="stylesheet">
+<link href="/component-menu-dark.css" rel="stylesheet">
 <%} else {%>
-<link href="/css/colorscheme-light.css" rel="stylesheet">
+<link href="/component-menu-light.css" rel="stylesheet">
 <%}%>
 
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
