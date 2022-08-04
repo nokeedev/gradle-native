@@ -15,9 +15,9 @@
  */
 package dev.nokee.platform.swift.internal.plugins;
 
-import dev.nokee.language.swift.SwiftSourceSet;
-import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
+import dev.nokee.language.swift.internal.plugins.HasSwiftSourcesMixIn;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -40,14 +40,11 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareCompo
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.platform.swift.SwiftLibrary;
 import dev.nokee.platform.swift.SwiftLibrarySources;
-import groovy.lang.Closure;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -56,12 +53,10 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
-import static org.gradle.util.ConfigureUtil.configureUsing;
 
 public class SwiftLibraryPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "library";
@@ -107,22 +102,8 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		, ModelBackedHasBaseNameMixIn
 		, ModelBackedNamedMixIn
 		, HasAssembleTaskMixIn
+		, HasSwiftSourcesMixIn
 	{
-		@Override
-		public SwiftSourceSet getSwiftSources() {
-			return ((HasSwiftSourceSet) sourceViewOf(this)).getSwift().get();
-		}
-
-		@Override
-		public void swiftSources(Action<? super SwiftSourceSet> action) {
-			((HasSwiftSourceSet) sourceViewOf(this)).getSwift().configure(action);
-		}
-
-		@Override
-		public void swiftSources(@SuppressWarnings("rawtypes") Closure closure) {
-			swiftSources(configureUsing(closure));
-		}
-
 		@Override
 		public String toString() {
 			return "Swift library '" + getName() + "'";

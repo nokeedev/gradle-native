@@ -18,6 +18,7 @@ package dev.nokee.language.swift;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Represents a component that carries Swift sources.
@@ -31,9 +32,8 @@ public interface HasSwiftSources {
 	 * <p>By default, the source set contains all files in the directory {@code src/componentName/swift}, where {@literal componentName} represent this component's name, i.e. {@literal main} or {@literal test}.
 	 *
 	 * @return a source set containing the Swift sources of this component, never null
-	 * @see SwiftSourceSet
 	 */
-	SwiftSourceSet getSwiftSources();
+	ConfigurableFileCollection getSwiftSources();
 
 	/**
 	 * Configures the Swift sources of this component using the specified configuration action.
@@ -41,6 +41,6 @@ public interface HasSwiftSources {
 	 * @param action  the configuration action, must not be null
 	 * @see #getSwiftSources()
 	 */
-	void swiftSources(Action<? super SwiftSourceSet> action);
-	void swiftSources(@DelegatesTo(value = SwiftSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
+	void swiftSources(Action<? super ConfigurableFileCollection> action);
+	void swiftSources(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

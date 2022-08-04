@@ -20,17 +20,19 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTag;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.tags.ModelTag;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.utils.TaskDependencyUtils;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
-@DomainObjectEntities.Tag({ObjectiveCSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
+@DomainObjectEntities.Tag({ObjectiveCSourceSetTag.class, ObjectiveCSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ class ObjectiveCSourceSetSpec implements ObjectiveCSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<ObjectiveCCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {

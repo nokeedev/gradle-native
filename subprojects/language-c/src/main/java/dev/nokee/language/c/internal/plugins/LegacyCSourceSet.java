@@ -20,13 +20,14 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.CSourceSetTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
-@DomainObjectEntities.Tag({LegacySourceSetTag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
+@DomainObjectEntities.Tag({CSourceSetTag.class, LegacySourceSetTag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public /*final*/ class LegacyCSourceSet implements CSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>, HasConfigurableSourceMixIn {
 	@Override
 	public TaskDependency getBuildDependencies() {

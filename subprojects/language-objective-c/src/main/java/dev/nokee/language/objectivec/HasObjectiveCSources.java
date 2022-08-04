@@ -18,6 +18,7 @@ package dev.nokee.language.objectivec;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Represents a component that carries Objective-C sources.
@@ -31,10 +32,9 @@ public interface HasObjectiveCSources {
 	 * <p>By default, the source set contains all files in the directory {@code src/componentName/objectiveC} (and {@code src/componentName/objc} for backward compatibility), where {@literal componentName} represent this component's name, i.e. {@literal main} or {@literal test}.
 	 *
 	 * @return a source set containing the Objective-C sources of this component, never null
-	 * @see ObjectiveCSourceSet
 	 * @since 0.5
 	 */
-	ObjectiveCSourceSet getObjectiveCSources();
+	ConfigurableFileCollection getObjectiveCSources();
 
 	/**
 	 * Configures the Objective-C sources of this component using the specified configuration action.
@@ -42,6 +42,6 @@ public interface HasObjectiveCSources {
 	 * @param action  the configuration action, must not be null
 	 * @see #getObjectiveCSources()
 	 */
-	void objectiveCSources(Action<? super ObjectiveCSourceSet> action);
-	void objectiveCSources(@DelegatesTo(value = ObjectiveCSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
+	void objectiveCSources(Action<? super ConfigurableFileCollection> action);
+	void objectiveCSources(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

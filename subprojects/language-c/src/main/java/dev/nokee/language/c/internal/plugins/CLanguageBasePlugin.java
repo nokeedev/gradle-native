@@ -15,7 +15,12 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
+import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.CSourceSetTag;
+import dev.nokee.language.c.internal.CSourcesComponent;
+import dev.nokee.language.c.internal.CSourcesPropertyComponent;
+import dev.nokee.language.c.internal.HasCSourcesMixIn;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
@@ -24,25 +29,37 @@ import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelNodes;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
+import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
+
+import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+import static dev.nokee.utils.Optionals.stream;
+import static dev.nokee.utils.ProviderUtils.disallowChanges;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public class CLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -70,6 +87,30 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 				entity.addComponent(new CSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasCSourcesMixIn.Tag.class), (entity, ignored) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
+				.withComponent(new ElementNameComponent("cSources"))
+				.withComponent(new ParentComponent(entity))
+				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
+				.build()));
+			entity.addComponent(new CSourcesPropertyComponent(property));
+		})));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(CSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
+			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+				ModelStates.finalize(parent.get());
+				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(CSourcesComponent.class))).findFirst()
+					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
+			});
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, cSources, ignored1) -> {
+			ModelStates.finalize(cSources.get());
+			val sources = (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get();
+			entity.addComponent(new CSourcesComponent(finalizeValueOnRead(disallowChanges(sources))));
+		}));
 	}
 
 	static final class DefaultCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

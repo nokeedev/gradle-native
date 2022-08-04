@@ -29,7 +29,7 @@ import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
-@DomainObjectEntities.Tag({SwiftSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
+@DomainObjectEntities.Tag({SwiftSourceSetTag.class, SwiftSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
 public /*final*/ class SwiftSourceSetSpec implements SwiftSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<SwiftSourceSet>, HasConfigurableSourceMixIn, HasNativeCompileTaskMixIn<SwiftCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {

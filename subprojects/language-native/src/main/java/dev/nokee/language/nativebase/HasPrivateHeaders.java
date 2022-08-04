@@ -18,6 +18,7 @@ package dev.nokee.language.nativebase;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Represents a component that carries private headers.
@@ -31,9 +32,8 @@ public interface HasPrivateHeaders {
 	 * <p>By default, the source set contains all files in the directory {@code src/componentName/headers}, where {@literal componentName} represent this component's name, i.e. {@literal main} or {@literal test}.
 	 *
 	 * @return a source set containing the private headers of this component, never null
-	 * @see NativeHeaderSet
 	 */
-	NativeHeaderSet getPrivateHeaders();
+	ConfigurableFileCollection getPrivateHeaders();
 
 	/**
 	 * Configures the private headers of this component using the specified configuration action.
@@ -41,6 +41,6 @@ public interface HasPrivateHeaders {
 	 * @param action  the configuration action, must not be null
 	 * @see #getPrivateHeaders()
 	 */
-	void privateHeaders(Action<? super NativeHeaderSet> action);
-	void privateHeaders(@DelegatesTo(value = NativeHeaderSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
+	void privateHeaders(Action<? super ConfigurableFileCollection> action);
+	void privateHeaders(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

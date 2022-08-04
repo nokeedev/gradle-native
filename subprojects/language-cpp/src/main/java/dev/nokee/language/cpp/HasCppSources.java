@@ -18,6 +18,7 @@ package dev.nokee.language.cpp;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Represents a component that carries C++ sources.
@@ -31,9 +32,8 @@ public interface HasCppSources {
 	 * <p>By default, the source set contains all files in the directory {@code src/componentName/cpp}, where {@literal componentName} represent this component's name, i.e. {@literal main} or {@literal test}.
 	 *
 	 * @return a source set containing the C++ sources of this component, never null
-	 * @see CppSourceSet
 	 */
-	CppSourceSet getCppSources();
+	ConfigurableFileCollection getCppSources();
 
 	/**
 	 * Configures the C++ sources of this component using the specified configuration action.
@@ -41,6 +41,6 @@ public interface HasCppSources {
 	 * @param action  the configuration action, must not be null
 	 * @see #getCppSources()
 	 */
-	void cppSources(Action<? super CppSourceSet> action);
-	void cppSources(@DelegatesTo(value = CppSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
+	void cppSources(Action<? super ConfigurableFileCollection> action);
+	void cppSources(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

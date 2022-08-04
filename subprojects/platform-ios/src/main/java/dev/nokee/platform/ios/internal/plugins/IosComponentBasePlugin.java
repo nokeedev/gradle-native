@@ -29,7 +29,6 @@ import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
@@ -77,7 +76,6 @@ import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.SetProperty;
@@ -95,7 +93,6 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 public class IosComponentBasePlugin implements Plugin<Project> {
 	@Override
