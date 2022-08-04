@@ -19,7 +19,7 @@ import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetTag;
+import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -94,7 +94,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 
 	public static ModelRegistration objectiveCppLibrary(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("Objective-C++ library").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCppLibrary.class, project).create(identifier).withComponent(tag(ObjectiveCppSourceSetTag.class)).build();
+		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCppLibrary.class, project).create(identifier).withComponent(tag(SupportObjectiveCppSourceSetTag.class)).build();
 	}
 
 	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary

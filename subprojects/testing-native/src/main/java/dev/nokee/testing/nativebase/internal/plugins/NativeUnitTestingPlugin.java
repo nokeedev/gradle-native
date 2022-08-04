@@ -18,15 +18,15 @@ package dev.nokee.testing.nativebase.internal.plugins;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.language.c.internal.plugins.CSourceSetTag;
+import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetTag;
+import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
+import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetTag;
+import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -224,15 +224,15 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeTestSuiteComponentTag.class), (entity, ignored1) -> {
 			if (project.getPlugins().hasPlugin(CLanguageBasePlugin.class)) {
-				entity.addComponent(tag(CSourceSetTag.class));
+				entity.addComponent(tag(SupportCSourceSetTag.class));
 			} else if (project.getPlugins().hasPlugin(CppLanguageBasePlugin.class)) {
-				entity.addComponent(tag(CppSourceSetTag.class));
+				entity.addComponent(tag(SupportCppSourceSetTag.class));
 			} else if (project.getPlugins().hasPlugin(ObjectiveCLanguageBasePlugin.class)) {
-				entity.addComponent(tag(ObjectiveCSourceSetTag.class));
+				entity.addComponent(tag(SupportObjectiveCSourceSetTag.class));
 			} else if (project.getPlugins().hasPlugin(ObjectiveCppLanguageBasePlugin.class)) {
-				entity.addComponent(tag(ObjectiveCppSourceSetTag.class));
+				entity.addComponent(tag(SupportObjectiveCppSourceSetTag.class));
 			} else if (project.getPlugins().hasPlugin(SwiftLanguageBasePlugin.class)) {
-				entity.addComponent(tag(SwiftSourceSetTag.class));
+				entity.addComponent(tag(SupportSwiftSourceSetTag.class));
 			}
 		}));
 

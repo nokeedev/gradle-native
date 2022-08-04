@@ -30,7 +30,7 @@ public class SwiftLanguagePlugin implements Plugin<Project>, NativeLanguagePlugi
 	public void apply(Project project) {
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		project.getPluginManager().apply(SwiftCompilerPlugin.class);
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SwiftSourceSetTag.class));
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SupportSwiftSourceSetTag.class));
 	}
 
 	@Override

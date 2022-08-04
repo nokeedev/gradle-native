@@ -25,12 +25,12 @@ import dev.nokee.language.base.internal.LegacySourceSetTag;
 import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
-import dev.nokee.language.c.internal.plugins.CSourceSetTag;
+import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.c.internal.plugins.DefaultCHeaderSet;
 import dev.nokee.language.c.internal.plugins.LegacyCSourceSet;
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetTag;
+import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.DefaultCppHeaderSet;
 import dev.nokee.language.cpp.internal.plugins.LegacyCppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
@@ -42,16 +42,16 @@ import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.LegacyObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
+import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.LegacyObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
-import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetTag;
+import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.ImportModulesConfigurationComponent;
 import dev.nokee.language.swift.internal.plugins.LegacySwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -371,19 +371,19 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			if (entity.hasComponent(typeOf(CSourceSetTag.class))) {
+			if (entity.hasComponent(typeOf(SupportCSourceSetTag.class))) {
 				registry.register(newEntity("c", LegacyCSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(CppSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportCppSourceSetTag.class))) {
 				registry.register(newEntity("cpp", LegacyCppSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportObjectiveCSourceSetTag.class))) {
 				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(ObjectiveCppSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportObjectiveCppSourceSetTag.class))) {
 				registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SwiftSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportSwiftSourceSetTag.class))) {
 				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 
@@ -425,23 +425,23 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			if (entity.hasComponent(typeOf(CSourceSetTag.class))) {
+			if (entity.hasComponent(typeOf(SupportCSourceSetTag.class))) {
 				registry.register(newEntity("c", LegacyCSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("public", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(CppSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportCppSourceSetTag.class))) {
 				registry.register(newEntity("cpp", LegacyCppSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("public", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportObjectiveCSourceSetTag.class))) {
 				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("public", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(ObjectiveCppSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportObjectiveCppSourceSetTag.class))) {
 				registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("public", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SwiftSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportSwiftSourceSetTag.class))) {
 				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 

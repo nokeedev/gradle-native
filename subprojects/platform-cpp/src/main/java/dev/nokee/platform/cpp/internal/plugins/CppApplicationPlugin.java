@@ -17,8 +17,8 @@ package dev.nokee.platform.cpp.internal.plugins;
 
 import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
-import dev.nokee.language.cpp.internal.plugins.CppSourceSetTag;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -92,7 +92,7 @@ public class CppApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration cppApplication(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C++ application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeApplicationComponentModelRegistrationFactory(DefaultCppApplication.class, project).create(identifier).withComponent(tag(CppSourceSetTag.class)).build();
+		return new NativeApplicationComponentModelRegistrationFactory(DefaultCppApplication.class, project).create(identifier).withComponent(tag(SupportCppSourceSetTag.class)).build();
 	}
 
 	public static abstract class DefaultCppApplication implements CppApplication

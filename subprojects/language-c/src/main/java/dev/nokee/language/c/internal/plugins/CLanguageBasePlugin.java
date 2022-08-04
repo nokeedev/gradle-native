@@ -65,7 +65,7 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 			entity.addComponent(new NativeCompileTypeComponent(CCompileTask.class));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(CSourceSetTag.class))).findFirst().ifPresent(ignored -> {
+			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportCSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(entity));
 				entity.addComponent(new CSourceSetComponent(ModelNodes.of(sourceSet)));
 			});

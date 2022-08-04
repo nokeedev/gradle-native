@@ -18,9 +18,9 @@ package dev.nokee.platform.ios.internal.plugins;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.language.c.internal.plugins.DefaultCHeaderSet;
 import dev.nokee.language.objectivec.internal.plugins.LegacyObjectiveCSourceSet;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
+import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.LegacySwiftSourceSet;
-import dev.nokee.language.swift.internal.plugins.SwiftSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -106,10 +106,10 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(IosApplicationComponentTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
+			if (entity.hasComponent(typeOf(SupportObjectiveCSourceSetTag.class))) {
 				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SwiftSourceSetTag.class))) {
+			} else if (entity.hasComponent(typeOf(SupportSwiftSourceSetTag.class))) {
 				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
 			}
 			registry.register(newEntity("resources", IosResourceSetSpec.class, it -> it.ownedBy(entity)));

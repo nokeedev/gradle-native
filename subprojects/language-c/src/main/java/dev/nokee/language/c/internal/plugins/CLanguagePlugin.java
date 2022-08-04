@@ -49,7 +49,7 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 
 			registry.register(newEntity("c", LegacyCSourceSet.class));
 		}))));
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(CSourceSetTag.class));
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SupportCSourceSetTag.class));
 	}
 
 	@Override
