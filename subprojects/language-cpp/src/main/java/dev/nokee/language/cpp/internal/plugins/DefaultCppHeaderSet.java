@@ -38,4 +38,9 @@ public /*final*/ class DefaultCppHeaderSet implements CppHeaderSet, HasPublicTyp
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();
 	}
+
+	@Override
+	public String toString() {
+		return "C++ headers '" + getName() + "'";
+	}
 }

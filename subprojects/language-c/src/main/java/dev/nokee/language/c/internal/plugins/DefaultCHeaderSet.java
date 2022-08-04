@@ -38,4 +38,9 @@ public /*final*/ class DefaultCHeaderSet implements CHeaderSet, HasPublicType, M
 	public TaskDependency getBuildDependencies() {
 		return getSource().getBuildDependencies();
 	}
+
+	@Override
+	public String toString() {
+		return "C headers '" + getName() + "'";
+	}
 }
