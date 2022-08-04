@@ -44,6 +44,13 @@ public final class ModelPropertyRegistrationFactory {
 			.build();
 	}
 
+	public static ModelRegistration fileCollectionProperty() {
+		return ModelRegistration.builder()
+			.withComponent(tag(ModelPropertyTag.class))
+			.withComponent(new ModelPropertyTypeComponent(set(of(File.class))))
+			.build();
+	}
+
 	public <T> ModelRegistration createFileCollectionProperty() {
 		return ModelRegistration.builder()
 			.withComponent(tag(ModelPropertyTag.class))
