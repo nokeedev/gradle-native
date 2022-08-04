@@ -15,11 +15,22 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
-import com.google.common.collect.Iterables;
 import dev.nokee.runtime.nativebase.internal.NativeArtifactTypes;
 import dev.nokee.utils.ProviderUtils;
+import lombok.val;
+import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.TaskDependency;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class NativeLibraryOutgoingDependencies extends AbstractNativeLibraryOutgoingDependencies implements NativeOutgoingDependencies {
 	private final Configuration apiElements;
@@ -31,9 +42,53 @@ public final class NativeLibraryOutgoingDependencies extends AbstractNativeLibra
 		this.apiElements = apiElements;
 
 		// See https://github.com/gradle/gradle/issues/15146 to learn more about splitting the implicit dependencies
-		apiElements.getOutgoing().artifact(getExportedHeaders().getElements().flatMap(it -> ProviderUtils.fixed(Iterables.getOnlyElement(it))), it -> {
-			it.builtBy(getExportedHeaders());
-			it.setType(NativeArtifactTypes.NATIVE_HEADERS_DIRECTORY);
+		val apiArtifacts = objects.listProperty(PublishArtifact.class);
+		apiArtifacts.addAll(getExportedHeaders().getElements().flatMap(this::getOutgoingApi));
+		apiElements.getOutgoing().getArtifacts().addAllLater(apiArtifacts);
+	}
+
+	private Provider<Iterable<PublishArtifact>> getOutgoingApi(Set<FileSystemLocation> headers) {
+		return ProviderUtils.supplied(() -> {
+			return headers.stream().map(headerSearchPath -> {
+				return new PublishArtifact() {
+					@Override
+					public String getName() {
+						return headerSearchPath.getAsFile().getName();
+					}
+
+					@Override
+					public String getExtension() {
+						return FilenameUtils.getExtension(headerSearchPath.getAsFile().getName());
+					}
+
+					@Override
+					public String getType() {
+						return NativeArtifactTypes.NATIVE_HEADERS_DIRECTORY;
+					}
+
+					@Nullable
+					@Override
+					public String getClassifier() {
+						return null;
+					}
+
+					@Override
+					public File getFile() {
+						return headerSearchPath.getAsFile();
+					}
+
+					@Nullable
+					@Override
+					public Date getDate() {
+						return new Date();
+					}
+
+					@Override
+					public TaskDependency getBuildDependencies() {
+						return getExportedHeaders().getBuildDependencies();
+					}
+				};
+			}).collect(Collectors.toList());
 		});
 	}
 
