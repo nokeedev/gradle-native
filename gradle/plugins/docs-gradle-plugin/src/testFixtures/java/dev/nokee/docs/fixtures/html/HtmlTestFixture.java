@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -39,14 +41,20 @@ public class HtmlTestFixture {
 		return String.format("https://docs.nokee.dev/%s", canonicalize(path));
 	}
 
+	private static final Pattern PATTERN = Pattern.compile("http-equiv=\"Refresh\" content=\"0; url=([^\"]+)");
 	private String canonicalize(String path) {
-		if (path.endsWith("/index.html")) {
-			return path.substring(0, path.lastIndexOf("/") + 1);
+		Matcher matcher = PATTERN.matcher(uriService.fetch(uri));
+		if (matcher.find()) {
+			return matcher.group(1);
+		} else {
+			if (path.endsWith("/index.html")) {
+				return path.substring(0, path.lastIndexOf("/") + 1);
+			}
+			if (path.equals("index.html")) {
+				return "";
+			}
+			return path;
 		}
-		if (path.equals("index.html")) {
-			return "";
-		}
-		return path;
 	}
 
 	public boolean isRedirectionPage() {
