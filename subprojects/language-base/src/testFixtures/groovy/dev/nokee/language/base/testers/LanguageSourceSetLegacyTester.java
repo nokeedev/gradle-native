@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
-public abstract class LanguageSourceSetLegacyTester<T extends LanguageSourceSet> extends LanguageSourceSetContentTester<T> implements LanguageSourceSetEmptyTester<T>, LanguageSourceSetSourceDirectoryTester<T>, LanguageSourceSetFilterTester<T>, LanguageSourceSetBuildDependenciesTester<T>, LanguageSourceSetCommonUsageTester<T>, LanguageSourceSetConventionTester<T>, HasPublicTypeTester<T> {
+public abstract class LanguageSourceSetLegacyTester<T extends LanguageSourceSet> extends LanguageSourceSetContentTester<T> implements LanguageSourceSetEmptyTester<T>, LanguageSourceSetSourceDirectoryTester<T>, LanguageSourceSetFilterTester<T>, LanguageSourceSetBuildDependenciesTester<T>, LanguageSourceSetCommonUsageTester<T>, HasPublicTypeTester<T> {
 	@Override
 	public Object subject() {
 		return createSubject();
