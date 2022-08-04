@@ -15,17 +15,25 @@
  */
 package dev.nokee.platform.objectivecpp;
 
-import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSourcesTester;
-import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.*;
-import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
+import dev.nokee.platform.base.testers.HasDevelopmentVariantTester;
+import dev.nokee.platform.base.testers.TaskAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -40,7 +48,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -49,7 +56,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
 class ObjectiveCppApplicationTest implements ComponentTester<ObjectiveCppApplication>
-	, SourceAwareComponentTester<ObjectiveCppApplication>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeApplicationComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeApplication>>
@@ -69,30 +75,12 @@ class ObjectiveCppApplicationTest implements ComponentTester<ObjectiveCppApplica
 		subject = createSubject("bacu");
 	}
 
-	@Override
 	public ObjectiveCppApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(ObjectiveCppLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCppApplication(componentName, project)).as(ObjectiveCppApplication.class).get();
 		return component;
-	}
-
-	@Override
-	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
-		return Stream.of(
-			new SourcesUnderTest("objectiveCpp", ObjectiveCppSourceSet.class, "objectiveCppSources"),
-			new SourcesUnderTest("headers", NativeHeaderSet.class, "privateHeaders"));
-	}
-
-
-	@Test
-	public void hasAdditionalConventionOnObjectiveCppSourceSet() throws Throwable {
-		val a = new FileSystemWorkspace(getTestDirectory());
-		assertThat(createSubject("main").getObjectiveCppSources().getSourceDirectories(),
-			hasItem(a.file("src/main/objcpp")));
-		assertThat(createSubject("test").getObjectiveCppSources().getSourceDirectories(),
-			hasItem(a.file("src/test/objcpp")));
 	}
 
 	@Override

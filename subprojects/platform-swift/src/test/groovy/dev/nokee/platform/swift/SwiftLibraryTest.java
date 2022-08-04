@@ -18,11 +18,21 @@ package dev.nokee.platform.swift;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
-import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.platform.base.*;
-import dev.nokee.platform.base.testers.*;
+import dev.nokee.platform.base.Binary;
+import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.TaskView;
+import dev.nokee.platform.base.VariantAwareComponent;
+import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
+import dev.nokee.platform.base.testers.ComponentTester;
+import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
+import dev.nokee.platform.base.testers.HasBaseNameTester;
+import dev.nokee.platform.base.testers.HasDevelopmentVariantTester;
+import dev.nokee.platform.base.testers.TaskAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantAwareComponentTester;
+import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
@@ -37,7 +47,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -46,7 +55,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 
 public class SwiftLibraryTest implements ComponentTester<SwiftLibrary>
-	, SourceAwareComponentTester<SwiftLibrary>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeLibraryComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeLibrary>>
@@ -65,18 +73,12 @@ public class SwiftLibraryTest implements ComponentTester<SwiftLibrary>
 		subject = createSubject("peso");
 	}
 
-	@Override
 	public SwiftLibrary createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(testDirectory);
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftLibrary(componentName, project)).as(SwiftLibrary.class).get();
 		return component;
-	}
-
-	@Override
-	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
-		return Stream.of(new SourcesUnderTest("swift", SwiftSourceSet.class, "swiftSources"));
 	}
 
 	@Override
