@@ -19,7 +19,6 @@ import dev.nokee.internal.testing.ConfigurationMatchers;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.swift.HasSwiftSourcesTester;
-import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -34,7 +33,6 @@ import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
@@ -56,7 +54,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -67,7 +64,6 @@ import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.startsWith;
 
 class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
-	, SourceAwareComponentTester<SwiftIosApplication>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeApplication>>
@@ -83,7 +79,6 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 		subject = createSubject("foma");
 	}
 
-	@Override
 	public SwiftIosApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(IosComponentBasePlugin.class);
@@ -91,11 +86,6 @@ class SwiftIosApplicationTest implements ComponentTester<SwiftIosApplication>
 		project.getPluginManager().apply(IosResourcePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(swiftIosApplication(componentName, project)).as(SwiftIosApplication.class).get();
 		return component;
-	}
-
-	@Override
-	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
-		return Stream.of(new SourcesUnderTest("swift", SwiftSourceSet.class, "swiftSources"), new SourcesUnderTest("resources", IosResourceSet.class, "resources"));
 	}
 
 	@Override

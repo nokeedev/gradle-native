@@ -16,14 +16,11 @@
 package dev.nokee.platform.ios;
 
 import dev.nokee.internal.testing.ConfigurationMatchers;
-import dev.nokee.internal.testing.FileSystemWorkspace;
 import dev.nokee.internal.testing.TaskMatchers;
 import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.language.nativebase.HasPrivateHeadersTester;
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.HasObjectiveCSourcesTester;
-import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -38,7 +35,6 @@ import dev.nokee.platform.base.testers.BinaryAwareComponentTester;
 import dev.nokee.platform.base.testers.ComponentTester;
 import dev.nokee.platform.base.testers.DependencyAwareComponentTester;
 import dev.nokee.platform.base.testers.HasBaseNameTester;
-import dev.nokee.platform.base.testers.SourceAwareComponentTester;
 import dev.nokee.platform.base.testers.TaskAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantAwareComponentTester;
 import dev.nokee.platform.base.testers.VariantDimensionsIntegrationTester;
@@ -61,7 +57,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
@@ -72,7 +67,6 @@ import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.startsWith;
 
 class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosApplication>
-	, SourceAwareComponentTester<ObjectiveCIosApplication>
 	, HasBaseNameTester
 	, DependencyAwareComponentTester<NativeComponentDependencies>
 	, VariantAwareComponentTester<VariantView<NativeApplication>>
@@ -89,7 +83,6 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 		subject = createSubject("bovi");
 	}
 
-	@Override
 	public ObjectiveCIosApplication createSubject(String componentName) {
 		val project = ProjectTestUtils.createRootProject(getTestDirectory());
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
@@ -99,20 +92,6 @@ class ObjectiveCIosApplicationTest implements ComponentTester<ObjectiveCIosAppli
 		project.getPluginManager().apply(IosResourcePlugin.class);
 		val component = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication(componentName, project)).as(ObjectiveCIosApplication.class).get();
 		return component;
-	}
-
-	@Override
-	public Stream<SourcesUnderTest> provideSourceSetUnderTest() {
-		return Stream.of(new SourcesUnderTest("objectiveC", ObjectiveCSourceSet.class, "objectiveCSources"), new SourcesUnderTest("headers", NativeHeaderSet.class, "privateHeaders"), new SourcesUnderTest("resources", IosResourceSet.class, "resources"));
-	}
-
-	@Test
-	public void hasAdditionalConventionOnObjectiveCSourceSet() throws Throwable {
-		val a = new FileSystemWorkspace(getTestDirectory());
-		assertThat(createSubject("main").getObjectiveCSources().getSourceDirectories(),
-			hasItem(a.file("src/main/objc")));
-		assertThat(createSubject("test").getObjectiveCSources().getSourceDirectories(),
-			hasItem(a.file("src/test/objc")));
 	}
 
 	@Override
