@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
+import dev.nokee.language.base.internal.SourcePropertyComponent;
 import dev.nokee.language.c.internal.plugins.CHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
@@ -24,7 +25,16 @@ import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.ObjectiveCSourceSet;
+import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourceSetTag;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourcesComponent;
+import dev.nokee.language.objectivec.internal.ObjectiveCSourcesPropertyComponent;
 import dev.nokee.language.objectivec.internal.tasks.ObjectiveCCompileTask;
+import dev.nokee.model.internal.core.GradlePropertyComponent;
+import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
+import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -42,8 +52,15 @@ import dev.nokee.scripts.DefaultImporter;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
+
+import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+import static dev.nokee.utils.Optionals.stream;
+import static dev.nokee.utils.ProviderUtils.disallowChanges;
+import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -71,6 +88,30 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 				entity.addComponent(new ObjectiveCSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
 		})));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasObjectiveCSourcesMixIn.Tag.class), (entity, ignored) -> {
+			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
+				.withComponent(new ElementNameComponent("objectiveCSources"))
+				.withComponent(new ParentComponent(entity))
+				.mergeFrom(ModelPropertyRegistrationFactory.fileCollectionProperty())
+				.build()));
+			entity.addComponent(new ObjectiveCSourcesPropertyComponent(property));
+		})));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on SourcePropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(ObjectiveCSourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored1, source, parent) -> {
+			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+				ModelStates.finalize(parent.get());
+				return ParentUtils.stream(parent).flatMap(it -> stream(it.find(ObjectiveCSourcesComponent.class))).findFirst()
+					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
+			});
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
+			ModelStates.finalize(swiftSources.get());
+			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
+			entity.addComponent(new ObjectiveCSourcesComponent(finalizeValueOnRead(disallowChanges(sources))));
+		}));
 	}
 
 	static final class DefaultObjectiveCSourceSetRegistrationFactory implements NativeLanguageRegistrationFactory {

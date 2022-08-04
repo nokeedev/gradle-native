@@ -16,12 +16,13 @@
 package dev.nokee.language.c
 
 import groovy.transform.PackageScope
+import org.gradle.api.file.ConfigurableFileCollection
 import org.junit.jupiter.api.Test
 
 @PackageScope
 class HasCSourcesGroovyDslHelper {
 	@Test
-	static CSourceSet getCSourcesAsGroovyProperty(HasCSources subject) {
+	static ConfigurableFileCollection getCSourcesAsGroovyProperty(HasCSources subject) {
 		return subject.cSources
 	}
 }

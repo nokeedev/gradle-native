@@ -19,9 +19,11 @@ import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.c.CSourceSet;
+import dev.nokee.language.c.internal.CSourceSetTag;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.tags.ModelTag;
@@ -30,7 +32,7 @@ import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
-@DomainObjectEntities.Tag({CSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
+@DomainObjectEntities.Tag({CSourceSetTag.class, CSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ class CSourceSetSpec implements CSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<CSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<CCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {

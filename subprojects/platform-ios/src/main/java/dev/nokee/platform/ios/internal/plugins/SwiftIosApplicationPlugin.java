@@ -15,7 +15,7 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
-import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.internal.plugins.HasSwiftSourcesMixIn;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -26,12 +26,12 @@ import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplication;
@@ -45,23 +45,18 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareCom
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
-import dev.nokee.platform.swift.HasSwiftSourceSet;
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
-import groovy.lang.Closure;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
 import org.gradle.util.GUtil;
 
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.configureUsingProjection;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
-import static org.gradle.util.ConfigureUtil.configureUsing;
 
 public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -109,20 +104,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetLinkageAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, HasDevelopmentVariantMixIn<IosApplication>
+		, HasSwiftSourcesMixIn
 	{
-		@Override
-		public SwiftSourceSet getSwiftSources() {
-			return ((HasSwiftSourceSet) sourceViewOf(this)).getSwift().get();
-		}
-
-		@Override
-		public void swiftSources(Action<? super SwiftSourceSet> action) {
-			((HasSwiftSourceSet) sourceViewOf(this)).getSwift().configure(action);
-		}
-
-		@Override
-		public void swiftSources(@SuppressWarnings("rawtypes") Closure closure) {
-			swiftSources(configureUsing(closure));
-		}
 	}
 }

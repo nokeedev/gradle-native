@@ -18,6 +18,7 @@ package dev.nokee.language.c;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
+import org.gradle.api.file.ConfigurableFileCollection;
 
 /**
  * Represents a component that carries C sources.
@@ -31,9 +32,8 @@ public interface HasCSources {
 	 * <p>By default, the source set contains all files in the directory {@code src/componentName/c}, where {@literal componentName} represent this component's name, i.e. {@literal main} or {@literal test}.
 	 *
 	 * @return a source set containing the C sources of this component, never null
-	 * @see CSourceSet
 	 */
-	CSourceSet getCSources();
+	ConfigurableFileCollection getCSources();
 
 	/**
 	 * Configures the C sources of this component using the specified configuration action.
@@ -41,6 +41,6 @@ public interface HasCSources {
 	 * @param action  the configuration action, must not be null
 	 * @see #getCSources()
 	 */
-	void cSources(Action<? super CSourceSet> action);
-	void cSources(@DelegatesTo(value = CSourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
+	void cSources(Action<? super ConfigurableFileCollection> action);
+	void cSources(@DelegatesTo(value = ConfigurableFileCollection.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure);
 }

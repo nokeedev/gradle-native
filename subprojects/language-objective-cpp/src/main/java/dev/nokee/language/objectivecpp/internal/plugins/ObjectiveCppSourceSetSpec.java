@@ -20,7 +20,9 @@ import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.tasks.ObjectiveCppCompileTask;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -30,7 +32,7 @@ import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
-@DomainObjectEntities.Tag({ObjectiveCppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
+@DomainObjectEntities.Tag({ObjectiveCppSourceSetTag.class, ObjectiveCppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ class ObjectiveCppSourceSetSpec implements ObjectiveCppSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<ObjectiveCppSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<ObjectiveCppCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {

@@ -19,9 +19,11 @@ import dev.nokee.language.base.internal.HasConfigurableSourceMixIn;
 import dev.nokee.language.base.internal.IsLanguageSourceSet;
 import dev.nokee.language.base.internal.ModelBackedLanguageSourceSetLegacyMixIn;
 import dev.nokee.language.cpp.CppSourceSet;
+import dev.nokee.language.cpp.internal.CppSourceSetTag;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
 import dev.nokee.language.nativebase.internal.HasConfigurableHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasNativeCompileTaskMixIn;
+import dev.nokee.language.nativebase.internal.NativeHeaderSetTag;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.tags.ModelTag;
@@ -30,7 +32,7 @@ import org.gradle.api.reflect.HasPublicType;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskDependency;
 
-@DomainObjectEntities.Tag({CppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class})
+@DomainObjectEntities.Tag({CppSourceSetTag.class, CppSourceSetSpec.Tag.class, ConfigurableTag.class, IsLanguageSourceSet.class, NativeHeaderSetTag.class})
 public /*final*/ class CppSourceSetSpec implements CppSourceSet, HasPublicType, ModelBackedLanguageSourceSetLegacyMixIn<CppSourceSet>, HasConfigurableSourceMixIn, HasConfigurableHeadersMixIn, HasNativeCompileTaskMixIn<CppCompileTask> {
 	@Override
 	public TaskDependency getBuildDependencies() {

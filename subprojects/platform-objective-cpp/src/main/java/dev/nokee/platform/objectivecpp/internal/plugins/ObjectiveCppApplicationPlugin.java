@@ -15,9 +15,9 @@
  */
 package dev.nokee.platform.objectivecpp.internal.plugins;
 
-import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
+import dev.nokee.language.objectivecpp.internal.HasObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -34,7 +34,6 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
-import dev.nokee.platform.nativebase.HasHeadersSourceSet;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
@@ -43,27 +42,21 @@ import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareCompo
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
-import dev.nokee.platform.objectivecpp.HasObjectiveCppSourceSet;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplication;
 import dev.nokee.platform.objectivecpp.ObjectiveCppApplicationSources;
-import groovy.lang.Closure;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.internal.BaseNameActions.baseName;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin.finalizeModelNodeOf;
-import static org.gradle.util.ConfigureUtil.configureUsing;
 
 public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 	private static final String EXTENSION_NAME = "application";
@@ -109,37 +102,9 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		, ModelBackedHasBaseNameMixIn
 		, ModelBackedNamedMixIn
 		, HasAssembleTaskMixIn
+		, HasObjectiveCppSourcesMixIn
+		, HasPrivateHeadersMixIn
 	{
-		@Override
-		public ObjectiveCppSourceSet getObjectiveCppSources() {
-			return ((HasObjectiveCppSourceSet) sourceViewOf(this)).getObjectiveCpp().get();
-		}
-
-		@Override
-		public void objectiveCppSources(Action<? super ObjectiveCppSourceSet> action) {
-			((HasObjectiveCppSourceSet) sourceViewOf(this)).getObjectiveCpp().configure(action);
-		}
-
-		@Override
-		public void objectiveCppSources(@SuppressWarnings("rawtypes") Closure closure) {
-			objectiveCppSources(ConfigureUtil.configureUsing(closure));
-		}
-
-		@Override
-		public NativeHeaderSet getPrivateHeaders() {
-			return ((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().get();
-		}
-
-		@Override
-		public void privateHeaders(Action<? super NativeHeaderSet> action) {
-			((HasHeadersSourceSet) sourceViewOf(this)).getHeaders().configure(action);
-		}
-
-		@Override
-		public void privateHeaders(@SuppressWarnings("rawtypes") Closure closure) {
-			privateHeaders(configureUsing(closure));
-		}
-
 		@Override
 		public String toString() {
 			return "Objective-C++ application '" + getName() + "'";
