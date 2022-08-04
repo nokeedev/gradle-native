@@ -1,4 +1,6 @@
 layout 'layout-main.tpl', pageInfo: [url: "${config.site_host}/${content.redirecturl}", description: content.description, keywords: content.tags],
+	openGraph: [url: "${config.site_host}/${content.redirecturl}", description: content.description, title: "Redirect to ${content.redirecturl}"],
+	twitter: [card: 'summary', description: content.description, title: "Redirect to ${content.redirecturl}"],
 	headContents: contents {
 		meta('http-equiv': 'Refresh', content: "0; url=${content.redirecturl}")
 	},
