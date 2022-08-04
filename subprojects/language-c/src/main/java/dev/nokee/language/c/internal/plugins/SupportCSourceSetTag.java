@@ -17,4 +17,4 @@ package dev.nokee.language.c.internal.plugins;
 
 import dev.nokee.model.internal.tags.ModelTag;
 
-public interface CSourceSetTag extends ModelTag {}
+public interface SupportCSourceSetTag extends ModelTag {}

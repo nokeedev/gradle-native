@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.language.c.internal.plugins.DefaultCHeaderSet;
 import dev.nokee.language.objectivec.internal.plugins.LegacyObjectiveCSourceSet;
-import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetTag;
+import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -130,7 +130,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			if (entity.hasComponent(typeOf(ObjectiveCSourceSetTag.class))) {
+			if (entity.hasComponent(typeOf(SupportObjectiveCSourceSetTag.class))) {
 				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
 				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
 			}
@@ -244,7 +244,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(IsTestComponent.class))
 			.withComponent(tag(XCTestTestSuiteComponentTag.class))
-			.withComponent(tag(ObjectiveCSourceSetTag.class))
+			.withComponent(tag(SupportObjectiveCSourceSetTag.class))
 			.mergeFrom(tagsOf(DefaultUnitTestXCTestTestSuiteComponent.class))
 			.build()
 			;
@@ -264,7 +264,7 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(IsTestComponent.class))
 			.withComponent(tag(XCTestTestSuiteComponentTag.class))
-			.withComponent(tag(ObjectiveCSourceSetTag.class))
+			.withComponent(tag(SupportObjectiveCSourceSetTag.class))
 			.withComponent(createdUsing(of(DefaultUiTestXCTestTestSuiteComponent.class), () -> {
 				return newUiTestFactory(project).create(identifier);
 			}))

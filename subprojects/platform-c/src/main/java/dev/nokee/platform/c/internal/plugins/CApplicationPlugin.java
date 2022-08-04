@@ -17,8 +17,8 @@ package dev.nokee.platform.c.internal.plugins;
 
 import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
-import dev.nokee.language.c.internal.plugins.CSourceSetTag;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
@@ -92,7 +92,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration cApplication(String name, Project project) {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("C application").withProjectIdentifier(ProjectIdentifier.of(project)).build();
-		return new NativeApplicationComponentModelRegistrationFactory(DefaultCApplication.class, project).create(identifier).withComponent(tag(CSourceSetTag.class)).build();
+		return new NativeApplicationComponentModelRegistrationFactory(DefaultCApplication.class, project).create(identifier).withComponent(tag(SupportCSourceSetTag.class)).build();
 	}
 
 	public static abstract class DefaultCApplication implements CApplication

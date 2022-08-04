@@ -49,7 +49,7 @@ public class ObjectiveCppLanguagePlugin implements Plugin<Project>, NativeLangua
 
 			registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class, it -> it.ownedBy(entity)));
 		}))));
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(ObjectiveCppSourceSetTag.class));
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SupportObjectiveCppSourceSetTag.class));
 	}
 
 	@Override

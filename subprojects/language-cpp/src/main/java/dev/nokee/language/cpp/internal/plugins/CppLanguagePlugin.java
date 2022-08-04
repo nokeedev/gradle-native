@@ -49,7 +49,7 @@ public class CppLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin 
 
 			registry.register(newEntity("cpp", LegacyCppSourceSet.class, it -> it.ownedBy(entity)));
 		}))));
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(CppSourceSetTag.class));
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SupportCppSourceSetTag.class));
 	}
 
 	@Override

@@ -49,7 +49,7 @@ public class ObjectiveCLanguagePlugin implements Plugin<Project>, NativeLanguage
 
 			registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
 		}))));
-		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(ObjectiveCSourceSetTag.class));
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SupportObjectiveCSourceSetTag.class));
 	}
 
 	@Override

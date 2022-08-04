@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp.internal.plugins;
+package dev.nokee.language.objectivecpp.internal.plugins;
 
 import dev.nokee.model.internal.tags.ModelTag;
 
-public interface CppSourceSetTag extends ModelTag {}
+public interface SupportObjectiveCppSourceSetTag extends ModelTag {}

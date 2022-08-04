@@ -63,7 +63,7 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 			entity.addComponent(new NativeCompileTypeComponent(SwiftCompileTask.class));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SwiftSourceSetTag.class))).findFirst().ifPresent(ignored -> {
+			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportSwiftSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(project.getExtensions().getByType(DefaultSwiftSourceSetRegistrationFactory.class).create(entity));
 				entity.addComponent(new SwiftSourceSetComponent(ModelNodes.of(sourceSet)));
 			});

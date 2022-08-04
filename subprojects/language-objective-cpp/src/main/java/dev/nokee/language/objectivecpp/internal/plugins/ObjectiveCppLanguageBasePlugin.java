@@ -66,7 +66,7 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 			entity.addComponent(new NativeCompileTypeComponent(ObjectiveCppCompileTask.class));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLanguageSourceSetAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, identifier, tag, parent) -> {
-			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(ObjectiveCppSourceSetTag.class))).findFirst().ifPresent(ignored -> {
+			ParentUtils.stream(parent).filter(it -> it.hasComponent(typeOf(SupportObjectiveCppSourceSetTag.class))).findFirst().ifPresent(ignored -> {
 				val sourceSet = project.getExtensions().getByType(ModelRegistry.class).register(registrationFactory.create(entity));
 				entity.addComponent(new ObjectiveCppSourceSetComponent(ModelNodes.of(sourceSet)));
 			});
