@@ -80,4 +80,8 @@ public /*final*/ class JniLibraryComponentInternal extends BaseComponent<JniLibr
 	public Provider<Set<BuildVariant>> getBuildVariants() {
 		return ModelBackedVariantAwareComponentMixIn.super.getBuildVariants();
 	}
+
+	public String toString() {
+		return "JNI library '" + getName() + "'";
+	}
 }
