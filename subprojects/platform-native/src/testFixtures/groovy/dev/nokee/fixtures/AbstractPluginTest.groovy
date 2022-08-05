@@ -188,7 +188,7 @@ abstract class AbstractTargetMachineAwarePluginTest extends Specification implem
 		}
 		then:
 		def ex = thrown(IllegalStateException)
-		ex.message == "The value for property 'targetMachines' is final and cannot be changed any further."
+		ex.message == "The value for ${project."${extensionNameUnderTest}"} property 'targetMachines' is final and cannot be changed any further."
 	}
 
 	def "disallows empty target machines list"() {
