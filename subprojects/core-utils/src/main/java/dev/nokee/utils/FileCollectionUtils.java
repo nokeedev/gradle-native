@@ -15,10 +15,14 @@
  */
 package dev.nokee.utils;
 
+import com.google.common.collect.ImmutableSet;
+import lombok.val;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
+import org.gradle.api.internal.file.FileCollectionInternal;
 import org.gradle.api.provider.Provider;
 
+import java.io.File;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -51,5 +55,13 @@ public final class FileCollectionUtils {
 		public String toString() {
 			return "FileCollectionUtils.elementsOf(" + mapper + ")";
 		}
+	}
+
+	public static Provider<Set<File>> sourceDirectories(FileCollection self) {
+		return self.getElements().map(__ -> {
+			val files = ImmutableSet.<File>builder();
+			((FileCollectionInternal) self).visitStructure(new DirectoryStructureVisitor(files));
+			return files.build();
+		});
 	}
 }

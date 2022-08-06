@@ -16,13 +16,11 @@
 package dev.nokee.language.base.internal;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import lombok.val;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.internal.file.FileCollectionInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskDependency;
@@ -32,6 +30,8 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Callable;
+
+import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 
 final class BridgedLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
 	private final SourceDirectorySet sourceSet;
@@ -113,9 +113,7 @@ final class BridgedLanguageSourceSetStrategy implements LanguageSourceSetStrateg
 
 		@Override
 		public Set<File> call() throws Exception {
-			val result = ImmutableSet.<File>builder();
-			((FileCollectionInternal) delegate).visitStructure(new DirectoryStructureVisitor(result));
-			return result.build();
+			return sourceDirectories(delegate).get();
 		}
 
 		@Override
