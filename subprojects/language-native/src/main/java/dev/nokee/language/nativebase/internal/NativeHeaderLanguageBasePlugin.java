@@ -31,6 +31,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -87,6 +88,10 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
 			entity.addComponent(new PrivateHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
 		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, publicHeaders, extensions) -> {
+			extensions.get().add(ConfigurableFileCollection.class, "privateHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
+		}));
 
 		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, publicHeaders, fullyQualifiedName) -> {
@@ -121,6 +126,10 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 			val sources = (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get();
 			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
 			entity.addComponent(new PublicHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, publicHeaders, extensions) -> {
+			extensions.get().add(ConfigurableFileCollection.class, "publicHeaders", (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get());
 		}));
 	}
 }

@@ -49,6 +49,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
 import dev.nokee.utils.Optionals;
@@ -118,12 +119,16 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 					.map(it -> (Object) it.get()).orElse(Collections.emptyList());
 			});
 		}));
-		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
+		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, cSources, ignored1) -> {
 			ModelStates.finalize(cSources.get());
 			val sources = (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get();
 			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
 			entity.addComponent(new CSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, cSources, extensions) -> {
+			extensions.get().add(ConfigurableFileCollection.class, "cSources", (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get());
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
