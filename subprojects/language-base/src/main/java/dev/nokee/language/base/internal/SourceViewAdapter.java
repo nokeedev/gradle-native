@@ -18,8 +18,10 @@ package dev.nokee.language.base.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.View;
+import dev.nokee.platform.base.internal.ViewAdapter;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
@@ -92,5 +94,9 @@ public /*final*/ class SourceViewAdapter<T extends LanguageSourceSet> implements
 	@Override
 	public Provider<List<T>> filter(Spec<? super T> spec) {
 		return delegate.filter(spec);
+	}
+
+	public <S extends T> NamedDomainObjectProvider<S> named(String name, Class<S> type) {
+		return ((ViewAdapter<T>) delegate).named(name, type);
 	}
 }
