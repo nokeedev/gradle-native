@@ -41,6 +41,7 @@ import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.ios.internal.IosApplicationBundleInternal;
 import dev.nokee.platform.ios.internal.SignedIosApplicationBundleInternal;
@@ -81,6 +82,7 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ class DefaultUiTestXCTestTestSuiteComponent extends BaseXCTestTestSuiteComponent implements ComponentMixIn
+	, ExtensionAwareMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<DefaultXCTestTestSuiteVariant>
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>

@@ -37,6 +37,7 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
@@ -59,6 +60,7 @@ import static dev.nokee.model.internal.type.ModelTypes.set;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLibrary> implements ComponentMixIn
+	, ExtensionAwareMixIn
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
