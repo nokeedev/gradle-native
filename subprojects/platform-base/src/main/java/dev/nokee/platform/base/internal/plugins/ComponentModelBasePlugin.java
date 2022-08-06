@@ -79,6 +79,7 @@ import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryCapab
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantCapability;
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
 import dev.nokee.platform.base.internal.tasks.TaskCapabilityPlugin;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -116,6 +117,7 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		project.getPluginManager().apply(DevelopmentBinaryCapability.class);
 		project.getPluginManager().apply(DevelopmentVariantCapability.class);
+		project.getPluginManager().apply(ExtensionAwareCapability.class);
 
 		val elementsPropertyFactory = new ComponentElementsPropertyRegistrationFactory();
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(new TypeOf<ModelBackedVariantAwareComponentMixIn<? extends Variant>>() {})), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, component, identifier, parent) -> {
