@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.swift.internal.plugins;
 
+import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
 import dev.nokee.model.internal.tags.ModelTag;
 
-public interface SupportSwiftSourceSetTag extends ModelTag {}
+public interface SupportSwiftSourceSetTag extends ModelTag, SupportLanguageSourceSet {}

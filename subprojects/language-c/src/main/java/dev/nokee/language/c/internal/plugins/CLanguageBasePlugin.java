@@ -22,11 +22,14 @@ import dev.nokee.language.c.internal.CSourcesComponent;
 import dev.nokee.language.c.internal.CSourcesPropertyComponent;
 import dev.nokee.language.c.internal.HasCSourcesMixIn;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
+import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.NativeLanguageSourceSetAwareTag;
+import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -56,6 +59,8 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
+import static dev.nokee.language.nativebase.internal.SupportLanguageSourceSet.has;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
@@ -112,6 +117,16 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 			val sources = (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get();
 			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
 			entity.addComponent(new CSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+		}));
+
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
+			ParentUtils.stream(parent).filter(has(SupportCSourceSetTag.class)).findFirst().ifPresent(__ -> {
+				entity.addComponent(tag(SupportCSourceSetTag.class));
+			});
+		}));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelTags.referenceOf(SupportCSourceSetTag.class), (entity, ignored1, ignored2) -> {
+			entity.addComponent(tag(HasCSourcesMixIn.Tag.class));
+			entity.addComponent(tag(HasPrivateHeadersMixIn.Tag.class));
 		}));
 	}
 

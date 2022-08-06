@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp.internal.plugins;
+package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
 import dev.nokee.model.internal.tags.ModelTag;
 
-public interface SupportCppSourceSetTag extends ModelTag, SupportLanguageSourceSet {}
+public interface NativeSourcesAwareTag extends ModelTag {
+}

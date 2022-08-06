@@ -13,9 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.language.cpp.internal.plugins;
+package dev.nokee.language.nativebase.internal;
 
-import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
+import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.tags.ModelTag;
 
-public interface SupportCppSourceSetTag extends ModelTag, SupportLanguageSourceSet {}
+import java.util.function.Predicate;
+
+import static dev.nokee.model.internal.tags.ModelTags.typeOf;
+
+public interface SupportLanguageSourceSet {
+	static <T extends SupportLanguageSourceSet & ModelTag> Predicate<ModelNode> has(Class<T> type) {
+		return it -> it.hasComponent(typeOf(type));
+	}
+}
