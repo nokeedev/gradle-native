@@ -18,6 +18,7 @@ package dev.nokee.model.internal.core;
 import dev.nokee.model.internal.ModelElementFactory;
 import lombok.val;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -98,6 +99,11 @@ public final class ModelProperties {
 
 	@SuppressWarnings("unchecked")
 	public static <T> Provider<T> valueOf(ModelNode self) {
-		return (Provider<T>) self.get(GradlePropertyComponent.class).get();
+		val gradleProperty = self.get(GradlePropertyComponent.class).get();
+		if (gradleProperty instanceof FileCollection) {
+			return (Provider<T>) ((FileCollection) gradleProperty).getElements();
+		} else {
+			return (Provider<T>) self.get(GradlePropertyComponent.class).get();
+		}
 	}
 }
