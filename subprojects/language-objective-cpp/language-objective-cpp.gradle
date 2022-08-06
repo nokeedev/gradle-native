@@ -27,7 +27,7 @@ gradlePlugin {
 	}
 
 	dependencies {
-		api project(':languageCpp')
+		api project(':languageNative')
 		implementation project(':coreScript')
 		implementation project(':coreUtils')
 		implementation project(':runtimeNative')
@@ -37,7 +37,7 @@ gradlePlugin {
 
 test {
 	dependencies {
-		implementation project(':languageCpp') // TODO: Maybe?
+		implementation project(':languageNative')
 		implementation project(':runtimeNative')
 		implementation project(':platformBase')
 		implementation testFixtures(project(':coreModel'))
