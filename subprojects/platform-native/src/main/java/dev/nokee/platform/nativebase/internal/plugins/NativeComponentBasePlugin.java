@@ -19,12 +19,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.internal.Factory;
-import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationComponent;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
+import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
@@ -158,7 +157,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.actions.ModelAction.configure;
 import static dev.nokee.model.internal.actions.ModelAction.configureEach;
 import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
@@ -174,11 +172,11 @@ import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPl
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
+import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.configureBuildGroup;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TaskUtils.configureDescription;
-import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public class NativeComponentBasePlugin implements Plugin<Project> {
 	@Override
@@ -621,7 +619,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 								return one(result);
 							}));
 						}
-						dependencies.getOutgoing().getExportedHeaders().from(sourceViewOf(component).filter(it -> (it instanceof NativeHeaderSet) && it.getName().equals("public")).map(transformEach(LanguageSourceSet::getSourceDirectories)));
+						dependencies.getOutgoing().getExportedHeaders().from((Callable<?>) () -> {
+							ModelStates.finalize(entity);
+							return sourceDirectories(entity.get(PublicHeadersComponent.class).get());
+						});
 					}
 					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 				}
