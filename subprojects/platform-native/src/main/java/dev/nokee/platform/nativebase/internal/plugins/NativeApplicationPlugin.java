@@ -39,6 +39,7 @@ import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
@@ -118,6 +119,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension
 		, ComponentMixIn
+		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>

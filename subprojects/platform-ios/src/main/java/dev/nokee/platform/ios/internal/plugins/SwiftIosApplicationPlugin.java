@@ -33,6 +33,7 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.SwiftIosApplication;
 import dev.nokee.platform.ios.SwiftIosApplicationSources;
@@ -93,6 +94,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 
 	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication
 		, ComponentMixIn
+		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, ModelBackedSourceAwareComponentMixIn<SwiftIosApplicationSources, SwiftIosApplicationSourcesAdapter>

@@ -46,6 +46,7 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.IosResourceSet;
 import dev.nokee.platform.ios.tasks.internal.AssetCatalogCompileTask;
@@ -97,6 +98,7 @@ import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdk
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements ComponentMixIn
+	, ExtensionAwareMixIn
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<IosApplication>

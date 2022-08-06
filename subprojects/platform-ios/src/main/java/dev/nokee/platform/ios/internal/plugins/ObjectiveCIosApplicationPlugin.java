@@ -35,6 +35,7 @@ import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
@@ -115,6 +116,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 
 	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication
 		, ComponentMixIn
+		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources, ObjectiveCIosApplicationSourcesAdapter>
