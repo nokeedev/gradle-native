@@ -20,6 +20,7 @@ import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
@@ -46,6 +47,7 @@ import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
@@ -112,6 +114,7 @@ import static dev.nokee.utils.TaskUtils.configureDependsOn;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
 
+@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
 	, ComponentMixIn
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>

@@ -18,6 +18,7 @@ package dev.nokee.platform.ios.internal;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.language.base.tasks.SourceCompile;
+import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.language.objectivec.tasks.ObjectiveCCompile;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -36,6 +37,7 @@ import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
@@ -93,6 +95,7 @@ import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
+@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements ComponentMixIn
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, ComponentSources>

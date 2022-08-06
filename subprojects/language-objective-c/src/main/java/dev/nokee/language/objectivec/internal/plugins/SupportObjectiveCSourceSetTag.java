@@ -15,6 +15,7 @@
  */
 package dev.nokee.language.objectivec.internal.plugins;
 
+import dev.nokee.language.nativebase.internal.SupportLanguageSourceSet;
 import dev.nokee.model.internal.tags.ModelTag;
 
-public interface SupportObjectiveCSourceSetTag extends ModelTag {}
+public interface SupportObjectiveCSourceSetTag extends ModelTag, SupportLanguageSourceSet {}

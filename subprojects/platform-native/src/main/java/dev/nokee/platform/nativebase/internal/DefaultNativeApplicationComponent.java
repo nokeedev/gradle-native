@@ -18,6 +18,7 @@ package dev.nokee.platform.nativebase.internal;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
+import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -29,6 +30,7 @@ import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.ComponentMixIn;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
@@ -55,6 +57,7 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
+@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
 public /*final*/ class DefaultNativeApplicationComponent extends BaseNativeComponent<NativeApplication> implements ComponentMixIn
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
