@@ -33,6 +33,7 @@ import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.VariantMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
@@ -55,6 +56,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 public /*final*/ class JniLibraryInternal extends BaseVariant implements JniLibrary, VariantInternal, ModelNodeAware, HasPublicType
+	, VariantMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceNativeComponentDependencies, ModelBackedJavaNativeInterfaceNativeComponentDependencies>

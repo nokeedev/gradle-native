@@ -30,16 +30,15 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseNameUtils;
 import dev.nokee.platform.base.internal.BinaryIdentifier;
+import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.IsBinary;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
@@ -94,14 +93,13 @@ import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.ios.internal.plugins.IosApplicationRules.getSdkPath;
 
-public /*final*/ class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements Component
+public /*final*/ class DefaultIosApplicationComponent extends BaseNativeComponent<IosApplication> implements ComponentMixIn
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<ComponentSources, ComponentSources>
 	, ModelBackedVariantAwareComponentMixIn<IosApplication>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, HasDevelopmentVariantMixIn<IosApplication>
-	, ModelBackedNamedMixIn
 {
 	@Getter private final Property<GroupId> groupId;
 	private final DependencyHandler dependencyHandler;

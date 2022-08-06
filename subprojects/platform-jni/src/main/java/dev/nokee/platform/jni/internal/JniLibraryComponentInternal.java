@@ -21,14 +21,14 @@ import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
+import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentbinary.HasDevelopmentBinaryMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrary;
@@ -43,12 +43,12 @@ import org.gradle.api.provider.Provider;
 import java.util.Set;
 
 public /*final*/ class JniLibraryComponentInternal extends BaseComponent<JniLibrary> implements JavaNativeInterfaceLibrary
+	, ComponentMixIn
 	, ModelBackedDependencyAwareComponentMixIn<JavaNativeInterfaceLibraryComponentDependencies, ModelBackedJavaNativeInterfaceLibraryComponentDependencies>
 	, ModelBackedVariantAwareComponentMixIn<JniLibrary>
 	, ModelBackedSourceAwareComponentMixIn<JavaNativeInterfaceLibrarySources, JavaNativeInterfaceSourcesViewAdapter>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
-	, ModelBackedNamedMixIn
 	, ModelBackedHasBaseNameMixIn
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn

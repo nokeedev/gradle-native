@@ -26,16 +26,15 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.VariantView;
+import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
+import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
@@ -57,14 +56,13 @@ import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 
-public /*final*/ class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLibrary> implements Component
+public /*final*/ class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLibrary> implements ComponentMixIn
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
 	, HasDevelopmentVariantMixIn<NativeLibrary>
-	, ModelBackedNamedMixIn
 	, ModelBackedTargetMachineAwareComponentMixIn
 	, ModelBackedTargetBuildTypeAwareComponentMixIn
 	, ModelBackedTargetLinkageAwareComponentMixIn

@@ -25,8 +25,8 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlug
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
-import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
@@ -58,8 +58,6 @@ import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.base.internal.Variants;
@@ -251,7 +249,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			.withComponent(new ModelPathComponent(entityPath))
 			.withComponent(createdUsing(of(DefaultNativeTestSuiteComponent.class), () -> project.getObjects().newInstance(DefaultNativeTestSuiteComponent.class, project.getExtensions().getByType(ModelLookup.class), project.getExtensions().getByType(ModelRegistry.class))))
 			.withComponent(tag(IsTestComponent.class))
-			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeTestSuiteComponentTag.class))
 			.withComponent(new IdentifierComponent(identifier))
@@ -262,7 +259,6 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 	private static ModelRegistration nativeTestSuiteVariant(VariantIdentifier identifier, DefaultNativeTestSuiteComponent component, Project project) {
 		return builder()
-			.withComponent(tag(IsVariant.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(NativeVariantTag.class))

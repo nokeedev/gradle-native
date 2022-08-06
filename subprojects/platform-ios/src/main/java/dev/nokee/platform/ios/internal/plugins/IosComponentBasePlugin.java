@@ -36,7 +36,6 @@ import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
-import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -173,7 +172,6 @@ public class IosComponentBasePlugin implements Plugin<Project> {
 	private static ModelRegistration iosApplicationVariant(VariantIdentifier identifier, DefaultIosApplicationComponent component, Project project) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(IsVariant.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeVariantTag.class))
 			.mergeFrom(tagsOf(DefaultIosApplicationVariant.class))
