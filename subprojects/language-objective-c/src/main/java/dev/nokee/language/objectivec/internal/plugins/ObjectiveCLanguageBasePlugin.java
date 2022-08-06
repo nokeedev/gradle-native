@@ -16,8 +16,6 @@
 package dev.nokee.language.objectivec.internal.plugins;
 
 import dev.nokee.language.base.internal.SourcePropertyComponent;
-import dev.nokee.language.c.internal.HasCSourcesMixIn;
-import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
@@ -92,8 +90,14 @@ public class ObjectiveCLanguageBasePlugin implements Plugin<Project> {
 		})));
 
 		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, objectiveCSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) objectiveCSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveC", "src/" + fullyQualifiedName.get() + "/objc");
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, objcSources, fullyQualifiedName) -> {
+			((ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveC", "src/" + fullyQualifiedName.get() + "/objc");
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, objcSources, parent) -> {
+			((ConfigurableFileCollection) objcSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(ObjectiveCSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+			});
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasObjectiveCSourcesMixIn.Tag.class), (entity, ignored) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);

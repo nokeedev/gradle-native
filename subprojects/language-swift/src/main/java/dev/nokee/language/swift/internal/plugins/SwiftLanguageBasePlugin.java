@@ -90,6 +90,12 @@ public class SwiftLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, swiftSources, fullyQualifiedName) -> {
 			((ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/swift");
 		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on SwiftSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(SwiftSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, swiftSources, parent) -> {
+			((ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(SwiftSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+			});
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasSwiftSourcesMixIn.Tag.class), (entity, ignored) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()

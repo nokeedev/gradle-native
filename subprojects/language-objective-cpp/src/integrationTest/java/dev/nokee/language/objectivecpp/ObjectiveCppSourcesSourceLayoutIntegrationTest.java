@@ -18,14 +18,15 @@ package dev.nokee.language.objectivecpp;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
 import dev.nokee.language.objectivecpp.internal.HasObjectiveCppSourcesMixIn;
+import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesComponent;
 import dev.nokee.language.objectivecpp.internal.ObjectiveCppSourcesPropertyComponent;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ModelProperties;
-import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
+import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.internal.core.ModelProperties.valueOf;
+import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
@@ -46,7 +50,7 @@ class ObjectiveCppSourcesSourceLayoutIntegrationTest {
 
 	@BeforeEach
 	void createSubject(Project project) {
-		entity = ModelStates.discover(project.getExtensions().getByType(ModelRegistry.class).instantiate(ModelRegistration.builder()
+		entity = ModelStates.discover(project.getExtensions().getByType(ModelRegistry.class).instantiate(builder()
 			.withComponent(new FullyQualifiedNameComponent("wudoFelu"))
 			.mergeFrom(entityOf(HasObjectiveCppSourcesMixIn.class))
 			.build()));
@@ -54,13 +58,22 @@ class ObjectiveCppSourcesSourceLayoutIntegrationTest {
 
 	@Test
 	void uses_srcSlashFullyQualifiedNameSlashObjectiveCpp_asSourceLayout() {
-		assertThat(ModelProperties.valueOf(entity.get(ObjectiveCppSourcesPropertyComponent.class).get()),
+		assertThat(valueOf(entity.get(ObjectiveCppSourcesPropertyComponent.class).get()),
 			providerOf(hasItem(aFile(withAbsolutePath(endsWith("/src/wudoFelu/objectiveCpp"))))));
 	}
 
 	@Test
 	void uses_srcSlashFullyQualifiedNameSlashObjcpp_asSourceLayout() {
-		assertThat(ModelProperties.valueOf(entity.get(ObjectiveCppSourcesPropertyComponent.class).get()),
+		assertThat(valueOf(entity.get(ObjectiveCppSourcesPropertyComponent.class).get()),
 				providerOf(hasItem(aFile(withAbsolutePath(endsWith("/src/wudoFelu/objcpp"))))));
+	}
+
+	@Test
+	void usesParentObjectiveCppSources(Project project) {
+		val parent = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder().build());
+		entity.addComponent(new ParentComponent(parent));
+		parent.addComponent(new ObjectiveCppSourcesComponent(objectFactory().fileCollection().from(project.file("srcs/objcpp"))));
+		assertThat(valueOf(entity.get(ObjectiveCppSourcesPropertyComponent.class).get()),
+			providerOf(hasItem(aFile(withAbsolutePath(endsWith("/srcs/objcpp"))))));
 	}
 }
