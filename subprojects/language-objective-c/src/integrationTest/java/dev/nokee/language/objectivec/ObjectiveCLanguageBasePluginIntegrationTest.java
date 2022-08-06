@@ -17,8 +17,6 @@ package dev.nokee.language.objectivec;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.language.c.CHeaderSet;
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +39,5 @@ class ObjectiveCLanguageBasePluginIntegrationTest extends AbstractPluginTest {
 	@Test
 	void defaultImportSourceSetTypes() {
 		assertThat(project, hasDefaultImportFor(ObjectiveCSourceSet.class));
-		assertThat(project, hasDefaultImportFor(CHeaderSet.class));
-		assertThat(project, hasDefaultImportFor(NativeHeaderSet.class));
 	}
 }

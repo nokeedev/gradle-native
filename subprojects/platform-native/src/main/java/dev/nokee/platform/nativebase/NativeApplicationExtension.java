@@ -15,12 +15,14 @@
  */
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.*;
 
 public interface NativeApplicationExtension extends Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
 	, VariantAwareComponent<NativeApplication>
-	, SourceAwareComponent<NativeApplicationSources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, TaskAwareComponent
 	, BinaryAwareComponent
 	, TargetMachineAwareComponent

@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.objectivecpp;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.objectivecpp.HasObjectiveCppSources;
@@ -32,7 +34,7 @@ import dev.nokee.platform.nativebase.*;
 public interface ObjectiveCppLibrary extends ObjectiveCppLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>
-	, SourceAwareComponent<ObjectiveCppLibrarySources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, TargetMachineAwareComponent

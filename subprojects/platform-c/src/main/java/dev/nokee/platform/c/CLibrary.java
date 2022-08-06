@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.c;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.c.HasCSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
@@ -32,7 +34,7 @@ import dev.nokee.platform.nativebase.*;
 public interface CLibrary extends CLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>
-	, SourceAwareComponent<CLibrarySources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, TargetMachineAwareComponent

@@ -22,7 +22,6 @@ import dev.nokee.language.c.internal.CSourcesComponent;
 import dev.nokee.language.c.internal.CSourcesPropertyComponent;
 import dev.nokee.language.c.internal.HasCSourcesMixIn;
 import dev.nokee.language.c.internal.tasks.CCompileTask;
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
@@ -66,11 +65,9 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
-		project.getPluginManager().apply(CHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		DefaultImporter.forProject(project)
-			.defaultImport(NativeHeaderSet.class)
 			.defaultImport(CSourceSet.class);
 
 		// No need to register anything as CHeaderSet and CSourceSet are managed instance compatible,

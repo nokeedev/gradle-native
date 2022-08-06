@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.objectivec;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.platform.base.*;
@@ -34,7 +36,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 public interface ObjectiveCApplication extends ObjectiveCApplicationExtension, Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
 	, VariantAwareComponent<NativeApplication>, HasDevelopmentVariant<NativeApplication>
-	, SourceAwareComponent<ObjectiveCApplicationSources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, TargetMachineAwareComponent

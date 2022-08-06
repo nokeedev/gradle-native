@@ -17,6 +17,8 @@ package dev.nokee.testing.nativebase.internal;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
 import dev.nokee.language.swift.SwiftSourceSet;
@@ -38,7 +40,6 @@ import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
-import dev.nokee.platform.base.ComponentSources;
 import dev.nokee.platform.base.VariantView;
 import dev.nokee.platform.base.internal.BaseComponent;
 import dev.nokee.platform.base.internal.BaseNameUtils;
@@ -46,7 +47,6 @@ import dev.nokee.platform.base.internal.BaseVariant;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
-import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
 import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
@@ -54,6 +54,7 @@ import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
+import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.platform.nativebase.ExecutableBinary;
@@ -65,7 +66,6 @@ import dev.nokee.platform.nativebase.internal.ExecutableBinaryInternal;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
-import dev.nokee.platform.nativebase.internal.NativeApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
@@ -114,7 +114,7 @@ import static java.util.stream.Collectors.toList;
 
 public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeComponent<NativeTestSuiteVariant> implements NativeTestSuite
 	, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
-	, ModelBackedSourceAwareComponentMixIn<ComponentSources, NativeApplicationSourcesAdapter>
+	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedVariantAwareComponentMixIn<NativeTestSuiteVariant>
 	, HasDevelopmentVariantMixIn<NativeTestSuiteVariant>
 	, ModelBackedBinaryAwareComponentMixIn

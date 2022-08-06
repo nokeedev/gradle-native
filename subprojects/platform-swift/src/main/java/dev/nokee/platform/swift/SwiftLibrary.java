@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.swift;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.*;
@@ -30,7 +32,7 @@ import dev.nokee.platform.nativebase.*;
 public interface SwiftLibrary extends SwiftLibraryExtension, Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, VariantAwareComponent<NativeLibrary>, HasDevelopmentVariant<NativeLibrary>
-	, SourceAwareComponent<SwiftLibrarySources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, TaskAwareComponent
 	, BinaryAwareComponent
 	, TargetMachineAwareComponent

@@ -15,12 +15,14 @@
  */
 package dev.nokee.platform.nativebase;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.*;
 
 public interface NativeLibraryExtension extends Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
 	, VariantAwareComponent<NativeLibrary>
-	, SourceAwareComponent<NativeLibrarySources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, TargetMachineAwareComponent

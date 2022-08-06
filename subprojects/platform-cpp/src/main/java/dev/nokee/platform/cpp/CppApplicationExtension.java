@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.cpp;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.cpp.HasCppSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.base.BinaryAwareComponent;
@@ -31,4 +33,4 @@ import dev.nokee.platform.nativebase.*;
  * @since 0.4
  */
 @Deprecated // Use CppApplication instead
-public interface CppApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<CppApplicationSources>, HasPrivateHeaders, HasCppSources {}
+public interface CppApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SourceView<LanguageSourceSet>>, HasPrivateHeaders, HasCppSources {}

@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.objectivec;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.nativebase.HasPublicHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
@@ -32,4 +34,4 @@ import dev.nokee.platform.nativebase.*;
  * @since 0.4
  */
 @Deprecated // Use ObjectiveCLibrary instead
-public interface ObjectiveCLibraryExtension extends DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCLibrarySources>, HasPrivateHeaders, HasPublicHeaders, HasObjectiveCSources {}
+public interface ObjectiveCLibraryExtension extends DependencyAwareComponent<NativeLibraryComponentDependencies>, VariantAwareComponent<NativeLibrary>, BinaryAwareComponent, TargetMachineAwareComponent, TargetLinkageAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SourceView<LanguageSourceSet>>, HasPrivateHeaders, HasPublicHeaders, HasObjectiveCSources {}

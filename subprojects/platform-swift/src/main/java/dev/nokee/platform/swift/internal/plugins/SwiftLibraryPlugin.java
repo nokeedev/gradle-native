@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.swift.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.swift.internal.plugins.HasSwiftSourcesMixIn;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
@@ -41,7 +44,6 @@ import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistr
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.swift.SwiftLibrary;
-import dev.nokee.platform.swift.SwiftLibrarySources;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -92,7 +94,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 	public static abstract class DefaultSwiftLibrary implements SwiftLibrary
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
-		, ModelBackedSourceAwareComponentMixIn<SwiftLibrarySources, SwiftLibrarySourcesAdapter>
+		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, HasDevelopmentVariantMixIn<NativeLibrary>

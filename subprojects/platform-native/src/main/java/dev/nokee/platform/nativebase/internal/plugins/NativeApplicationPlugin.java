@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -38,13 +41,11 @@ import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariant
 import dev.nokee.platform.nativebase.NativeApplication;
 import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.NativeApplicationExtension;
-import dev.nokee.platform.nativebase.NativeApplicationSources;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeApplicationVariant;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.NativeApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
@@ -117,7 +118,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
-		, ModelBackedSourceAwareComponentMixIn<NativeApplicationSources, NativeApplicationSourcesAdapter>
+		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, HasDevelopmentVariantMixIn<NativeApplication>

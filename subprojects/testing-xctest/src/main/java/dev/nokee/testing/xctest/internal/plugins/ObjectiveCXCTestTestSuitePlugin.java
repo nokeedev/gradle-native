@@ -17,8 +17,6 @@ package dev.nokee.testing.xctest.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.language.c.internal.plugins.DefaultCHeaderSet;
-import dev.nokee.language.objectivec.internal.plugins.LegacyObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.DomainObjectFactory;
 import dev.nokee.model.DomainObjectProvider;
@@ -129,11 +127,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			if (entity.hasComponent(typeOf(SupportObjectiveCSourceSetTag.class))) {
-				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			}
 
 			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));

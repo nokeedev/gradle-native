@@ -16,8 +16,6 @@
 package dev.nokee.platform.ios.internal;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.objectivec.ObjectiveCSourceSet;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ViewAdapter;
@@ -143,36 +141,6 @@ public final class ObjectiveCIosApplicationSourcesAdapter implements ObjectiveCI
 	@Override
 	public <S extends LanguageSourceSet> View<S> withType(Class<S> type) {
 		return delegate.withType(type);
-	}
-
-	@Override
-	public NamedDomainObjectProvider<ObjectiveCSourceSet> getObjectiveC() {
-		return named("objectiveC", ObjectiveCSourceSet.class);
-	}
-
-	@Override
-	public void objectiveC(Action<? super ObjectiveCSourceSet> action) {
-		delegate.named("objectiveC", ObjectiveCSourceSet.class, action);
-	}
-
-	@Override
-	public void objectiveC(@SuppressWarnings("rawtypes") Closure closure) {
-		delegate.named("objectiveC", ObjectiveCSourceSet.class, closure);
-	}
-
-	@Override
-	public NamedDomainObjectProvider<NativeHeaderSet> getHeaders() {
-		return named("headers", NativeHeaderSet.class);
-	}
-
-	@Override
-	public void headers(Action<? super NativeHeaderSet> action) {
-		delegate.named("headers", NativeHeaderSet.class, action);
-	}
-
-	@Override
-	public void headers(@SuppressWarnings("rawtypes") Closure closure) {
-		delegate.named("headers", NativeHeaderSet.class, closure);
 	}
 
 	@Override

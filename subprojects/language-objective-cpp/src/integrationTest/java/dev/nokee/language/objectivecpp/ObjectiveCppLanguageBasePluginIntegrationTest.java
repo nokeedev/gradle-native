@@ -17,8 +17,6 @@ package dev.nokee.language.objectivecpp;
 
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
-import dev.nokee.language.cpp.CppHeaderSet;
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +41,5 @@ class ObjectiveCppLanguageBasePluginIntegrationTest extends AbstractPluginTest {
 	@Test
 	void defaultImportSourceSetTypes() {
 		assertThat(project, hasDefaultImportFor(ObjectiveCppSourceSet.class));
-		assertThat(project, hasDefaultImportFor(CppHeaderSet.class));
-		assertThat(project, hasDefaultImportFor(NativeHeaderSet.class));
 	}
 }

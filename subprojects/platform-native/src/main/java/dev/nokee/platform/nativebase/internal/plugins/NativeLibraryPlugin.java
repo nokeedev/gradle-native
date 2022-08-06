@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -38,14 +41,12 @@ import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariant
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.NativeLibraryExtension;
-import dev.nokee.platform.nativebase.NativeLibrarySources;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryComponent;
 import dev.nokee.platform.nativebase.internal.DefaultNativeLibraryVariant;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetMachineAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistrationFactory;
-import dev.nokee.platform.nativebase.internal.NativeLibrarySourcesAdapter;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.NativeDevelopmentBinaryConvention;
@@ -101,7 +102,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
-		, ModelBackedSourceAwareComponentMixIn<NativeLibrarySources, NativeLibrarySourcesAdapter>
+		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedTargetMachineAwareComponentMixIn

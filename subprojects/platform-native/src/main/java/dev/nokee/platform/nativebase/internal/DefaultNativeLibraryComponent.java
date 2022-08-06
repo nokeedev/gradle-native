@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.nativebase.internal;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.actions.ModelAction;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -56,7 +59,7 @@ import static dev.nokee.model.internal.type.ModelTypes.set;
 
 public /*final*/ class DefaultNativeLibraryComponent extends BaseNativeComponent<NativeLibrary> implements Component
 	, DependencyAwareComponent<NativeLibraryComponentDependencies>
-	, ModelBackedSourceAwareComponentMixIn<ComponentSources, NativeLibrarySourcesAdapter>
+	, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 	, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
 	, ModelBackedBinaryAwareComponentMixIn
 	, ModelBackedTaskAwareComponentMixIn
