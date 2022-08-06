@@ -24,12 +24,12 @@ import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
@@ -114,13 +114,13 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication
+		, ComponentMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources, ObjectiveCIosApplicationSourcesAdapter>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
-		, ModelBackedNamedMixIn
 		, HasAssembleTaskMixIn
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn

@@ -26,12 +26,11 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.ComponentName;
-import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
@@ -101,7 +100,6 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 
 	public static ModelRegistration nativeApplicationVariant(VariantIdentifier identifier, DefaultNativeApplicationComponent component, Project project) {
 		return ModelRegistration.builder()
-			.withComponent(tag(IsVariant.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(NativeVariantTag.class))
@@ -116,6 +114,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension
+		, ComponentMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
 		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
@@ -125,7 +124,6 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetBuildTypeAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
-		, ModelBackedNamedMixIn
 		, HasAssembleTaskMixIn
 	{
 	}

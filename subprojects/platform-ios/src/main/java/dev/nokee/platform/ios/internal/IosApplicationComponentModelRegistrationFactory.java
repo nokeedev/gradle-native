@@ -22,7 +22,6 @@ import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.VariantInternal;
 import dev.nokee.platform.nativebase.internal.rules.DevelopmentVariantConvention;
 import lombok.val;
@@ -48,7 +47,6 @@ public final class IosApplicationComponentModelRegistrationFactory {
 		val builder = ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(createdUsing(of(implementationComponentType), () -> project.getObjects().newInstance(implementationComponentType)))
-			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(IosApplicationComponentTag.class))
 			.mergeFrom(tagsOf(implementationComponentType))

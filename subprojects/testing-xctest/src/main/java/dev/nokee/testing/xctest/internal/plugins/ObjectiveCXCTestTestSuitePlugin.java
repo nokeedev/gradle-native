@@ -46,8 +46,6 @@ import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
-import dev.nokee.platform.base.internal.IsComponent;
-import dev.nokee.platform.base.internal.IsVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -233,7 +231,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			.withComponent(createdUsing(of(DefaultUnitTestXCTestTestSuiteComponent.class), () -> {
 				return newUnitTestFactory(project).create(identifier);
 			}))
-			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(IsTestComponent.class))
 			.withComponent(tag(XCTestTestSuiteComponentTag.class))
@@ -253,7 +250,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 		val identifier = ComponentIdentifier.builder().name(ComponentName.of(name)).displayName("XCTest test suite").withProjectIdentifier(ProjectIdentifier.of(project)).build();
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(IsTestComponent.class))
 			.withComponent(tag(XCTestTestSuiteComponentTag.class))
@@ -275,7 +271,6 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 	private static ModelRegistration xcTestTestSuiteVariant(VariantIdentifier identifier, BaseXCTestTestSuiteComponent component, Project project) {
 		return ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(IsVariant.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(NativeVariantTag.class))
 			.mergeFrom(tagsOf(DefaultXCTestTestSuiteVariant.class))

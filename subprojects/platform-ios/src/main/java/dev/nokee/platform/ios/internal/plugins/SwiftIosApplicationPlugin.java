@@ -16,18 +16,18 @@
 package dev.nokee.platform.ios.internal.plugins;
 
 import dev.nokee.language.swift.internal.plugins.HasSwiftSourcesMixIn;
-import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
+import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
+import dev.nokee.platform.base.internal.ComponentMixIn;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.ModelBackedBinaryAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedDependencyAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedHasBaseNameMixIn;
-import dev.nokee.platform.base.internal.ModelBackedNamedMixIn;
 import dev.nokee.platform.base.internal.ModelBackedSourceAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedTaskAwareComponentMixIn;
 import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
@@ -92,13 +92,13 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 	}
 
 	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication
+		, ComponentMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
 		, ModelBackedSourceAwareComponentMixIn<SwiftIosApplicationSources, SwiftIosApplicationSourcesAdapter>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
-		, ModelBackedNamedMixIn
 		, HasAssembleTaskMixIn
 		, ModelBackedTargetMachineAwareComponentMixIn
 		, ModelBackedTargetLinkageAwareComponentMixIn

@@ -20,7 +20,6 @@ import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
-import dev.nokee.platform.base.internal.IsComponent;
 import lombok.val;
 
 import static dev.nokee.model.internal.core.ModelProjections.managed;
@@ -32,7 +31,6 @@ public final class JavaNativeInterfaceLibraryComponentRegistrationFactory {
 	public ModelRegistration create(ComponentIdentifier identifier) {
 		val builder = ModelRegistration.builder()
 			.withComponent(new IdentifierComponent(identifier))
-			.withComponent(tag(IsComponent.class))
 			.withComponent(tag(ConfigurableTag.class))
 			.withComponent(tag(JniLibraryComponentTag.class))
 			.mergeFrom(tagsOf(JniLibraryComponentInternal.class))
