@@ -60,7 +60,6 @@ import java.util.concurrent.Callable;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
-import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -110,7 +109,8 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, swiftSources, ignored1) -> {
 			ModelStates.finalize(swiftSources.get());
 			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
-			entity.addComponent(new ObjectiveCppSourcesComponent(finalizeValueOnRead(disallowChanges(sources))));
+			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+			entity.addComponent(new ObjectiveCppSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
 		}));
 	}
 

@@ -59,7 +59,6 @@ import java.util.concurrent.Callable;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
-import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public class CLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -109,7 +108,8 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, cSources, ignored1) -> {
 			ModelStates.finalize(cSources.get());
 			val sources = (ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get();
-			entity.addComponent(new CSourcesComponent(finalizeValueOnRead(disallowChanges(sources))));
+			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+			entity.addComponent(new CSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
 		}));
 	}
 
