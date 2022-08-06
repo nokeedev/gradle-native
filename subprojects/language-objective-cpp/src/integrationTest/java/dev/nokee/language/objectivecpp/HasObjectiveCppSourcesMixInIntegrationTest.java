@@ -27,8 +27,11 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import lombok.val;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,11 +44,13 @@ import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
 import static dev.nokee.internal.testing.ProjectMatchers.buildDependencies;
 import static dev.nokee.model.internal.state.ModelStates.discover;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -90,6 +95,13 @@ class HasObjectiveCppSourcesMixInIntegrationTest {
 		val generatorTask = project.getTasks().register("generator");
 		ModelProperties.add(discover(entity).get(ObjectiveCppSourcesPropertyComponent.class).get(), generatorTask.map(__ -> new File("foo/bar")));
 		assertThat(ModelStates.finalize(entity).get(ObjectiveCppSourcesComponent.class).get(), buildDependencies(hasItem(named("generator"))));
+	}
+
+	@Test
+	void mountPropertyAsExtension() {
+		discover(entity).addComponent(tag(ExtensionAwareMixIn.Tag.class));
+		assertThat(entity.get(ExtensionAwareComponent.class).get().findByName("objectiveCppSources"),
+			isA(ConfigurableFileCollection.class));
 	}
 
 	@Nested

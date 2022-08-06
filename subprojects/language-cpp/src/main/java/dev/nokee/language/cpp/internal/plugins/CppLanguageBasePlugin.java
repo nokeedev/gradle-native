@@ -49,6 +49,7 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
 import lombok.val;
@@ -122,6 +123,10 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 			val sources = (ConfigurableFileCollection) swiftSources.get().get(GradlePropertyComponent.class).get();
 			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
 			entity.addComponent(new CppSourcesComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), ModelComponentReference.of(ExtensionAwareComponent.class), (entity, cppSources, extensions) -> {
+			extensions.get().add(ConfigurableFileCollection.class, "cppSources", (ConfigurableFileCollection) cppSources.get().get(GradlePropertyComponent.class).get());
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeSourcesAwareTag.class), ModelComponentReference.of(ParentComponent.class), (entity, ignored, parent) -> {
