@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.swift;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
@@ -33,4 +35,4 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
  * @since 0.4
  */
 @Deprecated // Use SwiftApplication instead
-public interface SwiftApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SwiftApplicationSources>, HasSwiftSources {}
+public interface SwiftApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SourceView<LanguageSourceSet>>, HasSwiftSources {}

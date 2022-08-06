@@ -15,26 +15,14 @@
  */
 package dev.nokee.language.c.internal.plugins;
 
-import dev.nokee.language.c.internal.CSourceSetExtensible;
 import dev.nokee.language.nativebase.internal.NativeLanguagePlugin;
 import dev.nokee.language.nativebase.internal.NativeLanguageRegistrationFactory;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
-import dev.nokee.model.internal.core.ModelActionWithInputs;
-import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelPathComponent;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
-import dev.nokee.model.internal.registry.ModelRegistry;
-import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-import static dev.nokee.language.base.internal.SourceSetExtensible.discoveringInstanceOf;
-import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
-import static dev.nokee.model.internal.core.ModelActions.matching;
-import static dev.nokee.model.internal.core.ModelActions.once;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 
 public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
@@ -43,12 +31,6 @@ public class CLanguagePlugin implements Plugin<Project>, NativeLanguagePlugin {
 		project.getPluginManager().apply(CLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
-		val modelConfigurer = project.getExtensions().getByType(ModelConfigurer.class);
-		modelConfigurer.configure(matching(discoveringInstanceOf(CSourceSetExtensible.class), once(ModelActionWithInputs.of(ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ModelPathComponent.class), (entity, parentEntity, path) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			registry.register(newEntity("c", LegacyCSourceSet.class));
-		}))));
 		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(tag(SupportCSourceSetTag.class));
 	}
 

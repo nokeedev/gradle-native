@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.cpp.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.cpp.internal.HasCppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
@@ -36,7 +39,6 @@ import dev.nokee.platform.base.internal.ModelBackedVariantAwareComponentMixIn;
 import dev.nokee.platform.base.internal.assembletask.HasAssembleTaskMixIn;
 import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariantMixIn;
 import dev.nokee.platform.cpp.CppLibrary;
-import dev.nokee.platform.cpp.CppLibrarySources;
 import dev.nokee.platform.nativebase.NativeLibrary;
 import dev.nokee.platform.nativebase.NativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
@@ -93,7 +95,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 	public static abstract class DefaultCppLibrary implements CppLibrary
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
-		, ModelBackedSourceAwareComponentMixIn<CppLibrarySources, CppLibrarySourcesAdapter>
+		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, HasDevelopmentVariantMixIn<NativeLibrary>

@@ -22,7 +22,6 @@ import dev.nokee.language.cpp.internal.CppSourcesComponent;
 import dev.nokee.language.cpp.internal.CppSourcesPropertyComponent;
 import dev.nokee.language.cpp.internal.HasCppSourcesMixIn;
 import dev.nokee.language.cpp.internal.tasks.CppCompileTask;
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import dev.nokee.language.nativebase.internal.LanguageNativeBasePlugin;
 import dev.nokee.language.nativebase.internal.NativeCompileTypeComponent;
 import dev.nokee.language.nativebase.internal.NativeHeaderLanguageBasePlugin;
@@ -66,11 +65,9 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.getPluginManager().apply(LanguageNativeBasePlugin.class);
 		project.getPluginManager().apply(NativeHeaderLanguageBasePlugin.class);
-		project.getPluginManager().apply(CppHeaderLanguageBasePlugin.class);
 		project.getPluginManager().apply(NokeeStandardToolChainsPlugin.class);
 
 		DefaultImporter.forProject(project)
-			.defaultImport(NativeHeaderSet.class)
 			.defaultImport(CppSourceSet.class);
 
 		// No need to register anything as CppHeaderSet and CppSourceSet are managed instance compatible,

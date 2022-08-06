@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.objectivec.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
@@ -43,7 +46,6 @@ import dev.nokee.platform.nativebase.internal.NativeApplicationComponentModelReg
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.ObjectiveCApplication;
-import dev.nokee.platform.objectivec.ObjectiveCApplicationSources;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -92,7 +94,7 @@ public class ObjectiveCApplicationPlugin implements Plugin<Project> {
 	public static abstract class DefaultObjectiveCApplication implements ObjectiveCApplication
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeApplication>
-		, ModelBackedSourceAwareComponentMixIn<ObjectiveCApplicationSources, ObjectiveCApplicationSourcesAdapter>
+		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, HasDevelopmentVariantMixIn<NativeApplication>

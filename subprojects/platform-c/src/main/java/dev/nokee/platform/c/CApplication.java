@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.c;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.c.HasCSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.base.*;
@@ -34,7 +36,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 public interface CApplication extends CApplicationExtension, Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
 	, VariantAwareComponent<NativeApplication>, HasDevelopmentVariant<NativeApplication>
-	, SourceAwareComponent<CApplicationSources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, TargetMachineAwareComponent

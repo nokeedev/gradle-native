@@ -20,38 +20,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.language.base.internal.HasConfigurableSource;
-import dev.nokee.language.base.internal.LegacySourceSetTag;
-import dev.nokee.language.base.internal.SourcePropertyComponent;
-import dev.nokee.language.c.CSourceSet;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
-import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
-import dev.nokee.language.c.internal.plugins.DefaultCHeaderSet;
-import dev.nokee.language.c.internal.plugins.LegacyCSourceSet;
-import dev.nokee.language.cpp.CppSourceSet;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
-import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
-import dev.nokee.language.cpp.internal.plugins.DefaultCppHeaderSet;
-import dev.nokee.language.cpp.internal.plugins.LegacyCppSourceSet;
 import dev.nokee.language.nativebase.NativeHeaderSet;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeaders;
-import dev.nokee.language.nativebase.internal.HasConfigurableHeadersPropertyComponent;
 import dev.nokee.language.nativebase.internal.HeaderSearchPathsConfigurationComponent;
 import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
-import dev.nokee.language.objectivec.ObjectiveCSourceSet;
-import dev.nokee.language.objectivec.internal.plugins.LegacyObjectiveCSourceSet;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
-import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
-import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet;
-import dev.nokee.language.objectivecpp.internal.plugins.LegacyObjectiveCppSourceSet;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
-import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.ImportModulesConfigurationComponent;
-import dev.nokee.language.swift.internal.plugins.LegacySwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
-import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -68,9 +47,7 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
-import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
@@ -166,7 +143,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -177,12 +153,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
@@ -193,7 +166,6 @@ import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
-import static dev.nokee.model.internal.core.ModelNodeUtils.canBeViewedAs;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -274,33 +246,23 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			val buildVariant = (BuildVariantInternal) buildVariantComponent.get();
 
 			if (buildVariant.hasAxisValue(BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS)) {
-				registry.instantiate(configureEach(descendantOf(entity.getId()).and(subtypeOf(of(HasConfigurableHeaders.class))), LanguageSourceSet.class, sourceSet -> {
-					((HasConfigurableHeaders) sourceSet).getHeaders().setFrom((Callable<?>) () -> {
-						return ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(NativeHeaderSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, NativeHeaderSet.class).getSourceDirectories());
-					});
-				}));
 				registry.instantiate(configureEach(descendantOf(entity.getId()), CSourceSetSpec.class, sourceSet -> {
-					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(CSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, CSourceSet.class).getAsFileTree()));
 					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
 					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
 				}));
 				registry.instantiate(configureEach(descendantOf(entity.getId()), CppSourceSetSpec.class, sourceSet -> {
-					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(CppSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, CppSourceSet.class).getAsFileTree()));
 					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
 					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
 				}));
 				registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCSourceSetSpec.class, sourceSet -> {
-					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(ObjectiveCSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, ObjectiveCSourceSet.class).getAsFileTree()));
 					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
 					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
 				}));
 				registry.instantiate(configureEach(descendantOf(entity.getId()), ObjectiveCppSourceSetSpec.class, sourceSet -> {
-					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(ObjectiveCppSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, ObjectiveCppSourceSet.class).getAsFileTree()));
 					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
 					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
 				}));
 				registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftSourceSetSpec.class, sourceSet -> {
-					((HasConfigurableSource) sourceSet).getSource().setFrom((Callable<?>) () -> ((ModelLookup) registry).query(e -> canBeViewedAs(e, of(SwiftSourceSet.class)) && e.find(ParentComponent.class).map(it -> it.get().equals(parent.get())).orElse(false)).map(it -> ModelNodeUtils.get(it, SwiftSourceSet.class).getAsFileTree()));
 					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
 					sourceSet.getCompileTask().configure(task -> task.getModuleName().set(project.getProviders().provider(() -> GUtil.toCamelCase(ModelStates.finalize(ModelNodes.of(sourceSet).get(ParentComponent.class).get()).get(BaseNameComponent.class).get()))));
 					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
@@ -362,22 +324,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 
-			if (entity.hasComponent(typeOf(SupportCSourceSetTag.class))) {
-				registry.register(newEntity("c", LegacyCSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SupportCppSourceSetTag.class))) {
-				registry.register(newEntity("cpp", LegacyCppSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SupportObjectiveCSourceSetTag.class))) {
-				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SupportObjectiveCppSourceSetTag.class))) {
-				registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SupportSwiftSourceSetTag.class))) {
-				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
-			}
-
 			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 			val compileOnly = registry.register(newEntity("compileOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 			val linkOnly = registry.register(newEntity("linkOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
@@ -415,26 +361,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		})));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(IdentifierComponent.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, identifier, tag) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
-
-			if (entity.hasComponent(typeOf(SupportCSourceSetTag.class))) {
-				registry.register(newEntity("c", LegacyCSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("public", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SupportCppSourceSetTag.class))) {
-				registry.register(newEntity("cpp", LegacyCppSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("public", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SupportObjectiveCSourceSetTag.class))) {
-				registry.register(newEntity("objectiveC", LegacyObjectiveCSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("public", DefaultCHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SupportObjectiveCppSourceSetTag.class))) {
-				registry.register(newEntity("objectiveCpp", LegacyObjectiveCppSourceSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("headers", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-				registry.register(newEntity("public", DefaultCppHeaderSet.class, it -> it.ownedBy(entity)));
-			} else if (entity.hasComponent(typeOf(SupportSwiftSourceSetTag.class))) {
-				registry.register(newEntity("swift", LegacySwiftSourceSet.class, it -> it.ownedBy(entity)));
-			}
 
 			val api = registry.register(newEntity("api", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));
 			val implementation = registry.register(newEntity("implementation", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity).withTag(FrameworkAwareDependencyBucketTag.class)));

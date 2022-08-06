@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.objectivec;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.platform.base.BinaryAwareComponent;
@@ -31,4 +33,4 @@ import dev.nokee.platform.nativebase.*;
  * @since 0.4
  */
 @Deprecated // Use ObjectiveCApplication instead
-public interface ObjectiveCApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<ObjectiveCApplicationSources>, HasPrivateHeaders, HasObjectiveCSources {}
+public interface ObjectiveCApplicationExtension extends DependencyAwareComponent<NativeApplicationComponentDependencies>, VariantAwareComponent<NativeApplication>, BinaryAwareComponent, TargetMachineAwareComponent, TargetBuildTypeAwareComponent, SourceAwareComponent<SourceView<LanguageSourceSet>>, HasPrivateHeaders, HasObjectiveCSources {}

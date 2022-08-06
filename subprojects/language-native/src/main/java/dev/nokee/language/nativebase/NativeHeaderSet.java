@@ -26,4 +26,5 @@ import dev.nokee.language.base.SelfAwareLanguageSourceSet;
  * @see LanguageSourceSet
  * @since 0.5
  */
+@Deprecated
 public interface NativeHeaderSet extends SelfAwareLanguageSourceSet<NativeHeaderSet> {}

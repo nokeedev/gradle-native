@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.objectivec.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasPublicHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
@@ -44,7 +47,6 @@ import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistr
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.objectivec.ObjectiveCLibrary;
-import dev.nokee.platform.objectivec.ObjectiveCLibrarySources;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -93,7 +95,7 @@ public class ObjectiveCLibraryPlugin implements Plugin<Project> {
 	public static abstract class DefaultObjectiveCLibrary implements ObjectiveCLibrary
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<NativeLibrary>
-		, ModelBackedSourceAwareComponentMixIn<ObjectiveCLibrarySources, ObjectiveCLibrarySourcesAdapter>
+		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, HasDevelopmentVariantMixIn<NativeLibrary>

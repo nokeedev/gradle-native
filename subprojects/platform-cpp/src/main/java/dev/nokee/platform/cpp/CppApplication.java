@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.cpp;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.cpp.HasCppSources;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.platform.base.*;
@@ -34,7 +36,7 @@ import dev.nokee.platform.nativebase.TargetMachineAwareComponent;
 public interface CppApplication extends CppApplicationExtension, Component
 	, DependencyAwareComponent<NativeApplicationComponentDependencies>
 	, VariantAwareComponent<NativeApplication>, HasDevelopmentVariant<NativeApplication>
-	, SourceAwareComponent<CppApplicationSources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, TargetMachineAwareComponent
