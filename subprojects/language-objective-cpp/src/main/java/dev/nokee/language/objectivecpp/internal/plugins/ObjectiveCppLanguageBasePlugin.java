@@ -90,8 +90,14 @@ public class ObjectiveCppLanguageBasePlugin implements Plugin<Project> {
 		})));
 
 		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, objectiveCppSources, fullyQualifiedName) -> {
-			((ConfigurableFileCollection) objectiveCppSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveCpp", "src/" + fullyQualifiedName.get() + "/objcpp");
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, objcppSources, fullyQualifiedName) -> {
+			((ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/objectiveCpp", "src/" + fullyQualifiedName.get() + "/objcpp");
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on ObjectiveCppSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ObjectiveCppSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, objcppSources, parent) -> {
+			((ConfigurableFileCollection) objcppSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(ObjectiveCppSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+			});
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasObjectiveCppSourcesMixIn.Tag.class), (entity, ignored) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);

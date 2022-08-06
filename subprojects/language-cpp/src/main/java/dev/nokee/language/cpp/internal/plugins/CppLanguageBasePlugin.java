@@ -93,6 +93,12 @@ public class CppLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, cppSources, fullyQualifiedName) -> {
 			((ConfigurableFileCollection) cppSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/cpp");
 		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on CppSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CppSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, cppSources, parent) -> {
+			((ConfigurableFileCollection) cppSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(CppSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+			});
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasCppSourcesMixIn.Tag.class), (entity, ignored) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()

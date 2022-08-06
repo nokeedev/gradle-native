@@ -51,6 +51,7 @@ import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.scripts.DefaultImporter;
+import dev.nokee.utils.Optionals;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -93,6 +94,12 @@ public class CLanguageBasePlugin implements Plugin<Project> {
 		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, cSources, fullyQualifiedName) -> {
 			((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/c");
+		}));
+		// ComponentFromEntity<GradlePropertyComponent> read-write on CSourcesPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(CSourcesPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, cSources, parent) -> {
+			((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
+				return ParentUtils.stream(parent).map(ModelStates::finalize).flatMap(it -> stream(it.find(CSourcesComponent.class))).findFirst().map(it -> (Object) it.get()).orElse(Collections.emptyList());
+			});
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasCSourcesMixIn.Tag.class), (entity, ignored) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);

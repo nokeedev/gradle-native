@@ -17,15 +17,18 @@ package dev.nokee.language.cpp;
 
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.internal.testing.junit.jupiter.GradleTestExtension;
+import dev.nokee.language.cpp.internal.CppSourcesComponent;
 import dev.nokee.language.cpp.internal.CppSourcesPropertyComponent;
 import dev.nokee.language.cpp.internal.HasCppSourcesMixIn;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
 import dev.nokee.model.internal.core.ModelNode;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
+import lombok.val;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static dev.nokee.model.internal.core.ModelProperties.valueOf;
+import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.entityOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
@@ -56,5 +62,14 @@ class CppSourcesSourceLayoutIntegrationTest {
 	void uses_srcSlashFullyQualifiedNameSlashCpp_asSourceLayout() {
 		assertThat(ModelProperties.valueOf(entity.get(CppSourcesPropertyComponent.class).get()),
 			providerOf(hasItem(aFile(withAbsolutePath(endsWith("/src/wudoFelu/cpp"))))));
+	}
+
+	@Test
+	void usesParentCppSources(Project project) {
+		val parent = project.getExtensions().getByType(ModelRegistry.class).instantiate(builder().build());
+		entity.addComponent(new ParentComponent(parent));
+		parent.addComponent(new CppSourcesComponent(objectFactory().fileCollection().from(project.file("srcs/cpp"))));
+		assertThat(valueOf(entity.get(CppSourcesPropertyComponent.class).get()),
+			providerOf(hasItem(aFile(withAbsolutePath(endsWith("/srcs/cpp"))))));
 	}
 }
