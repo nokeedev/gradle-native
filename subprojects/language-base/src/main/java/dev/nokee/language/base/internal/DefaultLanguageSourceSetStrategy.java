@@ -16,21 +16,19 @@
 package dev.nokee.language.base.internal;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import lombok.val;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.internal.file.FileCollectionInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import static dev.nokee.utils.FileCollectionUtils.sourceDirectories;
 
 final class DefaultLanguageSourceSetStrategy implements LanguageSourceSetStrategy {
 	private final ConfigurableFileCollection sources;
@@ -87,10 +85,6 @@ final class DefaultLanguageSourceSetStrategy implements LanguageSourceSetStrateg
 	}
 
 	private Callable<FileCollection> sourcesDeduction() {
-		return () -> {
-			val files = ImmutableSet.<File>builder();
-			((FileCollectionInternal) sources).visitStructure(new DirectoryStructureVisitor(files));
-			return objectFactory.fileCollection().from(files.build()).builtBy(sources);
-		};
+		return () -> objectFactory.fileCollection().from(sourceDirectories(sources));
 	}
 }
