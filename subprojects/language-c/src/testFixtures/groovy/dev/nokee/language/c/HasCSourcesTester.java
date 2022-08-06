@@ -31,7 +31,6 @@ public interface HasCSourcesTester {
 	}
 
 	@Test
-	@Disabled
 	default void canConfigureCSources() {
 		ConfigureMethodTester.of(subject(), HasCSources::getCSources)
 			.testAction(HasCSources::cSources)

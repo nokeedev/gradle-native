@@ -15,7 +15,6 @@
  */
 package dev.nokee.language.nativebase;
 
-import dev.nokee.language.nativebase.NativeHeaderSet;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;

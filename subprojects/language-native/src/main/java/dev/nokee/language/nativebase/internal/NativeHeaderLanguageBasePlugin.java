@@ -29,6 +29,7 @@ import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.core.ParentUtils;
 import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelState;
@@ -45,7 +46,6 @@ import java.util.concurrent.Callable;
 
 import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
-import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 
 public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 	@Override
@@ -77,6 +77,10 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 			}
 		}));
 
+		// ComponentFromEntity<GradlePropertyComponent> read-write on PrivateHeadersPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, cSources, fullyQualifiedName) -> {
+			((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/headers");
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasPrivateHeadersMixIn.Tag.class), (entity, ignored) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
@@ -98,9 +102,14 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PrivateHeadersPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, privateHeaders, ignored1) -> {
 			ModelStates.finalize(privateHeaders.get());
 			val sources = (ConfigurableFileCollection) privateHeaders.get().get(GradlePropertyComponent.class).get();
-			entity.addComponent(new PrivateHeadersComponent(finalizeValueOnRead(disallowChanges(sources))));
+			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+			entity.addComponent(new PrivateHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
 		}));
 
+		// ComponentFromEntity<GradlePropertyComponent> read-write on PublicHeadersPropertyComponent
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(FullyQualifiedNameComponent.class), (entity, cSources, fullyQualifiedName) -> {
+			((ConfigurableFileCollection) cSources.get().get(GradlePropertyComponent.class).get()).from("src/" + fullyQualifiedName.get() + "/public");
+		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelTags.referenceOf(HasPublicHeadersMixIn.Tag.class), (entity, ignored) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val property = ModelStates.register(registry.instantiate(ModelRegistration.builder()
@@ -122,7 +131,8 @@ public class NativeHeaderLanguageBasePlugin implements Plugin<Project> {
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(PublicHeadersPropertyComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), (entity, publicHeaders, ignored1) -> {
 			ModelStates.finalize(publicHeaders.get());
 			val sources = (ConfigurableFileCollection) publicHeaders.get().get(GradlePropertyComponent.class).get();
-			entity.addComponent(new PublicHeadersComponent(finalizeValueOnRead(disallowChanges(sources))));
+			// Note: We should be able to use finalizeValueOnRead but Gradle discard task dependencies
+			entity.addComponent(new PublicHeadersComponent(/*finalizeValueOnRead*/(disallowChanges(sources))));
 		}));
 	}
 }

@@ -150,9 +150,6 @@ import dev.nokee.platform.nativebase.internal.dependencies.VariantComponentDepen
 import dev.nokee.platform.nativebase.internal.linking.LinkLibrariesConfiguration;
 import dev.nokee.platform.nativebase.internal.linking.NativeLinkCapabilityPlugin;
 import dev.nokee.platform.nativebase.internal.rules.BuildableDevelopmentVariantConvention;
-import dev.nokee.platform.nativebase.internal.rules.LanguageSourceLayoutConvention;
-import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCSourceLayoutConvention;
-import dev.nokee.platform.nativebase.internal.rules.LegacyObjectiveCppSourceLayoutConvention;
 import dev.nokee.platform.nativebase.internal.rules.ToDevelopmentBinaryTransformer;
 import dev.nokee.platform.nativebase.internal.services.UnbuildableWarningService;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
@@ -359,12 +356,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			}
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(HasConfigurableHeadersPropertyComponent.class), ModelComponentReference.of(ParentComponent.class), (entity, headers, parent) -> {
-			// Configure headers according to convention
-			((ConfigurableFileCollection) headers.get().get(GradlePropertyComponent.class).get()).from((Callable<?>) () -> {
-				return ParentUtils.stream(parent).map(it -> it.find(FullyQualifiedNameComponent.class)).filter(Optional::isPresent).map(Optional::get).map(FullyQualifiedNameComponent::get).map(it -> "src/" + it + "/headers").collect(Collectors.toList());
-			});
-		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new RuntimeLibrariesConfigurationRegistrationRule(project.getExtensions().getByType(ModelRegistry.class), project.getObjects())));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachAttributesToConfigurationRule<>(RuntimeLibrariesConfiguration.class, project.getExtensions().getByType(ModelRegistry.class), project.getObjects()));
 
@@ -511,10 +502,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new LanguageSourceLayoutConvention());
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new LegacyObjectiveCSourceLayoutConvention());
-		project.getExtensions().getByType(ModelConfigurer.class).configure(new LegacyObjectiveCppSourceLayoutConvention());
-
 		project.getPluginManager().apply(NativeCompileCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeLinkCapabilityPlugin.class);
 		project.getPluginManager().apply(NativeArchiveCapabilityPlugin.class);
@@ -551,18 +538,6 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					it.warn((ComponentIdentifier) identifier.get());
 					return Collections.emptyList();
 				})))));
-		}));
-
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(LegacySourceSetTag.class), ModelComponentReference.of(SourcePropertyComponent.class), ModelComponentReference.of(ParentComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, tag, source, parent, elementName) -> {
-			val builder = ImmutableList.<String>builder();
-			val parentPath = ParentUtils.stream(parent).flatMap(it -> Optionals.stream(it.find(ElementNameComponent.class).map(ElementNameComponent::get))).map(Objects::toString).collect(Collectors.joining("/"));
-			builder.add("src/" + parentPath + "/" + elementName.get());
-			if (ModelNodeUtils.canBeViewedAs(entity, of(ObjectiveCSourceSet.class))) {
-				builder.add("src/" + parentPath + "/objc");
-			} else if (ModelNodeUtils.canBeViewedAs(entity, of(ObjectiveCppSourceSet.class))) {
-				builder.add("src/" + parentPath + "/objcpp");
-			}
-			((ConfigurableFileCollection) source.get().get(GradlePropertyComponent.class).get()).from(builder.build());
 		}));
 
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, ignored, tag) -> {
