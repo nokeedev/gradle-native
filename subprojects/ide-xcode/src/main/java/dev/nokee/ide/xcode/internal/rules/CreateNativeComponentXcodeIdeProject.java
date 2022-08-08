@@ -23,6 +23,7 @@ import dev.nokee.ide.xcode.internal.DefaultXcodeIdeBuildConfiguration;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeGroup;
 import dev.nokee.ide.xcode.internal.DefaultXcodeIdeTarget;
 import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.nativebase.HasHeaders;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.ProjectIdentifier;
@@ -166,7 +167,10 @@ public final class CreateNativeComponentXcodeIdeProject implements Action<ModelE
 					});
 					return result;
 				});
+		} else if (sourceSet instanceof HasHeaders) {
+			return sourceSet.getAsFileTree().plus(((HasHeaders) sourceSet).getHeaders().getAsFileTree());
 		}
+		// TODO: Should fetch the source property
 		return sourceSet.getAsFileTree();
 	}
 
