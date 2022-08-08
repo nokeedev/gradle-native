@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.ios;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.nativebase.HasPrivateHeaders;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 import dev.nokee.platform.base.*;
@@ -24,7 +26,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 public interface ObjectiveCIosApplication extends ObjectiveCIosApplicationExtension, Component
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, VariantAwareComponent<IosApplication>
-	, SourceAwareComponent<ObjectiveCIosApplicationSources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, HasObjectiveCSources

@@ -25,7 +25,6 @@ import static org.gradle.util.ConfigureUtil.configureUsing;
 /**
  * Represents a component that carries iOS resources.
  *
- * @see HasResourcesSourceSet
  * @since 0.5
  */
 public interface HasIosResources {
@@ -38,7 +37,7 @@ public interface HasIosResources {
 	 * @see IosResourceSet
 	 */
 	default IosResourceSet getResources() {
-		return ((HasResourcesSourceSet) sourceViewOf(this)).getResources().get();
+		return sourceViewOf(this).named("resources", IosResourceSet.class).get();
 	}
 
 	/**
@@ -48,7 +47,7 @@ public interface HasIosResources {
 	 * @see #getResources()
 	 */
 	default void resources(Action<? super IosResourceSet> action) {
-		((HasResourcesSourceSet) sourceViewOf(this)).getResources().configure(action);
+		sourceViewOf(this).named("resources", IosResourceSet.class).configure(action);
 	}
 
 	/**

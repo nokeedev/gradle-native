@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.ios;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.language.swift.HasSwiftSources;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
@@ -23,7 +25,7 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 public interface SwiftIosApplication extends SwiftIosApplicationExtension, Component
 	, DependencyAwareComponent<NativeComponentDependencies>
 	, VariantAwareComponent<IosApplication>
-	, SourceAwareComponent<SwiftIosApplicationSources>
+	, SourceAwareComponent<SourceView<LanguageSourceSet>>
 	, BinaryAwareComponent
 	, TaskAwareComponent
 	, HasSwiftSources
