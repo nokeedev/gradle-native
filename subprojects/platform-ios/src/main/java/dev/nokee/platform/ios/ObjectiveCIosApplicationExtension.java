@@ -15,6 +15,8 @@
  */
 package dev.nokee.platform.ios;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.DependencyAwareComponent;
 import dev.nokee.platform.base.SourceAwareComponent;
@@ -24,4 +26,4 @@ import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.language.objectivec.HasObjectiveCSources;
 
 @Deprecated // Use ObjectiveCIosApplication instead.
-public interface ObjectiveCIosApplicationExtension extends DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<ObjectiveCIosApplicationSources>, HasObjectiveCSources, HasPrivateHeaders, HasIosResources {}
+public interface ObjectiveCIosApplicationExtension extends DependencyAwareComponent<NativeComponentDependencies>, VariantAwareComponent<IosApplication>, BinaryAwareComponent, SourceAwareComponent<SourceView<LanguageSourceSet>>, HasObjectiveCSources, HasPrivateHeaders, HasIosResources {}

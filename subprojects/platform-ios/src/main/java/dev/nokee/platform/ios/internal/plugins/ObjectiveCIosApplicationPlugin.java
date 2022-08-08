@@ -15,6 +15,9 @@
  */
 package dev.nokee.platform.ios.internal.plugins;
 
+import dev.nokee.language.base.LanguageSourceSet;
+import dev.nokee.language.base.SourceView;
+import dev.nokee.language.base.internal.SourceViewAdapter;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
@@ -41,10 +44,8 @@ import dev.nokee.platform.base.internal.developmentvariant.HasDevelopmentVariant
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
 import dev.nokee.platform.ios.IosApplication;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
-import dev.nokee.platform.ios.ObjectiveCIosApplicationSources;
 import dev.nokee.platform.ios.internal.DefaultIosApplicationComponent;
 import dev.nokee.platform.ios.internal.IosApplicationComponentModelRegistrationFactory;
-import dev.nokee.platform.ios.internal.ObjectiveCIosApplicationSourcesAdapter;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetBuildTypeAwareComponentMixIn;
 import dev.nokee.platform.nativebase.internal.ModelBackedTargetLinkageAwareComponentMixIn;
@@ -122,7 +123,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
 		, ModelBackedVariantAwareComponentMixIn<IosApplication>
-		, ModelBackedSourceAwareComponentMixIn<ObjectiveCIosApplicationSources, ObjectiveCIosApplicationSourcesAdapter>
+		, ModelBackedSourceAwareComponentMixIn<SourceView<LanguageSourceSet>, SourceViewAdapter<LanguageSourceSet>>
 		, ModelBackedBinaryAwareComponentMixIn
 		, ModelBackedTaskAwareComponentMixIn
 		, ModelBackedHasBaseNameMixIn
