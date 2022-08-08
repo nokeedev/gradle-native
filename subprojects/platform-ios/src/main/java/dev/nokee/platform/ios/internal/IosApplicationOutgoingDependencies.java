@@ -15,13 +15,12 @@
  */
 package dev.nokee.platform.ios.internal;
 
-import dev.nokee.model.DomainObjectProvider;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.nativebase.internal.HasOutputFile;
 import dev.nokee.platform.nativebase.internal.dependencies.NativeOutgoingDependencies;
 import lombok.Getter;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -31,13 +30,13 @@ import org.gradle.api.provider.Provider;
 import javax.inject.Inject;
 
 public class IosApplicationOutgoingDependencies implements NativeOutgoingDependencies {
-	@Getter private final ConfigurableFileCollection exportedHeaders;
+	@Getter private final DirectoryProperty exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 
 	@Inject
 	public IosApplicationOutgoingDependencies(Configuration runtimeElements, ObjectFactory objects) {
-		this.exportedHeaders = objects.fileCollection();
+		this.exportedHeaders = objects.directoryProperty();
 		this.exportedSwiftModule = objects.fileProperty();
 		this.exportedBinary = objects.property(Binary.class);
 

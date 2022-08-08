@@ -60,7 +60,7 @@ class ObjectiveCApplicationComponentProjectDependenciesFunctionalTest extends Ab
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -98,7 +98,7 @@ class ObjectiveCLibraryComponentProjectDependenciesFunctionalTest extends Abstra
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -117,7 +117,7 @@ class ObjectiveCLibraryComponentWithStaticLinkageProjectDependenciesFunctionalTe
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return []
+		return [tasks(':library').syncApiElements]
 	}
 
 	@Override
@@ -196,7 +196,7 @@ class ObjectiveCApplicationComponentIncludedBuildDependenciesFunctionalTest exte
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -237,7 +237,7 @@ class ObjectiveCLibraryComponentIncludedBuildDependenciesFunctionalTest extends 
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -256,7 +256,7 @@ class ObjectiveCLibraryComponentWithStaticLinkageIncludedBuildDependenciesFuncti
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return []
+		return [tasks(':library').syncApiElements]
 	}
 
 	@Override

@@ -15,13 +15,18 @@
  */
 package dev.nokee.platform.nativebase.internal.dependencies;
 
+import lombok.val;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.model.ObjectFactory;
 
 public final class SwiftLibraryOutgoingDependencies extends AbstractNativeLibraryOutgoingDependencies implements NativeOutgoingDependencies {
 	public SwiftLibraryOutgoingDependencies(Configuration apiElements, Configuration linkElements, Configuration runtimeElements, ObjectFactory objects) {
 		super(linkElements, runtimeElements, objects);
 
-		apiElements.getOutgoing().artifact(getExportedSwiftModule());
+		val apiArtifacts = objects.listProperty(PublishArtifact.class);
+		apiArtifacts.add(new LazyPublishArtifact(getExportedSwiftModule()));
+		apiElements.getOutgoing().getArtifacts().addAllLater(apiArtifacts);
 	}
 }

@@ -28,6 +28,7 @@ import lombok.val;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.artifacts.dsl.LazyPublishArtifact;
 import org.gradle.api.internal.provider.Providers;
@@ -36,14 +37,14 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 public abstract class AbstractNativeLibraryOutgoingDependencies {
-	@Getter private final ConfigurableFileCollection exportedHeaders;
+	@Getter private final DirectoryProperty exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 	private final Configuration linkElements;
 	private final Configuration runtimeElements;
 
 	protected AbstractNativeLibraryOutgoingDependencies(Configuration linkElements, Configuration runtimeElements, ObjectFactory objects) {
-		this.exportedHeaders = objects.fileCollection();
+		this.exportedHeaders = objects.directoryProperty();
 		this.exportedSwiftModule = objects.fileProperty();
 		this.exportedBinary = objects.property(Binary.class);
 		this.linkElements = linkElements;

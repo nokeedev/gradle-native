@@ -61,7 +61,7 @@ class JniLibraryNativeProjectDependenciesFunctionalTest extends AbstractJniLibra
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').allToLink
+		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').allToLinkElements
 	}
 }
 
@@ -146,7 +146,7 @@ class JniLibraryNativeIncludedDependenciesFunctionalTest extends AbstractJniLibr
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').allToLink
+		return new DefaultNativeProjectTasks(":${libraryProjectName}", 'Cpp').allToLinkElements
 	}
 }
 

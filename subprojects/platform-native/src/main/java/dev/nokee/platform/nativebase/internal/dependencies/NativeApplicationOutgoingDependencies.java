@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
@@ -30,14 +31,14 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 
 public final class NativeApplicationOutgoingDependencies implements NativeOutgoingDependencies {
-	@Getter private final ConfigurableFileCollection exportedHeaders;
+	@Getter private final DirectoryProperty exportedHeaders;
 	@Getter private final RegularFileProperty exportedSwiftModule;
 	@Getter private final Property<Binary> exportedBinary;
 	@Getter(AccessLevel.PROTECTED) private final ObjectFactory objects;
 
 	public NativeApplicationOutgoingDependencies(Configuration runtimeElements, ObjectFactory objects) {
 		this.objects = objects;
-		this.exportedHeaders = objects.fileCollection();
+		this.exportedHeaders = objects.directoryProperty();
 		this.exportedSwiftModule = objects.fileProperty();
 		this.exportedBinary = objects.property(Binary.class);
 

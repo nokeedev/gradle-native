@@ -124,6 +124,15 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 		return withProject(withVariant("assemble"))
 	}
 
+	@Override
+	String getSyncApiElements() {
+		if (languageTaskSuffix == 'Swift') {
+			throw new UnsupportedOperationException('No supported for Swift yet.')
+		}
+
+		return withProject(withVariant('sync')) + 'PublicHeaders'
+	}
+
 	List<String> getAllToObjects() {
 		return [compile, objects]
 	}
@@ -142,6 +151,10 @@ class DefaultNativeProjectTasks implements NativeProjectTasks {
 
 	List<String> getAllToLinkOrCreate() {
 		return [compile, linkOrCreate]
+	}
+
+	List<String> getAllToLinkElements() {
+		return allToLinkOrCreate + (languageTaskSuffix != 'Swift' ? [syncApiElements] : [])
 	}
 
 	List<String> getAllToInstall() {

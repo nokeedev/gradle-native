@@ -146,16 +146,16 @@ abstract class AbstractNativeComponentDependenciesFunctionalTest extends Abstrac
 			libraryTasks = libraryTasks.withLinkage('shared')
 		}
 
-		def result = libraryTasks.allToLink
+		def result = libraryTasks.allToLinkElements
 		if (libraryBuildFile.text.contains('[linkages.static]')) {
-			result = libraryTasks.allToCreate
+			result = libraryTasks.forStaticLibrary.allToLinkElements
 		}
 
 		if (this.class.name.contains('WithStaticLinkage')) {
 			if (this.class.simpleName.startsWith('Swift')) {
 				result = [libraryTasks.compile]
 			} else {
-				result = []
+				result = [libraryTasks.syncApiElements]
 			}
 		}
 

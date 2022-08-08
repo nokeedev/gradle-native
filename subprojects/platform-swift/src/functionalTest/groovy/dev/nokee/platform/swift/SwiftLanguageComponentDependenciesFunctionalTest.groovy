@@ -49,7 +49,7 @@ class SwiftApplicationComponentProjectDependenciesFunctionalTest extends Abstrac
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -79,7 +79,7 @@ class SwiftLibraryComponentProjectDependenciesFunctionalTest extends AbstractNat
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -165,7 +165,7 @@ class SwiftApplicationComponentIncludedBuildDependenciesFunctionalTest extends A
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -198,7 +198,7 @@ class SwiftLibraryComponentIncludedBuildDependenciesFunctionalTest extends Abstr
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 

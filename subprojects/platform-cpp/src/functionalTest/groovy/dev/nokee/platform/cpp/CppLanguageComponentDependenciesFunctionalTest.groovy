@@ -46,7 +46,7 @@ class CppApplicationComponentProjectDependenciesFunctionalTest extends AbstractN
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -74,7 +74,7 @@ class CppLibraryComponentProjectDependenciesFunctionalTest extends AbstractNativ
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -91,7 +91,7 @@ class CppLibraryComponentWithStaticLinkageProjectDependenciesFunctionalTest exte
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return []
+		return [tasks(':library').syncApiElements]
 	}
 
 	@Override
@@ -156,7 +156,7 @@ class CppApplicationComponentIncludedBuildDependenciesFunctionalTest extends Abs
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -187,7 +187,7 @@ class CppLibraryComponentIncludedBuildDependenciesFunctionalTest extends Abstrac
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -204,7 +204,7 @@ class CppLibraryComponentWithStaticLinkageIncludedBuildDependenciesFunctionalTes
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return []
+		return [tasks(':library').syncApiElements]
 	}
 
 	@Override

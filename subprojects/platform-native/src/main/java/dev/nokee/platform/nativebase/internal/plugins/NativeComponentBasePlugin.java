@@ -136,6 +136,7 @@ import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.Optionals;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -146,6 +147,7 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.Sync;
 import org.gradle.util.GUtil;
 
 import java.util.Arrays;
@@ -605,10 +607,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
 
 					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
+					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), variantIdentifier);
 				}
 
-				private void onEachVariantDependencies(DomainObjectProvider<NativeLibrary> variant, VariantComponentDependencies<?> dependencies) {
+				private void onEachVariantDependencies(DomainObjectProvider<NativeLibrary> variant, VariantComponentDependencies<?> dependencies, VariantIdentifier variantIdentifier) {
 					if (NativeLibrary.class.isAssignableFrom(DefaultNativeLibraryVariant.class)) {
 						if (modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))))) {
 							dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
@@ -619,10 +621,14 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 								return one(result);
 							}));
 						}
-						dependencies.getOutgoing().getExportedHeaders().from((Callable<?>) () -> {
-							ModelStates.finalize(entity);
-							return sourceDirectories(entity.get(PublicHeadersComponent.class).get());
+						val syncTask = project.getTasks().register("sync" + StringUtils.capitalize(variantIdentifier.getUnambiguousName()) + "PublicHeaders", Sync.class, task -> {
+							task.from((Callable<?>) () -> {
+								ModelStates.finalize(entity);
+								return entity.get(PublicHeadersComponent.class).get();
+							});
+							task.setDestinationDir(project.getLayout().getBuildDirectory().dir("tmp/" + task.getName()).get().getAsFile());
 						});
+						dependencies.getOutgoing().getExportedHeaders().fileProvider(syncTask.map(it -> it.getDestinationDir()));
 					}
 					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 				}
