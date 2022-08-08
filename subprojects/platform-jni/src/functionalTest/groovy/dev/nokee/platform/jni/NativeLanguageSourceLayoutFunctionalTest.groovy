@@ -29,11 +29,6 @@ import spock.util.environment.OperatingSystem
 
 class JavaCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements CTaskNames, JavaJniTaskNames {
 	@Override
-	protected boolean isLegacy() {
-		return false
-	}
-
-	@Override
 	protected SourceElement getComponentUnderTest() {
 		return new JavaJniCGreeterLib('jni-library')
 	}
@@ -80,11 +75,6 @@ class JavaCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNa
 }
 
 class JavaCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements CppTaskNames, JavaJniTaskNames {
-	@Override
-	protected boolean isLegacy() {
-		return false
-	}
-
 	@Override
 	protected SourceElement getComponentUnderTest() {
 		return new JavaJniCppGreeterLib('jni-library')
@@ -134,11 +124,6 @@ class JavaCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends Abstract
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
 class JavaObjectiveCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCTaskNames, JavaJniTaskNames {
-	@Override
-	protected boolean isLegacy() {
-		return false
-	}
-
 	@Override
 	protected SourceElement getComponentUnderTest() {
 		return new JavaJniObjectiveCGreeterLib('jni-library')
@@ -200,11 +185,6 @@ class JavaObjectiveCJniLibraryNativeLanguageSourceLayoutFunctionalTest extends A
 @RequiresInstalledToolChain(ToolChainRequirement.GCC_COMPATIBLE)
 @Requires({!OperatingSystem.current.windows})
 class JavaObjectiveCppJniLibraryNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCppTaskNames, JavaJniTaskNames {
-	@Override
-	protected boolean isLegacy() {
-		return false
-	}
-
 	@Override
 	protected SourceElement getComponentUnderTest() {
 		return new JavaJniObjectiveCppGreeterLib('jni-library')
