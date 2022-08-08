@@ -95,12 +95,12 @@ endif::[]
 
 ifndef::c[ERROR: Please define `plugin-name` attribute.]
 
-= {c-application} Custom Source Layout Globbing
-:summary: Set custom source layout Globbing for a {c-application}.
+= {c-application} Globbing Sources
+:summary: Globbing sources for a {c-application}.
 :type: sample-chapter
 :tags: sample, {application}, sources, native, {C}, gradle
 :category: {C}
-:description: See how to set the source layout globbing of {an-application} implemented in {C} using the Gradle Nokee plugins.
+:description: See how to glob sources for {an-application} implemented in {C} using the Gradle Nokee plugins.
 :ref-configurable-file-tree: https://docs.gradle.org/current/javadoc/org/gradle/api/file/ConfigurableFileTree.html
 :ref-configurable-file-tree-exclude: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html#exclude-java.lang.String...-
 :ref-configurable-file-tree-matching: https://docs.gradle.org/current/javadoc/org/gradle/api/file/FileTree.html#matching-groovy.lang.Closure-
