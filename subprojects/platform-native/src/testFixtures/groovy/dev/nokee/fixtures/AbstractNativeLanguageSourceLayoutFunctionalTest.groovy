@@ -18,13 +18,6 @@ package dev.nokee.fixtures
 import dev.gradleplugins.fixtures.sources.SourceElement
 import dev.gradleplugins.integtests.fixtures.nativeplatform.AbstractInstalledToolChainIntegrationSpec
 import dev.gradleplugins.test.fixtures.file.TestFile
-import dev.nokee.language.base.LanguageSourceSet
-import dev.nokee.language.c.CSourceSet
-import dev.nokee.language.cpp.CppSourceSet
-import dev.nokee.language.nativebase.NativeHeaderSet
-import dev.nokee.language.objectivec.ObjectiveCSourceSet
-import dev.nokee.language.objectivecpp.ObjectiveCppSourceSet
-import dev.nokee.language.swift.SwiftSourceSet
 
 import static dev.gradleplugins.fixtures.sources.NativeLibraryElement.ofPrivateHeaders
 import static dev.gradleplugins.fixtures.sources.NativeLibraryElement.ofPublicHeaders
@@ -75,7 +68,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 		expect:
 		succeeds ':assemble'
-		result.assertTasksExecuted(tasks.allToLifecycleAssemble, tasks(':library').allToLink)
+		result.assertTasksExecuted(tasks.allToLifecycleAssemble, tasks(':library').allToLinkElements)
 	}
 
 	def "can generate sources"() {
@@ -83,11 +76,9 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 		makeSingleProject()
 		componentUnderTest.writeToSourceDir(file('srcs'))
 		buildFile << """
-			import ${LanguageSourceSet.canonicalName}
-
 			def generatedSources = tasks.register('generateSources') {
 				def inputFiles = fileTree('srcs')
-				def outputDir = layout.buildDirectory.dir('generated-srcs-for-native')
+				ext.outputDir = layout.buildDirectory.dir('generated-srcs-for-native')
 
 				inputs.files(inputFiles)
 				outputs.dir(outputDir)
@@ -116,21 +107,35 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				sourceSets.main.kotlin.srcDir(generatedSources)
 			}
 
-			${componentUnderTestDsl}.sources.configureEach({ sourceSet -> ['Java', 'Groovy', 'Kotlin'].every { !sourceSet.getClass().simpleName.contains(it) } }) {
-				setFrom(generatedSources)
+			pluginManager.withPlugin('dev.nokee.c-language-base') {
+				${componentUnderTestDsl}.cSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.c') })
+				${componentUnderTestDsl}.privateHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
 			}
 
-			import ${CSourceSet.canonicalName}
-			import ${CppSourceSet.canonicalName}
-			import ${ObjectiveCSourceSet.canonicalName}
-			import ${ObjectiveCppSourceSet.canonicalName}
-			import ${SwiftSourceSet.canonicalName}
-			${componentUnderTestDsl}.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
-			${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { filter.include('**/*.cpp') }
-			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
-			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
-			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
+			pluginManager.withPlugin('dev.nokee.cpp-language-base') {
+				${componentUnderTestDsl}.cppSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.cpp') })
+				${componentUnderTestDsl}.privateHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+			}
+
+			pluginManager.withPlugin('dev.nokee.objective-c-language-base') {
+				${componentUnderTestDsl}.objectiveCSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.m') })
+				${componentUnderTestDsl}.privateHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+			}
+
+			pluginManager.withPlugin('dev.nokee.objective-cpp-language-base') {
+				${componentUnderTestDsl}.objectiveCppSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.mm') })
+				${componentUnderTestDsl}.privateHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+			}
+
+			pluginManager.withPlugin('dev.nokee.swift-language-base') {
+				${componentUnderTestDsl}.swiftSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.swift') })
+			}
 		"""
+		if (this.class.simpleName.contains('Library') && !this.class.simpleName.contains('Swift')) {
+			buildFile << """
+				${componentUnderTestDsl}.publicHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+			"""
+		}
 
 		and:
 		writeBrokenSourcesAtConventionalLayout()
@@ -151,7 +156,6 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 		and:
 		file('library', buildFileName) << """
-			import ${LanguageSourceSet.canonicalName}
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
 				sourceSets.main.java.filter.include('**/*.java')
@@ -170,7 +174,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 			def generatedSources = tasks.register('generateSources') {
 				def inputFiles = fileTree('srcs')
-				def outputDir = layout.buildDirectory.dir('generated-srcs-for-native')
+				ext.outputDir = layout.buildDirectory.dir('generated-srcs-for-native')
 
 				inputs.files(inputFiles)
 				outputs.dir(outputDir)
@@ -183,24 +187,38 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				}
 			}
 
-			library.sources.configureEach({ sourceSet -> ['Java', 'Groovy', 'Kotlin'].every { !sourceSet.getClass().simpleName.contains(it) } }) {
-				from(generatedSources)
+			pluginManager.withPlugin('dev.nokee.c-language-base') {
+				library.cSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.c') })
+				library.privateHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+				library.publicHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
 			}
-			import ${CSourceSet.canonicalName}
-			import ${CppSourceSet.canonicalName}
-			import ${ObjectiveCSourceSet.canonicalName}
-			import ${ObjectiveCppSourceSet.canonicalName}
-			import ${SwiftSourceSet.canonicalName}
-			library.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
-			library.sources.configureEach(CppSourceSet) { filter.include('**/*.cpp') }
-			library.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
-			library.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
-			library.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
+
+			pluginManager.withPlugin('dev.nokee.cpp-language-base') {
+				library.cppSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.cpp') })
+				library.privateHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+				library.publicHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+			}
+
+			pluginManager.withPlugin('dev.nokee.objective-c-language-base') {
+				library.objectiveCSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.m') })
+				library.privateHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+				library.publicHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+			}
+
+			pluginManager.withPlugin('dev.nokee.objective-cpp-language-base') {
+				library.objectiveCppSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.mm') })
+				library.privateHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+				library.publicHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
+			}
+
+			pluginManager.withPlugin('dev.nokee.swift-language-base') {
+				library.swiftSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.swift') })
+			}
 		"""
 
 		expect:
 		succeeds(':assemble')
-		result.assertTasksExecuted(tasks.allToAssemble, tasks(':library').allToLink, ':library:generateSources')
+		result.assertTasksExecuted(tasks.allToAssemble, tasks(':library').allToLinkElements, ':library:generateSources')
 	}
 
 	protected String getComponentUnderTestDsl() {
@@ -235,26 +253,14 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 	protected abstract void makeProjectWithLibrary()
 
-	protected boolean isLegacy() {
-		return true
-	}
-
-	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl, boolean legacy = isLegacy()) {
+	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl, boolean isLibrary = this.class.simpleName.contains('Library')) {
 		return """
-			import ${LanguageSourceSet.canonicalName}
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
 				sourceSets.main.java.filter.include('**/*.java')
 				sourceSets.main.java.srcDir('srcs')
 			}
-			afterEvaluate {
-				pluginManager.withPlugin('java') {
-					${dsl}.sources.configureEach(CSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
-					${dsl}.sources.configureEach(CppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
-					${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
-					${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${dsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
-				}
-			}
+
 			pluginManager.withPlugin('groovy') {
 				sourceSets.main.groovy.setSrcDirs([])
 				sourceSets.main.groovy.filter.include('**/*.groovy')
@@ -266,55 +272,60 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				sourceSets.main.kotlin.srcDir('srcs')
 			}
 
-			import ${NativeHeaderSet.canonicalName}
-			import ${CSourceSet.canonicalName}
-			import ${CppSourceSet.canonicalName}
-			import ${ObjectiveCSourceSet.canonicalName}
-			import ${ObjectiveCppSourceSet.canonicalName}
-			import ${SwiftSourceSet.canonicalName}
-			import ${LanguageSourceSet.canonicalName}
-
-			${dsl} {
-				sources.configureEach(NativeHeaderSet) {
-					if (it.name == 'public') {
-						setFrom('includes')
-					} else {
-						setFrom('headers')
-					}
-				}
-				sources.configureEach({ sourceSet -> !(sourceSet instanceof NativeHeaderSet) && ['Java', 'Groovy', 'Kotlin'].every { !sourceSet.getClass().simpleName.contains(it) } }) {
-					setFrom('srcs')
-				}
+			pluginManager.withPlugin('dev.nokee.c-language-base') {
+				${dsl}.cSources.setFrom(fileTree('srcs') { include('**/*.c') })
+				${dsl}.privateHeaders.setFrom(fileTree('headers') { include('**/*.h') })
+				${isLibrary ? "${dsl}.publicHeaders.setFrom(fileTree('includes') { include('**/*.h') })" : ''}
 			}
-			${dsl}.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
-			${dsl}.sources.configureEach(CppSourceSet) { filter.include('**/*.cpp') }
-			${dsl}.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
-			${dsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
-			${dsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
-		""" + (legacy ? '' : """
-			${dsl}.sources.configureEach(CSourceSet) { headers.setFrom('headers', 'includes') }
-			${dsl}.sources.configureEach(CppSourceSet) { headers.setFrom('headers', 'includes') }
-			${dsl}.sources.configureEach(ObjectiveCSourceSet) { headers.setFrom('headers', 'includes') }
-			${dsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.setFrom('headers', 'includes') }
-			${dsl}.sources.configureEach(SwiftSourceSet) { headers.setFrom('headers', 'includes') }
-		""")
+
+			pluginManager.withPlugin('dev.nokee.cpp-language-base') {
+				${dsl}.cppSources.setFrom(fileTree('srcs') { include('**/*.cpp') })
+				${dsl}.privateHeaders.setFrom(fileTree('headers') { include('**/*.h') })
+				${isLibrary ? "${dsl}.publicHeaders.setFrom(fileTree('includes') { include('**/*.h') })" : ''}
+			}
+
+			pluginManager.withPlugin('dev.nokee.objective-c-language-base') {
+				${dsl}.objectiveCSources.setFrom(fileTree('srcs') { include('**/*.m') })
+				${dsl}.privateHeaders.setFrom(fileTree('headers') { include('**/*.h') })
+				${isLibrary ? "${dsl}.publicHeaders.setFrom(fileTree('includes') { include('**/*.h') })" : ''}
+			}
+
+			pluginManager.withPlugin('dev.nokee.objective-cpp-language-base') {
+				${dsl}.objectiveCppSources.setFrom(fileTree('srcs') { include('**/*.mm') })
+				${dsl}.privateHeaders.setFrom(fileTree('headers') { include('**/*.h') })
+				${isLibrary ? "${dsl}.publicHeaders.setFrom(fileTree('includes') { include('**/*.h') })" : ''}
+			}
+
+			pluginManager.withPlugin('dev.nokee.swift-language-base') {
+				${dsl}.swiftSources.setFrom(fileTree('srcs') { include('**/*.swift') })
+			}
+		"""
 	}
 
-	protected String configureSourcesAsExplicitFiles() {
-		return """
-			import ${LanguageSourceSet.canonicalName}
+	protected String configureSourcesAsExplicitFiles(String dsl = componentUnderTestDsl) {
+		def className = this.class.simpleName
+
+		def languageName = ''
+		if (className.contains('ObjectiveCpp')) {
+			languageName = 'objectiveCpp'
+		} else if (className.contains('ObjectiveC')) {
+			languageName = 'objectiveC'
+		} else if (className.contains('Cpp')) {
+			languageName = 'cpp'
+		} else if (className.contains('Swift')) {
+			languageName = 'swift'
+		} else if (className.contains('C')) {
+			languageName = 'c'
+		}
+
+		def hasPublicHeaders = className.contains('Library') && languageName != 'swift'
+		def hasPrivateHeaders = languageName != 'swift'
+
+		def result = """
 			pluginManager.withPlugin('java-base') {
 				sourceSets.main.java.setSrcDirs([])
 				sourceSets.main.java.filter.include('**/*.java')
 				sourceSets.main.java.srcDir('srcs')
-			}
-			afterEvaluate {
-				pluginManager.withPlugin('java-base') {
-					${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
-					${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
-					${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
-					${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.from(${componentUnderTestDsl}.sources.java.flatMap { it.compileTask }.flatMap { it.options.headerOutputDirectory }) }
-				}
 			}
 			pluginManager.withPlugin('groovy-base') {
 				sourceSets.main.groovy.setSrcDirs([])
@@ -327,37 +338,21 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				sourceSets.main.kotlin.srcDir('srcs')
 			}
 
-			import ${NativeHeaderSet.canonicalName}
+			${dsl}.${languageName}Sources.setFrom(${ofSources(componentUnderTest).files.collect { "'srcs/${it.name}'" }.join(',')})
+		"""
 
-			${componentUnderTestDsl} {
-				sources.configureEach(NativeHeaderSet) {
-					if (it.name == 'public') {
-						setFrom('includes')
-					} else {
-						setFrom('headers')
-					}
-				}
-				sources.configureEach({ sourceSet -> !(sourceSet instanceof NativeHeaderSet) && ['Java', 'Groovy', 'Kotlin'].every { !sourceSet.getClass().simpleName.contains(it) } }) {
-					setFrom(${ofSources(componentUnderTest).files.collect { "'srcs/${it.name}'" }.join(',')})
-				}
-			}
+		if (hasPrivateHeaders) {
+			result += """
+				${dsl}.privateHeaders.setFrom(fileTree('headers') { include('**/*.h') })
+			"""
+		}
 
-			import ${CSourceSet.canonicalName}
-			import ${CppSourceSet.canonicalName}
-			import ${ObjectiveCSourceSet.canonicalName}
-			import ${ObjectiveCppSourceSet.canonicalName}
-			import ${SwiftSourceSet.canonicalName}
-			${componentUnderTestDsl}.sources.configureEach(CSourceSet) { filter.include('**/*.c') }
-			${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { filter.include('**/*.cpp') }
-			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { filter.include('**/*.m') }
-			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { filter.include('**/*.mm') }
-			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { filter.include('**/*.swift') }
-		""" + (legacy ? '' : """
-			${componentUnderTestDsl}.sources.configureEach(CSourceSet) { headers.setFrom('headers', 'includes') }
-			${componentUnderTestDsl}.sources.configureEach(CppSourceSet) { headers.setFrom('headers', 'includes') }
-			${componentUnderTestDsl}.sources.configureEach(ObjectiveCSourceSet) { headers.setFrom('headers', 'includes') }
-			${componentUnderTestDsl}.sources.configureEach(ObjectiveCppSourceSet) { headers.setFrom('headers', 'includes') }
-			${componentUnderTestDsl}.sources.configureEach(SwiftSourceSet) { headers.setFrom('headers', 'includes') }
-		""")
+		if (hasPublicHeaders) {
+			result += """
+				${dsl}.publicHeaders.setFrom(fileTree('includes') { include('**/*.h') })
+			"""
+		}
+
+		return result
 	}
 }
