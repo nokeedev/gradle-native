@@ -19,17 +19,20 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
 import dev.nokee.language.base.internal.SourceViewAdapter;
-import dev.nokee.language.nativebase.NativeHeaderSet;
+import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
+import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.nativebase.internal.NativeSourcesAwareTag;
+import dev.nokee.language.nativebase.internal.PrivateHeadersComponent;
+import dev.nokee.language.nativebase.internal.PublicHeadersComponent;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
+import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
+import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.SwiftSourceSet;
+import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
-import dev.nokee.model.HasName;
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.model.internal.DomainObjectIdentifierUtils;
 import dev.nokee.model.internal.actions.ModelAction;
-import dev.nokee.model.internal.actions.ModelSpec;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
@@ -37,6 +40,8 @@ import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.core.ModelSpecs;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryView;
 import dev.nokee.platform.base.BuildVariant;
@@ -100,19 +105,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static com.google.common.base.Predicates.instanceOf;
-import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.core.ModelNodeUtils.instantiate;
 import static dev.nokee.model.internal.core.ModelNodes.descendantOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.GradlePropertyTypes.property;
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.model.internal.type.ModelTypes.set;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.utils.TaskUtils.configureDependsOn;
-import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.toList;
 
 @DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
@@ -241,24 +244,18 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 				return it + StringUtils.capitalize(getIdentifier().getName().get());
 			}));
 
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
-			registry.instantiate(ModelAction.whenElementKnown(ModelSpec.descendantOf(component.getNode().getId()), LanguageSourceSet.class, knownSourceSet -> {
-				// TODO: should have a way to report the public type of the "main" projection
-				//   The known and provider should use the public type of the projection... instead of the "assumed type"
-				//   BUT should it... seems a bit hacky... check what Software Model did.
-				val sourceSetType = (Class<? extends LanguageSourceSet>) knownSourceSet.getType();
-				// If source set don't already exists on test suite
-				if (!modelLookup.anyMatch(ModelSpecs.of(descendantOf(ModelNodeUtils.getPath(getNode())).and(withType(of(sourceSetType)))))) {
-					// HACK: SourceSet in this world are quite messed up, the refactor around the source management that will be coming soon don't have this problem.
-					val identifier = getNode().get(IdentifierComponent.class).get();
-					if (NativeHeaderSet.class.isAssignableFrom(sourceSetType)) {
-						// NOTE: Ensure we are using the "headers" name as the tested component may also contains "public"
-						registry.register(newEntity("headers", sourceSetType, it -> it.ownedBy(getNode())));
-					} else {
-						registry.register(newEntity(((HasName) knownSourceSet.getIdentifier()).getName().toString(), sourceSetType, it -> it.ownedBy(getNode())));
-					}
-				}
-			}));
+			// TODO: We won't need this once testSuites container will be maintained on component themselves
+			if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportCSourceSetTag.class))) {
+				ModelNodes.of(this).addComponent(tag(SupportCSourceSetTag.class));
+			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportCppSourceSetTag.class))) {
+				ModelNodes.of(this).addComponent(tag(SupportCppSourceSetTag.class));
+			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportObjectiveCSourceSetTag.class))) {
+				ModelNodes.of(this).addComponent(tag(SupportObjectiveCSourceSetTag.class));
+			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportObjectiveCppSourceSetTag.class))) {
+				ModelNodes.of(this).addComponent(tag(SupportObjectiveCppSourceSetTag.class));
+			} else if (ModelNodes.of(component).hasComponent(ModelTags.typeOf(SupportSwiftSourceSetTag.class))) {
+				ModelNodes.of(this).addComponent(tag(SupportSwiftSourceSetTag.class));
+			}
 			if (component instanceof BaseNativeComponent) {
 				val testedComponentDependencies = ((BaseNativeComponent<?>) component).getDependencies();
 				getDependencies().getImplementation().getAsConfiguration().extendsFrom(testedComponentDependencies.getImplementation().getAsConfiguration());
@@ -322,7 +319,14 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 					task.getModules().from(component.getDevelopmentVariant().map(it -> it.getBinaries().withType(NativeBinary.class).getElements().get().stream().flatMap(b -> b.getCompileTasks().withType(SwiftCompileTask.class).get().stream()).map(SwiftCompile::getModuleFile).collect(toList())));
 				});
 				binary.getCompileTasks().configureEach(NativeSourceCompileTask.class, task -> {
-					((AbstractNativeSourceCompileTask)task).getIncludes().from(sourceViewOf(component).filter(instanceOf(NativeHeaderSet.class)::test).map(transformEach(LanguageSourceSet::getSourceDirectories)));
+					((AbstractNativeSourceCompileTask)task).getIncludes().from((Callable<?>) () -> {
+						ModelStates.finalize(ModelNodes.of(component));
+
+						val builder = ImmutableList.builder();
+						ModelNodes.of(component).find(PrivateHeadersComponent.class).ifPresent(it -> builder.add(it.get()));
+						ModelNodes.of(component).find(PublicHeadersComponent.class).ifPresent(it -> builder.add(it.get()));
+						return builder.build();
+					});
 				});
 			});
 		}
