@@ -113,12 +113,12 @@ ifndef::txt-conventional-source-layout[]
 :txt-conventional-source-layout: pass:q,a[everything under *src/main/{language}*]
 endif::[]
 
-= {c-application} Custom Source File mixing source layout (appending)
-:summary: Set custom source file mixing source layout for a {c-application}.
+= {c-application} Mixing Source Layout
+:summary: Mixing source layout for a {c-application}.
 :type: sample-chapter
 :tags: sample, {application}, sources, native, {C}, gradle
 :category: {C}
-:description: See how to set the source file mixing source layout of {an application} implemented in {C} using the Gradle Nokee plugins.
+:description: See how to mix source layout in {an-application} implemented in {C} using the Gradle Nokee plugins.
 
 NOTE: You can open this sample inside an IDE using the https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer] or https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
