@@ -25,6 +25,9 @@ import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.HasPublicHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -93,7 +96,7 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultCppLibrary.class, project).create(identifier).withComponent(tag(SupportCppSourceSetTag.class)).build();
 	}
 
-	public static abstract class DefaultCppLibrary implements CppLibrary
+	public static abstract class DefaultCppLibrary implements CppLibrary, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
@@ -111,6 +114,13 @@ public class CppLibraryPlugin implements Plugin<Project> {
 		, HasPublicHeadersMixIn
 		, HasCppSourcesMixIn
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
 		@Override
 		public String toString() {
 			return "C++ library '" + getName() + "'";

@@ -22,6 +22,9 @@ import dev.nokee.language.swift.internal.plugins.HasSwiftSourcesMixIn;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -92,7 +95,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultSwiftLibrary.class, project).create(identifier).withComponent(tag(SupportSwiftSourceSetTag.class)).build();
 	}
 
-	public static abstract class DefaultSwiftLibrary implements SwiftLibrary
+	public static abstract class DefaultSwiftLibrary implements SwiftLibrary, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
@@ -108,6 +111,13 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		, HasAssembleTaskMixIn
 		, HasSwiftSourcesMixIn
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
 		@Override
 		public String toString() {
 			return "Swift library '" + getName() + "'";

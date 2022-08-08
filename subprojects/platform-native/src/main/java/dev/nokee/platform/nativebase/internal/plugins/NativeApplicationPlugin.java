@@ -24,6 +24,9 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -117,7 +120,7 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 	}
 
 	@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension
+	public static abstract class DefaultNativeApplicationExtension implements NativeApplicationExtension, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
@@ -131,5 +134,16 @@ public class NativeApplicationPlugin implements Plugin<Project> {
 		, ModelBackedHasBaseNameMixIn
 		, HasAssembleTaskMixIn
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
+		@Override
+		public String toString() {
+			return "native application '" + getName() + "'";
+		}
 	}
 }

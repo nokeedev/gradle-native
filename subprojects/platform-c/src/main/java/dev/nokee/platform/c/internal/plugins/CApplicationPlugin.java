@@ -24,6 +24,9 @@ import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.nativebase.internal.HasPrivateHeadersMixIn;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -92,7 +95,7 @@ public class CApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultCApplication.class, project).create(identifier).withComponent(tag(SupportCSourceSetTag.class)).build();
 	}
 
-	public static abstract class DefaultCApplication implements CApplication
+	public static abstract class DefaultCApplication implements CApplication, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
@@ -109,6 +112,13 @@ public class CApplicationPlugin implements Plugin<Project> {
 		, HasPrivateHeadersMixIn
 		, HasCSourcesMixIn
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
 		@Override
 		public String toString() {
 			return "C application '" + getName() + "'";

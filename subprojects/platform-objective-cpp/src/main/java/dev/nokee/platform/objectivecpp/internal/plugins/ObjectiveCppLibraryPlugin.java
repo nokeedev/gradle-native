@@ -25,6 +25,9 @@ import dev.nokee.language.objectivecpp.internal.HasObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -93,7 +96,7 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		return new NativeLibraryComponentModelRegistrationFactory(DefaultObjectiveCppLibrary.class, project).create(identifier).withComponent(tag(SupportObjectiveCppSourceSetTag.class)).build();
 	}
 
-	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary
+	public static abstract class DefaultObjectiveCppLibrary implements ObjectiveCppLibrary, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
@@ -111,6 +114,13 @@ public class ObjectiveCppLibraryPlugin implements Plugin<Project> {
 		, HasPrivateHeadersMixIn
 		, HasPublicHeadersMixIn
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
 		@Override
 		public String toString() {
 			return "Objective-C++ library '" + getName() + "'";
