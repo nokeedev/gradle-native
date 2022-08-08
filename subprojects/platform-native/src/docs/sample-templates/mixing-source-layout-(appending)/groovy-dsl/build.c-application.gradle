@@ -7,6 +7,6 @@ application {
 	cSources.from('sources/application.c')	// <3>
 	cSources.from('sources/greeter.c')	// <4>
 
-//	privateHeaders.from('src/main/headers') // default initially set by convention <4>
+//	privateHeaders.from('src/main/headers') // default initially set by convention <2>
 	privateHeaders.from('headers')
 }

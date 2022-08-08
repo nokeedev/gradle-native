@@ -7,6 +7,6 @@ application {
 	cppSources.from('sources/application.cpp')	// <3>
 	cppSources.from('sources/greeter.cpp')	// <4>
 
-//	privateHeaders.from('src/main/headers') // default initially set by convention <4>
+//	privateHeaders.from('src/main/headers') // default initially set by convention <2>
 	privateHeaders.from('headers')
 }

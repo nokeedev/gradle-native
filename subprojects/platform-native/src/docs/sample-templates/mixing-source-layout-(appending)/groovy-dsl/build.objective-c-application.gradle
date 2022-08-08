@@ -7,6 +7,6 @@ application {
 	objectiveCSources.from('sources/application.m')	// <3>
 	objectiveCSources.from('sources/greeter.m')	// <4>
 
-//	privateHeaders.from('src/main/headers') // default initially set by convention <4>
+//	privateHeaders.from('src/main/headers') // default initially set by convention <2>
 	privateHeaders.from('headers')
 }
