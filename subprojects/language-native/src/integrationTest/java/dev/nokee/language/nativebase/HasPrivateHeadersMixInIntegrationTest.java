@@ -29,6 +29,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareComponent;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareMixIn;
+import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import lombok.val;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -98,6 +99,7 @@ class HasPrivateHeadersMixInIntegrationTest {
 	}
 
 	@Test
+	@PluginRequirement.Require(type = ComponentModelBasePlugin.class)
 	void mountPropertyAsExtension() {
 		discover(entity).addComponent(tag(ExtensionAwareMixIn.Tag.class));
 		assertThat(entity.get(ExtensionAwareComponent.class).get().findByName("privateHeaders"),
