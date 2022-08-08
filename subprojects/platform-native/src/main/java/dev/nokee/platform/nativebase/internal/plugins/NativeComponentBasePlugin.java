@@ -29,6 +29,7 @@ import dev.nokee.language.objectivec.internal.plugins.ObjectiveCSourceSetSpec;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppSourceSetSpec;
 import dev.nokee.language.swift.SwiftSourceSet;
 import dev.nokee.language.swift.internal.plugins.ImportModulesConfigurationComponent;
+import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
@@ -394,7 +395,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			entity.addComponent(new LinkOnlyConfigurationComponent(ModelNodes.of(linkOnly)));
 			entity.addComponent(new RuntimeOnlyConfigurationComponent(ModelNodes.of(runtimeOnly)));
 
-			boolean hasSwift = project.getExtensions().getByType(ModelLookup.class).anyMatch(ModelSpecs.of(ModelNodes.withType(of(SwiftSourceSet.class))));
+			boolean hasSwift = Stream.concat(Stream.of(entity), ParentUtils.stream(parent)).anyMatch(it -> it.hasComponent(typeOf(SupportSwiftSourceSetTag.class)));
 			ModelElement apiElements = null;
 			if (hasSwift) {
 				apiElements = registry.register(newEntity("apiElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)));
