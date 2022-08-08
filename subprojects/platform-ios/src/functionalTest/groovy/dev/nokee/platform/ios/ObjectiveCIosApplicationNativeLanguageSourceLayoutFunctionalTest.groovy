@@ -21,8 +21,10 @@ import dev.nokee.language.objectivec.ObjectiveCTaskNames
 import dev.nokee.platform.ios.fixtures.IosTaskNames
 import dev.nokee.platform.ios.fixtures.ObjectiveCIosApp
 import org.junit.Assume
+import spock.lang.Ignore
 import spock.lang.Requires
 
+@Ignore
 @Requires({ os.macOs })
 class ObjectiveCIosApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements ObjectiveCTaskNames, IosTaskNames {
 	@Override

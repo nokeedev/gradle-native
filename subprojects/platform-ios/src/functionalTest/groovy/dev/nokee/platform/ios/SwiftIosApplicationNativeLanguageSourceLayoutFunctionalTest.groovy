@@ -23,8 +23,10 @@ import dev.nokee.language.swift.SwiftTaskNames
 import dev.nokee.platform.ios.fixtures.IosTaskNames
 import dev.nokee.platform.ios.fixtures.SwiftIosApp
 import org.junit.Assume
+import spock.lang.Ignore
 import spock.lang.Requires
 
+@Ignore
 @Requires({ os.macOs })
 @RequiresInstalledToolChain(ToolChainRequirement.SWIFTC)
 class SwiftIosApplicationNativeLanguageSourceLayoutFunctionalTest extends AbstractNativeLanguageSourceLayoutFunctionalTest implements SwiftTaskNames, IosTaskNames {
