@@ -46,7 +46,7 @@ class CApplicationComponentProjectDependenciesFunctionalTest extends AbstractNat
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -74,7 +74,7 @@ class CLibraryComponentProjectDependenciesFunctionalTest extends AbstractNativeC
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -91,7 +91,7 @@ class CLibraryComponentWithStaticLinkageProjectDependenciesFunctionalTest extend
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return []
+		return [tasks(':library').syncApiElements]
 	}
 
 	@Override
@@ -156,7 +156,7 @@ class CApplicationComponentIncludedBuildDependenciesFunctionalTest extends Abstr
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -187,7 +187,7 @@ class CLibraryComponentIncludedBuildDependenciesFunctionalTest extends AbstractN
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return tasks(":${libraryProjectName}").allToLink
+		return tasks(":${libraryProjectName}").allToLinkElements
 	}
 }
 
@@ -204,7 +204,7 @@ class CLibraryComponentWithStaticLinkageIncludedBuildDependenciesFunctionalTest 
 
 	@Override
 	protected List<String> getLibraryTasks() {
-		return []
+		return [tasks(':library').syncApiElements]
 	}
 
 	@Override

@@ -34,6 +34,8 @@ public interface NativeProjectTasks {
 
 	String getAssemble();
 
+	String getSyncApiElements();
+
 	List<String> getAllToObjects();
 
 	List<String> getAllToLifecycleObjects();
@@ -41,6 +43,8 @@ public interface NativeProjectTasks {
 	List<String> getAllToCreate();
 
 	List<String> getAllToLink();
+
+	List<String> getAllToLinkElements();
 
 	List<String> getAllToLinkOrCreate();
 

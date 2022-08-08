@@ -95,7 +95,7 @@ abstract class AbstractNativeComponentBuildTypeFunctionalTest extends AbstractIn
 		succeeds(':assemble')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.withBuildType('debug').allToLink, tasks(':library').allToLink, tasks.assemble)
+		result.assertTasksExecutedAndNotSkipped(tasks.withBuildType('debug').allToLink, tasks(':library').allToLinkElements, tasks.assemble)
 	}
 
 	def "can consume dependencies with matching build types"() {
@@ -119,7 +119,7 @@ abstract class AbstractNativeComponentBuildTypeFunctionalTest extends AbstractIn
 		succeeds(':assembleRelease')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.withBuildType('release').allToAssemble, tasks(':library').withBuildType('release').allToLink)
+		result.assertTasksExecutedAndNotSkipped(tasks.withBuildType('release').allToAssemble, tasks(':library').withBuildType('release').allToLinkElements)
 	}
 
 	@Ignore('Default to debug')
@@ -139,7 +139,7 @@ abstract class AbstractNativeComponentBuildTypeFunctionalTest extends AbstractIn
 		succeeds(':assemble')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.allToLink, tasks(':library').withBuildType('debug').allToLink, tasks.assemble)
+		result.assertTasksExecutedAndNotSkipped(tasks.allToLink, tasks(':library').withBuildType('debug').allToLinkElements, tasks.assemble)
 	}
 
 	def "can choose which build type to consume"() {
@@ -158,7 +158,7 @@ abstract class AbstractNativeComponentBuildTypeFunctionalTest extends AbstractIn
 		def result = succeeds(':assemble')
 
 		then:
-		result.assertTasksExecutedAndNotSkipped(tasks.allToLink, tasks(':library').withBuildType('release').allToLink, tasks.assemble)
+		result.assertTasksExecutedAndNotSkipped(tasks.allToLink, tasks(':library').withBuildType('release').allToLinkElements, tasks.assemble)
 	}
 
 	def "can configure specific build type"() {
