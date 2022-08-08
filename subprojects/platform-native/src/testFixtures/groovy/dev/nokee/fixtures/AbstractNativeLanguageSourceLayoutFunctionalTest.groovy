@@ -131,7 +131,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				${componentUnderTestDsl}.swiftSources.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.swift') })
 			}
 		"""
-		if (this.class.simpleName.contains('Library') && !this.class.simpleName.contains('Swift')) {
+		if (this.class.simpleName.contains('Library') && !this.class.simpleName.contains('Swift') && !this.class.simpleName.contains('Jni')) {
 			buildFile << """
 				${componentUnderTestDsl}.publicHeaders.setFrom(files(generatedSources.map { it.outputDir.get() }).asFileTree.matching { include('**/*.h') })
 			"""
@@ -253,7 +253,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 
 	protected abstract void makeProjectWithLibrary()
 
-	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl, boolean isLibrary = this.class.simpleName.contains('Library')) {
+	protected String configureSourcesAsConvention(String dsl = componentUnderTestDsl, boolean isLibrary = this.class.simpleName.contains('Library') && !this.class.simpleName.contains("Jni")) {
 		return """
 			pluginManager.withPlugin('java') {
 				sourceSets.main.java.setSrcDirs([])
@@ -318,7 +318,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 			languageName = 'c'
 		}
 
-		def hasPublicHeaders = className.contains('Library') && languageName != 'swift'
+		def hasPublicHeaders = className.contains('Library') && !className.contains('Jni') && languageName != 'swift'
 		def hasPrivateHeaders = languageName != 'swift'
 
 		def result = """
@@ -338,7 +338,7 @@ abstract class AbstractNativeLanguageSourceLayoutFunctionalTest extends Abstract
 				sourceSets.main.kotlin.srcDir('srcs')
 			}
 
-			${dsl}.${languageName}Sources.setFrom(${ofSources(componentUnderTest).files.collect { "'srcs/${it.name}'" }.join(',')})
+			${dsl}.${languageName}Sources.setFrom(files(${ofSources(componentUnderTest).files.collect { "'srcs/${it.name}'" }.join(',')}).asFileTree.matching { exclude('**/*.java', '**/*.groovy', '**/*.kt') })
 		"""
 
 		if (hasPrivateHeaders) {
