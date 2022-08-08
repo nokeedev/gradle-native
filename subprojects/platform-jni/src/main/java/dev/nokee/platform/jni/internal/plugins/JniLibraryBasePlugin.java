@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import dev.nokee.language.base.internal.plugins.LanguageBasePlugin;
+import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
+import dev.nokee.language.cpp.internal.plugins.SupportCppSourceSetTag;
 import dev.nokee.language.jvm.GroovySourceSet;
 import dev.nokee.language.jvm.JavaSourceSet;
 import dev.nokee.language.jvm.KotlinSourceSet;
@@ -39,6 +41,8 @@ import dev.nokee.language.nativebase.internal.NativePlatformFactory;
 import dev.nokee.language.nativebase.internal.ToolChainSelectorInternal;
 import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChainsPlugin;
 import dev.nokee.language.nativebase.tasks.internal.NativeSourceCompileTask;
+import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
+import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -266,6 +270,13 @@ public class JniLibraryBasePlugin implements Plugin<Project> {
 				registry.register(newEntity("runtimeOnly", DeclarableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
 					.configure(Configuration.class, configureExtendsFrom(runtimeOnly.as(Configuration.class)));
 			});
+		})));
+		// TODO: When discovery will be a real feature, we shouldn't need this anymore
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(JniLibraryComponentInternal.class), (entity, ignored) -> {
+			project.getPluginManager().withPlugin("dev.nokee.c-language", __ -> entity.addComponent(tag(SupportCSourceSetTag.class)));
+			project.getPluginManager().withPlugin("dev.nokee.cpp-language", __ -> entity.addComponent(tag(SupportCppSourceSetTag.class)));
+			project.getPluginManager().withPlugin("dev.nokee.objective-c-language", __ -> entity.addComponent(tag(SupportObjectiveCSourceSetTag.class)));
+			project.getPluginManager().withPlugin("dev.nokee.objective-cpp-language", __ -> entity.addComponent(tag(SupportObjectiveCppSourceSetTag.class)));
 		})));
 		// ComponentFromEntity<GradlePropertyComponent> read-write on DevelopmentVariantPropertyComponent
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(DevelopmentVariantPropertyComponent.class), ModelTags.referenceOf(JniLibraryComponentTag.class), (entity, developmentVariant, ignored1) -> {
