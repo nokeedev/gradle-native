@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.jni;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.internal.testing.AbstractPluginTest;
 import dev.nokee.internal.testing.PluginRequirement;
 import dev.nokee.language.nativebase.HasHeaders;
@@ -29,6 +30,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DefaultBuildVariant;
 import dev.nokee.platform.base.internal.VariantIdentifier;
+import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryComponentRegistrationFactory;
 import dev.nokee.platform.jni.internal.JavaNativeInterfaceLibraryVariantRegistrationFactory;
 import lombok.val;
 import org.gradle.api.Task;
@@ -55,12 +57,14 @@ class JavaNativeInterfaceLibraryVariantObjectiveCppLanguagePluginIntegrationTest
 
 	@BeforeEach
 	void createSubject() {
+		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryComponentRegistrationFactory.class);
 		val registry = project.getExtensions().getByType(ModelRegistry.class);
 		val componentIdentifier = ComponentIdentifier.of("xapi", ProjectIdentifier.of(project));
-		registry.register(ModelRegistration.builder().withComponent(new IdentifierComponent(componentIdentifier)).withComponent(new FullyQualifiedNameComponent("xapi")).build());
-		val factory = project.getExtensions().getByType(JavaNativeInterfaceLibraryVariantRegistrationFactory.class);
-		val variantIdentifier = VariantIdentifier.of(DefaultBuildVariant.of(of("linux-x64")), componentIdentifier);
-		subject = registry.register(factory.create(variantIdentifier)).as(JniLibrary.class).get();
+		subject = registry.register(factory.create(componentIdentifier))
+			.as(JavaNativeInterfaceLibrary.class)
+			.configure(it -> it.getTargetMachines().set(ImmutableSet.of(it.getMachines().getLinux().architecture("x64"), it.getMachines().getWindows().getX86())))
+			.map(it -> it.getVariants().get().iterator().next())
+			.get();
 	}
 
 	@Test
