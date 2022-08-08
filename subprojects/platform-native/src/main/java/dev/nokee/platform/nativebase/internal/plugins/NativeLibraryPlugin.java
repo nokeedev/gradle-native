@@ -24,6 +24,9 @@ import dev.nokee.language.nativebase.internal.toolchains.NokeeStandardToolChains
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.IdentifierComponent;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -102,7 +105,7 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 	}
 
 	@DomainObjectEntities.Tag(NativeSourcesAwareTag.class)
-	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension
+	public static abstract class DefaultNativeLibraryExtension implements NativeLibraryExtension, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeLibraryComponentDependencies, ModelBackedNativeLibraryComponentDependencies>
@@ -117,6 +120,17 @@ public class NativeLibraryPlugin implements Plugin<Project> {
 		, HasAssembleTaskMixIn
 		, HasDevelopmentVariantMixIn<NativeLibrary>
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
+		@Override
+		public String toString() {
+			return "native library '" + getName() + "'";
+		}
 	}
 
 	public static ModelRegistration nativeLibraryVariant(VariantIdentifier identifier, DefaultNativeLibraryComponent component, Project project) {

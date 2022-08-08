@@ -24,6 +24,9 @@ import dev.nokee.language.objectivecpp.internal.HasObjectiveCppSourcesMixIn;
 import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBasePlugin;
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -92,7 +95,7 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		return new NativeApplicationComponentModelRegistrationFactory(DefaultObjectiveCppApplication.class, project).create(identifier).withComponent(tag(SupportObjectiveCppSourceSetTag.class)).build();
 	}
 
-	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication
+	public static abstract class DefaultObjectiveCppApplication implements ObjectiveCppApplication, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeApplicationComponentDependencies, ModelBackedNativeApplicationComponentDependencies>
@@ -109,6 +112,13 @@ public class ObjectiveCppApplicationPlugin implements Plugin<Project> {
 		, HasObjectiveCppSourcesMixIn
 		, HasPrivateHeadersMixIn
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
 		@Override
 		public String toString() {
 			return "Objective-C++ application '" + getName() + "'";

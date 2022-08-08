@@ -21,6 +21,9 @@ import dev.nokee.language.objectivec.internal.HasObjectiveCSourcesMixIn;
 import dev.nokee.language.objectivec.internal.plugins.ObjectiveCLanguageBasePlugin;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -114,7 +117,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		return new IosApplicationComponentModelRegistrationFactory(DefaultObjectiveCIosApplication.class, project).create(identifier).withComponent(tag(SupportObjectiveCSourceSetTag.class)).build();
 	}
 
-	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication
+	public static abstract class DefaultObjectiveCIosApplication implements ObjectiveCIosApplication, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
@@ -131,5 +134,16 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		, HasObjectiveCSourcesMixIn
 		, HasPrivateHeadersMixIn
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
+		@Override
+		public String toString() {
+			return "Objective-C iOS application '" + getName() + "'";
+		}
 	}
 }

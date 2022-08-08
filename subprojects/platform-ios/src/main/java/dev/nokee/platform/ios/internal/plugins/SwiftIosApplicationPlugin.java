@@ -19,6 +19,9 @@ import dev.nokee.language.swift.internal.plugins.HasSwiftSourcesMixIn;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
 import dev.nokee.model.internal.ProjectIdentifier;
+import dev.nokee.model.internal.core.ModelNode;
+import dev.nokee.model.internal.core.ModelNodeAware;
+import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
@@ -92,7 +95,7 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		return new IosApplicationComponentModelRegistrationFactory(DefaultSwiftIosApplication.class, project).create(identifier).withComponent(tag(SupportSwiftSourceSetTag.class)).build();
 	}
 
-	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication
+	public static abstract class DefaultSwiftIosApplication implements SwiftIosApplication, ModelNodeAware
 		, ComponentMixIn
 		, ExtensionAwareMixIn
 		, ModelBackedDependencyAwareComponentMixIn<NativeComponentDependencies, ModelBackedNativeComponentDependencies>
@@ -108,5 +111,16 @@ public class SwiftIosApplicationPlugin implements Plugin<Project> {
 		, HasDevelopmentVariantMixIn<IosApplication>
 		, HasSwiftSourcesMixIn
 	{
+		private final ModelNode entity = ModelNodeContext.getCurrentModelNode();
+
+		@Override
+		public ModelNode getNode() {
+			return entity;
+		}
+
+		@Override
+		public String toString() {
+			return "Swift iOS application '" + getName() + "'";
+		}
 	}
 }
