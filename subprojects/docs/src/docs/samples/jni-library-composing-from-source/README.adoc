@@ -162,7 +162,7 @@ To build the library:
 $ ./gradlew assemble
 
 BUILD SUCCESSFUL
-9 actionable tasks: 9 executed
+10 actionable tasks: 10 executed
 ----
 
 All the native runtime dependencies will be packaged inside the generated JAR:
