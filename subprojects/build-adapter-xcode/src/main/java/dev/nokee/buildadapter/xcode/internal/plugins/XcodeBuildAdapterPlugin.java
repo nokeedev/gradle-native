@@ -15,6 +15,16 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.model.internal.core.ModelActionWithInputs;
+import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelPath;
+import dev.nokee.model.internal.core.ModelRegistration;
+import dev.nokee.model.internal.core.ParentComponent;
+import dev.nokee.model.internal.names.ElementNameComponent;
+import dev.nokee.model.internal.registry.ModelConfigurer;
+import dev.nokee.model.internal.registry.ModelLookup;
+import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
@@ -128,12 +138,27 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 	private static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
+			project.getPluginManager().apply(ComponentModelBasePlugin.class);
+
 			@SuppressWarnings("unchecked")
 			final Provider<XcodeImplicitDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeImplicitDependenciesService, XcodeImplicitDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName("implicitDependencies")).flatMap(BuildServiceRegistration::getService);
-			val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.parameters(p -> {
-				p.getProject().set(reference);
-			}))).get();
-			xcodeProject.getTargets().forEach(target -> {
+
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
+				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.parameters(p -> {
+					p.getProject().set(reference);
+				}))).get();
+				xcodeProject.getTargets().forEach(target -> {
+					project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
+						.withComponent(new ElementNameComponent(target.getName()))
+						.withComponent(new XCTargetComponent(target))
+						.withComponent(new ParentComponent(entity))
+						.build());
+				});
+			}));
+
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), (entity, xcTarget) -> {
+				val target = xcTarget.get();
+
 				val derivedData = project.getConfigurations().create(target.getName() + "DerivedData", configuration -> {
 					configuration.setCanBeConsumed(false);
 					configuration.setCanBeResolved(true);
@@ -204,16 +229,23 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
 					});
 				});
-			});
-			xcodeProject.getSchemeNames().forEach(schemeName -> {
-				project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeProjectSchemeExecTask.class, task -> {
-					task.setGroup("Xcode Scheme");
-					task.getXcodeProject().set(reference);
-					task.getSchemeName().set(schemeName);
-					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
-					action.execute(task);
+			}));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
+				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.parameters(p -> {
+					p.getProject().set(xcProject.get());
+				}))).get();
+				xcodeProject.getSchemeNames().forEach(schemeName -> {
+					project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeProjectSchemeExecTask.class, task -> {
+						task.setGroup("Xcode Scheme");
+						task.getXcodeProject().set(xcProject.get());
+						task.getSchemeName().set(schemeName);
+						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
+						action.execute(task);
+					});
 				});
-			});
+			}));
+
+			project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new XCProjectComponent(reference));
 		};
 	}
 
