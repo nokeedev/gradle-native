@@ -101,7 +101,7 @@ public abstract class DependencyBucketCapabilityPlugin<T extends ExtensionAware 
 
 		// ComponentFromEntity<ParentComponent> read-only self
 		target.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(IsDependencyBucket.class), ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(DisplayNameComponent.class), ModelComponentReference.of(ElementNameComponent.class), (entity, ignored1, path, displayName, elementName) -> {
-			val parentIdentifier = entity.find(ParentComponent.class).map(parent -> parent.get().get(IdentifierComponent.class).get()).orElse(null);
+			val parentIdentifier = entity.find(ParentComponent.class).flatMap(parent -> parent.get().find(IdentifierComponent.class)).map(IdentifierComponent::get).orElse(null);
 			entity.addComponent(new IdentifierComponent(new DefaultDomainObjectIdentifier(elementName.get(), parentIdentifier, displayName.get(), path.get())));
 		}));
 
