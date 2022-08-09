@@ -24,7 +24,12 @@ import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
+import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
+import dev.nokee.platform.base.internal.plugins.OnDiscover;
+import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
@@ -38,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.attributes.Usage;
@@ -156,80 +162,86 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				});
 			}));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), (entity, xcTarget) -> {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), (entity, xcTarget) -> {
 				val target = xcTarget.get();
 
-				val derivedData = project.getConfigurations().create(target.getName() + "DerivedData", configuration -> {
-					configuration.setCanBeConsumed(false);
-					configuration.setCanBeResolved(true);
-					configuration.attributes(attributes -> {
-						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
+				val derivedData = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("derivedData", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
+						});
+					})
+					.configure(configuration -> {
+						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+							return allInputFiles(target.load()).map(it::findTarget).filter(Objects::nonNull).map(t -> {
+								val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
+								dep.capabilities(capabilities -> {
+									capabilities.requireCapability("net.nokeedev.xcode:" + t.getName() + ":1.0");
+								});
+								return dep;
+							}).collect(Collectors.toList());
+						}).orElse(Collections.emptyList()))));
 					});
-					configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-						return allInputFiles(target.load()).map(it::findTarget).filter(Objects::nonNull).map(t -> {
-							val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
-							dep.capabilities(capabilities -> {
-								capabilities.requireCapability("net.nokeedev.xcode:" + t.getName() + ":1.0");
-							});
-							return dep;
-						}).collect(Collectors.toList());
-					}).orElse(Collections.emptyList()))));
-				});
 
-				val targetTask = project.getTasks().register(target.getName(), XcodeTargetExecTask.class, task -> {
-					task.setGroup("Xcode Target");
-					task.getXcodeProject().set(reference);
-					task.getTargetName().set(target.getName());
-					task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
-					task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
-					task.getInputDerivedData().from(derivedData);
-					task.getInputFiles().from((Callable<Object>) () -> allInputFiles(target.load()).filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
-						@Override
-						public Path getSourceRoot() {
-							return reference.getLocation().getParent();
-						}
+				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
+					.as(XcodeTargetExecTask.class)
+					.configure(task -> {
+						task.setGroup("Xcode Target");
+						task.getXcodeProject().set(reference);
+						task.getTargetName().set(target.getName());
+						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
+						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
+						task.getInputDerivedData().from(derivedData);
+						task.getInputFiles().from((Callable<Object>) () -> allInputFiles(target.load()).filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
+							@Override
+							public Path getSourceRoot() {
+								return reference.getLocation().getParent();
+							}
 
-						@Override
-						public Path getBuiltProductDirectory() {
-							// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
-							// TODO: Guard against the missing derived data path
-							// TODO: We should map derived data path as a collection of build settings via helper method
-							return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().toPath();
-						}
+							@Override
+							public Path getBuiltProductDirectory() {
+								// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
+								// TODO: Guard against the missing derived data path
+								// TODO: We should map derived data path as a collection of build settings via helper method
+								return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().toPath();
+							}
 
-						@Override
-						public Path getSdkRoot() {
-							// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
-							return task.getSdk().map(it -> {
-								if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
-									return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toPath();
-								}
-								return null;
-							}).get();
-						}
+							@Override
+							public Path getSdkRoot() {
+								// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
+								return task.getSdk().map(it -> {
+									if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
+										return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toPath();
+									}
+									return null;
+								}).get();
+							}
 
-						@Override
-						public Path getDeveloperDirectory() {
-							// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
-							return new File("/Applications/Xcode.app/Contents/Developer").toPath();
-						}
-					})).collect(Collectors.toList()));
-					task.getInputFiles().finalizeValueOnRead();
-					action.execute(task);
-				});
-
-				project.getConfigurations().create(target.getName() + "Elements", configuration -> {
-					configuration.setCanBeConsumed(true);
-					configuration.setCanBeResolved(false);
-					configuration.attributes(attributes -> {
-						attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
+							@Override
+							public Path getDeveloperDirectory() {
+								// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
+								return new File("/Applications/Xcode.app/Contents/Developer").toPath();
+							}
+						})).collect(Collectors.toList()));
+						task.getInputFiles().finalizeValueOnRead();
+						action.execute(task);
 					});
-					configuration.outgoing(outgoing -> {
-						outgoing.capability("net.nokeedev.xcode:" + target.getName() + ":1.0");
-						outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
+
+				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("DerivedDataElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
+					.as(Configuration.class)
+					.configure(configuration -> {
+						configuration.attributes(attributes -> {
+							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
+						});
+					})
+					.configure(configuration -> {
+						configuration.outgoing(outgoing -> {
+							outgoing.capability("net.nokeedev.xcode:" + target.getName() + ":1.0");
+							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
+						});
 					});
-				});
-			}));
+			})));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
 				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.parameters(p -> {
 					p.getProject().set(xcProject.get());
