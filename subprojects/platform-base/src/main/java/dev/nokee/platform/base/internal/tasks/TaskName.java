@@ -59,9 +59,13 @@ public final class TaskName implements ElementName {
 
 	@Override
 	public String toQualifiedName(QualifyingName qualifyingName) {
-		return verb + Stream.of(qualifyingName.toString(), object == null ? "" : object)
-			.map(StringUtils::capitalize)
-			.collect(Collectors.joining());
+		if (verb.isEmpty()) {
+			return qualifyingName.toString();
+		} else {
+			return verb + Stream.of(qualifyingName.toString(), object == null ? "" : object)
+				.map(StringUtils::capitalize)
+				.collect(Collectors.joining());
+		}
 	}
 
 	public static TaskName of(String taskName) {

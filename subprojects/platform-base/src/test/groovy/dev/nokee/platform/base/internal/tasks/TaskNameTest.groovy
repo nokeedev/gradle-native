@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base.internal.tasks
 
+import dev.nokee.model.internal.names.QualifyingName
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -161,5 +162,11 @@ class TaskNameTest extends Specification {
 	def "can create task name string using verb and object directly"() {
 		expect:
 		TaskName.taskName('foo', 'bar') == 'fooBar'
+	}
+
+	def "does not capitalize qualifying name on lifecycle tasks"() {
+		expect:
+		TaskName.lifecycle().toQualifiedName(QualifyingName.of('test')) == 'test'
+		TaskName.lifecycle().toQualifiedName(QualifyingName.of('Test')) == 'Test'
 	}
 }
