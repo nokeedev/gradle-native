@@ -34,6 +34,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.xcode.objects.files.PBXSourceTree.ABSOLUTE;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.BUILT_PRODUCTS_DIR;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.DEVELOPER_DIR;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.GROUP;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.SDKROOT;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.SOURCE_ROOT;
 
 @EqualsAndHashCode
@@ -129,14 +134,20 @@ public final class XCTargetReference implements Serializable {
 				}
 			}
 
-			switch (node.sourceTree) {
-				case GROUP: break; // continue looping
-				case ABSOLUTE: return XCFileReference.absoluteFile(path);
-				case BUILT_PRODUCTS_DIR: return XCFileReference.builtProduct(path);
-				case SOURCE_ROOT: return XCFileReference.sourceRoot(path);
-				case SDKROOT: return XCFileReference.sdkRoot(path);
-				case DEVELOPER_DIR: return XCFileReference.developer(path);
-				default: throw new UnsupportedOperationException("Source tree not supported! (" + node.sourceTree + ")");
+			if (GROUP.equals(node.sourceTree)) {
+				// continue looping
+			} else if (ABSOLUTE.equals(node.sourceTree)) {
+				return XCFileReference.absoluteFile(path);
+			} else if (BUILT_PRODUCTS_DIR.equals(node.sourceTree)) {
+				return XCFileReference.builtProduct(path);
+			} else if (SOURCE_ROOT.equals(node.sourceTree)) {
+				return XCFileReference.sourceRoot(path);
+			} else if (SDKROOT.equals(node.sourceTree)) {
+				return XCFileReference.sdkRoot(path);
+			} else if (DEVELOPER_DIR.equals(node.sourceTree)) {
+				return XCFileReference.developer(path);
+			} else {
+				throw new UnsupportedOperationException("Source tree not supported! (" + node.sourceTree + ")");
 			}
 		} while ((node = node.previous) != null);
 

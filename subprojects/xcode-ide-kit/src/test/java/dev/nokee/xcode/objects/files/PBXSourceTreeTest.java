@@ -15,39 +15,61 @@
  */
 package dev.nokee.xcode.objects.files;
 
+import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.xcode.objects.files.PBXSourceTree.ABSOLUTE;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.BUILT_PRODUCTS_DIR;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.DEVELOPER_DIR;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.GROUP;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.SDKROOT;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.SOURCE_ROOT;
+import static dev.nokee.xcode.objects.files.PBXSourceTree.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
 
 class PBXSourceTreeTest {
 	@Test
 	void hasGroupSourceTree() {
-		assertThat(PBXSourceTree.GROUP, hasToString("<group>"));
+		assertThat(GROUP, hasToString("<group>"));
 	}
 
 	@Test
 	void hasAbsoluteSourceTree() {
-		assertThat(PBXSourceTree.ABSOLUTE, hasToString("<absolute>"));
+		assertThat(ABSOLUTE, hasToString("<absolute>"));
 	}
 
 	@Test
 	void hasBuiltProductDirSourceTree() {
-		assertThat(PBXSourceTree.BUILT_PRODUCTS_DIR, hasToString("BUILT_PRODUCTS_DIR"));
+		assertThat(BUILT_PRODUCTS_DIR, hasToString("BUILT_PRODUCTS_DIR"));
 	}
 
 	@Test
 	void hasSdkRootSourceTree() {
-		assertThat(PBXSourceTree.SDKROOT, hasToString("SDKROOT"));
+		assertThat(SDKROOT, hasToString("SDKROOT"));
 	}
 
 	@Test
 	void hasSourceRootSourceTree() {
-		assertThat(PBXSourceTree.SOURCE_ROOT, hasToString("SOURCE_ROOT"));
+		assertThat(SOURCE_ROOT, hasToString("SOURCE_ROOT"));
 	}
 
 	@Test
 	void hasDeveloperDirSourceTree() {
-		assertThat(PBXSourceTree.DEVELOPER_DIR, hasToString("DEVELOPER_DIR"));
+		assertThat(DEVELOPER_DIR, hasToString("DEVELOPER_DIR"));
+	}
+
+	@Test
+	@SuppressWarnings("UnstableApiUsage")
+	void checkEquals() {
+		new EqualsTester()
+			.addEqualityGroup(GROUP, of("<group>"))
+			.addEqualityGroup(ABSOLUTE, of("<absolute>"))
+			.addEqualityGroup(BUILT_PRODUCTS_DIR, of("BUILT_PRODUCTS_DIR"))
+			.addEqualityGroup(SDKROOT, of("SDKROOT"))
+			.addEqualityGroup(SOURCE_ROOT, of("SOURCE_ROOT"))
+			.addEqualityGroup(DEVELOPER_DIR, of("DEVELOPER_DIR"))
+			.addEqualityGroup(of("FOO"), of("FOO"))
+			.testEquals();
 	}
 }

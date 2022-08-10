@@ -16,48 +16,52 @@
 package dev.nokee.xcode.objects.files;
 
 import com.google.common.base.CharMatcher;
+import lombok.EqualsAndHashCode;
 
-import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Represents the "Location" dropdown in Xcode's File Inspector.
  */
-public enum PBXSourceTree {
+@EqualsAndHashCode
+public final class PBXSourceTree {
+	private static final ConcurrentMap<String, PBXSourceTree> knownValues = new ConcurrentHashMap<>();
+
 	/**
 	 * Relative to the path of the group containing this.
 	 */
-	GROUP("<group>"),
+	public static final PBXSourceTree GROUP = of("<group>");
 
 	/**
 	 * Absolute system path.
 	 */
-	ABSOLUTE("<absolute>"),
+	public static final PBXSourceTree ABSOLUTE = of("<absolute>");
 	/**
 	 * Relative to the build setting {@code BUILT_PRODUCTS_DIR}.
 	 */
-	BUILT_PRODUCTS_DIR("BUILT_PRODUCTS_DIR"),
+	public static final PBXSourceTree BUILT_PRODUCTS_DIR = of("BUILT_PRODUCTS_DIR");
 
 	/**
 	 * Relative to the build setting {@code SDKROOT}.
 	 */
-	SDKROOT("SDKROOT"),
+	public static final PBXSourceTree SDKROOT = of("SDKROOT");
 
 	/**
 	 * Relative to the directory containing the project file {@code SOURCE_ROOT}.
 	 */
-	SOURCE_ROOT("SOURCE_ROOT"),
+	public static final PBXSourceTree SOURCE_ROOT = of("SOURCE_ROOT");
 
 	/**
 	 * Relative to the Developer content directory inside the Xcode application
 	 * (e.g. {@code /Applications/Xcode.app/Contents/Developer}).
 	 */
-	DEVELOPER_DIR("DEVELOPER_DIR"),
-	;
+	public static final PBXSourceTree DEVELOPER_DIR = of("DEVELOPER_DIR");
 
 	private final String rep;
 
-	PBXSourceTree(String str) {
+	private PBXSourceTree(String str) {
 		rep = str;
 	}
 
@@ -85,9 +89,8 @@ public enum PBXSourceTree {
 		}
 	}
 
-	// FIXME
-	public static Optional<PBXSourceTree> of(String name) {
-		return Arrays.stream(values()).filter(it -> it.rep.equals(name)).findFirst();
+	public static PBXSourceTree of(String name) {
+		return knownValues.computeIfAbsent(name, PBXSourceTree::new);
 	}
 
 	@Override

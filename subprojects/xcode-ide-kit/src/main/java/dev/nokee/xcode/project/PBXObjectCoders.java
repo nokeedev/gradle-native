@@ -47,8 +47,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Streams.stream;
 import static dev.nokee.xcode.objects.configuration.XCConfigurationList.DefaultConfigurationVisibility.HIDDEN;
@@ -159,7 +157,7 @@ final class PBXObjectCoders {
 			val builder = PBXFileReference.builder();
 			decoder.decodeStringIfPresent("name", builder::name);
 			decoder.decodeStringIfPresent("path", builder::path);
-			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it).orElseThrow(newUnknownSourceTreeException(it))));
+			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it)));
 			return builder.build();
 		}
 
@@ -185,7 +183,7 @@ final class PBXObjectCoders {
 			val builder = PBXGroup.builder();
 			decoder.decodeStringIfPresent("name", builder::name);
 			decoder.decodeStringIfPresent("path", builder::path);
-			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it).orElseThrow(newUnknownSourceTreeException(it))));
+			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it)));
 			decoder.decodeObjectsIfPresent("children", builder::children);
 			return builder.build();
 		}
@@ -216,7 +214,7 @@ final class PBXObjectCoders {
 			val builder = PBXVariantGroup.builder();
 			decoder.decodeStringIfPresent("name", builder::name);
 			decoder.decodeStringIfPresent("path", builder::path);
-			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it).orElseThrow(newUnknownSourceTreeException(it))));
+			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it)));
 			decoder.decodeObjectsIfPresent("children", builder::children);
 			return builder.build();
 		}
@@ -247,7 +245,7 @@ final class PBXObjectCoders {
 			val builder = XCVersionGroup.builder();
 			decoder.decodeStringIfPresent("name", builder::name);
 			decoder.decodeStringIfPresent("path", builder::path);
-			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it).orElseThrow(newUnknownSourceTreeException(it))));
+			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it)));
 			decoder.decodeObjectsIfPresent("children", builder::children);
 			return builder.build();
 		}
@@ -585,9 +583,5 @@ final class PBXObjectCoders {
 				encoder.encodeMap("settings", value.getSettings());
 			}
 		}
-	}
-
-	private static Supplier<RuntimeException> newUnknownSourceTreeException(String value) {
-		return () -> new RuntimeException(String.format("Unknown sourceTree value '%s'. Supported values are %s", value, Arrays.stream(PBXSourceTree.values()).map(s -> "'" + s + "'").collect(Collectors.joining(", "))));
 	}
 }
