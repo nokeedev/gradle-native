@@ -70,12 +70,9 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@TaskAction
 	private void doExec() throws IOException {
-		// TODO: if derived data path is not present, we should "guess" the default path by using -showBuildSettings
-		ifPresent(getDerivedDataPath().map(FileSystemLocationUtils::asPath), derivedDataPath -> {
-			getFileOperations().sync(spec -> {
-				spec.from(getInputDerivedData());
-				spec.into(getDerivedDataPath());
-			});
+		getFileOperations().sync(spec -> {
+			spec.from(getInputDerivedData());
+			spec.into(getDerivedDataPath());
 		});
 
 		ExecResult result = null;
