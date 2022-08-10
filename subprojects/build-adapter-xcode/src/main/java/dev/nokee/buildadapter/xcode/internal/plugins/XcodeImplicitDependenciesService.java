@@ -68,7 +68,7 @@ public abstract class XcodeImplicitDependenciesService implements BuildService<X
 	@Nullable
 	public XCTarget findTarget(XCFileReference file) {
 		if (file.getType() == XCFileReference.XCFileType.BUILT_PRODUCT) {
-			return targets.stream().filter(it -> it.getOutputFile().equals(file)).findFirst().orElseThrow(RuntimeException::new);
+			return targets.stream().filter(it -> it.getOutputFile() != null && it.getOutputFile().equals(file)).findFirst().orElseThrow(RuntimeException::new);
 		} else {
 			return null;
 		}

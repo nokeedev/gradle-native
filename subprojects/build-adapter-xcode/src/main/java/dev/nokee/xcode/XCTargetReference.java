@@ -65,7 +65,10 @@ public final class XCTargetReference implements Serializable {
 
 			// Assuming PBXFileReference only
 			val inputFiles = findInputFiles(target).map(resolver::get).collect(Collectors.toList());
-			val outputFile = target.getProductReference().map(resolver::get).orElseThrow(() -> new RuntimeException("for target " + target.getName() + " in project " + project.getLocation()));
+
+			// TODO: outputFile here is misleading, it's more about the productFile
+			// TODO: PBXAggregateTarget has no productFile
+			val outputFile = target.getProductReference().map(resolver::get).orElse(null);
 			val dependencies = target.getDependencies().stream().map(it -> XCTargetReference.of(project, it.getTarget().getName())).collect(ImmutableList.toImmutableList());
 
 			return new XCTarget(name, project, inputFiles, dependencies, outputFile);
