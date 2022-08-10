@@ -216,11 +216,6 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 											}
 											return null;
 										}).get();
-									case "BUILT_PRODUCT_DIR":
-										// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
-										// TODO: Guard against the missing derived data path
-										// TODO: We should map derived data path as a collection of build settings via helper method
-										return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().toPath();
 									case "SOURCE_ROOT":
 										return reference.getLocation().getParent();
 									default:
