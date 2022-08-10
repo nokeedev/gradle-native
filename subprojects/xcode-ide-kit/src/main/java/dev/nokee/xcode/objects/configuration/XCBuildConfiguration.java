@@ -15,15 +15,27 @@
  */
 package dev.nokee.xcode.objects.configuration;
 
+import dev.nokee.xcode.objects.files.PBXFileReference;
+
+import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
  * Build configuration containing a file reference to a xcconfig file and additional inline settings.
  */
 public final class XCBuildConfiguration extends PBXBuildStyle {
-	private XCBuildConfiguration(String name, BuildSettings buildSettings) {
+	@Nullable
+	private PBXFileReference baseConfigurationReference;
+
+	private XCBuildConfiguration(String name, BuildSettings buildSettings, @Nullable PBXFileReference baseConfigurationReference) {
 		super(name, buildSettings);
+		this.baseConfigurationReference = baseConfigurationReference;
+	}
+
+	public Optional<PBXFileReference> getBaseConfigurationReference() {
+		return Optional.ofNullable(baseConfigurationReference);
 	}
 
 	public static Builder builder() {
@@ -33,6 +45,7 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 	public static final class Builder {
 		private String name;
 		private BuildSettings buildSettings;
+		private PBXFileReference baseConfigurationReference;
 
 		private Builder() {}
 
@@ -48,6 +61,11 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 			return this;
 		}
 
+		public Builder baseConfigurationReference(PBXFileReference baseConfigurationReference) {
+			this.baseConfigurationReference = baseConfigurationReference;
+			return this;
+		}
+
 		public Builder buildSettings(BuildSettings buildSettings) {
 			this.buildSettings = Objects.requireNonNull(buildSettings);
 			return this;
@@ -58,7 +76,7 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 				buildSettings = BuildSettings.empty();
 			}
 
-			return new XCBuildConfiguration(Objects.requireNonNull(name, "'name' must not be null"), buildSettings);
+			return new XCBuildConfiguration(Objects.requireNonNull(name, "'name' must not be null"), buildSettings, baseConfigurationReference);
 		}
 	}
 }

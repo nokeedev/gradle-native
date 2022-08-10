@@ -439,6 +439,7 @@ final class PBXObjectCoders {
 			val builder = XCBuildConfiguration.builder();
 			decoder.decodeStringIfPresent("name", builder::name);
 			decoder.decodeMapIfPresent("buildSettings", it -> builder.buildSettings(BuildSettings.of(it)));
+			decoder.decodeObjectIfPresent("baseConfigurationReference", builder::baseConfigurationReference);
 			return builder.build();
 		}
 
