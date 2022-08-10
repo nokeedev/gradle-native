@@ -36,9 +36,7 @@ import java.util.stream.Stream;
 
 import static dev.nokee.xcode.objects.files.PBXSourceTree.ABSOLUTE;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.BUILT_PRODUCTS_DIR;
-import static dev.nokee.xcode.objects.files.PBXSourceTree.DEVELOPER_DIR;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.GROUP;
-import static dev.nokee.xcode.objects.files.PBXSourceTree.SDKROOT;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.SOURCE_ROOT;
 
 @EqualsAndHashCode
@@ -140,14 +138,8 @@ public final class XCTargetReference implements Serializable {
 				return XCFileReference.absoluteFile(path);
 			} else if (BUILT_PRODUCTS_DIR.equals(node.sourceTree)) {
 				return XCFileReference.builtProduct(path);
-			} else if (SOURCE_ROOT.equals(node.sourceTree)) {
-				return XCFileReference.sourceRoot(path);
-			} else if (SDKROOT.equals(node.sourceTree)) {
-				return XCFileReference.sdkRoot(path);
-			} else if (DEVELOPER_DIR.equals(node.sourceTree)) {
-				return XCFileReference.developer(path);
 			} else {
-				throw new UnsupportedOperationException("Source tree not supported! (" + node.sourceTree + ")");
+				return XCFileReference.fromBuildSetting(node.sourceTree.toString(), path);
 			}
 		} while ((node = node.previous) != null);
 
