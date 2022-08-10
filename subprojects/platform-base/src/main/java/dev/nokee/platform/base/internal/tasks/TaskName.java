@@ -59,9 +59,9 @@ public final class TaskName implements ElementName {
 
 	@Override
 	public String toQualifiedName(QualifyingName qualifyingName) {
-		return StringUtils.uncapitalize(Stream.of(verb, qualifyingName.toString(), object == null ? "" : object)
+		return verb + Stream.of(qualifyingName.toString(), object == null ? "" : object)
 			.map(StringUtils::capitalize)
-			.collect(Collectors.joining()));
+			.collect(Collectors.joining());
 	}
 
 	public static TaskName of(String taskName) {
