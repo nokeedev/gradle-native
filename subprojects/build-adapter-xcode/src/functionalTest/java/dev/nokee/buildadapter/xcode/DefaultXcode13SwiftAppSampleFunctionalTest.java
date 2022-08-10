@@ -51,6 +51,6 @@ class DefaultXcode13SwiftAppSampleFunctionalTest {
 
 	@Test
 	void doesNotFail() {
-		assertThat(executer.build().task(":xcodeSwiftApp").getOutcome(), equalTo(TaskOutcome.SUCCESS));
+		assertThat(executer.build().task(":XcodeSwiftApp").getOutcome(), equalTo(TaskOutcome.SUCCESS));
 	}
 }
