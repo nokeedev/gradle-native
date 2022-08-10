@@ -27,37 +27,25 @@ public abstract class XCFileReference {
 	public abstract XCFileType getType();
 
 	public interface ResolveContext {
-		Path getSourceRoot();
-
 		Path getBuiltProductDirectory();
 
-		Path getSdkRoot();
-
-		Path getDeveloperDirectory();
+		Path get(String name);
 	}
 
 	public enum XCFileType {
-		ABSOLUTE, SOURCE_ROOT, BUILT_PRODUCT, SDKROOT, DEVELOPER
+		ABSOLUTE, BUILT_PRODUCT, BUILD_SETTING
 	}
 
 	public static XCFileReference absoluteFile(String path) {
 		return new AbsoluteFileReference(Objects.requireNonNull(path));
 	}
 
-	public static XCFileReference sourceRoot(String path) {
-		return new SourceRootFileReference(Objects.requireNonNull(path));
-	}
-
 	public static XCFileReference builtProduct(String path) {
 		return new BuiltProductReference(Objects.requireNonNull(path));
 	}
 
-	public static XCFileReference sdkRoot(String path) {
-		return new SdkRootFileReference(Objects.requireNonNull(path));
-	}
-
-	public static XCFileReference developer(String path) {
-		return new DeveloperFileReference(Objects.requireNonNull(path));
+	public static XCFileReference fromBuildSetting(String buildSetting, String path) {
+		return new BuildSettingFileReference(Objects.requireNonNull(buildSetting), Objects.requireNonNull(path));
 	}
 
 	@EqualsAndHashCode(callSuper = false)
@@ -81,54 +69,6 @@ public abstract class XCFileReference {
 		@Override
 		public String toString() {
 			return path.toString();
-		}
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class SourceRootFileReference extends XCFileReference {
-		private final String path;
-
-		private SourceRootFileReference(String path) {
-			this.path = path;
-		}
-
-		@Override
-		public Path resolve(ResolveContext context) {
-			return context.getSourceRoot().resolve(path);
-		}
-
-		@Override
-		public XCFileType getType() {
-			return XCFileType.SOURCE_ROOT;
-		}
-
-		@Override
-		public String toString() {
-			return "$(SOURCE_ROOT)/" + path;
-		}
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class SdkRootFileReference extends XCFileReference {
-		private final String path;
-
-		private SdkRootFileReference(String path) {
-			this.path = path;
-		}
-
-		@Override
-		public Path resolve(ResolveContext context) {
-			return context.getSdkRoot().resolve(path);
-		}
-
-		@Override
-		public XCFileType getType() {
-			return XCFileType.SDKROOT;
-		}
-
-		@Override
-		public String toString() {
-			return "$(SDKROOT)/" + path;
 		}
 	}
 
@@ -157,26 +97,28 @@ public abstract class XCFileReference {
 	}
 
 	@EqualsAndHashCode(callSuper = false)
-	private static final class DeveloperFileReference extends XCFileReference {
+	private static final class BuildSettingFileReference extends XCFileReference {
+		private String buildSetting;
 		private final String path;
 
-		private DeveloperFileReference(String path) {
+		private BuildSettingFileReference(String buildSetting, String path) {
+			this.buildSetting = buildSetting;
 			this.path = path;
 		}
 
 		@Override
 		public Path resolve(ResolveContext context) {
-			return context.getDeveloperDirectory().resolve(path);
+			return context.get(buildSetting).resolve(path);
 		}
 
 		@Override
 		public XCFileType getType() {
-			return XCFileType.DEVELOPER;
+			return XCFileType.BUILD_SETTING;
 		}
 
 		@Override
 		public String toString() {
-			return "$(DEVELOPER_DIR)/" + path;
+			return "$(" + buildSetting + ")/" + path;
 		}
 	}
 }

@@ -195,11 +195,6 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getInputDerivedData().from(derivedData);
 						task.getInputFiles().from((Callable<Object>) () -> allInputFiles(target.load()).filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
 							@Override
-							public Path getSourceRoot() {
-								return reference.getLocation().getParent();
-							}
-
-							@Override
 							public Path getBuiltProductDirectory() {
 								// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
 								// TODO: Guard against the missing derived data path
@@ -208,20 +203,29 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							}
 
 							@Override
-							public Path getSdkRoot() {
-								// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
-								return task.getSdk().map(it -> {
-									if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
-										return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toPath();
-									}
-									return null;
-								}).get();
-							}
-
-							@Override
-							public Path getDeveloperDirectory() {
-								// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
-								return new File("/Applications/Xcode.app/Contents/Developer").toPath();
+							public Path get(String name) {
+								switch (name) {
+									case "DEVELOPER_DIR":
+										// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
+										return new File("/Applications/Xcode.app/Contents/Developer").toPath();
+									case "SDKROOT":
+										// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
+										return task.getSdk().map(it -> {
+											if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
+												return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toPath();
+											}
+											return null;
+										}).get();
+									case "BUILT_PRODUCT_DIR":
+										// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
+										// TODO: Guard against the missing derived data path
+										// TODO: We should map derived data path as a collection of build settings via helper method
+										return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().toPath();
+									case "SOURCE_ROOT":
+										return reference.getLocation().getParent();
+									default:
+										throw new UnsupportedOperationException("No custom build settings supported yet.");
+								}
 							}
 						})).collect(Collectors.toList()));
 						task.getInputFiles().finalizeValueOnRead();
