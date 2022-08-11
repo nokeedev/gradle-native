@@ -15,7 +15,9 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.utils.FileSystemLocationUtils;
+import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 import org.gradle.api.DefaultTask;
@@ -23,7 +25,6 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -37,9 +38,9 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import static dev.nokee.utils.ProviderUtils.ifPresent;
-import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask {
 	@Inject
@@ -50,11 +51,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 
 	@Input
 	public abstract Property<String> getTargetName();
-
-	@Internal
-	public Provider<String> getProjectName() {
-		return getXcodeProject().map(it ->  removeExtension(it.getLocation().getFileName().toString()));
-	}
 
 	@InputFiles
 	public abstract ConfigurableFileCollection getInputFiles();
@@ -79,14 +75,11 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			result = getExecOperations().exec(spec -> {
 				spec.commandLine("xcodebuild", "-project", getXcodeProject().get().getLocation(), "-target", getTargetName().get());
-				ifPresent(getDerivedDataPath().map(FileSystemLocationUtils::asPath), derivedDataPath -> {
-					spec.args("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
-					spec.args("BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
-					spec.args("BUILD_ROOT=" + derivedDataPath.resolve("Build/Products"));
-					spec.args("PROJECT_TEMP_DIR=" + derivedDataPath.resolve("Build/Intermediates.noindex/" + getProjectName().get() + ".build"));
-					spec.args("OBJROOT=" + derivedDataPath.resolve("Build/Intermediates.noindex"));
-					spec.args("SYMROOT=" + derivedDataPath.resolve("Build/Products"));
-				});
+				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
+					return ImmutableList.of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
+				}).get());
+				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
+					.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags).get());
 				ifPresent(getSdk(), sdk -> spec.args("-sdk", sdk));
 				ifPresent(getConfiguration(), buildType -> spec.args("-configuration", buildType));
 				spec.args(
@@ -107,5 +100,11 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			spec.from(getDerivedDataPath(), it -> it.include("Build/Products/**/*"));
 			spec.into(getOutputDirectory());
 		});
+	}
+
+	private List<String> asFlags(XCBuildSettings buildSettings) {
+		val builder = ImmutableList.<String>builder();
+		buildSettings.forEach((k, v) -> builder.add(k + "=" + v));
+		return builder.build();
 	}
 }

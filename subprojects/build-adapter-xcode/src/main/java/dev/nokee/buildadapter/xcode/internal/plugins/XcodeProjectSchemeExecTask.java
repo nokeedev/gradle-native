@@ -15,13 +15,13 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.utils.FileSystemLocationUtils;
+import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
-import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.internal.logging.ConsoleRenderer;
@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import static dev.nokee.utils.ProviderUtils.ifPresent;
 
@@ -54,26 +55,20 @@ public abstract class XcodeProjectSchemeExecTask extends DefaultTask implements 
 	// Sync scheme output to isolated directory --> cache this directory
 	// EXPOSE isolated dir via dependency engine
 
-	@Internal
-	public Provider<String> getProjectName() {
-		return getXcodeProject().map(it -> FilenameUtils.removeExtension(it.getLocation().getFileName().toString()));
-	}
-
 	@TaskAction
 	private void doExec() throws IOException {
 		ExecResult result = null;
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			result = getExecOperations().exec(spec -> {
 				spec.commandLine("xcodebuild", "-project", getXcodeProject().get().getLocation(), "-scheme", getSchemeName().get());
-				ifPresent(getDerivedDataPath().map(FileSystemLocationUtils::asPath), derivedDataPath -> {
-					spec.args("-derivedDataPath", derivedDataPath);
-					spec.args("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
-					spec.args("BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
-					spec.args("BUILD_ROOT=" + derivedDataPath.resolve("Build/Products"));
-					spec.args("PROJECT_TEMP_DIR=" + derivedDataPath.resolve("Build/Intermediates.noindex/" + getProjectName().get() + ".build"));
-					spec.args("OBJROOT=" + derivedDataPath.resolve("Build/Intermediates.noindex"));
-					spec.args("SYMROOT=" + derivedDataPath.resolve("Build/Products"));
-				});
+				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
+					return ImmutableList.of(
+						"-derivedDataPath", derivedDataPath,
+						"PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products")
+					);
+				}).get());
+				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
+					.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags).get());
 				ifPresent(getSdk(), sdk -> spec.args("-sdk", sdk));
 				ifPresent(getConfiguration(), buildType -> spec.args("-configuration", buildType));
 				spec.args(
@@ -89,5 +84,11 @@ public abstract class XcodeProjectSchemeExecTask extends DefaultTask implements 
 		if (result.getExitValue() != 0) {
 			throw new RuntimeException(String.format("Process '%s' finished with non-zero exit value %d, see %s for more information.", "xcodebuild", result.getExitValue(), new ConsoleRenderer().asClickableFileUrl(new File(getTemporaryDir(), "outputs.txt"))));
 		}
+	}
+
+	private List<String> asFlags(XCBuildSettings buildSettings) {
+		val builder = ImmutableList.<String>builder();
+		buildSettings.forEach((k, v) -> builder.add(k + "=" + v));
+		return builder.build();
 	}
 }
