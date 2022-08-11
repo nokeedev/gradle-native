@@ -34,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import static dev.nokee.buildadapter.xcode.internal.plugins.XCBuildSettingsUtils.codeSigningDisabled;
 import static dev.nokee.utils.ProviderUtils.ifPresent;
 
 public abstract class XcodeProjectSchemeExecTask extends DefaultTask implements XcodebuildExecTask {
@@ -71,9 +72,7 @@ public abstract class XcodeProjectSchemeExecTask extends DefaultTask implements 
 					.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags).get());
 				ifPresent(getSdk(), sdk -> spec.args("-sdk", sdk));
 				ifPresent(getConfiguration(), buildType -> spec.args("-configuration", buildType));
-				spec.args(
-					// Disable code signing, see https://stackoverflow.com/a/39901677/13624023
-					"CODE_SIGN_IDENTITY=\"\"", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_ENTITLEMENTS=\"\"", "CODE_SIGNING_ALLOWED=\"NO\"");
+				spec.args(codeSigningDisabled());
 				ifPresent(getWorkingDirectory(), spec::workingDir);
 				spec.setStandardOutput(outStream);
 				spec.setErrorOutput(outStream);
