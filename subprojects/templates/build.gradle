@@ -27,17 +27,32 @@ dependencies {
 }
 
 tasks.named("processResources", ProcessResources) { task ->
-	def receipt = []
+	def receipt = [
+		'xcode-swift-application': [],
+		'xcode-custom-file-reference': [],
+	]
 	task.from('xcode-swift-application') {
 		into('xcode-swift-application')
 		exclude("**/*.xcuserdatad/**")
-		eachFile {
-			receipt.add(it.relativePath.toString())
-		}
 		includeEmptyDirs(false)
 	}
 
+	task.from('xcode-custom-file-reference') {
+		into('xcode-custom-file-reference')
+		exclude("**/*.xcuserdatad/**")
+		includeEmptyDirs(false)
+	}
+
+	task.eachFile {
+		receipt.computeIfPresent(it.relativePath.segments[0]) { key, value ->
+			value.add(it.relativePath.toString())
+			return value
+		}
+	}
+
 	task.doLast {
-		new File(task.getDestinationDir(), "xcode-swift-application.sample").text = receipt.join('\n')
+		receipt.each { k, v ->
+			new File(task.getDestinationDir(), "${k}.sample").text = v.join('\n')
+		}
 	}
 }
