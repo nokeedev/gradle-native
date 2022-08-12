@@ -24,7 +24,7 @@ public enum GradleFeatureRequirement {
 	CONFIGURATION_CACHE {
 		@Override
 		public ConditionEvaluationResult isSupported(VersionNumber gradleVersion) {
-			return gradleVersion.compareTo(VersionNumber.parse("6.9.2")) >= 0 ? enabled("--configuration-cache supported") : disabled("--configuration-cache not supported");
+			return gradleVersion.compareTo(VersionNumber.parse("6.9.2")) > 0 ? enabled("--configuration-cache supported") : disabled("--configuration-cache not supported");
 		}
 	};
 
