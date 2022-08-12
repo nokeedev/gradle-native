@@ -219,7 +219,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 									case "SOURCE_ROOT":
 										return reference.getLocation().getParent();
 									default:
-										throw new UnsupportedOperationException("No custom build settings supported yet.");
+										return new File(task.getBuildSettings().get().get(name)).toPath();
 								}
 							}
 						})).collect(Collectors.toList()));
