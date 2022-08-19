@@ -1,0 +1,2 @@
+Notice the location (e.g. `path`) does not includes the group directory but
+only the file name because the `path` starts from the group's location.

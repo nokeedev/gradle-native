@@ -1,0 +1,8 @@
+This sample demonstrate custom `sourceTree` in `PBXFileReference`.
+Basically, any build settings can be used as `sourceTree` which essentially
+creates a reference relative to that build settings value.
+To resolve custom `sourceTree` in the Xcode IDE, set `MY_SOURCE_ROOT` to
+`$(SOURCE_ROOT)` under Preferences > Locations > Custom Paths.
+
+If you build the app, you will see something different then under `main.c`.
+That is because the `MY_SOURCE_ROOT` build settings is overwritten. ;)

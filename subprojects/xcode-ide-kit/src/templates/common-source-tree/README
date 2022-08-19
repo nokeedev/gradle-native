@@ -1,0 +1,7 @@
+This sample demonstrate common `sourceTree` in `PBXFileReference`:
+ - `<group>` (e.g. `CommonSourceTree/relative-to-group`)
+ - `<absolute>` (e.g. `absolute-file`)
+ - `BUILT_PRODUCTS_DIR` (e.g. `relative-to-built-products`)
+ - `DEVELOPER_DIR` (e.g. `relative-to-developer-directory`)
+ - `SDKROOT` (e.g. `relative-to-sdk`)
+ - `SOURCE_ROOT` (e.g. `CommonSourceTree/relative-to-project`)
