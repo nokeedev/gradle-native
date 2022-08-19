@@ -1,0 +1,2 @@
+Notice the location (e.g. `path`) includes the group directory as well as the
+file name because the `path` starts from the project's location.
