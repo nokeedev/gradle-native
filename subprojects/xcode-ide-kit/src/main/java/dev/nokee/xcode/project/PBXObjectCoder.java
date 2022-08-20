@@ -18,6 +18,7 @@ package dev.nokee.xcode.project;
 import dev.nokee.xcode.objects.PBXObject;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 interface PBXObjectCoder<T extends PBXObject> {
@@ -40,6 +41,7 @@ interface PBXObjectCoder<T extends PBXObject> {
 	}
 
 	interface Decoder {
+		<S extends PBXObject> Optional<S> decodeObject(String key);
 		<S extends PBXObject> void decodeObjectIfPresent(String key, Consumer<? super S> consumer);
 		<S extends PBXObject> void decodeObjectsIfPresent(String key, Consumer<? super Iterable<S>> consumer);
 
