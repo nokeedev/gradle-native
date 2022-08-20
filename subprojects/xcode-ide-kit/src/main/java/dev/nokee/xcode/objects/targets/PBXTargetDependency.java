@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.objects.targets;
 
+import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProjectItem;
 
 import javax.annotation.Nullable;
@@ -26,19 +27,21 @@ import java.util.Optional;
  */
 public final class PBXTargetDependency extends PBXProjectItem {
 	@Nullable private final String name;
-	private final PBXTarget target;
+	@Nullable private final PBXTarget target;
+	private final PBXContainerItemProxy targetProxy;
 
-	private PBXTargetDependency(@Nullable String name, PBXTarget target) {
+	private PBXTargetDependency(@Nullable String name, @Nullable PBXTarget target, PBXContainerItemProxy targetProxy) {
 		this.name = name;
 		this.target = target;
+		this.targetProxy = targetProxy;
 	}
 
 	public Optional<String> getName() {
 		return Optional.ofNullable(name);
 	}
 
-	public PBXTarget getTarget() {
-		return target;
+	public Optional<PBXTarget> getTarget() {
+		return Optional.ofNullable(target);
 	}
 
 	// The field targetProxy is a bit complicated to support hence we delay its implementation until required.
@@ -49,6 +52,9 @@ public final class PBXTargetDependency extends PBXProjectItem {
 	//   should be immutable once built. Given the PBXContainerItemProxy needs to reference the current PBXProject,
 	//   we cannot fully create a working PBXContainerItemProxy. There is most likely a way around this limitation.
 	//   However, since we don't need the targetProxy in all of our current use cases, we will simply ignore the field.
+	public PBXContainerItemProxy getTargetProxy() {
+		return targetProxy;
+	}
 
 	public static Builder builder() {
 		return new Builder();
@@ -57,6 +63,7 @@ public final class PBXTargetDependency extends PBXProjectItem {
 	public static final class Builder {
 		private String name;
 		private PBXTarget target;
+		private PBXContainerItemProxy targetProxy;
 
 		public Builder name(String name) {
 			this.name = Objects.requireNonNull(name);
@@ -68,8 +75,17 @@ public final class PBXTargetDependency extends PBXProjectItem {
 			return this;
 		}
 
+		public Builder targetProxy(PBXContainerItemProxy targetProxy) {
+			this.targetProxy = Objects.requireNonNull(targetProxy);
+			return this;
+		}
+
 		public PBXTargetDependency build() {
-			return new PBXTargetDependency(name,Objects.requireNonNull(target, "'target' must not be null"));
+			if (target == null && targetProxy == null) {
+				throw new NullPointerException("either 'target' and 'targetProxy' must not be null");
+			}
+
+			return new PBXTargetDependency(name, target, targetProxy);
 		}
 	}
 }

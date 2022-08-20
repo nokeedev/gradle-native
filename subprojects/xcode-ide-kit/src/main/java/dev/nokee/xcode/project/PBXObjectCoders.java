@@ -17,6 +17,8 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import dev.nokee.xcode.objects.PBXContainerItem;
+import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
@@ -74,7 +76,8 @@ final class PBXObjectCoders {
 		new PBXResourcesBuildPhaseCoder(),
 		new PBXCopyFilesBuildPhaseCoder(),
 		new PBXTargetDependencyCoder(),
-		new PBXBuildFileCoder()
+		new PBXBuildFileCoder(),
+		new PBXContainerItemProxyCoder()
 	);
 
 	public static PBXObjectCoder<?>[] values() {
@@ -276,13 +279,15 @@ final class PBXObjectCoders {
 			val builder = PBXTargetDependency.builder();
 			decoder.decodeStringIfPresent("name", builder::name);
 			decoder.decodeObjectIfPresent("target", builder::target);
+			decoder.decodeObjectIfPresent("targetProxy", builder::targetProxy);
 			return builder.build();
 		}
 
 		@Override
 		public void write(Encoder encoder, PBXTargetDependency value) {
 			value.getName().ifPresent(it -> encoder.encodeString("name", it));
-			encoder.encodeObject("target", value.getTarget());
+			value.getTarget().ifPresent(it -> encoder.encodeObject("target", it));
+			encoder.encodeObject("targetProxy", value.getTargetProxy());
 		}
 	}
 
@@ -583,6 +588,37 @@ final class PBXObjectCoders {
 			if (!value.getSettings().isEmpty()) {
 				encoder.encodeMap("settings", value.getSettings());
 			}
+		}
+	}
+
+	private static final class PBXContainerItemProxyCoder implements PBXObjectCoder<PBXContainerItemProxy> {
+		@Override
+		public Class<PBXContainerItemProxy> getType() {
+			return PBXContainerItemProxy.class;
+		}
+
+		@Override
+		public PBXContainerItemProxy read(Decoder decoder) {
+			val builder = PBXContainerItemProxy.builder();
+			builder.containerPortal(() -> decoder.decodeObject("containerPortal").orElseThrow(RuntimeException::new));
+			decoder.decodeStringIfPresent("remoteGlobalIDString", builder::remoteGlobalId);
+			decoder.decodeIntegerIfPresent("proxyType", toProxyType(builder::proxyType));
+			decoder.decodeStringIfPresent("remoteInfo", builder::remoteInfo);
+			return builder.build();
+		}
+
+		@Override
+		public void write(Encoder encoder, PBXContainerItemProxy value) {
+			encoder.encodeObject("containerPortal", value.getContainerPortal());
+			encoder.encodeString("remoteGlobalIDString", value.getRemoteGlobalIDString());
+			encoder.encodeInteger("proxyType", value.getProxyType().getIntValue());
+			value.getRemoteInfo().ifPresent(it -> encoder.encodeString("remoteInfo", it));
+		}
+
+		private static Consumer<Integer> toProxyType(Consumer<? super PBXContainerItemProxy.ProxyType> consumer) {
+			return value -> {
+				consumer.accept(Arrays.stream(PBXContainerItemProxy.ProxyType.values()).filter(candidate -> candidate.getIntValue() == value).findFirst().orElseThrow(UnsupportedOperationException::new));
+			};
 		}
 	}
 }
