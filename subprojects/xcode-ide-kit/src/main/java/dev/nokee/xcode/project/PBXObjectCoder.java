@@ -18,7 +18,6 @@ package dev.nokee.xcode.project;
 import dev.nokee.xcode.objects.PBXObject;
 
 import java.lang.reflect.Type;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -30,15 +29,7 @@ interface PBXObjectCoder<T extends PBXObject> {
 	void write(Encoder encoder, T value);
 
 	interface Encoder {
-		void encodeArray(String key, Iterable<?> value);
-		void encodeString(String key, CharSequence value);
-		void encodeObject(String key, PBXObject value);
-		void encodeObjects(String key, Iterable<? extends PBXObject> value);
-		void encodeMap(String key, Map<String, ?> value);
-
-		default void encodeInteger(String key, int value) {
-			encodeString(key, String.valueOf(value));
-		}
+		void encode(String key, Object object);
 	}
 
 	interface Decoder {

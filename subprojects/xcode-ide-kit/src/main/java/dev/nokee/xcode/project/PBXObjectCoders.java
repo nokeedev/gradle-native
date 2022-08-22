@@ -100,14 +100,14 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXProject value) {
-			encoder.encodeObject("mainGroup", value.getMainGroup());
+			encoder.encode("mainGroup", value.getMainGroup());
 
 			val targets = new ArrayList<>(value.getTargets());
 			targets.sort(comparing(PBXTarget::getName, naturalOrder()));
-			encoder.encodeObjects("targets", targets);
-			encoder.encodeObject("buildConfigurationList", value.getBuildConfigurationList());
-			encoder.encodeString("compatibilityVersion", value.getCompatibilityVersion());
-			encoder.encodeMap("attributes", ImmutableMap.of("LastUpgradeCheck", "0610"));
+			encoder.encode("targets", targets);
+			encoder.encode("buildConfigurationList", value.getBuildConfigurationList());
+			encoder.encode("compatibilityVersion", value.getCompatibilityVersion());
+			encoder.encode("attributes", ImmutableMap.of("LastUpgradeCheck", "0610"));
 		}
 	}
 
@@ -142,9 +142,9 @@ final class PBXObjectCoders {
 		public void write(Encoder encoder, XCConfigurationList value) {
 			val buildConfigurations = new ArrayList<>(value.getBuildConfigurationsByName().values());
 			buildConfigurations.sort(comparing(XCBuildConfiguration::getName, naturalOrder()));
-			encoder.encodeObjects("buildConfigurations", buildConfigurations);
-			value.getDefaultConfigurationName().ifPresent(it -> encoder.encodeString("defaultConfigurationName", it));
-			encoder.encodeString("defaultConfigurationIsVisible", value.isDefaultConfigurationIsVisible() ? "YES" : "NO");
+			encoder.encode("buildConfigurations", buildConfigurations);
+			value.getDefaultConfigurationName().ifPresent(it -> encoder.encode("defaultConfigurationName", it));
+			encoder.encode("defaultConfigurationIsVisible", value.isDefaultConfigurationIsVisible() ? "YES" : "NO");
 		}
 	}
 
@@ -165,12 +165,12 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXFileReference value) {
-			value.getName().ifPresent(it -> encoder.encodeString("name", it));
-			value.getPath().ifPresent(it -> encoder.encodeString("path", it));
-			encoder.encodeString("sourceTree", value.getSourceTree().toString());
+			value.getName().ifPresent(it -> encoder.encode("name", it));
+			value.getPath().ifPresent(it -> encoder.encode("path", it));
+			encoder.encode("sourceTree", value.getSourceTree().toString());
 
-			value.getExplicitFileType().ifPresent(it -> encoder.encodeString("explicitFileType", it));
-			value.getLastKnownFileType().ifPresent(it -> encoder.encodeString("lastKnownFileType", it));
+			value.getExplicitFileType().ifPresent(it -> encoder.encode("explicitFileType", it));
+			value.getLastKnownFileType().ifPresent(it -> encoder.encode("lastKnownFileType", it));
 		}
 	}
 
@@ -192,16 +192,16 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXGroup value) {
-			value.getName().ifPresent(it -> encoder.encodeString("name", it));
-			value.getPath().ifPresent(it -> encoder.encodeString("path", it));
-			encoder.encodeString("sourceTree", value.getSourceTree().toString());
+			value.getName().ifPresent(it -> encoder.encode("name", it));
+			value.getPath().ifPresent(it -> encoder.encode("path", it));
+			encoder.encode("sourceTree", value.getSourceTree().toString());
 
 			List<PBXReference> children = new ArrayList<>(value.getChildren());
 			if (value.getSortPolicy() == PBXGroup.SortPolicy.BY_NAME) {
 				children.sort(comparing(o -> o.getName().orElse(null), naturalOrder()));
 			}
 
-			encoder.encodeObjects("children", children);
+			encoder.encode("children", children);
 		}
 	}
 
@@ -223,16 +223,16 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXVariantGroup value) {
-			value.getName().ifPresent(it -> encoder.encodeString("name", it));
-			value.getPath().ifPresent(it -> encoder.encodeString("path", it));
-			encoder.encodeString("sourceTree", value.getSourceTree().toString());
+			value.getName().ifPresent(it -> encoder.encode("name", it));
+			value.getPath().ifPresent(it -> encoder.encode("path", it));
+			encoder.encode("sourceTree", value.getSourceTree().toString());
 
 			List<PBXReference> children = new ArrayList<>(value.getChildren());
 			if (value.getSortPolicy() == PBXVariantGroup.SortPolicy.BY_NAME) {
 				children.sort(comparing(o -> o.getName().orElse(null), naturalOrder()));
 			}
 
-			encoder.encodeObjects("children", children);
+			encoder.encode("children", children);
 		}
 	}
 
@@ -254,16 +254,16 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, XCVersionGroup value) {
-			value.getName().ifPresent(it -> encoder.encodeString("name", it));
-			value.getPath().ifPresent(it -> encoder.encodeString("path", it));
-			encoder.encodeString("sourceTree", value.getSourceTree().toString());
+			value.getName().ifPresent(it -> encoder.encode("name", it));
+			value.getPath().ifPresent(it -> encoder.encode("path", it));
+			encoder.encode("sourceTree", value.getSourceTree().toString());
 
 			List<PBXReference> children = new ArrayList<>(value.getChildren());
 			if (value.getSortPolicy() == PBXVariantGroup.SortPolicy.BY_NAME) {
 				children.sort(comparing(o -> o.getName().orElse(null), naturalOrder()));
 			}
 
-			encoder.encodeObjects("children", children);
+			encoder.encode("children", children);
 		}
 	}
 
@@ -284,9 +284,9 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXTargetDependency value) {
-			value.getName().ifPresent(it -> encoder.encodeString("name", it));
-			value.getTarget().ifPresent(it -> encoder.encodeObject("target", it));
-			encoder.encodeObject("targetProxy", value.getTargetProxy());
+			value.getName().ifPresent(it -> encoder.encode("name", it));
+			value.getTarget().ifPresent(it -> encoder.encode("target", it));
+			encoder.encode("targetProxy", value.getTargetProxy());
 		}
 	}
 
@@ -326,20 +326,20 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXLegacyTarget value) {
-			encoder.encodeString("name", value.getName());
-			value.getProductType().ifPresent(it -> encoder.encodeString("productType", it.toString()));
-			value.getProductName().ifPresent(it -> encoder.encodeString("productName", it));
-			value.getProductReference().ifPresent(it -> encoder.encodeObject("productReference", it));
-			encoder.encodeObjects("buildPhases", value.getBuildPhases());
-			encoder.encodeObject("buildConfigurationList", value.getBuildConfigurationList());
-			encoder.encodeObjects("dependencies", value.getDependencies());
+			encoder.encode("name", value.getName());
+			value.getProductType().ifPresent(it -> encoder.encode("productType", it.toString()));
+			value.getProductName().ifPresent(it -> encoder.encode("productName", it));
+			value.getProductReference().ifPresent(it -> encoder.encode("productReference", it));
+			encoder.encode("buildPhases", value.getBuildPhases());
+			encoder.encode("buildConfigurationList", value.getBuildConfigurationList());
+			encoder.encode("dependencies", value.getDependencies());
 
-			encoder.encodeString("buildArgumentsString", value.getBuildArgumentsString());
-			encoder.encodeString("buildToolPath", value.getBuildToolPath());
+			encoder.encode("buildArgumentsString", value.getBuildArgumentsString());
+			encoder.encode("buildToolPath", value.getBuildToolPath());
 			if (value.getBuildWorkingDirectory() != null) {
-				encoder.encodeString("buildWorkingDirectory", value.getBuildWorkingDirectory());
+				encoder.encode("buildWorkingDirectory", value.getBuildWorkingDirectory());
 			}
-			encoder.encodeString("passBuildSettingsInEnvironment", value.isPassBuildSettingsInEnvironment() ? "1" : "0");
+			encoder.encode("passBuildSettingsInEnvironment", value.isPassBuildSettingsInEnvironment() ? "1" : "0");
 		}
 	}
 
@@ -368,13 +368,13 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXNativeTarget value) {
-			encoder.encodeString("name", value.getName());
-			value.getProductType().ifPresent(it -> encoder.encodeString("productType", it.toString()));
-			value.getProductName().ifPresent(it -> encoder.encodeString("productName", it));
-			value.getProductReference().ifPresent(it -> encoder.encodeObject("productReference", it));
-			encoder.encodeObjects("buildPhases", value.getBuildPhases());
-			encoder.encodeObject("buildConfigurationList", value.getBuildConfigurationList());
-			encoder.encodeObjects("dependencies", value.getDependencies());
+			encoder.encode("name", value.getName());
+			value.getProductType().ifPresent(it -> encoder.encode("productType", it.toString()));
+			value.getProductName().ifPresent(it -> encoder.encode("productName", it));
+			value.getProductReference().ifPresent(it -> encoder.encode("productReference", it));
+			encoder.encode("buildPhases", value.getBuildPhases());
+			encoder.encode("buildConfigurationList", value.getBuildConfigurationList());
+			encoder.encode("dependencies", value.getDependencies());
 		}
 	}
 
@@ -396,10 +396,10 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXAggregateTarget value) {
-			encoder.encodeString("name", value.getName());
-			encoder.encodeObjects("buildPhases", value.getBuildPhases());
-			encoder.encodeObject("buildConfigurationList", value.getBuildConfigurationList());
-			encoder.encodeObjects("dependencies", value.getDependencies());
+			encoder.encode("name", value.getName());
+			encoder.encode("buildPhases", value.getBuildPhases());
+			encoder.encode("buildConfigurationList", value.getBuildConfigurationList());
+			encoder.encode("dependencies", value.getDependencies());
 		}
 	}
 
@@ -426,9 +426,9 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXCopyFilesBuildPhase value) {
-			encoder.encodeString("dstPath", value.getDstPath());
-			encoder.encodeInteger("dstSubfolderSpec", value.getDstSubfolderSpec().getValue());
-			encoder.encodeObjects("files", value.getFiles());
+			encoder.encode("dstPath", value.getDstPath());
+			encoder.encode("dstSubfolderSpec", value.getDstSubfolderSpec().getValue());
+			encoder.encode("files", value.getFiles());
 		}
 	}
 
@@ -449,8 +449,8 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, XCBuildConfiguration value) {
-			encoder.encodeString("name", value.getName());
-			encoder.encodeMap("buildSettings", value.getBuildSettings().asMap());
+			encoder.encode("name", value.getName());
+			encoder.encode("buildSettings", value.getBuildSettings().asMap());
 		}
 	}
 
@@ -479,21 +479,21 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXShellScriptBuildPhase value) {
-			encoder.encodeObjects("files", value.getFiles());
+			encoder.encode("files", value.getFiles());
 
-			encoder.encodeArray("inputPaths", value.getInputPaths());
-			encoder.encodeArray("outputPaths", value.getOutputPaths());
+			encoder.encode("inputPaths", value.getInputPaths());
+			encoder.encode("outputPaths", value.getOutputPaths());
 
 			if (value.getShellPath() == null) {
-				encoder.encodeString("shellPath", "/bin/sh");
+				encoder.encode("shellPath", "/bin/sh");
 			} else {
-				encoder.encodeString("shellPath", value.getShellPath());
+				encoder.encode("shellPath", value.getShellPath());
 			}
 
 			if (value.getShellScript() == null) {
-				encoder.encodeString("shellScript", "");
+				encoder.encode("shellScript", "");
 			} else {
-				encoder.encodeString("shellScript", value.getShellScript());
+				encoder.encode("shellScript", value.getShellScript());
 			}
 		}
 	}
@@ -513,7 +513,7 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXSourcesBuildPhase value) {
-			encoder.encodeObjects("files", value.getFiles());
+			encoder.encode("files", value.getFiles());
 		}
 	}
 
@@ -532,7 +532,7 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXHeadersBuildPhase value) {
-			encoder.encodeObjects("files", value.getFiles());
+			encoder.encode("files", value.getFiles());
 		}
 	}
 
@@ -551,7 +551,7 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXResourcesBuildPhase value) {
-			encoder.encodeObjects("files", value.getFiles());
+			encoder.encode("files", value.getFiles());
 		}
 	}
 
@@ -570,7 +570,7 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXFrameworksBuildPhase value) {
-			encoder.encodeObjects("files", value.getFiles());
+			encoder.encode("files", value.getFiles());
 		}
 	}
 
@@ -589,9 +589,9 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXBuildFile value) {
-			encoder.encodeObject("fileRef", value.getFileRef());
+			encoder.encode("fileRef", value.getFileRef());
 			if (!value.getSettings().isEmpty()) {
-				encoder.encodeMap("settings", value.getSettings());
+				encoder.encode("settings", value.getSettings());
 			}
 		}
 	}
@@ -614,10 +614,10 @@ final class PBXObjectCoders {
 
 		@Override
 		public void write(Encoder encoder, PBXContainerItemProxy value) {
-			encoder.encodeObject("containerPortal", value.getContainerPortal());
-			encoder.encodeString("remoteGlobalIDString", value.getRemoteGlobalIDString());
-			encoder.encodeInteger("proxyType", value.getProxyType().getIntValue());
-			value.getRemoteInfo().ifPresent(it -> encoder.encodeString("remoteInfo", it));
+			encoder.encode("containerPortal", value.getContainerPortal());
+			encoder.encode("remoteGlobalIDString", value.getRemoteGlobalIDString());
+			encoder.encode("proxyType", value.getProxyType().getIntValue());
+			value.getRemoteInfo().ifPresent(it -> encoder.encode("remoteInfo", it));
 		}
 
 		private static Consumer<Integer> toProxyType(Consumer<? super PBXContainerItemProxy.ProxyType> consumer) {
