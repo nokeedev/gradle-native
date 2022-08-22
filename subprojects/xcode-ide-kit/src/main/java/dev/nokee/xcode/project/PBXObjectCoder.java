@@ -47,8 +47,6 @@ interface PBXObjectCoder<T extends PBXObject> {
 
 		void decodeMapIfPresent(String key, Consumer<? super Map<String, Object>> consumer);
 
-		void decodeArrayIfPresent(String key, Consumer<? super Iterable<?>> consumer);
-
 		<S> void decodeIfPresent(String key, Consumer<? super S> action);
 
 		default <S> void decodeIfPresent(String key, Class<S> type, Consumer<? super S> action) {

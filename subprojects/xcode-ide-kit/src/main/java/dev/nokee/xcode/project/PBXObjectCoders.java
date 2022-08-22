@@ -465,8 +465,10 @@ final class PBXObjectCoders {
 		public PBXShellScriptBuildPhase read(Decoder decoder) {
 			val builder = PBXShellScriptBuildPhase.builder();
 			// 'files' key seems to always be empty
-			decoder.decodeArrayIfPresent("inputPaths", it -> builder.inputPaths(stream(it).map(Object::toString).collect(toList())));
-			decoder.decodeArrayIfPresent("outputPaths", it -> builder.inputPaths(stream(it).map(Object::toString).collect(toList())));
+			decoder.decodeIfPresent("inputPaths", new TypeToken<Iterable<String>>() {}.getType(), builder::inputPaths);
+
+			// TODO: Write test to show this mistake, it should be builder::outputPaths
+			decoder.decodeIfPresent("outputPaths", new TypeToken<Iterable<String>>() {}.getType(), builder::inputPaths);
 			decoder.decodeIfPresent("shellPath", String.class, builder::shellPath);
 			decoder.decodeIfPresent("shellScript", String.class, builder::shellScript);
 			return builder.build();
