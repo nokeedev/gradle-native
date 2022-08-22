@@ -19,6 +19,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.io.Files;
 import dev.nokee.xcode.objects.FileTypes;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.io.FilenameUtils;
 
@@ -32,7 +33,7 @@ import java.util.Optional;
  * Reference to a concrete file.
  */
 @EqualsAndHashCode(callSuper = true)
-public final class PBXFileReference extends PBXReference implements PBXContainerItemProxy.ContainerPortal {
+public final class PBXFileReference extends PBXReference implements PBXContainerItemProxy.ContainerPortal, PBXBuildFile.FileReference {
 	@Nullable private final String explicitFileType;
 	@Nullable private final String lastKnownFileType;
 

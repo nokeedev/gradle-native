@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.targets;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 
@@ -24,7 +25,7 @@ import javax.annotation.Nullable;
 /**
  * A proxy for another object which might belong to another project contained in the same workspace of the document.
  */
-public final class PBXReferenceProxy extends PBXReference {
+public final class PBXReferenceProxy extends PBXReference implements PBXBuildFile.FileReference {
 	private final PBXContainerItemProxy remoteReference;
 	private final String fileType;
 

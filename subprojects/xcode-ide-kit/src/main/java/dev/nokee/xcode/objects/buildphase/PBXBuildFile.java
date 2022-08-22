@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableMap;
+import dev.nokee.xcode.objects.PBXObject;
 import dev.nokee.xcode.objects.PBXProjectItem;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
@@ -35,15 +36,15 @@ import java.util.Objects;
  */
 @EqualsAndHashCode(callSuper = false)
 public final class PBXBuildFile extends PBXProjectItem {
-	private final PBXReference fileRef;
+	private final FileReference fileRef;
 	private final ImmutableMap<String, ?> settings;
 
-	private PBXBuildFile(PBXReference fileRef, ImmutableMap<String, ?> settings) {
+	private PBXBuildFile(FileReference fileRef, ImmutableMap<String, ?> settings) {
 		this.fileRef = fileRef;
 		this.settings = settings;
 	}
 
-	public PBXReference getFileRef() {
+	public FileReference getFileRef() {
 		return fileRef;
 	}
 
@@ -53,7 +54,7 @@ public final class PBXBuildFile extends PBXProjectItem {
 
 	@Override
 	public int stableHash() {
-		return fileRef.stableHash();
+		return ((PBXObject) fileRef).stableHash();
 	}
 
 	@Override
@@ -61,7 +62,7 @@ public final class PBXBuildFile extends PBXProjectItem {
 		return String.format("%s fileRef=%s settings=%s", super.toString(), fileRef, settings);
 	}
 
-	public static PBXBuildFile ofFile(PBXFileReference fileReference) {
+	public static PBXBuildFile ofFile(FileReference fileReference) {
 		return new PBXBuildFile(fileReference, ImmutableMap.of());
 	}
 
@@ -70,9 +71,9 @@ public final class PBXBuildFile extends PBXProjectItem {
 	}
 
 	public static final class Builder {
-		private PBXReference fileRef;
+		private FileReference fileRef;
 
-		public Builder fileRef(PBXReference fileRef) {
+		public Builder fileRef(FileReference fileRef) {
 			this.fileRef = fileRef;
 			return this;
 		}
@@ -81,4 +82,9 @@ public final class PBXBuildFile extends PBXProjectItem {
 			return new PBXBuildFile(Objects.requireNonNull(fileRef, "'fileRef' must not be null"), ImmutableMap.of());
 		}
 	}
+
+	/**
+	 * Represent a file reference for a {@link PBXBuildFile}.
+	 */
+	public interface FileReference {}
 }
