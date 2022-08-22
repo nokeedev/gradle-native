@@ -17,6 +17,7 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import dev.nokee.xcode.objects.PBXObject;
 import dev.nokee.xcode.objects.PBXProject;
 import lombok.val;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Streams.stream;
@@ -114,18 +116,30 @@ public final class PBXObjectUnarchiver {
 		@SuppressWarnings("unchecked")
 		public <S> void decodeIfPresent(String key, Type type, Consumer<? super S> action) {
 			Optional.ofNullable(object.get(key)).ifPresent(value -> {
-				if (!(type instanceof ParameterizedType)) {
-					if (type.equals(String.class)) {
-						action.accept((S) value.toString());
-					} else if (type.equals(Integer.class)) {
-						action.accept((S) Integer.decode(value.toString()));
+				if (type instanceof ParameterizedType) {
+					if (Iterable.class.equals(((ParameterizedType) type).getRawType())) {
+						if (!(value instanceof Iterable)) throw new IllegalStateException();
+						action.accept((S) Streams.stream((Iterable<Object>) value).map(it -> this.<S>decode(it, ((ParameterizedType) type).getActualTypeArguments()[0])).collect(Collectors.toList()));
 					} else {
-						val object = delegate.decode(value.toString());
-						if (!((Class<?>) type).isInstance(object)) throw new IllegalStateException();
-						action.accept((S) object);
+						throw new UnsupportedOperationException();
 					}
+				} else {
+					action.accept(this.<S>decode(value, type));
 				}
 			});
+		}
+
+		@SuppressWarnings("unchecked")
+		private <S> S decode(Object value, Type type) {
+			if (type.equals(String.class)) {
+				return (S) value.toString();
+			} else if (type.equals(Integer.class)) {
+				return (S) Integer.decode(value.toString());
+			} else {
+				val object = delegate.decode(value.toString());
+				if (!((Class<?>) type).isInstance(object)) throw new IllegalStateException();
+				return (S) object;
+			}
 		}
 	}
 }
