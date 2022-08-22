@@ -17,7 +17,6 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import dev.nokee.xcode.objects.PBXContainerItem;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
@@ -93,9 +92,9 @@ final class PBXObjectCoders {
 		@Override
 		public PBXProject read(Decoder decoder) {
 			val builder = PBXProject.builder();
-			decoder.decodeObjectIfPresent("mainGroup", builder::mainGroup);
+			decoder.decodeIfPresent("mainGroup", builder::mainGroup);
 			decoder.decodeObjectsIfPresent("targets", builder::targets);
-			decoder.<XCConfigurationList>decodeObjectIfPresent("buildConfigurationList", builder::buildConfigurations);
+			decoder.decodeIfPresent("buildConfigurationList", XCConfigurationList.class, builder::buildConfigurations);
 			return builder.build();
 		}
 
@@ -122,8 +121,8 @@ final class PBXObjectCoders {
 		public XCConfigurationList read(Decoder decoder) {
 			val builder = XCConfigurationList.builder();
 			decoder.decodeObjectsIfPresent("buildConfigurations", builder::buildConfigurations);
-			decoder.decodeStringIfPresent("defaultConfigurationName", builder::defaultConfigurationName);
-			decoder.decodeStringIfPresent("defaultConfigurationIsVisible", toVisibility(builder::defaultConfigurationVisibility));
+			decoder.decodeIfPresent("defaultConfigurationName", String.class, builder::defaultConfigurationName);
+			decoder.decodeIfPresent("defaultConfigurationIsVisible", String.class, toVisibility(builder::defaultConfigurationVisibility));
 			return builder.build();
 		}
 
@@ -158,9 +157,9 @@ final class PBXObjectCoders {
 		@Override
 		public PBXFileReference read(Decoder decoder) {
 			val builder = PBXFileReference.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
-			decoder.decodeStringIfPresent("path", builder::path);
-			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it)));
+			decoder.decodeIfPresent("name", String.class, builder::name);
+			decoder.decodeIfPresent("path", String.class, builder::path);
+			decoder.decodeIfPresent("sourceTree", String.class, it -> builder.sourceTree(PBXSourceTree.of(it)));
 			return builder.build();
 		}
 
@@ -184,9 +183,9 @@ final class PBXObjectCoders {
 		@Override
 		public PBXGroup read(Decoder decoder) {
 			val builder = PBXGroup.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
-			decoder.decodeStringIfPresent("path", builder::path);
-			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it)));
+			decoder.decodeIfPresent("name", String.class, builder::name);
+			decoder.decodeIfPresent("path", String.class, builder::path);
+			decoder.decodeIfPresent("sourceTree", String.class, it -> builder.sourceTree(PBXSourceTree.of(it)));
 			decoder.decodeObjectsIfPresent("children", builder::children);
 			return builder.build();
 		}
@@ -215,9 +214,9 @@ final class PBXObjectCoders {
 		@Override
 		public PBXVariantGroup read(Decoder decoder) {
 			val builder = PBXVariantGroup.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
-			decoder.decodeStringIfPresent("path", builder::path);
-			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it)));
+			decoder.decodeIfPresent("name", String.class, builder::name);
+			decoder.decodeIfPresent("path", String.class, builder::path);
+			decoder.decodeIfPresent("sourceTree", String.class, it -> builder.sourceTree(PBXSourceTree.of(it)));
 			decoder.decodeObjectsIfPresent("children", builder::children);
 			return builder.build();
 		}
@@ -246,9 +245,9 @@ final class PBXObjectCoders {
 		@Override
 		public XCVersionGroup read(Decoder decoder) {
 			val builder = XCVersionGroup.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
-			decoder.decodeStringIfPresent("path", builder::path);
-			decoder.decodeStringIfPresent("sourceTree", it -> builder.sourceTree(PBXSourceTree.of(it)));
+			decoder.decodeIfPresent("name", String.class, builder::name);
+			decoder.decodeIfPresent("path", String.class, builder::path);
+			decoder.decodeIfPresent("sourceTree", String.class, it -> builder.sourceTree(PBXSourceTree.of(it)));
 			decoder.decodeObjectsIfPresent("children", builder::children);
 			return builder.build();
 		}
@@ -277,9 +276,9 @@ final class PBXObjectCoders {
 		@Override
 		public PBXTargetDependency read(Decoder decoder) {
 			val builder = PBXTargetDependency.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
-			decoder.decodeObjectIfPresent("target", builder::target);
-			decoder.decodeObjectIfPresent("targetProxy", builder::targetProxy);
+			decoder.decodeIfPresent("name", String.class, builder::name);
+			decoder.decodeIfPresent("target", builder::target);
+			decoder.decodeIfPresent("targetProxy", builder::targetProxy);
 			return builder.build();
 		}
 
@@ -300,16 +299,16 @@ final class PBXObjectCoders {
 		@Override
 		public PBXLegacyTarget read(Decoder decoder) {
 			val builder = PBXLegacyTarget.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
-			decoder.decodeStringIfPresent("productType", ProductTypes::valueOf);
-			decoder.decodeStringIfPresent("productName", builder::productName);
-			decoder.decodeObjectIfPresent("productReference", builder::productReference);
-			decoder.<XCConfigurationList>decodeObjectIfPresent("buildConfigurationList", builder::buildConfigurations);
+			decoder.decodeIfPresent("name", String.class, builder::name);
+			decoder.decodeIfPresent("productType", String.class, ProductTypes::valueOf);
+			decoder.decodeIfPresent("productName", String.class, builder::productName);
+			decoder.decodeIfPresent("productReference", builder::productReference);
+			decoder.decodeIfPresent("buildConfigurationList", XCConfigurationList.class, builder::buildConfigurations);
 			decoder.decodeObjectsIfPresent("dependencies", builder::dependencies);
-			decoder.decodeStringIfPresent("buildArgumentsString", builder::buildArguments);
-			decoder.decodeStringIfPresent("buildToolPath", builder::buildToolPath);
-			decoder.decodeStringIfPresent("buildWorkingDirectory", builder::buildWorkingDirectory);
-			decoder.decodeStringIfPresent("passBuildSettingsInEnvironment", toBoolean(builder::passBuildSettingsInEnvironment));
+			decoder.decodeIfPresent("buildArgumentsString", String.class, builder::buildArguments);
+			decoder.decodeIfPresent("buildToolPath", String.class, builder::buildToolPath);
+			decoder.decodeIfPresent("buildWorkingDirectory", String.class, builder::buildWorkingDirectory);
+			decoder.decodeIfPresent("passBuildSettingsInEnvironment", String.class, toBoolean(builder::passBuildSettingsInEnvironment));
 			return builder.build();
 		}
 
@@ -353,12 +352,12 @@ final class PBXObjectCoders {
 		@Override
 		public PBXNativeTarget read(Decoder decoder) {
 			val builder = PBXNativeTarget.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
-			decoder.decodeStringIfPresent("productType", toProductType(builder::productType));
-			decoder.decodeStringIfPresent("productName", builder::productName);
-			decoder.decodeObjectIfPresent("productReference", builder::productReference);
+			decoder.decodeIfPresent("name", String.class, builder::name);
+			decoder.decodeIfPresent("productType", String.class, toProductType(builder::productType));
+			decoder.decodeIfPresent("productName", String.class, builder::productName);
+			decoder.decodeIfPresent("productReference", builder::productReference);
 			decoder.decodeObjectsIfPresent("buildPhases", builder::buildPhases);
-			decoder.<XCConfigurationList>decodeObjectIfPresent("buildConfigurationList", builder::buildConfigurations);
+			decoder.decodeIfPresent("buildConfigurationList", XCConfigurationList.class, builder::buildConfigurations);
 			decoder.decodeObjectsIfPresent("dependencies", builder::dependencies);
 			return builder.build();
 		}
@@ -388,9 +387,9 @@ final class PBXObjectCoders {
 		@Override
 		public PBXAggregateTarget read(Decoder decoder) {
 			val builder = PBXAggregateTarget.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
+			decoder.decodeIfPresent("name", String.class, builder::name);
 			decoder.decodeObjectsIfPresent("buildPhases", builder::buildPhases);
-			decoder.<XCConfigurationList>decodeObjectIfPresent("buildConfigurationList", builder::buildConfigurations);
+			decoder.decodeIfPresent("buildConfigurationList", XCConfigurationList.class, builder::buildConfigurations);
 			decoder.decodeObjectsIfPresent("dependencies", builder::dependencies);
 			return builder.build();
 		}
@@ -413,8 +412,8 @@ final class PBXObjectCoders {
 		@Override
 		public PBXCopyFilesBuildPhase read(Decoder decoder) {
 			val builder = PBXCopyFilesBuildPhase.builder();
-			decoder.decodeStringIfPresent("dstPath", builder::dstPath);
-			decoder.decodeIntegerIfPresent("dstSubfolderSpec", toSubFolderSpec(builder::dstSubfolderSpec));
+			decoder.decodeIfPresent("dstPath", String.class, builder::dstPath);
+			decoder.decodeIfPresent("dstSubfolderSpec", Integer.class, toSubFolderSpec(builder::dstSubfolderSpec));
 			decoder.decodeObjectsIfPresent("files", builder::files);
 			return builder.build();
 		}
@@ -442,9 +441,9 @@ final class PBXObjectCoders {
 		@Override
 		public XCBuildConfiguration read(Decoder decoder) {
 			val builder = XCBuildConfiguration.builder();
-			decoder.decodeStringIfPresent("name", builder::name);
+			decoder.decodeIfPresent("name", String.class, builder::name);
 			decoder.decodeMapIfPresent("buildSettings", it -> builder.buildSettings(BuildSettings.of(it)));
-			decoder.decodeObjectIfPresent("baseConfigurationReference", builder::baseConfigurationReference);
+			decoder.decodeIfPresent("baseConfigurationReference", builder::baseConfigurationReference);
 			return builder.build();
 		}
 
@@ -467,8 +466,8 @@ final class PBXObjectCoders {
 			// 'files' key seems to always be empty
 			decoder.decodeArrayIfPresent("inputPaths", it -> builder.inputPaths(stream(it).map(Object::toString).collect(toList())));
 			decoder.decodeArrayIfPresent("outputPaths", it -> builder.inputPaths(stream(it).map(Object::toString).collect(toList())));
-			decoder.decodeStringIfPresent("shellPath", builder::shellPath);
-			decoder.decodeStringIfPresent("shellScript", builder::shellScript);
+			decoder.decodeIfPresent("shellPath", String.class, builder::shellPath);
+			decoder.decodeIfPresent("shellScript", String.class, builder::shellScript);
 			return builder.build();
 		}
 
@@ -578,7 +577,7 @@ final class PBXObjectCoders {
 		@Override
 		public PBXBuildFile read(Decoder decoder) {
 			val builder = PBXBuildFile.builder();
-			decoder.decodeObjectIfPresent("fileRef", builder::fileRef);
+			decoder.decodeIfPresent("fileRef", builder::fileRef);
 			return builder.build();
 		}
 
@@ -601,9 +600,9 @@ final class PBXObjectCoders {
 		public PBXContainerItemProxy read(Decoder decoder) {
 			val builder = PBXContainerItemProxy.builder();
 			builder.containerPortal(() -> decoder.decodeObject("containerPortal").orElseThrow(RuntimeException::new));
-			decoder.decodeStringIfPresent("remoteGlobalIDString", builder::remoteGlobalId);
-			decoder.decodeIntegerIfPresent("proxyType", toProxyType(builder::proxyType));
-			decoder.decodeStringIfPresent("remoteInfo", builder::remoteInfo);
+			decoder.decodeIfPresent("remoteGlobalIDString", String.class, builder::remoteGlobalId);
+			decoder.decodeIfPresent("proxyType", Integer.class, toProxyType(builder::proxyType));
+			decoder.decodeIfPresent("remoteInfo", String.class, builder::remoteInfo);
 			return builder.build();
 		}
 

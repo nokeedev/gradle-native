@@ -19,7 +19,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.objects.PBXObject;
 import dev.nokee.xcode.objects.PBXProject;
+import lombok.val;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -92,17 +95,6 @@ public final class PBXObjectUnarchiver {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public <S extends PBXObject> void decodeObjectIfPresent(String key, Consumer<? super S> consumer) {
-			Optional.ofNullable(object.get(key)).ifPresent(it -> consumer.accept((S) delegate.decode(it.toString())));
-		}
-
-		@Override
-		public void decodeStringIfPresent(String key, Consumer<? super String> consumer) {
-			Optional.ofNullable(object.get(key)).ifPresent(it -> consumer.accept(it.toString()));
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
 		public void decodeMapIfPresent(String key, Consumer<? super Map<String, Object>> consumer) {
 			Optional.ofNullable(object.get(key)).ifPresent(it -> consumer.accept((Map<String, Object>) it));
 		}
@@ -110,6 +102,30 @@ public final class PBXObjectUnarchiver {
 		@Override
 		public void decodeArrayIfPresent(String key, Consumer<? super Iterable<?>> consumer) {
 			Optional.ofNullable(object.get(key)).ifPresent(it -> consumer.accept((Iterable<?>) it));
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public <S> void decodeIfPresent(String key, Consumer<? super S> action) {
+			Optional.ofNullable(object.get(key)).ifPresent(it -> action.accept((S) delegate.decode(it.toString())));
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public <S> void decodeIfPresent(String key, Type type, Consumer<? super S> action) {
+			Optional.ofNullable(object.get(key)).ifPresent(value -> {
+				if (!(type instanceof ParameterizedType)) {
+					if (type.equals(String.class)) {
+						action.accept((S) value.toString());
+					} else if (type.equals(Integer.class)) {
+						action.accept((S) Integer.decode(value.toString()));
+					} else {
+						val object = delegate.decode(value.toString());
+						if (!((Class<?>) type).isInstance(object)) throw new IllegalStateException();
+						action.accept((S) object);
+					}
+				}
+			});
 		}
 	}
 }
