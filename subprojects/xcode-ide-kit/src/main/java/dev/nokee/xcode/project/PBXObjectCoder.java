@@ -17,6 +17,7 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.PBXObject;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -42,17 +43,18 @@ interface PBXObjectCoder<T extends PBXObject> {
 
 	interface Decoder {
 		<S extends PBXObject> Optional<S> decodeObject(String key);
-		<S extends PBXObject> void decodeObjectIfPresent(String key, Consumer<? super S> consumer);
 		<S extends PBXObject> void decodeObjectsIfPresent(String key, Consumer<? super Iterable<S>> consumer);
-
-		void decodeStringIfPresent(String key, Consumer<? super String> consumer);
-
-		default void decodeIntegerIfPresent(String key, Consumer<? super Integer> consumer) {
-			decodeStringIfPresent(key, it -> consumer.accept(Integer.parseInt(it)));
-		}
 
 		void decodeMapIfPresent(String key, Consumer<? super Map<String, Object>> consumer);
 
 		void decodeArrayIfPresent(String key, Consumer<? super Iterable<?>> consumer);
+
+		<S> void decodeIfPresent(String key, Consumer<? super S> action);
+
+		default <S> void decodeIfPresent(String key, Class<S> type, Consumer<? super S> action) {
+			decodeIfPresent(key,(Type) type, action);
+		}
+
+		<S> void decodeIfPresent(String key, Type type, Consumer<? super S> action);
 	}
 }
