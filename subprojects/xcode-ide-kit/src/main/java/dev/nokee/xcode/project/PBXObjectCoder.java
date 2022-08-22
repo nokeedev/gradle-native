@@ -43,7 +43,6 @@ interface PBXObjectCoder<T extends PBXObject> {
 
 	interface Decoder {
 		<S extends PBXObject> Optional<S> decodeObject(String key);
-		<S extends PBXObject> void decodeObjectsIfPresent(String key, Consumer<? super Iterable<S>> consumer);
 
 		void decodeMapIfPresent(String key, Consumer<? super Map<String, Object>> consumer);
 

@@ -85,12 +85,6 @@ public final class PBXObjectUnarchiver {
 		}
 
 		@Override
-		public <S extends PBXObject> void decodeObjectsIfPresent(String key, Consumer<? super Iterable<S>> consumer) {
-			Optional.ofNullable(object.get(key)).ifPresent(it -> consumer.accept(stream((Iterable<?>) it)
-				.map(Object::toString).map(delegate::<S>decode).collect(toImmutableList())));
-		}
-
-		@Override
 		public <S extends PBXObject> Optional<S> decodeObject(String key) {
 			return Optional.ofNullable(object.get(key)).map(it -> delegate.decode(it.toString()));
 		}
@@ -104,7 +98,13 @@ public final class PBXObjectUnarchiver {
 		@Override
 		@SuppressWarnings("unchecked")
 		public <S> void decodeIfPresent(String key, Consumer<? super S> action) {
-			Optional.ofNullable(object.get(key)).ifPresent(it -> action.accept((S) delegate.decode(it.toString())));
+			Optional.ofNullable(object.get(key)).ifPresent(value -> {
+				if (value instanceof Iterable) {
+					action.accept((S) Streams.stream((Iterable<?>) value).map(it -> delegate.decode(it.toString())).collect(toImmutableList()));
+				} else {
+					action.accept((S) delegate.decode(value.toString()));
+				}
+			});
 		}
 
 		@Override
@@ -114,7 +114,7 @@ public final class PBXObjectUnarchiver {
 				if (type instanceof ParameterizedType) {
 					if (Iterable.class.equals(((ParameterizedType) type).getRawType())) {
 						if (!(value instanceof Iterable)) throw new IllegalStateException();
-						action.accept((S) Streams.stream((Iterable<Object>) value).map(it -> this.<S>decode(it, ((ParameterizedType) type).getActualTypeArguments()[0])).collect(Collectors.toList()));
+						action.accept((S) Streams.stream((Iterable<Object>) value).map(it -> this.<S>decode(it, ((ParameterizedType) type).getActualTypeArguments()[0])).collect(toImmutableList()));
 					} else {
 						throw new UnsupportedOperationException();
 					}
