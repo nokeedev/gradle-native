@@ -37,12 +37,14 @@ public final class PBXProject extends PBXContainer {
 	private final XCConfigurationList buildConfigurationList;
 	private final String compatibilityVersion;
 	private final String name;
+	private final List<ProjectReference> projectReferences;
 
-	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, PBXGroup mainGroup) {
+	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, PBXGroup mainGroup, List<ProjectReference> projectReferences) {
 		this.name = name;
 		this.mainGroup = mainGroup;
 		this.targets = targets;
 		this.buildConfigurationList = buildConfigurationList;
+		this.projectReferences = projectReferences;
 		this.compatibilityVersion = "Xcode 3.2";
 	}
 
@@ -66,6 +68,51 @@ public final class PBXProject extends PBXContainer {
 		return compatibilityVersion;
 	}
 
+	public List<ProjectReference> getProjectReferences() {
+		return projectReferences;
+	}
+
+	public static final class ProjectReference {
+		private final PBXGroup productGroup;
+		private final PBXFileReference projectReference;
+
+		private ProjectReference(PBXGroup productGroup, PBXFileReference projectReference) {
+			this.productGroup = productGroup;
+			this.projectReference = projectReference;
+		}
+
+		public PBXGroup getProductGroup() {
+			return productGroup;
+		}
+
+		public PBXFileReference getProjectReference() {
+			return projectReference;
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		public static final class Builder {
+			private PBXGroup productGroup;
+			private PBXFileReference projectReference;
+
+			public Builder productGroup(PBXGroup productGroup) {
+				this.productGroup = productGroup;
+				return this;
+			}
+
+			public Builder projectReference(PBXFileReference projectReference) {
+				this.projectReference = projectReference;
+				return this;
+			}
+
+			public ProjectReference build() {
+				return new ProjectReference(productGroup, projectReference);
+			}
+		}
+	}
+
 	@Override
 	public int stableHash() {
 		if (name != null) {
@@ -85,6 +132,7 @@ public final class PBXProject extends PBXContainer {
 		private XCConfigurationList buildConfigurations = XCConfigurationList.builder().build();
 		private final List<PBXReference> mainGroupChildren = new ArrayList<>();
 		private PBXGroup mainGroup;
+		private final List<ProjectReference> projectReferences = new ArrayList<>();
 
 		public Builder name(String name) {
 			this.name = name;
@@ -133,11 +181,22 @@ public final class PBXProject extends PBXContainer {
 			return this;
 		}
 
+		public Builder projectReference(ProjectReference projectReference) {
+			projectReferences.add(projectReference);
+			return this;
+		}
+
+		public Builder projectReferences(Iterable<? extends ProjectReference> projectReferences) {
+			this.projectReferences.clear();
+			projectReferences.forEach(this.projectReferences::add);
+			return this;
+		}
+
 		public PBXProject build() {
 			if (mainGroup == null) {
 				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
 			}
-			return new PBXProject(name, ImmutableList.copyOf(targets), buildConfigurations, mainGroup);
+			return new PBXProject(name, ImmutableList.copyOf(targets), buildConfigurations, mainGroup, ImmutableList.copyOf(projectReferences));
 		}
 	}
 }

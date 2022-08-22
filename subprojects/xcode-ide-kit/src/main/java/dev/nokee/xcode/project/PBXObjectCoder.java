@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-interface PBXObjectCoder<T extends PBXObject> {
+interface PBXObjectCoder<T/* extends PBXObject*/> {
 	Class<T> getType();
 
 	T read(Decoder decoder);

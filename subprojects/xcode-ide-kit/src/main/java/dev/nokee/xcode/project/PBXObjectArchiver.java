@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
 
 public final class PBXObjectArchiver {
 	private final GidGenerator gidGenerator;
-	private final Map<String, PBXObjectCoder<PBXObject>> coders;
+	private final Map<String, PBXObjectCoder<Object>> coders;
 
 	public PBXObjectArchiver(GidGenerator gidGenerator) {
 		this(gidGenerator, ImmutableList.copyOf(PBXObjectCoders.values()));
@@ -40,7 +40,7 @@ public final class PBXObjectArchiver {
 	@SuppressWarnings("unchecked")
 	public PBXObjectArchiver(GidGenerator gidGenerator, Iterable<PBXObjectCoder<?>> coders) {
 		this.gidGenerator = gidGenerator;
-		this.coders = Streams.stream(coders).collect(ImmutableMap.toImmutableMap(it -> it.getType().getSimpleName(), it -> (PBXObjectCoder<PBXObject>) it));
+		this.coders = Streams.stream(coders).collect(ImmutableMap.toImmutableMap(it -> it.getType().getSimpleName(), it -> (PBXObjectCoder<Object>) it));
 	}
 
 	public PBXProj encode(PBXProject obj) {
@@ -54,6 +54,18 @@ public final class PBXObjectArchiver {
 
 		private PBXObjectEncoder(ConvertContext db) {
 			this.db = db;
+		}
+
+		public Object encode(Object o) {
+			if (o instanceof PBXObject) {
+				return encode((PBXObject) o);
+			} else if (coders.containsKey(o.getClass().getSimpleName())) {
+				val builder = PBXObjectFields.builder();
+				coders.get(o.getClass().getSimpleName()).write(new BaseEncoder(this, builder), o);
+				return ImmutableMap.copyOf(builder.build().entrySet());
+			} else {
+				return o;
+			}
 		}
 
 		public PBXObjectReference encode(PBXObject o) {
@@ -83,11 +95,7 @@ public final class PBXObjectArchiver {
 		}
 
 		private Object encode(Object value) {
-			if (value instanceof PBXObject) {
-				return delegate.encode((PBXObject) value);
-			} else {
-				return value;
-			}
+			return delegate.encode(value);
 		}
 	}
 

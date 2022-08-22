@@ -27,6 +27,10 @@ public final class PBXObjectFields {
 		this.fields = fields;
 	}
 
+	public static PBXObjectFields fromMap(Map<String, Object> fields) {
+		return new PBXObjectFields(ImmutableMap.copyOf(fields));
+	}
+
 	public Object get(String name) {
 		return fields.get(name);
 	}
