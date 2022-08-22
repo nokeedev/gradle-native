@@ -74,28 +74,20 @@ public final class PBXObjectArchiver {
 		}
 
 		@Override
-		public void encodeArray(String key, Iterable<?> value) {
-			builder.putField(key, value);
+		public void encode(String key, Object value) {
+			if (value instanceof Iterable) {
+				builder.putField(key, Streams.stream((Iterable<?>) value).map(this::encode).collect(ImmutableList.toImmutableList()));
+			} else {
+				builder.putField(key, encode(value));
+			}
 		}
 
-		@Override
-		public void encodeString(String key, CharSequence value) {
-			builder.putField(key, value);
-		}
-
-		@Override
-		public void encodeObject(String key, dev.nokee.xcode.objects.PBXObject value) {
-			builder.putField(key, delegate.encode(value));
-		}
-
-		@Override
-		public void encodeObjects(String key, Iterable<? extends PBXObject> value) {
-			builder.putField(key, Streams.stream(value).map(delegate::encode).collect(ImmutableList.toImmutableList()));
-		}
-
-		@Override
-		public void encodeMap(String key, Map<String, ?> value) {
-			builder.putField(key, value);
+		private Object encode(Object value) {
+			if (value instanceof PBXObject) {
+				return delegate.encode((PBXObject) value);
+			} else {
+				return value;
+			}
 		}
 	}
 
