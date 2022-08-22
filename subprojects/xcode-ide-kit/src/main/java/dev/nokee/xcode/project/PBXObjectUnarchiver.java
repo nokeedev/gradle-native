@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Streams.stream;
@@ -91,12 +90,6 @@ public final class PBXObjectUnarchiver {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public void decodeMapIfPresent(String key, Consumer<? super Map<String, Object>> consumer) {
-			Optional.ofNullable(object.get(key)).ifPresent(it -> consumer.accept((Map<String, Object>) it));
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
 		public <S> void decodeIfPresent(String key, Consumer<? super S> action) {
 			Optional.ofNullable(object.get(key)).ifPresent(value -> {
 				if (value instanceof Iterable) {
@@ -115,6 +108,10 @@ public final class PBXObjectUnarchiver {
 					if (Iterable.class.equals(((ParameterizedType) type).getRawType())) {
 						if (!(value instanceof Iterable)) throw new IllegalStateException();
 						action.accept((S) Streams.stream((Iterable<Object>) value).map(it -> this.<S>decode(it, ((ParameterizedType) type).getActualTypeArguments()[0])).collect(toImmutableList()));
+					} else if (Map.class.equals(((ParameterizedType) type).getRawType())) {
+						// Usually the values is already a map
+						if (!(value instanceof Map)) throw new IllegalStateException();
+						action.accept((S) value);
 					} else {
 						throw new UnsupportedOperationException();
 					}

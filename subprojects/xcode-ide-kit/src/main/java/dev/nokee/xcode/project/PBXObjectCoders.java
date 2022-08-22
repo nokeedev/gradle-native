@@ -48,6 +48,7 @@ import lombok.val;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static dev.nokee.xcode.objects.configuration.XCConfigurationList.DefaultConfigurationVisibility.HIDDEN;
@@ -441,7 +442,7 @@ final class PBXObjectCoders {
 		public XCBuildConfiguration read(Decoder decoder) {
 			val builder = XCBuildConfiguration.builder();
 			decoder.decodeIfPresent("name", String.class, builder::name);
-			decoder.decodeMapIfPresent("buildSettings", it -> builder.buildSettings(BuildSettings.of(it)));
+			decoder.decodeIfPresent("buildSettings", new TypeToken<Map<String, Object>>() {}.getType(), toBuildSettings(builder::buildSettings));
 			decoder.decodeIfPresent("baseConfigurationReference", builder::baseConfigurationReference);
 			return builder.build();
 		}
@@ -451,6 +452,10 @@ final class PBXObjectCoders {
 			encoder.encodeString("name", value.getName());
 			encoder.encodeMap("buildSettings", value.getBuildSettings().asMap());
 		}
+	}
+
+	private static Consumer<Map<String, Object>> toBuildSettings(Consumer<? super BuildSettings> action) {
+		return it -> action.accept(BuildSettings.of(it));
 	}
 
 	private static final class PBXShellScriptBuildPhaseCoder implements PBXObjectCoder<PBXShellScriptBuildPhase> {
