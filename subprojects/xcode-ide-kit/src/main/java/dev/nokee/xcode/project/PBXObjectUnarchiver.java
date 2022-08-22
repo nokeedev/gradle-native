@@ -102,11 +102,6 @@ public final class PBXObjectUnarchiver {
 		}
 
 		@Override
-		public void decodeArrayIfPresent(String key, Consumer<? super Iterable<?>> consumer) {
-			Optional.ofNullable(object.get(key)).ifPresent(it -> consumer.accept((Iterable<?>) it));
-		}
-
-		@Override
 		@SuppressWarnings("unchecked")
 		public <S> void decodeIfPresent(String key, Consumer<? super S> action) {
 			Optional.ofNullable(object.get(key)).ifPresent(it -> action.accept((S) delegate.decode(it.toString())));
