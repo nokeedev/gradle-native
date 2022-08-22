@@ -127,10 +127,14 @@ public final class PBXObjectUnarchiver {
 				return (S) value.toString();
 			} else if (type.equals(Integer.class)) {
 				return (S) Integer.decode(value.toString());
-			} else {
+			} else if (PBXObject.class.isAssignableFrom((Class<?>) type)) {
 				val object = delegate.decode(value.toString());
 				if (!((Class<?>) type).isInstance(object)) throw new IllegalStateException();
 				return (S) object;
+			} else if (coders.containsKey(((Class<?>) type).getSimpleName()) && value instanceof Map) {
+				return (S) coders.get(((Class<?>) type).getSimpleName()).read(new BaseDecoder(delegate, PBXObjectFields.fromMap((Map<String, Object>) value)));
+			} else {
+				throw new UnsupportedOperationException();
 			}
 		}
 	}

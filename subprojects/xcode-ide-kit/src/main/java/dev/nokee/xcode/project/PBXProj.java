@@ -18,7 +18,6 @@ package dev.nokee.xcode.project;
 import java.util.function.Consumer;
 
 public final class PBXProj {
-
 	private final PBXObjects objects;
 	private final String rootObject;
 
@@ -38,7 +37,6 @@ public final class PBXProj {
 	public static Builder builder() {
 		return new Builder();
 	}
-
 
 	public static final class Builder {
 		private PBXObjects objects;

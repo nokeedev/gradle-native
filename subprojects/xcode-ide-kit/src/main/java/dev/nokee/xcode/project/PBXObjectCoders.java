@@ -39,6 +39,7 @@ import dev.nokee.xcode.objects.files.XCVersionGroup;
 import dev.nokee.xcode.objects.targets.PBXAggregateTarget;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
+import dev.nokee.xcode.objects.targets.PBXReferenceProxy;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.objects.targets.ProductType;
@@ -76,7 +77,9 @@ final class PBXObjectCoders {
 		new PBXCopyFilesBuildPhaseCoder(),
 		new PBXTargetDependencyCoder(),
 		new PBXBuildFileCoder(),
-		new PBXContainerItemProxyCoder()
+		new PBXContainerItemProxyCoder(),
+		new PBXReferenceProxyCoder(),
+		new ProjectReferenceCoder()
 	);
 
 	public static PBXObjectCoder<?>[] values() {
@@ -95,6 +98,7 @@ final class PBXObjectCoders {
 			decoder.decodeIfPresent("mainGroup", builder::mainGroup);
 			decoder.decodeIfPresent("targets", builder::targets);
 			decoder.decodeIfPresent("buildConfigurationList", XCConfigurationList.class, builder::buildConfigurations);
+			decoder.decodeIfPresent("projectReferences", new TypeToken<Iterable<PBXProject.ProjectReference>>() {}.getType(), builder::projectReferences);
 			return builder.build();
 		}
 
@@ -108,6 +112,28 @@ final class PBXObjectCoders {
 			encoder.encode("buildConfigurationList", value.getBuildConfigurationList());
 			encoder.encode("compatibilityVersion", value.getCompatibilityVersion());
 			encoder.encode("attributes", ImmutableMap.of("LastUpgradeCheck", "0610"));
+			encoder.encode("projectReferences", value.getProjectReferences());
+		}
+	}
+
+	private static final class ProjectReferenceCoder implements PBXObjectCoder<PBXProject.ProjectReference> {
+		@Override
+		public Class<PBXProject.ProjectReference> getType() {
+			return PBXProject.ProjectReference.class;
+		}
+
+		@Override
+		public PBXProject.ProjectReference read(Decoder decoder) {
+			val builder = PBXProject.ProjectReference.builder();
+			decoder.decodeIfPresent("ProjectRef", builder::projectReference);
+			decoder.decodeIfPresent("ProductGroup", builder::productGroup);
+			return builder.build();
+		}
+
+		@Override
+		public void write(Encoder encoder, PBXProject.ProjectReference value) {
+			encoder.encode("ProjectRef", value.getProjectReference());
+			encoder.encode("ProductGroup", value.getProductGroup());
 		}
 	}
 
@@ -624,6 +650,33 @@ final class PBXObjectCoders {
 			return value -> {
 				consumer.accept(Arrays.stream(PBXContainerItemProxy.ProxyType.values()).filter(candidate -> candidate.getIntValue() == value).findFirst().orElseThrow(UnsupportedOperationException::new));
 			};
+		}
+	}
+
+	private static final class PBXReferenceProxyCoder implements PBXObjectCoder<PBXReferenceProxy> {
+		@Override
+		public Class<PBXReferenceProxy> getType() {
+			return PBXReferenceProxy.class;
+		}
+
+		@Override
+		public PBXReferenceProxy read(Decoder decoder) {
+			val builder = PBXReferenceProxy.builder();
+			decoder.decodeIfPresent("name", String.class, builder::name);
+			decoder.decodeIfPresent("path", String.class, builder::path);
+			decoder.decodeIfPresent("sourceTree", String.class, it -> builder.sourceTree(PBXSourceTree.of(it)));
+			decoder.decodeIfPresent("remoteRef", PBXContainerItemProxy.class, builder::remoteReference);
+			decoder.decodeIfPresent("fileType", String.class, builder::fileType);
+			return builder.build();
+		}
+
+		@Override
+		public void write(Encoder encoder, PBXReferenceProxy value) {
+			value.getName().ifPresent(it -> encoder.encode("name", it));
+			value.getPath().ifPresent(it -> encoder.encode("path", it));
+			encoder.encode("sourceTree", value.getSourceTree().toString());
+			encoder.encode("remoteRef", value.getRemoteReference());
+			encoder.encode("fileType", value.getFileType());
 		}
 	}
 }

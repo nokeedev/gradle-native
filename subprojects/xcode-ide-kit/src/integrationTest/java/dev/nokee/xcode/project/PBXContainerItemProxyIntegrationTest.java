@@ -21,6 +21,7 @@ import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.objects.targets.PBXReferenceProxy;
 import lombok.val;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
@@ -80,6 +81,27 @@ class PBXContainerItemProxyIntegrationTest {
 
 			val libTarget = proj.getObjects().get("PBXNativeTarget").collect(Collectors.toList()).get(1);
 			assertThat(targetProxy.getRemoteGlobalIDString(), equalTo(libTarget.getGlobalID()));
+		}
+	}
+
+	@Test
+	void crossProjectProductReference() throws IOException {
+		new CrossProjectReference().writeToProject(testDirectory.toFile());
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("CrossProjectReference.xcodeproj/project.pbxproj"))))) {
+			val project = new PBXObjectUnarchiver().decode(reader.read());
+
+			assertThat(project.getProjectReferences(), hasSize(1));
+			assertThat(project.getProjectReferences().get(0).getProductGroup().getChildren(), hasSize(1));
+			assertThat(project.getProjectReferences().get(0).getProductGroup().getChildren().get(0), isA(PBXReferenceProxy.class));
+
+			val referenceProxy = ((PBXReferenceProxy) project.getProjectReferences().get(0).getProductGroup().getChildren().get(0)).getRemoteReference();
+			assertThat(referenceProxy.getContainerPortal(), isA(PBXFileReference.class));
+			assertThat(referenceProxy.getProxyType(), equalTo(PBXContainerItemProxy.ProxyType.REFERENCE));
+			try (val libReader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("Library.xcodeproj/project.pbxproj"))))) {
+				val proj = libReader.read();
+				val libFile = proj.getObjects().get("PBXFileReference").collect(Collectors.toList()).get(2);
+				assertThat(referenceProxy.getRemoteGlobalIDString(), equalTo(libFile.getGlobalID()));
+			}
 		}
 	}
 }
