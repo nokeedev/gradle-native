@@ -45,19 +45,19 @@ public final class PBXContainerItemProxy extends PBXContainerItem {
 		}
 	}
 
-	private final Supplier<PBXObject> containerPortal;
+	private final Supplier<ContainerPortal> containerPortal;
 	private final String remoteGlobalIDString;
 	private final ProxyType proxyType;
 	@Nullable private final String remoteInfo;
 
-	private PBXContainerItemProxy(Supplier<PBXObject> containerPortal, String remoteGlobalIDString, ProxyType proxyType, @Nullable String remoteInfo) {
+	private PBXContainerItemProxy(Supplier<ContainerPortal> containerPortal, String remoteGlobalIDString, ProxyType proxyType, @Nullable String remoteInfo) {
 		this.containerPortal = containerPortal;
 		this.remoteGlobalIDString = remoteGlobalIDString;
 		this.proxyType = proxyType;
 		this.remoteInfo = remoteInfo;
 	}
 
-	public PBXObject getContainerPortal() {
+	public ContainerPortal getContainerPortal() {
 		return containerPortal.get();
 	}
 
@@ -83,17 +83,17 @@ public final class PBXContainerItemProxy extends PBXContainerItem {
 	}
 
 	public static final class Builder {
-		private Supplier<PBXObject> containerPortal;
+		private Supplier<ContainerPortal> containerPortal;
 		private ProxyType proxyType;
 		private String remoteGlobalId;
 		private String remoteInfo;
 
-		public Builder containerPortal(PBXObject containerPortal) {
+		public Builder containerPortal(ContainerPortal containerPortal) {
 			this.containerPortal = Suppliers.ofInstance(containerPortal);
 			return this;
 		}
 
-		public Builder containerPortal(Supplier<PBXObject> containerPortal) {
+		public Builder containerPortal(Supplier<ContainerPortal> containerPortal) {
 			this.containerPortal = containerPortal;
 			return this;
 		}
@@ -117,4 +117,9 @@ public final class PBXContainerItemProxy extends PBXContainerItem {
 			return new PBXContainerItemProxy(requireNonNull(containerPortal, "'containerPortal' must not be null"), requireNonNull(remoteGlobalId, "'remoteGlobalId' must not be null"), requireNonNull(proxyType, "'proxyType' must not be null"), remoteInfo);
 		}
 	}
+
+	/**
+	 * Represent a container portal for a {@link PBXContainerItemProxy}.
+	 */
+	public interface ContainerPortal {}
 }

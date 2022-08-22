@@ -84,8 +84,9 @@ public final class PBXObjectUnarchiver {
 		}
 
 		@Override
-		public <S extends PBXObject> Optional<S> decodeObject(String key) {
-			return Optional.ofNullable(object.get(key)).map(it -> delegate.decode(it.toString()));
+		@SuppressWarnings("unchecked")
+		public <S> Optional<S> decodeObject(String key) {
+			return Optional.ofNullable(object.get(key)).map(it -> (S) delegate.decode(it.toString()));
 		}
 
 		@Override
