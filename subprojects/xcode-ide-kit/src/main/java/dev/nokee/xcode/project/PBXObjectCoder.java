@@ -33,7 +33,7 @@ interface PBXObjectCoder<T/* extends PBXObject*/> {
 	}
 
 	interface Decoder {
-		<S extends PBXObject> Optional<S> decodeObject(String key);
+		<S/* extends PBXObject*/> Optional<S> decodeObject(String key);
 
 		<S> void decodeIfPresent(String key, Consumer<? super S> action);
 

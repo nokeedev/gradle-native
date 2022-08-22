@@ -631,7 +631,8 @@ final class PBXObjectCoders {
 		@Override
 		public PBXContainerItemProxy read(Decoder decoder) {
 			val builder = PBXContainerItemProxy.builder();
-			builder.containerPortal(() -> decoder.decodeObject("containerPortal").orElseThrow(RuntimeException::new));
+			builder.containerPortal(() -> decoder.<PBXContainerItemProxy.ContainerPortal>decodeObject("containerPortal")
+				.orElseThrow(RuntimeException::new));
 			decoder.decodeIfPresent("remoteGlobalIDString", String.class, builder::remoteGlobalId);
 			decoder.decodeIfPresent("proxyType", Integer.class, toProxyType(builder::proxyType));
 			decoder.decodeIfPresent("remoteInfo", String.class, builder::remoteInfo);

@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 /**
  * The root object representing the project itself.
  */
-public final class PBXProject extends PBXContainer {
+public final class PBXProject extends PBXContainer implements PBXContainerItemProxy.ContainerPortal {
 	private final PBXGroup mainGroup;
 	private final List<PBXTarget> targets;
 	private final XCConfigurationList buildConfigurationList;
