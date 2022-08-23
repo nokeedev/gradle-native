@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.google.common.collect.Streams.stream;
 
@@ -30,17 +31,27 @@ import static com.google.common.collect.Streams.stream;
  */
 public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	private static final ImmutableList<PBXBuildFile> ALWAYS_HAS_EMPTY_FILES = ImmutableList.of();
+	@Nullable private final String name;
 	private final List<String> inputPaths;
+	private final List<String> inputFileListPaths;
 	private final List<String> outputPaths;
+	private final List<String> outputFileListPaths;
 	private final String shellPath;
 	private final String shellScript;
 
-	private PBXShellScriptBuildPhase(String shellScript, String shellPath, ImmutableList<String> inputPaths, ImmutableList<String> outputPaths) {
+	private PBXShellScriptBuildPhase(@Nullable String name, String shellScript, String shellPath, ImmutableList<String> inputPaths, ImmutableList<String> inputFileListPaths, ImmutableList<String> outputPaths, ImmutableList<String> outputFileListPaths) {
 		super(ALWAYS_HAS_EMPTY_FILES);
+		this.name = name;
 		this.shellPath = shellPath;
 		this.shellScript = shellScript;
 		this.inputPaths = inputPaths;
+		this.inputFileListPaths = inputFileListPaths;
 		this.outputPaths = outputPaths;
+		this.outputFileListPaths = outputFileListPaths;
+	}
+
+	public Optional<String> getName() {
+		return Optional.ofNullable(name);
 	}
 
 	/**
@@ -54,6 +65,15 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	}
 
 	/**
+	 * Returns the list (possibly empty) of file list files, e.g. {@literal *.xcfilelist}, passed as input to the shell script.
+	 *
+	 * @return input file list paths, never null
+	 */
+	public List<String> getInputFileListPaths() {
+		return inputFileListPaths;
+	}
+
+	/**
 	 * Returns the list (possibly empty) of files created as output of the shell script.
 	 * May not be actual paths, because they can have variable interpolations.
 	 *
@@ -61,6 +81,15 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	 */
 	public List<String> getOutputPaths() {
 		return outputPaths;
+	}
+
+	/**
+	 * Returns the list (possibly empty) of file list files, e.g. {@literal *.xcfilelist}, passed as output to the shell script.
+	 *
+	 * @return output file list paths, never null
+	 */
+	public List<String> getOutputFileListPaths() {
+		return outputFileListPaths;
 	}
 
 	/**
@@ -91,10 +120,18 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 		private static final String DEFAULT_SHELL_PATH = "/bin/sh";
 		private static final String DEFAULT_SHELL_SCRIPT = "";
 
+		private String name;
 		private String shellScript;
 		private String shellPath;
 		private final List<String> outputPaths = new ArrayList<>();
 		private final List<String> inputPaths = new ArrayList<>();
+		private final List<String> inputFileListPaths = new ArrayList<>();
+		private final List<String> outputFileListPaths = new ArrayList<>();
+
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
 
 		public Builder shellScript(String shellScript) {
 			this.shellScript = Objects.requireNonNull(shellScript);
@@ -118,16 +155,28 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 			return this;
 		}
 
+		public Builder inputFileListPaths(Iterable<String> inputFileListPaths) {
+			this.inputFileListPaths.clear();
+			stream(inputFileListPaths).map(Objects::requireNonNull).forEach(this.inputFileListPaths::add);
+			return this;
+		}
+
+		public Builder outputFileListPaths(Iterable<String> outputFileListPaths) {
+			this.outputFileListPaths.clear();
+			stream(outputFileListPaths).map(Objects::requireNonNull).forEach(this.outputFileListPaths::add);
+			return this;
+		}
+
 		public PBXShellScriptBuildPhase build() {
-			if (shellScript != null) {
+			if (shellScript == null) {
 				shellScript = DEFAULT_SHELL_SCRIPT;
 			}
 
-			if (shellPath != null) {
+			if (shellPath == null) {
 				shellPath = DEFAULT_SHELL_PATH;
 			}
 
-			return new PBXShellScriptBuildPhase(shellScript, shellPath, ImmutableList.copyOf(inputPaths), ImmutableList.copyOf(outputPaths));
+			return new PBXShellScriptBuildPhase(name, shellScript, shellPath, ImmutableList.copyOf(inputPaths), ImmutableList.copyOf(inputFileListPaths), ImmutableList.copyOf(outputPaths), ImmutableList.copyOf(outputFileListPaths));
 		}
 	}
 }
