@@ -33,8 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
-import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
-import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -52,7 +50,7 @@ class PBXContainerItemProxyIntegrationTest {
 
 			assertThat(project.getTargets(), hasSize(1));
 			assertThat(project.getTargets().get(0).getDependencies(), hasSize(1));
-			assertThat(project.getTargets().get(0).getDependencies().get(0).getTarget(), emptyOptional());
+
 			val targetProxy = project.getTargets().get(0).getDependencies().get(0).getTargetProxy();
 			assertThat(targetProxy.getContainerPortal(), isA(PBXFileReference.class));
 			assertThat(targetProxy.getProxyType(), equalTo(PBXContainerItemProxy.ProxyType.TARGET_REFERENCE));
@@ -74,7 +72,6 @@ class PBXContainerItemProxyIntegrationTest {
 
 			assertThat(project.getTargets(), hasSize(2));
 			assertThat(project.getTargets().get(0).getDependencies(), hasSize(1));
-			assertThat(project.getTargets().get(0).getDependencies().get(0).getTarget(), optionalWithValue(equalTo(project.getTargets().get(1))));
 			val targetProxy = project.getTargets().get(0).getDependencies().get(0).getTargetProxy();
 			assertThat(targetProxy.getContainerPortal(), isA(PBXProject.class));
 			assertThat(targetProxy.getProxyType(), equalTo(PBXContainerItemProxy.ProxyType.TARGET_REFERENCE));
