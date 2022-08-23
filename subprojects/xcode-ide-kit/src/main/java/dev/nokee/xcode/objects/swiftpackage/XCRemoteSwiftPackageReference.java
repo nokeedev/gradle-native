@@ -288,7 +288,7 @@ public final class XCRemoteSwiftPackageReference extends PBXContainerItem {
 		}
 
 		public XCRemoteSwiftPackageReference build() {
-			return new XCRemoteSwiftPackageReference(repositoryUrl, requirement);
+			return new XCRemoteSwiftPackageReference(Objects.requireNonNull(repositoryUrl, "'repositoryUrl' must not be null"), Objects.requireNonNull(requirement, "'requirement' must not be null"));
 		}
 	}
 }

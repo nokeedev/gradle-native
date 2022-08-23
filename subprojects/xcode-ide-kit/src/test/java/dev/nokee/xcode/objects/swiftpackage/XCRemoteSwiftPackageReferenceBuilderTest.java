@@ -18,6 +18,7 @@ package dev.nokee.xcode.objects.swiftpackage;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.builder;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
@@ -34,6 +35,6 @@ class XCRemoteSwiftPackageReferenceBuilderTest {
 
 	@Test
 	void createsSwiftPackageReference() {
-		assertThrows(RuntimeException.class, () -> builder().requirement(mock(XCRemoteSwiftPackageReference.VersionRequirement.class)).repositoryUrl("https://github.com/examplecom/example").build());
+		assertDoesNotThrow(() -> builder().requirement(mock(XCRemoteSwiftPackageReference.VersionRequirement.class)).repositoryUrl("https://github.com/examplecom/example").build());
 	}
 }
