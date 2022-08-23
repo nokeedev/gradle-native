@@ -1,0 +1,631 @@
+// Compatibility checking seems to be using XCCompatibilityChecking which checks for features in used. The list of feature is unknown at this time, but it seems these are the features: https://github.com/denis-panov/ClassDump-Xcode10.2/blob/master/PlugIns/Xcode3Core/Contents/Frameworks/DevToolsCore.framework/XCCompatibilityFeature.h
+digraph G {
+	edge[dir=both arrowtail=none arrowhead=normal]
+	// odiamond (empty diamond) represent 0..1
+	// diamond (filled diamond) represent 1
+	// crow represent 0..*
+
+	PBXProject;
+
+	// Container items
+	PBXContainerItemProxy;
+
+	PBXReferenceProxy;
+	PBXFileReference;
+	PBXGroup;
+	PBXVariantGroup;
+	XCVersionGroup;
+
+	// Project items
+	XCConfigurationList;
+	PBXBuildStyle;
+	XCBuildConfiguration;
+	PBXTarget;
+
+	PBXBuildRule;
+	PBXTargetDependency;
+	PBXBuildFile;
+
+	XCSwiftPackageProductDependency;
+	XCRemoteSwiftPackageReference;
+
+	// Target implementations
+	PBXAggregateTarget;
+	PBXNativeTarget;
+	PBXLegacyTarget;
+
+	// Build phase implementations
+	PBXCopyFilesBuildPhase;
+	PBXFrameworksBuildPhase;
+	PBXHeadersBuildPhase;
+	PBXResourcesBuildPhase;
+	PBXSourcesBuildPhase;
+	PBXShellScriptBuildPhase;
+
+
+
+
+
+
+	//region:PBXProject
+
+	// attributes is a map containing keys like `LastUpgradeCheck` = number representing Xcode
+	//   `BuildIndependentTargetsInParallel` YES/NO or 0/1 boolean
+	//   `LastSwiftUpdateCheck` number representing Xcode seems like 1320 => 13.2
+	//    `LastTestingUpgradeCheck` number representing Xcode seems like 0600 => 6.0
+	//   `TargetAttributes`  map where keys are Target GlobalID and value are another map with keys:
+	//      `CreatedOnToolsVersion` string representing Xcode version i.e. 13.2.1
+	//      `TestTargetID` target GlobalID (product) -> present on test target attributes
+	//       `DevelopmentTeam` string id representing the development team (most likely for signing)
+	//       `LastSwiftMigration` number representing Xcode, i.e. 1020 => 10.2
+	// 		  `ProvisioningStyle` String , don't know what it does, i.e. Automatic/Manual, what are other values???
+	//        `SystemCapabilities` map of maps, i.e. com.apple.BackgroundModes.appletvos = { enabled = 1; }, com.apple.Keychain = { enabled = 1; }, com.apple.iCloud = { enabled = 1; }, com.apple.Sandbox = { enabled = 0; }, com.apple.ApplicationGroups.iOS = { enabled = 1; }, com.apple.SafariKeychain = { enabled = 1; }, com.apple.BackgroundModes = { enabled = 1; }, com.apple.DataProtection = { enabled = 1; },
+	//         `DefaultBuildSystemTypeForWorkspace` string, don't know what it does, i.e. Original, what are other values???
+	//         `CLASSPREFIX` String but seems to be a IDE configuration of some sort
+	//         `ORGANIZATIONNAME` String but seems to be a IDE configuration of some sort
+
+	// projectDirPath modify the SRCROOT
+	// projectRoot... no idea seems to be a empty string (which is almost everything is ASCII plist) my guessing is the projectDirPath adjust in the nesting and projectRoot adjust regarding the parent
+		// projectRoot / <-to base dir |<xcodeproj>| to SRCROOT-> / projectDirPath
+	// knownRegions array of locals - short name (Localization under project config)? ex. en, Base or Full language name (with capital letter): Project Configuration -> Info tab -> Localizations table
+	// developmentRegion marks the Development Language under Localization of project config) ex. en or English: Project Configuration -> Info tab -> Localizations table -> entry with suffix "- Development Language"
+	// hasScannedForEncodings = 0/1 boolean -> not sure what it is
+	// compatibilityVersion ex. Xcode 2.4, Xcode 8.0, Xcode 3.2, Xcode 9.3, Xcode 13.0 => Presumably, it keeps the format in a way that the specified Xcode version is able to read
+		// 2.4 => 42
+		// 3.1 => 45
+		// 3.2 => 46
+		// 6.3 => 47
+        // 8.0 => 48
+		// 9.3 => 50
+		// 10.0 => 51
+		// 11.0 => 52
+		// 11.4 => 53
+		// 12.0 => 54
+		// 13.0 => 55
+		// See https://github.com/dnkoutso/Xcodeproj/blob/master/lib/xcodeproj/constants.rb#L130-L141
+	// projectReferences: list of ProjectReference, adds a reference as soon as an xcodeproj file is dragged into a project (added). The `Products` of that project are automatically added in a hidden Products group which is just a list of PBXReferenceProxy which serves as a way to find the product files
+	// TODO: KnownAssetTags, configured from targets Resource Tags (tab)
+	PBXProject [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXProject</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="attributes" align="left">attributes</td></tr>
+				<tr><td port="projectDirPath" align="left">projectDirPath</td></tr>
+				<tr><td port="projectRoot" align="left">projectRoot</td></tr>
+				<tr><td port="knownRegions" align="left">knownRegions</td></tr>
+				<tr><td port="hasScannedForEncodings" align="left">hasScannedForEncodings</td></tr>
+				<tr><td port="developmentRegion" align="left">developmentRegion</td></tr>
+				<tr><td port="compatibilityVersion" align="left">compatibilityVersion</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	PBXProject -> PBXGroup [arrowtail=odiamond label=mainGroup]
+	PBXProject -> PBXTarget [arrowtail=crow label=targets]
+	PBXProject -> XCConfigurationList [arrowtail=diamond label=buildConfigurationList]
+	PBXProject -> ProjectReference [arrowtail=crow label=projectReferences]
+	PBXProject -> XCRemoteSwiftPackageReference [arrowtail=crow label=packageReferences]
+	PBXProject -> PBXGroup [arrowtail=odiamond label=productRefGroup]
+
+
+	// ProductGroup =  to PBXGroup (with childrens pointing to PBXReferenceProxy to the remote product)
+	// ProjectRef = to PBXFileReference of xcodeproject
+	ProjectReference [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b><i>ProjectReference</i></b></td></tr>
+			</table>>
+	]
+
+	ProjectReference -> PBXGroup [label=ProductGroup]
+	ProjectReference -> PBXFileReference [label=ProjectRef]
+	//endregion
+
+	//region:PBXContainerItemProxy
+	// containerPortal -> usually point to a PBXFileReference of type 'wrapper.pb-project' or the PBXProject object
+	// remoteGlobalIDString -> just a GID that is valid inside the containerPortal
+	// proxyType are either 1 (target reference) or 2 (file reference)
+	// remoteInfo seems to just be the name of the object (name of target or name of file reference)
+	PBXContainerItemProxy [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXContainerItemProxy</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="containerPortal" align="left">containerPortal</td></tr>
+				<tr><td port="remoteGlobalIDString" align="left">remoteGlobalIDString</td></tr>
+				<tr><td port="proxyType" align="left">proxyType</td></tr>
+				<tr><td port="remoteInfo" align="left">remoteInfo</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	// choices
+	PBXContainerItemProxy -> ContainerPortal [arrowtail=diamond label=containerPortal]
+
+	ContainerPortal[label=<<b><i>ContainerPortal</i></b>>]
+
+	ContainerPortal -> PBXProject [color=blue]
+	ContainerPortal -> PBXFileReference [color=blue]
+	//endregion
+
+	//region:XCConfigurationList
+	// defaultConfigurationName -> what is the default config to use for command-line builds: Project Configurtion -> Info (tab) -> Configurations (section) -> Use <defaultConfigurationName> for command-line builds (usually defaults to Release)
+	// defaultConfigurationIsVisible -> no idea what this is or what it does (https://github.com/xcode-actions/XcodeTools/blob/86e9088c7b5e5be0e9418a6602ce6eee9dccb2bf/Sources/XcodeProj/PBXModel/BuildConfigurations/XCConfigurationList.swift#L20)
+	XCConfigurationList [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>XCConfigurationList</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="defaultConfigurationIsVisible" align="left">defaultConfigurationIsVisible</td></tr>
+				<tr><td port="defaultConfigurationName" align="left">defaultConfigurationName</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	XCConfigurationList -> XCBuildConfiguration [arrowtail=crow label=buildConfigurations]
+	//endregion:XCConfigurationList
+
+	//region:PBXBuildStyle
+	PBXBuildStyle [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXBuildStyle</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name</td></tr>
+				<tr><td port="buildSettings" align="left">buildSettings</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+	//endregion:PBXBuildStyle
+
+	//region:XCBuildConfiguration
+	// This used to be called PBXBuildStyle in the old days. This new type support xcconfig files as base configuration
+	XCBuildConfiguration [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>XCBuildConfiguration</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name</td></tr>
+				<tr><td port="buildSettings" align="left">buildSettings</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	XCBuildConfiguration -> PBXFileReference [arrowtail=odiamond label=baseConfigurationReference]
+	//endregion:XCBuildConfiguration
+
+	//region:PBXTarget
+	// productType -> ProductType. is nullable, present if productReference is present (most likely can infer if productReference is present but not productType)
+	// productName -> String. is nullable, present if productReference is present (most likely can infer if productReference is present but not productName)
+	// QUESTION: Can PBXTarget stand on its own?
+	PBXTarget[label=<<b><i>PBXTarget</i></b>>]
+
+	PBXTarget -> PBXAggregateTarget [color=blue]
+	PBXTarget -> PBXNativeTarget [color=blue]
+	PBXTarget -> PBXLegacyTarget [color=blue]
+	//endregion
+
+	//region:PBXBuildFile
+	// I think it should be fileRef OR productRef but not both
+	PBXBuildFile [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXBuildFile</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="settings" align="left">settings</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	// Can it actually only be reference proxy or file reference?
+    //  I doubt it can be a PBXGroup...
+	// TODO: What could we do with fileRef (referencing the two possible choice)
+	PBXBuildFile -> FileReference [arrowtail=odiamond label=fileRef]
+	PBXBuildFile -> XCSwiftPackageProductDependency [arrowtail=odiamond label=productRef]
+
+	FileReference[label=<<b><i>FileReference</i></b>>]
+
+	FileReference -> PBXReferenceProxy [color=blue]
+	FileReference -> PBXFileReference [color=blue]
+	//endregion:PBXBuildFile
+
+	//region:PBXTargetDependency
+	PBXTargetDependency [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXTargetDependency</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	PBXTargetDependency -> PBXTarget [arrowtail=odiamond label=target]
+	PBXTargetDependency -> PBXContainerItemProxy [arrowtail=diamond label=targetProxy]
+	//endregion
+
+	//region:PBXBuildRule
+	// name is optional??
+	PBXBuildRule [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXBuildRule</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="compileSpec" align="left">compileSpec</td></tr>
+				<tr><td port="fileType" align="left">fileType</td></tr>
+				<tr><td port="inputFiles" align="left">inputFiles</td></tr>
+				<tr><td port="isEditable" align="left">isEditable</td></tr>
+				<tr><td port="name" align="left">name</td></tr>
+				<tr><td port="outputFiles" align="left">outputFiles</td></tr>
+				<tr><td port="script" align="left">script</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+	//endregion
+
+	//region:XCSwiftPackageProductDependency
+	XCSwiftPackageProductDependency [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>XCSwiftPackageProductDependency</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="productName" align="left">productName</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	XCSwiftPackageProductDependency -> XCRemoteSwiftPackageReference [label=package]
+	//endregion:XCSwiftPackageProductDependency
+
+	//region:XCRemoteSwiftPackageReference
+	// GitHub url only?
+	// requirement depends on `kind`
+	XCRemoteSwiftPackageReference [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>XCRemoteSwiftPackageReference</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="repositoryURL" align="left">repositoryURL</td></tr>
+				<tr><td port="requirement" align="left">requirement</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+	//endregion:XCRemoteSwiftPackageReference
+
+	//region:PBXCopyFilesBuildPhase
+	// How is files from parent used?
+	// buildActionMask is a 32-bit value:
+	//   - by default it 2147483647 (0x7fffffff)
+	//   - 8 (0x8) if 'Copy only when installing' is checked
+	//   - 12 (0xC) if 'Copy only when installing' is unchecked
+	//   > It seems like 0x8 would be install build action and possibly 0x4 would be the "build" build action
+	// runOnlyForDeploymentPostprocessing -> boolean 0/1 ('Copy only when installing' checked (1) vs unchecked (0))
+	// files -> if 'Code Sign On Copy" checked -> PBXBuildFile settings: ATTRIBUTES = (CodeSignOnCopy, )
+	PBXCopyFilesBuildPhase [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXCopyFilesBuildPhase</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="buildActionMask" align="left">buildActionMask</td></tr>
+				<tr><td port="dstPath" align="left">dstPath</td></tr>
+				<tr><td port="dstSubfolderSpec" align="left">dstSubfolderSpec</td></tr>
+				<tr><td port="runOnlyForDeploymentPostprocessing" align="left">runOnlyForDeploymentPostprocessing</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	// files to copy
+	PBXCopyFilesBuildPhase -> PBXBuildFile [arrowtail=crow label=files]
+	//endregion
+
+	//region:PBXFrameworksBuildPhase
+	// How is files from parent used?
+	// Seems to be the "Link Binary with Libraries" phase
+	// files -> if 'Status' set to "Optional" -> PBXBuildFile settings: ATTRIBUTES = (Weak, )
+	//    "Required" simply remove the attribute value and optionally replace with ATTRIBUTES = (Required, )
+	// buildActionMask -> Can't find a way to change the default mask value
+	// runOnlyForDeploymentPostprocessing -> can't find a way to change this value, defaults to 0 (false)
+	PBXFrameworksBuildPhase [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXFrameworksBuildPhase</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="buildActionMask" align="left">buildActionMask</td></tr>
+				<tr><td port="runOnlyForDeploymentPostprocessing" align="left">runOnlyForDeploymentPostprocessing</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	// files represent the libraries to link (see settings on PBXBuildFile for optional/required)
+	PBXFrameworksBuildPhase -> PBXBuildFile [arrowtail=crow label=files]
+	//endregion
+
+	//region:PBXHeadersBuildPhase
+	// How is files from parent used?
+	// files -> depending on the visibility (Public, Private, Project) -> PBXBuildFile settings:
+	//    - Project -> none
+	//    - Private -> ATTRIBUTES = (Private, )
+	//    - Public -> ATTRIBUTES = (Public, )
+	// buildActionMask -> Can't find a way to change the default mask value
+	// runOnlyForDeploymentPostprocessing -> can't find a way to change this value, defaults to 0 (false)
+	PBXHeadersBuildPhase [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXHeadersBuildPhase</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="buildActionMask" align="left">buildActionMask</td></tr>
+				<tr><td port="runOnlyForDeploymentPostprocessing" align="left">runOnlyForDeploymentPostprocessing</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+
+	// files represent the headers at various visibility (see settings of PBXBuildFile)
+	PBXHeadersBuildPhase -> PBXBuildFile [dir=back arrowtail=crow arrowhead=none label=files]
+	//endregion:PBXHeadersBuildPhase
+
+	//region:PBXResourcesBuildPhase
+	// How is files from parent used?
+	// buildActionMask -> Can't find a way to change the default mask value
+	// runOnlyForDeploymentPostprocessing -> can't find a way to change this value, defaults to 0 (false)
+	PBXResourcesBuildPhase [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXResourcesBuildPhase</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="buildActionMask" align="left">buildActionMask</td></tr>
+				<tr><td port="runOnlyForDeploymentPostprocessing" align="left">runOnlyForDeploymentPostprocessing</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	// files to copy to bundle as resources
+	PBXResourcesBuildPhase -> PBXBuildFile [arrowtail=crow label=files]
+	//endregion:PBXResourcesBuildPhase
+
+	//region:PBXSourcesBuildPhase
+	// How is files from parent used?
+	// files -> if 'Compiler Flags' specified -> PBXBuildFile settings: COMPILER_FLAGS = "-v"
+	// buildActionMask -> Can't find a way to change the default mask value
+	// runOnlyForDeploymentPostprocessing -> can't find a way to change this value, defaults to 0 (false)
+	PBXSourcesBuildPhase [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXSourcesBuildPhase</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="buildActionMask" align="left">buildActionMask</td></tr>
+				<tr><td port="runOnlyForDeploymentPostprocessing" align="left">runOnlyForDeploymentPostprocessing</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	// files to compile (most likely uses PBXBuildRules to match each file to the right processing)
+	PBXSourcesBuildPhase -> PBXBuildFile [arrowtail=crow label=files]
+	//endregion:PBXSourcesBuildPhase
+
+	//region:PBXShellScriptBuildPhase
+	// How is files from parent used?
+	// inputFileListPaths/outputFileListPaths are list of xcfilelist files while the other ones, e.g. inputPaths/outputPaths, are just files
+	// buildActionMask is a 32-bit value:
+	//   - by default it 2147483647 (0x7fffffff)
+	//   - 8 (0x8) if 'For install build only' is checked
+	//   - 12 (0xC) if 'For install build only' is unchecked
+	//   > It seems like 0x8 would be install build action and possibly 0x4 would be the "build" build action
+	// showEnvVarsInLog -> boolean 0/1 ('Show environment variables in build log' checked (1) vs unchecked (0))
+	// alwaysOutOfDate -> boolean 0/1 ('Based on dependency analysis' checked (0) vs unchecked (1))
+	// runOnlyForDeploymentPostprocessing -> boolean 0/1 ('For install builds only' checked (1) vs unchecked (0))
+	PBXShellScriptBuildPhase [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXShellScriptBuildPhase</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="inputPaths" align="left">inputPaths</td></tr>
+				<tr><td port="inputFileListPaths" align="left">inputFileListPaths</td></tr>
+				<tr><td port="outputPaths" align="left">outputPaths</td></tr>
+				<tr><td port="outputFileListPaths" align="left">outputFileListPaths</td></tr>
+				<tr><td port="buildActionMask" align="left">buildActionMask</td></tr>
+				<tr><td port="shellPath" align="left">shellPath</td></tr>
+				<tr><td port="shellScript" align="left">shellScript</td></tr>
+				<tr><td port="runOnlyForDeploymentPostprocessing" align="left">runOnlyForDeploymentPostprocessing</td></tr>
+				<tr><td port="showEnvVarsInLog" align="left">showEnvVarsInLog</td></tr>
+				<tr><td port="dependencyFile" align="left">dependencyFile</td></tr>
+				<tr><td port="alwaysOutOfDate" align="left">alwaysOutOfDate</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+
+	// Note: it doesn't seems like there are any PBXBuildFile for shell script. It relies on input*Paths and output*Paths
+	//endregion:PBXShellScriptBuildPhase
+
+	//region:PBXAggregateTarget
+	// Usually Aggregate target does not have productReference
+	// QUESTION: Is that true? Are there other limitation? Let's read more in the legacy document.
+	PBXAggregateTarget [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXAggregateTarget</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name (string)</td></tr>
+				<tr><td port="productName" align="left">productName? (string)</td></tr>
+				<tr><td port="productType" align="left">productType?</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+
+	AggregateBuildPhase[label=<<b><i>AggregateBuildPhase</i></b>>]
+
+	AggregateBuildPhase -> PBXCopyFilesBuildPhase [color=blue]
+	AggregateBuildPhase -> PBXShellScriptBuildPhase [color=blue]
+
+
+	PBXAggregateTarget -> PBXTargetDependency [arrowtail=crow label=dependencies]
+	PBXAggregateTarget -> XCConfigurationList [arrowtail=diamond label=buildConfigurationList]
+
+	// TODO: Can only have CopyFilesBuildPhase and ShellScriptBuildPhase
+	PBXAggregateTarget -> AggregateBuildPhase [arrowtail=crow label=buildPhases]
+
+	// TODO: Doesn't seems like aggregate target save any build rule
+
+	PBXAggregateTarget -> PBXFileReference [arrowtail=odiamond label=productReference]
+	//endregion
+
+	//region:PBXNativeTarget
+	// packageProductDependencies only on PBXNativeTarget???
+	PBXNativeTarget [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXNativeTarget</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name (string)</td></tr>
+				<tr><td port="productName" align="left">productName? (string)</td></tr>
+				<tr><td port="productType" align="left">productType?</td></tr>
+				<tr><td port="productInstallPath" align="left">productInstallPath? (resolvable string)</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	NativeBuildPhase[label=<<b><i>NativeBuildPhase</i></b>>]
+
+	NativeBuildPhase -> PBXSourcesBuildPhase [color=blue]
+	NativeBuildPhase -> PBXFrameworksBuildPhase [color=blue]
+	NativeBuildPhase -> PBXCopyFilesBuildPhase [color=blue]
+	NativeBuildPhase -> PBXShellScriptBuildPhase [color=blue]
+	NativeBuildPhase -> PBXHeadersBuildPhase [color=blue]
+	NativeBuildPhase -> PBXResourcesBuildPhase [color=blue]
+
+
+	PBXNativeTarget -> XCSwiftPackageProductDependency [arrowtail=crow label=packageProductDependencies]
+
+	PBXNativeTarget -> PBXTargetDependency [arrowtail=crow label=dependencies]
+	PBXNativeTarget -> XCConfigurationList [arrowtail=diamond label=buildConfigurationList]
+
+	PBXNativeTarget -> NativeBuildPhase [arrowtail=crow label=buildPhases]
+
+	PBXNativeTarget -> PBXBuildRule [arrowtail=crow label=buildRules]
+	PBXNativeTarget -> PBXFileReference [arrowtail=odiamond label=productReference]
+	//endregion
+
+	//region:PBXLegacyTarget
+	PBXLegacyTarget [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXLegacyTarget</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name (string)</td></tr>
+				<tr><td port="productName" align="left">productName? (string)</td></tr>
+				<tr><td port="productType" align="left">productType?</td></tr>
+				<tr><td port="buildArgumentsString" align="left">buildArgumentsString</td></tr>
+				<tr><td port="buildToolPath" align="left">buildToolPath</td></tr>
+				<tr><td port="buildWorkingDirectory" align="left">buildWorkingDirectory</td></tr>
+				<tr><td port="passBuildSettingsInEnvironment" align="left">passBuildSettingsInEnvironment</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	PBXLegacyTarget -> PBXTargetDependency [arrowtail=crow label=dependencies]
+	PBXLegacyTarget -> XCConfigurationList [arrowtail=diamond label=buildConfigurationList]
+
+	// TODO: legacy target doesn't seems to have build phases
+
+	// TODO: legacy target doesn't seems to support build rules
+
+	PBXLegacyTarget -> PBXFileReference [dir=back arrowtail=odiamond arrowhead=open label=productReference]
+	//endregion
+
+	//region:PBXReferenceProxy
+	// Need to validate
+	PBXReferenceProxy [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXReferenceProxy</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name</td></tr>
+				<tr><td port="path" align="left">path</td></tr>
+				<tr><td port="sourceTree" align="left">sourceTree</td></tr>
+				<tr><td port="fileType" align="left">fileType</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	PBXReferenceProxy -> PBXContainerItemProxy [label=remoteRef]
+
+	// CONSTANTS
+	PBXReferenceProxy:fileType -> PBXFileType [arrowhead=open color=green]
+	//endregion:PBXReferenceProxy
+
+	//region:PBXFileReference
+	PBXFileReference [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXFileReference</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name</td></tr>
+				<tr><td port="path" align="left">path</td></tr>
+				<tr><td port="sourceTree" align="left">sourceTree</td></tr>
+				<tr><td port="explicitFileType" align="left">explicitFileType?</td></tr>
+				<tr><td port="lastKnownFileType" align="left">lastKnownFileType?</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+	//endregion:PBXFileReference
+
+	//region:PBXGroup
+	PBXGroup [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXGroup</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name</td></tr>
+				<tr><td port="path" align="left">path</td></tr>
+				<tr><td port="sourceTree" align="left">sourceTree</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	PBXGroup -> GroupChild [arrowtail=crow label=children]
+
+	GroupChild[label=<<b><i>GroupChild</i></b>>]
+
+	GroupChild -> PBXGroup [color=blue]
+	GroupChild -> PBXFileReference [color=blue]
+	GroupChild -> PBXVariantGroup [color=blue]
+	GroupChild -> XCVersionGroup [color=blue]
+	GroupChild -> PBXReferenceProxy [color=blue]
+	//endregion:PBXGroup
+
+	//region:PBXVariantGroup
+	PBXVariantGroup [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>PBXVariantGroup</b></td></tr>
+				<tr><td><table border="0">
+				<tr><td port="name" align="left">name</td></tr>
+				<tr><td port="path" align="left">path</td></tr>
+				<tr><td port="sourceTree" align="left">sourceTree</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	PBXVariantGroup -> GroupChild [arrowtail=crow label=children]
+	//endregion:PBXVariantGroup
+
+	//region:XCVersionGroup
+	XCVersionGroup [
+		shape=plain
+		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+			<tr><td><b>XCVersionGroup</b></td></tr>
+			<tr><td><table border="0">
+				<tr><td port="name" align="left">name</td></tr>
+				<tr><td port="path" align="left">path</td></tr>
+				<tr><td port="sourceTree" align="left">sourceTree</td></tr>
+			</table></td></tr>
+			</table>>
+	]
+
+	XCVersionGroup -> GroupChild [arrowtail=crow label=children]
+	XCVersionGroup -> PBXFileReference [arrowtail=odiamond label=currentVersion]
+	//endregion:XCVersionGroup
+}
