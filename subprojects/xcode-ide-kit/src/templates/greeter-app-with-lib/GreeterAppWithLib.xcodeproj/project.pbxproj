@@ -36,7 +36,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		65F6EB2628B03364007DBD6C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = main.c; path = GreeterAppdfdfdf/main.c; sourceTree = SOURCE_ROOT; };
+		65F6EB2628B03364007DBD6C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = main.c; path = GreeterApp/main.c; sourceTree = SOURCE_ROOT; };
 		65F6EB3128B033A7007DBD6C /* GreeterApp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GreeterApp; sourceTree = BUILT_PRODUCTS_DIR; };
 		65F6EB3D28B033C0007DBD6C /* libGreeterLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libGreeterLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		65F6EB4228B033DE007DBD6C /* greeter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = greeter.h; sourceTree = "<group>"; };
