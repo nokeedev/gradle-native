@@ -20,10 +20,14 @@ import dev.nokee.xcode.objects.PBXObject;
 import dev.nokee.xcode.objects.PBXProjectItem;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXReference;
+import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
+import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import lombok.EqualsAndHashCode;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * File referenced by a build phase, unique to each build phase.
@@ -36,16 +40,22 @@ import java.util.Objects;
  */
 @EqualsAndHashCode(callSuper = false)
 public final class PBXBuildFile extends PBXProjectItem {
-	private final FileReference fileRef;
+	@Nullable private final FileReference fileRef;
+	@Nullable private final XCSwiftPackageProductDependency productRef;
 	private final ImmutableMap<String, ?> settings;
 
-	private PBXBuildFile(FileReference fileRef, ImmutableMap<String, ?> settings) {
+	private PBXBuildFile(@Nullable FileReference fileRef, @Nullable XCSwiftPackageProductDependency productRef, ImmutableMap<String, ?> settings) {
 		this.fileRef = fileRef;
+		this.productRef = productRef;
 		this.settings = settings;
 	}
 
-	public FileReference getFileRef() {
-		return fileRef;
+	public Optional<FileReference> getFileRef() {
+		return Optional.ofNullable(fileRef);
+	}
+
+	public Optional<XCSwiftPackageProductDependency> getProductRef() {
+		return Optional.ofNullable(productRef);
 	}
 
 	public Map<String, ?> getSettings() {
@@ -63,7 +73,7 @@ public final class PBXBuildFile extends PBXProjectItem {
 	}
 
 	public static PBXBuildFile ofFile(FileReference fileReference) {
-		return new PBXBuildFile(fileReference, ImmutableMap.of());
+		return new PBXBuildFile(fileReference, null, ImmutableMap.of());
 	}
 
 	public static Builder builder() {
@@ -72,15 +82,23 @@ public final class PBXBuildFile extends PBXProjectItem {
 
 	public static final class Builder {
 		private FileReference fileRef;
+		private XCSwiftPackageProductDependency productRef;
 
 		public Builder fileRef(FileReference fileRef) {
 			this.fileRef = fileRef;
 			return this;
 		}
 
+		public Builder productRef(XCSwiftPackageProductDependency productRef) {
+			this.productRef = productRef;
+			return this;
+		}
+
 		public PBXBuildFile build() {
-			// TODO: both fileRef and packageRef can't be null
-			return new PBXBuildFile(fileRef, ImmutableMap.of());
+			if (fileRef == null && productRef == null) {
+				throw new NullPointerException("either 'fileRef' and 'productRef' must not be null");
+			}
+			return new PBXBuildFile(fileRef, productRef, ImmutableMap.of());
 		}
 	}
 

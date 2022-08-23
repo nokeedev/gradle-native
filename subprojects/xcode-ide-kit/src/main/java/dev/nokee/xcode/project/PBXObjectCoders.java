@@ -638,12 +638,14 @@ final class PBXObjectCoders {
 		public PBXBuildFile read(Decoder decoder) {
 			val builder = PBXBuildFile.builder();
 			decoder.decodeIfPresent("fileRef", builder::fileRef);
+			decoder.decodeIfPresent("productRef", builder::productRef);
 			return builder.build();
 		}
 
 		@Override
 		public void write(Encoder encoder, PBXBuildFile value) {
-			encoder.encode("fileRef", value.getFileRef());
+			value.getFileRef().ifPresent(it -> encoder.encode("fileRef", it));
+			value.getProductRef().ifPresent(it -> encoder.encode("productRef", it));
 			if (!value.getSettings().isEmpty()) {
 				encoder.encode("settings", value.getSettings());
 			}
