@@ -55,7 +55,7 @@ public final class XCSwiftPackageProductDependency extends PBXContainerItem {
 		}
 
 		public XCSwiftPackageProductDependency build() {
-			return new XCSwiftPackageProductDependency(Objects.requireNonNull(productName), Objects.requireNonNull(packageReference));
+			return new XCSwiftPackageProductDependency(Objects.requireNonNull(productName, "'productName' must not be null"), Objects.requireNonNull(packageReference, "'packageReference' must not be null"));
 		}
 	}
 }
