@@ -72,7 +72,7 @@ class PBXTargetDependencyIntegrationTest {
 			assertThat(project.getTargets().get(0).getDependencies(), hasSize(1));
 
 			val subject = project.getTargets().get(0).getDependencies().get(0);
-			assertThat("usually use the child target's name", subject.getName(), optionalWithValue(equalTo("GreeterLib")));
+			assertThat("usually does not have a name", subject.getName(), emptyOptional());
 			assertThat("local-project target reference", subject.getTarget(), optionalWithValue(equalTo(project.getTargets().get(1))));
 
 			val targetProxy = subject.getTargetProxy();
