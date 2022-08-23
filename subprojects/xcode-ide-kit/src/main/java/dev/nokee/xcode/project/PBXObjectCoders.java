@@ -37,6 +37,7 @@ import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.files.PBXVariantGroup;
 import dev.nokee.xcode.objects.files.XCVersionGroup;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
+import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.objects.targets.PBXAggregateTarget;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
@@ -84,7 +85,8 @@ final class PBXObjectCoders {
 		new ProjectReferenceCoder(),
 		new XCRemoteSwiftPackageReferenceCoder(),
 		new VersionRequirementCoder(),
-		new UpToNextMajorVersionVersionRequirementCoder()
+		new UpToNextMajorVersionVersionRequirementCoder(),
+		new XCSwiftPackageProductDependencyCoder()
 	);
 
 	public static PBXObjectCoder<?>[] values() {
@@ -392,6 +394,7 @@ final class PBXObjectCoders {
 			decoder.decodeIfPresent("buildPhases", builder::buildPhases);
 			decoder.decodeIfPresent("buildConfigurationList", XCConfigurationList.class, builder::buildConfigurations);
 			decoder.decodeIfPresent("dependencies", new TypeToken<Iterable<PBXTargetDependency>>() {}.getType(), builder::dependencies);
+			decoder.decodeIfPresent("packageProductDependencies", new TypeToken<Iterable<XCSwiftPackageProductDependency>>() {}.getType(), builder::packageProductDependencies);
 			return builder.build();
 		}
 
@@ -408,6 +411,7 @@ final class PBXObjectCoders {
 			encoder.encode("buildPhases", value.getBuildPhases());
 			encoder.encode("buildConfigurationList", value.getBuildConfigurationList());
 			encoder.encode("dependencies", value.getDependencies());
+			encoder.encode("packageProductDependencies", value.getPackageProductDependencies());
 		}
 	}
 
@@ -706,6 +710,27 @@ final class PBXObjectCoders {
 		public void write(Encoder encoder, XCRemoteSwiftPackageReference value) {
 			encoder.encode("repositoryURL", value.getRepositoryUrl());
 			encoder.encode("requirement", value.getRequirement());
+		}
+	}
+
+	private static final class XCSwiftPackageProductDependencyCoder implements PBXObjectCoder<XCSwiftPackageProductDependency> {
+		@Override
+		public Class<XCSwiftPackageProductDependency> getType() {
+			return XCSwiftPackageProductDependency.class;
+		}
+
+		@Override
+		public XCSwiftPackageProductDependency read(Decoder decoder) {
+			val builder = XCSwiftPackageProductDependency.builder();
+			decoder.decodeIfPresent("productName", String.class, builder::productName);
+			decoder.decodeIfPresent("package", XCRemoteSwiftPackageReference.class, builder::packageReference);
+			return builder.build();
+		}
+
+		@Override
+		public void write(Encoder encoder, XCSwiftPackageProductDependency value) {
+			encoder.encode("productName", value.getProductName());
+			encoder.encode("package", value.getPackageReference());
 		}
 	}
 

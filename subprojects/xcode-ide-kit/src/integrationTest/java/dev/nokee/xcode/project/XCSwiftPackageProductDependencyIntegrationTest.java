@@ -32,37 +32,26 @@ import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isA;
 
 @ExtendWith(TestDirectoryExtension.class)
-class XCRemoteSwiftPackageReferenceIntegrationTest {
+class XCSwiftPackageProductDependencyIntegrationTest {
 	@TestDirectory Path testDirectory;
 
 	@Test
-	void readsRemoteSwiftPackageReferences() throws IOException {
-		new GreeterAppWithSwiftPackageReference().writeToProject(testDirectory.toFile());
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackagereference.xcodeproj/project.pbxproj"))))) {
-			val project = new PBXObjectUnarchiver().decode(reader.read());
-
-			val subject = project.getPackageReferences();
-			assertThat(subject, hasSize(1));
-			assertThat(subject.get(0).getRepositoryUrl(), equalTo("https://github.com/0xOpenBytes/o.git"));
-			assertThat(subject.get(0).getRequirement(), equalTo(upToNextMajorVersion("0.2.1")));
-		}
-	}
-
-	@Test
-	void restoresRemoteSwiftPackageReferenceFromSwiftPackageProductDependency() throws IOException {
+	void readsSwiftPackageProductDependencies() throws IOException {
 		new GreeterAppWithSwiftPackageReference().writeToProject(testDirectory.toFile());
 		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackagereference.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
 			assertThat(project.getTargets(), hasSize(1));
+			assertThat(project.getTargets().get(0), isA(PBXNativeTarget.class));
 
-			val dependencies = ((PBXNativeTarget) project.getTargets().get(0)).getPackageProductDependencies();
-			assertThat(dependencies, hasSize(1));
-
-			assertThat(project.getPackageReferences(), hasSize(1));
-			assertThat(dependencies.get(0).getPackageReference(), equalTo(project.getPackageReferences().get(0)));
+			val subject = ((PBXNativeTarget) project.getTargets().get(0)).getPackageProductDependencies();
+			assertThat(subject, hasSize(1));
+			assertThat(subject.get(0).getProductName(), equalTo("o"));
+			assertThat(subject.get(0).getPackageReference().getRepositoryUrl(), equalTo("https://github.com/0xOpenBytes/o.git"));
+			assertThat(subject.get(0).getPackageReference().getRequirement(), equalTo(upToNextMajorVersion("0.2.1")));
 		}
 	}
 }
