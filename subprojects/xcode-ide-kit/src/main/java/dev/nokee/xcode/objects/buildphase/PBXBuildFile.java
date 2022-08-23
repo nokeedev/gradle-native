@@ -79,7 +79,8 @@ public final class PBXBuildFile extends PBXProjectItem {
 		}
 
 		public PBXBuildFile build() {
-			return new PBXBuildFile(Objects.requireNonNull(fileRef, "'fileRef' must not be null"), ImmutableMap.of());
+			// TODO: both fileRef and packageRef can't be null
+			return new PBXBuildFile(fileRef, ImmutableMap.of());
 		}
 	}
 
