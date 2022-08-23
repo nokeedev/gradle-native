@@ -21,6 +21,7 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
+import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 
 import java.util.ArrayList;
@@ -38,13 +39,15 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 	private final String compatibilityVersion;
 	private final String name;
 	private final List<ProjectReference> projectReferences;
+	private final List<XCRemoteSwiftPackageReference> packageReferences;
 
-	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, PBXGroup mainGroup, List<ProjectReference> projectReferences) {
+	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, PBXGroup mainGroup, List<ProjectReference> projectReferences, List<XCRemoteSwiftPackageReference> packageReferences) {
 		this.name = name;
 		this.mainGroup = mainGroup;
 		this.targets = targets;
 		this.buildConfigurationList = buildConfigurationList;
 		this.projectReferences = projectReferences;
+		this.packageReferences = packageReferences;
 		this.compatibilityVersion = "Xcode 3.2";
 	}
 
@@ -70,6 +73,10 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 
 	public List<ProjectReference> getProjectReferences() {
 		return projectReferences;
+	}
+
+	public List<XCRemoteSwiftPackageReference> getPackageReferences() {
+		return packageReferences;
 	}
 
 	public static final class ProjectReference {
@@ -133,6 +140,7 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 		private final List<PBXReference> mainGroupChildren = new ArrayList<>();
 		private PBXGroup mainGroup;
 		private final List<ProjectReference> projectReferences = new ArrayList<>();
+		private final List<XCRemoteSwiftPackageReference> packageReferences = new ArrayList<>();
 
 		public Builder name(String name) {
 			this.name = name;
@@ -192,11 +200,22 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 			return this;
 		}
 
+		public Builder packageReference(XCRemoteSwiftPackageReference packageReference) {
+			this.packageReferences.add(packageReference);
+			return this;
+		}
+
+		public Builder packageReferences(Iterable<? extends XCRemoteSwiftPackageReference> packageReferences) {
+			this.packageReferences.clear();
+			packageReferences.forEach(this.packageReferences::add);
+			return this;
+		}
+
 		public PBXProject build() {
 			if (mainGroup == null) {
 				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
 			}
-			return new PBXProject(name, ImmutableList.copyOf(targets), buildConfigurations, mainGroup, ImmutableList.copyOf(projectReferences));
+			return new PBXProject(name, ImmutableList.copyOf(targets), buildConfigurations, mainGroup, ImmutableList.copyOf(projectReferences), ImmutableList.copyOf(packageReferences));
 		}
 	}
 }

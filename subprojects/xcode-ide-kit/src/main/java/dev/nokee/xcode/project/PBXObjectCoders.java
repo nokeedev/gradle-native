@@ -36,6 +36,7 @@ import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.files.PBXVariantGroup;
 import dev.nokee.xcode.objects.files.XCVersionGroup;
+import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.targets.PBXAggregateTarget;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
@@ -54,6 +55,7 @@ import java.util.function.Consumer;
 
 import static dev.nokee.xcode.objects.configuration.XCConfigurationList.DefaultConfigurationVisibility.HIDDEN;
 import static dev.nokee.xcode.objects.configuration.XCConfigurationList.DefaultConfigurationVisibility.VISIBLE;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.upToNextMajorVersion;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 
@@ -79,7 +81,10 @@ final class PBXObjectCoders {
 		new PBXBuildFileCoder(),
 		new PBXContainerItemProxyCoder(),
 		new PBXReferenceProxyCoder(),
-		new ProjectReferenceCoder()
+		new ProjectReferenceCoder(),
+		new XCRemoteSwiftPackageReferenceCoder(),
+		new VersionRequirementCoder(),
+		new UpToNextMajorVersionVersionRequirementCoder()
 	);
 
 	public static PBXObjectCoder<?>[] values() {
@@ -99,6 +104,7 @@ final class PBXObjectCoders {
 			decoder.decodeIfPresent("targets", builder::targets);
 			decoder.decodeIfPresent("buildConfigurationList", XCConfigurationList.class, builder::buildConfigurations);
 			decoder.decodeIfPresent("projectReferences", new TypeToken<Iterable<PBXProject.ProjectReference>>() {}.getType(), builder::projectReferences);
+			decoder.decodeIfPresent("packageReferences", new TypeToken<Iterable<XCRemoteSwiftPackageReference>>() {}.getType(), builder::packageReferences);
 			return builder.build();
 		}
 
@@ -113,6 +119,7 @@ final class PBXObjectCoders {
 			encoder.encode("compatibilityVersion", value.getCompatibilityVersion());
 			encoder.encode("attributes", ImmutableMap.of("LastUpgradeCheck", "0610"));
 			encoder.encode("projectReferences", value.getProjectReferences());
+			encoder.encode("packageReferences", value.getPackageReferences());
 		}
 	}
 
@@ -678,6 +685,71 @@ final class PBXObjectCoders {
 			encoder.encode("sourceTree", value.getSourceTree().toString());
 			encoder.encode("remoteRef", value.getRemoteReference());
 			encoder.encode("fileType", value.getFileType());
+		}
+	}
+
+	private static final class XCRemoteSwiftPackageReferenceCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference> {
+		@Override
+		public Class<XCRemoteSwiftPackageReference> getType() {
+			return XCRemoteSwiftPackageReference.class;
+		}
+
+		@Override
+		public XCRemoteSwiftPackageReference read(Decoder decoder) {
+			val builder = XCRemoteSwiftPackageReference.builder();
+			decoder.decodeIfPresent("repositoryURL", String.class, builder::repositoryUrl);
+			decoder.decodeIfPresent("requirement", XCRemoteSwiftPackageReference.VersionRequirement.class, builder::requirement);
+			return builder.build();
+		}
+
+		@Override
+		public void write(Encoder encoder, XCRemoteSwiftPackageReference value) {
+			encoder.encode("repositoryURL", value.getRepositoryUrl());
+			encoder.encode("requirement", value.getRequirement());
+		}
+	}
+
+	private static final class VersionRequirementCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference.VersionRequirement> {
+		@Override
+		public Class<XCRemoteSwiftPackageReference.VersionRequirement> getType() {
+			return XCRemoteSwiftPackageReference.VersionRequirement.class;
+		}
+
+		@Override
+		public XCRemoteSwiftPackageReference.VersionRequirement read(Decoder decoder) {
+			val kind = decoder.decode("kind", String.class).map(XCRemoteSwiftPackageReference.VersionRequirement.Kind::of).orElseThrow(RuntimeException::new);
+			switch (kind) {
+				case REVISION: throw new UnsupportedOperationException();
+				case BRANCH: throw new UnsupportedOperationException();
+				case EXACT: throw new UnsupportedOperationException();
+				case RANGE: throw new UnsupportedOperationException();
+				case UP_TO_NEXT_MINOR_VERSION: throw new UnsupportedOperationException();
+				case UP_TO_NEXT_MAJOR_VERSION: return upToNextMajorVersion(decoder.decode("minimumVersion", String.class).orElse(null));
+				default: throw new UnsupportedOperationException("Unknown kind");
+			}
+		}
+
+		@Override
+		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement value) {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static final class UpToNextMajorVersionVersionRequirementCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion> {
+		@Override
+		public Class<XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion> getType() {
+			return XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion.class;
+		}
+
+		@Override
+		public XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion read(Decoder decoder) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion value) {
+			encoder.encode("kind", value.getKind().toString());
+			encoder.encode("minimumVersion", value.getMinimumVersion());
 		}
 	}
 }

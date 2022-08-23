@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "o",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/0xOpenBytes/o.git",
+      "state" : {
+        "revision" : "2721b5d5feab371ab6e6999a557f9c80f0426228",
+        "version" : "0.2.1"
+      }
+    }
+  ],
+  "version" : 2
+}

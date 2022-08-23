@@ -90,6 +90,31 @@ public final class PBXObjectUnarchiver {
 		}
 
 		@Override
+		public <S> Optional<S> decode(String key, Class<S> type) {
+			return decode(key, (Type) type);
+		}
+
+		@SuppressWarnings("unchecked")
+		public <S> Optional<S> decode(String key, Type type) {
+			return Optional.ofNullable(object.get(key)).map(value -> {
+				if (type instanceof ParameterizedType) {
+					if (Iterable.class.equals(((ParameterizedType) type).getRawType())) {
+						if (!(value instanceof Iterable)) throw new IllegalStateException();
+						return (S) Streams.stream((Iterable<Object>) value).map(it -> this.<S>decode(it, ((ParameterizedType) type).getActualTypeArguments()[0])).collect(toImmutableList());
+					} else if (Map.class.equals(((ParameterizedType) type).getRawType())) {
+						// Usually the values is already a map
+						if (!(value instanceof Map)) throw new IllegalStateException();
+						return (S) value;
+					} else {
+						throw new UnsupportedOperationException();
+					}
+				} else {
+					return this.<S>decode(value, type);
+				}
+			});
+		}
+
+		@Override
 		@SuppressWarnings("unchecked")
 		public <S> void decodeIfPresent(String key, Consumer<? super S> action) {
 			Optional.ofNullable(object.get(key)).ifPresent(value -> {
