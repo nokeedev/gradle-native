@@ -25,6 +25,7 @@ import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -83,6 +84,7 @@ public final class PBXBuildFile extends PBXProjectItem {
 	public static final class Builder {
 		private FileReference fileRef;
 		private XCSwiftPackageProductDependency productRef;
+		private final Map<String, Object> settings = new LinkedHashMap<>();
 
 		public Builder fileRef(FileReference fileRef) {
 			this.fileRef = fileRef;
@@ -94,11 +96,17 @@ public final class PBXBuildFile extends PBXProjectItem {
 			return this;
 		}
 
+		public Builder settings(Map<String, ?> settings) {
+			this.settings.clear();
+			this.settings.putAll(settings);
+			return this;
+		}
+
 		public PBXBuildFile build() {
 			if (fileRef == null && productRef == null) {
 				throw new NullPointerException("either 'fileRef' and 'productRef' must not be null");
 			}
-			return new PBXBuildFile(fileRef, productRef, ImmutableMap.of());
+			return new PBXBuildFile(fileRef, productRef, ImmutableMap.copyOf(settings));
 		}
 	}
 
