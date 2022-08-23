@@ -20,6 +20,7 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 
+@EqualsAndHashCode(callSuper = false)
 public final class XCRemoteSwiftPackageReference extends PBXContainerItem {
 	private final String repositoryUrl;
 	private final VersionRequirement requirement;
