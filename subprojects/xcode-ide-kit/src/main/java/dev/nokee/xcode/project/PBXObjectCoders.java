@@ -52,11 +52,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static dev.nokee.xcode.objects.configuration.XCConfigurationList.DefaultConfigurationVisibility.HIDDEN;
 import static dev.nokee.xcode.objects.configuration.XCConfigurationList.DefaultConfigurationVisibility.VISIBLE;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.BRANCH;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.EXACT;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.RANGE;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.REVISION;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.UP_TO_NEXT_MAJOR_VERSION;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.UP_TO_NEXT_MINOR_VERSION;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.branch;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.exact;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.range;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.revision;
 import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.upToNextMajorVersion;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.upToNextMinorVersion;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 
@@ -85,6 +97,11 @@ final class PBXObjectCoders {
 		new ProjectReferenceCoder(),
 		new XCRemoteSwiftPackageReferenceCoder(),
 		new VersionRequirementCoder(),
+		new ExactVersionRequirementCoder(),
+		new BranchVersionRequirementCoder(),
+		new RevisionVersionRequirementCoder(),
+		new RangeVersionRequirementCoder(),
+		new UpToNextMinorVersionVersionRequirementCoder(),
 		new UpToNextMajorVersionVersionRequirementCoder(),
 		new XCSwiftPackageProductDependencyCoder()
 	);
@@ -735,6 +752,15 @@ final class PBXObjectCoders {
 	}
 
 	private static final class VersionRequirementCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference.VersionRequirement> {
+		private static final Map<XCRemoteSwiftPackageReference.VersionRequirement.Kind, PBXObjectCoder<? extends XCRemoteSwiftPackageReference.VersionRequirement>> VERSION_REQUIREMENT_CODERS = ImmutableMap.<XCRemoteSwiftPackageReference.VersionRequirement.Kind, PBXObjectCoder<? extends XCRemoteSwiftPackageReference.VersionRequirement>>builder()
+			.put(REVISION, new RevisionVersionRequirementCoder())
+			.put(BRANCH, new BranchVersionRequirementCoder())
+			.put(EXACT, new ExactVersionRequirementCoder())
+			.put(RANGE, new RangeVersionRequirementCoder())
+			.put(UP_TO_NEXT_MINOR_VERSION, new UpToNextMinorVersionVersionRequirementCoder())
+			.put(UP_TO_NEXT_MAJOR_VERSION, new UpToNextMajorVersionVersionRequirementCoder())
+			.build();
+
 		@Override
 		public Class<XCRemoteSwiftPackageReference.VersionRequirement> getType() {
 			return XCRemoteSwiftPackageReference.VersionRequirement.class;
@@ -742,21 +768,121 @@ final class PBXObjectCoders {
 
 		@Override
 		public XCRemoteSwiftPackageReference.VersionRequirement read(Decoder decoder) {
-			val kind = decoder.decode("kind", String.class).map(XCRemoteSwiftPackageReference.VersionRequirement.Kind::of).orElseThrow(RuntimeException::new);
-			switch (kind) {
-				case REVISION: throw new UnsupportedOperationException();
-				case BRANCH: throw new UnsupportedOperationException();
-				case EXACT: throw new UnsupportedOperationException();
-				case RANGE: throw new UnsupportedOperationException();
-				case UP_TO_NEXT_MINOR_VERSION: throw new UnsupportedOperationException();
-				case UP_TO_NEXT_MAJOR_VERSION: return upToNextMajorVersion(decoder.decode("minimumVersion", String.class).orElse(null));
-				default: throw new UnsupportedOperationException("Unknown kind");
-			}
+			return Objects.requireNonNull(VERSION_REQUIREMENT_CODERS.get(toKind(decoder.decode("kind", String.class).orElseThrow(RuntimeException::new)))).read(decoder);
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement value) {
-			throw new UnsupportedOperationException();
+			((PBXObjectCoder<Object>) Objects.requireNonNull((PBXObjectCoder<? extends Object>) VERSION_REQUIREMENT_CODERS.get(value.getKind()))).write(encoder, value);
+		}
+
+		private static XCRemoteSwiftPackageReference.VersionRequirement.Kind toKind(String value) {
+			switch (value) {
+				case "revision": return REVISION;
+				case "branch": return BRANCH;
+				case "exactVersion": return EXACT;
+				case "versionRange": return RANGE;
+				case "upToNextMinorVersion": return UP_TO_NEXT_MINOR_VERSION;
+				case "upToNextMajorVersion": return UP_TO_NEXT_MAJOR_VERSION;
+				default: throw new UnsupportedOperationException(String.format("Unsupported XCRemoteSwiftPackageReference kind '%s'. Supported reference kinds are: %s", value, "revision, branch, exactVersion, versionRange, upToNextMinorVersion, upToNextMajorVersion"));
+			}
+		}
+	}
+
+	private static final class BranchVersionRequirementCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference.VersionRequirement.Branch> {
+		@Override
+		public Class<XCRemoteSwiftPackageReference.VersionRequirement.Branch> getType() {
+			return XCRemoteSwiftPackageReference.VersionRequirement.Branch.class;
+		}
+
+		@Override
+		public XCRemoteSwiftPackageReference.VersionRequirement.Branch read(Decoder decoder) {
+			assert "branch".equals(decoder.decode("kind", String.class).orElse(null));
+			return branch(decoder.decode("branch", String.class).orElse(null));
+		}
+
+		@Override
+		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement.Branch value) {
+			encoder.encode("kind", "branch");
+			encoder.encode("branch", value.getBranch());
+		}
+	}
+
+	private static final class RevisionVersionRequirementCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference.VersionRequirement.Revision> {
+		@Override
+		public Class<XCRemoteSwiftPackageReference.VersionRequirement.Revision> getType() {
+			return XCRemoteSwiftPackageReference.VersionRequirement.Revision.class;
+		}
+
+		@Override
+		public XCRemoteSwiftPackageReference.VersionRequirement.Revision read(Decoder decoder) {
+			assert "revision".equals(decoder.decode("kind", String.class).orElse(null));
+			return revision(decoder.decode("revision", String.class).orElse(null));
+		}
+
+		@Override
+		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement.Revision value) {
+			encoder.encode("kind", "revision");
+			encoder.encode("revision", value.getRevision());
+		}
+	}
+
+	private static final class ExactVersionRequirementCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference.VersionRequirement.Exact> {
+		@Override
+		public Class<XCRemoteSwiftPackageReference.VersionRequirement.Exact> getType() {
+			return XCRemoteSwiftPackageReference.VersionRequirement.Exact.class;
+		}
+
+		@Override
+		public XCRemoteSwiftPackageReference.VersionRequirement.Exact read(Decoder decoder) {
+			assert "exactVersion".equals(decoder.decode("kind", String.class).orElse(null));
+			return exact(decoder.decode("version", String.class).orElse(null));
+		}
+
+		@Override
+		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement.Exact value) {
+			encoder.encode("kind", "exactVersion");
+			encoder.encode("version", value.getVersion());
+		}
+	}
+
+	private static final class RangeVersionRequirementCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference.VersionRequirement.Range> {
+		@Override
+		public Class<XCRemoteSwiftPackageReference.VersionRequirement.Range> getType() {
+			return XCRemoteSwiftPackageReference.VersionRequirement.Range.class;
+		}
+
+		@Override
+		public XCRemoteSwiftPackageReference.VersionRequirement.Range read(Decoder decoder) {
+			assert "versionRange".equals(decoder.decode("kind", String.class).orElse(null));
+			return range(decoder.decode("minimumVersion", String.class).orElse(null), decoder.decode("maximumVersion", String.class).orElse(null));
+		}
+
+		@Override
+		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement.Range value) {
+			encoder.encode("kind", "versionRange");
+			encoder.encode("minimumVersion", value.getMinimumVersion());
+			encoder.encode("maximumVersion", value.getMaximumVersion());
+		}
+	}
+
+	private static final class UpToNextMinorVersionVersionRequirementCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMinorVersion> {
+		@Override
+		public Class<XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMinorVersion> getType() {
+			return XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMinorVersion.class;
+		}
+
+		@Override
+		public XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMinorVersion read(Decoder decoder) {
+			assert "upToNextMinorVersion".equals(decoder.decode("kind", String.class).orElse(null));
+			return upToNextMinorVersion(decoder.decode("minimumVersion", String.class).orElse(null));
+		}
+
+		@Override
+		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMinorVersion value) {
+			encoder.encode("kind", "upToNextMinorVersion");
+			encoder.encode("minimumVersion", value.getMinimumVersion());
 		}
 	}
 
@@ -768,12 +894,13 @@ final class PBXObjectCoders {
 
 		@Override
 		public XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion read(Decoder decoder) {
-			throw new UnsupportedOperationException();
+			assert "upToNextMajorVersion".equals(decoder.decode("kind", String.class).orElse(null));
+			return upToNextMajorVersion(decoder.decode("minimumVersion", String.class).orElse(null));
 		}
 
 		@Override
 		public void write(Encoder encoder, XCRemoteSwiftPackageReference.VersionRequirement.UpToNextMajorVersion value) {
-			encoder.encode("kind", value.getKind().toString());
+			encoder.encode("kind", "upToNextMajorVersion");
 			encoder.encode("minimumVersion", value.getMinimumVersion());
 		}
 	}

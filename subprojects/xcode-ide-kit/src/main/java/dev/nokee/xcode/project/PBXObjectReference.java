@@ -15,7 +15,11 @@
  */
 package dev.nokee.xcode.project;
 
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
+
+import static java.util.stream.Collectors.joining;
 
 public final class PBXObjectReference {
 	private final String globalID;
@@ -31,7 +35,7 @@ public final class PBXObjectReference {
 	}
 
 	public String isa() {
-		return fields.get("isa").toString();
+		return Objects.requireNonNull(fields.get("isa"), () -> String.format("no 'isa' field, found: %s", fields.entrySet().stream().map(Map.Entry::getKey).collect(joining(", ")))).toString();
 	}
 
 	public PBXObjectFields getFields() {

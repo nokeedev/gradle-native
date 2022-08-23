@@ -22,6 +22,7 @@ import dev.nokee.xcode.objects.PBXObject;
 import dev.nokee.xcode.objects.PBXProject;
 import lombok.val;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +33,10 @@ import static java.util.Objects.requireNonNull;
 public final class PBXObjectArchiver {
 	private final GidGenerator gidGenerator;
 	private final Map<String, PBXObjectCoder<Object>> coders;
+
+	public PBXObjectArchiver() {
+		this(new GidGenerator(Collections.emptySet()));
+	}
 
 	public PBXObjectArchiver(GidGenerator gidGenerator) {
 		this(gidGenerator, ImmutableList.copyOf(PBXObjectCoders.values()));
