@@ -641,6 +641,7 @@ final class PBXObjectCoders {
 			val builder = PBXBuildFile.builder();
 			decoder.decodeIfPresent("fileRef", builder::fileRef);
 			decoder.decodeIfPresent("productRef", builder::productRef);
+			decoder.decodeIfPresent("settings", new TypeToken<Map<String, Object>>() {}.getType(), builder::settings);
 			return builder.build();
 		}
 
