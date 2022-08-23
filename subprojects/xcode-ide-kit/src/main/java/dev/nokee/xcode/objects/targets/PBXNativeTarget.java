@@ -16,10 +16,10 @@
 package dev.nokee.xcode.objects.targets;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +33,15 @@ import static com.google.common.collect.Streams.stream;
  * system.
  */
 public final class PBXNativeTarget extends PBXTarget {
-	private PBXNativeTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference, ImmutableList<PBXTargetDependency> dependencies) {
+	private final ImmutableList<XCSwiftPackageProductDependency> packageProductDependencies;
+
+	private PBXNativeTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference, ImmutableList<PBXTargetDependency> dependencies, ImmutableList<XCSwiftPackageProductDependency> packageProductDependencies) {
 		super(name, productType, buildPhases, buildConfigurationList, productName, productReference, dependencies);
+		this.packageProductDependencies = packageProductDependencies;
+	}
+
+	public List<XCSwiftPackageProductDependency> getPackageProductDependencies() {
+		return packageProductDependencies;
 	}
 
 	public static Builder builder() {
@@ -49,6 +56,7 @@ public final class PBXNativeTarget extends PBXTarget {
 		private String productName;
 		private PBXFileReference productReference;
 		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
+		private final List<XCSwiftPackageProductDependency> packageProductDependencies = new ArrayList<>();
 
 		public Builder name(String name) {
 			this.name = Objects.requireNonNull(name);
@@ -99,8 +107,14 @@ public final class PBXNativeTarget extends PBXTarget {
 			return this;
 		}
 
+		public Builder packageProductDependencies(Iterable<? extends XCSwiftPackageProductDependency> packageProductDependencies) {
+			this.packageProductDependencies.clear();
+			stream(packageProductDependencies).map(Objects::requireNonNull).forEach(this.packageProductDependencies::add);
+			return this;
+		}
+
 		public PBXNativeTarget build() {
-			return new PBXNativeTarget(Objects.requireNonNull(name, "'name' must not be null"), Objects.requireNonNull(productType, "'productType' must not be null"), ImmutableList.copyOf(buildPhases), Objects.requireNonNull(buildConfigurationList, "'buildConfigurations' must not be null"), Objects.requireNonNull(productName, "'productName' must not be null"), Objects.requireNonNull(productReference, "'productReference' must not be null"), ImmutableList.copyOf(dependencies));
+			return new PBXNativeTarget(Objects.requireNonNull(name, "'name' must not be null"), Objects.requireNonNull(productType, "'productType' must not be null"), ImmutableList.copyOf(buildPhases), Objects.requireNonNull(buildConfigurationList, "'buildConfigurations' must not be null"), Objects.requireNonNull(productName, "'productName' must not be null"), Objects.requireNonNull(productReference, "'productReference' must not be null"), ImmutableList.copyOf(dependencies), ImmutableList.copyOf(packageProductDependencies));
 		}
 	}
 }
