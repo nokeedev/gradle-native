@@ -522,21 +522,23 @@ final class PBXObjectCoders {
 		public PBXShellScriptBuildPhase read(Decoder decoder) {
 			val builder = PBXShellScriptBuildPhase.builder();
 			// 'files' key seems to always be empty
-			decoder.decodeIfPresent("inputPaths", new TypeToken<Iterable<String>>() {}.getType(), builder::inputPaths);
-
-			// TODO: Write test to show this mistake, it should be builder::outputPaths
-			decoder.decodeIfPresent("outputPaths", new TypeToken<Iterable<String>>() {}.getType(), builder::inputPaths);
+			decoder.decodeIfPresent("name", String.class, builder::name);
 			decoder.decodeIfPresent("shellPath", String.class, builder::shellPath);
 			decoder.decodeIfPresent("shellScript", String.class, builder::shellScript);
+			decoder.decodeIfPresent("inputPaths", new TypeToken<Iterable<String>>() {}.getType(), builder::inputPaths);
+			decoder.decodeIfPresent("inputFileListPaths", new TypeToken<Iterable<String>>() {}.getType(), builder::inputFileListPaths);
+			decoder.decodeIfPresent("outputPaths", new TypeToken<Iterable<String>>() {}.getType(), builder::outputPaths);
+			decoder.decodeIfPresent("outputFileListPaths", new TypeToken<Iterable<String>>() {}.getType(), builder::outputFileListPaths);
 			return builder.build();
 		}
 
 		@Override
 		public void write(Encoder encoder, PBXShellScriptBuildPhase value) {
-			encoder.encode("files", value.getFiles());
-
+			value.getName().ifPresent(it -> encoder.encode("name", it));
 			encoder.encode("inputPaths", value.getInputPaths());
 			encoder.encode("outputPaths", value.getOutputPaths());
+			encoder.encode("inputFileListPaths", value.getInputFileListPaths());
+			encoder.encode("outputFileListPaths", value.getOutputFileListPaths());
 
 			if (value.getShellPath() == null) {
 				encoder.encode("shellPath", "/bin/sh");
