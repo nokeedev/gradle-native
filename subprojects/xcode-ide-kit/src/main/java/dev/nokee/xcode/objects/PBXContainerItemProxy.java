@@ -73,11 +73,6 @@ public final class PBXContainerItemProxy extends PBXContainerItem {
 		return Optional.ofNullable(remoteInfo);
 	}
 
-	@Override
-	public int stableHash() {
-		return remoteGlobalIDString.hashCode();
-	}
-
 	public static Builder builder() {
 		return new Builder();
 	}

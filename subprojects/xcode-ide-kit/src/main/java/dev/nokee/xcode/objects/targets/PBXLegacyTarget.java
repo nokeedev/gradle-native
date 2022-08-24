@@ -16,7 +16,6 @@
 package dev.nokee.xcode.objects.targets;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -29,8 +28,7 @@ import java.util.function.Consumer;
 import static com.google.common.collect.Streams.stream;
 
 /**
- * Concrete target type representing targets built by xcode itself, rather than an external build
- * system.
+ * Concrete target type representing targets built by xcode itself, rather than an external build system.
  */
 public final class PBXLegacyTarget extends PBXTarget {
 	private static final ImmutableList<PBXBuildPhase> ALWAYS_NO_BUILD_PHASES = ImmutableList.of();

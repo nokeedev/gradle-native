@@ -110,10 +110,28 @@ final class PBXObjectCoders {
 		return ALL_CODERS.toArray(new PBXObjectCoder<?>[0]);
 	}
 
-	private static final class PBXProjectCoder implements PBXObjectCoder<PBXProject> {
+	@SuppressWarnings("unchecked")
+	static int stableHash(Object o) {
+		return ALL_CODERS.stream().filter(it -> it.getType().equals(o.getClass()) && it instanceof HasStableHash).map(it -> (HasStableHash<Object>) it).findFirst().map(it -> it.stableHash(o)).orElse(0);
+	}
+
+	private interface HasStableHash<T> {
+		int stableHash(T o);
+	}
+
+	private static final class PBXProjectCoder implements PBXObjectCoder<PBXProject>, HasStableHash<PBXProject> {
 		@Override
 		public Class<PBXProject> getType() {
 			return PBXProject.class;
+		}
+
+		@Override
+		public int stableHash(PBXProject value) {
+			if (value.getName() != null) {
+				return value.getName().hashCode();
+			} else {
+				return 0;
+			}
 		}
 
 		@Override
@@ -200,10 +218,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXFileReferenceCoder implements PBXObjectCoder<PBXFileReference> {
+	private static final class PBXFileReferenceCoder implements PBXObjectCoder<PBXFileReference>, HasStableHash<PBXFileReference> {
 		@Override
 		public Class<PBXFileReference> getType() {
 			return PBXFileReference.class;
+		}
+
+		@Override
+		public int stableHash(PBXFileReference value) {
+			return Objects.hash(value.getName().orElse(null));
 		}
 
 		@Override
@@ -226,10 +249,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXGroupCoder implements PBXObjectCoder<PBXGroup> {
+	private static final class PBXGroupCoder implements PBXObjectCoder<PBXGroup>, HasStableHash<PBXGroup> {
 		@Override
 		public Class<PBXGroup> getType() {
 			return PBXGroup.class;
+		}
+
+		@Override
+		public int stableHash(PBXGroup value) {
+			return Objects.hash(value.getName().orElse(null));
 		}
 
 		@Override
@@ -257,10 +285,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXVariantGroupCoder implements PBXObjectCoder<PBXVariantGroup> {
+	private static final class PBXVariantGroupCoder implements PBXObjectCoder<PBXVariantGroup>, HasStableHash<PBXVariantGroup> {
 		@Override
 		public Class<PBXVariantGroup> getType() {
 			return PBXVariantGroup.class;
+		}
+
+		@Override
+		public int stableHash(PBXVariantGroup value) {
+			return Objects.hash(value.getName().orElse(null));
 		}
 
 		@Override
@@ -288,10 +321,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class XCVersionGroupCoder implements PBXObjectCoder<XCVersionGroup> {
+	private static final class XCVersionGroupCoder implements PBXObjectCoder<XCVersionGroup>, HasStableHash<XCVersionGroup> {
 		@Override
 		public Class<XCVersionGroup> getType() {
 			return XCVersionGroup.class;
+		}
+
+		@Override
+		public int stableHash(XCVersionGroup value) {
+			return Objects.hash(value.getName().orElse(null));
 		}
 
 		@Override
@@ -319,10 +357,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXTargetDependencyCoder implements PBXObjectCoder<PBXTargetDependency> {
+	private static final class PBXTargetDependencyCoder implements PBXObjectCoder<PBXTargetDependency>, HasStableHash<PBXTargetDependency> {
 		@Override
 		public Class<PBXTargetDependency> getType() {
 			return PBXTargetDependency.class;
+		}
+
+		@Override
+		public int stableHash(PBXTargetDependency value) {
+			return PBXObjectCoders.stableHash(value.getTargetProxy());
 		}
 
 		@Override
@@ -342,10 +385,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXLegacyTargetCoder implements PBXObjectCoder<PBXLegacyTarget> {
+	private static final class PBXLegacyTargetCoder implements PBXObjectCoder<PBXLegacyTarget>, HasStableHash<PBXLegacyTarget> {
 		@Override
 		public Class<PBXLegacyTarget> getType() {
 			return PBXLegacyTarget.class;
+		}
+
+		@Override
+		public int stableHash(PBXLegacyTarget value) {
+			return value.getName().hashCode();
 		}
 
 		@Override
@@ -395,10 +443,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXNativeTargetCoder implements PBXObjectCoder<PBXNativeTarget> {
+	private static final class PBXNativeTargetCoder implements PBXObjectCoder<PBXNativeTarget>, HasStableHash<PBXNativeTarget> {
 		@Override
 		public Class<PBXNativeTarget> getType() {
 			return PBXNativeTarget.class;
+		}
+
+		@Override
+		public int stableHash(PBXNativeTarget value) {
+			return value.getName().hashCode();
 		}
 
 		@Override
@@ -432,10 +485,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXAggregateTargetCoder implements PBXObjectCoder<PBXAggregateTarget> {
+	private static final class PBXAggregateTargetCoder implements PBXObjectCoder<PBXAggregateTarget>, HasStableHash<PBXAggregateTarget> {
 		@Override
 		public Class<PBXAggregateTarget> getType() {
 			return PBXAggregateTarget.class;
+		}
+
+		@Override
+		public int stableHash(PBXAggregateTarget value) {
+			return value.getName().hashCode();
 		}
 
 		@Override
@@ -486,10 +544,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class XCBuildConfigurationCoder implements PBXObjectCoder<XCBuildConfiguration> {
+	private static final class XCBuildConfigurationCoder implements PBXObjectCoder<XCBuildConfiguration>, HasStableHash<XCBuildConfiguration> {
 		@Override
 		public Class<XCBuildConfiguration> getType() {
 			return XCBuildConfiguration.class;
+		}
+
+		@Override
+		public int stableHash(XCBuildConfiguration value) {
+			return value.getName().hashCode();
 		}
 
 		@Override
@@ -630,10 +693,16 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXBuildFileCoder implements PBXObjectCoder<PBXBuildFile> {
+	private static final class PBXBuildFileCoder implements PBXObjectCoder<PBXBuildFile>, HasStableHash<PBXBuildFile> {
 		@Override
 		public Class<PBXBuildFile> getType() {
 			return PBXBuildFile.class;
+		}
+
+		@Override
+		public int stableHash(PBXBuildFile value) {
+			return PBXObjectCoders.stableHash(value.getFileRef().map(Object.class::cast)
+				.orElseGet(() -> value.getProductRef().get()));
 		}
 
 		@Override
@@ -655,10 +724,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXContainerItemProxyCoder implements PBXObjectCoder<PBXContainerItemProxy> {
+	private static final class PBXContainerItemProxyCoder implements PBXObjectCoder<PBXContainerItemProxy>, HasStableHash<PBXContainerItemProxy> {
 		@Override
 		public Class<PBXContainerItemProxy> getType() {
 			return PBXContainerItemProxy.class;
+		}
+
+		@Override
+		public int stableHash(PBXContainerItemProxy value) {
+			return value.getRemoteGlobalIDString().hashCode();
 		}
 
 		@Override
@@ -687,10 +761,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class PBXReferenceProxyCoder implements PBXObjectCoder<PBXReferenceProxy> {
+	private static final class PBXReferenceProxyCoder implements PBXObjectCoder<PBXReferenceProxy>, HasStableHash<PBXReferenceProxy> {
 		@Override
 		public Class<PBXReferenceProxy> getType() {
 			return PBXReferenceProxy.class;
+		}
+
+		@Override
+		public int stableHash(PBXReferenceProxy value) {
+			return Objects.hash(value.getName().orElse(null));
 		}
 
 		@Override
@@ -714,10 +793,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class XCRemoteSwiftPackageReferenceCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference> {
+	private static final class XCRemoteSwiftPackageReferenceCoder implements PBXObjectCoder<XCRemoteSwiftPackageReference>, HasStableHash<XCRemoteSwiftPackageReference> {
 		@Override
 		public Class<XCRemoteSwiftPackageReference> getType() {
 			return XCRemoteSwiftPackageReference.class;
+		}
+
+		@Override
+		public int stableHash(XCRemoteSwiftPackageReference value) {
+			return value.getRepositoryUrl().hashCode();
 		}
 
 		@Override
@@ -735,10 +819,15 @@ final class PBXObjectCoders {
 		}
 	}
 
-	private static final class XCSwiftPackageProductDependencyCoder implements PBXObjectCoder<XCSwiftPackageProductDependency> {
+	private static final class XCSwiftPackageProductDependencyCoder implements PBXObjectCoder<XCSwiftPackageProductDependency>, HasStableHash<XCSwiftPackageProductDependency> {
 		@Override
 		public Class<XCSwiftPackageProductDependency> getType() {
 			return XCSwiftPackageProductDependency.class;
+		}
+
+		@Override
+		public int stableHash(XCSwiftPackageProductDependency value) {
+			return Objects.hash(value.getProductName(), value.getPackageReference().getRepositoryUrl());
 		}
 
 		@Override

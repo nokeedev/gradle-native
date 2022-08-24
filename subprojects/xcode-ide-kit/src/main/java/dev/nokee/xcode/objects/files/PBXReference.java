@@ -56,11 +56,6 @@ public abstract class PBXReference extends PBXContainerItem {
 	}
 
 	@Override
-	public int stableHash() {
-		return Objects.hash(name);
-	}
-
-	@Override
 	public String toString() {
 		return String.format(
 			"%s name=%s path=%s sourceTree=%s",

@@ -74,9 +74,4 @@ public abstract class PBXTarget extends PBXProjectItem {
 	public Optional<PBXFileReference> getProductReference() {
 		return Optional.ofNullable(productReference);
 	}
-
-	@Override
-	public int stableHash() {
-		return name.hashCode();
-	}
 }
