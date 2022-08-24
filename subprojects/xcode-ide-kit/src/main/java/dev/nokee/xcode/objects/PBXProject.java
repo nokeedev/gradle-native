@@ -17,9 +17,9 @@ package dev.nokee.xcode.objects;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
+import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
-import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
@@ -128,7 +128,7 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 		private String name;
 		private final List<PBXTarget> targets = new ArrayList<>();
 		private XCConfigurationList buildConfigurations = XCConfigurationList.builder().build();
-		private final List<PBXReference> mainGroupChildren = new ArrayList<>();
+		private final List<GroupChild> mainGroupChildren = new ArrayList<>();
 		private PBXGroup mainGroup;
 		private final List<ProjectReference> projectReferences = new ArrayList<>();
 		private final List<XCRemoteSwiftPackageReference> packageReferences = new ArrayList<>();

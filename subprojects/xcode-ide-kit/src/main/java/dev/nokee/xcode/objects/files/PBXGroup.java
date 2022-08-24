@@ -24,10 +24,10 @@ import java.util.Objects;
 /**
  * A collection of files in Xcode's virtual filesystem hierarchy.
  */
-public final class PBXGroup extends PBXGroupElement {
+public final class PBXGroup extends PBXGroupElement implements GroupChild {
 	// It seems the name or path can be null but not both which is a bit different from PBXFileReference.
 	//   Except for the mainGroup which both the name and path is null
-	private PBXGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<PBXReference> children) {
+	private PBXGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
 		super(name, path, sourceTree, children);
 	}
 
@@ -37,7 +37,7 @@ public final class PBXGroup extends PBXGroupElement {
 
 	public static final class Builder extends PBXGroupElement.Builder<Builder, PBXGroup> {
 		@Override
-		protected PBXGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<PBXReference> children) {
+		protected PBXGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
 			// mainGroup can have both null name and path
 			return new PBXGroup(name, path, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"), ImmutableList.copyOf(children));
 		}

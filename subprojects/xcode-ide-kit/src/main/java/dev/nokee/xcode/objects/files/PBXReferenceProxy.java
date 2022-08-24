@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 /**
  * A proxy for another object which might belong to another project contained in the same workspace of the document.
  */
-public final class PBXReferenceProxy extends PBXReference implements PBXBuildFile.FileReference {
+public final class PBXReferenceProxy extends PBXReference implements PBXBuildFile.FileReference, GroupChild {
 	private final PBXContainerItemProxy remoteReference;
 	private final String fileType;
 

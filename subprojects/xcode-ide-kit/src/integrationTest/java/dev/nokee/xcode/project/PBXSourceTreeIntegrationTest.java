@@ -16,13 +16,11 @@
 package dev.nokee.xcode.project;
 
 import com.google.common.collect.Streams;
-import dev.nokee.internal.testing.GradleNamedMatchers;
 import dev.nokee.samples.xcode.CommonSourceTree;
 import dev.nokee.samples.xcode.CustomSourceTree;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
-import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.val;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
@@ -42,7 +40,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
 
 @ExtendWith(TestDirectoryExtension.class)
 class PBXSourceTreeIntegrationTest {

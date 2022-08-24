@@ -24,8 +24,8 @@ import java.util.Objects;
 /**
  * This is the element for referencing localized resources.
  */
-public final class PBXVariantGroup extends PBXGroupElement {
-	public PBXVariantGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<PBXReference> children) {
+public final class PBXVariantGroup extends PBXGroupElement implements GroupChild {
+	public PBXVariantGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
 		super(name, path, sourceTree, children);
 	}
 
@@ -35,7 +35,7 @@ public final class PBXVariantGroup extends PBXGroupElement {
 
 	public static final class Builder extends PBXGroupElement.Builder<Builder, PBXVariantGroup> {
 		@Override
-		protected PBXVariantGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<PBXReference> children) {
+		protected PBXVariantGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
 			// mainGroup can have both null name and path
 			return new PBXVariantGroup(name, path, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"), ImmutableList.copyOf(children));
 		}

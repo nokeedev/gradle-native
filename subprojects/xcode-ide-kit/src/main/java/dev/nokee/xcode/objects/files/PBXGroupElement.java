@@ -15,8 +15,6 @@
  */
 package dev.nokee.xcode.objects.files;
 
-import com.google.common.collect.ImmutableList;
-
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,7 @@ import static com.google.common.collect.Streams.stream;
  * A collection of files in Xcode's virtual filesystem hierarchy.
  */
 public abstract class PBXGroupElement extends PBXReference {
-	private final List<PBXReference> children;
+	private final List<GroupChild> children;
 
 	// Unfortunately, we can't determine this at constructor time, because CacheBuilder
 	// calls our constructor and it's not easy to pass arguments to it.
@@ -36,14 +34,14 @@ public abstract class PBXGroupElement extends PBXReference {
 
 	// It seems the name or path can be null but not both which is a bit different from PBXFileReference.
 	//   Except for the mainGroup which both the name and path is null
-	protected PBXGroupElement(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<PBXReference> children) {
+	protected PBXGroupElement(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
 		super(name, path, sourceTree);
 
 		this.sortPolicy = SortPolicy.BY_NAME;
 		this.children = children;
 	}
 
-	public List<PBXReference> getChildren() {
+	public List<GroupChild> getChildren() {
 		return children;
 	}
 
@@ -72,7 +70,7 @@ public abstract class PBXGroupElement extends PBXReference {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree = PBXSourceTree.GROUP;
-		private final List<PBXReference> children = new ArrayList<>();
+		private final List<GroupChild> children = new ArrayList<>();
 
 		public SELF name(String name) {
 			this.name = Objects.requireNonNull(name);
@@ -84,13 +82,13 @@ public abstract class PBXGroupElement extends PBXReference {
 			return (SELF) this;
 		}
 
-		public SELF child(PBXReference reference) {
+		public SELF child(GroupChild reference) {
 			assertValid(reference);
 			children.add(Objects.requireNonNull(reference));
 			return (SELF) this;
 		}
 
-		private void assertValid(PBXReference reference) {
+		private void assertValid(GroupChild reference) {
 			if (reference instanceof PBXGroupElement && !reference.getName().isPresent() && !reference.getPath().isPresent()) {
 				throw new NullPointerException("either 'name' or 'path' must not be null for non-main PBXGroup");
 			}
@@ -101,7 +99,7 @@ public abstract class PBXGroupElement extends PBXReference {
 			return (SELF) this;
 		}
 
-		public SELF children(Iterable<? extends PBXReference> references) {
+		public SELF children(Iterable<? extends GroupChild> references) {
 			this.children.clear();
 			stream(references).map(Objects::requireNonNull).peek(this::assertValid).forEach(this.children::add);
 			return (SELF) this;
@@ -111,6 +109,6 @@ public abstract class PBXGroupElement extends PBXReference {
 			return newGroupElement(name, path, sourceTree, children);
 		}
 
-		protected abstract RESULT newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<PBXReference> children);
+		protected abstract RESULT newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children);
 	}
 }
