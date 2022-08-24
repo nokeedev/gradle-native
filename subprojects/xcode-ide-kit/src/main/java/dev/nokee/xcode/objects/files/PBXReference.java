@@ -54,15 +54,4 @@ public abstract class PBXReference extends PBXContainerItem {
 	public PBXSourceTree getSourceTree() {
 		return sourceTree;
 	}
-
-	@Override
-	public String toString() {
-		return String.format(
-			"%s name=%s path=%s sourceTree=%s",
-			super.toString(),
-			name,
-			getPath(),
-			getSourceTree());
-	}
-
 }

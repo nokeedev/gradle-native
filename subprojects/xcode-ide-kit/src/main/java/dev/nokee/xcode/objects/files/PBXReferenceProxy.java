@@ -41,6 +41,17 @@ public final class PBXReferenceProxy extends PBXReference implements PBXBuildFil
 		return fileType;
 	}
 
+	@Override
+	public String toString() {
+		return String.format(
+			"%s isa=%s name=%s path=%s sourceTree=%s",
+			super.toString(),
+			this.getClass().getSimpleName(),
+			getName().orElse(null),
+			getPath().orElse(null),
+			getSourceTree());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}

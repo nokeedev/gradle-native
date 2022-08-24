@@ -60,7 +60,7 @@ public final class PBXBuildFile extends PBXProjectItem {
 
 	@Override
 	public String toString() {
-		return String.format("%s fileRef=%s settings=%s", super.toString(), fileRef, settings);
+		return String.format("%s isa=%s fileRef=%s settings=%s", super.toString(), this.getClass().getSimpleName(), fileRef, settings);
 	}
 
 	public static PBXBuildFile ofFile(FileReference fileReference) {

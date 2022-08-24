@@ -33,4 +33,9 @@ public abstract class PBXBuildStyle extends PBXProjectItem {
 	public BuildSettings getBuildSettings() {
 		return buildSettings;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
+	}
 }

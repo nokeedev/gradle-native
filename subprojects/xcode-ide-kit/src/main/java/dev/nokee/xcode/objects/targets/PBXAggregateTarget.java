@@ -40,6 +40,11 @@ public final class PBXAggregateTarget extends PBXTarget {
 		super(name, NEVER_HAS_PRODUCT_TYPE, buildPhases, buildConfigurationList, NEVER_HAS_PRODUCT_NAME, NEVER_HAS_PRODUCT_REFERENCE, dependencies);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}

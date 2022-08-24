@@ -31,6 +31,18 @@ public final class PBXGroup extends PBXGroupElement implements GroupChild {
 		super(name, path, sourceTree, children);
 	}
 
+	@Override
+	public String toString() {
+		return String.format(
+			"%s isa=%s name=%s path=%s sourceTree=%s children=%s",
+			super.toString(),
+			this.getClass().getSimpleName(),
+			getName().orElse(null),
+			getPath().orElse(null),
+			getSourceTree(),
+			getChildren());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
