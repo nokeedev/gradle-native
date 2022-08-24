@@ -33,19 +33,21 @@ import static java.util.Objects.requireNonNull;
 public final class PBXObjectArchiver {
 	private final GidGenerator gidGenerator;
 	private final Map<String, PBXObjectCoder<Object>> coders;
+	private final StableHasher stableHasher;
 
 	public PBXObjectArchiver() {
 		this(new GidGenerator(Collections.emptySet()));
 	}
 
 	public PBXObjectArchiver(GidGenerator gidGenerator) {
-		this(gidGenerator, ImmutableList.copyOf(PBXObjectCoders.values()));
+		this(gidGenerator, ImmutableList.copyOf(PBXObjectCoders.values()), PBXObjectCoders::stableHash);
 	}
 
 	@SuppressWarnings("unchecked")
-	public PBXObjectArchiver(GidGenerator gidGenerator, Iterable<PBXObjectCoder<?>> coders) {
+	public PBXObjectArchiver(GidGenerator gidGenerator, Iterable<PBXObjectCoder<?>> coders, StableHasher stableHasher) {
 		this.gidGenerator = gidGenerator;
 		this.coders = Streams.stream(coders).collect(ImmutableMap.toImmutableMap(it -> it.getType().getSimpleName(), it -> (PBXObjectCoder<Object>) it));
+		this.stableHasher = stableHasher;
 	}
 
 	public PBXProj encode(PBXProject obj) {
@@ -118,7 +120,7 @@ public final class PBXObjectArchiver {
 		}
 
 		public PBXObjectReference newObjectIfAbsent(Object o, Consumer<? super PBXObjectFields.Builder> action) {
-			return newObjectIfAbsent(knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), ((PBXObject) o).stableHash())), action);
+			return newObjectIfAbsent(knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), stableHasher.stableHash(o))), action);
 		}
 
 		public PBXObjectReference newObjectIfAbsent(String id, Consumer<? super PBXObjectFields.Builder> action) {
@@ -131,5 +133,15 @@ public final class PBXObjectArchiver {
 				return result;
 			}
 		}
+	}
+
+	public interface StableHasher {
+		/**
+		 * This method is used to generate stable GIDs and must be stable for identical contents.
+		 * Returning a constant value is ok but will make the generated project order-dependent.
+		 *
+		 * @return stable hash
+		 */
+		int stableHash(Object o);
 	}
 }

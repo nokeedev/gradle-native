@@ -33,9 +33,4 @@ public abstract class PBXBuildStyle extends PBXProjectItem {
 	public BuildSettings getBuildSettings() {
 		return buildSettings;
 	}
-
-	@Override
-	public int stableHash() {
-		return name.hashCode();
-	}
 }

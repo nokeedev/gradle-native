@@ -120,15 +120,6 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 		}
 	}
 
-	@Override
-	public int stableHash() {
-		if (name != null) {
-			return name.hashCode();
-		} else {
-			return super.stableHash();
-		}
-	}
-
 	public static Builder builder() {
 		return new Builder();
 	}

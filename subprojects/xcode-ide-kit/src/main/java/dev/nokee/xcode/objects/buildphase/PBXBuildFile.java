@@ -16,18 +16,13 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableMap;
-import dev.nokee.xcode.objects.PBXObject;
 import dev.nokee.xcode.objects.PBXProjectItem;
-import dev.nokee.xcode.objects.files.PBXFileReference;
-import dev.nokee.xcode.objects.files.PBXReference;
-import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -61,11 +56,6 @@ public final class PBXBuildFile extends PBXProjectItem {
 
 	public Map<String, ?> getSettings() {
 		return settings;
-	}
-
-	@Override
-	public int stableHash() {
-		return ((PBXObject) fileRef).stableHash();
 	}
 
 	@Override

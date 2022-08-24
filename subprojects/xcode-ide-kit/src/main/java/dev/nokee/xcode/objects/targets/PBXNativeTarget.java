@@ -29,8 +29,7 @@ import java.util.function.Consumer;
 import static com.google.common.collect.Streams.stream;
 
 /**
- * Concrete target type representing targets built by xcode itself, rather than an external build
- * system.
+ * Concrete target type representing targets built by xcode itself, rather than an external build system.
  */
 public final class PBXNativeTarget extends PBXTarget {
 	private final ImmutableList<XCSwiftPackageProductDependency> packageProductDependencies;
