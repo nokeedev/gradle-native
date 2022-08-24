@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.objects.targets;
+package dev.nokee.xcode.objects.files;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.objects.files.PBXReference;
-import dev.nokee.xcode.objects.files.PBXSourceTree;
 
 import javax.annotation.Nullable;
 

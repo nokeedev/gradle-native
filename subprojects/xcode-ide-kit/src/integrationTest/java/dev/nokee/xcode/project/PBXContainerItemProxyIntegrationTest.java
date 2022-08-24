@@ -21,7 +21,7 @@ import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.PBXFileReference;
-import dev.nokee.xcode.objects.targets.PBXReferenceProxy;
+import dev.nokee.xcode.objects.files.PBXReferenceProxy;
 import lombok.val;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
