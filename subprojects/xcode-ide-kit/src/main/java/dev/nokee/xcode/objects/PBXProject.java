@@ -79,6 +79,11 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 		return packageReferences;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
+	}
+
 	public static final class ProjectReference {
 		private final PBXGroup productGroup;
 		private final PBXFileReference projectReference;

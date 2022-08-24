@@ -34,6 +34,11 @@ public final class PBXHeadersBuildPhase extends PBXBuildPhase {
 	//   i.e. settings = {ATTRIBUTES = (Project, Public)}
 	//   We can use utility methods to extract the "project" vs "public" vs "private" headers.
 
+	@Override
+	public String toString() {
+		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}

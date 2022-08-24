@@ -38,6 +38,11 @@ public final class XCRemoteSwiftPackageReference extends PBXContainerItem {
 		return requirement;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
+	}
+
 	/**
 	 * Represents a version requirement for a Swift package.
 	 * There are three categories of requirement: version-based requirement, branch-based requirement, and commit-based requirement.

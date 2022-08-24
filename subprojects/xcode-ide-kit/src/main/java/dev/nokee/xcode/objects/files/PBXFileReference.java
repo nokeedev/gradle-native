@@ -76,11 +76,16 @@ public final class PBXFileReference extends PBXReference implements PBXContainer
 		return Optional.ofNullable(lastKnownFileType);
 	}
 
+
 	@Override
 	public String toString() {
 		return String.format(
-			"%s explicitFileType=%s",
+			"%s isa=%s name=%s path=%s sourceTree=%s explicitFileType=%s",
 			super.toString(),
+			this.getClass().getSimpleName(),
+			getName().orElse(null),
+			getPath().orElse(null),
+			getSourceTree(),
 			explicitFileType);
 	}
 

@@ -56,6 +56,11 @@ public final class PBXTargetDependency extends PBXProjectItem {
 		return targetProxy;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}

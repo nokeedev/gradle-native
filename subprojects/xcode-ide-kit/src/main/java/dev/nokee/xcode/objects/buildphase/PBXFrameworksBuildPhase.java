@@ -32,6 +32,11 @@ public final class PBXFrameworksBuildPhase extends PBXBuildPhase {
 	//   i.e. settings = {ATTRIBUTES = (Weak)}
 	//   We can use utility methods to extract the "optional" (Weak) vs "required" (<nothing>) status.
 
+	@Override
+	public String toString() {
+		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
