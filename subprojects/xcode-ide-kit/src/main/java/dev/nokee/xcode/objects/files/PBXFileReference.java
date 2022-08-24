@@ -33,7 +33,7 @@ import java.util.Optional;
  * Reference to a concrete file.
  */
 @EqualsAndHashCode(callSuper = true)
-public final class PBXFileReference extends PBXReference implements PBXContainerItemProxy.ContainerPortal, PBXBuildFile.FileReference {
+public final class PBXFileReference extends PBXReference implements PBXContainerItemProxy.ContainerPortal, PBXBuildFile.FileReference, GroupChild {
 	@Nullable private final String explicitFileType;
 	@Nullable private final String lastKnownFileType;
 

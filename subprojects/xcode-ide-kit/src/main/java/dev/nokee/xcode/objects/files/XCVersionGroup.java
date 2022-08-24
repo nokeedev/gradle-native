@@ -18,8 +18,8 @@ package dev.nokee.xcode.objects.files;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public final class XCVersionGroup extends PBXGroupElement {
-	private XCVersionGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<PBXReference> children) {
+public final class XCVersionGroup extends PBXGroupElement implements GroupChild {
+	private XCVersionGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
 		super(name, path, sourceTree, children);
 	}
 
@@ -29,7 +29,7 @@ public final class XCVersionGroup extends PBXGroupElement {
 
 	public static final class Builder extends PBXGroupElement.Builder<Builder, XCVersionGroup> {
 		@Override
-		protected XCVersionGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<PBXReference> children) {
+		protected XCVersionGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
 			return new XCVersionGroup(name, path, sourceTree, children);
 		}
 	}

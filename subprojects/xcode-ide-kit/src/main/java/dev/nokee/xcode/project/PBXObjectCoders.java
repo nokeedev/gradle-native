@@ -30,9 +30,10 @@ import dev.nokee.xcode.objects.buildphase.PBXSourcesBuildPhase;
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
+import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
-import dev.nokee.xcode.objects.files.PBXReference;
+import dev.nokee.xcode.objects.files.PBXReferenceProxy;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.files.PBXVariantGroup;
 import dev.nokee.xcode.objects.files.XCVersionGroup;
@@ -41,7 +42,6 @@ import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.objects.targets.PBXAggregateTarget;
 import dev.nokee.xcode.objects.targets.PBXLegacyTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
-import dev.nokee.xcode.objects.files.PBXReferenceProxy;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.objects.targets.ProductType;
@@ -276,7 +276,7 @@ final class PBXObjectCoders {
 			value.getPath().ifPresent(it -> encoder.encode("path", it));
 			encoder.encode("sourceTree", value.getSourceTree().toString());
 
-			List<PBXReference> children = new ArrayList<>(value.getChildren());
+			List<GroupChild> children = new ArrayList<>(value.getChildren());
 			if (value.getSortPolicy() == PBXGroup.SortPolicy.BY_NAME) {
 				children.sort(comparing(o -> o.getName().orElse(null), naturalOrder()));
 			}
@@ -312,7 +312,7 @@ final class PBXObjectCoders {
 			value.getPath().ifPresent(it -> encoder.encode("path", it));
 			encoder.encode("sourceTree", value.getSourceTree().toString());
 
-			List<PBXReference> children = new ArrayList<>(value.getChildren());
+			List<GroupChild> children = new ArrayList<>(value.getChildren());
 			if (value.getSortPolicy() == PBXVariantGroup.SortPolicy.BY_NAME) {
 				children.sort(comparing(o -> o.getName().orElse(null), naturalOrder()));
 			}
@@ -348,7 +348,7 @@ final class PBXObjectCoders {
 			value.getPath().ifPresent(it -> encoder.encode("path", it));
 			encoder.encode("sourceTree", value.getSourceTree().toString());
 
-			List<PBXReference> children = new ArrayList<>(value.getChildren());
+			List<GroupChild> children = new ArrayList<>(value.getChildren());
 			if (value.getSortPolicy() == PBXVariantGroup.SortPolicy.BY_NAME) {
 				children.sort(comparing(o -> o.getName().orElse(null), naturalOrder()));
 			}

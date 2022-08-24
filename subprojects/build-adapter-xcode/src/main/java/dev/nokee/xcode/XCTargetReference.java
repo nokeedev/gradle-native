@@ -19,9 +19,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
-import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import lombok.EqualsAndHashCode;
@@ -109,7 +109,8 @@ public final class XCTargetReference implements Serializable {
 
 	private static void walk(XCFileReferences.Builder builder, FileNode previousNodes, PBXGroup group) {
 		val node = new FileNode(group.getSourceTree(), previousNodes, group.getPath().orElse(null));
-		for (PBXReference child : group.getChildren()) {
+		for (GroupChild child : group.getChildren()) {
+			// TODO: Should have some support for PBXVariantGroup or XCVersionGroup
 			if (child instanceof PBXGroup) {
 				walk(builder, node, (PBXGroup) child);
 			} else if (child instanceof PBXFileReference) {
