@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.nvm.fixtures;
-
-import dev.gradleplugins.buildscript.blocks.SettingsBlock;
+package dev.gradleplugins.testscript;
 
 import java.util.function.Consumer;
 
-public interface HasSettingsFile {
-	void settingsFile(Consumer<? super SettingsBlock.Builder> action);
+public interface Configurable<T> {
+	T configure(Consumer<? super T> action);
 }

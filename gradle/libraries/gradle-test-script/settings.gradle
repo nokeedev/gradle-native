@@ -1,0 +1,11 @@
+rootProject.name = 'gradle-test-script'
+
+includeBuild '../gradle-build-script'
+
+gradle.allprojects {
+	group = 'dev.gradleplugins'
+
+	repositories {
+		mavenCentral()
+	}
+}

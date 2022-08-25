@@ -20,7 +20,7 @@ import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
 import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
-import dev.nokee.nvm.fixtures.TestLayout;
+import dev.gradleplugins.testscript.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,16 +28,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
-import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.nvm.GradleRunnerActions.warmConfigurationCache;
 import static dev.nokee.nvm.ProjectFixtures.applyAnyNokeePlugin;
 import static dev.nokee.nvm.ProjectFixtures.nokeeBuild;
 import static dev.nokee.nvm.ProjectFixtures.writeVersionFile;
-import static dev.nokee.nvm.fixtures.DotNokeeVersionTestUtils.writeVersionFileTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;

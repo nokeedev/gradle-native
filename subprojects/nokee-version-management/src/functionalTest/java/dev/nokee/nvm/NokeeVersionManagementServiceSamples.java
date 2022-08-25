@@ -15,8 +15,8 @@
  */
 package dev.nokee.nvm;
 
-import dev.nokee.nvm.fixtures.TestGradleBuild;
-import dev.nokee.nvm.fixtures.TestLayout;
+import dev.gradleplugins.testscript.TestGradleBuild;
+import dev.gradleplugins.testscript.TestLayout;
 
 import java.util.function.Consumer;
 

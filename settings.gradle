@@ -17,6 +17,7 @@ includeBuild 'subprojects/templates'
 includeBuild 'gradle/plugins/docs-gradle-plugin'
 includeBuild 'gradle/libraries/nokeetest-libraries'
 includeBuild 'gradle/libraries/gradle-build-script'
+includeBuild 'gradle/libraries/gradle-test-script'
 
 /**
  * Adds specified subproject path to this Gradle build.
