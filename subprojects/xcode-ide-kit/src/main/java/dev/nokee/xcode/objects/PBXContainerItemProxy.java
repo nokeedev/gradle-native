@@ -45,6 +45,15 @@ public final class PBXContainerItemProxy extends PBXContainerItem {
 		}
 	}
 
+	// Why do we use a supplier here?
+	//   The field {@literal targetProxy} on PBXTargetDependency object is a bit troublesome. It references a
+	//   PBXContainerItemProxy which can reference both the current PBXProject (local reference) or the PBXProject of
+	//   another xcodeproj (remote reference). Given we split out the encoding/decoding and PBXObject model, we don't
+	//   have readily available global ID used to reference PBXObject. On top of this limitation, we decided the
+	//   PBXObject models should be immutable once built. Given the PBXContainerItemProxy may need to reference the
+	//   current PBXProject (e.g. local reference), we cannot fully create a working PBXContainerItemProxy until the
+	//   PBXProject model is fully decoded. Using a supplier delays the decoding of the containerPortal just enough so
+	//   the referenced PBXProject to be decoded.
 	private final Supplier<ContainerPortal> containerPortal;
 	private final String remoteGlobalIDString;
 	private final ProxyType proxyType;
