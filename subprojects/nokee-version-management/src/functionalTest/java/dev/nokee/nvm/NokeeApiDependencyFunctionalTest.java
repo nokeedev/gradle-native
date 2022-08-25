@@ -19,7 +19,7 @@ import dev.gradleplugins.buildscript.blocks.DependenciesBlock;
 import dev.gradleplugins.buildscript.blocks.DependencyNotation;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
-import dev.nokee.nvm.fixtures.TestLayout;
+import dev.gradleplugins.testscript.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.Test;

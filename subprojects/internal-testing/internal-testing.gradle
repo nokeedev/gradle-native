@@ -33,6 +33,7 @@ dependencies {
 	api "com.google.guava:guava-testlib:${guavaVersion}"
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	api 'dev.gradleplugins:gradle-build-script'
+	api 'dev.gradleplugins:gradle-test-script'
 	implementation testFixtures(gradleRunnerKit())
 	api gradleRunnerKit()
 	implementation gradleApi(minimumGradleVersion)

@@ -18,10 +18,10 @@ package dev.nokee.nvm;
 import dev.gradleplugins.buildscript.blocks.TaskBlock;
 import dev.gradleplugins.buildscript.statements.Statement;
 import dev.gradleplugins.buildscript.syntax.Syntax;
-import dev.nokee.nvm.fixtures.HasFileSystem;
-import dev.nokee.nvm.fixtures.TestBuildSrc;
-import dev.nokee.nvm.fixtures.TestGradleBuild;
-import dev.nokee.nvm.fixtures.TestIncludedBuild;
+import dev.gradleplugins.testscript.HasFileSystem;
+import dev.gradleplugins.testscript.TestBuildSrc;
+import dev.gradleplugins.testscript.TestGradleBuild;
+import dev.gradleplugins.testscript.TestIncludedBuild;
 
 import java.util.function.Consumer;
 

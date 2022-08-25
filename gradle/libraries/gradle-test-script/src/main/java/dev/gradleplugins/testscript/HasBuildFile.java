@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.nvm.fixtures;
+package dev.gradleplugins.testscript;
 
-public interface HasFileSystem {
-	void file(String path, String... lines);
+import dev.gradleplugins.buildscript.blocks.ProjectBlock;
 
-	// TODO: buildScript(path): BuildScriptFile
+import java.util.function.Consumer;
+
+public interface HasBuildFile {
+	void buildFile(Consumer<? super ProjectBlock.Builder> action);
+
+	BuildScriptFile getBuildFile();
 }
