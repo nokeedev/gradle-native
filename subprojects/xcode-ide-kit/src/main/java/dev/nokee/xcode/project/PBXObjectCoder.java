@@ -15,8 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import dev.nokee.xcode.objects.PBXObject;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Consumer;
