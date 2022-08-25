@@ -23,7 +23,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Element of the {@link PBXTarget#getDependencies()}. Represents a dependency of one target upon another target.
+ * Element of the {@link PBXTarget#getDependencies()}.
+ * Represents a dependency of one target upon another target.
  */
 public final class PBXTargetDependency extends PBXProjectItem {
 	@Nullable private final String name;
@@ -44,14 +45,6 @@ public final class PBXTargetDependency extends PBXProjectItem {
 		return Optional.ofNullable(target);
 	}
 
-	// The field targetProxy is a bit complicated to support hence we delay its implementation until required.
-	//   It references a PBXContainerItemProxy which seems to allow cross-project reference, e.g. reference
-	//   an PBXObject from another xcodeproj. So far, we have only seen reference in the local xcodeproj.
-	//   Given we split out the encoding/decoding and the PBXObject model, we don't have readily available
-	//   global ID used to reference PBXObject. On top of this limitation, we decided the PBXObject models
-	//   should be immutable once built. Given the PBXContainerItemProxy needs to reference the current PBXProject,
-	//   we cannot fully create a working PBXContainerItemProxy. There is most likely a way around this limitation.
-	//   However, since we don't need the targetProxy in all of our current use cases, we will simply ignore the field.
 	public PBXContainerItemProxy getTargetProxy() {
 		return targetProxy;
 	}
