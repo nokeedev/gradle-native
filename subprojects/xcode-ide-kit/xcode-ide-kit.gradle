@@ -25,7 +25,7 @@ test {
 
 ModuleDependency templates(Object notation) {
 	return ((ModuleDependency) dependencies.create(notation)).capabilities { ModuleDependencyCapabilitiesHandler capabilities ->
-		capabilities.requireCapability('dev.nokee:templates:1.0')
+		capabilities.requireCapability('dev.nokee:template-elements:1.0')
 	}
 }
 
@@ -107,7 +107,7 @@ abstract class GenerateSources extends DefaultTask {
 sourceSets.register('templates') { SourceSet sourceSet ->
 	// So the SourceSet#getApiConfigurationName() exists
 	project.java.registerFeature("templates") {
-		it.capability('dev.nokee', 'templates', '1.0')
+		it.capability('dev.nokee', 'template-elements', '1.0')
 		it.usingSourceSet(sourceSet)
 	}
 
