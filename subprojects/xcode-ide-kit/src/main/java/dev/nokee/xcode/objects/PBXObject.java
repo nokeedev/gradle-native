@@ -16,8 +16,4 @@
 package dev.nokee.xcode.objects;
 
 public abstract class PBXObject {
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
 }
