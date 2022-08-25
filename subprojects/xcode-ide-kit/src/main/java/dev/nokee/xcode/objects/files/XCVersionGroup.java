@@ -17,10 +17,30 @@ package dev.nokee.xcode.objects.files;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Represents a group that contains multiple file references to the different versions of a resource.
+ * Users use this kind of group to contain the different versions of a {@literal xcdatamodel}.
+ */
 public final class XCVersionGroup extends PBXGroupElement implements GroupChild {
-	private XCVersionGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
+	@Nullable private PBXFileReference currentVersion;
+	@Nullable private String versionGroupType;
+
+	private XCVersionGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children, @Nullable PBXFileReference currentVersion, @Nullable String versionGroupType) {
 		super(name, path, sourceTree, children);
+		this.currentVersion = currentVersion;
+		this.versionGroupType = versionGroupType;
+	}
+
+	public Optional<PBXFileReference> getCurrentVersion() {
+		return Optional.ofNullable(currentVersion);
+	}
+
+	// Identifier of the group type
+	// TODO: find better explaination
+	public Optional<String> getVersionGroupType() {
+		return getCurrentVersion().flatMap(PBXFileReference::getExplicitFileType);
 	}
 
 	@Override
@@ -40,9 +60,23 @@ public final class XCVersionGroup extends PBXGroupElement implements GroupChild 
 	}
 
 	public static final class Builder extends PBXGroupElement.Builder<Builder, XCVersionGroup> {
+		private PBXFileReference currentVersion;
+		private String versionGroupType;
+
+		public Builder currentVersion(PBXFileReference currentVersion) {
+			this.currentVersion = currentVersion;
+			return this;
+		}
+
+		public Builder versionGroupType(String versionGroupType) {
+			this.versionGroupType = versionGroupType;
+			return this;
+		}
+
 		@Override
 		protected XCVersionGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
-			return new XCVersionGroup(name, path, sourceTree, children);
+			// TODO: Should we verify that currentVersion reference is part of the the children?
+			return new XCVersionGroup(name, path, sourceTree, children, currentVersion, versionGroupType);
 		}
 	}
 }
