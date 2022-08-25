@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * This is the element for referencing localized resources.
+ * Represents localized resources.
  */
 public final class PBXVariantGroup extends PBXGroupElement implements GroupChild {
 	public PBXVariantGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
