@@ -53,6 +53,11 @@ functionalTest {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation project(':xcodeIdeKit')
 		implementation testFixtures(project(':xcodeIdeKit'))
+		implementation(project(':xcodeIdeKit')) {
+			capabilities {
+				requireCapability('dev.nokee:template-elements:1.0')
+			}
+		}
 	}
 }
 

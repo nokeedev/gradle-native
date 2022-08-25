@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.utils.Optionals.stream;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.ABSOLUTE;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.BUILT_PRODUCTS_DIR;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.GROUP;
@@ -73,17 +74,19 @@ public final class XCTargetReference implements Serializable {
 			// TODO: PBXAggregateTarget has no productFile
 			val outputFile = target.getProductReference().map(resolver::get).orElse(null);
 			// TODO: Handle cross-project reference
-			val dependencies = target.getDependencies().stream().map(it -> XCTargetReference.of(project, it.getTarget().get().getName())).collect(ImmutableList.toImmutableList());
+			val dependencies = target.getDependencies().stream().filter(it -> it.getTarget().isPresent()).map(it -> XCTargetReference.of(project, it.getTarget().get().getName())).collect(ImmutableList.toImmutableList());
 
 			return new XCTarget(name, project, inputFiles, dependencies, outputFile);
 		});
 	}
 
 	public static Stream<PBXFileReference> findInputFiles(PBXTarget target) {
-		return target.getBuildPhases().stream().flatMap(it -> it.getFiles().stream()).map(it -> it.getFileRef()).flatMap(it -> {
+		// TODO: Support Swift package (aka getProductRef() vs getFileRef())
+		return target.getBuildPhases().stream().flatMap(it -> it.getFiles().stream()).flatMap(it -> stream(it.getFileRef())).flatMap(it -> {
 			if (it instanceof PBXFileReference) {
 				return Stream.of((PBXFileReference) it);
 			} else {
+				// TODO: Support PBXReferenceProxy (cross-project reference)
 				return Stream.empty();
 			}
 		});
