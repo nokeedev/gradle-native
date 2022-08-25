@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -28,31 +29,31 @@ final class DerivedDataPathAsBuildSettingsTest {
 
 	@Test
 	void hasBuildDir() {
-		assertThat(buildSettings.get("BUILD_DIR"),
+		assertThat(separatorsToUnix(buildSettings.get("BUILD_DIR")),
 			equalTo("/my/derived/data/path/Build/Products"));
 	}
 
 	@Test
 	void hasBuildRoot() {
-		assertThat(buildSettings.get("BUILD_ROOT"),
+		assertThat(separatorsToUnix(buildSettings.get("BUILD_ROOT")),
 			equalTo("/my/derived/data/path/Build/Products"));
 	}
 
 	@Test
 	void hasProjectTempDir() {
-		assertThat(buildSettings.get("PROJECT_TEMP_DIR"),
+		assertThat(separatorsToUnix(buildSettings.get("PROJECT_TEMP_DIR")),
 			equalTo("/my/derived/data/path/Build/Intermediates.noindex/$(PROJECT_NAME).build"));
 	}
 
 	@Test
 	void hasObjRoot() {
-		assertThat(buildSettings.get("OBJROOT"),
+		assertThat(separatorsToUnix(buildSettings.get("OBJROOT")),
 			equalTo("/my/derived/data/path/Build/Intermediates.noindex"));
 	}
 
 	@Test
 	void hasSymRoot() {
-		assertThat(buildSettings.get("SYMROOT"),
+		assertThat(separatorsToUnix(buildSettings.get("SYMROOT")),
 			equalTo("/my/derived/data/path/Build/Products"));
 	}
 }
