@@ -15,6 +15,8 @@
  */
 package dev.nokee.xcode.objects.files;
 
+import dev.nokee.utils.Optionals;
+
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +26,8 @@ import java.util.Optional;
  * Users use this kind of group to contain the different versions of a {@literal xcdatamodel}.
  */
 public final class XCVersionGroup extends PBXGroupElement implements GroupChild {
-	@Nullable private PBXFileReference currentVersion;
-	@Nullable private String versionGroupType;
+	@Nullable private final PBXFileReference currentVersion;
+	@Nullable private final String versionGroupType;
 
 	private XCVersionGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children, @Nullable PBXFileReference currentVersion, @Nullable String versionGroupType) {
 		super(name, path, sourceTree, children);
@@ -40,7 +42,7 @@ public final class XCVersionGroup extends PBXGroupElement implements GroupChild 
 	// Identifier of the group type
 	// TODO: find better explaination
 	public Optional<String> getVersionGroupType() {
-		return getCurrentVersion().flatMap(PBXFileReference::getExplicitFileType);
+		return Optionals.or(Optional.ofNullable(versionGroupType), () -> getCurrentVersion().flatMap(PBXFileReference::getExplicitFileType));
 	}
 
 	@Override

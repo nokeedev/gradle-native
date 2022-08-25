@@ -339,6 +339,8 @@ final class PBXObjectCoders {
 			decoder.decodeIfPresent("path", String.class, builder::path);
 			decoder.decodeIfPresent("sourceTree", String.class, it -> builder.sourceTree(PBXSourceTree.of(it)));
 			decoder.decodeIfPresent("children", builder::children);
+			decoder.decodeIfPresent("versionGroupType", String.class, builder::versionGroupType);
+			decoder.decodeIfPresent("currentVersion", PBXFileReference.class, builder::currentVersion);
 			return builder.build();
 		}
 
@@ -352,8 +354,10 @@ final class PBXObjectCoders {
 			if (value.getSortPolicy() == PBXVariantGroup.SortPolicy.BY_NAME) {
 				children.sort(comparing(o -> o.getName().orElse(null), naturalOrder()));
 			}
-
 			encoder.encode("children", children);
+
+			value.getVersionGroupType().ifPresent(it -> encoder.encode("versionGroupType", it));
+			value.getCurrentVersion().ifPresent(it -> encoder.encode("currentVersion", it));
 		}
 	}
 
