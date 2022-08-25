@@ -15,8 +15,10 @@
  */
 package dev.nokee.utils;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public final class Optionals {
@@ -35,4 +37,16 @@ public final class Optionals {
 			emptyAction.run();
 		}
 	}
+
+    public static <T> Optional<T> or(Optional<T> self, Supplier<? extends Optional<? extends T>> supplier) {
+		Objects.requireNonNull(self);
+		Objects.requireNonNull(supplier);
+		if (self.isPresent()) {
+			return self;
+		} else {
+			@SuppressWarnings("unchecked")
+			Optional<T> result = (Optional<T>) supplier.get();
+			return Objects.requireNonNull(result);
+		}
+    }
 }
