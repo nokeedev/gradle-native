@@ -1,0 +1,17 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+gradlePlugin {
+	plugins {
+		javaGradleShimLibrary {
+			id = 'nokeebuild.multi-gradle-version'
+			implementationClass = 'nokeebuild.shim.MultiGradleVersionPlugin'
+		}
+	}
+
+	dependencies {
+		compileOnly 'dev.gradleplugins:gradle-plugin-development'
+		runtimeOnly project(':uber-plugins') // only for nokeebuild.java-gradle-library
+	}
+}

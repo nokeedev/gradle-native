@@ -1,73 +1,8 @@
 plugins {
-	id 'nokeebuild.java-gradle-library'
+	id 'nokeebuild.multi-gradle-version'
+	id 'nokeebuild.gradle-plugin-unit-test'
 	id 'maven-publish'
 }
-
-//region capability code
-final class RegisterGradleVersionFeature implements Action<SourceSet> {
-	private final JavaPluginExtension java
-	private final SourceSetContainer sourceSets
-	private final String capabilityVersion
-
-	RegisterGradleVersionFeature(Project project) {
-		this.java = project.extensions.getByType(JavaPluginExtension)
-		this.sourceSets = project.extensions.getByType(SourceSetContainer)
-		this.capabilityVersion = project.version
-	}
-
-	@Override
-	void execute(SourceSet sourceSet) {
-		java.registerFeature(toFeatureName(sourceSet.name)) {
-			usingSourceSet(sourceSet)
-			capability('dev.nokee', "gradle-${it.name}", capabilityVersion)
-		}
-	}
-
-	private String toFeatureName(String version) {
-		return version.replace('.', '')
-	}
-}
-
-final class AddGradleApiDependencyToCompileOnlyConfiguration implements Action<SourceSet> {
-	private final ConfigurationContainer configurations
-	private final DependencyHandler dependencies
-
-	AddGradleApiDependencyToCompileOnlyConfiguration(Project project) {
-		this.configurations = project.configurations
-		this.dependencies = project.dependencies
-	}
-
-	@Override
-	void execute(SourceSet sourceSet) {
-		configurations.getByName(sourceSet.compileOnlyConfigurationName).dependencies.add(dependencies.gradleApi(toGradleVersion(sourceSet.name)))
-	}
-
-	private String toGradleVersion(String name) {
-		return name.substring(1) // remove 'v' suffix
-	}
-}
-
-final class AddGradleApiProjectDependencyToCompileOnlyConfiguration implements Action<SourceSet> {
-	private final Project gradleApiProject
-	private final ConfigurationContainer configurations
-	private final DependencyHandler dependencies
-
-	AddGradleApiProjectDependencyToCompileOnlyConfiguration(Project project) {
-		this.gradleApiProject = project.project(':gradleApi')
-		this.configurations = project.configurations
-		this.dependencies = project.dependencies
-	}
-
-	@Override
-	void execute(SourceSet sourceSet) {
-		configurations.getByName(sourceSet.compileOnlyConfigurationName).dependencies.add(dependencies.create(gradleApiProject))
-	}
-}
-
-sourceSets.configureEach(new AddGradleApiDependencyToCompileOnlyConfiguration(project))
-sourceSets.configureEach(new AddGradleApiProjectDependencyToCompileOnlyConfiguration(project))
-sourceSets.configureEach(new RegisterGradleVersionFeature(project))
-//endregion
 
 sourceSets {
 	'v6.2' {}
@@ -75,4 +10,9 @@ sourceSets {
 	'v6.5' {}
 	'v6.6' {}
 	'v7.0' {}
+}
+
+test {
+	testedGradleVersions.set(['6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8', '6.9', '7.0', '7.1', '7.2', '7.3', '7.4', '7.5'])
+	testedOsFamilies.set([it.osFamilies.agnostic])
 }
