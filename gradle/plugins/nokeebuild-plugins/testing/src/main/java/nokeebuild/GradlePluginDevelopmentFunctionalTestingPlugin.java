@@ -33,7 +33,6 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static nokeebuild.UseJUnitJupiter.junitVersion;
 import static nokeebuild.UseSpockFramework.spockVersion;
@@ -51,7 +50,6 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 		project.getPluginManager().apply("groovy-base");
 		project.getPluginManager().apply("dev.gradleplugins.gradle-plugin-functional-test");
 		functionalTest(project, new RegisterOperatingSystemFamilyTestingStrategy());
-		functionalTest(project, new TestingStrategiesConvention());
 		functionalTest(project, new DisableNonDevelopmentTestTaskOnIdeaSync(project));
 		functionalTest(project, testSuite -> {
 			testSuite.dependencies(it -> {
@@ -134,31 +132,6 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 	private static void functionalTest(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
 		final GradlePluginDevelopmentTestSuite extension = (GradlePluginDevelopmentTestSuite) project.getExtensions().getByName("functionalTest");
 		action.execute(extension);
-	}
-
-	private static final class TestingStrategiesConvention implements Action<GradlePluginDevelopmentTestSuite> {
-		@Override
-		public void execute(GradlePluginDevelopmentTestSuite testSuite) {
-			final Set<GradlePluginTestingStrategy> strategies = new LinkedHashSet<>();
-			final GradlePluginTestingStrategyFactory strategyFactory = testSuite.getStrategies();
-			majorOperatingSystemFamilies().forEach(osFamily -> {
-				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForMinimumVersion()));
-				strategies.add(strategyFactory.composite(osFamily, strategyFactory.coverageForGradleVersion("6.9.2")));
-				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForLatestGlobalAvailableVersion()));
-				strategies.add(strategyFactory.composite(osFamily, strategyFactory.getCoverageForLatestNightlyVersion()));
-			});
-
-			final DevelopmentTestingStrategy developmentStrategy = new DevelopmentTestingStrategy();
-			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForMinimumVersion()));
-			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.coverageForGradleVersion("6.9.2")));
-			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForLatestGlobalAvailableVersion()));
-			strategies.add(strategyFactory.composite(developmentStrategy, strategyFactory.getCoverageForLatestNightlyVersion()));
-			testSuite.getTestingStrategies().convention(strategies);
-		}
-
-		private static Stream<OperatingSystemFamilyTestingStrategy> majorOperatingSystemFamilies() {
-			return Stream.of(WINDOWS, LINUX, MACOS);
-		}
 	}
 
 	private static Iterable<OperatingSystemFamilyTestingStrategy> majorOperatingSystemFamilies() {
