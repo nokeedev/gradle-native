@@ -15,11 +15,16 @@
  */
 package dev.nokee.gradle;
 
+import dev.nokee.publishing.internal.metadata.GradleModuleMetadata;
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
-import org.gradle.api.artifacts.component.ModuleComponentSelector;
 
-public interface ArtifactRepositoryGeneratorListener {
-	void onListModuleVersions(ModuleComponentSelector selector);
+import java.io.OutputStream;
 
-	void onResolveComponentMetaData(ModuleComponentIdentifier moduleComponentIdentifier);
+public interface AdhocComponentSupplierDetails {
+	ModuleComponentIdentifier getId();
+
+	void metadata(Action<? super GradleModuleMetadata.Builder> action);
+
+	void file(String filename, Action<? super OutputStream> action);
 }

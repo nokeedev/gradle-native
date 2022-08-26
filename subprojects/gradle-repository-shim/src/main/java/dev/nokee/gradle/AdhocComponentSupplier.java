@@ -15,12 +15,7 @@
  */
 package dev.nokee.gradle;
 
-import org.gradle.api.artifacts.repositories.ArtifactRepository;
-import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.Action;
 
-public interface AdhocArtifactRepository extends ArtifactRepository {
-	DirectoryProperty getCacheDirectory();
-
-	void setComponentSupplier(AdhocComponentSupplier rule);
-	void setComponentVersionLister(AdhocComponentLister rule);
+public interface AdhocComponentSupplier extends Action<AdhocComponentSupplierDetails> {
 }

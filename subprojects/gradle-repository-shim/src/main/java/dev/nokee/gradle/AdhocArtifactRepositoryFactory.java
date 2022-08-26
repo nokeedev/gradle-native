@@ -17,25 +17,28 @@ package dev.nokee.gradle;
 
 import lombok.val;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
-import org.gradle.api.file.Directory;
 import org.gradle.api.internal.artifacts.BaseRepositoryFactory;
 import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.api.provider.Provider;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.util.GradleVersion;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public final class AdhocArtifactRepositoryFactory {
+	private static final String ADHOC_REPO_DEFAULT_NAME = "adhoc";
+
 	private final MavenArtifactRepositoryFactory mavenRepositoryFactory;
 	private final ArtifactRepositoryFactory factory;
-	private final ArtifactRepositoryPathProvider repositoryPathProvider;
+	private final ObjectFactory objects;
+	private final ProviderFactory providers;
 
 	public AdhocArtifactRepositoryFactory(Project project) {
+		this.objects = project.getObjects();
+		this.providers = project.getProviders();
 		this.mavenRepositoryFactory = ((ProjectInternal) project).getServices().get(BaseRepositoryFactory.class)::createMavenRepository;
-		this.repositoryPathProvider = name -> project.getLayout().getBuildDirectory().dir("adhoc-m2/" + name);
 		if (GradleVersion.current().compareTo(GradleVersion.version("6.6")) >= 0) {
 			this.factory = new ArtifactRepositoryFactory("dev.nokee.gradle.internal.repositories.v66.DefaultAdhocArtifactRepository");
 		} else {
@@ -47,17 +50,14 @@ public final class AdhocArtifactRepositoryFactory {
 		return new AdhocArtifactRepositoryFactory(project);
 	}
 
-	// TODO: Remove the parameters, the responsability is a bit too much here.
-	public ArtifactRepository create(String name, ArtifactRepositoryGeneratorListener listener) {
+	public AdhocArtifactRepository create() {
 		val delegate = mavenRepositoryFactory.create();
 
-		// TODO: Remove this responsability
-		delegate.setName(name);
-		delegate.setUrl(repositoryPathProvider.forName(name));
+		delegate.setName(ADHOC_REPO_DEFAULT_NAME);
 
 		// Force only Gradle Metadata as it's the richest representation
 		delegate.metadataSources(MavenArtifactRepository.MetadataSources::gradleMetadata);
-		return factory.create(delegate, listener);
+		return factory.create(delegate, objects, providers);
 	}
 
 	private static final class ArtifactRepositoryFactory {
@@ -65,16 +65,16 @@ public final class AdhocArtifactRepositoryFactory {
 
 		private ArtifactRepositoryFactory(String className) {
 			try {
-				this.constructor = Class.forName(className).getConstructor(MavenArtifactRepository.class, ArtifactRepositoryGeneratorListener.class);
+				this.constructor = Class.forName(className).getConstructor(MavenArtifactRepository.class, ObjectFactory.class, ProviderFactory.class);
 			} catch (NoSuchMethodException | ClassNotFoundException e) {
 				throw new RuntimeException(e);
 			}
 		}
 
 		@SuppressWarnings("unchecked")
-		public ArtifactRepository create(MavenArtifactRepository delegate, ArtifactRepositoryGeneratorListener listener) {
+		public AdhocArtifactRepository create(MavenArtifactRepository delegate, ObjectFactory objects, ProviderFactory providers) {
 			try {
-				return (ArtifactRepository) constructor.newInstance(delegate, listener);
+				return (AdhocArtifactRepository) constructor.newInstance(delegate, objects, providers);
 			} catch (
 				InvocationTargetException | InstantiationException | IllegalAccessException e) {
 				throw new RuntimeException(e);
@@ -84,9 +84,5 @@ public final class AdhocArtifactRepositoryFactory {
 
 	private interface MavenArtifactRepositoryFactory {
 		MavenArtifactRepository create();
-	}
-
-	private interface ArtifactRepositoryPathProvider {
-		Provider<Directory> forName(String name);
 	}
 }
