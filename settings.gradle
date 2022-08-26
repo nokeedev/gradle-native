@@ -55,6 +55,7 @@ subproject('docs/exemplar-kit') {
 }
 subproject('gradle-annotation')
 subproject('gradle-api')
+subproject('gradle-repository-shim')
 subproject('gradle-shim')
 subproject('ide-base')
 subproject('ide-visual-studio')
