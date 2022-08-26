@@ -9,4 +9,5 @@ repositories {
 
 dependencies {
 	api project(':gradleShim')
+	api project(':gradleRepositoryShim')
 }

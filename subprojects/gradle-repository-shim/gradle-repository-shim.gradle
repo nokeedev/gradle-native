@@ -1,0 +1,15 @@
+plugins {
+	id 'nokeebuild.multi-gradle-version'
+	id 'nokeebuild.gradle-plugin-unit-test'
+	id 'nokeebuild.gradle-plugin-functional-test'
+	id 'maven-publish'
+}
+
+sourceSets {
+	'v6.6' {}
+}
+
+test {
+	testedGradleVersions.set(['6.6', '6.7', '6.8', '6.9', '7.0', '7.1', '7.2', '7.3', '7.4', '7.5'])
+	testedOsFamilies.set([it.osFamilies.agnostic])
+}
