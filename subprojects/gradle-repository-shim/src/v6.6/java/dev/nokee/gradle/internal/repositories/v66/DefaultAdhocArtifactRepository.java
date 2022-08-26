@@ -45,7 +45,6 @@ import org.gradle.api.internal.artifacts.repositories.resolver.MetadataFetchingC
 import org.gradle.api.internal.component.ArtifactType;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.internal.action.InstantiatingAction;
 import org.gradle.internal.component.external.model.ModuleDependencyMetadata;
 import org.gradle.internal.component.model.ComponentArtifactMetadata;
@@ -82,7 +81,7 @@ public final class DefaultAdhocArtifactRepository implements AdhocArtifactReposi
 	private final Set<ModuleComponentIdentifier> resolvedComponents = new HashSet<>();
 	private final DirectoryProperty cacheDirectory;
 
-	public DefaultAdhocArtifactRepository(MavenArtifactRepository delegate, ObjectFactory objects, ProviderFactory providers) {
+	public DefaultAdhocArtifactRepository(MavenArtifactRepository delegate, ObjectFactory objects) {
 		this.delegate = delegate;
 		this.cacheDirectory = objects.directoryProperty();
 		this.cacheDirectory.finalizeValueOnRead();
