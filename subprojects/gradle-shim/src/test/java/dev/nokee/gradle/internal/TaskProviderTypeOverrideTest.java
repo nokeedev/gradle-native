@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,24 @@
  */
 package dev.nokee.gradle.internal;
 
+import dev.nokee.gradle.NamedDomainObjectProviderSpec;
 import dev.nokee.gradle.TaskProviderFactory;
+import dev.nokee.gradle.internal.util.ProviderTestUtils;
+import org.gradle.api.Task;
+import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.tasks.TaskProvider;
 import org.junit.jupiter.api.Test;
 
-import java.util.stream.Collectors;
-
-import static dev.nokee.gradle.NamedDomainObjectProviderSpec.of;
-import static dev.nokee.gradle.internal.util.ClassTestUtils.allInterfaces;
-import static dev.nokee.gradle.internal.util.ProviderTestUtils.allTaskProviderInterfaces;
 import static dev.nokee.gradle.internal.util.ProviderTestUtils.newTaskProviderProxy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TaskProviderInterfaceStructureTest {
-	private static final TaskProvider<?> subject = new TaskProviderFactory().create(of(newTaskProviderProxy()));
+class TaskProviderTypeOverrideTest {
+	private static final TaskProvider<?> subject = new TaskProviderFactory().create(NamedDomainObjectProviderSpec.builder().typedAs(MyTask.class).delegateTo(ProviderTestUtils.newTaskProviderProxy()).build());
 
 	@Test
-	void inheritsSameInterfaceStructure() {
-		assertEquals(allTaskProviderInterfaces().collect(Collectors.toSet()),
-			allInterfaces(subject.getClass()).collect(Collectors.toSet()));
+	void returnsSpecifiedType() {
+		assertEquals(MyTask.class, ((ProviderInternal<?>) subject).getType());
 	}
+
+	private interface MyTask extends Task {}
 }

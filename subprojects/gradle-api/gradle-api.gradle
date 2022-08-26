@@ -1,7 +1,5 @@
 plugins {
-	id 'nokeebuild.java-gradle-plugin'
-	id 'nokeebuild.gradle-plugin-unit-test'
-	id 'nokeebuild.gradle-plugin-functional-test'
+	id 'nokeebuild.java-gradle-library'
 	id 'maven-publish'
 }
 
@@ -10,42 +8,5 @@ repositories {
 }
 
 dependencies {
-	['6.2', '6.4', '6.5', '6.6', '7.0'].each { version ->
-		runtimeOnly(project(':gradleShim')) {
-			capabilities {
-				requireCapability("dev.nokee:gradle-v${version.replace('.', '')}")
-			}
-		}
-	}
-}
-
-test {
-	testingStrategies = [
-		strategies.coverageForGradleVersion('6.2'),
-		strategies.coverageForGradleVersion('6.3'),
-		strategies.coverageForGradleVersion('6.4'),
-		strategies.coverageForGradleVersion('6.5'),
-		strategies.coverageForGradleVersion('6.6'),
-		strategies.coverageForGradleVersion('6.7'),
-		strategies.coverageForGradleVersion('6.8'),
-		strategies.coverageForGradleVersion('6.9'),
-		strategies.coverageForGradleVersion('7.0'),
-		strategies.coverageForGradleVersion('7.1'),
-		strategies.coverageForGradleVersion('7.2'),
-		strategies.coverageForGradleVersion('7.3'),
-		strategies.coverageForGradleVersion('7.4'),
-		strategies.coverageForGradleVersion('7.5'),
-	]
-	testTasks.configureEach {
-		def testRuntimeClasspath = files(testingStrategy.map { strategy ->
-			project.configurations.create("${strategy.version}TestRuntimeClasspath") { Configuration configuration ->
-				configuration.canBeResolved = true
-				configuration.canBeConsumed = false
-				configuration.extendsFrom(project.configurations.getByName("testRuntimeClasspath"))
-				configuration.dependencies.add(project.dependencies.gradleApi(strategy.version))
-			}
-		}.orElse([]))
-		testRuntimeClasspath.finalizeValueOnRead()
-		classpath = testRuntimeClasspath + project.files({ sourceSets.main.runtimeClasspath }) + sourceSets.test.output
-	}
+	api project(':gradleShim')
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,19 @@
  */
 package dev.nokee.gradle.internal;
 
+import dev.nokee.gradle.NamedDomainObjectProviderFactory;
 import dev.nokee.gradle.NamedDomainObjectProviderSpec;
-import dev.nokee.gradle.TaskProviderFactory;
-import org.gradle.api.Task;
-import org.gradle.api.internal.provider.ProviderInternal;
-import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.NamedDomainObjectProvider;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.gradle.internal.util.ProviderTestUtils.newTaskProviderProxy;
+import static dev.nokee.gradle.internal.util.ProviderTestUtils.newNamedDomainObjectProviderProxy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TaskProviderTypeOverrideTest {
-	private static final TaskProvider<?> subject = new TaskProviderFactory().create(NamedDomainObjectProviderSpec.builder().typedAs(MyTask.class).delegateTo(newTaskProviderProxy()).build());
+class NamedDomainObjectProviderNameOverrideTest {
+	private static final NamedDomainObjectProvider<?> subject = new NamedDomainObjectProviderFactory().create(NamedDomainObjectProviderSpec.builder().named("dogu").delegateTo(newNamedDomainObjectProviderProxy()).build());
 
 	@Test
-	void returnsSpecifiedType() {
-		assertEquals(MyTask.class, ((ProviderInternal<?>) subject).getType());
+	void returnsSpecifiedName() {
+		assertEquals("dogu", subject.getName());
 	}
-
-	private interface MyTask extends Task {}
 }

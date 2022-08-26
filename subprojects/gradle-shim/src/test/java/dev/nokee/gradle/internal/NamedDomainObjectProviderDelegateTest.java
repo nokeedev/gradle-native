@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,27 @@
 package dev.nokee.gradle.internal;
 
 import dev.nokee.gradle.NamedDomainObjectProviderFactory;
+import dev.nokee.gradle.internal.testers.MethodCallForwardingTester;
+import dev.nokee.gradle.internal.util.ProviderTestUtils;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.junit.jupiter.api.Test;
 
-import java.util.stream.Collectors;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static dev.nokee.gradle.NamedDomainObjectProviderSpec.of;
-import static dev.nokee.gradle.internal.util.ClassTestUtils.allInterfaces;
-import static dev.nokee.gradle.internal.util.ProviderTestUtils.allNamedDomainObjectProviderInterfaces;
 import static dev.nokee.gradle.internal.util.ProviderTestUtils.newNamedDomainObjectProviderProxy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class NamedDomainObjectProviderInterfaceStructureTest {
-	private static final NamedDomainObjectProvider<?> subject = new NamedDomainObjectProviderFactory().create(of(newNamedDomainObjectProviderProxy()));
+class NamedDomainObjectProviderDelegateTest extends MethodCallForwardingTester {
+	private static final NamedDomainObjectProvider<?> subject = new NamedDomainObjectProviderFactory().create(of(ProviderTestUtils.newNamedDomainObjectProviderProxy(handler)));
 
-	@Test
-	void inheritsSameInterfaceStructure() {
-		assertEquals(allNamedDomainObjectProviderInterfaces().collect(Collectors.toSet()),
-			allInterfaces(subject.getClass()).collect(Collectors.toSet()));
+	@Override
+	public Object subject() {
+		return subject;
+	}
+
+	@Override
+	public Stream<Method> allMethodsUnderTest() {
+		return ProviderTestUtils.allNamedDomainObjectProviderInterfaces().flatMap(it -> Arrays.stream(it.getMethods()));
 	}
 }

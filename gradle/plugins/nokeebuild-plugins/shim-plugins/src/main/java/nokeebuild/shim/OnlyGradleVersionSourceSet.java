@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.gradle.internal.testers;
+package nokeebuild.shim;
 
-import java.lang.reflect.Method;
+import org.gradle.api.Action;
+import org.gradle.api.tasks.SourceSet;
 
-final class CapturedInvocation {
-	private final Method target;
-	private final Object[] args;
+final class OnlyGradleVersionSourceSet implements Action<SourceSet> {
+	private final Action<SourceSet> delegate;
 
-	CapturedInvocation(Method target, Object[] args) {
-		this.target = target;
-		this.args = args;
+	public OnlyGradleVersionSourceSet(Action<SourceSet> delegate) {
+		this.delegate = delegate;
 	}
 
-	public Method getTarget() {
-		return target;
-	}
-
-	public Object[] getArgs() {
-		return args;
+	@Override
+	public void execute(SourceSet sourceSet) {
+		if (sourceSet.getName().startsWith("v")) {
+			delegate.execute(sourceSet);
+		}
 	}
 }
