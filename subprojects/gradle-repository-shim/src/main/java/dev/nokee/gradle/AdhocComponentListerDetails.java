@@ -15,12 +15,10 @@
  */
 package dev.nokee.gradle;
 
-import org.gradle.api.artifacts.repositories.ArtifactRepository;
-import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.artifacts.ModuleIdentifier;
 
-public interface AdhocArtifactRepository extends ArtifactRepository {
-	DirectoryProperty getCacheDirectory();
+public interface AdhocComponentListerDetails {
+	ModuleIdentifier getModuleIdentifier();
 
-	void setComponentSupplier(AdhocComponentSupplier rule);
-	void setComponentVersionLister(AdhocComponentLister rule);
+	void listed(Iterable<String> versions);
 }
