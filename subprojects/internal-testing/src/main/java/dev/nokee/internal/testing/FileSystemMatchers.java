@@ -126,6 +126,10 @@ public final class FileSystemMatchers {
 		return aFile(FileMatchers.anExistingFile());
 	}
 
+	public static Matcher<Object> anExistingDirectory() {
+		return aFile(FileMatchers.anExistingDirectory());
+	}
+
 	public static Matcher<File> withTextContent(Matcher<? super String> matcher) {
 		return new FeatureMatcher<File, String>(matcher, "", "") {
 			@Override
