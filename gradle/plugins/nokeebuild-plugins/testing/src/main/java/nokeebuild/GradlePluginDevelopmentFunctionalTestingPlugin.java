@@ -16,23 +16,16 @@
 package nokeebuild;
 
 import dev.gradleplugins.GradlePluginDevelopmentTestSuite;
-import dev.gradleplugins.GradlePluginTestingStrategy;
-import dev.gradleplugins.GradlePluginTestingStrategyFactory;
-import nokeebuild.testing.strategies.DevelopmentTestingStrategy;
 import nokeebuild.testing.strategies.OperatingSystemFamilyTestingStrategy;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.testing.Test;
 
 import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static nokeebuild.UseJUnitJupiter.junitVersion;
 import static nokeebuild.UseSpockFramework.spockVersion;
@@ -62,42 +55,10 @@ abstract /*final*/ class GradlePluginDevelopmentFunctionalTestingPlugin implemen
 		});
 		functionalTest(project, new UseJUnitJupiter(junitVersion(project)));
 		functionalTest(project, new UseSpockFramework(spockVersion(project)));
-		functionalTest(project, testSuite -> {
-			final SetProperty<String> testedGradleVersions = project.getObjects().setProperty(String.class);
-			final SetProperty<OperatingSystemFamilyTestingStrategy> testedOsFamilies = project.getObjects().setProperty(OperatingSystemFamilyTestingStrategy.class);
-
+		functionalTest(project, new UseTestingStrategiesConvention(project, (testedGradleVersions, testedOsFamilies) -> {
 			testedGradleVersions.convention(Arrays.asList("minimum", "6.9.2", "latestGA", "latestNightly"));
 			testedOsFamilies.convention(majorOperatingSystemFamilies());
-
-			testSuite.getTestingStrategies().value(project.getProviders().zip(testedGradleVersions.map(it -> {
-				final GradlePluginTestingStrategyFactory strategyFactory = testSuite.getStrategies();
-				return it.stream().map(v -> {
-					switch (v) {
-						case "minimum": return strategyFactory.getCoverageForMinimumVersion();
-						case "latestGA": return strategyFactory.getCoverageForLatestGlobalAvailableVersion();
-						case "latestNightly": return strategyFactory.getCoverageForLatestNightlyVersion();
-						default: return strategyFactory.coverageForGradleVersion(v);
-					}
-				}).collect(Collectors.toList());
-			}), testedOsFamilies, (versions, osFamilies) -> {
-				final Set<GradlePluginTestingStrategy> strategies = new LinkedHashSet<>();
-				final GradlePluginTestingStrategyFactory strategyFactory = testSuite.getStrategies();
-				osFamilies.forEach(osFamily -> {
-					versions.forEach(version -> {
-						strategies.add(strategyFactory.composite(osFamily, version));
-					});
-				});
-
-				final DevelopmentTestingStrategy developmentStrategy = new DevelopmentTestingStrategy();
-				versions.forEach(version -> {
-					strategies.add(strategyFactory.composite(developmentStrategy, version));
-				});
-				return strategies;
-			})).disallowChanges();
-
-			testSuite.getExtensions().add("testedGradleVersions", testedGradleVersions);
-			testSuite.getExtensions().add("testedOsFamilies", testedOsFamilies);
-		});
+		}));
 		project.getPluginManager().withPlugin("java-test-fixtures", __ -> {
 			functionalTest(project, testSuite -> testSuite.dependencies(it -> it.implementation(it.testFixtures(project))));
 		});
