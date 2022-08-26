@@ -57,7 +57,7 @@ public final class AdhocArtifactRepositoryFactory {
 
 		// Force only Gradle Metadata as it's the richest representation
 		delegate.metadataSources(MavenArtifactRepository.MetadataSources::gradleMetadata);
-		return factory.create(delegate, objects, providers);
+		return factory.create(delegate, objects);
 	}
 
 	private static final class ArtifactRepositoryFactory {
@@ -65,16 +65,16 @@ public final class AdhocArtifactRepositoryFactory {
 
 		private ArtifactRepositoryFactory(String className) {
 			try {
-				this.constructor = Class.forName(className).getConstructor(MavenArtifactRepository.class, ObjectFactory.class, ProviderFactory.class);
+				this.constructor = Class.forName(className).getConstructor(MavenArtifactRepository.class, ObjectFactory.class);
 			} catch (NoSuchMethodException | ClassNotFoundException e) {
 				throw new RuntimeException(e);
 			}
 		}
 
 		@SuppressWarnings("unchecked")
-		public AdhocArtifactRepository create(MavenArtifactRepository delegate, ObjectFactory objects, ProviderFactory providers) {
+		public AdhocArtifactRepository create(MavenArtifactRepository delegate, ObjectFactory objects) {
 			try {
-				return (AdhocArtifactRepository) constructor.newInstance(delegate, objects, providers);
+				return (AdhocArtifactRepository) constructor.newInstance(delegate, objects);
 			} catch (
 				InvocationTargetException | InstantiationException | IllegalAccessException e) {
 				throw new RuntimeException(e);
