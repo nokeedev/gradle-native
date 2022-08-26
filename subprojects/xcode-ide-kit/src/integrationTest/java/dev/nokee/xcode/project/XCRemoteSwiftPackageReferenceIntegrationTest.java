@@ -40,7 +40,7 @@ class XCRemoteSwiftPackageReferenceIntegrationTest {
 	@Test
 	void readsRemoteSwiftPackageReferences() throws IOException {
 		new GreeterAppWithSwiftPackageReference().writeToProject(testDirectory.toFile());
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackagereference.xcodeproj/project.pbxproj"))))) {
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackageReference.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
 			val subject = project.getPackageReferences();
@@ -53,7 +53,7 @@ class XCRemoteSwiftPackageReferenceIntegrationTest {
 	@Test
 	void restoresRemoteSwiftPackageReferenceFromSwiftPackageProductDependency() throws IOException {
 		new GreeterAppWithSwiftPackageReference().writeToProject(testDirectory.toFile());
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackagereference.xcodeproj/project.pbxproj"))))) {
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackageReference.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
 			assertThat(project.getTargets(), hasSize(1));
