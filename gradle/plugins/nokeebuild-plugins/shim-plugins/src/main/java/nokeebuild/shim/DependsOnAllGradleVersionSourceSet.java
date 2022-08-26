@@ -58,7 +58,7 @@ final class DependsOnAllGradleVersionSourceSet implements Action<SourceSet> {
 
 	private Dependency createDependency(String version) {
 		ModuleDependency result = (ModuleDependency) dependencies.create(thisProject);
-		result.capabilities(it -> it.requireCapability("dev.nokee:gradle-" + version));
+		result.capabilities(it -> it.requireCapability("dev.nokee:" + thisProject.getName() + "-gradle-" + version));
 		return result;
 	}
 }

@@ -23,17 +23,19 @@ import org.gradle.api.tasks.SourceSet;
 final class RegisterGradleVersionFeature implements Action<SourceSet> {
 	private final JavaPluginExtension java;
 	private final String capabilityVersion;
+	private final String baseCapability;
 
 	RegisterGradleVersionFeature(Project project) {
 		this.java = project.getExtensions().getByType(JavaPluginExtension.class);
 		this.capabilityVersion = project.getVersion().toString();
+		this.baseCapability = project.getName();
 	}
 
 	@Override
 	public void execute(SourceSet sourceSet) {
 		java.registerFeature(toFeatureName(sourceSet.getName()), it -> {
 			it.usingSourceSet(sourceSet);
-			it.capability("dev.nokee", "gradle-" + sourceSet.getName(), capabilityVersion);
+			it.capability("dev.nokee", baseCapability + "-gradle-" + sourceSet.getName(), capabilityVersion);
 		});
 	}
 
