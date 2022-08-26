@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.files;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.Objects;
 /**
  * Represents localized resources.
  */
-public final class PBXVariantGroup extends PBXGroupElement implements GroupChild {
+public final class PBXVariantGroup extends PBXGroupElement implements GroupChild, PBXBuildFile.FileReference {
 	public PBXVariantGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
 		super(name, path, sourceTree, children);
 	}
