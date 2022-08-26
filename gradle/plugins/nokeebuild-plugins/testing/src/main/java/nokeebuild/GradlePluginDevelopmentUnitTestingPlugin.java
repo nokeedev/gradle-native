@@ -53,6 +53,7 @@ abstract /*final*/ class GradlePluginDevelopmentUnitTestingPlugin implements Plu
 		});
 		test(project, new UseJUnitJupiter(junitVersion(project)));
 		test(project, new UseSpockFramework(spockVersion(project)));
+		test(project, new UseGradleCoverageAsGradleApiRuntimeDependency(project));
 	}
 
 	private static void test(Project project, Action<? super GradlePluginDevelopmentTestSuite> action) {
