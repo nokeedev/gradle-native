@@ -30,14 +30,13 @@ import java.nio.file.Path;
 
 import static dev.nokee.gradle.AdhocArtifactRepositoryFactory.forProject;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forId;
-import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.query;
+import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.queryAndIgnoreFailures;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 @ExtendWith({MockitoExtension.class, TestDirectoryExtension.class})
@@ -59,13 +58,13 @@ class AdhocArtifactRepositoryComponentSupplierIntegrationTest {
 
 	@Test
 	void executesComponentSupplierRuleDuringComponentResolution() {
-		query(project, "com.example:foo:4.2");
+		queryAndIgnoreFailures(project, "com.example:foo:4.2");
 		Mockito.verify(supplier).execute(argThat(forId("com.example:foo:4.2")));
 	}
 
 	@Test
 	void disallowChangesToComponentSupplierAfterRepositoryFirstQueried() {
-		query(project, "com.example:foo:4.2");
+		queryAndIgnoreFailures(project, "com.example:foo:4.2");
 		val ex = assertThrows(IllegalStateException.class, () -> subject.setComponentSupplier(mock(AdhocComponentSupplier.class)));
 		assertThat(ex.getMessage(), equalTo("The component supplier cannot be changed because repository was already queried."));
 	}

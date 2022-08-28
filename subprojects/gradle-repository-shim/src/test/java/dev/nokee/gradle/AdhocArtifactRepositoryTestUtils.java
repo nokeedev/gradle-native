@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.equalTo;
 public final class AdhocArtifactRepositoryTestUtils {
 	private static int sequenceNumber = 1;
 
-	public static FileCollection query(Project project, Object notation) {
+	public static FileCollection queryAndIgnoreFailures(Project project, Object notation) {
 		val result = project.getConfigurations().create("test" + sequenceNumber++, configureAsResolvable());
 		result.getDependencies().add(project.getDependencies().create(notation));
 		try {

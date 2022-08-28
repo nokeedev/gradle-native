@@ -28,7 +28,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.query;
+import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.queryAndIgnoreFailures;
 import static dev.nokee.internal.testing.FileSystemMatchers.anExistingFile;
 import static dev.nokee.internal.testing.GradleProviderMatchers.changesDisallowed;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
@@ -79,20 +79,20 @@ class AdhocArtifactRepositoryCacheDirectoryIntegrationTest {
 
 	@Test
 	void disallowChangesToCacheDirectoryAfterRepositoryFirstQueried() {
-		query(project, "com.example:foo:1.0");
+		queryAndIgnoreFailures(project, "com.example:foo:1.0");
 		assertThat(subject.getCacheDirectory(), changesDisallowed());
 	}
 
 	@Test
 	void deletesRepositoryOnFirstQuery() {
-		query(project, "com.example:bar:1.2");
+		queryAndIgnoreFailures(project, "com.example:bar:1.2");
 		assertThat(testDirectory.resolve("repo/com/example/old-module/1.3/old-module-1.3.txt"), not(anExistingFile()));
 	}
 
 	@Test
 	void doesNotDeleteRepositoryOnSubsequentQuery() {
-		query(project, "com.example:foo:1.0");
-		query(project, "com.example:bar:1.2");
+		queryAndIgnoreFailures(project, "com.example:foo:1.0");
+		queryAndIgnoreFailures(project, "com.example:bar:1.2");
 		assertThat(testDirectory.resolve("repo/com/example/foo/1.0/foo-1.0.txt"), anExistingFile());
 	}
 }
