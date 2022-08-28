@@ -30,10 +30,12 @@ import java.nio.file.Path;
 
 import static dev.nokee.gradle.AdhocArtifactRepositoryFactory.forProject;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forId;
+import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.query;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.queryAndIgnoreFailures;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -67,5 +69,12 @@ class AdhocArtifactRepositoryComponentSupplierIntegrationTest {
 		queryAndIgnoreFailures(project, "com.example:foo:4.2");
 		val ex = assertThrows(IllegalStateException.class, () -> subject.setComponentSupplier(mock(AdhocComponentSupplier.class)));
 		assertThat(ex.getMessage(), equalTo("The component supplier cannot be changed because repository was already queried."));
+	}
+
+	@Test
+	void doesNotPropagateListerExceptions() {
+		Mockito.doThrow(new RuntimeException("Internal exception!")).when(supplier).execute(any());
+		val ex = assertThrows(RuntimeException.class, () -> query(project, "com.example:far:2.2"));
+		assertThat(ex.getMessage(), not(equalTo("Internal exception!")));
 	}
 }

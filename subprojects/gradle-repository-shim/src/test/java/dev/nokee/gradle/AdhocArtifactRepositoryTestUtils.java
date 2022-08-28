@@ -38,6 +38,13 @@ public final class AdhocArtifactRepositoryTestUtils {
 		return result;
 	}
 
+	public static FileCollection query(Project project, Object notation) {
+		val result = project.getConfigurations().create("test" + sequenceNumber++, configureAsResolvable());
+		result.getDependencies().add(project.getDependencies().create(notation));
+		result.resolve();
+		return result;
+	}
+
 	public static Matcher<AdhocComponentSupplierDetails> forId(String coordinate) {
 		return new FeatureMatcher<AdhocComponentSupplierDetails, String>(equalTo(coordinate), "", "") {
 			@Override

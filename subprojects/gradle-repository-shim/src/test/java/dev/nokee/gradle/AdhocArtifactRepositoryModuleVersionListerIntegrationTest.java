@@ -33,11 +33,13 @@ import java.util.Arrays;
 
 import static dev.nokee.gradle.AdhocArtifactRepositoryFactory.forProject;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forModule;
+import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.query;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.queryAndIgnoreFailures;
 import static dev.nokee.internal.testing.FileSystemMatchers.anExistingDirectory;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -87,5 +89,12 @@ class AdhocArtifactRepositoryModuleVersionListerIntegrationTest {
 		assertThat(testDirectory.resolve("repo/com/example/foo/1.1"), anExistingDirectory());
 		assertThat(testDirectory.resolve("repo/com/example/foo/1.1.1"), anExistingDirectory());
 		assertThat(testDirectory.resolve("repo/com/example/foo/1.2"), anExistingDirectory());
+	}
+
+	@Test
+	void doesNotPropagateListerExceptions() {
+		Mockito.doThrow(new RuntimeException("Internal exception!")).when(lister).execute(any());
+		val ex = assertThrows(RuntimeException.class, () -> query(project, "com.example:far:2.+"));
+		assertThat(ex.getMessage(), not(equalTo("Internal exception!")));
 	}
 }
