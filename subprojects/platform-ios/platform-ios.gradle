@@ -41,6 +41,7 @@ gradlePlugin {
 }
 
 test {
+	testedGradleVersions.set(["6.6"])
 	dependencies {
 		implementation testFixtures(project(':platformNative'))
 		implementation testFixtures(project(':languageBase'))
@@ -52,6 +53,7 @@ test {
 }
 
 functionalTest {
+	testedGradleVersions.set(["6.6", "6.9.2", "latestGA", "latestNightly"])
 	dependencies {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation project(':coreExec')

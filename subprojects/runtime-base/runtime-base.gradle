@@ -20,6 +20,7 @@ gradlePlugin {
 		api project(':coreUtils')
 		api project(':publishingCore')
 		implementation project(':coreExec')
+		implementation project(':gradleRepositoryShim')
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 		implementation "com.google.guava:guava:${guavaVersion}"

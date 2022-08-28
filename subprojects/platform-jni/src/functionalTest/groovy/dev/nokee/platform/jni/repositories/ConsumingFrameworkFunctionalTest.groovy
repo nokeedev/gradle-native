@@ -80,47 +80,6 @@ class ConsumingFrameworkFunctionalTest extends AbstractInstalledToolChainIntegra
 		jar('build/libs/greeter.jar').hasDescendants('com/example/greeter/NativeLoader.class', 'com/example/greeter/Greeter.class', sharedLibraryName('greeter'))
 	}
 
-	def "stops the embedded server after each build"() {
-		settingsFile << "rootProject.name = 'greeter'"
-		buildFile << """
-			plugins {
-				id 'java'
-				id 'dev.nokee.jni-library'
-				id 'dev.nokee.objective-c-language'
-			}
-
-			library {
-				dependencies {
-					nativeImplementation 'dev.nokee.framework:Foundation:${sdkVersion}'
-					nativeImplementation 'dev.nokee.framework:CoreFoundation:${sdkVersion}' // dependency of Foundation
-				}
-			}
-
-			library.variants.configureEach {
-				sharedLibrary {
-					linkTask.configure {
-						linkerArgs.add('-nostdinc')
-						linkerArgs.add('-lobjc')
-					}
-					compileTasks.configureEach {
-						compilerArgs.add('-nostdinc')
-					}
-				}
-			}
-		"""
-		new JavaJniObjectiveCGreeterLib('greeter').withFoundationFrameworkDependency().writeToProject(testDirectory)
-
-		when:
-		succeeds('assemble', '-i')
-		then:
-		result.assertOutputContains("Nokee server stopped")
-
-		when:
-		succeeds('assemble', '-i')
-		then:
-		result.assertOutputContains("Nokee server stopped")
-	}
-
 	@Ignore // For now, JavaVM is only available on Xcode 12.1 and lower
 	def "can depends on subframeworks via capabilities (ie JavaNativeFoundation)"() {
 		settingsFile << "rootProject.name = 'save-panel'"
