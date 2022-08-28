@@ -54,7 +54,7 @@ final class UseGradleCoverageAsGradleApiRuntimeDependency implements Action<Grad
 			final ConfigurableFileCollection testRuntimeClasspath = objects.fileCollection().from(testingStrategy(task).map(strategy -> {
 
 				String version = Objects.requireNonNull(findGradleCoverageVersion(strategy));
-				Object result = configurations.create("v" + version + "TestRuntimeClasspath", configuration -> {
+				Object result = configurations.create("v" + version + task.getName() + "RuntimeClasspath", configuration -> {
 					configuration.setCanBeResolved(true);
 					configuration.setCanBeConsumed(false);
 					configuration.extendsFrom(configurations.getByName("testRuntimeClasspath"));
