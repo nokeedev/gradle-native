@@ -73,6 +73,7 @@ functionalTest {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation "commons-io:commons-io:${commonsIoVersion}"
 		implementation project(':coreExec')
+		implementation project(':gradleRepositoryShim')
 		implementation testFixtures(project(':languageC'))
 		implementation testFixtures(project(':languageCpp'))
 		implementation testFixtures(project(':languageObjectiveC'))

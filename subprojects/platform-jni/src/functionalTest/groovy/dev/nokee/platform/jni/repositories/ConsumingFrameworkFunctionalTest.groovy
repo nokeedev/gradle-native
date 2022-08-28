@@ -38,7 +38,7 @@ import java.nio.file.Files
 
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureDescription
-import static dev.nokee.runtime.darwin.internal.FrameworkRouteHandler.findMacOsSdks
+import static dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin.FrameworkHandler.findMacOsSdks
 import static java.util.regex.Pattern.*
 import static org.hamcrest.text.MatchesPattern.matchesPattern
 import static spock.util.matcher.HamcrestSupport.expect
@@ -258,7 +258,7 @@ Required by:
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
 		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:NonExistantFramework:${sdkVersion}.
 Searched in the following locations:
-  - http://127.0.0.1:\\d+/dev/nokee/framework/NonExistantFramework/${sdkVersion}/NonExistantFramework-${sdkVersion}.module
+  - .+/dev/nokee/framework/NonExistantFramework/${sdkVersion}/NonExistantFramework-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))
 
 		failure.assertThatOutput(matchesPattern(compile(".+The requested framework 'NonExistantFramework' wasn't found at in '/Applications/Xcode[_.0-9]*.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${sdkFolderVersion}.sdk/System/Library/Frameworks/'..+", DOTALL)))
@@ -307,7 +307,7 @@ Searched in the following locations:
 		failure.assertHasCause("Could not resolve all files for configuration ':framework'.")
 		failure.assertThatCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:4.2.
 Searched in the following locations:
-  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/4.2/Foundation-4.2.module
+  - .+/dev/nokee/framework/Foundation/4.2/Foundation-4.2.module
 .+""", MULTILINE | DOTALL)))
 
 		failure.assertOutputContains("The requested module 'Foundation' version '4.2' doesn't match current available versions '${sdkVersion}'.")
@@ -500,7 +500,7 @@ Searched in the following locations:
 		expect failure, hasFailureCause("Could not resolve all files for configuration ':framework'.")
 		expect failure, hasFailureCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:${sdkVersion}.
 Searched in the following locations:
-  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/${sdkVersion}/Foundation-${sdkVersion}.module
+  - .+/dev/nokee/framework/Foundation/${sdkVersion}/Foundation-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))
 
 		when:
@@ -512,7 +512,7 @@ Searched in the following locations:
 		expect failure, hasFailureCause("Could not resolve all files for configuration ':framework'.")
 		expect failure, hasFailureCause(matchesPattern(compile("""Could not find dev.nokee.framework:Foundation:${sdkVersion}.
 Searched in the following locations:
-  - http://127.0.0.1:\\d+/dev/nokee/framework/Foundation/${sdkVersion}/Foundation-${sdkVersion}.module
+  - .+/dev/nokee/framework/Foundation/${sdkVersion}/Foundation-${sdkVersion}.module
 .+""", MULTILINE | DOTALL)))
 	}
 

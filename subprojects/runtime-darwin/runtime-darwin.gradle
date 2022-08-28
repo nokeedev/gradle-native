@@ -19,6 +19,8 @@ gradlePlugin {
 		implementation project(':runtimeNative')
 		implementation project(':coreExec')
 		implementation project(':publishingCore')
+		implementation project(':gradleRepositoryShim')
+		implementation project(':coreModel')
 
 		implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 		implementation "commons-io:commons-io:${commonsIoVersion}"
