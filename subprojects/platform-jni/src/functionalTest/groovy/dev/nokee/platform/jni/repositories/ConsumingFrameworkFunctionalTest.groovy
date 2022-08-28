@@ -38,7 +38,7 @@ import java.nio.file.Files
 
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureCause
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.hasFailureDescription
-import static dev.nokee.runtime.darwin.internal.plugins.DarwinFrameworkResolutionSupportPlugin.FrameworkHandler.findMacOsSdks
+import static dev.nokee.runtime.darwin.internal.FrameworkHandler.findMacOsSdks
 import static java.util.regex.Pattern.*
 import static org.hamcrest.text.MatchesPattern.matchesPattern
 import static spock.util.matcher.HamcrestSupport.expect
