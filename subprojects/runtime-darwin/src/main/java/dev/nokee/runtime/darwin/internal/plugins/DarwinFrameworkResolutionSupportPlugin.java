@@ -18,7 +18,6 @@ package dev.nokee.runtime.darwin.internal.plugins;
 import dev.nokee.gradle.AdhocArtifactRepository;
 import dev.nokee.gradle.AdhocArtifactRepositoryFactory;
 import dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin;
-import dev.nokee.runtime.base.internal.repositories.NokeeServerService;
 import dev.nokee.runtime.base.internal.tools.ToolRepository;
 import dev.nokee.runtime.darwin.internal.DarwinRuntimePlugin;
 import dev.nokee.runtime.darwin.internal.FrameworkHandler;
@@ -50,9 +49,6 @@ import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
-import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Capability.ofCapability;
-import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Component.ofComponent;
-import static dev.nokee.runtime.base.internal.plugins.FakeMavenRepositoryPlugin.NOKEE_SERVER_SERVICE_NAME;
 import static dev.nokee.runtime.darwin.internal.DarwinArtifactTypes.FRAMEWORK_TYPE;
 import static dev.nokee.runtime.darwin.internal.DarwinLibraryElements.FRAMEWORK_BUNDLE;
 import static dev.nokee.runtime.nativebase.internal.ArtifactSerializationTypes.ARTIFACT_SERIALIZATION_TYPES_ATTRIBUTE;
@@ -78,9 +74,8 @@ public class DarwinFrameworkResolutionSupportPlugin implements Plugin<Project> {
 			project.getRepositories().add(createFrameworkRepository(project));
 			project.getPluginManager().apply(FakeMavenRepositoryPlugin.class);
 
-			NokeeServerService.Parameters parameters = (NokeeServerService.Parameters)project.getGradle().getSharedServices().getRegistrations().getByName(NOKEE_SERVER_SERVICE_NAME).getParameters();
-			parameters.getToolLocators().add(XcrunLocator.class.getCanonicalName());
-			parameters.getToolLocators().add(XcodebuildLocator.class.getCanonicalName());
+			project.getExtensions().getByType(ToolRepository.class).register("xcrun", new XcrunLocator());
+			project.getExtensions().getByType(ToolRepository.class).register("xcodebuild", new XcodebuildLocator());
 
 			configure(project.getDependencies());
 		} else {
