@@ -15,7 +15,6 @@
  */
 package dev.nokee.gradle;
 
-import org.gradle.api.Action;
-
-public interface AdhocComponentLister extends Action<AdhocComponentListerDetails> {
+public interface AdhocComponentLister {
+	void execute(AdhocComponentListerDetails details);
 }
