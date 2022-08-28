@@ -30,7 +30,7 @@ import java.nio.file.Path;
 import static dev.nokee.gradle.AdhocArtifactRepositoryFactory.forProject;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forId;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forModule;
-import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.query;
+import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.queryAndIgnoreFailures;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -57,8 +57,8 @@ class AdhocArtifactRepositoryWorkAvoidanceIntegrationTest {
 
 	@Test
 	void executesRuleOnlyOncePerModuleComponent() {
-		query(project, "com.example:foo:4.2");
-		query(project, "com.example:foo:4.2");
+		queryAndIgnoreFailures(project, "com.example:foo:4.2");
+		queryAndIgnoreFailures(project, "com.example:foo:4.2");
 
 		Mockito.verify(supplier, only()).execute(argThat(forId("com.example:foo:4.2")));
 		Mockito.verify(lister, never()).execute(any());
@@ -66,8 +66,8 @@ class AdhocArtifactRepositoryWorkAvoidanceIntegrationTest {
 
 	@Test
 	void executesRuleOnlyOncePerModule() {
-		query(project, "com.example:foo:1.+");
-		query(project, "com.example:foo:1.+");
+		queryAndIgnoreFailures(project, "com.example:foo:1.+");
+		queryAndIgnoreFailures(project, "com.example:foo:1.+");
 
 		Mockito.verify(supplier, never()).execute(any());
 		Mockito.verify(lister, only()).execute(argThat(forModule("com.example:foo")));

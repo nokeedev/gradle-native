@@ -30,7 +30,7 @@ import java.nio.file.Path;
 import static dev.nokee.gradle.AdhocArtifactRepositoryFactory.forProject;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forId;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forModule;
-import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.query;
+import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.queryAndIgnoreFailures;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -58,21 +58,21 @@ class AdhocArtifactRepositoryContentFilterIntegrationTest {
 
 	@Test
 	void doesNotQueryRepositoryOfNonIncludedContent() {
-		query(project, "com.example:foo:5.4");
+		queryAndIgnoreFailures(project, "com.example:foo:5.4");
 		Mockito.verify(supplier, never()).execute(any());
 		Mockito.verify(lister, never()).execute(any());
 	}
 
 	@Test
 	void queryRepositoryOfIncludedContent() {
-		query(project, "dev.example:foo:5.4");
+		queryAndIgnoreFailures(project, "dev.example:foo:5.4");
 		Mockito.verify(supplier, only()).execute(argThat(forId("dev.example:foo:5.4")));
 		Mockito.verify(lister, never()).execute(any());
 	}
 
 	@Test
 	void queryRepositoryOfIncludedDynamicContent() {
-		query(project, "dev.example:foo:5.+");
+		queryAndIgnoreFailures(project, "dev.example:foo:5.+");
 		Mockito.verify(lister, only()).execute(argThat(forModule("dev.example:foo")));
 	}
 }

@@ -35,7 +35,7 @@ import java.util.Arrays;
 import static dev.nokee.gradle.AdhocArtifactRepositoryFactory.forProject;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forId;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forModule;
-import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.query;
+import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.queryAndIgnoreFailures;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
 import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Attribute.ofAttribute;
 import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.Component.ofComponent;
@@ -74,7 +74,7 @@ class AdhocArtifactRepositoryResolutionIntegrationTest {
 			return null;
 		}).when(lister).execute(any());
 
-		query(project, "com.example:foo:1.+");
+		queryAndIgnoreFailures(project, "com.example:foo:1.+");
 		val inOrder = Mockito.inOrder(lister, supplier);
 		inOrder.verify(lister).execute(argThat(forModule("com.example:foo")));
 		inOrder.verify(supplier).execute(argThat(forId("com.example:foo:1.2.3")));
@@ -82,7 +82,7 @@ class AdhocArtifactRepositoryResolutionIntegrationTest {
 
 	@Test
 	void doesNotExecuteSupplierRuleWhenResolvingStaticComponent() {
-		query(project, "com.example:foo:1.4");
+		queryAndIgnoreFailures(project, "com.example:foo:1.4");
 		Mockito.verify(lister, never()).execute(any());
 		Mockito.verify(supplier, only()).execute(argThat(forId("com.example:foo:1.4")));
 	}
@@ -96,7 +96,7 @@ class AdhocArtifactRepositoryResolutionIntegrationTest {
 			return null;
 		}).when(lister).execute(any());
 
-		query(project, "com.example:foo:1.+");
+		queryAndIgnoreFailures(project, "com.example:foo:1.+");
 		val inOrder = Mockito.inOrder(lister, supplier);
 		inOrder.verify(lister).execute(argThat(forModule("com.example:foo")));
 		inOrder.verify(supplier).execute(argThat(forId("com.example:foo:1.2")));
@@ -120,7 +120,7 @@ class AdhocArtifactRepositoryResolutionIntegrationTest {
 			return null;
 		}).when(supplier).execute(any());
 
-		assertThat(new String(readAllBytes(query(project, "com.example:foo:1.2").getSingleFile().toPath())),
+		assertThat(new String(readAllBytes(queryAndIgnoreFailures(project, "com.example:foo:1.2").getSingleFile().toPath())),
 			equalTo("hey, listen!"));
 
 		Mockito.verify(supplier).execute(argThat(forId("com.example:foo:1.2")));

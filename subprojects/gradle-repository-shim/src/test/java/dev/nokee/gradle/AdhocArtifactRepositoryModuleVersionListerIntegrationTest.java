@@ -32,9 +32,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import static dev.nokee.gradle.AdhocArtifactRepositoryFactory.forProject;
-import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forId;
 import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.forModule;
-import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.query;
+import static dev.nokee.gradle.AdhocArtifactRepositoryTestUtils.queryAndIgnoreFailures;
 import static dev.nokee.internal.testing.FileSystemMatchers.anExistingDirectory;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.createRootProject;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,7 +41,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 @ExtendWith({MockitoExtension.class, TestDirectoryExtension.class})
@@ -65,13 +63,13 @@ class AdhocArtifactRepositoryModuleVersionListerIntegrationTest {
 	@ParameterizedTest
 	@ValueSource(strings = {"latest.release", "latest.integration", "1.+", "[2.0, 3.0["})
 	void executesModuleVersionListerDuringDynamicComponentResolution(String dynamicVersion) {
-		query(project, "com.example:foo:" + dynamicVersion);
+		queryAndIgnoreFailures(project, "com.example:foo:" + dynamicVersion);
 		Mockito.verify(lister).execute(argThat(forModule("com.example:foo")));
 	}
 
 	@Test
 	void disallowChangesToModuleListerAfterRepositoryFirstQueried() {
-		query(project, "com.example:foo:4.+");
+		queryAndIgnoreFailures(project, "com.example:foo:4.+");
 		val ex = assertThrows(IllegalStateException.class, () -> subject.setComponentVersionLister(mock(AdhocComponentLister.class)));
 		assertThat(ex.getMessage(), equalTo("The component lister cannot be changed because repository was already queried."));
 	}
@@ -84,7 +82,7 @@ class AdhocArtifactRepositoryModuleVersionListerIntegrationTest {
 			return null;
 		}).when(lister).execute(any());
 
-		query(project, "com.example:foo:1.+");
+		queryAndIgnoreFailures(project, "com.example:foo:1.+");
 		assertThat(testDirectory.resolve("repo/com/example/foo/1.0"), anExistingDirectory());
 		assertThat(testDirectory.resolve("repo/com/example/foo/1.1"), anExistingDirectory());
 		assertThat(testDirectory.resolve("repo/com/example/foo/1.1.1"), anExistingDirectory());
