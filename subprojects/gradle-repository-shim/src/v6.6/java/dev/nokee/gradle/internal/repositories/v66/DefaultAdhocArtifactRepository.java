@@ -69,11 +69,13 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import static dev.nokee.publishing.internal.metadata.GradleModuleMetadata.newWriter;
 import static java.nio.file.Files.createDirectories;
 
 public final class DefaultAdhocArtifactRepository implements AdhocArtifactRepository, ResolutionAwareRepository, ContentFilteringRepository {
+	private static final Logger LOGGER = Logger.getLogger(DefaultAdhocArtifactRepository.class.getCanonicalName());
 	private final MavenArtifactRepository delegate;
 	private final Property<AdhocComponentSupplier> supplierRule;
 	private final Property<AdhocComponentLister> listerRule;
@@ -227,27 +229,30 @@ public final class DefaultAdhocArtifactRepository implements AdhocArtifactReposi
 
 		@Override
 		public void listModuleVersions(ModuleDependencyMetadata dependency, BuildableModuleVersionListingResolveResult result) {
-			System.out.println(dependency.getSelector().getModuleIdentifier().getClass());
 			if (listedModules.add(dependency.getSelector().getModuleIdentifier())) {
-				listerRule.get().execute(new AdhocComponentListerDetails() {
-					@Override
-					public ModuleIdentifier getModuleIdentifier() {
-						return dependency.getSelector().getModuleIdentifier();
-					}
+				try {
+					listerRule.get().execute(new AdhocComponentListerDetails() {
+						@Override
+						public ModuleIdentifier getModuleIdentifier() {
+							return dependency.getSelector().getModuleIdentifier();
+						}
 
-					@Override
-					public void listed(Iterable<String> versions) {
-						final Path modulePath = new File(DefaultAdhocArtifactRepository.this.delegate.getUrl()).toPath().resolve(modulePath(getModuleIdentifier()));
-						versions.forEach(version -> {
-							try {
-								createDirectories(modulePath.resolve(version));
-							} catch (
-								IOException e) {
-								throw new UncheckedIOException(e);
-							}
-						});
-					}
-				});
+						@Override
+						public void listed(Iterable<String> versions) {
+							final Path modulePath = new File(DefaultAdhocArtifactRepository.this.delegate.getUrl()).toPath().resolve(modulePath(getModuleIdentifier()));
+							versions.forEach(version -> {
+								try {
+									createDirectories(modulePath.resolve(version));
+								} catch (
+									IOException e) {
+									throw new UncheckedIOException(e);
+								}
+							});
+						}
+					});
+				} catch (Throwable e) {
+					LOGGER.info("An exception occurred during the dispatch of the request: " + e.getMessage());
+				}
 			}
 			delegate.listModuleVersions(dependency, result);
 		}
@@ -255,35 +260,41 @@ public final class DefaultAdhocArtifactRepository implements AdhocArtifactReposi
 		@Override
 		public void resolveComponentMetaData(ModuleComponentIdentifier id, ComponentOverrideMetadata requestMetaData, BuildableModuleComponentMetaDataResolveResult result) {
 			if (resolvedComponents.add(id)) {
-				final Path componentPath = new File(DefaultAdhocArtifactRepository.this.delegate.getUrl()).toPath().resolve(componentPath(id));
-				supplierRule.get().execute(new AdhocComponentSupplierDetails() {
-					@Override
-					public ModuleComponentIdentifier getId() {
-						return id;
-					}
-
-					@Override
-					public void metadata(Action<? super GradleModuleMetadata.Builder> action) {
-						try (final GradleModuleMetadataWriter writer = newWriter(createDirectories(componentPath).resolve(getId().getModule() + "-" + getId().getVersion() + ".module").toFile())) {
-							final GradleModuleMetadata.Builder builder = GradleModuleMetadata.builder();
-							builder.formatVersion("1.1"); // default to 1.1, users can still override the value
-							action.execute(builder);
-							writer.write(builder.build());
-						} catch (IOException e) {
-							throw new UncheckedIOException(e);
+				try {
+					final Path componentPath = new File(DefaultAdhocArtifactRepository.this.delegate.getUrl()).toPath().resolve(componentPath(id));
+					supplierRule.get().execute(new AdhocComponentSupplierDetails() {
+						@Override
+						public ModuleComponentIdentifier getId() {
+							return id;
 						}
-					}
 
-					@Override
-					public void file(String filename, Action<? super OutputStream> action) {
-						// TODO: should make sure filename doesn't point to a file outside the componentPath
-						try (final OutputStream outStream = Files.newOutputStream(createDirectories(componentPath).resolve(filename))) {
-							action.execute(outStream);
-						} catch (IOException e) {
-							throw new UncheckedIOException(e);
+						@Override
+						public void metadata(Action<? super GradleModuleMetadata.Builder> action) {
+							try (final GradleModuleMetadataWriter writer = newWriter(createDirectories(componentPath).resolve(getId().getModule() + "-" + getId().getVersion() + ".module").toFile())) {
+								final GradleModuleMetadata.Builder builder = GradleModuleMetadata.builder();
+								builder.formatVersion("1.1"); // default to 1.1, users can still override the value
+								action.execute(builder);
+								writer.write(builder.build());
+							} catch (
+								IOException e) {
+								throw new UncheckedIOException(e);
+							}
 						}
-					}
-				});
+
+						@Override
+						public void file(String filename, Action<? super OutputStream> action) {
+							// TODO: should make sure filename doesn't point to a file outside the componentPath
+							try (final OutputStream outStream = Files.newOutputStream(createDirectories(componentPath).resolve(filename))) {
+								action.execute(outStream);
+							} catch (
+								IOException e) {
+								throw new UncheckedIOException(e);
+							}
+						}
+					});
+				} catch (Throwable e) {
+					LOGGER.info("An exception occurred during the dispatch of the request: " + e.getMessage());
+				}
 			}
 			delegate.resolveComponentMetaData(id, requestMetaData, result);
 		}
