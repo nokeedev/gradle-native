@@ -1,0 +1,12 @@
+plugins {
+	id 'dev.gradleplugins.java-gradle-plugin'
+}
+
+gradlePlugin {
+	plugins {
+		templatesPlugin {
+			id = 'nokeedocs.sample-templates'
+			implementationClass = 'nokeedocs.templates.SampleTemplatesPlugin'
+		}
+	}
+}

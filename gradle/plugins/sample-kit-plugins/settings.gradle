@@ -1,0 +1,14 @@
+plugins {
+	id 'dev.gradleplugins.gradle-plugin-development' version '1.6.7'
+}
+
+rootProject.name = 'sample-kit-plugins'
+
+include 'templates'
+
+gradle.allprojects {
+	repositories {
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
