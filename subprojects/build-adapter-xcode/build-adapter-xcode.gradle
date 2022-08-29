@@ -6,6 +6,7 @@ plugins {
 	id 'nokeebuild.gradle-plugin-smoke-test'
 	id 'maven-publish'
 	id 'dev.gradleplugins.documentation.api-reference-module'
+	id 'nokeedocs.sample-templates'
 }
 
 dependencies {
@@ -54,6 +55,7 @@ functionalTest {
 		implementation project(':xcodeIdeKit')
 		implementation testFixtures(project(':xcodeIdeKit'))
 		implementation(templates(project(':xcodeIdeKit')))
+		implementation(templates(project))
 	}
 }
 
