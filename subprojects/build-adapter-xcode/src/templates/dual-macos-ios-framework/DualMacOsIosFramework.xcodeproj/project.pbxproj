@@ -1,0 +1,472 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		65A4901A28BD10DD004D33DE /* DualMacOsIosFramework.docc in Sources */ = {isa = PBXBuildFile; fileRef = 65A4901928BD10DD004D33DE /* DualMacOsIosFramework.docc */; };
+		65A4902028BD10DD004D33DE /* DualMacOsIosFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65A4901528BD10DD004D33DE /* DualMacOsIosFramework.framework */; };
+		65A4902528BD10DE004D33DE /* DualMacOsIosFrameworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A4902428BD10DE004D33DE /* DualMacOsIosFrameworkTests.m */; };
+		65A4902628BD10DE004D33DE /* DualMacOsIosFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 65A4901828BD10DD004D33DE /* DualMacOsIosFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65A4903128BD1136004D33DE /* greeter.h in Headers */ = {isa = PBXBuildFile; fileRef = 65A4902F28BD1136004D33DE /* greeter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65A4903228BD1136004D33DE /* greeter.m in Sources */ = {isa = PBXBuildFile; fileRef = 65A4903028BD1136004D33DE /* greeter.m */; };
+		65A4903528BD13D2004D33DE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65A4903428BD13D2004D33DE /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		65A4902128BD10DD004D33DE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 65A4900C28BD10DD004D33DE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 65A4901428BD10DD004D33DE;
+			remoteInfo = DualMacOsIosFramework;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		65A4901528BD10DD004D33DE /* DualMacOsIosFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DualMacOsIosFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		65A4901828BD10DD004D33DE /* DualMacOsIosFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DualMacOsIosFramework.h; sourceTree = "<group>"; };
+		65A4901928BD10DD004D33DE /* DualMacOsIosFramework.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = DualMacOsIosFramework.docc; sourceTree = "<group>"; };
+		65A4901F28BD10DD004D33DE /* DualMacOsIosFrameworkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DualMacOsIosFrameworkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		65A4902428BD10DE004D33DE /* DualMacOsIosFrameworkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DualMacOsIosFrameworkTests.m; sourceTree = "<group>"; };
+		65A4902F28BD1136004D33DE /* greeter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = greeter.h; sourceTree = "<group>"; };
+		65A4903028BD1136004D33DE /* greeter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = greeter.m; sourceTree = "<group>"; };
+		65A4903428BD13D2004D33DE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		65A4901228BD10DD004D33DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65A4903528BD13D2004D33DE /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65A4901C28BD10DD004D33DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65A4902028BD10DD004D33DE /* DualMacOsIosFramework.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		65A4900B28BD10DD004D33DE = {
+			isa = PBXGroup;
+			children = (
+				65A4901728BD10DD004D33DE /* DualMacOsIosFramework */,
+				65A4902328BD10DD004D33DE /* DualMacOsIosFrameworkTests */,
+				65A4901628BD10DD004D33DE /* Products */,
+				65A4903328BD13D2004D33DE /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		65A4901628BD10DD004D33DE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				65A4901528BD10DD004D33DE /* DualMacOsIosFramework.framework */,
+				65A4901F28BD10DD004D33DE /* DualMacOsIosFrameworkTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		65A4901728BD10DD004D33DE /* DualMacOsIosFramework */ = {
+			isa = PBXGroup;
+			children = (
+				65A4901828BD10DD004D33DE /* DualMacOsIosFramework.h */,
+				65A4901928BD10DD004D33DE /* DualMacOsIosFramework.docc */,
+				65A4902F28BD1136004D33DE /* greeter.h */,
+				65A4903028BD1136004D33DE /* greeter.m */,
+			);
+			path = DualMacOsIosFramework;
+			sourceTree = "<group>";
+		};
+		65A4902328BD10DD004D33DE /* DualMacOsIosFrameworkTests */ = {
+			isa = PBXGroup;
+			children = (
+				65A4902428BD10DE004D33DE /* DualMacOsIosFrameworkTests.m */,
+			);
+			path = DualMacOsIosFrameworkTests;
+			sourceTree = "<group>";
+		};
+		65A4903328BD13D2004D33DE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				65A4903428BD13D2004D33DE /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		65A4901028BD10DD004D33DE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65A4902628BD10DE004D33DE /* DualMacOsIosFramework.h in Headers */,
+				65A4903128BD1136004D33DE /* greeter.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		65A4901428BD10DD004D33DE /* DualMacOsIosFramework */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65A4902928BD10DE004D33DE /* Build configuration list for PBXNativeTarget "DualMacOsIosFramework" */;
+			buildPhases = (
+				65A4901028BD10DD004D33DE /* Headers */,
+				65A4901128BD10DD004D33DE /* Sources */,
+				65A4901228BD10DD004D33DE /* Frameworks */,
+				65A4901328BD10DD004D33DE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DualMacOsIosFramework;
+			productName = DualMacOsIosFramework;
+			productReference = 65A4901528BD10DD004D33DE /* DualMacOsIosFramework.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		65A4901E28BD10DD004D33DE /* DualMacOsIosFrameworkTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65A4902C28BD10DE004D33DE /* Build configuration list for PBXNativeTarget "DualMacOsIosFrameworkTests" */;
+			buildPhases = (
+				65A4901B28BD10DD004D33DE /* Sources */,
+				65A4901C28BD10DD004D33DE /* Frameworks */,
+				65A4901D28BD10DD004D33DE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				65A4902228BD10DD004D33DE /* PBXTargetDependency */,
+			);
+			name = DualMacOsIosFrameworkTests;
+			productName = DualMacOsIosFrameworkTests;
+			productReference = 65A4901F28BD10DD004D33DE /* DualMacOsIosFrameworkTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		65A4900C28BD10DD004D33DE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1340;
+				TargetAttributes = {
+					65A4901428BD10DD004D33DE = {
+						CreatedOnToolsVersion = 13.4;
+					};
+					65A4901E28BD10DD004D33DE = {
+						CreatedOnToolsVersion = 13.4;
+					};
+				};
+			};
+			buildConfigurationList = 65A4900F28BD10DD004D33DE /* Build configuration list for PBXProject "DualMacOsIosFramework" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 65A4900B28BD10DD004D33DE;
+			productRefGroup = 65A4901628BD10DD004D33DE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				65A4901428BD10DD004D33DE /* DualMacOsIosFramework */,
+				65A4901E28BD10DD004D33DE /* DualMacOsIosFrameworkTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		65A4901328BD10DD004D33DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65A4901D28BD10DD004D33DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		65A4901128BD10DD004D33DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65A4903228BD1136004D33DE /* greeter.m in Sources */,
+				65A4901A28BD10DD004D33DE /* DualMacOsIosFramework.docc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65A4901B28BD10DD004D33DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65A4902528BD10DE004D33DE /* DualMacOsIosFrameworkTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		65A4902228BD10DD004D33DE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 65A4901428BD10DD004D33DE /* DualMacOsIosFramework */;
+			targetProxy = 65A4902128BD10DD004D33DE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		65A4902728BD10DE004D33DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
+				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-$(PLATFORM_NAME)";
+			};
+			name = Debug;
+		};
+		65A4902828BD10DE004D33DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
+				VALID_ARCHS = "arm64 armv7 armv7s i386 x86_64";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		65A4902A28BD10DE004D33DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.nokee.samples.xcode.DualMacOsIosFramework;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-$(PLATFORM_NAME)";
+			};
+			name = Debug;
+		};
+		65A4902B28BD10DE004D33DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.nokee.samples.xcode.DualMacOsIosFramework;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)-$(PLATFORM_NAME)";
+			};
+			name = Release;
+		};
+		65A4902D28BD10DE004D33DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.nokee.samples.xcode.DualMacOsIosFrameworkTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Debug;
+		};
+		65A4902E28BD10DE004D33DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.nokee.samples.xcode.DualMacOsIosFrameworkTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		65A4900F28BD10DD004D33DE /* Build configuration list for PBXProject "DualMacOsIosFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65A4902728BD10DE004D33DE /* Debug */,
+				65A4902828BD10DE004D33DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		65A4902928BD10DE004D33DE /* Build configuration list for PBXNativeTarget "DualMacOsIosFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65A4902A28BD10DE004D33DE /* Debug */,
+				65A4902B28BD10DE004D33DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		65A4902C28BD10DE004D33DE /* Build configuration list for PBXNativeTarget "DualMacOsIosFrameworkTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65A4902D28BD10DE004D33DE /* Debug */,
+				65A4902E28BD10DE004D33DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 65A4900C28BD10DD004D33DE /* Project object */;
+}

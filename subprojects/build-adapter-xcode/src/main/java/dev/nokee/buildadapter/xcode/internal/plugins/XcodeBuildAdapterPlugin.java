@@ -107,7 +107,11 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' has no effect on project '%s' because no Xcode workspace or project were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", settings.getGradle(), settings.getSettingsDir()));
 				} else {
 					LOGGER.quiet("Taking this project " + project.getLocation());
-					forXcodeProject(project).execute(rootProject);
+					forXcodeProject(project, composite(
+						workingDirectory(set(rootProject.getLayout().getProjectDirectory())),
+						(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
+						(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
+					)).execute(rootProject);
 				}
 			});
 		} else {
@@ -122,16 +126,20 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				settings.getGradle().rootProject(rootProject -> {
 					rootProject.project(projectPath, forXcodeProject(project, composite(
 						workingDirectory(set(rootProject.getLayout().getProjectDirectory())),
-						(XcodebuildExecTask task) -> task.getSdk().set(providers.environmentVariable("XCODE_SDK")),
-						(XcodebuildExecTask task) -> task.getConfiguration().set(providers.environmentVariable("XCODE_BUILD_TYPE"))
+						(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
+						(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
 					)));
 				});
 			}
 			settings.getGradle().rootProject(forXcodeWorkspace(workspace, composite(
-				(XcodebuildExecTask task) -> task.getSdk().set(providers.environmentVariable("XCODE_SDK")),
-				(XcodebuildExecTask task) -> task.getConfiguration().set(providers.environmentVariable("XCODE_BUILD_TYPE"))
+				(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
+				(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
 			)));
 		}
+	}
+
+	private Provider<String> fromCommandLine(String name) {
+		return providers.systemProperty(name).orElse(providers.gradleProperty(name));
 	}
 
 	private static Action<Project> forXcodeProject(XCProjectReference reference) {
@@ -213,9 +221,15 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 										return task.getSdk().map(it -> {
 											if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
 												return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toPath();
+											} else if (it.toLowerCase(Locale.ENGLISH).equals("macosx")) {
+												return new File("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toPath();
+											} else if (it.toLowerCase(Locale.ENGLISH).equals("iphonesimulator")) {
+												return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").toPath();
 											}
 											return null;
-										}).get();
+										})
+											// FIXME: Use -showBuildSettings to get default SDKROOT
+											.orElse(new File("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toPath()).get();
 									case "SOURCE_ROOT":
 										return reference.getLocation().getParent();
 									default:
