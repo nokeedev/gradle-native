@@ -17,7 +17,7 @@ package net.nokeedev.testing.file;
 
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.file.PathUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +75,9 @@ public abstract class AbstractTestDirectoryProvider implements TestDirectoryProv
 
 	public void cleanup() throws IOException {
 		if (cleanup && dir != null && Files.exists(dir)) {
-			Failsafe.with(RETRY_POLICY).run(() -> FileUtils.forceDelete(dir.toFile()));
+			// NOTE: There is a bug in PathUtils.setReadOnly which is called by FileUtils.forceDelete
+			//   commons-io 2.11 has the bug but master seems to have the fix which no release was made, yet
+			Failsafe.with(RETRY_POLICY).run(() -> PathUtils.deleteDirectory(dir));
 		}
 	}
 
