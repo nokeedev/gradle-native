@@ -32,7 +32,7 @@ import static java.util.Objects.requireNonNull;
 public final class PBXContainerItemProxy extends PBXContainerItem {
 	public enum ProxyType {
 		TARGET_REFERENCE(1), // native target
-		REFERENCE(2);
+		FILE_REFERENCE(2);
 
 		private final int intValue;
 

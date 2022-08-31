@@ -93,7 +93,7 @@ class PBXContainerItemProxyIntegrationTest {
 
 			val referenceProxy = ((PBXReferenceProxy) project.getProjectReferences().get(0).getProductGroup().getChildren().get(0)).getRemoteReference();
 			assertThat(referenceProxy.getContainerPortal(), isA(PBXFileReference.class));
-			assertThat(referenceProxy.getProxyType(), equalTo(PBXContainerItemProxy.ProxyType.REFERENCE));
+			assertThat(referenceProxy.getProxyType(), equalTo(PBXContainerItemProxy.ProxyType.FILE_REFERENCE));
 			try (val libReader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("Library.xcodeproj/project.pbxproj"))))) {
 				val proj = libReader.read();
 				val libFile = proj.getObjects().get("PBXFileReference").collect(Collectors.toList()).get(2);
