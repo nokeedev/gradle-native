@@ -26,6 +26,7 @@ import static dev.nokee.xcode.XCTargetReference.walk;
 
 @EqualsAndHashCode
 public final class XCProject {
+	private final String name;
 	private final Path location;
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
@@ -33,11 +34,16 @@ public final class XCProject {
 	private transient XCTargetReference.XCFileReferences references;
 
 	// friends with XCProjectReference
-	XCProject(Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project) {
+	XCProject(String name, Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project) {
+		this.name = name;
 		this.location = location;
 		this.targets = targets;
 		this.schemeNames = schemeNames;
 		this.project = project;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public Set<XCTargetReference> getTargets() {

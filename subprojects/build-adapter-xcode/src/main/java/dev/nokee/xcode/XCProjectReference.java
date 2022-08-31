@@ -22,6 +22,7 @@ import dev.nokee.xcode.project.PBXObjectUnarchiver;
 import dev.nokee.xcode.project.PBXProjReader;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +81,7 @@ public final class XCProjectReference implements Serializable {
 				val schemeNames = builder.build();
 
 				// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
-				return new XCProject(getLocation(), targets, schemeNames, proj);
+				return new XCProject(FilenameUtils.removeExtension(getLocation().getFileName().toString()), getLocation(), targets, schemeNames, proj);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
