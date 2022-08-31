@@ -37,22 +37,16 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 	private final List<PBXTarget> targets;
 	private final XCConfigurationList buildConfigurationList;
 	private final String compatibilityVersion;
-	private final String name;
 	private final List<ProjectReference> projectReferences;
 	private final List<XCRemoteSwiftPackageReference> packageReferences;
 
-	private PBXProject(String name, ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, PBXGroup mainGroup, List<ProjectReference> projectReferences, List<XCRemoteSwiftPackageReference> packageReferences) {
-		this.name = name;
+	private PBXProject(ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, PBXGroup mainGroup, List<ProjectReference> projectReferences, List<XCRemoteSwiftPackageReference> packageReferences) {
 		this.mainGroup = mainGroup;
 		this.targets = targets;
 		this.buildConfigurationList = buildConfigurationList;
 		this.projectReferences = projectReferences;
 		this.packageReferences = packageReferences;
 		this.compatibilityVersion = "Xcode 3.2";
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public PBXGroup getMainGroup() {
@@ -130,18 +124,12 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 	}
 
 	public static final class Builder {
-		private String name;
 		private final List<PBXTarget> targets = new ArrayList<>();
 		private XCConfigurationList buildConfigurations = XCConfigurationList.builder().build();
 		private final List<GroupChild> mainGroupChildren = new ArrayList<>();
 		private PBXGroup mainGroup;
 		private final List<ProjectReference> projectReferences = new ArrayList<>();
 		private final List<XCRemoteSwiftPackageReference> packageReferences = new ArrayList<>();
-
-		public Builder name(String name) {
-			this.name = name;
-			return this;
-		}
 
 		public Builder target(PBXTarget target) {
 			targets.add(target);
@@ -211,7 +199,7 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 			if (mainGroup == null) {
 				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
 			}
-			return new PBXProject(name, ImmutableList.copyOf(targets), buildConfigurations, mainGroup, ImmutableList.copyOf(projectReferences), ImmutableList.copyOf(packageReferences));
+			return new PBXProject(ImmutableList.copyOf(targets), buildConfigurations, mainGroup, ImmutableList.copyOf(projectReferences), ImmutableList.copyOf(packageReferences));
 		}
 	}
 }
