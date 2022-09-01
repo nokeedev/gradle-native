@@ -114,6 +114,10 @@ public abstract class GenerateSources extends DefaultTask {
 				"			sourceFile.writeToDirectory(projectDir);",
 				"		}",
 				"	}",
+				"",
+				"	public void writeToProject(Path projectDir) {",
+				"		writeToProject(projectDir.toFile());",
+				"	}",
 				"}"));
 		}
 	}

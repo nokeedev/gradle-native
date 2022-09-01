@@ -65,4 +65,8 @@ public class XcodeSwiftApp extends SourceElement {
 			sourceFile.writeToDirectory(projectDir);
 		}
 	}
+
+	public void writeToProject(Path projectDir) {
+		writeToProject(projectDir.toFile());
+	}
 }

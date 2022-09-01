@@ -44,7 +44,7 @@ class PBXTargetDependencyIntegrationTest {
 
 	@Test
 	void crossProjectTargetDependency() throws IOException {
-		new CrossProjectReference().writeToProject(testDirectory.toFile());
+		new CrossProjectReference().writeToProject(testDirectory);
 		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("CrossProjectReference.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
@@ -63,7 +63,7 @@ class PBXTargetDependencyIntegrationTest {
 
 	@Test
 	void selfProjectTargetDependency() throws IOException {
-		new GreeterAppWithLib().writeToProject(testDirectory.toFile());
+		new GreeterAppWithLib().writeToProject(testDirectory);
 		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithLib.xcodeproj/project.pbxproj"))))) {
 			val proj = reader.read();
 			val project = new PBXObjectUnarchiver().decode(proj);
