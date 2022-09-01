@@ -168,6 +168,11 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						.withComponent(new ParentComponent(entity))
 						.build());
 				});
+				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("inspect"), InspectXcodeTask.class, it -> it.ownedBy(entity)))
+					.as(InspectXcodeTask.class)
+					.configure(task -> {
+						task.getXcodeProject().set(reference);
+					});
 			}));
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), (entity, xcTarget) -> {
