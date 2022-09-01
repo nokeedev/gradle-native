@@ -127,11 +127,7 @@ final class PBXObjectCoders {
 
 		@Override
 		public int stableHash(PBXProject value) {
-			if (value.getName() != null) {
-				return value.getName().hashCode();
-			} else {
-				return 0;
-			}
+			return 0;
 		}
 
 		@Override
