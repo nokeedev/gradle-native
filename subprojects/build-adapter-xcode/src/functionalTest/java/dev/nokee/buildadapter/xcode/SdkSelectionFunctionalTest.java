@@ -61,7 +61,7 @@ class SdkSelectionFunctionalTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {"iphoneos", "macosx", "iphonesimulator"})
-	void canSelectSdkToUse(String sdkToSelect, GradleRunner runner) throws IOException {
+	void canSelectSdkToUse(String sdkToSelect, GradleRunner runner) {
 		runner.withTasks(":DualMacOsIosFramework").withArgument("-Dsdk=" + sdkToSelect).build();
 
 		assertThat(testDirectory.resolve("build/derivedData/DualMacOsIosFramework/Build/Products/Release-" + sdkToSelect), anExistingDirectory());
