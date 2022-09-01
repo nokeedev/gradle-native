@@ -49,7 +49,7 @@ class SdkSelectionFunctionalTest {
 
 	@BeforeEach
 	void beforeEachCreateProject() throws IOException {
-		new DualMacosIosFramework().writeToProject(testDirectory.toFile());
+		new DualMacosIosFramework().writeToProject(testDirectory);
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
 	}
 

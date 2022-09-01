@@ -47,7 +47,7 @@ class PBXSourceTreeIntegrationTest {
 
 	@Test
 	void canReadProjectWithCustomSourceTree() throws IOException {
-		new CustomSourceTree().writeToProject(testDirectory.toFile());
+		new CustomSourceTree().writeToProject(testDirectory);
 		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("CustomSourceTree.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 			assertThat(allFileReferences(project.getMainGroup()),
@@ -57,7 +57,7 @@ class PBXSourceTreeIntegrationTest {
 
 	@Test
 	void canReadProjectWithStandardSourceTree() throws IOException {
-		new CommonSourceTree().writeToProject(testDirectory.toFile());
+		new CommonSourceTree().writeToProject(testDirectory);
 		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("CommonSourceTree.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 			assertThat(allFileReferences(project.getMainGroup()),

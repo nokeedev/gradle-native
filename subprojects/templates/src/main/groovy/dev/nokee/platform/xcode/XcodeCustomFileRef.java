@@ -67,4 +67,8 @@ public final class XcodeCustomFileRef extends SourceElement {
 			sourceFile.writeToDirectory(projectDir);
 		}
 	}
+
+	public void writeToProject(Path projectDir) {
+		writeToProject(projectDir.toFile());
+	}
 }

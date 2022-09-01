@@ -44,7 +44,7 @@ class PBXBuildFileIntegrationTest {
 
 	@Test
 	void linksAgainstSwiftPackageFramework() throws IOException {
-		new GreeterAppWithSwiftPackageReference().writeToProject(testDirectory.toFile());
+		new GreeterAppWithSwiftPackageReference().writeToProject(testDirectory);
 		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackageReference.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
@@ -64,7 +64,7 @@ class PBXBuildFileIntegrationTest {
 
 	@Test
 	void linksAgainstLocalTargetFramework() throws IOException {
-		new GreeterAppWithLib().writeToProject(testDirectory.toFile());
+		new GreeterAppWithLib().writeToProject(testDirectory);
 		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithLib.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
