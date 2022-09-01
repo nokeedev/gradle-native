@@ -22,15 +22,19 @@ import org.gradle.api.internal.provider.DefaultProvider;
 import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.HasConfigurableValue;
+import org.gradle.api.provider.HasMultipleValues;
 import org.gradle.api.provider.Provider;
 import org.gradle.util.GradleVersion;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -196,5 +200,29 @@ public final class ProviderUtils {
 	 */
 	public static void resolve(Provider<?> self) {
 		self.getOrNull();
+	}
+
+	/**
+	 * Returns a provider which value will be computed by combining the {@literal left} and {@literal right} provider values using the supplied combiner function.
+	 *
+	 * <p>If the supplied providers represents a task or the output of a task, the resulting provider
+	 * will carry the dependency information.
+	 *
+	 * @param supplier  the accumulator supplier, must not be null
+	 * @param left  the left provider to combine, must not be null
+	 * @param right  the right provider to combine, must not be null
+	 * @param combiner  the combiner function for both values, must not be null
+	 * @return a provider which combine both provider values when resolved, never null
+	 * @param <A>  a list provider to accumulate the left and right value, typically {@literal ListProperty<?>}
+	 * @param <T>  the left provider type
+	 * @param <U>  the right provider type
+	 * @param <R>  the return provider type
+	 */
+	@SuppressWarnings("unchecked")
+	public static <A extends Provider<? extends List<Object>> & HasMultipleValues<Object>, T, U, R> Provider<R> zip(Supplier<A> supplier, Provider<T> left, Provider<U> right, BiFunction<T, U, R> combiner) {
+		val accumulator = supplier.get();
+		accumulator.add(left);
+		accumulator.add(right);
+		return accumulator.map(it -> combiner.apply((T) it.get(0), (U) it.get(1)));
 	}
 }
