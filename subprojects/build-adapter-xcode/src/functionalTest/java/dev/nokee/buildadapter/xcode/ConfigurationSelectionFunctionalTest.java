@@ -54,7 +54,7 @@ class ConfigurationSelectionFunctionalTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {"Debug", "Release"})
-	void canSelectSdkToUse(String configurationToSelect, GradleRunner runner) throws IOException {
+	void canSelectSdkToUse(String configurationToSelect, GradleRunner runner) {
 		runner.withTasks(":DualMacOsIosFramework").withArgument("-Dconfiguration=" + configurationToSelect).build();
 
 		assertThat(testDirectory.resolve("build/derivedData/DualMacOsIosFramework/Build/Products/" + configurationToSelect + "-macosx"), anExistingDirectory());
