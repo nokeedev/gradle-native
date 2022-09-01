@@ -15,10 +15,10 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import com.google.common.collect.Iterables;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonWriter;
-import dev.nokee.utils.ProviderUtils;
+import dev.nokee.buildadapter.xcode.internal.reporting.JsonReportContext;
+import dev.nokee.buildadapter.xcode.internal.reporting.Report;
+import dev.nokee.buildadapter.xcode.internal.reporting.ReportContext;
+import dev.nokee.buildadapter.xcode.internal.reporting.TextReportContext;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTarget;
@@ -32,12 +32,7 @@ import org.gradle.api.tasks.UntrackedTask;
 import org.gradle.api.tasks.options.Option;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.UncheckedIOException;
-import java.io.Writer;
-import java.util.function.Consumer;
 
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.ifPresentOrElse;
@@ -85,163 +80,6 @@ public /*final*/ abstract class InspectXcodeTask extends DefaultTask {
 			getXcodeTarget(),
 			targetReference -> new XCTargetReport(targetReference.load()).report(getReportContext().get()),
 			() -> new XCProjectReport(getXcodeProject().get().load()).report(getReportContext().get()));
-	}
-
-	/**
-	 * Represents a report that can be generated using a {@link ReportContext}.
-	 */
-	public interface Report {
-		void report(ReportContext context);
-	}
-
-	public interface ReportContext {
-		void attribute(String attribute, String value);
-		void attribute(String attribute, Iterable<String> values);
-
-		// TODO: Begin and end document should be part of a derived ReportContext because attributeGroup is can't begin or end a document
-		void beginDocument();
-
-		void endDocument();
-
-		void attributeGroup(String attribute, Consumer<? super ReportContext> action);
-	}
-
-	/**
-	 * Produces a text-based report.
-	 */
-	public static final class TextReportContext implements ReportContext {
-		private PrintStream out;
-
-		public TextReportContext(PrintStream out) {
-			this.out = out;
-		}
-
-		@Override
-		public void attribute(String attribute, String value) {
-			out.println(attribute + ": " + value);
-		}
-
-		@Override
-		public void attribute(String attribute, Iterable<String> values) {
-			if (Iterables.isEmpty(values)) {
-				out.println(attribute + ": (none)");
-			} else {
-				out.println(attribute + ":");
-				values.forEach(it -> out.println(" - " + it));
-			}
-		}
-
-		@Override
-		public void beginDocument() {
-
-		}
-
-		@Override
-		public void endDocument() {
-
-		}
-
-		@Override
-		public void attributeGroup(String attribute, Consumer<? super ReportContext> action) {
-			out.println(attribute + ":");
-			action.accept(new ReportContext() {
-				@Override
-				public void attribute(String attribute, String value) {
-					out.print('\t');
-					TextReportContext.this.attribute(attribute, value);
-				}
-
-				@Override
-				public void attribute(String attribute, Iterable<String> values) {
-					out.print('\t');
-					TextReportContext.this.attribute(attribute, values);
-				}
-
-				@Override
-				public void beginDocument() {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void endDocument() {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void attributeGroup(String attribute, Consumer<? super ReportContext> action) {
-					out.print('\t');
-					TextReportContext.this.attributeGroup(attribute, action);
-				}
-			});
-		}
-	}
-
-	/**
-	 * Produces a JSON formatted report.
-	 */
-	public static final class JsonReportContext implements ReportContext {
-		private final JsonWriter writer;
-
-		public JsonReportContext(Writer writer) {
-			try {
-				this.writer = new GsonBuilder().setPrettyPrinting().create().newJsonWriter(writer);
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		}
-
-		@Override
-		public void attribute(String attribute, String value) {
-			try {
-				writer.name(attribute).value(value);
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		}
-
-		@Override
-		public void attribute(String attribute, Iterable<String> values) {
-			try {
-				writer.name(attribute).beginArray();
-				for (String it : values) {
-					writer.value(it);
-				}
-				writer.endArray();
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		}
-
-		@Override
-		public void beginDocument() {
-			try {
-				writer.beginObject();
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		}
-
-		@Override
-		public void endDocument() {
-			try {
-				writer.endObject();
-				writer.flush();
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		}
-
-		@Override
-		public void attributeGroup(String attribute, Consumer<? super ReportContext> action) {
-			try {
-				writer.name(attribute);
-				writer.beginObject();
-				action.accept(this);
-				writer.endObject();
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		}
 	}
 
 	/**
