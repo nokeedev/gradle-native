@@ -42,6 +42,10 @@ public final class XCProjectReference implements Serializable {
 		this.location = location.toFile();
 	}
 
+	public String getName() {
+		return FilenameUtils.removeExtension(location.getName());
+	}
+
 	public Path getLocation() {
 		return location.toPath();
 	}
@@ -81,7 +85,7 @@ public final class XCProjectReference implements Serializable {
 				val schemeNames = builder.build();
 
 				// TODO: Add support for implicit scheme: xcodebuild -list -project `getLocation()` -json
-				return new XCProject(FilenameUtils.removeExtension(getLocation().getFileName().toString()), getLocation(), targets, schemeNames, proj);
+				return new XCProject(getName(), getLocation(), targets, schemeNames, proj);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
