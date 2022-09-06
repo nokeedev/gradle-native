@@ -1,0 +1,3 @@
+NOTE: Proper cross-project static library dependency are a bit tricky to get right.
+It seems the static library _has_ to copy the public headers into `$(BUILT_PRODUCTS_DIR)/include/$(TARGET_NAME)`.
+The consumer application adds `$(BUILT_PRODUCTS_DIR)/include` directory as `-I` for some reason.
