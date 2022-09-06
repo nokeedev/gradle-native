@@ -56,8 +56,9 @@ functionalTest {
 		implementation 'dev.nokee:templates:latest.integration'
 		implementation project(':xcodeIdeKit')
 		implementation testFixtures(project(':xcodeIdeKit'))
-		implementation(templates(project(':xcodeIdeKit')))
-		implementation(templates(project))
+		implementation templates(project(':xcodeIdeKit'))
+		implementation templates(project)
+		implementation 'com.google.code.gson:gson:2.8.6'
 	}
 }
 
