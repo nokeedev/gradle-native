@@ -41,7 +41,7 @@ class XCSwiftPackageProductDependencyIntegrationTest {
 	@Test
 	void readsSwiftPackageProductDependencies() throws IOException {
 		new GreeterAppWithSwiftPackageReference().writeToProject(testDirectory);
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackageReference.xcodeproj/project.pbxproj"))))) {
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterApp.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
 			assertThat(project.getTargets(), hasSize(1));

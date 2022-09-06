@@ -25,7 +25,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		65F6EB6128B42B2B007DBD6C /* App */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = App; sourceTree = BUILT_PRODUCTS_DIR; };
+		65F6EB6128B42B2B007DBD6C /* GreeterApp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GreeterApp; sourceTree = BUILT_PRODUCTS_DIR; };
 		65F6EB6328B42B2B007DBD6C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		65F6EB6F28B4300D007DBD6C /* Greeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Greeter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -45,7 +45,7 @@
 		65F6EB4A28B42B00007DBD6C = {
 			isa = PBXGroup;
 			children = (
-				65F6EB6228B42B2B007DBD6C /* App */,
+				65F6EB6228B42B2B007DBD6C /* GreeterApp */,
 				65F6EB5428B42B00007DBD6C /* Products */,
 				65F6EB7428B436CA007DBD6C /* Frameworks */,
 			);
@@ -54,18 +54,18 @@
 		65F6EB5428B42B00007DBD6C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				65F6EB6128B42B2B007DBD6C /* App */,
+				65F6EB6128B42B2B007DBD6C /* GreeterApp */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		65F6EB6228B42B2B007DBD6C /* App */ = {
+		65F6EB6228B42B2B007DBD6C /* GreeterApp */ = {
 			isa = PBXGroup;
 			children = (
 				65F6EB6328B42B2B007DBD6C /* main.c */,
 				65F6EB6F28B4300D007DBD6C /* Greeter.swift */,
 			);
-			path = App;
+			path = GreeterApp;
 			sourceTree = "<group>";
 		};
 		65F6EB7428B436CA007DBD6C /* Frameworks */ = {
@@ -78,9 +78,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		65F6EB6028B42B2B007DBD6C /* App */ = {
+		65F6EB6028B42B2B007DBD6C /* GreeterApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 65F6EB6528B42B2B007DBD6C /* Build configuration list for PBXNativeTarget "App" */;
+			buildConfigurationList = 65F6EB6528B42B2B007DBD6C /* Build configuration list for PBXNativeTarget "GreeterApp" */;
 			buildPhases = (
 				65F6EB5D28B42B2B007DBD6C /* Sources */,
 				65F6EB5E28B42B2B007DBD6C /* Frameworks */,
@@ -90,12 +90,12 @@
 			);
 			dependencies = (
 			);
-			name = App;
+			name = GreeterApp;
 			packageProductDependencies = (
 				65F6EB7528B436CA007DBD6C /* o */,
 			);
 			productName = App;
-			productReference = 65F6EB6128B42B2B007DBD6C /* App */;
+			productReference = 65F6EB6128B42B2B007DBD6C /* GreeterApp */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -113,7 +113,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 65F6EB4E28B42B00007DBD6C /* Build configuration list for PBXProject "GreeterAppWithSwiftPackageReference" */;
+			buildConfigurationList = 65F6EB4E28B42B00007DBD6C /* Build configuration list for PBXProject "GreeterApp" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -129,7 +129,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				65F6EB6028B42B2B007DBD6C /* App */,
+				65F6EB6028B42B2B007DBD6C /* GreeterApp */,
 			);
 		};
 /* End PBXProject section */
@@ -292,7 +292,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		65F6EB4E28B42B00007DBD6C /* Build configuration list for PBXProject "GreeterAppWithSwiftPackageReference" */ = {
+		65F6EB4E28B42B00007DBD6C /* Build configuration list for PBXProject "GreeterApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				65F6EB5828B42B00007DBD6C /* Debug */,
@@ -301,7 +301,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		65F6EB6528B42B2B007DBD6C /* Build configuration list for PBXNativeTarget "App" */ = {
+		65F6EB6528B42B2B007DBD6C /* Build configuration list for PBXNativeTarget "GreeterApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				65F6EB6628B42B2B007DBD6C /* Debug */,
