@@ -15,7 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
-import dev.nokee.samples.xcode.GreeterAppWithLib;
+import dev.nokee.samples.xcode.GreeterAppWithLocalLib;
 import dev.nokee.samples.xcode.GreeterAppWithSwiftPackageReference;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.objects.buildphase.PBXFrameworksBuildPhase;
@@ -45,7 +45,7 @@ class PBXBuildFileIntegrationTest {
 	@Test
 	void linksAgainstSwiftPackageFramework() throws IOException {
 		new GreeterAppWithSwiftPackageReference().writeToProject(testDirectory);
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithSwiftPackageReference.xcodeproj/project.pbxproj"))))) {
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterApp.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
 			assertThat(project.getTargets(), hasSize(1));
@@ -64,8 +64,8 @@ class PBXBuildFileIntegrationTest {
 
 	@Test
 	void linksAgainstLocalTargetFramework() throws IOException {
-		new GreeterAppWithLib().writeToProject(testDirectory);
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithLib.xcodeproj/project.pbxproj"))))) {
+		new GreeterAppWithLocalLib().writeToProject(testDirectory);
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterApp.xcodeproj/project.pbxproj"))))) {
 			val project = new PBXObjectUnarchiver().decode(reader.read());
 
 			assertThat(project.getTargets(), hasSize(2));

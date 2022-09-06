@@ -16,7 +16,7 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.samples.xcode.CrossProjectReference;
-import dev.nokee.samples.xcode.GreeterAppWithLib;
+import dev.nokee.samples.xcode.GreeterAppWithLocalLib;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
@@ -65,8 +65,8 @@ class PBXContainerItemProxyIntegrationTest {
 
 	@Test
 	void selfProjectTargetReference() throws IOException {
-		new GreeterAppWithLib().writeToProject(testDirectory);
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterAppWithLib.xcodeproj/project.pbxproj"))))) {
+		new GreeterAppWithLocalLib().writeToProject(testDirectory);
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(testDirectory.resolve("GreeterApp.xcodeproj/project.pbxproj"))))) {
 			val proj = reader.read();
 			val project = new PBXObjectUnarchiver().decode(proj);
 

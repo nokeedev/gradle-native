@@ -171,7 +171,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 65F6EB1E28B03364007DBD6C /* Build configuration list for PBXProject "GreeterAppWithLib" */;
+			buildConfigurationList = 65F6EB1E28B03364007DBD6C /* Build configuration list for PBXProject "GreeterApp" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -366,7 +366,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		65F6EB1E28B03364007DBD6C /* Build configuration list for PBXProject "GreeterAppWithLib" */ = {
+		65F6EB1E28B03364007DBD6C /* Build configuration list for PBXProject "GreeterApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				65F6EB2828B03364007DBD6C /* Debug */,
