@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import static dev.nokee.internal.testing.GradleProviderMatchers.absentProvider;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.nvm.fixtures.CurrentDotJsonTestUtils.writeCurrentVersionTo;
+import static dev.nokee.utils.ProviderUtils.forParameters;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -38,13 +39,11 @@ class CurrentNokeeVersionSourceDisallowedNetworkAccessIntegrationTest {
 
 	@BeforeEach
 	void setup() {
-		subject = providerFactory().of(CurrentNokeeVersionSource.class, spec -> {
-			spec.parameters(parameters -> {
-				parameters.getNokeeVersionFile().set(testDirectory.resolve(".nokee-version").toFile());
-				parameters.getNetworkStatus().set(CurrentNokeeVersionSource.Parameters.NetworkStatus.DISALLOWED);
-				parameters.getCurrentReleaseUrl().set(testDirectory.resolve("current.json").toFile().toURI());
-			});
-		});
+		subject = providerFactory().of(CurrentNokeeVersionSource.class, forParameters(parameters -> {
+			parameters.getNokeeVersionFile().set(testDirectory.resolve(".nokee-version").toFile());
+			parameters.getNetworkStatus().set(CurrentNokeeVersionSource.Parameters.NetworkStatus.DISALLOWED);
+			parameters.getCurrentReleaseUrl().set(testDirectory.resolve("current.json").toFile().toURI());
+		}));
 	}
 
 	@Test

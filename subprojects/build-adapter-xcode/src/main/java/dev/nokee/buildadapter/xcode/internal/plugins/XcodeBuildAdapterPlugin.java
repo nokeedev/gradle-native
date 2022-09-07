@@ -30,7 +30,6 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketS
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
-import dev.nokee.utils.ActionUtils;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
@@ -72,6 +71,7 @@ import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.utils.ActionUtils.composite;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
+import static dev.nokee.utils.ProviderUtils.forParameters;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 
@@ -92,15 +92,13 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 		forUseAtConfigurationTime(settings.getGradle().getSharedServices().registerIfAbsent("loader", XCLoaderService.class, ActionUtils.doNothing())).get();
 
-		val allWorkspaceLocations = forUseAtConfigurationTime(providers.of(AllXCWorkspaceLocationsValueSource.class, it -> it.parameters(p -> p.getSearchDirectory().set(settings.getSettingsDir()))));
+		val allWorkspaceLocations = forUseAtConfigurationTime(providers.of(AllXCWorkspaceLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir()))));
 		val selectedWorkspaceLocation = allWorkspaceLocations.map(new SelectXCWorkspaceLocationTransformation());
 
-		val workspace = forUseAtConfigurationTime(providers.of(XCWorkspaceDataValueSource.class, it -> it.parameters(p -> {
-			p.getWorkspace().set(selectedWorkspaceLocation);
-		}))).getOrNull();
+		val workspace = forUseAtConfigurationTime(providers.of(XCWorkspaceDataValueSource.class, forParameters(it -> it.getWorkspace().set(selectedWorkspaceLocation)))).getOrNull();
 		if (workspace == null) {
 			settings.getGradle().rootProject(rootProject -> {
-				val allProjectLocations = forUseAtConfigurationTime(providers.of(AllXCProjectLocationsValueSource.class, it -> it.parameters(p -> p.getSearchDirectory().set(settings.getSettingsDir()))));
+				val allProjectLocations = forUseAtConfigurationTime(providers.of(AllXCProjectLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir()))));
 				val selectedProjectLocation = allProjectLocations.map(new SelectXCProjectLocationTransformation());
 
 				val project = selectedProjectLocation.getOrNull();
@@ -159,8 +157,8 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			final Provider<XcodeImplicitDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeImplicitDependenciesService, XcodeImplicitDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName("implicitDependencies")).flatMap(BuildServiceRegistration::getService);
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
-				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.parameters(p -> {
-					p.getProject().set(reference);
+				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, forParameters(it -> {
+					it.getProject().set(reference);
 				}))).get();
 				xcodeProject.getTargets().forEach(target -> {
 					project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
@@ -262,8 +260,8 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					});
 			})));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
-				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, it -> it.parameters(p -> {
-					p.getProject().set(xcProject.get());
+				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, forParameters(it -> {
+					it.getProject().set(xcProject.get());
 				}))).get();
 				xcodeProject.getSchemeNames().forEach(schemeName -> {
 					project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeProjectSchemeExecTask.class, task -> {
