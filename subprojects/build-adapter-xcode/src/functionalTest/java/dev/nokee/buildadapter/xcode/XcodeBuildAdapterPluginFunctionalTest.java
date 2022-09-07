@@ -46,4 +46,10 @@ public class XcodeBuildAdapterPluginFunctionalTest {
 		block("gradle", rootProject(registerVerifyTask(assertStatements("settings.pluginManager.hasPlugin('dev.nokee.cocoapods-support')")))).useGetter().appendTo(testDirectory.resolve("settings.gradle"));
 		runner.withArgument("verify").build();
 	}
+
+	@Test
+	void appliesModelBasePlugin(GradleRunner runner) throws IOException {
+		block("gradle", rootProject(registerVerifyTask(assertStatements("settings.pluginManager.hasPlugin('dev.nokee.model-base')")))).useGetter().appendTo(testDirectory.resolve("settings.gradle"));
+		runner.withArgument("verify").build();
+	}
 }
