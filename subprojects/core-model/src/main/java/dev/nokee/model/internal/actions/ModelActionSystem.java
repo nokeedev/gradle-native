@@ -31,8 +31,9 @@ import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.tags.ModelComponentTag;
 import dev.nokee.model.internal.tags.ModelTags;
 import lombok.val;
-import org.gradle.api.Action;
-import org.gradle.api.Project;
+import org.gradle.api.Plugin;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.PluginAware;
 import org.gradle.api.specs.Spec;
 
 import java.util.ArrayList;
@@ -48,14 +49,14 @@ import java.util.function.Supplier;
 import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 
 @SuppressWarnings("unchecked")
-public final class ModelActionSystem implements Action<Project> {
+public final class ModelActionSystem<T extends ExtensionAware & PluginAware> implements Plugin<T> {
 	private final ReentrantAvoidance reentrant = new ReentrantAvoidance();
 	private final List<ModelNode> allActionEntities = new ArrayList<>();
 	private final List<ModelNode> allConfigurableEntities = new ArrayList<>();
 
 	@Override
-	public void execute(Project project) {
-		val configurer = project.getExtensions().getByType(ModelConfigurer.class);
+	public void apply(T target) {
+		val configurer = target.getExtensions().getByType(ModelConfigurer.class);
 
 		// Rules to execute actions
 		configurer.configure(ModelActionWithInputs.of(ModelTags.referenceOf(ModelActionTag.class), this::trackActions));
