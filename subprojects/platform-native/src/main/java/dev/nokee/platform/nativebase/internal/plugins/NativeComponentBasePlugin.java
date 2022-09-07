@@ -134,7 +134,6 @@ import dev.nokee.runtime.nativebase.BinaryLinkage;
 import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
-import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.Optionals;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -173,6 +172,7 @@ import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.platform.base.internal.DomainObjectEntities.newEntity;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeApplicationPlugin.nativeApplicationVariant;
 import static dev.nokee.platform.nativebase.internal.plugins.NativeLibraryPlugin.nativeLibraryVariant;
+import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
 import static dev.nokee.utils.ConfigurationUtils.configureExtendsFrom;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
@@ -449,7 +449,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 			project.getExtensions().getByType(ModelRegistry.class).instantiate(configure(runtimeLibraries.get().getId(), Configuration.class, configureExtendsFrom(firstParentConfigurationOf(parent, ImplementationConfigurationComponent.class), firstParentConfigurationOf(parent, RuntimeOnlyConfigurationComponent.class))));
 		}));
 
-		val unbuildableWarningService = forUseAtConfigurationTime(project.getGradle().getSharedServices().registerIfAbsent("unbuildableWarningService", UnbuildableWarningService.class, ActionUtils.doNothing()));
+		val unbuildableWarningService = forUseAtConfigurationTime(registerBuildServiceIfAbsent(project, UnbuildableWarningService.class));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(AssembleTaskComponent.class), ModelComponentReference.of(IdentifierComponent.class), ModelComponentReference.ofProjection(HasDevelopmentVariant.class), (entity, assembleTask, identifier, tag) -> {
 			// The "component" assemble task was most likely added by the 'lifecycle-base' plugin
 			//   then we configure the dependency.

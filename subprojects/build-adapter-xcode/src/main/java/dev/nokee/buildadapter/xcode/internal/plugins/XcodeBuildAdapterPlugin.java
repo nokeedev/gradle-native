@@ -70,6 +70,7 @@ import java.util.stream.Stream;
 import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.workingDirectory;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.utils.ActionUtils.composite;
+import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forParameters;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
@@ -90,7 +91,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		settings.getPluginManager().apply("dev.nokee.cocoapods-support");
 		settings.getGradle().rootProject(new RedirectProjectBuildDirectoryToRootBuildDirectory());
 
-		forUseAtConfigurationTime(settings.getGradle().getSharedServices().registerIfAbsent("loader", XCLoaderService.class, ActionUtils.doNothing())).get();
+		forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings.getGradle(), XCLoaderService.class)).get();
 
 		val allWorkspaceLocations = forUseAtConfigurationTime(providers.of(AllXCWorkspaceLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir()))));
 		val selectedWorkspaceLocation = allWorkspaceLocations.map(new SelectXCWorkspaceLocationTransformation());
@@ -114,11 +115,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				}
 			});
 		} else {
-			val service = forUseAtConfigurationTime(settings.getGradle().getSharedServices().registerIfAbsent("implicitDependencies", XcodeImplicitDependenciesService.class, spec -> {
-				spec.parameters(parameters -> {
-					parameters.getLocation().set(workspace.toReference());
-				});
-			}));
+			val service = forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings, XcodeImplicitDependenciesService.class, it -> it.getLocation().set(workspace.toReference())));
 			for (XCProjectReference project : workspace.getProjectLocations()) {
 				val projectPath = service.get().asProjectPath(project);
 				settings.include(projectPath);
