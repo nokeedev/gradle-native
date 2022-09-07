@@ -23,7 +23,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
-import org.gradle.api.provider.ValueSourceSpec;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -32,6 +31,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static dev.nokee.utils.ProviderUtils.forParameters;
 
 @SuppressWarnings("UnstableApiUsage")
 final class CocoaPodsProviders {
@@ -42,11 +43,11 @@ final class CocoaPodsProviders {
 	}
 
 	public Provider<Podfile> podfile(File path) {
-		return providers.of(PodfileLoader.class, parameters(it -> it.getPodfileFile().set(path)));
+		return providers.of(PodfileLoader.class, forParameters(it -> it.getPodfileFile().set(path)));
 	}
 
 	public Provider<CocoaPodsInstallation> installation(Action<? super CocoaPodsInstallationSpec> action) {
-		return providers.of(CocoaPodsInstallationSource.class, parameters(action));
+		return providers.of(CocoaPodsInstallationSource.class, forParameters(action));
 	}
 
 	public interface CocoaPodsInstallationSpec {
@@ -71,10 +72,6 @@ final class CocoaPodsProviders {
 			}
 			return null;
 		}
-	}
-
-	private static <T extends ValueSourceParameters> Action<ValueSourceSpec<T>> parameters(Action<? super T> action) {
-		return spec -> spec.parameters(action);
 	}
 
 	abstract static class CocoaPodsInstallationSource implements ValueSource<CocoaPodsInstallation, CocoaPodsInstallationSource.Parameters> {

@@ -24,6 +24,8 @@ import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.HasConfigurableValue;
 import org.gradle.api.provider.HasMultipleValues;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ValueSourceParameters;
+import org.gradle.api.provider.ValueSourceSpec;
 import org.gradle.util.GradleVersion;
 
 import java.lang.reflect.InvocationTargetException;
@@ -224,5 +226,19 @@ public final class ProviderUtils {
 		accumulator.add(left);
 		accumulator.add(right);
 		return accumulator.map(it -> combiner.apply((T) it.get(0), (U) it.get(1)));
+	}
+
+	/**
+	 * Returns an action that configures the {@link ValueSourceSpec} parameters with the specified action.
+	 *
+	 * <p><b>Note:</b> This utility method is strictly for convenience.
+	 *
+	 * @param action  an action that configure {@link ValueSourceParameters}, must not be null
+	 * @return an action that configures the parameters, never null
+	 * @param <P>  the value source parameters
+	 */
+	@SuppressWarnings("UnstableApiUsage")
+	public static <P extends ValueSourceParameters> Action<ValueSourceSpec<P>> forParameters(Action<? super P> action) {
+		return it -> it.parameters(action);
 	}
 }
