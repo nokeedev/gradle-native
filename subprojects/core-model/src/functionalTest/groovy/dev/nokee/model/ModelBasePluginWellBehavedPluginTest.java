@@ -23,10 +23,14 @@ import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
 
+import static dev.nokee.internal.testing.WellBehavedPluginTester.SupportedTarget.Project;
+import static dev.nokee.internal.testing.WellBehavedPluginTester.SupportedTarget.Settings;
+
 class ModelBasePluginWellBehavedPluginTest {
 	@TestFactory
 	Stream<DynamicTest> checkWellBehavedPlugin() {
 		return new WellBehavedPluginTester()
+			.supportedTarget(Settings, Project)
 			.qualifiedPluginId("dev.nokee.model-base")
 			.pluginClass(ModelBasePlugin.class)
 			.stream().map(TestCaseUtils::toJUnit5DynamicTest);

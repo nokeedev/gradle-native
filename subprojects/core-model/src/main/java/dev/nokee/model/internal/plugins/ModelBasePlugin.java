@@ -33,29 +33,59 @@ import dev.nokee.utils.TaskUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.PluginAware;
 
-public class ModelBasePlugin implements Plugin<Project> {
+import javax.inject.Inject;
+
+public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements Plugin<T> {
+	private final PluginTargetSupport pluginScopes = PluginTargetSupport.builder()
+		.withPluginId("dev.nokee.model-base")
+		.forTarget(Settings.class, this::applyToSettings)
+		.forTarget(Project.class, this::applyToProject)
+		.build();
+	private final ObjectFactory objects;
+
+	@Inject
+	ModelBasePlugin(ObjectFactory objects) {
+		this.objects = objects;
+	}
+
 	@Override
-	public void apply(Project project) {
-		project.getConfigurations().all(ActionUtils.doNothing()); // Because... don't get me started with this... :'(
+	public void apply(T target) {
+		pluginScopes.apply(target);
+	}
 
-		val modelRegistry = new DefaultModelRegistry(project.getObjects()::newInstance);
-		project.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
-		project.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
-		project.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
-		project.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory());
-
-		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
+	private <S extends PluginAware & ExtensionAware> void applyToAllTarget(S target) {
+		val modelRegistry = new DefaultModelRegistry(objects::newInstance);
+		target.getExtensions().add(ModelRegistry.class, "__NOKEE_modelRegistry", modelRegistry);
+		target.getExtensions().add(ModelLookup.class, "__NOKEE_modelLookup", modelRegistry);
+		target.getExtensions().add(ModelConfigurer.class, "__NOKEE_modelConfigurer", modelRegistry);
+		target.getExtensions().add(ModelPropertyRegistrationFactory.class, "__NOKEE_modelPropertyRegistrationFactory", new ModelPropertyRegistrationFactory());
 
 		modelRegistry.configure(new AttachDisplayNameToGradleProperty());
-		project.getPluginManager().apply(ModelPropertiesCapabilityPlugin.class);
-		new ModelActionSystem().execute(project);
+		target.getPluginManager().apply(ModelPropertiesCapabilityPlugin.class);
+		target.getPluginManager().apply(ModelActionSystem.class);
 		modelRegistry.configure(new GenerateModelPathFromParents());
 		modelRegistry.configure(new GenerateModelPathFromIdentifier());
 
-		project.getPluginManager().apply(AncestryCapabilityPlugin.class);
-		project.getPluginManager().apply(NamesCapabilityPlugin.class);
+		target.getPluginManager().apply(AncestryCapabilityPlugin.class);
+		target.getPluginManager().apply(NamesCapabilityPlugin.class);
+	}
 
-		modelRegistry.get(ModelPath.root()).addComponent(new IdentifierComponent(ProjectIdentifier.of(project)));
+	private void applyToSettings(Settings settings) {
+		applyToAllTarget(settings);
+	}
+
+	private void applyToProject(Project project) {
+		project.getConfigurations().all(ActionUtils.doNothing()); // Because... don't get me started with this... :'(
+
+		applyToAllTarget(project);
+
+		project.getTasks().register("nokeeModel", ModelReportTask.class, TaskUtils.configureDescription("Displays the configuration model of %s.", project));
+
+		project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new IdentifierComponent(ProjectIdentifier.of(project)));
 	}
 }
