@@ -140,10 +140,6 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		return providers.systemProperty(name).orElse(providers.gradleProperty(name));
 	}
 
-	private static Action<Project> forXcodeProject(XCProjectReference reference) {
-		return forXcodeProject(reference, __ -> {});
-	}
-
 	private static Stream<XCFileReference> allInputFiles(XCTarget target) {
 		return Stream.concat(target.getInputFiles().stream(), target.getDependencies().stream().map(XCTargetReference::load).flatMap(XcodeBuildAdapterPlugin::allInputFiles));
 	}
