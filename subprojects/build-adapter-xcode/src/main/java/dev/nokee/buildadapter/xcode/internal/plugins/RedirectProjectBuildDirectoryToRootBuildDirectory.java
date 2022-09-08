@@ -56,6 +56,7 @@ public final class RedirectProjectBuildDirectoryToRootBuildDirectory implements 
 	public void execute(Project rootProject) {
 		assert isRootProject(rootProject) : "can only execute on root project";
 
+		// FIXME: Using forUseAtConfigurationTime is wrong on BuildService
 		final Provider<BuildDirectoryService> service = forUseAtConfigurationTime(registerService(rootProject.getGradle(), parameters -> parameters.getBuildDirectoriesCacheFile().set(rootProject.getLayout().getBuildDirectory().file(BUILD_PATH_PREFIX + "mapping.ser"))));
 
 		rootProject.subprojects(project -> {
