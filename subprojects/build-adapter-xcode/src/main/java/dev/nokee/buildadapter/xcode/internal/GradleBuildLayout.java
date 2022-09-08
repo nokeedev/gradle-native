@@ -19,6 +19,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
+import org.gradle.util.Path;
 
 public final class GradleBuildLayout {
 	private final Settings settings;
@@ -31,16 +32,17 @@ public final class GradleBuildLayout {
 		return new GradleBuildLayout(settings);
 	}
 
-	public void include(String projectPath) {
-		settings.include(projectPath);
+	public void include(Path projectPath) {
+		settings.include(projectPath.toString());
 	}
 
-	public void include(String projectPath, Action<? super ProjectDescriptor> action) {
-		settings.include(projectPath);
-		action.execute(settings.project(projectPath));
+	public void include(Path projectPath, Action<? super ProjectDescriptor> action) {
+		settings.include(projectPath.toString());
+		action.execute(settings.project(projectPath.toString()));
 	}
 
-	public void project(String path, Action<? super Project> action) {
-		settings.getGradle().rootProject(project -> project.project(path, action));
+	public void project(Path path, Action<? super Project> action) {
+		assert settings.findProject(path.toString()) != null;
+		settings.getGradle().rootProject(project -> project.project(path.toString(), action));
 	}
 }
