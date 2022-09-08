@@ -16,12 +16,12 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Streams;
 import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
 import dev.nokee.buildadapter.xcode.internal.GradleProjectPathService;
-import dev.nokee.buildadapter.xcode.internal.components.XCProjectElement;
+import dev.nokee.buildadapter.xcode.internal.components.GradleProjectTag;
+import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
-import dev.nokee.model.internal.buffers.ModelBuffers;
+import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPath;
@@ -75,6 +75,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.ActionUtils.composite;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
@@ -99,7 +100,8 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 		forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings.getGradle(), XCLoaderService.class)).get();
 
-		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(new GradleProjectPathService(settings.getSettingsDir().toPath()), GradleBuildLayout.forSettings(settings), providers));
+		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(GradleBuildLayout.forSettings(settings), providers));
+		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectPathRule(new GradleProjectPathService(settings.getSettingsDir().toPath())));
 
 		val allWorkspaceLocations = forUseAtConfigurationTime(providers.of(AllXCWorkspaceLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir()))));
 		val selectedWorkspaceLocation = allWorkspaceLocations.map(new SelectXCWorkspaceLocationTransformation());
@@ -118,7 +120,10 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		}
 		val actualProjects = forUseAtConfigurationTime(providers.of(AllXCProjectWithinProjectValueSource.class, forParameters(it -> it.getProjectLocations().addAll(projects)))).get();
 
-		settings.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(ModelBuffers.of(XCProjectElement.class, Streams.stream(actualProjects).map(XCProjectElement::new).collect(Collectors.toList())));
+		val settingsEntity = settings.getExtensions().getByType(ModelLookup.class).get(ModelPath.root());
+		actualProjects.forEach(project -> {
+			settings.getExtensions().getByType(ModelRegistry.class).instantiate(ModelRegistration.builder().withComponent(new ParentComponent(settingsEntity)).withComponent(tag(GradleProjectTag.class)).withComponent(new XCProjectComponent(project)).build());
+		});
 
 		if (workspace != null) {
 			val service = forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings, XcodeImplicitDependenciesService.class, it -> {

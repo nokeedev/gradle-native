@@ -15,34 +15,32 @@
  */
 package dev.nokee.buildadapter.xcode.internal;
 
-import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-
-import java.nio.file.Path;
+import org.gradle.util.Path;
 
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 
 public final class GradleProjectPathService {
 	private static final Logger LOGGER = Logging.getLogger(GradleProjectPathService.class);
 
-	private final Path baseDirectory;
+	private final java.nio.file.Path baseDirectory;
 
-	public GradleProjectPathService(Path baseDirectory) {
+	public GradleProjectPathService(java.nio.file.Path baseDirectory) {
 		this.baseDirectory = baseDirectory;
 	}
 
-	public String toProjectPath(XCProjectReference reference) {
+	public Path toProjectPath(XCProjectReference reference) {
 		val relativePath = baseDirectory.relativize(reference.getLocation());
-		val projectPath = ":" + asProjectPath(relativePath);
+		val projectPath = Path.ROOT.child(asProjectPath(relativePath));
 		LOGGER.info(String.format("Mapping Xcode project '%s' to Gradle project '%s'.", relativePath, projectPath));
 		return projectPath;
 	}
 
-	private static String asProjectPath(Path relativePath) {
+	private static String asProjectPath(java.nio.file.Path relativePath) {
 		return separatorsToUnix(FilenameUtils.removeExtension(relativePath.toString())).replace('/', ':');
 	}
 }

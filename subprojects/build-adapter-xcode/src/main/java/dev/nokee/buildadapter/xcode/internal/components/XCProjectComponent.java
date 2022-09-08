@@ -15,13 +15,13 @@
  */
 package dev.nokee.buildadapter.xcode.internal.components;
 
-import dev.nokee.model.internal.buffers.ModelBufferElement;
+import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.xcode.XCProjectReference;
 
-public final class XCProjectElement implements ModelBufferElement {
+public final class XCProjectComponent implements ModelComponent {
 	private final XCProjectReference value;
 
-	public XCProjectElement(XCProjectReference value) {
+	public XCProjectComponent(XCProjectReference value) {
 		this.value = value;
 	}
 
