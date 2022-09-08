@@ -59,7 +59,9 @@ public final class RedirectProjectBuildDirectoryToRootBuildDirectory implements 
 		final Provider<BuildDirectoryService> service = forUseAtConfigurationTime(registerService(rootProject.getGradle(), parameters -> parameters.getBuildDirectoriesCacheFile().set(rootProject.getLayout().getBuildDirectory().file(BUILD_PATH_PREFIX + "mapping.ser"))));
 
 		rootProject.subprojects(project -> {
-			project.getLayout().getBuildDirectory().set(rootProject.getLayout().getBuildDirectory().dir(service.map(it -> BUILD_PATH_PREFIX + it.computeIfAbsent(project, algorithm::hash))));
+			// Note: We get the mapped service provider because Gradle is having trouble serializing the provider.
+			// TODO: We should change our strategy to compute a unique build directory path
+			project.getLayout().getBuildDirectory().set(rootProject.getLayout().getBuildDirectory().dir(service.map(it -> BUILD_PATH_PREFIX + it.computeIfAbsent(project, algorithm::hash)).get()));
 		});
 	}
 
