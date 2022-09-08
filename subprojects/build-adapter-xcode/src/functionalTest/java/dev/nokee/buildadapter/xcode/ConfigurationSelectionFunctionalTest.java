@@ -48,15 +48,15 @@ class ConfigurationSelectionFunctionalTest {
 
 	@Test
 	void executesForDefaultConfigurationByDefault(GradleRunner runner) {
-		runner.withTasks(":DualMacOsIosFramework").build();
-		assertThat(testDirectory.resolve("build/derivedData/DualMacOsIosFramework/Build/Products/Release-macosx"), anExistingDirectory());
+		runner.withTasks("DualMacOsIosFramework").build();
+		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFramework/Build/Products/Release-macosx"), anExistingDirectory());
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"Debug", "Release"})
 	void canSelectSdkToUse(String configurationToSelect, GradleRunner runner) {
-		runner.withTasks(":DualMacOsIosFramework").withArgument("-Dconfiguration=" + configurationToSelect).build();
+		runner.withTasks("DualMacOsIosFramework").withArgument("-Dconfiguration=" + configurationToSelect).build();
 
-		assertThat(testDirectory.resolve("build/derivedData/DualMacOsIosFramework/Build/Products/" + configurationToSelect + "-macosx"), anExistingDirectory());
+		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFramework/Build/Products/" + configurationToSelect + "-macosx"), anExistingDirectory());
 	}
 }

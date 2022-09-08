@@ -46,11 +46,11 @@ class CustomFileReferenceSampleFunctionalTest {
 	static void setup(GradleRunner runner) throws IOException {
 		new XcodeCustomFileRef().writeToProject(testDirectory);
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
-		executer = runner.withArgument(":CustomFileRef");
+		executer = runner.withTasks("CustomFileRef");
 	}
 
 	@Test
 	void doesNotFail() {
-		assertThat(executer.build().task(":CustomFileRef").getOutcome(), equalTo(TaskOutcome.SUCCESS));
+		assertThat(executer.build().task(":CustomFileRef:CustomFileRef").getOutcome(), equalTo(TaskOutcome.SUCCESS));
 	}
 }

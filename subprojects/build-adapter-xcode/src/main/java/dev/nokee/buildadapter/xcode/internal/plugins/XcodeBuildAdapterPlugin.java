@@ -15,6 +15,13 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
+import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
+import dev.nokee.buildadapter.xcode.internal.GradleProjectPathService;
+import dev.nokee.buildadapter.xcode.internal.components.XCProjectElement;
+import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
+import dev.nokee.model.internal.buffers.ModelBuffers;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPath;
@@ -60,6 +67,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
@@ -67,8 +75,6 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.workingDirectory;
-import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.utils.ActionUtils.composite;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
@@ -76,7 +82,7 @@ import static dev.nokee.utils.ProviderUtils.forParameters;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 
-class XcodeBuildAdapterPlugin implements Plugin<Settings> {
+public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static final Logger LOGGER = Logging.getLogger(XcodeBuildAdapterPlugin.class);
 	private final ProviderFactory providers;
 
@@ -93,40 +99,31 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 		forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings.getGradle(), XCLoaderService.class)).get();
 
+		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(new GradleProjectPathService(settings.getSettingsDir().toPath()), GradleBuildLayout.forSettings(settings), providers));
+
 		val allWorkspaceLocations = forUseAtConfigurationTime(providers.of(AllXCWorkspaceLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir()))));
 		val selectedWorkspaceLocation = allWorkspaceLocations.map(new SelectXCWorkspaceLocationTransformation());
 
 		val workspace = forUseAtConfigurationTime(providers.of(XCWorkspaceDataValueSource.class, forParameters(it -> it.getWorkspace().set(selectedWorkspaceLocation)))).getOrNull();
-		if (workspace == null) {
-			settings.getGradle().rootProject(rootProject -> {
-				val allProjectLocations = forUseAtConfigurationTime(providers.of(AllXCProjectLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir()))));
-				val selectedProjectLocation = allProjectLocations.map(new SelectXCProjectLocationTransformation());
 
-				val project = selectedProjectLocation.getOrNull();
-				if (project == null) {
-					LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' has no effect on project '%s' because no Xcode workspace or project were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", settings.getGradle(), settings.getSettingsDir()));
-				} else {
-					LOGGER.quiet("Taking this project " + project.getLocation());
-					forXcodeProject(project, composite(
-						workingDirectory(set(rootProject.getLayout().getProjectDirectory())),
-						(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
-						(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
-					)).execute(rootProject);
-				}
-			});
-		} else {
-			val service = forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings, XcodeImplicitDependenciesService.class, it -> it.getLocation().set(workspace.toReference())));
-			for (XCProjectReference project : workspace.getProjectLocations()) {
-				val projectPath = service.get().asProjectPath(project);
-				settings.include(projectPath);
-				settings.getGradle().rootProject(rootProject -> {
-					rootProject.project(projectPath, forXcodeProject(project, composite(
-						workingDirectory(set(rootProject.getLayout().getProjectDirectory())),
-						(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
-						(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
-					)));
-				});
+		val projects = new ArrayList<XCProjectReference>();
+		if (workspace == null) {
+			val allProjectLocations = forUseAtConfigurationTime(providers.of(AllXCProjectLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir())))).get();
+			if (Iterables.isEmpty(allProjectLocations)) {
+				LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' has no effect on project '%s' because no Xcode workspace or project were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", settings.getGradle(), settings.getSettingsDir()));
 			}
+			allProjectLocations.forEach(projects::add);
+		} else {
+			projects.addAll(workspace.getProjectLocations());
+		}
+		val actualProjects = forUseAtConfigurationTime(providers.of(AllXCProjectWithinProjectValueSource.class, forParameters(it -> it.getProjectLocations().addAll(projects)))).get();
+
+		settings.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(ModelBuffers.of(XCProjectElement.class, Streams.stream(actualProjects).map(XCProjectElement::new).collect(Collectors.toList())));
+
+		if (workspace != null) {
+			val service = forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings, XcodeImplicitDependenciesService.class, it -> {
+				it.getLocation().set(workspace.toReference());
+			}));
 			settings.getGradle().rootProject(forXcodeWorkspace(workspace, composite(
 				(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
 				(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
@@ -146,7 +143,7 @@ class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		return Stream.concat(target.getInputFiles().stream(), target.getDependencies().stream().map(XCTargetReference::load).flatMap(XcodeBuildAdapterPlugin::allInputFiles));
 	}
 
-	private static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
+	public static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
 			project.getPluginManager().apply(ComponentModelBasePlugin.class);
 

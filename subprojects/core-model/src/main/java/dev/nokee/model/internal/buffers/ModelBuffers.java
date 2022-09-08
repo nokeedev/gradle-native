@@ -49,4 +49,9 @@ public final class ModelBuffers {
 		}
 		return new ModelBufferComponent<>(elementType, builder.build());
 	}
+
+	public static <E extends ModelBufferElement> ModelBufferComponent<E> of(Class<E> elementType, Iterable<E> elements) {
+		val builder = ImmutableList.<E>builder().addAll(elements);
+		return new ModelBufferComponent<>(elementType, builder.build());
+	}
 }

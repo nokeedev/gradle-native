@@ -55,15 +55,15 @@ class SdkSelectionFunctionalTest {
 
 	@Test
 	void executesForDefaultSdkByDefault(GradleRunner runner) {
-		runner.withTasks(":DualMacOsIosFramework").build();
-		assertThat(testDirectory.resolve("build/derivedData/DualMacOsIosFramework/Build/Products/Release-macosx"), anExistingDirectory());
+		runner.withTasks("DualMacOsIosFramework").build();
+		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFramework/Build/Products/Release-macosx"), anExistingDirectory());
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {"iphoneos", "macosx", "iphonesimulator"})
 	void canSelectSdkToUse(String sdkToSelect, GradleRunner runner) {
-		runner.withTasks(":DualMacOsIosFramework").withArgument("-Dsdk=" + sdkToSelect).build();
+		runner.withTasks("DualMacOsIosFramework").withArgument("-Dsdk=" + sdkToSelect).build();
 
-		assertThat(testDirectory.resolve("build/derivedData/DualMacOsIosFramework/Build/Products/Release-" + sdkToSelect), anExistingDirectory());
+		assertThat(testDirectory.resolve("build/subprojects/DualMacOsIosFramework-s1qde6bd3k2h/derivedData/DualMacOsIosFramework/Build/Products/Release-" + sdkToSelect), anExistingDirectory());
 	}
 }
