@@ -46,11 +46,11 @@ class DefaultXcode13SwiftAppSampleFunctionalTest {
 	static void setup(GradleRunner runner) throws IOException {
 		new XcodeSwiftApp().writeToProject(testDirectory);
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
-		executer = runner.withArgument(":XcodeSwiftApp");
+		executer = runner.withTasks("XcodeSwiftApp");
 	}
 
 	@Test
 	void doesNotFail() {
-		assertThat(executer.build().task(":XcodeSwiftApp").getOutcome(), equalTo(TaskOutcome.SUCCESS));
+		assertThat(executer.build().task(":XcodeSwiftApp:XcodeSwiftApp").getOutcome(), equalTo(TaskOutcome.SUCCESS));
 	}
 }

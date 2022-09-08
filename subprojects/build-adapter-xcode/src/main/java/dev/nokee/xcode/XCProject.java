@@ -15,11 +15,13 @@
  */
 package dev.nokee.xcode;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXProject;
 import lombok.EqualsAndHashCode;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 
 import static dev.nokee.xcode.XCTargetReference.walk;
@@ -48,6 +50,28 @@ public final class XCProject {
 
 	public Set<XCTargetReference> getTargets() {
 		return targets;
+	}
+
+	public List<XCProjectReference> getProjectReferences() {
+		return project.getProjectReferences().stream()
+			.map(PBXProject.ProjectReference::getProjectReference)
+			.map(it -> getFileReferences().get(it))
+			.map(it -> it.resolve(new XCFileReference.ResolveContext() {
+				@Override
+				public Path getBuiltProductDirectory() {
+					throw new UnsupportedOperationException("Should not call");
+				}
+
+				@Override
+				public Path get(String name) {
+					if ("SOURCE_ROOT".equals(name)) {
+						return location.getParent();
+					}
+					throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
+				}
+			}))
+			.map(XCProjectReference::of)
+			.collect(ImmutableList.toImmutableList());
 	}
 
 	public Set<String> getSchemeNames() {

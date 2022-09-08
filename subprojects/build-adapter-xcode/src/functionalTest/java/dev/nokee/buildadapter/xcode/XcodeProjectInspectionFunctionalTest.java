@@ -46,13 +46,17 @@ class XcodeProjectInspectionFunctionalTest {
 	@BeforeEach
 	void appliesPluginUnderTest(GradleRunner runner) throws IOException {
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
-		this.executer = runner.withTasks(":inspect", "--format=json");
+		this.executer = runner.withArgument("--quiet");
+	}
+
+	private static String[] inspect(String projectPath) {
+		return new String[] { projectPath + ":inspect", "--format=json" };
 	}
 
 	@Test
 	void canInspectXcodeProject() {
 		new XcodeSwiftApp().writeToProject(testDirectory);
-		val report = XCProjectInspectionReport.from(executer.build().task(":inspect").getOutput());
+		val report = XCProjectInspectionReport.from(executer.withTasks(inspect(":XcodeSwiftApp")).build().getOutput());
 		assertThat(report.getName(), equalTo("XcodeSwiftApp"));
 		assertThat(report.getTargets(), contains("XcodeSwiftApp", "XcodeSwiftAppTests", "XcodeSwiftAppUITests"));
 	}
@@ -61,21 +65,21 @@ class XcodeProjectInspectionFunctionalTest {
 	void canInspectXcodeTarget() {
 		new XcodeSwiftApp().writeToProject(testDirectory);
 		assertAll(() -> {
-				val report = XCTargetInspectionReport.from(executer.withTasks("--target=XcodeSwiftApp").build().task(":inspect").getOutput());
+				val report = XCTargetInspectionReport.from(executer.withTasks(inspect("XcodeSwiftApp")).withTasks("--target=XcodeSwiftApp").build().getOutput());
 				assertThat(report.getName(), equalTo("XcodeSwiftApp"));
 				assertThat(report.getDependencies(), emptyIterable());
 				assertThat(report.getInputFiles(), contains("$(SOURCE_ROOT)/XcodeSwiftApp/ViewController.swift", "$(SOURCE_ROOT)/XcodeSwiftApp/AppDelegate.swift", "$(SOURCE_ROOT)/XcodeSwiftApp/Assets.xcassets"));
 				assertThat(report.getProduct().getLocation(), equalTo("$(BUILT_PRODUCT_DIR)/XcodeSwiftApp.app"));
 			},
 			() -> {
-				val report = XCTargetInspectionReport.from(executer.withTasks("--target=XcodeSwiftAppTests").build().task(":inspect").getOutput());
+				val report = XCTargetInspectionReport.from(executer.withTasks(inspect("XcodeSwiftApp")).withTasks("--target=XcodeSwiftAppTests").build().getOutput());
 				assertThat(report.getName(), equalTo("XcodeSwiftAppTests"));
 				assertThat(report.getDependencies(), contains("XcodeSwiftApp:XcodeSwiftApp (local)"));
 				assertThat(report.getInputFiles(), contains("$(SOURCE_ROOT)/XcodeSwiftAppTests/XcodeSwiftAppTests.swift"));
 				assertThat(report.getProduct().getLocation(), equalTo("$(BUILT_PRODUCT_DIR)/XcodeSwiftAppTests.xctest"));
 			},
 			() -> {
-				val report = XCTargetInspectionReport.from(executer.withTasks("--target=XcodeSwiftAppUITests").build().task(":inspect").getOutput());
+				val report = XCTargetInspectionReport.from(executer.withTasks(inspect("XcodeSwiftApp")).withTasks("--target=XcodeSwiftAppUITests").build().getOutput());
 				assertThat(report.getName(), equalTo("XcodeSwiftAppUITests"));
 				assertThat(report.getDependencies(), contains("XcodeSwiftApp:XcodeSwiftApp (local)"));
 				assertThat(report.getInputFiles(), contains("$(SOURCE_ROOT)/XcodeSwiftAppUITests/XcodeSwiftAppUITestsLaunchTests.swift", "$(SOURCE_ROOT)/XcodeSwiftAppUITests/XcodeSwiftAppUITests.swift"));
@@ -86,7 +90,7 @@ class XcodeProjectInspectionFunctionalTest {
 	@Test
 	void canInspectXcodeTargetWithCrossProjectReference() {
 		new GreeterAppWithRemoteLib().writeToProject(testDirectory);
-		val report = XCTargetInspectionReport.from(executer.withTasks("--target=GreeterApp").build().task(":inspect").getOutput());
+		val report = XCTargetInspectionReport.from(executer.withTasks(inspect("GreeterApp")).withTasks("--target=GreeterApp").build().getOutput());
 		assertThat(report.getName(), equalTo("GreeterApp"));
 		assertThat(report.getDependencies(), contains("GreeterLib:GreeterLib (remote)"));
 		assertThat(report.getInputFiles(), contains("$(SOURCE_ROOT)/GreeterApp/main.c"));
