@@ -28,6 +28,7 @@ import static dev.nokee.buildadapter.xcode.internal.plugins.HasWorkingDirectory.
 import static dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterPlugin.forXcodeProject;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.set;
 import static dev.nokee.utils.ActionUtils.composite;
+import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 
 public final class XcodeBuildLayoutRule extends ModelActionWithInputs.ModelAction2<GradleProjectPathComponent, XCProjectComponent> {
 	private final GradleBuildLayout buildLayout;
@@ -52,6 +53,7 @@ public final class XcodeBuildLayoutRule extends ModelActionWithInputs.ModelActio
 	}
 
 	private Provider<String> fromCommandLine(String name) {
-		return providers.systemProperty(name).orElse(providers.gradleProperty(name));
+		// TODO: I'm not convince forUseAtConfigurationTime is required here
+		return forUseAtConfigurationTime(providers.systemProperty(name)).orElse(forUseAtConfigurationTime(providers.gradleProperty(name)));
 	}
 }
