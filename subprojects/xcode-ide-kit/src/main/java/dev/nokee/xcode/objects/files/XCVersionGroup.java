@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.files;
 
 import dev.nokee.utils.Optionals;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.Optional;
  * Represents a group that contains multiple file references to the different versions of a resource.
  * Users use this kind of group to contain the different versions of a {@literal xcdatamodel}.
  */
-public final class XCVersionGroup extends PBXGroupElement implements GroupChild {
+public final class XCVersionGroup extends PBXGroupElement implements GroupChild, PBXBuildFile.FileReference {
 	@Nullable private final PBXFileReference currentVersion;
 	@Nullable private final String versionGroupType;
 
