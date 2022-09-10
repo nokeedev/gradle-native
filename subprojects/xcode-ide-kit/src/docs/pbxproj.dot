@@ -228,6 +228,7 @@ digraph G {
 
 	FileReference -> PBXReferenceProxy [color=blue]
 	FileReference -> PBXFileReference [color=blue]
+	FileReference -> XCVersionGroup [color=blue]
 	//endregion:PBXBuildFile
 
 	//region:PBXTargetDependency
