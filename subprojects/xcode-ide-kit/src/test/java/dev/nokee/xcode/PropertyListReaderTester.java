@@ -142,20 +142,6 @@ abstract class PropertyListReaderTester {
 	abstract PropertyListReader newDocumentWithInteger__272760970();
 	abstract PropertyListReader newDocumentWithInteger__2380154602107442436();
 
-//	@Nested
-//	class RealTest {
-//		@Test
-//		void canReadDocumentWithSingleReal() {
-//			val subject = newDocumentWithReal__26();
-//			assertThat(subject.next(), is(DOCUMENT_START));
-//			assertThat(subject.next(), is(integerType()));
-//			assertThat(subject.readInteger(), equalTo(26L));
-//			assertThat(subject.next(), is(DOCUMENT_END));
-//		}
-//	}
-//
-//	abstract PropertyListReader newDocumentWithReal__26();
-
 	@Nested
 	class StringTest {
 		@Test
