@@ -150,6 +150,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 			@SuppressWarnings("unchecked")
 			final Provider<XcodeImplicitDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeImplicitDependenciesService, XcodeImplicitDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName("implicitDependencies")).flatMap(BuildServiceRegistration::getService);
+			val projectPathService = new GradleProjectPathService(project.getRootDir().toPath());
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
 				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, forParameters(it -> {
@@ -183,6 +184,15 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
 							return allInputFiles(target.load()).map(it::findTarget).filter(Objects::nonNull).map(t -> {
 								val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
+								dep.capabilities(capabilities -> {
+									capabilities.requireCapability("net.nokeedev.xcode:" + t.getProject().getName() + "-" + t.getName() + ":1.0");
+								});
+								return dep;
+							}).collect(Collectors.toList());
+						}).orElse(Collections.emptyList()))));
+						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(project.provider(() -> {
+							return target.load().getDependencies().stream().map(t -> {
+								val dep = (ProjectDependency) project.getDependencies().create(project.project(projectPathService.toProjectPath(t.getProject()).toString()));
 								dep.capabilities(capabilities -> {
 									capabilities.requireCapability("net.nokeedev.xcode:" + t.getProject().getName() + "-" + t.getName() + ":1.0");
 								});
