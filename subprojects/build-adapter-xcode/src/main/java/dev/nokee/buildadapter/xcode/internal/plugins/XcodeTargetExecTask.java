@@ -16,17 +16,24 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.nokee.utils.FileSystemLocationUtils;
+import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.project.PBXObjectReference;
+import dev.nokee.xcode.project.PBXProj;
+import dev.nokee.xcode.project.PBXProjReader;
+import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
 import org.apache.commons.io.output.NullOutputStream;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
@@ -44,6 +51,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -124,10 +132,49 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			spec.into(getDerivedDataPath());
 		});
 
+		val isolatedProjectLocation = new File(getTemporaryDir(), getXcodeProject().get().getLocation().getFileName().toString()).toPath();
+		getFileOperations().sync(spec -> {
+			spec.from(getXcodeProject().get().getLocation());
+			spec.into(isolatedProjectLocation);
+		});
+
+		PBXProj proj;
+		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(isolatedProjectLocation.resolve("project.pbxproj"))))) {
+			proj = reader.read();
+		}
+		val builder = PBXProj.builder();
+		val isolatedProject = builder.rootObject(proj.getRootObject()).objects(o -> {
+			for (PBXObjectReference object : proj.getObjects()) {
+				if (ImmutableSet.of("PBXNativeTarget", "PBXAggregateTarget", "PBXLegacyTarget").contains(object.isa()) && getTargetName().get().equals(object.getFields().get("name"))) {
+					o.add(PBXObjectReference.of(object.getGlobalID(), entryBuilder -> {
+						for (Map.Entry<String, Object> entry : object.getFields().entrySet()) {
+							if (!entry.getKey().equals("dependencies")) {
+								entryBuilder.putField(entry.getKey(), entry.getValue());
+							}
+						}
+					}));
+				} else if ("PBXProject".equals(object.isa())) {
+					o.add(PBXObjectReference.of(object.getGlobalID(), entryBuilder -> {
+						entryBuilder.putField("projectDirPath", getXcodeProject().get().getLocation().getParent().toString());
+						for (Map.Entry<String, Object> entry : object.getFields().entrySet()) {
+							if (!entry.getKey().equals("projectDirPath")) {
+								entryBuilder.putField(entry.getKey(), entry.getValue());
+							}
+						}
+					}));
+				} else {
+					o.add(object);
+				}
+			}
+		}).build();
+		try (val writer = new PBXProjWriter(Files.newBufferedWriter(isolatedProjectLocation.resolve("project.pbxproj")))) {
+			writer.write(isolatedProject);
+		}
+
 		ExecResult result = null;
 		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
 			result = getExecOperations().exec(spec -> {
-				spec.commandLine("xcodebuild", "-project", getXcodeProject().get().getLocation(), "-target", getTargetName().get());
+				spec.commandLine("xcodebuild", "-project", isolatedProjectLocation, "-target", getTargetName().get());
 				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
 					return ImmutableList.of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
 				}).get());
