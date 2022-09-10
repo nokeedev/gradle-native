@@ -67,8 +67,7 @@ public final class XCProjectReference implements Serializable {
 				val pbxproj = reader.read();
 				val proj = new PBXObjectUnarchiver().decode(pbxproj);
 
-				// TODO: Verify that no-one wants to build aggregate target, they don't have productReference
-				val targetIsa = ImmutableSet.of("PBXTarget", /*"PBXAggregateTarget",*/ "PBXLegacyTarget", "PBXNativeTarget");
+				val targetIsa = ImmutableSet.of("PBXTarget", "PBXAggregateTarget", "PBXLegacyTarget", "PBXNativeTarget");
 				val targets = Streams.stream(pbxproj.getObjects()).filter(it -> targetIsa.contains(it.isa())).map(it -> it.getFields().get("name").toString()).map(name -> XCTargetReference.of(this, name)).collect(ImmutableSet.toImmutableSet());
 
 				val it = getLocation().resolve("xcshareddata/xcschemes");
