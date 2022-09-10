@@ -15,7 +15,6 @@
  */
 package dev.nokee.buildadapter.xcode;
 
-import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.gradleplugins.runnerkit.TaskOutcome;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
@@ -40,7 +39,6 @@ import static org.hamcrest.Matchers.equalTo;
 class DefaultXcode13SwiftAppSampleFunctionalTest {
 	static GradleRunner executer;
 	@TestDirectory static Path testDirectory;
-	static BuildResult result;
 
 	@BeforeAll
 	static void setup(GradleRunner runner) throws IOException {
