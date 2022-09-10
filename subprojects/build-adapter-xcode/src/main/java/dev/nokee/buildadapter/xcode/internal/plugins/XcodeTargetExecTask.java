@@ -32,8 +32,8 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.FileSystemOperations;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
@@ -130,6 +130,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		getFileOperations().sync(spec -> {
 			spec.from(getInputDerivedData());
 			spec.into(getDerivedDataPath());
+			spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE);
 		});
 
 		val isolatedProjectLocation = new File(getTemporaryDir(), getXcodeProject().get().getLocation().getFileName().toString()).toPath();
