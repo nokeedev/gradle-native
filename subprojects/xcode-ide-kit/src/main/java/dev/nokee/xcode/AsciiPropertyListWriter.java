@@ -95,8 +95,7 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 			}
 
 			contexts.push(Context.DICT_KEY);
-			// TODO: Maybe does not support spaces in keys...
-			delegate.write(key);
+			writeStringInternal(key);
 			// TODO: Add comment
 			delegate.write(" = ");
 			// TODO: include ';' after data
@@ -201,32 +200,36 @@ public final class AsciiPropertyListWriter implements PropertyListWriter {
 		writeString(String.valueOf(b)); // educated guess
 	}
 
-	private static boolean isValidUnquotedStringCharacter(int x) {
-		// see https://opensource.apple.com/source/CF/CF-1153.18/CFOldStylePList.c for a macro of the same name
-		return isAlphabetic(x) || isDigit(x) || x == '_' || x == '$' || x == '/' || x == ':' || x == '.' || x == '-';
-	}
-
 	@Override
 	public void writeString(CharSequence s) {
 		run(() -> {
 			doEnterContext(Context.STRING);
 
-			// Note: Quotes are optional around String if and only if the all chars are either alphanumeric or underscore
-			if (s.length() > 0 && s.chars().allMatch(AsciiPropertyListWriter::isValidUnquotedStringCharacter)) {
-				delegate.write(s.toString());
-			} else {
-				delegate.write("\"");
-
-				// According to https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/PropertyLists/OldStylePlists/OldStylePLists.html
-				// unicode characters should be written as-is which would violate the ASCII plain format.
-				//   "You may see strings containing unreadable sequences of ASCII characters; these are used to represent Unicode characters"
-				// Based on experience, Xcode escape unicode characters when writing ASCII property list.
-				delegate.write(escapeUnicodeCharacters(s));
-				delegate.write("\"");
-			}
+			writeStringInternal(s);
 
 			doExitContext(Context.STRING);
 		});
+	}
+
+	private static boolean isValidUnquotedStringCharacter(int x) {
+		// see https://opensource.apple.com/source/CF/CF-1153.18/CFOldStylePList.c for a macro of the same name
+		return isAlphabetic(x) || isDigit(x) || x == '_' || x == '$' || x == '/' || x == ':' || x == '.' || x == '-';
+	}
+
+	private void writeStringInternal(CharSequence s) throws IOException {
+		// Note: Quotes are optional around String if and only if the all chars are either alphanumeric or underscore
+		if (s.length() > 0 && s.chars().allMatch(AsciiPropertyListWriter::isValidUnquotedStringCharacter)) {
+			delegate.write(s.toString());
+		} else {
+			delegate.write("\"");
+
+			// According to https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/PropertyLists/OldStylePlists/OldStylePLists.html
+			// unicode characters should be written as-is which would violate the ASCII plain format.
+			//   "You may see strings containing unreadable sequences of ASCII characters; these are used to represent Unicode characters"
+			// Based on experience, Xcode escape unicode characters when writing ASCII property list.
+			delegate.write(escapeUnicodeCharacters(s));
+			delegate.write("\"");
+		}
 	}
 
 	private static String escapeUnicodeCharacters(CharSequence s) {

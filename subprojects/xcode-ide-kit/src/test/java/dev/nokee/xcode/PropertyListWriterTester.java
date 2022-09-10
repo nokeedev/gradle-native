@@ -133,7 +133,7 @@ abstract class PropertyListWriterTester {
 		}
 
 		@ParameterizedTest
-		@ValueSource(chars = {'?', '!', '(', ')', '[', ']', '{', '}'})
+		@ValueSource(chars = {'?', '!', '(', ')', '[', ']', '{', '}', '*'})
 		void canWriteDocumentWithSingleSpecialCharacterString(char specialChar) {
 			subject().writeStartDocument(PropertyListVersion.VERSION_00);
 			subject().writeString("alpha" + specialChar + "567");
@@ -346,6 +346,115 @@ abstract class PropertyListWriterTester {
 
 			verifyDocumentWithDictionary__aKey_to_dictOf_myKey_to_myValue();
 		}
+
+		@Test
+		void canWriteDocumentWithDictionaryKeyOfAlphanumericStringWithoutSpaces() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha567();
+		}
+
+		@ParameterizedTest
+		@ValueSource(chars = {'?', '!', '(', ')', '[', ']', '{', '}', '*'})
+		void canWriteDocumentWithDictionaryKeyOfSpecialCharacterString(char specialChar) {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha" + specialChar + "567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha_special_567(specialChar);
+		}
+
+		@Test
+		void canWriteDocumentWithDictionaryKeyOfAlphanumericStringWithForwardSlashCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha/567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha_slash_567();
+		}
+
+		@Test
+		void canWriteDocumentWithDictionaryKeyOfAlphanumericStringWithDotCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha.567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha_dot_567();
+		}
+
+		@Test
+		void canWriteDocumentWithDictionaryKeyOfAlphanumericStringWithUnderscoreCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha_567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha_underscore_567();
+		}
+
+		@Test
+		void canWriteDocumentWithDictionaryKeyOfAlphanumericStringWithDollarSignCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha$567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha_dollarSign_567();
+		}
+
+		@Test
+		void canWriteDocumentWithDictionaryKeyOfAlphanumericStringWithColonCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha:567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha_colon_567();
+		}
+
+		@Test
+		void canWriteDocumentWithDictionaryKeyOfAlphanumericStringWithDashCharacter() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha-567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha_dash_567();
+		}
+
+		@Test
+		void canWriteDocumentWithDictionaryKeyOfAlphanumericStringWithSpace() {
+			subject().writeStartDocument(PropertyListVersion.VERSION_00);
+			subject().writeStartDictionary(1);
+			subject().writeDictionaryKey("alpha 567");
+			subject().writeString("test");
+			subject().writeEndDictionary();
+			subject().writeEndDocument();
+
+			verifyDocumentWithDictionaryKey__alpha_space_567();
+		}
 	}
 
 	abstract void verifyDocumentWithDictionary__empty();
@@ -353,6 +462,16 @@ abstract class PropertyListWriterTester {
 	abstract void verifyDocumentWithDictionary__aKey_to_myValue();
 	abstract void verifyDocumentWithDictionary__k0_to_first__k1_to_2__k2_to_false();
 	abstract void verifyDocumentWithDictionary__aKey_to_dictOf_myKey_to_myValue();
+
+	abstract void verifyDocumentWithDictionaryKey__alpha567();
+	abstract void verifyDocumentWithDictionaryKey__alpha_special_567(char specialChar);
+	abstract void verifyDocumentWithDictionaryKey__alpha_slash_567();
+	abstract void verifyDocumentWithDictionaryKey__alpha_dot_567();
+	abstract void verifyDocumentWithDictionaryKey__alpha_underscore_567();
+	abstract void verifyDocumentWithDictionaryKey__alpha_dollarSign_567();
+	abstract void verifyDocumentWithDictionaryKey__alpha_colon_567();
+	abstract void verifyDocumentWithDictionaryKey__alpha_dash_567();
+	abstract void verifyDocumentWithDictionaryKey__alpha_space_567();
 
 	@Nested
 	class DateTest {

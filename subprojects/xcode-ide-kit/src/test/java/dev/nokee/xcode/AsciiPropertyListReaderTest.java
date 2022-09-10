@@ -450,6 +450,51 @@ class AsciiPropertyListReaderTest extends PropertyListReaderTester {
 	}
 
 	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta456() {
+		return newReader(withUTF8Header("{ beta456 = test; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta_special_456(char specialChar) {
+		return newReader(withUTF8Header("{ \"beta" + specialChar + "456\" = test; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta_slash_456() {
+		return newReader(withUTF8Header("{ beta/456 = test; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta_dot_456() {
+		return newReader(withUTF8Header("{ beta.456 = test; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta_underscore_456() {
+		return newReader(withUTF8Header("{ beta_456 = test; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta_dollarSign_456() {
+		return newReader(withUTF8Header("{ beta$456 = test; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta_dash_456() {
+		return newReader(withUTF8Header("{ beta-456 = test; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta_colon_456() {
+		return newReader(withUTF8Header("{ beta:456 = test; }"));
+	}
+
+	@Override
+	PropertyListReader newDocumentWithDictionaryKey__beta_space_456() {
+		return newReader(withUTF8Header("{ \"beta 456\" = test; }"));
+	}
+
+	@Override
 	PropertyListReader newDocument__empty() {
 		return newReader(withUTF8Header());
 	}
