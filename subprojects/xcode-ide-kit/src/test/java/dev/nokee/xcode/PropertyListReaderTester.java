@@ -168,7 +168,7 @@ abstract class PropertyListReaderTester {
 		}
 
 		@ParameterizedTest
-		@ValueSource(chars = {'-', '?', '!', '(', ')'})
+		@ValueSource(chars = {'?', '!', '(', ')', '[', ']', '{', '}', '*'})
 		void canReadDocumentWithSingleSpecialCharacterString(char specialChar) {
 			val subject = newDocumentWithString__beta_special_456(specialChar);
 			assertThat(subject.next(), is(DOCUMENT_START));
@@ -376,12 +376,140 @@ abstract class PropertyListReaderTester {
 			assertThat(subject.next(), is(DICTIONARY_END));
 			assertThat(subject.next(), is(DOCUMENT_END));
 		}
+
+		@Test
+		void canReadDocumentWithDictionaryKeyOfAlphanumericStringWithoutSpaces() {
+			val subject = newDocumentWithDictionaryKey__beta456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@ParameterizedTest
+		@ValueSource(chars = {'?', '!', '(', ')', '[', ']', '{', '}', '*'})
+		void canReadDocumentWithDictionaryKeyOfSpecialCharacterString(char specialChar) {
+			val subject = newDocumentWithDictionaryKey__beta_special_456(specialChar);
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta" + specialChar + "456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithDictionaryKeyOfAlphanumericStringWithForwardSlashCharacter() {
+			val subject = newDocumentWithDictionaryKey__beta_slash_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta/456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithDictionaryKeyOfAlphanumericStringWithDotCharacter() {
+			val subject = newDocumentWithDictionaryKey__beta_dot_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta.456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithDictionaryKeyOfAlphanumericStringWithUnderscoreCharacter() {
+			val subject = newDocumentWithDictionaryKey__beta_underscore_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta_456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithDictionaryKeyOfAlphanumericStringWithDollarSignCharacter() {
+			val subject = newDocumentWithDictionaryKey__beta_dollarSign_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta$456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithDictionaryKeyOfAlphanumericStringWithDashCharacter() {
+			val subject = newDocumentWithDictionaryKey__beta_dash_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta-456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithDictionaryKeyOfAlphanumericStringWithColonCharacter() {
+			val subject = newDocumentWithDictionaryKey__beta_colon_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta:456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
+
+		@Test
+		void canReadDocumentWithDictionaryKeyOfAlphanumericStringWithSpace() {
+			val subject = newDocumentWithDictionaryKey__beta_space_456();
+			assertThat(subject.next(), is(DOCUMENT_START));
+			assertThat(subject.next(), is(DICTIONARY_START));
+			assertThat(subject.next(), is(DICTIONARY_KEY));
+			assertThat(subject.readDictionaryKey(), equalTo("beta 456"));
+			assertThat(subject.next(), is(STRING));
+			assertThat(subject.readString(), equalTo("test"));
+			assertThat(subject.next(), is(DICTIONARY_END));
+			assertThat(subject.next(), is(DOCUMENT_END));
+		}
 	}
 
 	abstract PropertyListReader newDocumentWithDictionary__empty();
 	abstract PropertyListReader newDocumentWithDictionary__myKey_to_2098176();
 	abstract PropertyListReader newDocumentWithDictionary__myKey_to_aValue();
 	abstract PropertyListReader newDocumentWithDictionary__k0_to_true__k1_to_second__k2_to_3();
+
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta456();
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta_special_456(char specialChar);
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta_slash_456();
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta_dot_456();
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta_underscore_456();
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta_dollarSign_456();
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta_dash_456();
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta_colon_456();
+	abstract PropertyListReader newDocumentWithDictionaryKey__beta_space_456();
 
 	@Nested
 	class DateTest {

@@ -201,6 +201,51 @@ class XmlPropertyListWriterTest extends PropertyListWriterTester {
 	}
 
 	@Override
+	void verifyDocumentWithDictionaryKey__alpha567() {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha567</key><string>test</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionaryKey__alpha_special_567(char specialChar) {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha" + specialChar + "567</key><string>test</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionaryKey__alpha_slash_567() {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha/567</key><string>test</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionaryKey__alpha_dot_567() {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha.567</key><string>test</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionaryKey__alpha_underscore_567() {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha_567</key><string>test</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionaryKey__alpha_dollarSign_567() {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha$567</key><string>test</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionaryKey__alpha_colon_567() {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha:567</key><string>test</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionaryKey__alpha_dash_567() {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha-567</key><string>test</string></dict>")));
+	}
+
+	@Override
+	void verifyDocumentWithDictionaryKey__alpha_space_567() {
+		assertThat(output(), equalTo(withHeader("<dict><key>alpha 567</key><string>test</string></dict>")));
+	}
+
+	@Override
 	void verifyDocumentWithArray__empty() {
 		assertThat(output(), equalTo(withHeader("<array/>")));
 	}
