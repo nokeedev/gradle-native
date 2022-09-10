@@ -184,7 +184,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							return allInputFiles(target.load()).map(it::findTarget).filter(Objects::nonNull).map(t -> {
 								val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
 								dep.capabilities(capabilities -> {
-									capabilities.requireCapability("net.nokeedev.xcode:" + t.getName() + ":1.0");
+									capabilities.requireCapability("net.nokeedev.xcode:" + t.getProject().getName() + "-" + t.getName() + ":1.0");
 								});
 								return dep;
 							}).collect(Collectors.toList());
@@ -249,7 +249,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					})
 					.configure(configuration -> {
 						configuration.outgoing(outgoing -> {
-							outgoing.capability("net.nokeedev.xcode:" + target.getName() + ":1.0");
+							outgoing.capability("net.nokeedev.xcode:" + project.getName() + "-" + target.getName() + ":1.0");
 							outgoing.artifact(targetTask.flatMap(XcodeTargetExecTask::getOutputDirectory));
 						});
 					});
