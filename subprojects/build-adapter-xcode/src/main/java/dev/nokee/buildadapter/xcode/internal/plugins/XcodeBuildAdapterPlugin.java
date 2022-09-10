@@ -40,8 +40,6 @@ import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
-import dev.nokee.xcode.XCTarget;
-import dev.nokee.xcode.XCTargetReference;
 import dev.nokee.xcode.XCWorkspace;
 import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
@@ -73,7 +71,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.ActionUtils.composite;
@@ -140,10 +137,6 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		return providers.systemProperty(name).orElse(providers.gradleProperty(name));
 	}
 
-	private static Stream<XCFileReference> allInputFiles(XCTarget target) {
-		return Stream.concat(target.getInputFiles().stream(), target.getDependencies().stream().map(XCTargetReference::load).flatMap(XcodeBuildAdapterPlugin::allInputFiles));
-	}
-
 	public static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
 		return project -> {
 			project.getPluginManager().apply(ComponentModelBasePlugin.class);
@@ -182,7 +175,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					})
 					.configure(configuration -> {
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-							return allInputFiles(target.load()).map(it::findTarget).filter(Objects::nonNull).map(t -> {
+							return target.load().getInputFiles().stream().map(it::findTarget).filter(Objects::nonNull).map(t -> {
 								val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
 								dep.capabilities(capabilities -> {
 									capabilities.requireCapability("net.nokeedev.xcode:" + t.getProject().getName() + "-" + t.getName() + ":1.0");
@@ -210,7 +203,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
 						task.getInputDerivedData().from(derivedData);
-						task.getInputFiles().from((Callable<Object>) () -> allInputFiles(target.load()).filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
+						task.getInputFiles().from((Callable<Object>) () -> target.load().getInputFiles().stream().filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
 							@Override
 							public Path getBuiltProductDirectory() {
 								// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
