@@ -117,7 +117,6 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 		projectDirectory.mkdirs();
 
 		PBXProject.Builder projectBuilder = PBXProject.builder();
-		projectBuilder.name(getProject().getName());
 
 		// Convert all Gradle Xcode IDE targets to PBXTarget
 		xcodeProject.getTargets().stream().map(this::toTarget).forEach(projectBuilder::target);
