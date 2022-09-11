@@ -13,8 +13,7 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation project(':coreUtils')
 
-	testImplementation project(':internalTesting')
 	testImplementation 'org.fusesource.jansi:jansi:2.0'
-	testImplementation gradleFixtures()
-	testImplementation gradleApi(minimumGradleVersion)
 }
+
+configurations.testImplementation.exclude group: 'dev.gradleplugins', module: 'gradle-runner-kit'
