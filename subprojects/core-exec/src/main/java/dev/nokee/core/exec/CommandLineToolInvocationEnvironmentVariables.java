@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesEmptyImpl.EMPTY_ENVIRONMENT_VARIABLES;
@@ -77,6 +78,7 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @return a instance representing the environment variables to use, never null.
 	 */
 	static CommandLineToolInvocationEnvironmentVariables from(Map<String, ?> environmentVariables) {
+		Objects.requireNonNull(environmentVariables, "'environmentVariables' must not be null");
 		if (environmentVariables.isEmpty()) {
 			return EMPTY_ENVIRONMENT_VARIABLES;
 		}
