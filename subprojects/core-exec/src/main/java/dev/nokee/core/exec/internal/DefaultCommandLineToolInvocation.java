@@ -18,6 +18,8 @@ package dev.nokee.core.exec.internal;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolArguments;
+import dev.nokee.core.exec.CommandLineToolExecutionEngine;
+import dev.nokee.core.exec.CommandLineToolExecutionHandle;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables;
 import dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect;
@@ -71,5 +73,10 @@ public class DefaultCommandLineToolInvocation implements CommandLineToolInvocati
 	@Override
 	public CommandLineToolInvocationEnvironmentVariables getEnvironmentVariables() {
 		return environmentVariables;
+	}
+
+	@Override
+	public <T extends CommandLineToolExecutionHandle> T submitTo(CommandLineToolExecutionEngine<T> engine) {
+		return engine.submit(this);
 	}
 }

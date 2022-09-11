@@ -53,4 +53,6 @@ public interface CommandLineToolInvocation {
 	CommandLineToolInvocationStandardOutputRedirect getStandardOutputRedirect();
 
 	Optional<File> getWorkingDirectory();
+
+	<T extends CommandLineToolExecutionHandle> T submitTo(CommandLineToolExecutionEngine<T> engine);
 }
