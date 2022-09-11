@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.equalTo;
 class CommandLineToolInvocationEnvironmentVariablesFromListFactoryTests {
 	@Test
 	void returnsInheritedEnvironmentVariablesForNullList() {
-		assertThat(from((List<?>) null), equalTo(new CommandLineToolInvocationEnvironmentVariablesInheritImpl()));
+		assertThat(from((List<?>) null), equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl(System.getenv())));
 	}
 
 	@Test

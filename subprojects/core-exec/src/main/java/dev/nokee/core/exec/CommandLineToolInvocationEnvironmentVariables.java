@@ -91,7 +91,7 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @return a instance representing the environment variables to use, never null.
 	 */
 	static CommandLineToolInvocationEnvironmentVariables inherit() {
-		return new CommandLineToolInvocationEnvironmentVariablesInheritImpl();
+		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(System.getenv());
 	}
 
 	/**
@@ -120,6 +120,7 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @return a instance representing the environment variables to use, never null.
 	 */
 	static CommandLineToolInvocationEnvironmentVariables from(Properties properties) {
+		Objects.requireNonNull(properties, "'properties' must not be null");
 		return from(asMap(properties));
 	}
 }

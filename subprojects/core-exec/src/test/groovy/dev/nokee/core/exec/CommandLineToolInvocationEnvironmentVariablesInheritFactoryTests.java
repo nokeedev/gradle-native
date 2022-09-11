@@ -24,6 +24,6 @@ import static org.hamcrest.Matchers.equalTo;
 class CommandLineToolInvocationEnvironmentVariablesInheritFactoryTests {
 	@Test
 	void returnsInheritedEnvironmentVariables() {
-		assertThat(inherit(), equalTo(new CommandLineToolInvocationEnvironmentVariablesInheritImpl()));
+		assertThat(inherit(), equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl(System.getenv())));
 	}
 }
