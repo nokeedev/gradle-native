@@ -15,22 +15,33 @@
  */
 package dev.nokee.core.exec.internal;
 
-import dev.nokee.core.exec.*;
+import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.core.exec.CommandLineToolArguments;
+import dev.nokee.core.exec.CommandLineToolInvocation;
+import dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables;
+import dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect;
+import dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.io.File;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class DefaultCommandLineToolInvocation implements CommandLineToolInvocation {
 	@EqualsAndHashCode.Include private final CommandLine commandLine;
-	@Getter private final CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect;
-	@Getter private final CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect;
+	private final CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect;
+	private final CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect;
 	private final File workingDirectory;
-	@Getter @EqualsAndHashCode.Include private final CommandLineToolInvocationEnvironmentVariables environmentVariables;
+	@EqualsAndHashCode.Include private final CommandLineToolInvocationEnvironmentVariables environmentVariables;
+
+	public DefaultCommandLineToolInvocation(CommandLine commandLine, CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect, File workingDirectory, CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+		this.commandLine = commandLine;
+		this.standardOutputRedirect = standardOutputRedirect;
+		this.errorOutputRedirect = errorOutputRedirect;
+		this.workingDirectory = workingDirectory;
+		this.environmentVariables = environmentVariables;
+	}
 
 	@Override
 	public CommandLineTool getTool() {
@@ -43,7 +54,22 @@ public class DefaultCommandLineToolInvocation implements CommandLineToolInvocati
 	}
 
 	@Override
+	public CommandLineToolInvocationStandardOutputRedirect getStandardOutputRedirect() {
+		return standardOutputRedirect;
+	}
+
+	@Override
+	public CommandLineToolInvocationErrorOutputRedirect getErrorOutputRedirect() {
+		return errorOutputRedirect;
+	}
+
+	@Override
 	public Optional<File> getWorkingDirectory() {
 		return Optional.ofNullable(workingDirectory);
+	}
+
+	@Override
+	public CommandLineToolInvocationEnvironmentVariables getEnvironmentVariables() {
+		return environmentVariables;
 	}
 }
