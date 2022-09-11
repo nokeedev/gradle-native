@@ -25,8 +25,14 @@ import java.util.Properties;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CommandLineToolInvocationEnvironmentVariablesPropertiesFactoryTests {
+	@Test
+	void throwsExceptionForNullProperties() {
+		assertThrows(NullPointerException.class, () -> from((Properties) null));
+	}
+
 	@Test
 	void returnsEmptyEnvironmentVariablesForEmptyProperties() {
 		assertThat(from(new Properties()), equalTo(CommandLineToolInvocationEnvironmentVariablesEmptyImpl.EMPTY_ENVIRONMENT_VARIABLES));
