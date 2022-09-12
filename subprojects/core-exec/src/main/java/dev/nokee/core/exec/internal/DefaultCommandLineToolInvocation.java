@@ -27,6 +27,7 @@ import dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect;
 import lombok.EqualsAndHashCode;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.Optional;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -77,6 +78,7 @@ public class DefaultCommandLineToolInvocation implements CommandLineToolInvocati
 
 	@Override
 	public <T extends CommandLineToolExecutionHandle> T submitTo(CommandLineToolExecutionEngine<T> engine) {
+		Objects.requireNonNull(engine, "'engine' must not be null");
 		return engine.submit(this);
 	}
 }
