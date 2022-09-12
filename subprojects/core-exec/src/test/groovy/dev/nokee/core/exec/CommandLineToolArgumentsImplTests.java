@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,16 @@
 package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 
-public interface CommandLineToolArguments extends Iterable<String> {
-	static CommandLineToolArguments empty() {
-		return CommandLineToolArgumentsImpl.EMPTY_ARGUMENTS;
+class CommandLineToolArgumentsImplTests {
+	CommandLineToolArgumentsImpl subject = new CommandLineToolArgumentsImpl(ImmutableList.of("firstArg", "secondArg", "thirdArg"));
+
+	@Test
+	void canIterateThroughAllArguments() {
+		assertThat(subject, contains("firstArg", "secondArg", "thirdArg"));
 	}
-
-	static CommandLineToolArguments of(Object... args) {
-		return of(ImmutableList.copyOf(args));
-	}
-
-	static CommandLineToolArguments of(List<Object> args) {
-		if (args.isEmpty()) {
-			return CommandLineToolArgumentsImpl.EMPTY_ARGUMENTS;
-		}
-		return new CommandLineToolArgumentsImpl(args);
-	}
-
-	List<String> get();
 }
