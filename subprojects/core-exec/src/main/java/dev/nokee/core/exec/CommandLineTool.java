@@ -68,13 +68,13 @@ public interface CommandLineTool {
 
 	// TODO: Convenience shortcut could be provided to execute and create a newInvocation()
 	/**
-	 * Prepares a new invocation via the {@link CommandLineToolInvocationBuilder}.
+	 * Prepares a new invocation via the {@link CommandLineToolInvocation.Builder}.
 	 * The invocation is responsible for configuring the working directory, environment variables, standard stream manipulation, etc.
 	 *
-	 * @return a {@link CommandLineToolInvocationBuilder} instance, never null.
+	 * @return a {@link CommandLineToolInvocation.Builder} instance, never null.
 	 * @since 0.5
 	 */
-	CommandLineToolInvocationBuilder newInvocation();
+	CommandLineToolInvocation.Builder newInvocation();
 
 	/**
 	 * Convenience for {@code newInvocation().build().submit(engine)}.
