@@ -39,34 +39,34 @@ class CommandLineFromListFactoryTests {
 		@Test
 		void canCreateCommandLineFromExecutableOnly() {
 			assertThat(createSubject(singletonList("my-executable")),
-				equalTo(new DefaultCommandLine(CommandLineTool.of("my-executable"), empty())));
+				equalTo(new CommandLine(CommandLineTool.of("my-executable"), empty())));
 		}
 
 		@Test
 		void canCreateCommandLineFromExecutableAndArguments() {
 			assertThat(createSubject(asList("my-executable", "firstArg", "secondArg")),
-				equalTo(new DefaultCommandLine(CommandLineTool.of("my-executable"),
+				equalTo(new CommandLine(CommandLineTool.of("my-executable"),
 					new CommandLineToolArguments(ImmutableList.of("firstArg", "secondArg")))));
 		}
 
 		@Test
 		void canCreateCommandLineFromNestedIterables() {
 			assertThat(createSubject(singletonList(asList(asList("my-executable", "firstArg"), asList("secondArg", "thirdArg")))),
-				equalTo(new DefaultCommandLine(CommandLineTool.of("my-executable"),
+				equalTo(new CommandLine(CommandLineTool.of("my-executable"),
 					new CommandLineToolArguments(ImmutableList.of("firstArg", "secondArg", "thirdArg")))));
 		}
 
 		@Test
 		void canCreateCommandLineFromMultipleIterables() {
 			assertThat(createSubject(asList(asList("my-executable", "firstArg"), "secondArg", singletonList("thirdArg"))),
-				equalTo(new DefaultCommandLine(CommandLineTool.of("my-executable"),
+				equalTo(new CommandLine(CommandLineTool.of("my-executable"),
 					new CommandLineToolArguments(ImmutableList.of("firstArg", "secondArg", "thirdArg")))));
 		}
 
 		@Test
 		void canCreateCommandLineFromCallableProvidingCommandLineSegment() {
 			assertThat(createSubject(asList(callableOf(asList("my-executable", "firstArg")), callableOf("secondArg"))),
-				equalTo(new DefaultCommandLine(CommandLineTool.of("my-executable"),
+				equalTo(new CommandLine(CommandLineTool.of("my-executable"),
 					new CommandLineToolArguments(ImmutableList.of("firstArg", "secondArg")))));
 		}
 

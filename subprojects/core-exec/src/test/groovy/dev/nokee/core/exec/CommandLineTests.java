@@ -23,7 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class CommandLineTests {
-	CommandLine subject = new DefaultCommandLine(CommandLineTool.of("my-executable"), new CommandLineToolArguments(asList("firstArg", "secondArg")));
+	CommandLine subject = new CommandLine(CommandLineTool.of("my-executable"), new CommandLineToolArguments(asList("firstArg", "secondArg")));
 
 	@Test
 	void hasTool() {
