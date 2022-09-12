@@ -17,8 +17,8 @@ package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,5 +35,10 @@ final class CommandLineToolArgumentsImpl implements CommandLineToolArguments {
 	@Override
 	public List<String> get() {
 		return ImmutableList.copyOf(arguments.stream().map(Object::toString).collect(Collectors.toList()));
+	}
+
+	@Override
+	public Iterator<String> iterator() {
+		return get().iterator();
 	}
 }
