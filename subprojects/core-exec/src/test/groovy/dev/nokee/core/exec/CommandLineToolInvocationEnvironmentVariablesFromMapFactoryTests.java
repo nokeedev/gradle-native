@@ -34,12 +34,12 @@ class CommandLineToolInvocationEnvironmentVariablesFromMapFactoryTests {
 
 	@Test
 	void returnsEmptyEnvironmentVariablesForEmptyMap() {
-		assertThat(from(emptyMap()), equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl()));
+		assertThat(from(emptyMap()), equalTo(new CommandLineToolInvocationEnvironmentVariables()));
 	}
 
 	@Test
 	void returnsEnvironmentVariablesFromMap() {
 		assertThat(from(ImmutableMap.<String, Object>builder().put("K1", "v1").put("K2", "v2").build()),
-			equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl(ImmutableMap.of("K1", "v1", "K2", "v2"))));
+			equalTo(new CommandLineToolInvocationEnvironmentVariables(ImmutableMap.of("K1", "v1", "K2", "v2"))));
 	}
 }
