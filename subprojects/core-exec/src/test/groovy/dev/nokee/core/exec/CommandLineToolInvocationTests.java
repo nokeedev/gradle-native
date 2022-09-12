@@ -15,7 +15,6 @@
  */
 package dev.nokee.core.exec;
 
-import dev.nokee.core.exec.internal.DefaultCommandLineToolInvocation;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,8 +32,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class DefaultCommandLineToolInvocationTests {
-	CommandLineToolInvocation subject = new DefaultCommandLineToolInvocation(CommandLine.of("my-tool", "arg1", "arg2"), duplicateToSystemOutput(), duplicateToSystemError(), Paths.get("my", "working", "directory"), inherit());
+class CommandLineToolInvocationTests {
+	CommandLineToolInvocation subject = new CommandLineToolInvocation(CommandLine.of("my-tool", "arg1", "arg2"), duplicateToSystemOutput(), duplicateToSystemError(), Paths.get("my", "working", "directory"), inherit());
 
 	@Test
 	void hasCommandLineTool() {

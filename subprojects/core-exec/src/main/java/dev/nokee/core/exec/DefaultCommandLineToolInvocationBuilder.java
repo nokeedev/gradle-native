@@ -17,7 +17,6 @@ package dev.nokee.core.exec;
 
 import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInheritImpl;
 import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl;
-import dev.nokee.core.exec.internal.DefaultCommandLineToolInvocation;
 
 import java.io.File;
 
@@ -66,7 +65,7 @@ public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolI
 
 	@Override
 	public CommandLineToolInvocation build() {
-		return new DefaultCommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, resolve(workingDirectory), environmentVariables);
+		return new CommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, resolve(workingDirectory), environmentVariables);
 	}
 
 	@Override

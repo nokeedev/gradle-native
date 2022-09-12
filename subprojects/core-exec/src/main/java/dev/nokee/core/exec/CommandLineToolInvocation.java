@@ -15,7 +15,12 @@
  */
 package dev.nokee.core.exec;
 
+import lombok.EqualsAndHashCode;
+
+import javax.annotation.Nullable;
 import java.io.File;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -23,20 +28,39 @@ import java.util.Optional;
  *
  * @since 0.4
  */
-public interface CommandLineToolInvocation {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public final class CommandLineToolInvocation {
+	@EqualsAndHashCode.Include private final CommandLine commandLine;
+	private final CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect;
+	private final CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect;
+	@Nullable private final File workingDirectory;
+	@EqualsAndHashCode.Include private final CommandLineToolInvocationEnvironmentVariables environmentVariables;
+
+	public CommandLineToolInvocation(CommandLine commandLine, CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect, @Nullable Path workingDirectory, CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+		this.commandLine = commandLine;
+		this.standardOutputRedirect = standardOutputRedirect;
+		this.errorOutputRedirect = errorOutputRedirect;
+		this.workingDirectory = workingDirectory == null ? null : workingDirectory.toFile();
+		this.environmentVariables = environmentVariables;
+	}
+
 	/**
 	 * Returns the tool to use for this command line tool invocation.
 	 *
 	 * @return the tool of this invocation, never null
 	 */
-	CommandLineTool getTool();
+	public CommandLineTool getTool() {
+		return commandLine.getTool();
+	}
 
 	/**
 	 * Returns the arguments to use for this command line tool invocation.
 	 *
 	 * @return the arguments of this invocation, never null
 	 */
-	CommandLineToolArguments getArguments();
+	public CommandLineToolArguments getArguments() {
+		return commandLine.getArguments();
+	}
 
 	/**
 	 * Returns the environment variables to use for this command line tool invocation.
@@ -44,7 +68,9 @@ public interface CommandLineToolInvocation {
 	 * @return a {@link CommandLineToolInvocationEnvironmentVariables} instance representing the invocation's environment variable, never null.
 	 * @since 0.5
 	 */
-	CommandLineToolInvocationEnvironmentVariables getEnvironmentVariables();
+	public CommandLineToolInvocationEnvironmentVariables getEnvironmentVariables() {
+		return environmentVariables;
+	}
 
 	/**
 	 * Returns the environment variables to use for this command line tool invocation.
@@ -52,7 +78,9 @@ public interface CommandLineToolInvocation {
 	 * @return a {@link CommandLineToolInvocationErrorOutputRedirect} instance representing how to redirect the invocation's error output, never null.
 	 * @since 0.5
 	 */
-	CommandLineToolInvocationErrorOutputRedirect getErrorOutputRedirect();
+	public CommandLineToolInvocationErrorOutputRedirect getErrorOutputRedirect() {
+		return errorOutputRedirect;
+	}
 
 	/**
 	 * Returns the environment variables to use for this command line tool invocation.
@@ -60,14 +88,18 @@ public interface CommandLineToolInvocation {
 	 * @return a {@link CommandLineToolInvocationStandardOutputRedirect} instance representing how to redirect the invocation's standard output, never null.
 	 * @since 0.5
 	 */
-	CommandLineToolInvocationStandardOutputRedirect getStandardOutputRedirect();
+	public CommandLineToolInvocationStandardOutputRedirect getStandardOutputRedirect() {
+		return standardOutputRedirect;
+	}
 
 	/**
 	 * Returns the working directory to use for this command line tool invocation.
 	 *
 	 * @return the working directory of this invocation if any, never null
 	 */
-	Optional<File> getWorkingDirectory();
+	public Optional<File> getWorkingDirectory() {
+		return Optional.ofNullable(workingDirectory);
+	}
 
 	/**
 	 * Submit this invocation to the specified execution engine.
@@ -77,5 +109,8 @@ public interface CommandLineToolInvocation {
 	 * @param <T>  the execution handle type
 	 * @since 0.5
 	 */
-	<T extends CommandLineToolExecutionHandle> T submitTo(CommandLineToolExecutionEngine<T> engine);
+	public <T extends CommandLineToolExecutionHandle> T submitTo(CommandLineToolExecutionEngine<T> engine) {
+		Objects.requireNonNull(engine, "'engine' must not be null");
+		return engine.submit(this);
+	}
 }

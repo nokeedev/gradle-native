@@ -19,6 +19,7 @@ import dev.nokee.utils.DeferredUtils;
 import lombok.val;
 import org.gradle.api.file.FileSystemLocation;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -39,9 +40,12 @@ final class CommandLineUtils {
 		return Arrays.asList("/bin/bash", "-c");
 	}
 
+	@Nullable
 	public static Path resolve(Object aPath) {
 		val unpacked = DeferredUtils.unpack(aPath);
-		if (unpacked instanceof FileSystemLocation) {
+		if (unpacked == null) {
+			return null;
+		} else if (unpacked instanceof FileSystemLocation) {
 			return ((FileSystemLocation) unpacked).getAsFile().toPath();
 		} else if (unpacked instanceof File) {
 			return ((File) unpacked).toPath();
