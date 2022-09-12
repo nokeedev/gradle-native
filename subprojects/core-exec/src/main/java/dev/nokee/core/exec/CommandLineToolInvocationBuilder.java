@@ -19,6 +19,7 @@ import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInher
 import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl;
 
 import java.io.File;
+import java.util.Objects;
 
 import static dev.nokee.core.exec.CommandLineUtils.resolve;
 
@@ -28,14 +29,15 @@ import static dev.nokee.core.exec.CommandLineUtils.resolve;
  * @since 0.4
  */
 public final class CommandLineToolInvocationBuilder {
-	private final CommandLine commandLine;
+	private CommandLine commandLine;
 	private Object workingDirectory = null;
 	private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
 	private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
 	private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
 
-	public CommandLineToolInvocationBuilder(CommandLine commandLine) {
+	public CommandLineToolInvocationBuilder commandLine(CommandLine commandLine) {
 		this.commandLine = commandLine;
+		return this;
 	}
 
 	public CommandLineToolInvocationBuilder workingDirectory(Object workingDirectory) {
@@ -49,7 +51,7 @@ public final class CommandLineToolInvocationBuilder {
 	}
 
 	public CommandLineToolInvocation build() {
-		return new CommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, resolve(workingDirectory), environmentVariables);
+		return new CommandLineToolInvocation(Objects.requireNonNull(commandLine, "'commandLine' must not be null"), standardOutputRedirect, errorOutputRedirect, resolve(workingDirectory), environmentVariables);
 	}
 
 	public <T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine) {

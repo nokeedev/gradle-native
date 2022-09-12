@@ -50,7 +50,7 @@ public class DefaultCommandLine implements CommandLine {
 
 	@Override
 	public CommandLineToolInvocationBuilder newInvocation() {
-		return new CommandLineToolInvocationBuilder(this);
+		return new CommandLineToolInvocationBuilder().commandLine(this);
 	}
 
 	@Override
