@@ -15,25 +15,59 @@
  */
 package dev.nokee.core.exec;
 
+import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInheritImpl;
+import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl;
+
 import java.io.File;
+
+import static dev.nokee.core.exec.CommandLineUtils.resolve;
 
 /**
  * A builder for a command line invocation.
  *
  * @since 0.4
  */
-public interface CommandLineToolInvocationBuilder {
-	CommandLineToolInvocationBuilder workingDirectory(Object workingDirectory);
+public final class CommandLineToolInvocationBuilder {
+	private final CommandLine commandLine;
+	private Object workingDirectory = null;
+	private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
+	private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
+	private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
 
-	CommandLineToolInvocationBuilder withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables environmentVariables);
+	public CommandLineToolInvocationBuilder(CommandLine commandLine) {
+		this.commandLine = commandLine;
+	}
 
-	CommandLineToolInvocation build();
+	public CommandLineToolInvocationBuilder workingDirectory(Object workingDirectory) {
+		this.workingDirectory = workingDirectory;
+		return this;
+	}
 
-	<T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine);
+	public CommandLineToolInvocationBuilder withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+		this.environmentVariables = environmentVariables;
+		return this;
+	}
 
-	CommandLineToolInvocationBuilder appendStandardStreamToFile(File file);
+	public CommandLineToolInvocation build() {
+		return new CommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, resolve(workingDirectory), environmentVariables);
+	}
 
-	CommandLineToolInvocationBuilder redirectStandardOutput(CommandLineToolInvocationStandardOutputRedirect redirect);
+	public <T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine) {
+		return engine.submit(build());
+	}
 
-	CommandLineToolInvocationBuilder redirectErrorOutput(CommandLineToolInvocationErrorOutputRedirect redirect);
+	public CommandLineToolInvocationBuilder appendStandardStreamToFile(File file) {
+		standardOutputRedirect = new CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl(file);
+		return this;
+	}
+
+	public CommandLineToolInvocationBuilder redirectStandardOutput(CommandLineToolInvocationStandardOutputRedirect redirect) {
+		standardOutputRedirect = redirect;
+		return this;
+	}
+
+	public CommandLineToolInvocationBuilder redirectErrorOutput(CommandLineToolInvocationErrorOutputRedirect redirect) {
+		errorOutputRedirect = redirect;
+		return this;
+	}
 }
