@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import static dev.nokee.core.exec.CommandLineToolArguments.empty;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-enum CommandLineToolArgumentsEmptyImpl implements CommandLineToolArguments {
-	EMPTY_ARGUMENTS;
-
-	@Override
-	public List<String> get() {
-		return ImmutableList.of();
+class CommandLineToolArgumentsEmptyFactoryTests {
+	@Test
+	void canCreateEmptyArguments() {
+		assertThat(empty(), equalTo(new CommandLineToolArgumentsImpl(ImmutableList.of())));
 	}
 }
