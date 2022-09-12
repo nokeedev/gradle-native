@@ -15,7 +15,6 @@
  */
 package dev.nokee.core.exec;
 
-import dev.nokee.core.exec.internal.DefaultCommandLine;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.collect.ImmutableList.of;
