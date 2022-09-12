@@ -15,6 +15,12 @@
  */
 package dev.nokee.core.exec;
 
+import dev.nokee.utils.DeferredUtils;
+import lombok.val;
+import org.gradle.api.file.FileSystemLocation;
+
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,5 +37,18 @@ final class CommandLineUtils {
 			return Arrays.asList("/bin/sh", "-c");
 		}
 		return Arrays.asList("/bin/bash", "-c");
+	}
+
+	public static Path resolve(Object aPath) {
+		val unpacked = DeferredUtils.unpack(aPath);
+		if (unpacked instanceof FileSystemLocation) {
+			return ((FileSystemLocation) unpacked).getAsFile().toPath();
+		} else if (unpacked instanceof File) {
+			return ((File) unpacked).toPath();
+		} else if (unpacked instanceof Path) {
+			return (Path) unpacked;
+		} else {
+			throw new UnsupportedOperationException();
+		}
 	}
 }

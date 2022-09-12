@@ -27,6 +27,7 @@ import dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect;
 import lombok.EqualsAndHashCode;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,11 +39,11 @@ public class DefaultCommandLineToolInvocation implements CommandLineToolInvocati
 	private final File workingDirectory;
 	@EqualsAndHashCode.Include private final CommandLineToolInvocationEnvironmentVariables environmentVariables;
 
-	public DefaultCommandLineToolInvocation(CommandLine commandLine, CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect, File workingDirectory, CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+	public DefaultCommandLineToolInvocation(CommandLine commandLine, CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect, Path workingDirectory, CommandLineToolInvocationEnvironmentVariables environmentVariables) {
 		this.commandLine = commandLine;
 		this.standardOutputRedirect = standardOutputRedirect;
 		this.errorOutputRedirect = errorOutputRedirect;
-		this.workingDirectory = workingDirectory;
+		this.workingDirectory = workingDirectory.toFile();
 		this.environmentVariables = environmentVariables;
 	}
 
