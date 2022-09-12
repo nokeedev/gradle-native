@@ -17,6 +17,7 @@ package dev.nokee.core.exec;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
@@ -25,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
 import static dev.nokee.core.exec.CommandLineUtils.getScriptCommandLine;
 import static dev.nokee.utils.DeferredUtils.flatUnpack;
 
@@ -39,19 +41,32 @@ import static dev.nokee.utils.DeferredUtils.flatUnpack;
  *
  * @since 0.4
  */
-public interface CommandLine {
+@EqualsAndHashCode
+public final class CommandLine {
+	private final CommandLineTool tool;
+	private final CommandLineToolArguments arguments;
+
+	public CommandLine(CommandLineTool tool, CommandLineToolArguments arguments) {
+		this.tool = tool;
+		this.arguments = arguments;
+	}
+
 	/**
 	 * Returns the tool of the current command line.
 	 * @return a {@link CommandLineTool} instance representing the tool to execute, never null.
 	 */
-	CommandLineTool getTool();
+	public CommandLineTool getTool() {
+		return tool;
+	}
 
 	/**
 	 * Returns the arguments of the current command line.
 	 *
 	 * @return a {@link CommandLineToolArguments} instance representing all the arguments, never null.
 	 */
-	CommandLineToolArguments getArguments();
+	public CommandLineToolArguments getArguments() {
+		return arguments;
+	}
 
 	/**
 	 * Prepares a new invocation via the {@link CommandLineToolInvocation.Builder}.
@@ -59,7 +74,9 @@ public interface CommandLine {
 	 *
 	 * @return a {@link CommandLineToolInvocation.Builder} instance, never null.
 	 */
-	CommandLineToolInvocation.Builder newInvocation();
+	public CommandLineToolInvocation.Builder newInvocation() {
+		return new CommandLineToolInvocation.Builder().commandLine(this);
+	}
 
 	/**
 	 * Convenience for {@code newInvocation().build().submit(engine)}.
@@ -67,7 +84,9 @@ public interface CommandLine {
 	 * @param <T>  the execution handle type
 	 * @return a {@link CommandLineToolExecutionHandle} representing the execution in progress, never null.
 	 */
-	<T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine);
+	public <T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine) {
+		return newInvocation().buildAndSubmit(engine);
+	}
 
 	/**
 	 * Convenience for {@code newInvocation().withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables.from(env)).workingDirectory(workingDirectory).build().submit(new ProcessBuilderEngine())}.
@@ -78,9 +97,16 @@ public interface CommandLine {
 	 * @return a {@link ProcessBuilderEngine.Handle} representing the execution in progress, never null.
 	 * @since 0.5
 	 */
-	ProcessBuilderEngine.Handle execute(@Nullable List<?> env, Object workingDirectory);
+	public ProcessBuilderEngine.Handle execute(@Nullable List<?> env, Object workingDirectory) {
+		return newInvocation()
+			.workingDirectory(workingDirectory)
+			.withEnvironmentVariables(from(env))
+			.buildAndSubmit(new ProcessBuilderEngine());
+	}
 
-	ProcessBuilderEngine.Handle execute();
+	public ProcessBuilderEngine.Handle execute() {
+		return execute(new ProcessBuilderEngine());
+	}
 
 	/**
 	 * Creates a {@link CommandLine} instance from the command line elements specified.
@@ -88,7 +114,7 @@ public interface CommandLine {
 	 * @param commandLine the command line elements, cannot be empty or contains null values.
 	 * @return a {@link CommandLine} instance representing the specified command line, never null.
 	 */
-	static CommandLine of(Object... commandLine) {
+	public static CommandLine of(Object... commandLine) {
 		return of(Arrays.asList(commandLine));
 	}
 
@@ -98,7 +124,7 @@ public interface CommandLine {
 	 * @param commandLine the command line elements, cannot be empty or contains null values.
 	 * @return a {@link CommandLine} instance representing the specified command line, never null.
 	 */
-	static CommandLine of(@NonNull List<?> commandLine) {
+	public static CommandLine of(@NonNull List<?> commandLine) {
 		Iterator<?> it = flatUnpack(commandLine).iterator();
 		Preconditions.checkArgument(it.hasNext(), "The command line must contain at least one element for the executable");
 		Object executable = it.next();
@@ -109,7 +135,7 @@ public interface CommandLine {
 			Preconditions.checkNotNull(element, "The command line cannot contain null elements");
 			arguments.add(element);
 		});
-		return new DefaultCommandLine(CommandLineTool.of(executable), CommandLineToolArguments.of(arguments.build()));
+		return new CommandLine(CommandLineTool.of(executable), CommandLineToolArguments.of(arguments.build()));
 	}
 
 	/**
@@ -119,7 +145,7 @@ public interface CommandLine {
 	 * @param commandLine the command line elements, cannot be empty or contains null values.
 	 * @return a {@link CommandLine} instance representing the specified command line executing in the scripting environment, never null.
 	 */
-	static CommandLine script(Object... commandLine) {
+	public static CommandLine script(Object... commandLine) {
 		return of(Arrays.asList(getScriptCommandLine(), flatUnpack(Arrays.asList(commandLine)).stream().map(Object::toString).collect(Collectors.joining(" "))));
 	}
 }

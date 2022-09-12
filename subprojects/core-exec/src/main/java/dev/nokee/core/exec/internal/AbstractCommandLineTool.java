@@ -16,7 +16,13 @@
 package dev.nokee.core.exec.internal;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.core.exec.*;
+import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.core.exec.CommandLineToolArguments;
+import dev.nokee.core.exec.CommandLineToolExecutionEngine;
+import dev.nokee.core.exec.CommandLineToolExecutionHandle;
+import dev.nokee.core.exec.CommandLineToolInvocation;
+import dev.nokee.core.exec.ProcessBuilderEngine;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -27,22 +33,22 @@ import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.
 public abstract class AbstractCommandLineTool implements CommandLineTool {
 	@Override
 	public CommandLine withArguments(Object... arguments) {
-		return new DefaultCommandLine(this, CommandLineToolArguments.of(arguments));
+		return new CommandLine(this, CommandLineToolArguments.of(arguments));
 	}
 
 	@Override
 	public CommandLine withArguments(Iterable<?> arguments) {
-		return new DefaultCommandLine(this, CommandLineToolArguments.of(ImmutableList.copyOf(arguments)));
+		return new CommandLine(this, CommandLineToolArguments.of(ImmutableList.copyOf(arguments)));
 	}
 
 	@Override
 	public CommandLineToolInvocation.Builder newInvocation() {
-		return new DefaultCommandLine(this, CommandLineToolArguments.empty()).newInvocation();
+		return new CommandLine(this, CommandLineToolArguments.empty()).newInvocation();
 	}
 
 	@Override
 	public <T extends CommandLineToolExecutionHandle> T execute(CommandLineToolExecutionEngine<T> engine) {
-		return new DefaultCommandLine(this, CommandLineToolArguments.empty()).execute(engine);
+		return new CommandLine(this, CommandLineToolArguments.empty()).execute(engine);
 	}
 
 	@Override
