@@ -19,13 +19,23 @@ import java.io.File;
 import java.util.Optional;
 
 /**
- * An invocation represent the runtime information for a soon to be executed tool with it's argument.
+ * An invocation represent the runtime information for a soon-to-be executed tool with its argument.
  *
  * @since 0.4
  */
 public interface CommandLineToolInvocation {
+	/**
+	 * Returns the tool to use for this command line tool invocation.
+	 *
+	 * @return the tool of this invocation, never null
+	 */
 	CommandLineTool getTool();
 
+	/**
+	 * Returns the arguments to use for this command line tool invocation.
+	 *
+	 * @return the arguments of this invocation, never null
+	 */
 	CommandLineToolArguments getArguments();
 
 	/**
@@ -52,7 +62,20 @@ public interface CommandLineToolInvocation {
 	 */
 	CommandLineToolInvocationStandardOutputRedirect getStandardOutputRedirect();
 
+	/**
+	 * Returns the working directory to use for this command line tool invocation.
+	 *
+	 * @return the working directory of this invocation if any, never null
+	 */
 	Optional<File> getWorkingDirectory();
 
+	/**
+	 * Submit this invocation to the specified execution engine.
+	 *
+	 * @param engine  the execution engine, must not be null
+	 * @return the handle of this invocation execution within the specified engine, never null
+	 * @param <T>  the execution handle type
+	 * @since 0.5
+	 */
 	<T extends CommandLineToolExecutionHandle> T submitTo(CommandLineToolExecutionEngine<T> engine);
 }
