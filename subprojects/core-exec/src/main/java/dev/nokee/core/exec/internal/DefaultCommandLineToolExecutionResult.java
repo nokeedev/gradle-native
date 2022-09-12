@@ -18,18 +18,28 @@ package dev.nokee.core.exec.internal;
 import dev.nokee.core.exec.CommandLineToolExecutionResult;
 import dev.nokee.core.exec.CommandLineToolLogContent;
 import dev.nokee.core.exec.ExecException;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.function.Supplier;
 
-@RequiredArgsConstructor
 public class DefaultCommandLineToolExecutionResult implements CommandLineToolExecutionResult {
-	@Getter private final int exitValue;
+	private final int exitValue;
 	private final CommandLineToolLogContent output;
 	private final CommandLineToolLogContent error;
 	private final CommandLineToolLogContent fullOutput;
 	private final Supplier<String> displayName;
+
+	public DefaultCommandLineToolExecutionResult(int exitValue, CommandLineToolLogContent output, CommandLineToolLogContent error, CommandLineToolLogContent fullOutput, Supplier<String> displayName) {
+		this.exitValue = exitValue;
+		this.output = output;
+		this.error = error;
+		this.fullOutput = fullOutput;
+		this.displayName = displayName;
+	}
+
+	@Override
+	public int getExitValue() {
+		return exitValue;
+	}
 
 	@Override
 	public CommandLineToolLogContent getStandardOutput() {

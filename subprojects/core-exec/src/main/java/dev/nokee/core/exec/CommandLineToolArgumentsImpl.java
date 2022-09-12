@@ -23,11 +23,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
-@RequiredArgsConstructor
 final class CommandLineToolArgumentsImpl implements CommandLineToolArguments {
 	public static final CommandLineToolArgumentsImpl EMPTY_ARGUMENTS = new CommandLineToolArgumentsImpl(ImmutableList.of());
 
 	private final List<Object> arguments;
+
+	public CommandLineToolArgumentsImpl(List<Object> arguments) {
+		this.arguments = arguments;
+	}
 
 	@Override
 	public List<String> get() {

@@ -26,10 +26,24 @@ import java.util.List;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
 
 @EqualsAndHashCode
-@RequiredArgsConstructor
 public class DefaultCommandLine implements CommandLine {
-	@Getter private final CommandLineTool tool;
-	@Getter private final CommandLineToolArguments arguments;
+	private final CommandLineTool tool;
+	private final CommandLineToolArguments arguments;
+
+	public DefaultCommandLine(CommandLineTool tool, CommandLineToolArguments arguments) {
+		this.tool = tool;
+		this.arguments = arguments;
+	}
+
+	@Override
+	public CommandLineTool getTool() {
+		return tool;
+	}
+
+	@Override
+	public CommandLineToolArguments getArguments() {
+		return arguments;
+	}
 
 	@Override
 	public CommandLineToolInvocationBuilder newInvocation() {
