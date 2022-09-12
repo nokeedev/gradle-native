@@ -17,10 +17,7 @@ package dev.nokee.core.exec.internal;
 
 import dev.nokee.core.exec.*;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-import java.io.File;
 import java.util.List;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
@@ -55,7 +52,7 @@ public class DefaultCommandLine implements CommandLine {
 		return newInvocation().buildAndSubmit(engine);
 	}
 
-	public ProcessBuilderEngine.Handle execute(List<?> env, File workingDirectory) {
+	public ProcessBuilderEngine.Handle execute(List<?> env, Object workingDirectory) {
 		return newInvocation()
 			.workingDirectory(workingDirectory)
 			.withEnvironmentVariables(from(env))

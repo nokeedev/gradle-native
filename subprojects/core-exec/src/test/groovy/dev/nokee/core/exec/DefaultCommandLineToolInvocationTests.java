@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
-import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.redirectToStandardStream;
+import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError;
 import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DefaultCommandLineToolInvocationTests {
-	CommandLineToolInvocation subject = new DefaultCommandLineToolInvocation(CommandLine.of("my-tool", "arg1", "arg2"), duplicateToSystemOutput(), redirectToStandardStream(), Paths.get("my", "working", "directory").toFile(), inherit());
+	CommandLineToolInvocation subject = new DefaultCommandLineToolInvocation(CommandLine.of("my-tool", "arg1", "arg2"), duplicateToSystemOutput(), duplicateToSystemError(), Paths.get("my", "working", "directory"), inherit());
 
 	@Test
 	void hasCommandLineTool() {

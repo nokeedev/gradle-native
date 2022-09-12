@@ -21,8 +21,6 @@ import dev.nokee.core.exec.internal.DefaultCommandLine;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -81,11 +79,7 @@ public interface CommandLine {
 	 * @return a {@link ProcessBuilderEngine.Handle} representing the execution in progress, never null.
 	 * @since 0.5
 	 */
-	ProcessBuilderEngine.Handle execute(@Nullable List<?> env, File workingDirectory);
-
-	default ProcessBuilderEngine.Handle execute(@Nullable List<?> env, Path workingDirectory) {
-		return execute(env, workingDirectory.toFile());
-	}
+	ProcessBuilderEngine.Handle execute(@Nullable List<?> env, Object workingDirectory);
 
 	ProcessBuilderEngine.Handle execute();
 
