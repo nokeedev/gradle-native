@@ -15,6 +15,8 @@
  */
 package dev.nokee.core.exec;
 
+import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInheritImpl;
+import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
@@ -22,6 +24,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
+
+import static dev.nokee.core.exec.CommandLineUtils.resolve;
 
 /**
  * An invocation represent the runtime information for a soon-to-be executed tool with its argument.
@@ -112,5 +116,56 @@ public final class CommandLineToolInvocation {
 	public <T extends CommandLineToolExecutionHandle> T submitTo(CommandLineToolExecutionEngine<T> engine) {
 		Objects.requireNonNull(engine, "'engine' must not be null");
 		return engine.submit(this);
+	}
+
+	/**
+	 * A builder for a command line invocation.
+	 *
+	 * @since 0.5
+	 */
+	public static final class Builder {
+		private CommandLine commandLine;
+		private Object workingDirectory = null;
+		private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
+		private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
+		private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
+
+		public Builder commandLine(CommandLine commandLine) {
+			this.commandLine = commandLine;
+			return this;
+		}
+
+		public Builder workingDirectory(Object workingDirectory) {
+			this.workingDirectory = workingDirectory;
+			return this;
+		}
+
+		public Builder withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+			this.environmentVariables = environmentVariables;
+			return this;
+		}
+
+		public CommandLineToolInvocation build() {
+			return new CommandLineToolInvocation(Objects.requireNonNull(commandLine, "'commandLine' must not be null"), standardOutputRedirect, errorOutputRedirect, resolve(workingDirectory), environmentVariables);
+		}
+
+		public <T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine) {
+			return engine.submit(build());
+		}
+
+		public Builder appendStandardStreamToFile(File file) {
+			standardOutputRedirect = new CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl(file);
+			return this;
+		}
+
+		public Builder redirectStandardOutput(CommandLineToolInvocationStandardOutputRedirect redirect) {
+			standardOutputRedirect = redirect;
+			return this;
+		}
+
+		public Builder redirectErrorOutput(CommandLineToolInvocationErrorOutputRedirect redirect) {
+			errorOutputRedirect = redirect;
+			return this;
+		}
 	}
 }

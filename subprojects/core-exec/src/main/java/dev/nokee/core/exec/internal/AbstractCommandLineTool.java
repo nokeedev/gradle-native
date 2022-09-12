@@ -36,7 +36,7 @@ public abstract class AbstractCommandLineTool implements CommandLineTool {
 	}
 
 	@Override
-	public CommandLineToolInvocationBuilder newInvocation() {
+	public CommandLineToolInvocation.Builder newInvocation() {
 		return new DefaultCommandLine(this, CommandLineToolArguments.empty()).newInvocation();
 	}
 

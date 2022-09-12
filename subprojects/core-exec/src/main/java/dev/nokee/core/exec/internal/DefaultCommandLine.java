@@ -20,7 +20,7 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolArguments;
 import dev.nokee.core.exec.CommandLineToolExecutionEngine;
 import dev.nokee.core.exec.CommandLineToolExecutionHandle;
-import dev.nokee.core.exec.CommandLineToolInvocationBuilder;
+import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import lombok.EqualsAndHashCode;
 
@@ -49,8 +49,8 @@ public class DefaultCommandLine implements CommandLine {
 	}
 
 	@Override
-	public CommandLineToolInvocationBuilder newInvocation() {
-		return new CommandLineToolInvocationBuilder().commandLine(this);
+	public CommandLineToolInvocation.Builder newInvocation() {
+		return new CommandLineToolInvocation.Builder().commandLine(this);
 	}
 
 	@Override
