@@ -16,7 +16,6 @@
 package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -29,12 +28,12 @@ import static org.hamcrest.Matchers.equalTo;
 class CommandLineToolArgumentsFromListFactoryTests {
 	@Test
 	void returnsEmptyArgumentsForEmptyList() {
-		assertThat(of(Collections.emptyList()), equalTo(new CommandLineToolArgumentsImpl(ImmutableList.of())));
+		assertThat(of(Collections.emptyList()), equalTo(new CommandLineToolArguments(ImmutableList.of())));
 	}
 
 	@Test
 	void returnsArgumentsFromList() {
 		assertThat(of(asList("arg1", "arg2", "arg3")),
-			equalTo(new CommandLineToolArgumentsImpl(ImmutableList.of("arg1", "arg2", "arg3"))));
+			equalTo(new CommandLineToolArguments(ImmutableList.of("arg1", "arg2", "arg3"))));
 	}
 }

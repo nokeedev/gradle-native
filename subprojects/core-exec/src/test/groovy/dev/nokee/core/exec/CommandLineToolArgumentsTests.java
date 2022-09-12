@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
-class CommandLineToolArgumentsImplTests {
-	CommandLineToolArgumentsImpl subject = new CommandLineToolArgumentsImpl(ImmutableList.of("firstArg", "secondArg", "thirdArg"));
+class CommandLineToolArgumentsTests {
+	CommandLineToolArguments subject = new CommandLineToolArguments(ImmutableList.of("firstArg", "secondArg", "thirdArg"));
 
 	@Test
 	void canIterateThroughAllArguments() {

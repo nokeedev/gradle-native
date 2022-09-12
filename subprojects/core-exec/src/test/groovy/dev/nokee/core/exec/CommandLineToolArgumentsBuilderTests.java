@@ -18,8 +18,6 @@ package dev.nokee.core.exec;
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -31,19 +29,19 @@ class CommandLineToolArgumentsBuilderTests {
 
 	@Test
 	void canBuildEmptyArguments() {
-		assertThat(subject.build(), equalTo(new CommandLineToolArgumentsImpl(ImmutableList.of())));
+		assertThat(subject.build(), equalTo(new CommandLineToolArguments(ImmutableList.of())));
 	}
 
 	@Test
 	void canBuildArgumentsWithDuplicatedEntries() {
-		assertThat(subject.arg("foo").arg("foo").build(), equalTo(new CommandLineToolArgumentsImpl(ImmutableList.of("foo", "foo"))));
+		assertThat(subject.arg("foo").arg("foo").build(), equalTo(new CommandLineToolArguments(ImmutableList.of("foo", "foo"))));
 	}
 
 	@Test
 	void keepArgumentsInSameOrder() {
 		assertThat(subject.arg("firstArg").args("secondArg", "thirdArg").arg("fourthArg")
 				.args(asList("fifthArg", "sixthArg")).build(),
-			equalTo(new CommandLineToolArgumentsImpl(ImmutableList.of("firstArg", "secondArg", "thirdArg", "fourthArg", "fifthArg", "sixthArg"))));
+			equalTo(new CommandLineToolArguments(ImmutableList.of("firstArg", "secondArg", "thirdArg", "fourthArg", "fifthArg", "sixthArg"))));
 	}
 
 	@Test
