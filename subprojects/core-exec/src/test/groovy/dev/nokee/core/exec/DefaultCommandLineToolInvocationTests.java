@@ -16,7 +16,6 @@
 package dev.nokee.core.exec;
 
 import dev.nokee.core.exec.internal.DefaultCommandLineToolInvocation;
-import dev.nokee.internal.testing.FileSystemMatchers;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,6 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DefaultCommandLineToolInvocationTests {
 	CommandLineToolInvocation subject = new DefaultCommandLineToolInvocation(CommandLine.of("my-tool", "arg1", "arg2"), duplicateToSystemOutput(), redirectToStandardStream(), Paths.get("my", "working", "directory").toFile(), inherit());
@@ -77,5 +77,10 @@ class DefaultCommandLineToolInvocationTests {
 			}
 		};
 		assertThat(subject.submitTo(engine), equalTo(handle));
+	}
+
+	@Test
+	void throwsExceptionWhenEngineIsNull() {
+		assertThrows(NullPointerException.class, () -> subject.submitTo(null));
 	}
 }
