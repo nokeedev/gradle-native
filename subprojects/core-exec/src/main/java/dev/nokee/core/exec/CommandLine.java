@@ -17,7 +17,6 @@ package dev.nokee.core.exec;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import dev.nokee.core.exec.internal.DefaultCommandLine;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;

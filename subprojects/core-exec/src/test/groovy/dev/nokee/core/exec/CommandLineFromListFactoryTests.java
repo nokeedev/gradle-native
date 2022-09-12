@@ -16,7 +16,6 @@
 package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.core.exec.internal.DefaultCommandLine;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
