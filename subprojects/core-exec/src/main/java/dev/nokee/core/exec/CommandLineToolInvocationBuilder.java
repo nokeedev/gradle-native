@@ -23,9 +23,7 @@ import java.io.File;
  * @since 0.4
  */
 public interface CommandLineToolInvocationBuilder {
-	// TODO: Support Provider
-	// TODO: Support Directory
-	CommandLineToolInvocationBuilder workingDirectory(File workingDirectory);
+	CommandLineToolInvocationBuilder workingDirectory(Object workingDirectory);
 
 	CommandLineToolInvocationBuilder withEnvironmentVariables(CommandLineToolInvocationEnvironmentVariables environmentVariables);
 
