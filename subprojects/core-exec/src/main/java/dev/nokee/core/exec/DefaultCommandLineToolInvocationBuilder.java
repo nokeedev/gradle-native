@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.core.exec.internal;
+package dev.nokee.core.exec;
 
-import dev.nokee.core.exec.CommandLine;
-import dev.nokee.core.exec.CommandLineToolExecutionEngine;
-import dev.nokee.core.exec.CommandLineToolExecutionHandle;
-import dev.nokee.core.exec.CommandLineToolInvocation;
-import dev.nokee.core.exec.CommandLineToolInvocationBuilder;
-import dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables;
-import dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect;
-import dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect;
+import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInheritImpl;
+import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl;
+import dev.nokee.core.exec.internal.DefaultCommandLineToolInvocation;
 
 import java.io.File;
+
+import static dev.nokee.core.exec.CommandLineUtils.resolve;
 
 public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolInvocationBuilder {
 	private final CommandLine commandLine;
@@ -69,7 +66,7 @@ public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolI
 
 	@Override
 	public CommandLineToolInvocation build() {
-		return new DefaultCommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, (File) workingDirectory, environmentVariables);
+		return new DefaultCommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, resolve(workingDirectory), environmentVariables);
 	}
 
 	@Override
