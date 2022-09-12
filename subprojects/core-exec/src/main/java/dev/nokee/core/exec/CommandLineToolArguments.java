@@ -36,4 +36,50 @@ public interface CommandLineToolArguments extends Iterable<String> {
 	}
 
 	List<String> get();
+
+	final class Builder {
+		private final ImmutableList.Builder<Object> delegate = ImmutableList.builder();
+
+		/**
+		 * Adds the specified argument.
+		 *
+		 * @param argument  the argument to add, must not be null
+		 * @return this builder, never null
+		 */
+		public Builder arg(Object argument) {
+			delegate.add(argument);
+			return this;
+		}
+
+		/**
+		 * Adds the specified arguments.
+		 *
+		 * @param arguments  the arguments to add, must not be null
+		 * @return this builder, never null
+		 */
+		public Builder args(Object... arguments) {
+			delegate.add(arguments);
+			return this;
+		}
+
+		/**
+		 * Adds the specified arguments.
+		 *
+		 * @param arguments  the arguments to add, must not be null
+		 * @return this builder, never null
+		 */
+		public Builder args(Iterable<Object> arguments) {
+			delegate.addAll(arguments);
+			return this;
+		}
+
+		/**
+		 * Creates tool arguments for this builder.
+		 *
+		 * @return the arguments, never null
+		 */
+		public CommandLineToolArguments build() {
+			return new CommandLineToolArgumentsImpl(delegate.build());
+		}
+	}
 }
