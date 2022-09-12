@@ -15,13 +15,20 @@
  */
 package dev.nokee.core.exec.internal;
 
-import dev.nokee.core.exec.*;
+import dev.nokee.core.exec.CommandLine;
+import dev.nokee.core.exec.CommandLineToolExecutionEngine;
+import dev.nokee.core.exec.CommandLineToolExecutionHandle;
+import dev.nokee.core.exec.CommandLineToolInvocation;
+import dev.nokee.core.exec.CommandLineToolInvocationBuilder;
+import dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables;
+import dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect;
+import dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect;
 
 import java.io.File;
 
 public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolInvocationBuilder {
 	private final CommandLine commandLine;
-	private File workingDirectory = null;
+	private Object workingDirectory = null;
 	private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
 	private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
 	private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
@@ -31,7 +38,7 @@ public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolI
 	}
 
 	@Override
-	public CommandLineToolInvocationBuilder workingDirectory(File workingDirectory) {
+	public CommandLineToolInvocationBuilder workingDirectory(Object workingDirectory) {
 		this.workingDirectory = workingDirectory;
 		return this;
 	}
@@ -62,7 +69,7 @@ public class DefaultCommandLineToolInvocationBuilder implements CommandLineToolI
 
 	@Override
 	public CommandLineToolInvocation build() {
-		return new DefaultCommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, workingDirectory, environmentVariables);
+		return new DefaultCommandLineToolInvocation(commandLine, standardOutputRedirect, errorOutputRedirect, (File) workingDirectory, environmentVariables);
 	}
 
 	@Override
