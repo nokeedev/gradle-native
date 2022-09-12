@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -36,7 +34,7 @@ class CommandLineToolInvocationEnvironmentVariablesFromMapFactoryTests {
 
 	@Test
 	void returnsEmptyEnvironmentVariablesForEmptyMap() {
-		assertThat(from(emptyMap()), equalTo(CommandLineToolInvocationEnvironmentVariablesEmptyImpl.EMPTY_ENVIRONMENT_VARIABLES));
+		assertThat(from(emptyMap()), equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl()));
 	}
 
 	@Test

@@ -35,7 +35,7 @@ class CommandLineToolInvocationEnvironmentVariablesPropertiesFactoryTests {
 
 	@Test
 	void returnsEmptyEnvironmentVariablesForEmptyProperties() {
-		assertThat(from(new Properties()), equalTo(CommandLineToolInvocationEnvironmentVariablesEmptyImpl.EMPTY_ENVIRONMENT_VARIABLES));
+		assertThat(from(new Properties()), equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl()));
 	}
 
 	@Test

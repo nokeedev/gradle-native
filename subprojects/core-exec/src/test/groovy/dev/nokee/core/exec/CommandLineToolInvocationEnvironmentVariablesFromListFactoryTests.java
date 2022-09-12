@@ -34,7 +34,7 @@ class CommandLineToolInvocationEnvironmentVariablesFromListFactoryTests {
 
 	@Test
 	void returnsEmptyEnvironmentVariablesForEmptyList() {
-		assertThat(from(emptyList()), equalTo(CommandLineToolInvocationEnvironmentVariablesEmptyImpl.EMPTY_ENVIRONMENT_VARIABLES));
+		assertThat(from(emptyList()), equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl()));
 	}
 
 	@Test

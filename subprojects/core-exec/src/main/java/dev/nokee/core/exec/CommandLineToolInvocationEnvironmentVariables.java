@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesEmptyImpl.EMPTY_ENVIRONMENT_VARIABLES;
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesMapImpl.EMPTY_ENVIRONMENT_VARIABLES;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.asMap;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.load;
 

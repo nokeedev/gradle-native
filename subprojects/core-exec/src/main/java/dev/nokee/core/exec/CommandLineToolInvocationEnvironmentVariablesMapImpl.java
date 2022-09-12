@@ -27,7 +27,12 @@ import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesU
 
 @EqualsAndHashCode
 final class CommandLineToolInvocationEnvironmentVariablesMapImpl implements CommandLineToolInvocationEnvironmentVariables, Serializable {
+	public static final CommandLineToolInvocationEnvironmentVariables EMPTY_ENVIRONMENT_VARIABLES = new CommandLineToolInvocationEnvironmentVariablesMapImpl(ImmutableMap.of());
 	private final Map<String, ?> environmentVariables;
+
+	CommandLineToolInvocationEnvironmentVariablesMapImpl() {
+		this(ImmutableMap.of());
+	}
 
 	CommandLineToolInvocationEnvironmentVariablesMapImpl(Map<String, ?> environmentVariables) {
 		this.environmentVariables = ImmutableMap.copyOf(environmentVariables);
