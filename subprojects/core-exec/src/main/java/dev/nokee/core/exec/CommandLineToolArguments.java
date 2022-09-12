@@ -16,28 +16,47 @@
 package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
+import lombok.EqualsAndHashCode;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public interface CommandLineToolArguments extends Iterable<String> {
-	static CommandLineToolArguments empty() {
-		return CommandLineToolArgumentsImpl.EMPTY_ARGUMENTS;
+@EqualsAndHashCode
+public final class CommandLineToolArguments implements Iterable<String> {
+	private static final CommandLineToolArguments EMPTY_ARGUMENTS = new CommandLineToolArguments(ImmutableList.of());
+
+	private final ImmutableList<Object> arguments;
+
+	public CommandLineToolArguments(List<Object> arguments) {
+		this.arguments = ImmutableList.copyOf(arguments);
 	}
 
-	static CommandLineToolArguments of(Object... args) {
+	public static CommandLineToolArguments empty() {
+		return EMPTY_ARGUMENTS;
+	}
+
+	public static CommandLineToolArguments of(Object... args) {
 		return of(ImmutableList.copyOf(args));
 	}
 
-	static CommandLineToolArguments of(List<Object> args) {
+	public static CommandLineToolArguments of(List<Object> args) {
 		if (args.isEmpty()) {
-			return CommandLineToolArgumentsImpl.EMPTY_ARGUMENTS;
+			return EMPTY_ARGUMENTS;
 		}
-		return new CommandLineToolArgumentsImpl(args);
+		return new CommandLineToolArguments(args);
 	}
 
-	List<String> get();
+	public List<String> get() {
+		return ImmutableList.copyOf(arguments.stream().map(Object::toString).collect(Collectors.toList()));
+	}
 
-	final class Builder {
+	@Override
+	public Iterator<String> iterator() {
+		return get().iterator();
+	}
+
+	public static final class Builder {
 		private final ImmutableList.Builder<Object> delegate = ImmutableList.builder();
 
 		/**
@@ -79,7 +98,7 @@ public interface CommandLineToolArguments extends Iterable<String> {
 		 * @return the arguments, never null
 		 */
 		public CommandLineToolArguments build() {
-			return new CommandLineToolArgumentsImpl(delegate.build());
+			return new CommandLineToolArguments(delegate.build());
 		}
 	}
 }
