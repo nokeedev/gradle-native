@@ -21,7 +21,7 @@ import java.util.List;
 
 public interface CommandLineToolArguments {
 	static CommandLineToolArguments empty() {
-		return CommandLineToolArgumentsEmptyImpl.EMPTY_ARGUMENTS;
+		return CommandLineToolArgumentsImpl.EMPTY_ARGUMENTS;
 	}
 
 	static CommandLineToolArguments of(Object... args) {
@@ -30,7 +30,7 @@ public interface CommandLineToolArguments {
 
 	static CommandLineToolArguments of(List<Object> args) {
 		if (args.isEmpty()) {
-			return CommandLineToolArgumentsEmptyImpl.EMPTY_ARGUMENTS;
+			return CommandLineToolArgumentsImpl.EMPTY_ARGUMENTS;
 		}
 		return new CommandLineToolArgumentsImpl(args);
 	}
