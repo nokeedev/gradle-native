@@ -35,13 +35,13 @@ class CommandLineToolInvocationEnvironmentVariablesPropertiesFactoryTests {
 
 	@Test
 	void returnsEmptyEnvironmentVariablesForEmptyProperties() {
-		assertThat(from(new Properties()), equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl()));
+		assertThat(from(new Properties()), equalTo(new CommandLineToolInvocationEnvironmentVariables()));
 	}
 
 	@Test
 	void returnsEnvironmentVariablesFromProperties() {
 		assertThat(from(asProperties(ImmutableMap.of("K3", "v3", "K4", "v4"))),
-			equalTo(new CommandLineToolInvocationEnvironmentVariablesMapImpl(ImmutableMap.of("K3", "v3", "K4", "v4"))));
+			equalTo(new CommandLineToolInvocationEnvironmentVariables(ImmutableMap.of("K3", "v3", "K4", "v4"))));
 	}
 
 	private static Properties asProperties(Map<String, String> values) {

@@ -15,6 +15,9 @@
  */
 package dev.nokee.core.exec;
 
+import com.google.common.collect.ImmutableMap;
+import lombok.EqualsAndHashCode;
+
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
@@ -22,29 +25,47 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesMapImpl.EMPTY_ENVIRONMENT_VARIABLES;
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.asList;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.asMap;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.load;
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.merge;
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.toStringOnEachEntry;
 
 /**
  * Represents the environment variable of a command line tool invocation.
  *
  * @since 0.5
  */
-public interface CommandLineToolInvocationEnvironmentVariables {
+@EqualsAndHashCode
+public final class CommandLineToolInvocationEnvironmentVariables {
+	private static final CommandLineToolInvocationEnvironmentVariables EMPTY_ENVIRONMENT_VARIABLES = new CommandLineToolInvocationEnvironmentVariables();
+	private final Map<String, ?> environmentVariables;
+
+	public CommandLineToolInvocationEnvironmentVariables() {
+		this(ImmutableMap.of());
+	}
+
+	public CommandLineToolInvocationEnvironmentVariables(Map<String, ?> environmentVariables) {
+		this.environmentVariables = ImmutableMap.copyOf(environmentVariables);
+	}
+
 	/**
 	 * Returns the environment variables as a (key, value)-pair map.
 	 *
 	 * @return a map representing the environment variables, never null.
 	 */
-	Map<String, String> getAsMap();
+	public Map<String, String> getAsMap() {
+		return toStringOnEachEntry(environmentVariables);
+	}
 
 	/**
 	 * Returns the environment variables as a (key=value)-pair list.
 	 *
 	 * @return a list representing the environment variables, never null.
 	 */
-	List<String> getAsList();
+	public List<String> getAsList() {
+		return asList(environmentVariables);
+	}
 
 	// TODO: allow more manipulation of the environment variables such as getting, putting (creates another instance with the result), etc.
 
@@ -54,7 +75,9 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @param environmentVariables the environment variables to merge with this instance.
 	 * @return a new instance representing the merged environment variables, never null.
 	 */
-	CommandLineToolInvocationEnvironmentVariables plus(CommandLineToolInvocationEnvironmentVariables environmentVariables);
+	public CommandLineToolInvocationEnvironmentVariables plus(CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+		return from(merge(this.environmentVariables, environmentVariables.getAsMap()));
+	}
 
 	/**
 	 * Creates the invocation environment variables from the specified list.
@@ -62,13 +85,13 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @param environmentVariables the environment variables to use
 	 * @return a instance representing the environment variables to use, never null.
 	 */
-	static CommandLineToolInvocationEnvironmentVariables from(@Nullable List<?> environmentVariables) {
+	public static CommandLineToolInvocationEnvironmentVariables from(@Nullable List<?> environmentVariables) {
 		if (environmentVariables == null) {
 			return inherit();
 		} else if (environmentVariables.isEmpty()) {
 			return EMPTY_ENVIRONMENT_VARIABLES;
 		}
-		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(asMap(environmentVariables));
+		return new CommandLineToolInvocationEnvironmentVariables(asMap(environmentVariables));
 	}
 
 	/**
@@ -77,12 +100,12 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @param environmentVariables the environment variables to use
 	 * @return a instance representing the environment variables to use, never null.
 	 */
-	static CommandLineToolInvocationEnvironmentVariables from(Map<String, ?> environmentVariables) {
+	public static CommandLineToolInvocationEnvironmentVariables from(Map<String, ?> environmentVariables) {
 		Objects.requireNonNull(environmentVariables, "'environmentVariables' must not be null");
 		if (environmentVariables.isEmpty()) {
 			return EMPTY_ENVIRONMENT_VARIABLES;
 		}
-		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(environmentVariables);
+		return new CommandLineToolInvocationEnvironmentVariables(environmentVariables);
 	}
 
 	/**
@@ -90,8 +113,8 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 *
 	 * @return a instance representing the environment variables to use, never null.
 	 */
-	static CommandLineToolInvocationEnvironmentVariables inherit() {
-		return new CommandLineToolInvocationEnvironmentVariablesMapImpl(System.getenv());
+	public static CommandLineToolInvocationEnvironmentVariables inherit() {
+		return new CommandLineToolInvocationEnvironmentVariables(System.getenv());
 	}
 
 	/**
@@ -99,7 +122,7 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 *
 	 * @return a instance representing the environment variables to use, never null.
 	 */
-	static CommandLineToolInvocationEnvironmentVariables empty() {
+	public static CommandLineToolInvocationEnvironmentVariables empty() {
 		return EMPTY_ENVIRONMENT_VARIABLES;
 	}
 
@@ -109,7 +132,7 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @param propertiesFile a file from which to load the environment variables
 	 * @return a instance representing the environment variables to use, never null.
 	 */
-	static CommandLineToolInvocationEnvironmentVariables from(File propertiesFile) {
+	public static CommandLineToolInvocationEnvironmentVariables from(File propertiesFile) {
 		return from(load(propertiesFile));
 	}
 
@@ -119,7 +142,7 @@ public interface CommandLineToolInvocationEnvironmentVariables {
 	 * @param properties a {@link Properties} instance of environment variables to use
 	 * @return a instance representing the environment variables to use, never null.
 	 */
-	static CommandLineToolInvocationEnvironmentVariables from(Properties properties) {
+	public static CommandLineToolInvocationEnvironmentVariables from(Properties properties) {
 		Objects.requireNonNull(properties, "'properties' must not be null");
 		return from(asMap(properties));
 	}
