@@ -16,6 +16,7 @@
 package dev.nokee.core.exec;
 
 import dev.nokee.core.exec.internal.AbstractCommandLineTool;
+import lombok.EqualsAndHashCode;
 import org.gradle.api.tasks.*;
 import org.gradle.internal.os.OperatingSystem;
 
@@ -43,6 +44,7 @@ final class CommandLineTools {
 	 * Unfortunately, the PATH environment variable depends on the invocation configuration which isn't captured here.
 	 * TODO: We should consider providing a builder that can configure a PATH provider to properly calculate the input value.
 	 */
+	@EqualsAndHashCode(callSuper = false)
 	private static final class CommandLineToolFromPathAtInvocationImpl extends AbstractCommandLineTool {
 		private final Object executable;
 
