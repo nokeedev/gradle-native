@@ -17,15 +17,19 @@ package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 class CommandLineToolArgumentsBuilderTests {
-	CommandLineToolArguments.Builder subject = new CommandLineToolArguments.Builder();
+	UnpackStrategy unpackStrategy = UnpackStrategyTestUtils.mock();
+	CommandLineToolArguments.Builder subject = new CommandLineToolArguments.Builder(unpackStrategy);
 
 	@Test
 	void canBuildEmptyArguments() {
@@ -42,6 +46,12 @@ class CommandLineToolArgumentsBuilderTests {
 		assertThat(subject.arg("firstArg").args("secondArg", "thirdArg").arg("fourthArg")
 				.args(asList("fifthArg", "sixthArg")).build(),
 			equalTo(new CommandLineToolArguments(ImmutableList.of("firstArg", "secondArg", "thirdArg", "fourthArg", "fifthArg", "sixthArg"))));
+	}
+
+	@Test
+	void unpackAllArguments() {
+		subject.args("firstArg","secondArg").arg("thirdArg").build();
+		Mockito.verify(unpackStrategy).unpack(argThat(contains("firstArg", "secondArg", "thirdArg")));
 	}
 
 	@Test

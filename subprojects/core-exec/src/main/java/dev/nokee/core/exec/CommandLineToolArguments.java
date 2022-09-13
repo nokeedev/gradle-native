@@ -23,17 +23,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.nokee.core.exec.UnpackStrategies.FLAT_UNPACK_TO_STRING;
+
 @EqualsAndHashCode
 public final class CommandLineToolArguments implements Iterable<String>, Serializable {
 	private static final CommandLineToolArguments EMPTY_ARGUMENTS = new CommandLineToolArguments();
 
-	private final ImmutableList<Object> arguments;
+	private final ImmutableList<String> arguments;
 
 	public CommandLineToolArguments() {
 		this(ImmutableList.of());
 	}
 
-	public CommandLineToolArguments(List<Object> arguments) {
+	public CommandLineToolArguments(List<String> arguments) {
 		this.arguments = ImmutableList.copyOf(arguments);
 	}
 
@@ -49,11 +51,11 @@ public final class CommandLineToolArguments implements Iterable<String>, Seriali
 		if (args.isEmpty()) {
 			return EMPTY_ARGUMENTS;
 		}
-		return new CommandLineToolArguments(args);
+		return new CommandLineToolArguments(FLAT_UNPACK_TO_STRING.unpack(args));
 	}
 
 	public List<String> get() {
-		return ImmutableList.copyOf(arguments.stream().map(Object::toString).collect(Collectors.toList()));
+		return arguments;
 	}
 
 	public String toString() {
@@ -66,11 +68,20 @@ public final class CommandLineToolArguments implements Iterable<String>, Seriali
 
 	@Override
 	public Iterator<String> iterator() {
-		return get().iterator();
+		return arguments.iterator();
 	}
 
 	public static final class Builder {
+		private final UnpackStrategy unpackStrategy;
 		private final ImmutableList.Builder<Object> delegate = ImmutableList.builder();
+
+		public Builder() {
+			this(FLAT_UNPACK_TO_STRING);
+		}
+
+		public Builder(UnpackStrategy unpackStrategy) {
+			this.unpackStrategy = unpackStrategy;
+		}
 
 		/**
 		 * Adds the specified argument.
@@ -111,7 +122,7 @@ public final class CommandLineToolArguments implements Iterable<String>, Seriali
 		 * @return the arguments, never null
 		 */
 		public CommandLineToolArguments build() {
-			return new CommandLineToolArguments(delegate.build());
+			return new CommandLineToolArguments(unpackStrategy.unpack(delegate.build()));
 		}
 	}
 }
