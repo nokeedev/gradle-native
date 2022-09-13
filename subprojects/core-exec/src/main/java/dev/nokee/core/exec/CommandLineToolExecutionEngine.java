@@ -16,6 +16,7 @@
 package dev.nokee.core.exec;
 
 import org.gradle.process.ExecOperations;
+import org.gradle.workers.WorkerExecutor;
 
 /**
  * A execution engine models how a command line tool will be executed.
@@ -43,5 +44,9 @@ public interface CommandLineToolExecutionEngine<T extends CommandLineToolExecuti
 	@SuppressWarnings("UnstableApiUsage")
 	static ExecOperationsExecutionEngine execOperations(ExecOperations execOperations) {
 		return new ExecOperationsExecutionEngine(execOperations);
+	}
+
+	static GradleWorkerExecutorEngine newWorkerQueue(WorkerExecutor workerExecutor) {
+		return new GradleWorkerExecutorEngine(workerExecutor);
 	}
 }
