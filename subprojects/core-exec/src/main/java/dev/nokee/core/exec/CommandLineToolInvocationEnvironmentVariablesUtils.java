@@ -23,7 +23,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 final class CommandLineToolInvocationEnvironmentVariablesUtils {
@@ -41,7 +45,7 @@ final class CommandLineToolInvocationEnvironmentVariablesUtils {
 		return entry.getKey() + "=" + entry.getValue().toString();
 	}
 
-	static Map<String, String> asMap(List<?> environmentVariables) {
+	static Map<String, String> asMap(List<String> environmentVariables) {
 		return environmentVariables.stream().map(CommandLineToolInvocationEnvironmentVariablesUtils::toEntry).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
@@ -75,10 +79,6 @@ final class CommandLineToolInvocationEnvironmentVariablesUtils {
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
-		return asMap(result);
-	}
-
-	static Map<String, String> asMap(Properties properties) {
-		return toStringOnEachEntry(properties);
+		return toStringOnEachEntry(result);
 	}
 }

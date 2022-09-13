@@ -17,6 +17,7 @@ package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,7 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CommandLineToolInvocationEnvironmentVariableBuilderTests {
-	CommandLineToolInvocationEnvironmentVariables.Builder subject = new CommandLineToolInvocationEnvironmentVariables.Builder();
+	UnpackStrategy unpackStrategy = UnpackStrategyTestUtils.mock();
+	CommandLineToolInvocationEnvironmentVariables.Builder subject = new CommandLineToolInvocationEnvironmentVariables.Builder(unpackStrategy);
 
 	@Test
 	void canBuildEmptyEnvironmentVariables() {
@@ -34,6 +36,13 @@ class CommandLineToolInvocationEnvironmentVariableBuilderTests {
 	@Test
 	void overwritePreviousEntriesUponDuplicatedKeys() {
 		assertThat(subject.env("foo", "bar").env("foo", "far").build(), equalTo(new CommandLineToolInvocationEnvironmentVariables(ImmutableMap.of("foo", "far"))));
+	}
+
+	@Test
+	void unpackAllKeys() {
+		subject.env("k1", "v1").env("k2", "v2").build();
+		Mockito.verify(unpackStrategy).unpack("v1");
+		Mockito.verify(unpackStrategy).unpack("v2");
 	}
 
 	@Test

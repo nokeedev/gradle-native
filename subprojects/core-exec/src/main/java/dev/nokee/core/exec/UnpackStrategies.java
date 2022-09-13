@@ -18,6 +18,8 @@ package dev.nokee.core.exec;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.utils.DeferredUtils;
 
+import java.util.Objects;
+
 import static dev.nokee.utils.DeferredUtils.flatUnpackWhile;
 
 enum UnpackStrategies implements UnpackStrategy {
@@ -27,6 +29,14 @@ enum UnpackStrategies implements UnpackStrategy {
 			@SuppressWarnings("unchecked")
 			R result = (R) flatUnpackWhile(value, DeferredUtils::isDeferred).stream()
 				.map(Object::toString).collect(ImmutableList.toImmutableList());
+			return result;
+		}
+	},
+	UNPACK_TO_STRING {
+		@Override
+		public <R> R unpack(Object value) {
+			@SuppressWarnings("unchecked")
+			R result = (R) Objects.toString(DeferredUtils.unpack(value), null);
 			return result;
 		}
 	}

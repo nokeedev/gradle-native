@@ -17,6 +17,7 @@ package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -32,6 +33,7 @@ import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesU
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.load;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.merge;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.toStringOnEachEntry;
+import static dev.nokee.core.exec.UnpackStrategies.FLAT_UNPACK_TO_STRING;
 
 /**
  * Represents the environment variable of a command line tool invocation.
@@ -41,13 +43,13 @@ import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesU
 @EqualsAndHashCode
 public final class CommandLineToolInvocationEnvironmentVariables implements Serializable {
 	private static final CommandLineToolInvocationEnvironmentVariables EMPTY_ENVIRONMENT_VARIABLES = new CommandLineToolInvocationEnvironmentVariables();
-	private final Map<String, ?> environmentVariables;
+	private final Map<String, String> environmentVariables;
 
 	public CommandLineToolInvocationEnvironmentVariables() {
 		this(ImmutableMap.of());
 	}
 
-	public CommandLineToolInvocationEnvironmentVariables(Map<String, ?> environmentVariables) {
+	public CommandLineToolInvocationEnvironmentVariables(Map<String, String> environmentVariables) {
 		this.environmentVariables = ImmutableMap.copyOf(environmentVariables);
 	}
 
@@ -57,7 +59,7 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 	 * @return a map representing the environment variables, never null.
 	 */
 	public Map<String, String> getAsMap() {
-		return toStringOnEachEntry(environmentVariables);
+		return environmentVariables;
 	}
 
 	/**
@@ -92,8 +94,9 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 			return inherit();
 		} else if (environmentVariables.isEmpty()) {
 			return EMPTY_ENVIRONMENT_VARIABLES;
+		} else {
+			return new CommandLineToolInvocationEnvironmentVariables(asMap(FLAT_UNPACK_TO_STRING.unpack(environmentVariables)));
 		}
-		return new CommandLineToolInvocationEnvironmentVariables(asMap(environmentVariables));
 	}
 
 	/**
@@ -106,8 +109,11 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 		Objects.requireNonNull(environmentVariables, "'environmentVariables' must not be null");
 		if (environmentVariables.isEmpty()) {
 			return EMPTY_ENVIRONMENT_VARIABLES;
+		} else {
+			val builder = new CommandLineToolInvocationEnvironmentVariables.Builder();
+			environmentVariables.forEach(builder::env);
+			return builder.build();
 		}
-		return new CommandLineToolInvocationEnvironmentVariables(environmentVariables);
 	}
 
 	/**
@@ -146,16 +152,25 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 	 */
 	public static CommandLineToolInvocationEnvironmentVariables from(Properties properties) {
 		Objects.requireNonNull(properties, "'properties' must not be null");
-		return from(asMap(properties));
+		return from(toStringOnEachEntry(properties));
 	}
 
 	public static final class Builder {
-		private final Map<String, Object> envVars = new HashMap<>();
+		private final Map<String, String> envVars = new HashMap<>();
+		private final UnpackStrategy unpackStrategy;
+
+		public Builder() {
+			this(UnpackStrategies.UNPACK_TO_STRING);
+		}
+
+		public Builder(UnpackStrategy unpackStrategy) {
+			this.unpackStrategy = unpackStrategy;
+		}
 
 		public Builder env(String key, Object value) {
 			Objects.requireNonNull(key, "'key' must not be null");
 			Objects.requireNonNull(value, "'value' must not be null");
-			envVars.put(key, value);
+			envVars.put(key, unpackStrategy.unpack(value));
 			return this;
 		}
 
