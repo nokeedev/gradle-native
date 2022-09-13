@@ -16,16 +16,25 @@
 package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.GradleWorkerExecutorEngine;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.IgnoreEmptyDirectories;
+import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.SkipWhenEmpty;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
+
+import static dev.nokee.core.exec.CommandLineToolExecutionEngine.newWorkerQueue;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toStandardStream;
 
 public class SignIosApplicationBundleTask extends DefaultTask {
 	private final Property<FileSystemLocation> unsignedApplicationBundle;
@@ -33,6 +42,7 @@ public class SignIosApplicationBundleTask extends DefaultTask {
 	private final Property<CommandLineTool> codeSignatureTool;
 	private final FileSystemOperations fileOperations;
 	private final ObjectFactory objects;
+	private final WorkerExecutor workerExecutor;
 
 	@SkipWhenEmpty
 	@IgnoreEmptyDirectories
@@ -52,12 +62,13 @@ public class SignIosApplicationBundleTask extends DefaultTask {
 	}
 
 	@Inject
-	public SignIosApplicationBundleTask(ObjectFactory objects, FileSystemOperations fileOperations) {
+	public SignIosApplicationBundleTask(ObjectFactory objects, FileSystemOperations fileOperations, WorkerExecutor workerExecutor) {
 		this.unsignedApplicationBundle = objects.property(FileSystemLocation.class);
 		this.signedApplicationBundle = objects.property(FileSystemLocation.class);
 		this.codeSignatureTool = objects.property(CommandLineTool.class);
 		this.fileOperations = fileOperations;
 		this.objects = objects;
+		this.workerExecutor = workerExecutor;
 	}
 
 	@TaskAction
@@ -74,7 +85,8 @@ public class SignIosApplicationBundleTask extends DefaultTask {
 				"--timestamp=none",
 				getSignedApplicationBundle().get().getAsFile().getAbsolutePath())
 			.newInvocation()
-			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
-			.buildAndSubmit(objects.newInstance(GradleWorkerExecutorEngine.class));
+			.redirectStandardOutput(toFile(new File(getTemporaryDir(), "outputs.txt")))
+			.redirectErrorOutput(toStandardStream())
+			.buildAndSubmit(newWorkerQueue(workerExecutor));
 	}
 }

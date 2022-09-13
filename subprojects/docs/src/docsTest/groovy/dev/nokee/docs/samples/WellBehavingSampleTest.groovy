@@ -52,8 +52,8 @@ import java.util.regex.Pattern
 import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepExecuted
 import static dev.gradleplugins.exemplarkit.StepExecutors.replaceIfAbsent
 import static dev.gradleplugins.exemplarkit.StepExecutors.skipIf
-import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError
-import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemError
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemOutput
 import static org.apache.commons.io.FilenameUtils.getExtension
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix
 import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS
@@ -99,8 +99,8 @@ abstract class WellBehavingSampleTest extends Specification {
 		def result = CommandLineTool.of('unzip')
 			.withArguments(zipFile.getCanonicalPath(), '-d', workingDirectory.getCanonicalPath())
 			.newInvocation()
-			.redirectStandardOutput(duplicateToSystemOutput())
-			.redirectErrorOutput(duplicateToSystemError())
+			.redirectStandardOutput(toSystemOutput())
+			.redirectErrorOutput(toSystemError())
 			.workingDirectory(workingDirectory)
 			.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
 			.waitFor(Duration.ofSeconds(30))
@@ -404,8 +404,8 @@ abstract class WellBehavingSampleTest extends Specification {
 			def result = tool.get()
 				.withArguments(context.currentStep.arguments)
 				.newInvocation()
-				.redirectStandardOutput(duplicateToSystemOutput())
-				.redirectErrorOutput(duplicateToSystemError())
+				.redirectStandardOutput(toSystemOutput())
+				.redirectErrorOutput(toSystemError())
 				.workingDirectory(context.currentWorkingDirectory)
 				.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
 				.waitFor()

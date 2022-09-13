@@ -21,7 +21,7 @@ import dev.gradleplugins.test.fixtures.gradle.executer.ExecutionFailure;
 import dev.gradleplugins.test.fixtures.gradle.executer.ExecutionResult;
 import dev.gradleplugins.test.fixtures.gradle.executer.internal.ExecutionResultImpl;
 import dev.nokee.core.exec.CommandLineToolExecutionResult;
-import dev.nokee.core.exec.CommandLineToolInvocationBuilder;
+import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.core.exec.CommandLineToolProvider;
 import dev.nokee.core.exec.ProcessBuilderEngine;
 import lombok.Getter;
@@ -35,8 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
-import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError;
-import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemError;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemOutput;
 
 public abstract class AbstractIdeExecutor<T extends AbstractIdeExecutor<T>> {
 	private final Class<T> type;
@@ -77,15 +77,15 @@ public abstract class AbstractIdeExecutor<T extends AbstractIdeExecutor<T>> {
 		return tool.get()
 			.withArguments(arguments)
 			.newInvocation()
-			.redirectStandardOutput(duplicateToSystemOutput())
-			.redirectErrorOutput(duplicateToSystemError())
+			.redirectStandardOutput(toSystemOutput())
+			.redirectErrorOutput(toSystemError())
 			.workingDirectory(workingDirectory)
 			.withEnvironmentVariables(from(IdeCommandLineUtils.buildEnvironment(workingDirectory)))
 			.buildAndSubmit(new ProcessBuilderEngine())
 			.waitFor();
 	}
 
-	protected CommandLineToolInvocationBuilder configureInvocation(CommandLineToolInvocationBuilder builder) {
+	protected CommandLineToolInvocation.Builder configureInvocation(CommandLineToolInvocation.Builder builder) {
 		return builder;
 	}
 

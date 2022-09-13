@@ -27,9 +27,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Predicate;
 
-import static dev.gradleplugins.exemplarkit.StepExecutionResult.*;
-import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError;
-import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput;
+import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepExecuted;
+import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepFailed;
+import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepSkipped;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemError;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemOutput;
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
 
 public final class StepExecutors {
@@ -59,8 +61,8 @@ public final class StepExecutors {
 				val result = CommandLine.script(target, context.getCurrentStep().getArguments())
 					.newInvocation()
 					.workingDirectory(context.getCurrentWorkingDirectory())
-					.redirectStandardOutput(duplicateToSystemOutput())
-					.redirectErrorOutput(duplicateToSystemError())
+					.redirectStandardOutput(toSystemOutput())
+					.redirectErrorOutput(toSystemError())
 					.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
 					.waitFor();
 
@@ -139,8 +141,8 @@ public final class StepExecutors {
 		public StepExecutionResult run(StepExecutionContext context) {
 			val result = commandLine(context)
 				.newInvocation()
-				.redirectStandardOutput(duplicateToSystemOutput())
-				.redirectErrorOutput(duplicateToSystemError())
+				.redirectStandardOutput(toSystemOutput())
+				.redirectErrorOutput(toSystemError())
 				.workingDirectory(context.getCurrentWorkingDirectory())
 				.buildAndSubmit(LoggingEngine.wrap(new ProcessBuilderEngine()))
 				.waitFor();

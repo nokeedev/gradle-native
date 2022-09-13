@@ -50,6 +50,7 @@ integrationTest {
 
 functionalTest {
 	dependencies {
+		implementation project(':coreExec')
 		pluginUnderTestMetadata project(':platformNative')
 		implementation project(':platformNative')
 		implementation project(':testingBase')
