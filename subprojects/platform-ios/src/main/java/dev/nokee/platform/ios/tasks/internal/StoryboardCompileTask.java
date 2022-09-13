@@ -16,7 +16,6 @@
 package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.GradleWorkerExecutorEngine;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.DefaultTask;
@@ -25,15 +24,27 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileType;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.ChangeType;
 import org.gradle.work.FileChange;
 import org.gradle.work.Incremental;
 import org.gradle.work.InputChanges;
+import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+
+import static dev.nokee.core.exec.CommandLineToolExecutionEngine.newWorkerQueue;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toStandardStream;
 
 @CacheableTask
 public class StoryboardCompileTask extends DefaultTask {
@@ -42,6 +53,7 @@ public class StoryboardCompileTask extends DefaultTask {
 	private final ConfigurableFileCollection sources;
 	private final Property<CommandLineTool> interfaceBuilderTool;
 	private final ObjectFactory objects;
+	private final WorkerExecutor workerExecutor;
 
 	@OutputDirectory
 	public DirectoryProperty getDestinationDirectory() {
@@ -67,12 +79,13 @@ public class StoryboardCompileTask extends DefaultTask {
 	}
 
 	@Inject
-	public StoryboardCompileTask(ObjectFactory objects) {
+	public StoryboardCompileTask(ObjectFactory objects, WorkerExecutor workerExecutor) {
 		this.destinationDirectory = objects.directoryProperty();
 		this.module = objects.property(String.class);
 		this.sources = objects.fileCollection();
 		this.interfaceBuilderTool = objects.property(CommandLineTool.class);
 		this.objects = objects;
+		this.workerExecutor = workerExecutor;
 	}
 
 	@TaskAction
@@ -115,7 +128,8 @@ public class StoryboardCompileTask extends DefaultTask {
 				"--compilation-directory", getDestinationDirectory().get().getAsFile().getAbsolutePath() + "/" + source.getParentFile().getName(),
 				source.getAbsolutePath())
 			.newInvocation()
-			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
-			.buildAndSubmit(objects.newInstance(GradleWorkerExecutorEngine.class));
+			.redirectStandardOutput(toFile(new File(getTemporaryDir(), "outputs.txt")))
+			.redirectErrorOutput(toStandardStream())
+			.buildAndSubmit(newWorkerQueue(workerExecutor));
 	}
 }

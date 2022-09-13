@@ -17,6 +17,7 @@ package dev.nokee.platform.ios.internal;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
+import dev.nokee.core.exec.CommandLineToolExecutable;
 import dev.nokee.core.exec.internal.AbstractCommandLineTool;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.tasks.Input;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 
 public class DescriptorCommandLineTool extends AbstractCommandLineTool {
 	private final CommandLineToolDescriptor toolDescriptor;
@@ -45,5 +47,10 @@ public class DescriptorCommandLineTool extends AbstractCommandLineTool {
 	@Input
 	public String getVersion() {
 		return toolDescriptor.getVersion();
+	}
+
+	@Override
+	public CommandLineToolExecutable resolve(Context context) {
+		return new CommandLineToolExecutable(Paths.get(getExecutable()));
 	}
 }

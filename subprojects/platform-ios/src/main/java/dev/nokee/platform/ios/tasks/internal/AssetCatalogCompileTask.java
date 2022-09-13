@@ -16,16 +16,26 @@
 package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.GradleWorkerExecutorEngine;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.IgnoreEmptyDirectories;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.SkipWhenEmpty;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
+
+import static dev.nokee.core.exec.CommandLineToolExecutionEngine.newWorkerQueue;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toStandardStream;
 
 public class AssetCatalogCompileTask extends DefaultTask {
 	private final DirectoryProperty destinationDirectory;
@@ -33,6 +43,7 @@ public class AssetCatalogCompileTask extends DefaultTask {
 	private final Property<String> identifier;
 	private final Property<CommandLineTool> assetCompilerTool;
 	private final ObjectFactory objects;
+	private final WorkerExecutor workerExecutor;
 
 	@OutputDirectory
 	public DirectoryProperty getDestinationDirectory() {
@@ -57,12 +68,13 @@ public class AssetCatalogCompileTask extends DefaultTask {
 	}
 
 	@Inject
-	public AssetCatalogCompileTask(ObjectFactory objects) {
+	public AssetCatalogCompileTask(ObjectFactory objects, WorkerExecutor workerExecutor) {
 		this.destinationDirectory = objects.directoryProperty();
 		this.source = objects.fileProperty();
 		this.identifier = objects.property(String.class);
 		this.assetCompilerTool = objects.property(CommandLineTool.class);
 		this.objects = objects;
+		this.workerExecutor = workerExecutor;
 	}
 
 	@TaskAction
@@ -85,7 +97,8 @@ public class AssetCatalogCompileTask extends DefaultTask {
 				"--product-type", "com.apple.product-type.application",
 				"--compile", getDestinationDirectory().get().getAsFile().getAbsolutePath(), getSource().get().getAsFile().getAbsolutePath())
 			.newInvocation()
-			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
-			.buildAndSubmit(objects.newInstance(GradleWorkerExecutorEngine.class));
+			.redirectStandardOutput(toFile(new File(getTemporaryDir(), "outputs.txt")))
+			.redirectErrorOutput(toStandardStream())
+			.buildAndSubmit(newWorkerQueue(workerExecutor));
 	}
 }

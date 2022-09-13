@@ -16,13 +16,20 @@
 package dev.nokee.platform.ios.tasks.internal;
 
 import dev.nokee.core.exec.CommandLineTool;
-import dev.nokee.core.exec.GradleWorkerExecutorEngine;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.IgnoreEmptyDirectories;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.SkipWhenEmpty;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -31,12 +38,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.nokee.core.exec.CommandLineToolExecutionEngine.newWorkerQueue;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toStandardStream;
+
 public class StoryboardLinkTask extends DefaultTask {
 	private final DirectoryProperty destinationDirectory;
 	private final Property<String> module;
 	private final ConfigurableFileCollection sources;
 	private final Property<CommandLineTool> interfaceBuilderTool;
 	private final ObjectFactory objects;
+	private final WorkerExecutor workerExecutor;
 
 	@OutputDirectory
 	public DirectoryProperty getDestinationDirectory() {
@@ -73,12 +85,13 @@ public class StoryboardLinkTask extends DefaultTask {
 	}
 
 	@Inject
-	public StoryboardLinkTask(ObjectFactory objects) {
+	public StoryboardLinkTask(ObjectFactory objects, WorkerExecutor workerExecutor) {
 		this.destinationDirectory = objects.directoryProperty();
 		this.module = objects.property(String.class);
 		this.sources = objects.fileCollection();
 		this.interfaceBuilderTool = objects.property(CommandLineTool.class);
 		this.objects = objects;
+		this.workerExecutor = workerExecutor;
 		dependsOn(getSources()); // TODO: Test dependencies are followed via the source
 	}
 
@@ -94,7 +107,8 @@ public class StoryboardLinkTask extends DefaultTask {
 				"--output-format", "human-readable-text",
 				"--link", getDestinationDirectory().get().getAsFile().getAbsolutePath(), getInputFiles().stream().map(File::getAbsolutePath).collect(Collectors.joining(" ")))
 			.newInvocation()
-			.appendStandardStreamToFile(new File(getTemporaryDir(), "outputs.txt"))
-			.buildAndSubmit(objects.newInstance(GradleWorkerExecutorEngine.class));
+			.redirectStandardOutput(toFile(new File(getTemporaryDir(), "outputs.txt")))
+			.redirectErrorOutput(toStandardStream())
+			.buildAndSubmit(newWorkerQueue(workerExecutor));
 	}
 }
