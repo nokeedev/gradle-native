@@ -15,7 +15,6 @@
  */
 package dev.nokee.core.exec;
 
-import lombok.RequiredArgsConstructor;
 import org.gradle.api.provider.Property;
 import org.gradle.process.ExecOperations;
 import org.gradle.workers.WorkAction;
@@ -25,27 +24,23 @@ import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
 
-public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecutionEngine<GradleWorkerExecutorEngine.Handle> {
-	@Inject
-	protected abstract WorkerExecutor getWorkerExecutor();
+public final class GradleWorkerExecutorEngine implements CommandLineToolExecutionEngine<GradleWorkerExecutorEngine.Handle> {
+	private final WorkerExecutor workerExecutor;
+
+	public GradleWorkerExecutorEngine(WorkerExecutor workerExecutor) {
+		this.workerExecutor = workerExecutor;
+	}
 
 	@Override
 	public Handle submit(CommandLineToolInvocation invocation) {
-		WorkQueue workQueue = getWorkerExecutor().noIsolation();
+		WorkQueue workQueue = workerExecutor.noIsolation();
 		workQueue.submit(GradleWorkerExecutorEngineWorkAction.class, it -> {
 			it.getInvocation().set(invocation);
 		});
-		return new Handle(workQueue);
+		return new Handle();
 	}
 
-	@RequiredArgsConstructor
-	public static class Handle implements CommandLineToolExecutionHandle {
-		private final WorkQueue workQueue;
-
-		public void await() {
-			workQueue.await();
-		}
-	}
+	public static class Handle implements CommandLineToolExecutionHandle {}
 
 	public interface GradleWorkerExecutorEngineWorkParameters extends WorkParameters {
 		Property<CommandLineToolInvocation> getInvocation();
