@@ -15,6 +15,8 @@
  */
 package dev.nokee.core.exec;
 
+import org.gradle.process.ExecOperations;
+
 /**
  * A execution engine models how a command line tool will be executed.
  * It convert an agnostic invocation into an handle for the execution within the engine.
@@ -37,4 +39,9 @@ public interface CommandLineToolExecutionEngine<T extends CommandLineToolExecuti
 	 * @return a {@link CommandLineToolExecutionHandle} instance, never null.
 	 */
 	T submit(CommandLineToolInvocation invocation);
+
+	@SuppressWarnings("UnstableApiUsage")
+	static ExecOperationsExecutionEngine execOperations(ExecOperations execOperations) {
+		return new ExecOperationsExecutionEngine(execOperations);
+	}
 }
