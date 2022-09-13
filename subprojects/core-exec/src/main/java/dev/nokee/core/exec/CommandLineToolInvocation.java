@@ -19,12 +19,10 @@ import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInher
 import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl;
 import lombok.EqualsAndHashCode;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.Optional;
 
 import static dev.nokee.core.exec.CommandLineUtils.resolve;
 
@@ -35,27 +33,24 @@ import static dev.nokee.core.exec.CommandLineUtils.resolve;
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class CommandLineToolInvocation {
-	@EqualsAndHashCode.Include private final CommandLine commandLine;
+	@EqualsAndHashCode.Include private final CommandLineToolExecutable executable;
+	@EqualsAndHashCode.Include private final CommandLineToolArguments arguments;
 	private final CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect;
 	private final CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect;
 	private final File workingDirectory;
 	@EqualsAndHashCode.Include private final CommandLineToolInvocationEnvironmentVariables environmentVariables;
 
-	public CommandLineToolInvocation(CommandLine commandLine, CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect, Path workingDirectory, CommandLineToolInvocationEnvironmentVariables environmentVariables) {
-		this.commandLine = commandLine;
+	public CommandLineToolInvocation(CommandLineToolExecutable executable, CommandLineToolArguments arguments, CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect, Path workingDirectory, CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+		this.executable = executable;
+		this.arguments = arguments;
 		this.standardOutputRedirect = standardOutputRedirect;
 		this.errorOutputRedirect = errorOutputRedirect;
 		this.workingDirectory = workingDirectory.toFile();
 		this.environmentVariables = environmentVariables;
 	}
 
-	/**
-	 * Returns the tool to use for this command line tool invocation.
-	 *
-	 * @return the tool of this invocation, never null
-	 */
-	public CommandLineTool getTool() {
-		return commandLine.getTool();
+	public CommandLineToolExecutable getExecutable() {
+		return executable;
 	}
 
 	/**
@@ -64,7 +59,7 @@ public final class CommandLineToolInvocation {
 	 * @return the arguments of this invocation, never null
 	 */
 	public CommandLineToolArguments getArguments() {
-		return commandLine.getArguments();
+		return arguments;
 	}
 
 	/**
@@ -147,12 +142,32 @@ public final class CommandLineToolInvocation {
 		}
 
 		public CommandLineToolInvocation build() {
-			Path workingDirectory = resolve(this.workingDirectory);
-			if (workingDirectory == null) {
-				workingDirectory = Paths.get("").toAbsolutePath();
-			}
+			final Path workingDirectory = resolveWorkingDirectory();
 
-			return new CommandLineToolInvocation(Objects.requireNonNull(commandLine, "'commandLine' must not be null"), standardOutputRedirect, errorOutputRedirect, workingDirectory, environmentVariables);
+			Objects.requireNonNull(commandLine, "'commandLine' must not be null");
+
+			CommandLineToolExecutable executable = ((CommandLineToolExecutableResolvable) commandLine.getTool()).resolve(new CommandLineToolExecutableResolvable.Context() {
+				@Override
+				public Path getWorkingDirectory() {
+					return workingDirectory;
+				}
+
+				@Override
+				public CommandLineToolInvocationEnvironmentVariables getEnvironmentVariables() {
+					return environmentVariables;
+				}
+			});
+
+			return new CommandLineToolInvocation(executable, commandLine.getArguments(), standardOutputRedirect, errorOutputRedirect, workingDirectory, environmentVariables);
+		}
+
+		private Path resolveWorkingDirectory() {
+			Path result = resolve(this.workingDirectory);
+			if (workingDirectory == null) {
+				return Paths.get("").toAbsolutePath();
+			} else {
+				return result;
+			}
 		}
 
 		public <T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine) {

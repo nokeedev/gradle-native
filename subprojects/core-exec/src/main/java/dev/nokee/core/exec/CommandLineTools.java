@@ -21,6 +21,9 @@ import org.gradle.api.tasks.*;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Optional;
 
 final class CommandLineTools {
@@ -57,6 +60,11 @@ final class CommandLineTools {
 		public String getExecutable() {
 			return executable.toString();
 		}
+
+		@Override
+		public CommandLineToolExecutable resolve(Context context) {
+			return new CommandLineToolExecutable(Arrays.stream(context.getEnvironmentVariables().getAsMap().get("PATH").split(File.pathSeparator)).map(it -> Paths.get(it, executable.toString())).filter(Files::exists).findFirst().orElseThrow(RuntimeException::new));
+		}
 	}
 
 	/**
@@ -81,6 +89,11 @@ final class CommandLineTools {
 		@PathSensitive(PathSensitivity.NONE)
 		protected File getInputFile() {
 			return toolLocation;
+		}
+
+		@Override
+		public CommandLineToolExecutable resolve(Context context) {
+			return new CommandLineToolExecutable(toolLocation.toPath());
 		}
 	}
 }

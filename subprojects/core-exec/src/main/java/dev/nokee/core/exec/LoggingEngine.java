@@ -30,7 +30,7 @@ public class LoggingEngine<T extends CommandLineToolExecutionHandle> implements 
 
 	@Override
 	public T submit(CommandLineToolInvocation invocation) {
-		LOGGER.info(() -> String.format("Invoking process 'command '%s''. Command: %s", invocation.getTool().getExecutable(), String.join(" ", Iterables.concat(ImmutableList.of(invocation.getTool().getExecutable()), invocation.getArguments().get()))));
+		LOGGER.info(() -> String.format("Invoking process 'command '%s''. Command: %s", invocation.getExecutable().getLocation(), String.join(" ", Iterables.concat(ImmutableList.of(invocation.getExecutable().getLocation().toString()), invocation.getArguments().get()))));
 		return delegate.submit(invocation);
 	}
 

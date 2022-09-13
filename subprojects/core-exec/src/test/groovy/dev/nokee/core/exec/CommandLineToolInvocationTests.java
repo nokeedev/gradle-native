@@ -15,6 +15,7 @@
  */
 package dev.nokee.core.exec;
 
+import com.google.common.collect.ImmutableList;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,6 +26,7 @@ import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError;
 import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput;
+import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
@@ -33,16 +35,16 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CommandLineToolInvocationTests {
-	CommandLineToolInvocation subject = new CommandLineToolInvocation(CommandLine.of("my-tool", "arg1", "arg2"), duplicateToSystemOutput(), duplicateToSystemError(), Paths.get("my", "working", "directory"), inherit());
+	CommandLineToolInvocation subject = new CommandLineToolInvocation(new CommandLineToolExecutable(Paths.get("my-tool")), new CommandLineToolArguments(ImmutableList.of("arg1", "arg2")), duplicateToSystemOutput(), duplicateToSystemError(), Paths.get("my", "working", "directory"), inherit());
 
 	@Test
-	void hasCommandLineTool() {
-		assertThat(subject.getTool(), notNullValue()); // TODO: check actual value
+	void hasExecutable() {
+		assertThat(subject.getExecutable(), equalTo(new CommandLineToolExecutable(Paths.get("my-tool"))));
 	}
 
 	@Test
 	void hasArguments() {
-		assertThat(subject.getArguments(), equalTo(CommandLineToolArguments.of("arg1", "arg2")));
+		assertThat(subject.getArguments(), equalTo(new CommandLineToolArguments(ImmutableList.of("arg1", "arg2"))));
 	}
 
 	@Test
@@ -57,7 +59,7 @@ class CommandLineToolInvocationTests {
 
 	@Test
 	void hasWorkingDirectory() {
-		assertThat(subject.getWorkingDirectory(), optionalWithValue(withAbsolutePath(endsWith("/my/working/directory"))));
+		assertThat(subject.getWorkingDirectory(), aFile(withAbsolutePath(endsWith("/my/working/directory"))));
 	}
 
 	@Test

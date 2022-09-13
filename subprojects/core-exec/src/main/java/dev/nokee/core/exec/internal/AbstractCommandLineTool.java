@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolArguments;
+import dev.nokee.core.exec.CommandLineToolExecutableResolvable;
 import dev.nokee.core.exec.CommandLineToolExecutionEngine;
 import dev.nokee.core.exec.CommandLineToolExecutionHandle;
 import dev.nokee.core.exec.CommandLineToolInvocation;
@@ -30,7 +31,7 @@ import java.util.List;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
 
-public abstract class AbstractCommandLineTool implements CommandLineTool {
+public abstract class AbstractCommandLineTool implements CommandLineTool, CommandLineToolExecutableResolvable {
 	@Override
 	public CommandLine withArguments(Object... arguments) {
 		return new CommandLine(this, CommandLineToolArguments.of(arguments));
