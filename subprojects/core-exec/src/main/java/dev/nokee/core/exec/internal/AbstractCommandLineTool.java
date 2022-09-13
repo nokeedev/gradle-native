@@ -28,6 +28,7 @@ import dev.nokee.core.exec.ProcessBuilderEngine;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
 
@@ -40,6 +41,13 @@ public abstract class AbstractCommandLineTool implements CommandLineTool, Comman
 	@Override
 	public CommandLine withArguments(Iterable<?> arguments) {
 		return new CommandLine(this, CommandLineToolArguments.of(ImmutableList.copyOf(arguments)));
+	}
+
+	@Override
+	public CommandLine withArguments(Consumer<? super CommandLineToolArguments.Builder> action) {
+		final CommandLineToolArguments.Builder builder = new CommandLineToolArguments.Builder();
+		action.accept(builder);
+		return new CommandLine(this, builder.build());
 	}
 
 	@Override

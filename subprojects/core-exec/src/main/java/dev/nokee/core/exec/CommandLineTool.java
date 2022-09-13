@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * A command line tool represent a executable component that can be used as a tool.
@@ -61,6 +62,14 @@ public interface CommandLineTool {
 	 * @since 0.5
 	 */
 	CommandLine withArguments(Iterable<?> arguments);
+
+	/**
+	 * Creates a command line from this tool and the arguments built from the specified builder action.
+	 *
+	 * @param action  the argument builder action, must not be null
+	 * @return a {@link CommandLine} instance of this tool with the built arguments, never null
+	 */
+	CommandLine withArguments(Consumer<? super CommandLineToolArguments.Builder> action);
 
 	// TODO: Model the requirements of a command line tool
 	//  Requirements are the runtime (host, java, python, bash, batch, etc.)
