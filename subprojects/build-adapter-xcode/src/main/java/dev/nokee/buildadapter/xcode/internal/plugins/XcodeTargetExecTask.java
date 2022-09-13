@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import dev.nokee.core.exec.CommandLineTool;
+import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.XCBuildSettings;
@@ -28,7 +30,6 @@ import dev.nokee.xcode.project.PBXProj;
 import dev.nokee.xcode.project.PBXProjReader;
 import dev.nokee.xcode.project.PBXProjWriter;
 import lombok.val;
-import org.apache.commons.io.output.NullOutputStream;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
@@ -42,25 +43,30 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.process.ExecOperations;
-import org.gradle.process.ExecResult;
+import org.gradle.workers.WorkAction;
+import org.gradle.workers.WorkParameters;
+import org.gradle.workers.WorkerExecutor;
 
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
 import static dev.nokee.buildadapter.xcode.internal.plugins.XCBuildSettingsUtils.codeSigningDisabled;
+import static dev.nokee.core.exec.CommandLineToolExecutionEngine.execOperations;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toNullStream;
+import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toStandardStream;
 import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.ifPresent;
 
 public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask {
+	private final WorkerExecutor workerExecutor;
+
 	@Inject
 	protected abstract ExecOperations getExecOperations();
 
@@ -83,30 +89,31 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	public abstract MapProperty<String, String> getBuildSettings();
 
 	@Inject
-	public XcodeTargetExecTask(ProviderFactory providers) {
+	public XcodeTargetExecTask(ProviderFactory providers, WorkerExecutor workerExecutor) {
+		this.workerExecutor = workerExecutor;
 		finalizeValueOnRead(disallowChanges(getBuildSettings().value(providers.provider(() -> {
-			val outStream = new ByteArrayOutputStream();
-			getExecOperations().exec(spec -> {
-				spec.commandLine("xcodebuild", "-project", getXcodeProject().get().getLocation(), "-target", getTargetName().get());
-				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
+			return CommandLineTool.of("xcodebuild").withArguments(it -> {
+				it.args("-project", getXcodeProject().get().getLocation());
+				it.args("-target", getTargetName());
+				it.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
 					return ImmutableList.of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
-				}).get());
-				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
-					.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags).get());
-				ifPresent(getSdk(), sdk -> spec.args("-sdk", sdk));
-				ifPresent(getConfiguration(), buildType -> spec.args("-configuration", buildType));
-				spec.args(codeSigningDisabled());
-				spec.args("-showBuildSettings", "-json");
-
-				ifPresent(getWorkingDirectory(), spec::workingDir);
-				spec.setStandardOutput(outStream);
-				spec.setErrorOutput(NullOutputStream.NULL_OUTPUT_STREAM);
-			});
-			outStream.toString();
-
-			@SuppressWarnings("unchecked")
-			val parsedOutput = (List<ShowBuildSettingsEntry>) new Gson().fromJson(outStream.toString(), new TypeToken<List<ShowBuildSettingsEntry>>() {}.getType());
-			return parsedOutput.get(0).getBuildSettings();
+				}));
+				it.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
+					.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags));
+				ifPresent(getSdk(), sdk -> it.args("-sdk", sdk));
+				ifPresent(getConfiguration(), buildType -> it.args("-configuration", buildType));
+				it.args(codeSigningDisabled());
+				it.args("-showBuildSettings", "-json");
+			}).newInvocation(it -> {
+				ifPresent(getWorkingDirectory(), it::workingDirectory);
+				it.redirectStandardOutput(toNullStream());
+				it.redirectErrorOutput(toNullStream());
+			}).submitTo(execOperations(getExecOperations())).result()
+				.getStandardOutput().parse(output -> {
+					@SuppressWarnings("unchecked")
+					val parsedOutput = (List<ShowBuildSettingsEntry>) new Gson().fromJson(output, new TypeToken<List<ShowBuildSettingsEntry>>() {}.getType());
+					return parsedOutput.get(0).getBuildSettings();
+				});
 		}))));
 	}
 
@@ -172,33 +179,51 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			writer.write(isolatedProject);
 		}
 
-		ExecResult result = null;
-		try (val outStream = new FileOutputStream(new File(getTemporaryDir(), "outputs.txt"))) {
-			result = getExecOperations().exec(spec -> {
-				spec.commandLine("xcodebuild", "-project", isolatedProjectLocation, "-target", getTargetName().get());
-				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
-					return ImmutableList.of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
-				}).get());
-				spec.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
-					.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags).get());
-				ifPresent(getSdk(), sdk -> spec.args("-sdk", sdk));
-				ifPresent(getConfiguration(), buildType -> spec.args("-configuration", buildType));
-				spec.args(codeSigningDisabled());
-				ifPresent(getWorkingDirectory(), spec::workingDir);
-				spec.setStandardOutput(outStream);
-				spec.setErrorOutput(outStream);
-				spec.setIgnoreExitValue(true);
+		val invocation = CommandLineTool.of("xcodebuild").withArguments(it -> {
+			it.args("-project", isolatedProjectLocation);
+			it.args("-target", getTargetName());
+			it.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
+				return ImmutableList.of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
+			}));
+			it.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
+				.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags));
+			ifPresent(getSdk(), sdk -> it.args("-sdk", sdk));
+			ifPresent(getConfiguration(), buildType -> it.args("-configuration", buildType));
+			it.args(codeSigningDisabled());
+		}).newInvocation(it -> {
+			ifPresent(getWorkingDirectory(), it::workingDirectory);
+			it.redirectStandardOutput(toFile(new File(getTemporaryDir(), "outputs.txt")));
+			it.redirectErrorOutput(toStandardStream());
+		});
+		workerExecutor.noIsolation().submit(XcodebuildExec.class, spec -> {
+			spec.getInvocation().set(invocation);
+			spec.getOutputDirectory().set(getOutputDirectory());
+			spec.getDerivedDataPath().set(getDerivedDataPath());
+		});
+	}
+
+	public static abstract class XcodebuildExec implements WorkAction<XcodebuildExec.Parameters> {
+		interface Parameters extends WorkParameters {
+			Property<CommandLineToolInvocation> getInvocation();
+			DirectoryProperty getDerivedDataPath();
+			DirectoryProperty getOutputDirectory();
+		}
+
+		@Inject
+		protected abstract ExecOperations getExecOperations();
+
+		@Inject
+		protected abstract FileSystemOperations getFileOperations();
+
+		@Override
+		public void execute() {
+			getParameters().getInvocation().get().submitTo(execOperations(getExecOperations())).result().assertNormalExitValue();
+
+			getFileOperations().sync(spec -> {
+				spec.from(getParameters().getDerivedDataPath(), it -> it.include("Build/Products/**/*"));
+				spec.into(getParameters().getOutputDirectory());
 			});
 		}
-
-		if (result.getExitValue() != 0) {
-			throw new RuntimeException(String.format("Process '%s' finished with non-zero exit value %d, see %s for more information.", "xcodebuild", result.getExitValue(), new ConsoleRenderer().asClickableFileUrl(new File(getTemporaryDir(), "outputs.txt"))));
-		}
-
-		getFileOperations().sync(spec -> {
-			spec.from(getDerivedDataPath(), it -> it.include("Build/Products/**/*"));
-			spec.into(getOutputDirectory());
-		});
 	}
 
 	private List<String> asFlags(XCBuildSettings buildSettings) {
