@@ -20,6 +20,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -145,5 +146,20 @@ public final class CommandLineToolInvocationEnvironmentVariables {
 	public static CommandLineToolInvocationEnvironmentVariables from(Properties properties) {
 		Objects.requireNonNull(properties, "'properties' must not be null");
 		return from(asMap(properties));
+	}
+
+	public static final class Builder {
+		private final Map<String, Object> envVars = new HashMap<>();
+
+		public Builder env(String key, Object value) {
+			Objects.requireNonNull(key, "'key' must not be null");
+			Objects.requireNonNull(value, "'value' must not be null");
+			envVars.put(key, value);
+			return this;
+		}
+
+		public CommandLineToolInvocationEnvironmentVariables build() {
+			return new CommandLineToolInvocationEnvironmentVariables(ImmutableMap.copyOf(envVars));
+		}
 	}
 }
