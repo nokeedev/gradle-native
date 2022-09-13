@@ -15,27 +15,20 @@
  */
 package dev.nokee.core.exec;
 
-import lombok.EqualsAndHashCode;
+import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
+import static dev.nokee.core.exec.SerializableMatchers.isSerializable;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@EqualsAndHashCode
-public final class CommandLineToolExecutable implements Serializable {
-	private final String location;
-
-	public CommandLineToolExecutable(Path location) {
-		this.location = Objects.requireNonNull(location, "'location' must not be null").toString();
+class CommandLineToolInvocationEnvrionmentVariablesSerializableTests {
+	@Test
+	void canSerializeEmptyArguments() {
+		assertThat(new CommandLineToolInvocationEnvironmentVariables(), isSerializable());
 	}
 
-	public Path getLocation() {
-		return Paths.get(location);
-	}
-
-	@Override
-	public String toString() {
-		return "executable '" + location + "'";
+	@Test
+	void canSerializeMultipleArguments() {
+		assertThat(new CommandLineToolInvocationEnvironmentVariables(ImmutableMap.of("k1", "v1", "k2", "v2", "k3", "v3")), isSerializable());
 	}
 }
