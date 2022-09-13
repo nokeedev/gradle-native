@@ -39,7 +39,7 @@ public abstract class GradleWorkerExecutorEngine implements CommandLineToolExecu
 	public Handle submit(CommandLineToolInvocation invocation) {
 		WorkQueue workQueue = getWorkerExecutor().noIsolation();
 		workQueue.submit(GradleWorkerExecutorEngineWorkAction.class, it -> {
-			it.getCommandLine().add(invocation.getTool().getExecutable());
+			it.getCommandLine().add(invocation.getExecutable().getLocation().toString());
 			it.getCommandLine().addAll(invocation.getArguments().get());
 			it.getStandardOutputRedirect().set(invocation.getStandardOutputRedirect());
 			it.getErrorOutputRedirect().set(invocation.getErrorOutputRedirect());

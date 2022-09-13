@@ -33,9 +33,9 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 	@Override
 	public Handle submit(CommandLineToolInvocation invocation) {
 		ProcessBuilder processBuilder = new ProcessBuilder();
-		processBuilder.command().add(invocation.getTool().getExecutable());
+		processBuilder.command().add(invocation.getExecutable().getLocation().toString());
 		processBuilder.command().addAll(invocation.getArguments().get());
-		invocation.getWorkingDirectory().ifPresent(processBuilder::directory);
+		processBuilder.directory(invocation.getWorkingDirectory().toFile());
 		processBuilder.environment().putAll(invocation.getEnvironmentVariables().getAsMap());
 		try {
 			Process process = processBuilder.start();
