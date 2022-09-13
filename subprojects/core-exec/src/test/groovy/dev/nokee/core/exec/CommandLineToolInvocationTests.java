@@ -22,20 +22,16 @@ import org.mockito.Mockito;
 
 import java.nio.file.Paths;
 
-import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
-import static dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect.duplicateToSystemError;
-import static dev.nokee.core.exec.CommandLineToolInvocationStandardOutputRedirect.duplicateToSystemOutput;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CommandLineToolInvocationTests {
-	CommandLineToolInvocation subject = new CommandLineToolInvocation(new CommandLineToolExecutable(Paths.get("my-tool")), new CommandLineToolArguments(ImmutableList.of("arg1", "arg2")), duplicateToSystemOutput(), duplicateToSystemError(), Paths.get("my", "working", "directory"), inherit());
+	CommandLineToolInvocation subject = new CommandLineToolInvocation(new CommandLineToolExecutable(Paths.get("my-tool")), new CommandLineToolArguments(ImmutableList.of("arg1", "arg2")), new CommandLineToolInvocationOutputRedirection.ToSystemOutputRedirection(), new CommandLineToolInvocationOutputRedirection.ToSystemErrorRedirection(), Paths.get("my", "working", "directory"), inherit());
 
 	@Test
 	void hasExecutable() {
@@ -49,12 +45,12 @@ class CommandLineToolInvocationTests {
 
 	@Test
 	void hasStandardOutputRedirect() {
-		assertThat(subject.getStandardOutputRedirect(), notNullValue()); // TODO: check actual value
+		assertThat(subject.getStandardOutputRedirect(), equalTo(new CommandLineToolInvocationOutputRedirection.ToSystemOutputRedirection()));
 	}
 
 	@Test
 	void hasErrorOutputRedirect() {
-		assertThat(subject.getErrorOutputRedirect(), notNullValue()); // TODO: check actual value
+		assertThat(subject.getErrorOutputRedirect(), equalTo(new CommandLineToolInvocationOutputRedirection.ToSystemErrorRedirection()));
 	}
 
 	@Test

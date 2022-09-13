@@ -15,8 +15,6 @@
  */
 package dev.nokee.core.exec;
 
-import dev.nokee.core.exec.internal.CommandLineToolInvocationOutputRedirectInheritImpl;
-import dev.nokee.core.exec.internal.CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl;
 import lombok.EqualsAndHashCode;
 
 import java.io.File;
@@ -122,8 +120,8 @@ public final class CommandLineToolInvocation {
 	public static final class Builder {
 		private CommandLine commandLine;
 		private Object workingDirectory = null;
-		private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
-		private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationOutputRedirectInheritImpl();
+		private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationInheritedStandardOutputRedirection();
+		private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationInheritedErrorOutputRedirection();
 		private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
 
 		public Builder commandLine(CommandLine commandLine) {
@@ -172,11 +170,6 @@ public final class CommandLineToolInvocation {
 
 		public <T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine) {
 			return engine.submit(build());
-		}
-
-		public Builder appendStandardStreamToFile(File file) {
-			standardOutputRedirect = new CommandLineToolInvocationStandardOutputRedirectAppendToFileImpl(file);
-			return this;
 		}
 
 		public Builder redirectStandardOutput(CommandLineToolInvocationStandardOutputRedirect redirect) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.core.exec.internal;
-
-import lombok.Value;
+package dev.nokee.core.exec;
 
 import java.io.OutputStream;
 
-@Value
-public class CommandLineToolOutputStreamsImpl implements CommandLineToolOutputStreams {
-	OutputStream standardOutput;
-	OutputStream errorOutput;
+final class CommandLineToolInvocationInheritedErrorOutputRedirection implements CommandLineToolInvocationErrorOutputRedirect, CommandLineToolInvocationOutputRedirection.OutputRedirectInternal {
+	@Override
+	public OutputStream redirect(CommandLineToolInvocationOutputRedirection.Context context) {
+		return context.getErrorOutput();
+	}
 }
