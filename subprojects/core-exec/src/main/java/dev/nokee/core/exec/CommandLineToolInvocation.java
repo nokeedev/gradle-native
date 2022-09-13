@@ -127,7 +127,7 @@ public final class CommandLineToolInvocation {
 		private CommandLine commandLine;
 		private Object workingDirectory = null;
 		private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationInheritedStandardOutputRedirection();
-		private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationInheritedErrorOutputRedirection();
+		private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationInheritedStandardErrorRedirection();
 		private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
 
 		public Builder commandLine(CommandLine commandLine) {
