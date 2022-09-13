@@ -47,6 +47,12 @@ public final class CommandLineToolInvocation {
 		this.environmentVariables = environmentVariables;
 	}
 
+	/**
+	 * Returns the executable to use fo rthis command line tool invocation.
+	 *
+	 * @return the executable of this invocation, never null
+	 * @since 0.5
+	 */
 	public CommandLineToolExecutable getExecutable() {
 		return executable;
 	}
@@ -162,7 +168,7 @@ public final class CommandLineToolInvocation {
 		private Path resolveWorkingDirectory() {
 			Path result = resolve(this.workingDirectory);
 			if (workingDirectory == null) {
-				return Paths.get("").toAbsolutePath();
+				return Paths.get("").toAbsolutePath(); // in case Gradle configuration wrongly detect something
 			} else {
 				return result;
 			}
