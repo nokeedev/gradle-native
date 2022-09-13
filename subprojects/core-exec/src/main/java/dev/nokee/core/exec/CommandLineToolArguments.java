@@ -55,6 +55,14 @@ public final class CommandLineToolArguments implements Iterable<String> {
 		return ImmutableList.copyOf(arguments.stream().map(Object::toString).collect(Collectors.toList()));
 	}
 
+	public String toString() {
+		if (arguments.isEmpty()) {
+			return "arguments [<empty>]";
+		} else {
+			return "arguments [" + arguments.stream().map(it -> "'" + it + "'").collect(Collectors.joining(", ")) + "]";
+		}
+	}
+
 	@Override
 	public Iterator<String> iterator() {
 		return get().iterator();
