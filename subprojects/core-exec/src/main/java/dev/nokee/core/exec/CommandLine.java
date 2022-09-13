@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.from;
@@ -76,6 +77,12 @@ public final class CommandLine {
 	 */
 	public CommandLineToolInvocation.Builder newInvocation() {
 		return new CommandLineToolInvocation.Builder().commandLine(this);
+	}
+
+	public CommandLineToolInvocation newInvocation(Consumer<? super CommandLineToolInvocation.Builder> action) {
+		final CommandLineToolInvocation.Builder builder = newInvocation();
+		action.accept(builder);
+		return builder.build();
 	}
 
 	/**
