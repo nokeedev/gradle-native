@@ -18,12 +18,13 @@ package dev.nokee.core.exec;
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
-public final class CommandLineToolArguments implements Iterable<String> {
+public final class CommandLineToolArguments implements Iterable<String>, Serializable {
 	private static final CommandLineToolArguments EMPTY_ARGUMENTS = new CommandLineToolArguments();
 
 	private final ImmutableList<Object> arguments;

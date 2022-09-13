@@ -15,27 +15,27 @@
  */
 package dev.nokee.core.exec;
 
-import lombok.EqualsAndHashCode;
+import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
-@EqualsAndHashCode
-public final class CommandLineToolExecutable implements Serializable {
-	private final String location;
+import static dev.nokee.core.exec.SerializableMatchers.isSerializable;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-	public CommandLineToolExecutable(Path location) {
-		this.location = Objects.requireNonNull(location, "'location' must not be null").toString();
+class CommandLineToolExecutableSerializableTests {
+	@Test
+	void canSerializeExecutableWithAbsolutePath() {
+		assertThat(new CommandLineToolExecutable(Paths.get("my", "executable").toAbsolutePath()),
+			isSerializable());
 	}
 
-	public Path getLocation() {
-		return Paths.get(location);
+	@Test
+	void canSerializeExecutableOnly() {
+		assertThat(new CommandLineToolExecutable(Paths.get("a.out")), isSerializable());
 	}
 
-	@Override
-	public String toString() {
-		return "executable '" + location + "'";
+	@Test
+	void canSerializeExecutableWithRelativePath() {
+		assertThat(new CommandLineToolExecutable(Paths.get("dir", "a.out")), isSerializable());
 	}
 }

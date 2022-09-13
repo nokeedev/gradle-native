@@ -15,27 +15,25 @@
  */
 package dev.nokee.core.exec;
 
-import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.SerializationUtils;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 import java.io.Serializable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
 
-@EqualsAndHashCode
-public final class CommandLineToolExecutable implements Serializable {
-	private final String location;
+public class SerializableMatchers {
+	public static Matcher<Object> isSerializable() {
+		return new TypeSafeMatcher<Object>() {
+			@Override
+			public void describeTo(Description description) {
 
-	public CommandLineToolExecutable(Path location) {
-		this.location = Objects.requireNonNull(location, "'location' must not be null").toString();
-	}
+			}
 
-	public Path getLocation() {
-		return Paths.get(location);
-	}
-
-	@Override
-	public String toString() {
-		return "executable '" + location + "'";
+			@Override
+			protected boolean matchesSafely(Object actual) {
+				return actual instanceof Serializable && actual.equals(SerializationUtils.clone((Serializable) actual));
+			}
+		};
 	}
 }

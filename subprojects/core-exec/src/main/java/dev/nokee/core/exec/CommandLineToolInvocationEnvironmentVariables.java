@@ -20,6 +20,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesU
  * @since 0.5
  */
 @EqualsAndHashCode
-public final class CommandLineToolInvocationEnvironmentVariables {
+public final class CommandLineToolInvocationEnvironmentVariables implements Serializable {
 	private static final CommandLineToolInvocationEnvironmentVariables EMPTY_ENVIRONMENT_VARIABLES = new CommandLineToolInvocationEnvironmentVariables();
 	private final Map<String, ?> environmentVariables;
 
