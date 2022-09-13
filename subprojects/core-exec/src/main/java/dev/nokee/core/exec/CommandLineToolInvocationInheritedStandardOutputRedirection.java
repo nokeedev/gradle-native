@@ -15,11 +15,20 @@
  */
 package dev.nokee.core.exec;
 
-import java.io.OutputStream;
+import lombok.EqualsAndHashCode;
 
-final class CommandLineToolInvocationInheritedStandardOutputRedirection implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationOutputRedirection.OutputRedirectInternal {
+import java.io.OutputStream;
+import java.io.Serializable;
+
+@EqualsAndHashCode
+final class CommandLineToolInvocationInheritedStandardOutputRedirection implements CommandLineToolInvocationStandardOutputRedirect, CommandLineToolInvocationOutputRedirection.OutputRedirectInternal, Serializable {
 	@Override
 	public OutputStream redirect(CommandLineToolInvocationOutputRedirection.Context context) {
 		return context.getStandardOutput();
+	}
+
+	@Override
+	public String toString() {
+		return "inherited()";
 	}
 }
