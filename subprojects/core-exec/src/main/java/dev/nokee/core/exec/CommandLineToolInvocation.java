@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,14 +38,14 @@ public final class CommandLineToolInvocation {
 	@EqualsAndHashCode.Include private final CommandLine commandLine;
 	private final CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect;
 	private final CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect;
-	@Nullable private final File workingDirectory;
+	private final File workingDirectory;
 	@EqualsAndHashCode.Include private final CommandLineToolInvocationEnvironmentVariables environmentVariables;
 
-	public CommandLineToolInvocation(CommandLine commandLine, CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect, @Nullable Path workingDirectory, CommandLineToolInvocationEnvironmentVariables environmentVariables) {
+	public CommandLineToolInvocation(CommandLine commandLine, CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect, CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect, Path workingDirectory, CommandLineToolInvocationEnvironmentVariables environmentVariables) {
 		this.commandLine = commandLine;
 		this.standardOutputRedirect = standardOutputRedirect;
 		this.errorOutputRedirect = errorOutputRedirect;
-		this.workingDirectory = workingDirectory == null ? null : workingDirectory.toFile();
+		this.workingDirectory = workingDirectory.toFile();
 		this.environmentVariables = environmentVariables;
 	}
 
@@ -101,8 +102,8 @@ public final class CommandLineToolInvocation {
 	 *
 	 * @return the working directory of this invocation if any, never null
 	 */
-	public Optional<File> getWorkingDirectory() {
-		return Optional.ofNullable(workingDirectory);
+	public Path getWorkingDirectory() {
+		return workingDirectory.toPath();
 	}
 
 	/**
@@ -146,7 +147,12 @@ public final class CommandLineToolInvocation {
 		}
 
 		public CommandLineToolInvocation build() {
-			return new CommandLineToolInvocation(Objects.requireNonNull(commandLine, "'commandLine' must not be null"), standardOutputRedirect, errorOutputRedirect, resolve(workingDirectory), environmentVariables);
+			Path workingDirectory = resolve(this.workingDirectory);
+			if (workingDirectory == null) {
+				workingDirectory = Paths.get("").toAbsolutePath();
+			}
+
+			return new CommandLineToolInvocation(Objects.requireNonNull(commandLine, "'commandLine' must not be null"), standardOutputRedirect, errorOutputRedirect, workingDirectory, environmentVariables);
 		}
 
 		public <T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine) {

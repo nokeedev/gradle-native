@@ -41,7 +41,7 @@ final class CommandLineUtils {
 	}
 
 	@Nullable
-	public static Path resolve(Object aPath) {
+	public static Path resolve(@Nullable Object aPath) {
 		val unpacked = DeferredUtils.unpack(aPath);
 		if (unpacked == null) {
 			return null;
