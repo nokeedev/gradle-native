@@ -25,6 +25,6 @@ import static org.hamcrest.Matchers.equalTo;
 class CommandLineToolArgumentsEmptyFactoryTests {
 	@Test
 	void canCreateEmptyArguments() {
-		assertThat(empty(), equalTo(new CommandLineToolArguments(ImmutableList.of())));
+		assertThat(empty(), equalTo(new CommandLineToolArguments()));
 	}
 }

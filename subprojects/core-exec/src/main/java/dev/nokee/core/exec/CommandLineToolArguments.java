@@ -24,9 +24,13 @@ import java.util.stream.Collectors;
 
 @EqualsAndHashCode
 public final class CommandLineToolArguments implements Iterable<String> {
-	private static final CommandLineToolArguments EMPTY_ARGUMENTS = new CommandLineToolArguments(ImmutableList.of());
+	private static final CommandLineToolArguments EMPTY_ARGUMENTS = new CommandLineToolArguments();
 
 	private final ImmutableList<Object> arguments;
+
+	public CommandLineToolArguments() {
+		this(ImmutableList.of());
+	}
 
 	public CommandLineToolArguments(List<Object> arguments) {
 		this.arguments = ImmutableList.copyOf(arguments);

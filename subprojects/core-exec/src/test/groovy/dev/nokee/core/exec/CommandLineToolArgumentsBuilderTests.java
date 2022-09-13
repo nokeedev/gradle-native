@@ -29,7 +29,7 @@ class CommandLineToolArgumentsBuilderTests {
 
 	@Test
 	void canBuildEmptyArguments() {
-		assertThat(subject.build(), equalTo(new CommandLineToolArguments(ImmutableList.of())));
+		assertThat(subject.build(), equalTo(new CommandLineToolArguments()));
 	}
 
 	@Test
