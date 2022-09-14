@@ -72,6 +72,7 @@ final class CommandLineTools {
 	 * If the executable file depends on other files included with the tools, those needs to be added to the tasks input values.
 	 * TODO: We should consider providing a builder that can configure those added files and/or environment variables that affect the execution.
 	 */
+	@EqualsAndHashCode(callSuper = false)
 	private static final class CommandLineToolFromFileSystemLocationImpl extends AbstractCommandLineTool {
 		private final File toolLocation;
 
