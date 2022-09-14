@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -155,6 +156,10 @@ public final class CommandLineToolInvocation implements Serializable {
 
 		public CommandLineToolInvocation build() {
 			final Path workingDirectory = resolveWorkingDirectory();
+
+			if (Files.notExists(workingDirectory)) {
+				throw new RuntimeException(String.format("Working directory '%s' does not exist.", workingDirectory));
+			}
 
 			Objects.requireNonNull(executable, "'commandLine' must not be null");
 
