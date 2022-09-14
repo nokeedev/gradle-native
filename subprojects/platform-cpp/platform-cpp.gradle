@@ -59,7 +59,7 @@ repositories {
 
 dependencies {
 	performanceTestImplementation gradleRunnerKit()
-	performanceTestImplementation('dev.gradleplugins:gradle-runner-kit-impl:0.0.137') {
+	performanceTestImplementation('dev.gradleplugins:gradle-runner-kit-impl:0.0.138') {
 		because 'we need access to AbstractGradleExecutionProvider until we open up that API in toolbox'
 	}
 	performanceTestImplementation gradleTestKit("6.9.2")

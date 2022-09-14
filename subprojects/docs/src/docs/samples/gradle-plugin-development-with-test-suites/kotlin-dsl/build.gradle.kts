@@ -1,7 +1,7 @@
 plugins {
-	id("dev.gradleplugins.java-gradle-plugin") version("1.6.7")
-	id("dev.gradleplugins.gradle-plugin-unit-test") version("1.6.7")
-	id("dev.gradleplugins.gradle-plugin-functional-test") version("1.6.7")
+	id("dev.gradleplugins.java-gradle-plugin") version("1.6.8")
+	id("dev.gradleplugins.gradle-plugin-unit-test") version("1.6.8")
+	id("dev.gradleplugins.gradle-plugin-functional-test") version("1.6.8")
 	id("groovy-base") // for Spock testing
 }
 
