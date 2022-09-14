@@ -40,6 +40,6 @@ class CommandLineScriptFactoryTests {
 	void canCreateCommandLineForCmdOnNix() {
 		val scriptCommand = script("ls", "-l", "/some/path");
 		assertThat(scriptCommand.getTool(), equalTo(CommandLineTool.of("/bin/bash")));
-		assertThat(scriptCommand.getArguments(), equalTo(CommandLineTool.of(ImmutableList.of("-c", "ls -l /some/path"))));
+		assertThat(scriptCommand.getArguments(), equalTo(new CommandLineToolArguments(ImmutableList.of("-c", "ls -l /some/path"))));
 	}
 }
