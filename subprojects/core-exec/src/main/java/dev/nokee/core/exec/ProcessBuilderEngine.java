@@ -15,6 +15,7 @@
  */
 package dev.nokee.core.exec;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.internal.DefaultCommandLineToolExecutionResult;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -31,9 +32,9 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 	@Override
 	public Handle submit(CommandLineToolInvocation invocation) {
 		ProcessBuilder processBuilder = new ProcessBuilder();
-		processBuilder.command().add(invocation.getExecutable().getLocation().toString());
-		processBuilder.command().addAll(invocation.getArguments().get());
+		processBuilder.command(ImmutableList.<String>builder().add(invocation.getExecutable().getLocation().toString()).addAll(invocation.getArguments()).build());
 		processBuilder.directory(invocation.getWorkingDirectory().toFile());
+		processBuilder.environment().clear();
 		processBuilder.environment().putAll(invocation.getEnvironmentVariables().getAsMap());
 
 		val result = execute(invocation, (outStream, errStream) -> {
