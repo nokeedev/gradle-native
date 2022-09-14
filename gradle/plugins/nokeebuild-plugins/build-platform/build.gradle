@@ -7,7 +7,7 @@ description = "Provides a platform that constrains versions of external dependen
 dependencies {
 	constraints {
 		// Gradle plugins
-		api 'dev.gradleplugins:gradle-plugin-development:1.6.7'
+		api 'dev.gradleplugins:gradle-plugin-development:1.6.8'
 		api 'org.shipkit:shipkit-auto-version:1.1.19'
 		api 'gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1'
 		api 'com.gradle:gradle-enterprise-gradle-plugin:3.8.1'

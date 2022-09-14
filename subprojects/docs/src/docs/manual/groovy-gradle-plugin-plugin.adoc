@@ -19,7 +19,7 @@ It is a drop-in replacement for the Gradle `java-gradle-plugin` and `groovy` cor
 [source,groovy]
 ----
 plugins {
-   id 'dev.gradleplugins.groovy-gradle-plugin' version '1.6.7'
+   id 'dev.gradleplugins.groovy-gradle-plugin' version '1.6.8'
 }
 ----
 =====
@@ -29,7 +29,7 @@ plugins {
 [source,kotlin]
 ----
 plugins {
-   id("dev.gradleplugins.groovy-gradle-plugin") version("1.6.7")
+   id("dev.gradleplugins.groovy-gradle-plugin") version("1.6.8")
 }
 ----
 =====

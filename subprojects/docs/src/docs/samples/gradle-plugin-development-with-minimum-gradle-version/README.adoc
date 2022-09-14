@@ -7,7 +7,7 @@
 :jbake-description: See how the Nokee team is helping the Gradle community develop better plugin by modelling the minimum Gradle version.
 :jbake-permalink: gradle-plugin-development-with-minimum-gradle-version
 :jbake-archivebasename: GradlePluginDevelopmentWithMinimumGradleVersion
-:jbake-archiveversion: 1.6.7
+:jbake-archiveversion: 1.6.8
 
 NOTE: Open this sample in an IDE using https://www.jetbrains.com/help/idea/gradle.html#gradle_import_project_start[IntelliJ native importer], https://projects.eclipse.org/projects/tools.buildship[Eclipse Buildship].
 
