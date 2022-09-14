@@ -63,7 +63,7 @@ final class CommandLineTools {
 
 		@Override
 		public CommandLineToolExecutable resolve(Context context) {
-			return new CommandLineToolExecutable(Arrays.stream(context.getEnvironmentVariables().getAsMap().get("PATH").split(File.pathSeparator)).map(it -> Paths.get(it, executable.toString())).filter(Files::exists).findFirst().orElseThrow(RuntimeException::new));
+			return new CommandLineToolExecutable(Arrays.stream(context.getEnvironmentVariables().getAsMap().get("PATH").split(File.pathSeparator)).map(it -> Paths.get(it, executable.toString())).filter(Files::exists).findFirst().orElseThrow(() -> new RuntimeException(String.format("Could not find '%s' using PATH '%s'.", executable.toString(), context.getEnvironmentVariables().get("PATH").orElse("<n/a>")))));
 		}
 	}
 
