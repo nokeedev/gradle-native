@@ -120,6 +120,11 @@ public final class CommandLineToolInvocation implements Serializable {
 		return engine.submit(this);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("invocation of %s with %s started in %s and %s", executable, arguments, workingDirectory, environmentVariables);
+	}
+
 	/**
 	 * A builder for a command line invocation.
 	 *
