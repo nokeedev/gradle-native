@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.asList;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.asMap;
@@ -92,6 +93,11 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 	 */
 	public CommandLineToolInvocationEnvironmentVariables plus(CommandLineToolInvocationEnvironmentVariables environmentVariables) {
 		return from(merge(this.environmentVariables, environmentVariables.getAsMap()));
+	}
+
+	@Override
+	public String toString() {
+		return String.format("environment variables:\n%s", environmentVariables.entrySet().stream().map(it -> "  " + it.getKey() + " => " + it.getValue()).collect(Collectors.joining("\n")));
 	}
 
 	/**
