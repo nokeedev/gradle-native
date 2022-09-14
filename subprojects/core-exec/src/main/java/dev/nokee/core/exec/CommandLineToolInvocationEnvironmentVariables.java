@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariablesUtils.asList;
@@ -69,6 +70,16 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 	 */
 	public List<String> getAsList() {
 		return asList(environmentVariables);
+	}
+
+	/**
+	 * Returns the environment variable value for the specified key.
+	 *
+	 * @param key  the environment variable name, must not be null
+	 * @return the value of the environment variable if present, never null
+	 */
+	public Optional<String> get(String key) {
+		return Optional.ofNullable(environmentVariables.get(key));
 	}
 
 	// TODO: allow more manipulation of the environment variables such as getting, putting (creates another instance with the result), etc.
