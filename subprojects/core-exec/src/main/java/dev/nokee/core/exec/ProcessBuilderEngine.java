@@ -20,13 +20,14 @@ import dev.nokee.core.exec.internal.DefaultCommandLineToolExecutionResult;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static dev.nokee.core.exec.CommandLineToolOutputStreams.*;
+import static dev.nokee.core.exec.CommandLineToolOutputStreams.execute;
 
 public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<ProcessBuilderEngine.Handle> {
 	@Override
@@ -51,7 +52,7 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 			}
 		});
 
-		return new Handle(result.getResult().process, result.getResult().streamHandler, result::getStandardOutput, result::getErrorOutput, result::getOutput, () -> String.join(" ", processBuilder.command()));
+		return new Handle(result.getResult().process, result.getResult().streamHandler, result::getStandardOutput, result::getErrorOutput, result::getOutput, () -> String.join(" ", processBuilder.command()), () -> IOUtils.closeQuietly(result));
 	}
 
 	private static final class ProcessResult {
@@ -73,11 +74,13 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 		private final Supplier<CommandLineToolLogContent> errorOutput;
 		private final Supplier<CommandLineToolLogContent> output;
 		private final Supplier<String> displayName;
+		private final Runnable close;
 
 		public CommandLineToolExecutionResult waitFor() {
 			try {
 				process.waitFor();
 				streamHandler.stop();
+				close.run();
 				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), output.get(), displayName);
 			} catch (InterruptedException | IOException e) {
 				throw new RuntimeException(e);
@@ -88,6 +91,7 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 			try {
 				process.waitFor(timeout, unit);
 				streamHandler.stop();
+				close.run();
 				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), output.get(), displayName);
 			} catch (InterruptedException | IOException e) {
 				throw new RuntimeException(e);
@@ -98,6 +102,7 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 			try {
 				process.waitFor(duration.toMillis(), TimeUnit.MILLISECONDS);
 				streamHandler.stop();
+				close.run();
 				return new DefaultCommandLineToolExecutionResult(process.exitValue(), standardOutput.get(), errorOutput.get(), output.get(), displayName);
 			} catch (InterruptedException | IOException e) {
 				throw new RuntimeException(e);
