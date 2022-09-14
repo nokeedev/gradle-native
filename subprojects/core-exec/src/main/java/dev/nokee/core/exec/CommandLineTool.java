@@ -15,10 +15,12 @@
  */
 package dev.nokee.core.exec;
 
+import lombok.val;
 import org.gradle.api.tasks.Internal;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -40,6 +42,12 @@ public interface CommandLineTool {
 	}
 
 	static CommandLineTool of(Object executable) {
+		if (executable instanceof String) {
+			val pathCandidate = Paths.get(executable.toString());
+			if (pathCandidate.isAbsolute()) {
+				return CommandLineTools.fromLocation(pathCandidate.toFile());
+			}
+		}
 		return CommandLineTools.fromPath(executable);
 	}
 
