@@ -186,7 +186,7 @@ public final class CommandLineToolInvocation implements Serializable {
 		private Path resolveWorkingDirectory() {
 			Path result = resolve(this.workingDirectory);
 			if (workingDirectory == null) {
-				return Paths.get("").toAbsolutePath(); // in case Gradle configuration wrongly detect something
+				return Paths.get(System.getProperty("user.dir")); // in case Gradle configuration wrongly detect something
 			} else {
 				return result;
 			}
