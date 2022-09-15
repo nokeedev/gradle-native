@@ -17,6 +17,7 @@ package dev.nokee.core.exec;
 
 import dev.nokee.utils.ActionUtils;
 import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.gradle.api.Action;
 import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.process.ExecOperations;
@@ -36,6 +37,7 @@ public final class ExecOperationsExecutionEngine implements CommandLineToolExecu
 	@Override
 	public Handle submit(CommandLineToolInvocation invocation) {
 		val result = CommandLineToolOutputStreams.execute(invocation, (outStream, errStream) -> execOperations.exec(ActionUtils.composite(new InvocationToExecSpec(invocation), this::defaultValues, setOutputStreams(outStream, errStream))));
+		IOUtils.closeQuietly(result);
 		return new Handle(result.getResult(), invocation, result.getStandardOutput(), result.getErrorOutput(), result.getOutput());
 	}
 
