@@ -36,6 +36,6 @@ class CommandLineToolExecutableTests {
 
 	@Test
 	void checkToString() {
-		assertThat(subject, hasToString(matchesPattern("executable 'location/of/executable'")));
+		assertThat(subject, hasToString(matchesPattern("executable 'location[\\\\/]of[\\\\/]executable'")));
 	}
 }
