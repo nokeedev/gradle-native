@@ -54,7 +54,7 @@ final class CommandLineToolOutputStreams {
 
 		closable.add(redirectedStdOut);
 
-		val redirectedStdErr = ((CommandLineToolInvocationOutputRedirection.OutputRedirectInternal) invocation.getStandardOutputRedirect()).redirect(new CommandLineToolInvocationOutputRedirection.Context() {
+		val redirectedStdErr = ((CommandLineToolInvocationOutputRedirection.OutputRedirectInternal) invocation.getErrorOutputRedirect()).redirect(new CommandLineToolInvocationOutputRedirection.Context() {
 			@Override
 			public OutputStream getStandardOutput() {
 				return redirectedStdOut;
