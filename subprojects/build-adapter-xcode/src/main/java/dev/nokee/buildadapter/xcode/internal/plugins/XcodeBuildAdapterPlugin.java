@@ -142,7 +142,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 			@SuppressWarnings("unchecked")
-			final Provider<XcodeImplicitDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeImplicitDependenciesService, XcodeImplicitDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName("implicitDependencies")).flatMap(BuildServiceRegistration::getService);
+			final Provider<XcodeImplicitDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeImplicitDependenciesService, XcodeImplicitDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeImplicitDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
 			val projectPathService = new GradleProjectPathService(project.getRootDir().toPath());
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
