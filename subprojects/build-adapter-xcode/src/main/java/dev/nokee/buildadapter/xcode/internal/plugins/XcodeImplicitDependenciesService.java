@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public abstract class XcodeImplicitDependenciesService implements BuildService<XcodeImplicitDependenciesService.Parameters> {
 	private static final Logger LOGGER = Logging.getLogger(XcodeImplicitDependenciesService.class);
 
-	interface Parameters extends BuildServiceParameters {
+	public interface Parameters extends BuildServiceParameters {
 		Property<XCWorkspaceReference> getLocation();
 	}
 

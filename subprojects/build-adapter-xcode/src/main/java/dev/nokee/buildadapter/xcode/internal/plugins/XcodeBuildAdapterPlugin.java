@@ -15,13 +15,15 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import com.google.common.collect.Iterables;
 import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
 import dev.nokee.buildadapter.xcode.internal.GradleProjectPathService;
-import dev.nokee.buildadapter.xcode.internal.components.GradleProjectTag;
+import dev.nokee.buildadapter.xcode.internal.components.GradleSettingsTag;
+import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
+import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectsDiscoveryRule;
+import dev.nokee.buildadapter.xcode.internal.rules.XcodeWorkspaceRule;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelPath;
@@ -54,6 +56,7 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
@@ -65,7 +68,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
@@ -73,7 +75,6 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.tags.ModelTags.tag;
-import static dev.nokee.utils.ActionUtils.composite;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forParameters;
@@ -83,10 +84,12 @@ import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static final Logger LOGGER = Logging.getLogger(XcodeBuildAdapterPlugin.class);
 	private final ProviderFactory providers;
+	private final ObjectFactory objects;
 
 	@Inject
-	public XcodeBuildAdapterPlugin(ProviderFactory providers) {
+	public XcodeBuildAdapterPlugin(ProviderFactory providers, ObjectFactory objects) {
 		this.providers = providers;
+		this.objects = objects;
 	}
 
 	@Override
@@ -99,42 +102,12 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(GradleBuildLayout.forSettings(settings), providers));
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectPathRule(new GradleProjectPathService(settings.getSettingsDir().toPath())));
-
-		val allWorkspaceLocations = forUseAtConfigurationTime(providers.of(AllXCWorkspaceLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir()))));
-		val selectedWorkspaceLocation = allWorkspaceLocations.map(new SelectXCWorkspaceLocationTransformation());
-
-		val workspace = forUseAtConfigurationTime(providers.of(XCWorkspaceDataValueSource.class, forParameters(it -> it.getWorkspace().set(selectedWorkspaceLocation)))).getOrNull();
-
-		val projects = new ArrayList<XCProjectReference>();
-		if (workspace == null) {
-			val allProjectLocations = forUseAtConfigurationTime(providers.of(AllXCProjectLocationsValueSource.class, forParameters(it -> it.getSearchDirectory().set(settings.getSettingsDir())))).get();
-			if (Iterables.isEmpty(allProjectLocations)) {
-				LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' has no effect on project '%s' because no Xcode workspace or project were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", settings.getGradle(), settings.getSettingsDir()));
-			}
-			allProjectLocations.forEach(projects::add);
-		} else {
-			projects.addAll(workspace.getProjectLocations());
-		}
-		val actualProjects = forUseAtConfigurationTime(providers.of(AllXCProjectWithinProjectValueSource.class, forParameters(it -> it.getProjectLocations().addAll(projects)))).get();
+		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectsDiscoveryRule(settings.getExtensions().getByType(ModelRegistry.class), objects, providers));
+		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeWorkspaceRule(settings, providers));
 
 		val settingsEntity = settings.getExtensions().getByType(ModelLookup.class).get(ModelPath.root());
-		actualProjects.forEach(project -> {
-			settings.getExtensions().getByType(ModelRegistry.class).instantiate(ModelRegistration.builder().withComponent(new ParentComponent(settingsEntity)).withComponent(tag(GradleProjectTag.class)).withComponent(new XCProjectComponent(project)).build());
-		});
-
-		if (workspace != null) {
-			val service = forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings, XcodeImplicitDependenciesService.class, it -> {
-				it.getLocation().set(workspace.toReference());
-			}));
-			settings.getGradle().rootProject(forXcodeWorkspace(workspace, composite(
-				(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
-				(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
-			)));
-		}
-	}
-
-	private Provider<String> fromCommandLine(String name) {
-		return providers.systemProperty(name).orElse(providers.gradleProperty(name));
+		settingsEntity.addComponent(new SettingsDirectoryComponent(settings.getSettingsDir().toPath()));
+		settingsEntity.addComponent(tag(GradleSettingsTag.class));
 	}
 
 	public static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
@@ -276,7 +249,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		};
 	}
 
-	private static Action<Project> forXcodeWorkspace(XCWorkspace workspace, Action<? super XcodebuildExecTask> action) {
+	public static Action<Project> forXcodeWorkspace(XCWorkspace workspace, Action<? super XcodebuildExecTask> action) {
 		return project -> {
 			workspace.getSchemeNames().forEach(schemeName -> {
 				project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeSchemeExecTask.class, task -> {
@@ -291,7 +264,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	}
 
 	public static abstract class XCWorkspaceDataValueSource implements ValueSource<XCWorkspace, XCWorkspaceDataValueSource.Parameters> {
-		interface Parameters extends ValueSourceParameters {
+		public interface Parameters extends ValueSourceParameters {
 			Property<XCWorkspaceReference> getWorkspace();
 		}
 
@@ -307,7 +280,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	}
 
 	public static abstract class XCProjectDataValueSource implements ValueSource<XCProject, XCProjectDataValueSource.Parameters> {
-		interface Parameters extends ValueSourceParameters {
+		public interface Parameters extends ValueSourceParameters {
 			Property<XCProjectReference> getProject();
 		}
 

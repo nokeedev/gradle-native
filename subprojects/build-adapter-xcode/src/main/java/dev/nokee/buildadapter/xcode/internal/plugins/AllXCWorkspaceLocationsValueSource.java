@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public abstract class AllXCWorkspaceLocationsValueSource implements ValueSource<Iterable<XCWorkspaceReference>, AllXCWorkspaceLocationsValueSource.Parameters> {
 	private static final XCWorkspaceLocator XCODE_WORKSPACE_LOCATOR = new XCWorkspaceLocator();
 
-	interface Parameters extends ValueSourceParameters {
+	public interface Parameters extends ValueSourceParameters {
 		DirectoryProperty getSearchDirectory();
 	}
 

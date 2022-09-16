@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public abstract class AllXCProjectLocationsValueSource implements ValueSource<Iterable<XCProjectReference>, AllXCProjectLocationsValueSource.Parameters> {
 	private static final XCProjectLocator XCODE_PROJECT_LOCATOR = new XCProjectLocator();
 
-	interface Parameters extends ValueSourceParameters {
+	public interface Parameters extends ValueSourceParameters {
 		DirectoryProperty getSearchDirectory();
 	}
 
