@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class AllXCProjectWithinProjectValueSource implements ValueSource<Iterable<XCProjectReference>, AllXCProjectWithinProjectValueSource.Parameters> {
-	interface Parameters extends ValueSourceParameters {
+	public interface Parameters extends ValueSourceParameters {
 		ListProperty<XCProjectReference> getProjectLocations();
 	}
 
