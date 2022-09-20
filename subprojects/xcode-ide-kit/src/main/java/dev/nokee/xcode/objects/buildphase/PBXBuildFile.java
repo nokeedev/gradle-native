@@ -93,9 +93,9 @@ public final class PBXBuildFile extends PBXProjectItem {
 		}
 
 		public PBXBuildFile build() {
-			if (fileRef == null && productRef == null) {
-				throw new NullPointerException("either 'fileRef' and 'productRef' must not be null");
-			}
+			// We can't assert either 'fileRef' and 'productRef' must not be null because it can happen...
+			//   See global ID 'D8EC3E1B1E9BDA35006712EB' in Wikipedia Xcode project:
+			//   https://raw.githubusercontent.com/wikimedia/wikipedia-ios/main/Wikipedia.xcodeproj/project.pbxproj
 			return new PBXBuildFile(fileRef, productRef, ImmutableMap.copyOf(settings));
 		}
 	}
