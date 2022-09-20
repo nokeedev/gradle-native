@@ -24,6 +24,8 @@ import lombok.val;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -67,7 +69,7 @@ public final class PBXObjectUnarchiver {
 			// DO NOT USE computeIfAbsent as it's not reentrant
 			T result = (T) decodedObjects.get(objectRef.getGlobalID());
 			if (result == null) {
-				result = (T) Objects.requireNonNull(coders.get(objectRef.isa()), "missing coder for '" + objectRef.isa() + "'").read(new BaseDecoder(this, objectRef.getFields()));
+				result = PBXObjectUnarchiver.this.decode(this, objectRef.getGlobalID(), objectRef.isa(), objectRef.getFields());
 				decodedObjects.put(objectRef.getGlobalID(), result);
 			}
 			return result;
@@ -158,10 +160,24 @@ public final class PBXObjectUnarchiver {
 				if (!((Class<?>) type).isInstance(object)) throw new IllegalStateException();
 				return (S) object;
 			} else if (coders.containsKey(((Class<?>) type).getSimpleName()) && value instanceof Map) {
-				return (S) coders.get(((Class<?>) type).getSimpleName()).read(new BaseDecoder(delegate, PBXObjectFields.fromMap((Map<String, Object>) value)));
+				return PBXObjectUnarchiver.this.decode(delegate, "(none)", ((Class<?>) type).getSimpleName(), PBXObjectFields.fromMap((Map<String, Object>) value));
 			} else {
 				throw new UnsupportedOperationException();
 			}
+		}
+	}
+
+	private final Deque<String> decodeContext = new ArrayDeque<>();
+
+	@SuppressWarnings("unchecked")
+	private <S> S decode(PBXObjectDecoder decoder, String gid, String isa, PBXObjectFields fields) {
+		try {
+			decodeContext.addLast(isa + " '" + gid + "'");
+			return (S) Objects.requireNonNull(coders.get(isa), "missing coder for '" + isa + "'").read(new BaseDecoder(decoder, fields));
+		} catch (Throwable e) {
+			throw new RuntimeException(String.format("Could not decode %s.", String.join(" > ", decodeContext)), e);
+		} finally {
+			decodeContext.removeLast();
 		}
 	}
 }
