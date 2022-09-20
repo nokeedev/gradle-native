@@ -87,6 +87,8 @@ public final class XCProjectReference implements Serializable {
 				return new XCProject(getName(), getLocation(), targets, schemeNames, proj);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
+			} catch (Throwable e) {
+				throw new RuntimeException(String.format("Could not load Xcode %s.", this), e);
 			}
 		});
 	}
