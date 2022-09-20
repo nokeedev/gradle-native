@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import dev.nokee.utils.Optionals;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.GroupChild;
@@ -163,7 +164,8 @@ public final class XCTargetReference implements Serializable {
 	}
 
 	private static void walk(XCFileReferences.Builder builder, FileNode previousNodes, PBXFileReference fileRef) {
-		builder.put(fileRef, parse(new FileNode(fileRef.getSourceTree(), previousNodes, fileRef.getPath().orElse(null))));
+		val realPath = Optionals.or(fileRef.getPath().map(path -> fileRef.getName().filter(name -> !path.contains("/")).orElse(path)), fileRef::getName).orElse(null);
+		builder.put(fileRef, parse(new FileNode(fileRef.getSourceTree(), previousNodes, realPath)));
 	}
 
 	private static XCFileReference parse(FileNode node) {
