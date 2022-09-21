@@ -17,12 +17,16 @@ package dev.nokee.xcode;
 
 import java.nio.file.Path;
 
-public interface XCWorkspaceReference {
+public interface XCWorkspaceReference extends XCReference {
 	Path getLocation();
 
 	XCWorkspace load();
 
 	static XCWorkspaceReference of(Path location) {
 		return new DefaultXCWorkspaceReference(location);
+	}
+
+	default <T> T load(XCLoader<T, XCWorkspaceReference> loader) {
+		return loader.load(this);
 	}
 }
