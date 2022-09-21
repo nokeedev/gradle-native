@@ -15,9 +15,11 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.xcode.XCWorkspaceReference;
+
 import java.nio.file.Path;
 import java.util.List;
 
 public interface XCWorkspaceLocator {
-	List<Path> findWorkspaces(Path searchDirectory);
+	List<XCWorkspaceReference> findWorkspaces(Path searchDirectory);
 }

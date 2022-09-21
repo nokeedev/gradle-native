@@ -17,6 +17,7 @@ package dev.nokee.buildadapter.xcode.internal;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.DefaultXCWorkspaceLocator;
 import dev.nokee.platform.xcode.EmptyXCWorkspace;
+import dev.nokee.xcode.XCWorkspaceReference;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.Test;
@@ -24,12 +25,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.file.Path;
 
-import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
-import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.endsWith;
 
 @ExtendWith(TestDirectoryExtension.class)
 class DefaultXCWorkspaceLocatorIntegrationTest {
@@ -50,13 +48,14 @@ class DefaultXCWorkspaceLocatorIntegrationTest {
 	void returnsAllXcodeWorkspaceInsideSearchDirectory() {
 		new EmptyXCWorkspace("App").writeToProject(testDirectory.toFile());
 		new EmptyXCWorkspace("Test").writeToProject(testDirectory.toFile());
-		assertThat(subject.findWorkspaces(testDirectory), contains(aFile(withAbsolutePath(endsWith("/App.xcworkspace"))), aFile(withAbsolutePath(endsWith("/Test.xcworkspace")))));
+		assertThat(subject.findWorkspaces(testDirectory), contains(XCWorkspaceReference.of(testDirectory.resolve("App.xcworkspace")), XCWorkspaceReference.of(testDirectory.resolve("Test.xcworkspace"))));
 	}
 
 	@Test
 	void doesNotReturnNestedXcodeWorkspaceUnderSearchDirectory() {
 		new EmptyXCWorkspace("App").writeToProject(testDirectory.toFile());
 		new EmptyXCWorkspace("Test").writeToProject(testDirectory.resolve("Test-Projects").toFile());
-		assertThat(subject.findWorkspaces(testDirectory), contains(aFile(withAbsolutePath(endsWith("/App.xcworkspace")))));
+		assertThat(subject.findWorkspaces(testDirectory),
+			contains(XCWorkspaceReference.of(testDirectory.resolve("App.xcworkspace"))));
 	}
 }

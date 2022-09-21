@@ -18,6 +18,9 @@ package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
 import dev.nokee.buildadapter.xcode.internal.plugins.AllXCWorkspaceLocationsValueSource;
 import dev.nokee.buildadapter.xcode.internal.plugins.XCWorkspaceLocator;
 import dev.nokee.platform.xcode.EmptyXCWorkspace;
+import dev.nokee.xcode.XCWorkspace;
+import dev.nokee.xcode.XCWorkspaceReference;
+import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,16 +64,13 @@ class AllXCWorkspaceLocationsValueSourceTests {
 
 	@Test
 	void returnsWorkspaceReferenceAsFoundByLocator() {
-		new EmptyXCWorkspace("A").writeToProject(testDirectory);
-		new EmptyXCWorkspace("B").writeToProject(testDirectory);
-		new EmptyXCWorkspace("C").writeToProject(testDirectory);
 		Mockito.when(locator.findWorkspaces(usingSearchDirectory())).thenReturn(asList(
-			testDirectory.resolve("A.xcworkspace"), testDirectory.resolve("C.xcworkspace"),
-			testDirectory.resolve("B.xcworkspace")));
+			workspace("A.xcworkspace"), workspace("C.xcworkspace"),
+			workspace("B.xcworkspace")));
 
 		assertThat(subject.obtain(), contains(
-			of(testDirectory.resolve("A.xcworkspace")), of(testDirectory.resolve("C.xcworkspace")),
-			of(testDirectory.resolve("B.xcworkspace"))));
+			workspace("A.xcworkspace"), workspace("C.xcworkspace"),
+			workspace("B.xcworkspace")));
 	}
 
 	@Test
@@ -82,5 +82,28 @@ class AllXCWorkspaceLocationsValueSourceTests {
 
 	private Path usingSearchDirectory() {
 		return argThat(aFile(withAbsolutePath(equalTo(testDirectory.toAbsolutePath().toString()))));
+	}
+
+	private static XCWorkspaceReference workspace(String name) {
+		return new TestWorkspaceReference(name);
+	}
+
+	@EqualsAndHashCode
+	private static final class TestWorkspaceReference implements XCWorkspaceReference {
+		private final String name;
+
+		private TestWorkspaceReference(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public Path getLocation() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public XCWorkspace load() {
+			throw new UnsupportedOperationException();
+		}
 	}
 }

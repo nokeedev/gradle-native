@@ -20,9 +20,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class AllXCProjectLocationsValueSource implements ValueSource<Iterable<XCProjectReference>, AllXCProjectLocationsValueSource.Parameters> {
@@ -44,7 +42,6 @@ public abstract class AllXCProjectLocationsValueSource implements ValueSource<It
 
 	@Override
 	public Iterable<XCProjectReference> obtain() {
-		return locator.findProjects(getParameters().getSearchDirectory().get().getAsFile().toPath())
-			.stream().map(XCProjectReference::of).collect(Collectors.toList());
+		return locator.findProjects(getParameters().getSearchDirectory().get().getAsFile().toPath());
 	}
 }

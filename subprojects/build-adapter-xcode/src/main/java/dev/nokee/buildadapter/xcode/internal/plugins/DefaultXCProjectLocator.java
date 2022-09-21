@@ -16,6 +16,8 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
+import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 
 import java.io.IOException;
@@ -25,7 +27,7 @@ import java.util.List;
 
 public final class DefaultXCProjectLocator implements XCProjectLocator {
 	@Override
-	public List<Path> findProjects(Path searchDirectory) {
+	public List<XCProjectReference> findProjects(Path searchDirectory) {
 		if (Files.notExists(searchDirectory)) {
 			return ImmutableList.of();
 		}
@@ -34,7 +36,7 @@ public final class DefaultXCProjectLocator implements XCProjectLocator {
 			// DirectoryStream returns element in no particular order.
 			// For deterministic reason, we will sort the paths according to their natural ordering.
 			// It's important to note the ordering should not be considered natural, only deterministic.
-			return ImmutableList.sortedCopyOf(stream);
+			return Streams.stream(stream).sorted().map(XCProjectReference::of).collect(ImmutableList.toImmutableList());
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Unable to locate Xcode project.", e);
 		}

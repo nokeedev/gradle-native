@@ -16,6 +16,8 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
+import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
 
 import java.io.IOException;
@@ -24,7 +26,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 public final class DefaultXCWorkspaceLocator implements XCWorkspaceLocator {
-	public List<Path> findWorkspaces(Path searchDirectory) {
+	@Override
+	public List<XCWorkspaceReference> findWorkspaces(Path searchDirectory) {
 		if (Files.notExists(searchDirectory)) {
 			return ImmutableList.of();
 		}
@@ -33,7 +36,7 @@ public final class DefaultXCWorkspaceLocator implements XCWorkspaceLocator {
 			// DirectoryStream returns element in no particular order.
 			// For deterministic reason, we will sort the paths according to their natural ordering.
 			// It's important to note the ordering should not be considered natural, only deterministic.
-			return ImmutableList.sortedCopyOf(stream);
+			return Streams.stream(stream).sorted().map(XCWorkspaceReference::of).collect(ImmutableList.toImmutableList());
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Unable to locate Xcode workspace.", e);
 		}

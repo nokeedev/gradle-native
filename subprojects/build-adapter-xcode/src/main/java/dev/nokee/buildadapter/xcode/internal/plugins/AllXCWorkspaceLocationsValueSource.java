@@ -21,7 +21,6 @@ import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 
 import javax.inject.Inject;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class AllXCWorkspaceLocationsValueSource implements ValueSource<Iterable<XCWorkspaceReference>, AllXCWorkspaceLocationsValueSource.Parameters> {
@@ -43,7 +42,6 @@ public abstract class AllXCWorkspaceLocationsValueSource implements ValueSource<
 
 	@Override
 	public Iterable<XCWorkspaceReference> obtain() {
-		return locator.findWorkspaces(getParameters().getSearchDirectory().get().getAsFile().toPath())
-			.stream().map(XCWorkspaceReference::of).collect(Collectors.toList());
+		return locator.findWorkspaces(getParameters().getSearchDirectory().get().getAsFile().toPath());
 	}
 }
