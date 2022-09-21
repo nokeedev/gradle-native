@@ -30,6 +30,8 @@ public final class PBXProjectLoader implements XCLoader<PBXProject, XCProjectRef
 			return new PBXObjectUnarchiver().decode(reader.read());
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
+		}  catch (Throwable e) {
+			throw new RuntimeException(String.format("Could not load Xcode %s.", this), e);
 		}
 	}
 }
