@@ -17,9 +17,6 @@ package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectLocationsValueSource;
 import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectLocator;
-import dev.nokee.xcode.XCProject;
-import dev.nokee.xcode.XCProjectReference;
-import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
 
+import static dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode.TestProjectReference.project;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -80,33 +78,5 @@ class AllXCProjectLocationsValueSourceTests {
 
 	private Path usingSearchDirectory() {
 		return argThat(aFile(withAbsolutePath(equalTo(testDirectory.toAbsolutePath().toString()))));
-	}
-
-	private static XCProjectReference project(String name) {
-		return new TestProjectReference(name);
-	}
-
-	@EqualsAndHashCode
-	private static final class TestProjectReference implements XCProjectReference {
-		private final String name;
-
-		private TestProjectReference(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public Path getLocation() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public XCProject load() {
-			throw new UnsupportedOperationException();
-		}
 	}
 }
