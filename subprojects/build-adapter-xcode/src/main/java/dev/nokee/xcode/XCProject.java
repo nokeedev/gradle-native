@@ -31,7 +31,7 @@ public final class XCProject {
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
 	private transient final PBXProject project;
-	private XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
+	private transient XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 	private transient XCFileReferencesLoader.XCFileReferences references;
 
 	// friends with XCProjectReference
