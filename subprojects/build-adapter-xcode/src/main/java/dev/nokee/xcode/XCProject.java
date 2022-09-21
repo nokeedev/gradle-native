@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
-import static dev.nokee.xcode.XCTargetReference.walk;
+import static dev.nokee.xcode.DefaultXCTargetReference.walk;
 
 @EqualsAndHashCode
 public final class XCProject {
@@ -33,7 +33,7 @@ public final class XCProject {
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
 	private transient final PBXProject project;
-	private transient XCTargetReference.XCFileReferences references;
+	private transient DefaultXCTargetReference.XCFileReferences references;
 
 	// friends with XCProjectReference
 	XCProject(String name, Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project) {
@@ -86,7 +86,7 @@ public final class XCProject {
 		return project;
 	}
 
-	XCTargetReference.XCFileReferences getFileReferences() {
+	DefaultXCTargetReference.XCFileReferences getFileReferences() {
 		if (references == null) {
 			references = walk(project);
 		}

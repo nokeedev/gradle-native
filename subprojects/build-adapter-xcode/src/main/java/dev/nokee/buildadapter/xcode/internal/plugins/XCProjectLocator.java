@@ -15,9 +15,11 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.xcode.XCProjectReference;
+
 import java.nio.file.Path;
 import java.util.List;
 
 public interface XCProjectLocator {
-	List<Path> findProjects(Path searchDirectory);
+	List<XCProjectReference> findProjects(Path searchDirectory);
 }

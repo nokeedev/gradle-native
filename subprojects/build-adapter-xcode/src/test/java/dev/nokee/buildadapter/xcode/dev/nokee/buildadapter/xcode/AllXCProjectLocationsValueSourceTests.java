@@ -17,7 +17,9 @@ package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectLocationsValueSource;
 import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectLocator;
-import dev.nokee.platform.xcode.EmptyXCProject;
+import dev.nokee.xcode.XCProject;
+import dev.nokee.xcode.XCProjectReference;
+import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +33,6 @@ import java.nio.file.Path;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.xcode.XCProjectReference.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,16 +62,13 @@ class AllXCProjectLocationsValueSourceTests {
 
 	@Test
 	void returnsProjectReferenceAsFoundByLocator() {
-		new EmptyXCProject("A").writeToProject(testDirectory);
-		new EmptyXCProject("B").writeToProject(testDirectory);
-		new EmptyXCProject("C").writeToProject(testDirectory);
 		Mockito.when(locator.findProjects(usingSearchDirectory())).thenReturn(asList(
-			testDirectory.resolve("A.xcodeproj"), testDirectory.resolve("C.xcodeproj"),
-			testDirectory.resolve("B.xcodeproj")));
+			project("A.xcodeproj"), project("C.xcodeproj"),
+			project("B.xcodeproj")));
 
 		assertThat(subject.obtain(), contains(
-			of(testDirectory.resolve("A.xcodeproj")), of(testDirectory.resolve("C.xcodeproj")),
-			of(testDirectory.resolve("B.xcodeproj"))));
+			project("A.xcodeproj"), project("C.xcodeproj"),
+			project("B.xcodeproj")));
 	}
 
 	@Test
@@ -82,5 +80,33 @@ class AllXCProjectLocationsValueSourceTests {
 
 	private Path usingSearchDirectory() {
 		return argThat(aFile(withAbsolutePath(equalTo(testDirectory.toAbsolutePath().toString()))));
+	}
+
+	private static XCProjectReference project(String name) {
+		return new TestProjectReference(name);
+	}
+
+	@EqualsAndHashCode
+	private static final class TestProjectReference implements XCProjectReference {
+		private final String name;
+
+		private TestProjectReference(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public Path getLocation() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public XCProject load() {
+			throw new UnsupportedOperationException();
+		}
 	}
 }
