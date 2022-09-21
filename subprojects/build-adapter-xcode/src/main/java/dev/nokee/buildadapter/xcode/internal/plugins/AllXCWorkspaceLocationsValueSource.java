@@ -20,20 +20,30 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 
-import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class AllXCWorkspaceLocationsValueSource implements ValueSource<Iterable<XCWorkspaceReference>, AllXCWorkspaceLocationsValueSource.Parameters> {
-	private static final XCWorkspaceLocator XCODE_WORKSPACE_LOCATOR = new XCWorkspaceLocator();
+	private static final XCWorkspaceLocator XCODE_WORKSPACE_LOCATOR = new DefaultXCWorkspaceLocator();
+	private final XCWorkspaceLocator locator;
 
 	public interface Parameters extends ValueSourceParameters {
 		DirectoryProperty getSearchDirectory();
 	}
 
-	@Nullable
+	@Inject
+	public AllXCWorkspaceLocationsValueSource() {
+		this(XCODE_WORKSPACE_LOCATOR);
+	}
+
+	public AllXCWorkspaceLocationsValueSource(XCWorkspaceLocator locator) {
+		this.locator = locator;
+	}
+
 	@Override
 	public Iterable<XCWorkspaceReference> obtain() {
-		return XCODE_WORKSPACE_LOCATOR.findWorkspaces(getParameters().getSearchDirectory().get().getAsFile().toPath()).stream().map(XCWorkspaceReference::of).collect(Collectors.toList());
+		return locator.findWorkspaces(getParameters().getSearchDirectory().get().getAsFile().toPath())
+			.stream().map(XCWorkspaceReference::of).collect(Collectors.toList());
 	}
 }
