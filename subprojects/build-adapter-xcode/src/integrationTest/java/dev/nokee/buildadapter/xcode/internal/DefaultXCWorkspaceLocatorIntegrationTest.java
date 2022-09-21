@@ -15,7 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.internal;
 
-import dev.nokee.buildadapter.xcode.internal.plugins.XCWorkspaceLocator;
+import dev.nokee.buildadapter.xcode.internal.plugins.DefaultXCWorkspaceLocator;
 import dev.nokee.platform.xcode.EmptyXCWorkspace;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
@@ -32,9 +32,9 @@ import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.endsWith;
 
 @ExtendWith(TestDirectoryExtension.class)
-class XCWorkspaceLocatorIntegrationTest {
+class DefaultXCWorkspaceLocatorIntegrationTest {
 	@TestDirectory Path testDirectory;
-	XCWorkspaceLocator subject = new XCWorkspaceLocator();
+	DefaultXCWorkspaceLocator subject = new DefaultXCWorkspaceLocator();
 
 	@Test
 	void returnsEmptyListWhenSearchDirectoryDoesNotExists() {
