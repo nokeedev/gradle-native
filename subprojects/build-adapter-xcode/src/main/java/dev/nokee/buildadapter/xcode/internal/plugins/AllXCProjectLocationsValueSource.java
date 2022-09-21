@@ -21,19 +21,30 @@ import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class AllXCProjectLocationsValueSource implements ValueSource<Iterable<XCProjectReference>, AllXCProjectLocationsValueSource.Parameters> {
-	private static final XCProjectLocator XCODE_PROJECT_LOCATOR = new XCProjectLocator();
+	private static final XCProjectLocator XCODE_PROJECT_LOCATOR = new DefaultXCProjectLocator();
+	private final XCProjectLocator locator;
 
 	public interface Parameters extends ValueSourceParameters {
 		DirectoryProperty getSearchDirectory();
 	}
 
-	@Nullable
+	@Inject
+	public AllXCProjectLocationsValueSource() {
+		this(XCODE_PROJECT_LOCATOR);
+	}
+
+	public AllXCProjectLocationsValueSource(XCProjectLocator locator) {
+		this.locator = locator;
+	}
+
 	@Override
 	public Iterable<XCProjectReference> obtain() {
-		return XCODE_PROJECT_LOCATOR.findProjects(getParameters().getSearchDirectory().get().getAsFile().toPath()).stream().map(XCProjectReference::of).collect(Collectors.toList());
+		return locator.findProjects(getParameters().getSearchDirectory().get().getAsFile().toPath())
+			.stream().map(XCProjectReference::of).collect(Collectors.toList());
 	}
 }
