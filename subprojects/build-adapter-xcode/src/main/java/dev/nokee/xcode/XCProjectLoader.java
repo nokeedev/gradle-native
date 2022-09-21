@@ -30,9 +30,9 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 public final class XCProjectLoader implements XCLoader<XCProject, XCProjectReference> {
 	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
-	private final XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader;
+	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 
-	public XCProjectLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader) {
+	public XCProjectLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
 		this.pbxLoader = pbxLoader;
 		this.fileReferencesLoader = fileReferencesLoader;
 	}
