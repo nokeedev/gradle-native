@@ -31,11 +31,11 @@ public final class XCProject {
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
 	private transient final PBXProject project;
-	private XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader;
-	private transient DefaultXCTargetReference.XCFileReferences references;
+	private XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
+	private transient XCFileReferencesLoader.XCFileReferences references;
 
 	// friends with XCProjectReference
-	XCProject(String name, Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader) {
+	XCProject(String name, Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
 		this.name = name;
 		this.location = location;
 		this.targets = targets;
@@ -86,7 +86,7 @@ public final class XCProject {
 		return project;
 	}
 
-	DefaultXCTargetReference.XCFileReferences getFileReferences() {
+	XCFileReferencesLoader.XCFileReferences getFileReferences() {
 		if (references == null) {
 			references = fileReferencesLoader.load(toReference());
 			fileReferencesLoader = null;

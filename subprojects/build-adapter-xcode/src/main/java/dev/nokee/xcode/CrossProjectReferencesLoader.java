@@ -23,9 +23,9 @@ import java.nio.file.Path;
 
 public final class CrossProjectReferencesLoader implements XCLoader<Iterable<XCProjectReference>, XCProjectReference> {
 	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
-	private final XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader;
+	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 
-	public CrossProjectReferencesLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader) {
+	public CrossProjectReferencesLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader) {
 		this.pbxLoader = pbxLoader;
 		this.fileReferencesLoader = fileReferencesLoader;
 	}
