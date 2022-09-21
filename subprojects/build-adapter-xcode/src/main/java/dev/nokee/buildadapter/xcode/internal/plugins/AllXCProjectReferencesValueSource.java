@@ -16,6 +16,9 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import dev.nokee.xcode.CrossProjectReferencesLoader;
+import dev.nokee.xcode.PBXProjectLoader;
+import dev.nokee.xcode.XCCacheLoader;
+import dev.nokee.xcode.XCFileReferencesLoader;
 import dev.nokee.xcode.XCLoader;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
@@ -37,7 +40,7 @@ public abstract class AllXCProjectReferencesValueSource implements ValueSource<I
 
 	@Inject
 	public AllXCProjectReferencesValueSource() {
-		this(new CrossProjectReferencesLoader());
+		this(new CrossProjectReferencesLoader(new XCCacheLoader<>(new PBXProjectLoader()), new XCCacheLoader<>(new XCFileReferencesLoader(new XCCacheLoader<>(new PBXProjectLoader())))));
 	}
 
 	public AllXCProjectReferencesValueSource(XCLoader<Iterable<XCProjectReference>, XCProjectReference> projectReferencesLoader) {
