@@ -15,16 +15,13 @@
  */
 package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
 
-import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectLocationsValueSource;
-import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectWithinProjectValueSource;
-import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectLocator;
+import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectReferencesValueSource;
 import dev.nokee.xcode.XCLoader;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,16 +39,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AllXCProjectWithinProjectValueSourceTests {
+class AllXCProjectReferencesValueSourceTests {
 	@Mock
 	XCLoader<Iterable<XCProjectReference>, XCProjectReference> loader;
-	AllXCProjectWithinProjectValueSource.Parameters parameters;
-	AllXCProjectWithinProjectValueSource subject;
+	AllXCProjectReferencesValueSource.Parameters parameters;
+	AllXCProjectReferencesValueSource subject;
 
 	@BeforeEach
 	void createSubject() {
-		parameters = objectFactory().newInstance(AllXCProjectWithinProjectValueSource.Parameters.class);
-		subject = new AllXCProjectWithinProjectValueSource(loader) {
+		parameters = objectFactory().newInstance(AllXCProjectReferencesValueSource.Parameters.class);
+		subject = new AllXCProjectReferencesValueSource(loader) {
 			@Override
 			public Parameters getParameters() {
 				return parameters;
