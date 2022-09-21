@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
+package dev.nokee.buildadapter.xcode;
 
 import dev.nokee.buildadapter.xcode.internal.DefaultGradleProjectPathService;
 import dev.nokee.buildadapter.xcode.internal.GradleProjectPathService;

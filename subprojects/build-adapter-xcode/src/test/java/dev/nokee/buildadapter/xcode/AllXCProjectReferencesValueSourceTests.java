@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
+package dev.nokee.buildadapter.xcode;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectReferencesValueSource;
 import dev.nokee.xcode.XCLoader;
@@ -28,7 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
-import static dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode.TestProjectReference.project;
+import static dev.nokee.buildadapter.xcode.TestProjectReference.project;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;

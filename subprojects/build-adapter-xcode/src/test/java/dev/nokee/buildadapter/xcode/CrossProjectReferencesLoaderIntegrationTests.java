@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
+package dev.nokee.buildadapter.xcode;
 
 import dev.nokee.samples.xcode.EmptyProject;
-import dev.nokee.samples.xcode.EmptyWorkspace;
-import dev.nokee.samples.xcode.GreeterAppWithImplicitLib;
 import dev.nokee.samples.xcode.GreeterAppWithRemoteLib;
 import dev.nokee.xcode.CrossProjectReferencesLoader;
-import dev.nokee.xcode.WorkspaceProjectReferencesLoader;
 import dev.nokee.xcode.XCProjectReference;
-import dev.nokee.xcode.XCReference;
-import dev.nokee.xcode.XCWorkspaceReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -33,23 +28,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
 
-class WorkspaceProjectReferencesLoaderIntegrationTests {
+class CrossProjectReferencesLoaderIntegrationTests {
 	@TempDir Path testDirectory;
-	WorkspaceProjectReferencesLoader subject = new WorkspaceProjectReferencesLoader();
+	CrossProjectReferencesLoader subject = new CrossProjectReferencesLoader();
 
 	@Test
-	void returnsEmptyReferencesWhenWorkspaceHasNoProjectReferences() {
-		new EmptyWorkspace().writeToProject(testDirectory);
+	void returnsEmptyReferencesWhenProjectHasNoProjectReferences() {
+		new EmptyProject().writeToProject(testDirectory);
 
-		assertThat(subject.load(XCWorkspaceReference.of(testDirectory.resolve("Empty.xcworkspace"))), emptyIterable());
+		assertThat(subject.load(XCProjectReference.of(testDirectory.resolve("Empty.xcodeproj"))), emptyIterable());
 	}
 
 	@Test
-	void returnsProjectReferencesFromWorkspace() {
-		new GreeterAppWithImplicitLib().writeToProject(testDirectory);
+	void returnsProjectReferencesFromProject() {
+		new GreeterAppWithRemoteLib().writeToProject(testDirectory);
 
-		assertThat(subject.load(XCWorkspaceReference.of(testDirectory.resolve("GreeterApp.xcworkspace"))),
-			contains(XCProjectReference.of(testDirectory.resolve("GreeterApp.xcodeproj")),
-				XCProjectReference.of(testDirectory.resolve("GreeterLib.xcodeproj"))));
+		assertThat(subject.load(XCProjectReference.of(testDirectory.resolve("GreeterApp.xcodeproj"))),
+			contains(XCProjectReference.of(testDirectory.resolve("GreeterLib.xcodeproj"))));
 	}
 }
