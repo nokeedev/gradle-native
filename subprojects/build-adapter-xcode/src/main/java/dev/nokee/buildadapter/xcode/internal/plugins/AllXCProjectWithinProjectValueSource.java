@@ -15,19 +15,33 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.xcode.CrossProjectReferencesLoader;
+import dev.nokee.xcode.XCLoader;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 
+import javax.inject.Inject;
 import java.util.ArrayDeque;
 import java.util.LinkedHashSet;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class AllXCProjectWithinProjectValueSource implements ValueSource<Iterable<XCProjectReference>, AllXCProjectWithinProjectValueSource.Parameters> {
+	private final XCLoader<Iterable<XCProjectReference>, XCProjectReference> projectReferencesLoader;
+
 	public interface Parameters extends ValueSourceParameters {
 		ListProperty<XCProjectReference> getProjectLocations();
+	}
+
+	@Inject
+	public AllXCProjectWithinProjectValueSource() {
+		this(new CrossProjectReferencesLoader());
+	}
+
+	public AllXCProjectWithinProjectValueSource(XCLoader<Iterable<XCProjectReference>, XCProjectReference> projectReferencesLoader) {
+		this.projectReferencesLoader = projectReferencesLoader;
 	}
 
 	@Override
@@ -37,10 +51,7 @@ public abstract class AllXCProjectWithinProjectValueSource implements ValueSourc
 		while (!queue.isEmpty()) {
 			val reference = queue.pop();
 			if (result.add(reference)) {
-				// TODO: They may be an issue after the first config-cache reuse where things can change but not considered because the the load use XCCache. The XCLoaderService close may not be called on the first config-cache reuse which could leave a cache entry that becomes wrong so the second config-cache check will be wrong by returning an invalid cached project. We should functionally test using a config-cache reusing project and then change the pbxproj to include an additional cross-reference (or remove a cross-reference), we should expect the config-cache to not be reused.
-				//  I wonder if we could force the service to close after a config-cache attempt if we use the service as part of the ValueSourceParameters. It would mark the service as used and should trigger the close.
-				//  Actually, in fact, given the service is "used", it should close at the end of the config-cache reused because it's still a build... but what happen when a build service is only used during config phase?
-				queue.addAll(reference.load().getProjectReferences());
+				reference.load(projectReferencesLoader).forEach(queue::add);
 			}
 		}
 		return result;
