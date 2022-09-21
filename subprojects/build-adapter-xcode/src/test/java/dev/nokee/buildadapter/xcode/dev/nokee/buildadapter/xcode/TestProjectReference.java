@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 import java.nio.file.Path;
 
 @EqualsAndHashCode
-final class TestProjectReference implements XCProjectReference {
+public final class TestProjectReference implements XCProjectReference {
 	public static XCProjectReference project(String name) {
 		return new TestProjectReference(name);
 	}
