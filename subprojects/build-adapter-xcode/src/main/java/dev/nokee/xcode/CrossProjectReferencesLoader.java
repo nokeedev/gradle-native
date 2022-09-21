@@ -17,46 +17,42 @@ package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.PBXProject;
-import dev.nokee.xcode.project.PBXObjectUnarchiver;
-import dev.nokee.xcode.project.PBXProjReader;
 import lombok.val;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static dev.nokee.xcode.DefaultXCTargetReference.walk;
-
 public final class CrossProjectReferencesLoader implements XCLoader<Iterable<XCProjectReference>, XCProjectReference> {
+	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
+	private final XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader;
+
+	public CrossProjectReferencesLoader(XCLoader<PBXProject, XCProjectReference> pbxLoader, XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader) {
+		this.pbxLoader = pbxLoader;
+		this.fileReferencesLoader = fileReferencesLoader;
+	}
+
 	@Override
 	public Iterable<XCProjectReference> load(XCProjectReference reference) {
-		try (val reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(reference.getLocation().resolve("project.pbxproj"))))) {
-			val pbxproj = reader.read();
-			val project = new PBXObjectUnarchiver().decode(pbxproj);
+		val project = pbxLoader.load(reference);
+		val fileReferences = fileReferencesLoader.load(reference);
 
-			val fileReferences = walk(project);
+		return project.getProjectReferences().stream()
+			.map(PBXProject.ProjectReference::getProjectReference)
+			.map(it -> fileReferences.get(it))
+			.map(it -> it.resolve(new XCFileReference.ResolveContext() {
+				@Override
+				public Path getBuiltProductDirectory() {
+					throw new UnsupportedOperationException("Should not call");
+				}
 
-			return project.getProjectReferences().stream()
-				.map(PBXProject.ProjectReference::getProjectReference)
-				.map(it -> fileReferences.get(it))
-				.map(it -> it.resolve(new XCFileReference.ResolveContext() {
-					@Override
-					public Path getBuiltProductDirectory() {
-						throw new UnsupportedOperationException("Should not call");
+				@Override
+				public Path get(String name) {
+					if ("SOURCE_ROOT".equals(name)) {
+						return reference.getLocation().getParent();
 					}
-
-					@Override
-					public Path get(String name) {
-						if ("SOURCE_ROOT".equals(name)) {
-							return reference.getLocation().getParent();
-						}
-						throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
-					}
-				}))
-				.map(XCProjectReference::of)
-				.collect(ImmutableList.toImmutableList());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+					throw new UnsupportedOperationException(String.format("Could not resolve '%s' build setting.", name));
+				}
+			}))
+			.map(XCProjectReference::of)
+			.collect(ImmutableList.toImmutableList());
 	}
 }
