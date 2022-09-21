@@ -21,6 +21,7 @@ import dev.nokee.buildadapter.xcode.internal.GradleProjectPathService;
 import dev.nokee.buildadapter.xcode.internal.components.GradleSettingsTag;
 import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
+import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectsDiscoveryRule;

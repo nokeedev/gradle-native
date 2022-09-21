@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.internal.plugins;
+package dev.nokee.buildadapter.xcode.internal.components;
 
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.xcode.XCTargetReference;
