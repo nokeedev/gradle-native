@@ -41,10 +41,10 @@ public final class FileSystemMatchers {
 	 * @param matcher  the file matcher, must not be null
 	 * @return a file matcher, never null
 	 */
-	public static Matcher<Object> aFile(Matcher<? super File> matcher) {
-		return new FeatureMatcher<Object, File>(matcher, "a file", "the file") {
+	public static <T> Matcher<T> aFile(Matcher<? super File> matcher) {
+		return new FeatureMatcher<T, File>(matcher, "a file", "the file") {
 			@Override
-			protected File featureValueOf(Object actual) {
+			protected File featureValueOf(T actual) {
 				if (actual instanceof FileSystemLocation) {
 					return ((FileSystemLocation) actual).getAsFile();
 				} else if (actual instanceof File) {
