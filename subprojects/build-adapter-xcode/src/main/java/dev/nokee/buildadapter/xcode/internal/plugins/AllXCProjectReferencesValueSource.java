@@ -28,7 +28,7 @@ import java.util.ArrayDeque;
 import java.util.LinkedHashSet;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class AllXCProjectWithinProjectValueSource implements ValueSource<Iterable<XCProjectReference>, AllXCProjectWithinProjectValueSource.Parameters> {
+public abstract class AllXCProjectReferencesValueSource implements ValueSource<Iterable<XCProjectReference>, AllXCProjectReferencesValueSource.Parameters> {
 	private final XCLoader<Iterable<XCProjectReference>, XCProjectReference> projectReferencesLoader;
 
 	public interface Parameters extends ValueSourceParameters {
@@ -36,11 +36,11 @@ public abstract class AllXCProjectWithinProjectValueSource implements ValueSourc
 	}
 
 	@Inject
-	public AllXCProjectWithinProjectValueSource() {
+	public AllXCProjectReferencesValueSource() {
 		this(new CrossProjectReferencesLoader());
 	}
 
-	public AllXCProjectWithinProjectValueSource(XCLoader<Iterable<XCProjectReference>, XCProjectReference> projectReferencesLoader) {
+	public AllXCProjectReferencesValueSource(XCLoader<Iterable<XCProjectReference>, XCProjectReference> projectReferencesLoader) {
 		this.projectReferencesLoader = projectReferencesLoader;
 	}
 

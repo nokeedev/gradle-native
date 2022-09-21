@@ -22,7 +22,7 @@ import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryCompone
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCWorkspaceComponent;
 import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectLocationsValueSource;
-import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectWithinProjectValueSource;
+import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectReferencesValueSource;
 import dev.nokee.buildadapter.xcode.internal.plugins.AllXCWorkspaceLocationsValueSource;
 import dev.nokee.buildadapter.xcode.internal.plugins.SelectXCWorkspaceLocationTransformation;
 import dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterPlugin;
@@ -77,7 +77,7 @@ public final class XcodeProjectsDiscoveryRule extends ModelActionWithInputs.Mode
 		projects.addAll(findAllProjects(settingsDirectory.get()).map(warnsWhenNoProjects(settingsDirectory.get())));
 		projects.addAll(selectedWorkspace.map(XCWorkspace::getProjectLocations).orElse(Collections.emptyList()));
 
-		val actualProjects = forUseAtConfigurationTime(providers.of(AllXCProjectWithinProjectValueSource.class, forParameters(it -> it.getProjectLocations().addAll(projects)))).get();
+		val actualProjects = forUseAtConfigurationTime(providers.of(AllXCProjectReferencesValueSource.class, forParameters(it -> it.getProjectLocations().addAll(projects)))).get();
 
 		actualProjects.forEach(project -> {
 			registry.instantiate(ModelRegistration.builder().withComponent(new ParentComponent(entity)).withComponent(tag(GradleProjectTag.class)).withComponent(new XCProjectComponent(project)).build());
