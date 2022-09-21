@@ -15,20 +15,5 @@
  */
 package dev.nokee.xcode;
 
-import java.nio.file.Path;
-
-public interface XCProjectReference extends XCReference {
-	String getName();
-
-	Path getLocation();
-
-	static XCProjectReference of(Path location) {
-		return new DefaultXCProjectReference(location);
-	}
-
-	XCProject load();
-
-	default <T> T load(XCLoader<T, XCProjectReference> loader) {
-		return loader.load(this);
-	}
+public interface XCReference {
 }
