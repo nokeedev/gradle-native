@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
+package dev.nokee.buildadapter.xcode;
 
-import dev.nokee.buildadapter.xcode.internal.plugins.AllXCWorkspaceLocationsValueSource;
-import dev.nokee.buildadapter.xcode.internal.plugins.XCWorkspaceLocator;
-import dev.nokee.platform.xcode.EmptyXCWorkspace;
-import dev.nokee.xcode.XCWorkspace;
-import dev.nokee.xcode.XCWorkspaceReference;
-import lombok.EqualsAndHashCode;
+import dev.nokee.buildadapter.xcode.internal.plugins.AllXCProjectLocationsValueSource;
+import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectLocator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +27,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
 
+import static dev.nokee.buildadapter.xcode.TestProjectReference.project;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.xcode.XCWorkspaceReference.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,17 +40,17 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 @ExtendWith(MockitoExtension.class)
-class AllXCWorkspaceLocationsValueSourceTests {
+class AllXCProjectLocationsValueSourceTests {
 	@TempDir Path testDirectory;
-	@Mock XCWorkspaceLocator locator;
-	AllXCWorkspaceLocationsValueSource.Parameters parameters;
-	AllXCWorkspaceLocationsValueSource subject;
+	@Mock XCProjectLocator locator;
+	AllXCProjectLocationsValueSource.Parameters parameters;
+	AllXCProjectLocationsValueSource subject;
 
 	@BeforeEach
 	void createSubject() {
-		parameters = objectFactory().newInstance(AllXCWorkspaceLocationsValueSource.Parameters.class);
+		parameters = objectFactory().newInstance(AllXCProjectLocationsValueSource.Parameters.class);
 		parameters.getSearchDirectory().set(testDirectory.toFile());
-		subject = new AllXCWorkspaceLocationsValueSource(locator) {
+		subject = new AllXCProjectLocationsValueSource(locator) {
 			@Override
 			public Parameters getParameters() {
 				return parameters;
@@ -63,47 +59,24 @@ class AllXCWorkspaceLocationsValueSourceTests {
 	}
 
 	@Test
-	void returnsWorkspaceReferenceAsFoundByLocator() {
-		Mockito.when(locator.findWorkspaces(usingSearchDirectory())).thenReturn(asList(
-			workspace("A.xcworkspace"), workspace("C.xcworkspace"),
-			workspace("B.xcworkspace")));
+	void returnsProjectReferenceAsFoundByLocator() {
+		Mockito.when(locator.findProjects(usingSearchDirectory())).thenReturn(asList(
+			project("A.xcodeproj"), project("C.xcodeproj"),
+			project("B.xcodeproj")));
 
 		assertThat(subject.obtain(), contains(
-			workspace("A.xcworkspace"), workspace("C.xcworkspace"),
-			workspace("B.xcworkspace")));
+			project("A.xcodeproj"), project("C.xcodeproj"),
+			project("B.xcodeproj")));
 	}
 
 	@Test
-	void returnsEmptyIterableWhenLocatorDoesNotFoundWorkspaces() {
-		Mockito.when(locator.findWorkspaces(usingSearchDirectory())).thenReturn(emptyList());
+	void returnsEmptyIterableWhenLocatorDoesNotFoundProjects() {
+		Mockito.when(locator.findProjects(usingSearchDirectory())).thenReturn(emptyList());
 
 		assertThat(subject.obtain(), emptyIterable());
 	}
 
 	private Path usingSearchDirectory() {
 		return argThat(aFile(withAbsolutePath(equalTo(testDirectory.toAbsolutePath().toString()))));
-	}
-
-	private static XCWorkspaceReference workspace(String name) {
-		return new TestWorkspaceReference(name);
-	}
-
-	@EqualsAndHashCode
-	private static final class TestWorkspaceReference implements XCWorkspaceReference {
-		private final String name;
-
-		private TestWorkspaceReference(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public Path getLocation() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public XCWorkspace load() {
-			throw new UnsupportedOperationException();
-		}
 	}
 }

@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.dev.nokee.buildadapter.xcode;
+package dev.nokee.buildadapter.xcode;
 
-import dev.nokee.xcode.XCLoader;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.EqualsAndHashCode;
