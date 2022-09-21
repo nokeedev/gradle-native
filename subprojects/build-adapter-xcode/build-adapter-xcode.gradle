@@ -41,6 +41,12 @@ gradlePlugin {
 	}
 }
 
+test {
+	dependencies {
+		implementation templates(project(':xcodeIdeKit'))
+	}
+}
+
 integrationTest {
 	dependencies {
 		implementation 'dev.nokee:templates'

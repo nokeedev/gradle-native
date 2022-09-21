@@ -16,8 +16,10 @@
 package dev.nokee.buildadapter.xcode.internal.components;
 
 import dev.nokee.model.internal.core.ModelComponent;
+import lombok.EqualsAndHashCode;
 import org.gradle.util.Path;
 
+@EqualsAndHashCode
 public final class GradleProjectPathComponent implements ModelComponent {
 	private final Path value;
 

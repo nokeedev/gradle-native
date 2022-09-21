@@ -15,6 +15,7 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import dev.nokee.buildadapter.xcode.internal.DefaultGradleProjectPathService;
 import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
 import dev.nokee.buildadapter.xcode.internal.GradleProjectPathService;
 import dev.nokee.buildadapter.xcode.internal.components.GradleSettingsTag;
@@ -101,7 +102,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings.getGradle(), XCLoaderService.class)).get();
 
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(GradleBuildLayout.forSettings(settings), providers));
-		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectPathRule(new GradleProjectPathService(settings.getSettingsDir().toPath())));
+		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectPathRule(new DefaultGradleProjectPathService(settings.getSettingsDir().toPath())));
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectsDiscoveryRule(settings.getExtensions().getByType(ModelRegistry.class), objects, providers));
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeWorkspaceRule(settings, providers));
 
@@ -116,7 +117,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 			@SuppressWarnings("unchecked")
 			final Provider<XcodeImplicitDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeImplicitDependenciesService, XcodeImplicitDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeImplicitDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
-			val projectPathService = new GradleProjectPathService(project.getRootDir().toPath());
+			val projectPathService = new DefaultGradleProjectPathService(project.getRootDir().toPath());
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
 				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, forParameters(it -> {
