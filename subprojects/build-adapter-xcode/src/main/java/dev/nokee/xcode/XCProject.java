@@ -24,8 +24,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
-import static dev.nokee.xcode.DefaultXCTargetReference.walk;
-
 @EqualsAndHashCode
 public final class XCProject {
 	private final String name;
@@ -33,15 +31,17 @@ public final class XCProject {
 	private final ImmutableSet<XCTargetReference> targets;
 	private final ImmutableSet<String> schemeNames;
 	private transient final PBXProject project;
+	private XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader;
 	private transient DefaultXCTargetReference.XCFileReferences references;
 
 	// friends with XCProjectReference
-	XCProject(String name, Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project) {
+	XCProject(String name, Path location, ImmutableSet<XCTargetReference> targets, ImmutableSet<String> schemeNames, PBXProject project, XCLoader<DefaultXCTargetReference.XCFileReferences, XCProjectReference> fileReferencesLoader) {
 		this.name = name;
 		this.location = location;
 		this.targets = targets;
 		this.schemeNames = schemeNames;
 		this.project = project;
+		this.fileReferencesLoader = fileReferencesLoader;
 	}
 
 	public String getName() {
@@ -88,7 +88,8 @@ public final class XCProject {
 
 	DefaultXCTargetReference.XCFileReferences getFileReferences() {
 		if (references == null) {
-			references = walk(project);
+			references = fileReferencesLoader.load(toReference());
+			fileReferencesLoader = null;
 		}
 		return references;
 	}
