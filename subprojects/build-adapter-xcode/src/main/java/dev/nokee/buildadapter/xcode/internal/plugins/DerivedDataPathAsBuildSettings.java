@@ -30,6 +30,9 @@ final class DerivedDataPathAsBuildSettings implements Transformer<XCBuildSetting
 		builder.put("PROJECT_TEMP_DIR", derivedDataPath.resolve("Build/Intermediates.noindex/$(PROJECT_NAME).build").toString());
 		builder.put("OBJROOT", derivedDataPath.resolve("Build/Intermediates.noindex").toString());
 		builder.put("SYMROOT", derivedDataPath.resolve("Build/Products").toString());
+
+		// According to xcodebuildsettings.com, it should be $(OBJROOT)/SharedPrecompiledHeaders
+		builder.put("SHARED_PRECOMPS_DIR", derivedDataPath.resolve("Build/Intermediates.noindex/PrecompiledHeaders").toString());
 		return builder.build();
 	}
 }
