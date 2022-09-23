@@ -15,9 +15,10 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
+import com.google.common.collect.ImmutableMap;
 import dev.nokee.buildadapter.xcode.internal.DefaultGradleProjectPathService;
 import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
-import dev.nokee.buildadapter.xcode.internal.GradleProjectPathService;
+import dev.nokee.buildadapter.xcode.internal.components.GradleProjectPathComponent;
 import dev.nokee.buildadapter.xcode.internal.components.GradleSettingsTag;
 import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
@@ -51,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ProjectDependency;
@@ -71,6 +73,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -82,6 +85,7 @@ import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forParameters;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static final Logger LOGGER = Logging.getLogger(XcodeBuildAdapterPlugin.class);
@@ -110,6 +114,14 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		val settingsEntity = settings.getExtensions().getByType(ModelLookup.class).get(ModelPath.root());
 		settingsEntity.addComponent(new SettingsDirectoryComponent(settings.getSettingsDir().toPath()));
 		settingsEntity.addComponent(tag(GradleSettingsTag.class));
+
+		registerBuildServiceIfAbsent(settings, XcodeDependenciesService.class, it -> {
+			it.getProjectReferences().putAll(providers.provider(() -> {
+				return ImmutableMap.copyOf(settings.getExtensions().getByType(ModelLookup.class).query(entity -> entity.has(GradleProjectPathComponent.class) && entity.has(XCProjectComponent.class)).map(entity -> {
+					return new HashMap.SimpleImmutableEntry<>(entity.get(XCProjectComponent.class).get(), entity.get(GradleProjectPathComponent.class).get().toString());
+				}));
+			}));
+		});
 	}
 
 	public static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {
@@ -117,8 +129,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
 			@SuppressWarnings("unchecked")
-			final Provider<XcodeImplicitDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeImplicitDependenciesService, XcodeImplicitDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeImplicitDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
-			val projectPathService = new DefaultGradleProjectPathService(project.getRootDir().toPath());
+			final Provider<XcodeDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeDependenciesService, XcodeDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
 				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, forParameters(it -> {
@@ -150,23 +161,13 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					})
 					.configure(configuration -> {
 						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
-							return target.load().getInputFiles().stream().map(it::findTarget).filter(Objects::nonNull).map(t -> {
-								val dep = (ProjectDependency) project.getDependencies().create(project.project(":" + it.asProjectPath(t.getProject())));
-								dep.capabilities(capabilities -> {
-									capabilities.requireCapability("net.nokeedev.xcode:" + t.getProject().getName() + "-" + t.getName() + ":1.0");
-								});
-								return dep;
-							}).collect(Collectors.toList());
-						}).orElse(Collections.emptyList()))));
-						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(project.provider(() -> {
-							return target.load().getDependencies().stream().map(t -> {
-								val dep = (ProjectDependency) project.getDependencies().create(project.project(projectPathService.toProjectPath(t.getProject()).toString()));
-								dep.capabilities(capabilities -> {
-									capabilities.requireCapability("net.nokeedev.xcode:" + t.getProject().getName() + "-" + t.getName() + ":1.0");
-								});
-								return dep;
-							}).collect(Collectors.toList());
-						}).orElse(Collections.emptyList()))));
+								return target.load().getInputFiles().stream().map(it::forFile).filter(Objects::nonNull).collect(Collectors.toList());
+							}).map(transformEach(asDependency(project)))
+						)).orElse(Collections.emptyList()));
+						configuration.getDependencies().addAllLater(finalizeValueOnRead(project.getObjects().listProperty(Dependency.class).value(service.map(it -> {
+								return target.load().getDependencies().stream().map(it::forTarget).filter(Objects::nonNull).collect(Collectors.toList());
+							}).map(transformEach(asDependency(project)))
+						)).orElse(Collections.emptyList()));
 					});
 
 				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
@@ -248,6 +249,16 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			}));
 
 			project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new XCProjectComponent(reference));
+		};
+	}
+
+	public static Transformer<Dependency, XcodeDependenciesService.Coordinate> asDependency(Project project) {
+		return it -> {
+			val dep = (ProjectDependency) project.getDependencies().create(project.project(it.projectPath.toString()));
+			dep.capabilities(capabilities -> {
+				capabilities.requireCapability("net.nokeedev.xcode:" + it.projectName + "-" + it.capabilityName + ":1.0");
+			});
+			return dep;
 		};
 	}
 

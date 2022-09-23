@@ -16,19 +16,15 @@
 package dev.nokee.buildadapter.xcode.internal.rules;
 
 import dev.nokee.buildadapter.xcode.internal.components.XCWorkspaceComponent;
-import dev.nokee.buildadapter.xcode.internal.plugins.XcodeImplicitDependenciesService;
 import dev.nokee.buildadapter.xcode.internal.plugins.XcodebuildExecTask;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import lombok.val;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
 import static dev.nokee.buildadapter.xcode.internal.plugins.XcodeBuildAdapterPlugin.forXcodeWorkspace;
 import static dev.nokee.utils.ActionUtils.composite;
-import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
-import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 
 public final class XcodeWorkspaceRule extends ModelActionWithInputs.ModelAction1<XCWorkspaceComponent> {
 	private final Settings settings;
@@ -41,9 +37,6 @@ public final class XcodeWorkspaceRule extends ModelActionWithInputs.ModelAction1
 
 	@Override
 	protected void execute(ModelNode entity, XCWorkspaceComponent workspace) {
-		val service = forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings, XcodeImplicitDependenciesService.class, it -> {
-			it.getLocation().set(workspace.get());
-		}));
 		settings.getGradle().rootProject(forXcodeWorkspace(workspace.get().load(), composite(
 			(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
 			(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
