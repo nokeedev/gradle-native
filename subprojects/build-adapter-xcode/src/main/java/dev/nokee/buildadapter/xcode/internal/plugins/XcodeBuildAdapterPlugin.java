@@ -179,6 +179,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.as(XcodeTargetExecTask.class)
 					.configure(task -> {
 						task.setGroup("Xcode Target");
+						task.setDescription(String.format("Builds target target '%s' from %s.", target.getName(), project));
 						task.getXcodeProject().set(reference);
 						task.getTargetName().set(target.getName());
 						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
