@@ -18,8 +18,18 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import dev.nokee.xcode.XCCache;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
+import org.gradle.tooling.events.FinishEvent;
+import org.gradle.tooling.events.OperationCompletionListener;
 
-public abstract class XCLoaderService implements BuildService<BuildServiceParameters.None>, AutoCloseable {
+public abstract class XCLoaderService implements BuildService<BuildServiceParameters.None>, AutoCloseable, OperationCompletionListener {
+	public XCLoaderService() {
+	}
+
+	@Override
+	public void onFinish(FinishEvent event) {
+		// do nothing, Gradle always start listener service
+	}
+
 	@Override
 	public void close() {
 		XCCache.clear();

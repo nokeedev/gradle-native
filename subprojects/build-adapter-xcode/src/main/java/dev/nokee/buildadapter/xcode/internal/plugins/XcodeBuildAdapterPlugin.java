@@ -58,6 +58,7 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
@@ -67,6 +68,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 import org.gradle.api.services.BuildServiceRegistration;
+import org.gradle.build.event.BuildEventsListenerRegistry;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -104,7 +106,10 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		settings.getPluginManager().apply("dev.nokee.cocoapods-support");
 		settings.getGradle().rootProject(new RedirectProjectBuildDirectoryToRootBuildDirectory());
 
-		forUseAtConfigurationTime(registerBuildServiceIfAbsent(settings.getGradle(), XCLoaderService.class)).get();
+		val listenerRegistry = ((GradleInternal) settings.getGradle()).getServices().get(BuildEventsListenerRegistry.class);
+		val service = registerBuildServiceIfAbsent(settings.getGradle(), XCLoaderService.class);
+		listenerRegistry.onTaskCompletion(service);
+		service.get(); // hypothetically, make sure the service clear the cache even if configuration phase fails
 
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(GradleBuildLayout.forSettings(settings), providers));
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectPathRule(new DefaultGradleProjectPathService(settings.getSettingsDir().toPath())));
