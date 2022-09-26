@@ -18,6 +18,7 @@ package dev.nokee.model.internal.plugins;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ModelActionSystem;
 import dev.nokee.model.internal.ancestors.AncestryCapabilityPlugin;
+import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
@@ -73,6 +74,8 @@ public class ModelBasePlugin<T extends PluginAware & ExtensionAware> implements 
 
 		target.getPluginManager().apply(AncestryCapabilityPlugin.class);
 		target.getPluginManager().apply(NamesCapabilityPlugin.class);
+
+		modelRegistry.get(ModelPath.root()).addComponent(new DisplayNameComponent(target.toString()));
 	}
 
 	private void applyToSettings(Settings settings) {

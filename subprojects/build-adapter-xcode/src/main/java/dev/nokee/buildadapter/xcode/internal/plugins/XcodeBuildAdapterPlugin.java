@@ -23,12 +23,16 @@ import dev.nokee.buildadapter.xcode.internal.components.GradleSettingsTag;
 import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
+import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
+import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskDescriptionRule;
+import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskGroupRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectsDiscoveryRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeWorkspaceRule;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -133,6 +137,9 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		return project -> {
 			project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetTaskDescriptionRule());
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetTaskGroupRule());
+
 			@SuppressWarnings("unchecked")
 			final Provider<XcodeDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeDependenciesService, XcodeDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
 
@@ -178,8 +185,6 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				val targetTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetExecTask.class, it -> it.ownedBy(entity)))
 					.as(XcodeTargetExecTask.class)
 					.configure(task -> {
-						task.setGroup("Xcode Target");
-						task.setDescription(String.format("Builds target target '%s' from %s.", target.getName(), project));
 						task.getXcodeProject().set(reference);
 						task.getTargetName().set(target.getName());
 						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
@@ -224,6 +229,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getInputFiles().finalizeValueOnRead();
 						action.execute(task);
 					});
+				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetTask)));
 
 				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("DerivedDataElements", ConsumableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
 					.as(Configuration.class)
