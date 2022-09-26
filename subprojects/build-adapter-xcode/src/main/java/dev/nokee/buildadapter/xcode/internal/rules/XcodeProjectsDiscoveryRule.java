@@ -74,6 +74,9 @@ public final class XcodeProjectsDiscoveryRule extends ModelActionWithInputs.Mode
 		});
 
 		val projects = objects.setProperty(XCProjectReference.class);
+		// FIXME: There is a bit of an issue with the following logic where all project and workspace from root will be included.
+		//   In theory, there could be a workspace in root project that doesn't include the project in the root project.
+		//   In theory, there could be a workspace but no project in the root causing a warning despite having projects available.
 		projects.addAll(findAllProjects(settingsDirectory.get()).map(warnsWhenNoProjects(settingsDirectory.get())));
 		projects.addAll(selectedWorkspace.map(XCWorkspace::getProjectLocations).orElse(Collections.emptyList()));
 
