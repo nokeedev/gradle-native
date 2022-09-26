@@ -29,14 +29,13 @@ import java.nio.file.Path;
 
 import static dev.nokee.buildadapter.xcode.TestProjectReference.project;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
-import static dev.nokee.internal.testing.FileSystemMatchers.withAbsolutePath;
+import static dev.nokee.internal.testing.FileSystemMatchers.hasAbsolutePath;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,6 +73,6 @@ class AllXCProjectLocationsValueSourceTests {
 	}
 
 	private Path usingSearchDirectory() {
-		return argThat(aFile(withAbsolutePath(equalTo(testDirectory.toAbsolutePath().toString()))));
+		return argThat(aFile(hasAbsolutePath(testDirectory.toAbsolutePath().toString())));
 	}
 }

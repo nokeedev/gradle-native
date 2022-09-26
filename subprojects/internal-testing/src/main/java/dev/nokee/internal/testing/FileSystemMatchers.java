@@ -20,7 +20,6 @@ import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.hamcrest.io.FileMatchers;
 
 import java.io.File;
@@ -31,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesPattern;
 
@@ -93,8 +93,12 @@ public final class FileSystemMatchers {
 		};
 	}
 
+	public static Matcher<File> hasAbsolutePath(String expectedAbsolutePath) {
+		return withAbsolutePath(equalTo(FilenameUtils.separatorsToUnix(expectedAbsolutePath)));
+	}
+
 	public static Matcher<Object> aFileNamed(String fileName) {
-		return aFile(FileMatchers.aFileNamed(Matchers.equalTo(fileName)));
+		return aFile(FileMatchers.aFileNamed(equalTo(fileName)));
 	}
 
 	public static Matcher<Object> aFileNamed(Matcher<String> matcher) {
@@ -102,7 +106,7 @@ public final class FileSystemMatchers {
 	}
 
 	public static Matcher<Object> aFileBaseNamed(String baseName) {
-		return aFileNamed(withoutExtension(Matchers.equalTo(baseName)));
+		return aFileNamed(withoutExtension(equalTo(baseName)));
 	}
 
 	public static Matcher<Object> aFileBaseNamed(Matcher<String> matcher) {
