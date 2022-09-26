@@ -19,7 +19,6 @@ import dev.nokee.samples.xcode.EmptyProject;
 import dev.nokee.samples.xcode.GreeterAppWithRemoteLib;
 import dev.nokee.xcode.CrossProjectReferencesLoader;
 import dev.nokee.xcode.PBXProjectLoader;
-import dev.nokee.xcode.XCCacheLoader;
 import dev.nokee.xcode.XCFileReferencesLoader;
 import dev.nokee.xcode.XCProjectReference;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ import static org.hamcrest.Matchers.emptyIterable;
 
 class CrossProjectReferencesLoaderIntegrationTests {
 	@TempDir Path testDirectory;
-	CrossProjectReferencesLoader subject = new CrossProjectReferencesLoader(new XCCacheLoader<>(new PBXProjectLoader()), new XCFileReferencesLoader(new XCCacheLoader<>(new PBXProjectLoader())));
+	CrossProjectReferencesLoader subject = new CrossProjectReferencesLoader(new PBXProjectLoader(), new XCFileReferencesLoader(new PBXProjectLoader()));
 
 	@Test
 	void returnsEmptyReferencesWhenProjectHasNoProjectReferences() {

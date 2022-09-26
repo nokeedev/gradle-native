@@ -18,7 +18,6 @@ package dev.nokee.xcode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.xcode.workspace.XCWorkspaceDataReader;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 
@@ -30,9 +29,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FilenameUtils.removeExtension;
 
 @EqualsAndHashCode
@@ -51,16 +48,7 @@ public final class DefaultXCWorkspaceReference implements XCWorkspaceReference, 
 
 	public XCWorkspace load() {
 		return XCCache.cacheIfAbsent(this, key -> {
-			val layout = new XCWorkspaceLayout(getLocation());
-
-			List<XCProjectReference> projects = null;
-			try {
-				val data = new XCWorkspaceDataReader(Files.newBufferedReader(layout.getContentFile(), UTF_8)).read();
-				val resolver = new XCFileReferenceResolver(layout.getBaseDirectory().toFile());
-				projects = data.getFileRefs().stream().map(resolver::resolve).map(File::toPath).map(XCProjectReference::of).collect(Collectors.toList());
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
+			List<XCProjectReference> projects = ImmutableList.copyOf(XCLoaders.workspaceProjectReferencesLoader().load(this));
 
 			// TODO: Add support for implicit scheme: xcodebuild -list -workspace `getLocation()` -json
 			val schemeNames = projects.stream().map(it -> it.getLocation().resolve("xcshareddata/xcschemes")).filter(Files::isDirectory).flatMap(it -> {
