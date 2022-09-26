@@ -65,49 +65,49 @@ class AllXCProjectReferencesValueSourceTests {
 
 	@Test
 	void returnsInputProjectReferencesWhenNoneHaveCrossProjectReferences() {
-		parameters.getProjectLocations().set(asList(project("B.xcodeproj"), project("A.xcodeproj")));
+		parameters.getProjectLocations().set(asList(project("B"), project("A")));
 		when(loader.load(any())).thenReturn(Collections.emptyList());
 
-		assertThat(subject.obtain(), contains(project("B.xcodeproj"), project("A.xcodeproj")));
+		assertThat(subject.obtain(), contains(project("B"), project("A")));
 	}
 
 	@Test
 	void returnsCrossProjectReferencesAlongSideWithInputProjectReferences() {
-		parameters.getProjectLocations().set(asList(project("B.xcodeproj"), project("A.xcodeproj")));
+		parameters.getProjectLocations().set(asList(project("B"), project("A")));
 		when(loader.load(any())).thenReturn(Collections.emptyList());
-		when(loader.load(project("A.xcodeproj")))
-			.thenReturn(asList(project("A2.xcodeproj"), project("A1.xcodeproj")));
+		when(loader.load(project("A")))
+			.thenReturn(asList(project("A2"), project("A1")));
 
-		assertThat(subject.obtain(), contains(project("B.xcodeproj"), project("A.xcodeproj"),
-			project("A2.xcodeproj"), project("A1.xcodeproj")));
+		assertThat(subject.obtain(), contains(project("B"), project("A"),
+			project("A2"), project("A1")));
 	}
 
 	@Test
 	void loadsCrossProjectReferencesOnAllInputProjectReferencesAndDiscoveredProjectReferences() {
-		parameters.getProjectLocations().set(singletonList(project("A.xcodeproj")));
+		parameters.getProjectLocations().set(singletonList(project("A")));
 		when(loader.load(any())).thenReturn(Collections.emptyList());
-		when(loader.load(project("A.xcodeproj"))).thenReturn(asList(project("B.xcodeproj"), project("C.xcodeproj")));
-		when(loader.load(project("C.xcodeproj"))).thenReturn(singletonList(project("D.xcodeproj")));
-		when(loader.load(project("D.xcodeproj"))).thenReturn(singletonList(project("E.xcodeproj")));
+		when(loader.load(project("A"))).thenReturn(asList(project("B"), project("C")));
+		when(loader.load(project("C"))).thenReturn(singletonList(project("D")));
+		when(loader.load(project("D"))).thenReturn(singletonList(project("E")));
 
 		subject.obtain();
 
 		val inOrder = Mockito.inOrder(loader);
-		inOrder.verify(loader).load(project("A.xcodeproj"));
-		inOrder.verify(loader).load(project("B.xcodeproj"));
-		inOrder.verify(loader).load(project("C.xcodeproj"));
-		inOrder.verify(loader).load(project("D.xcodeproj"));
-		inOrder.verify(loader).load(project("E.xcodeproj"));
+		inOrder.verify(loader).load(project("A"));
+		inOrder.verify(loader).load(project("B"));
+		inOrder.verify(loader).load(project("C"));
+		inOrder.verify(loader).load(project("D"));
+		inOrder.verify(loader).load(project("E"));
 	}
 
 	@Test
 	void ignoresDuplicatedProjectReferences() {
 		parameters.getProjectLocations().set(singletonList(project("A.xcodeproj")));
 		when(loader.load(any())).thenReturn(Collections.emptyList());
-		when(loader.load(project("A.xcodeproj"))).thenReturn(asList(project("B.xcodeproj"), project("C.xcodeproj")));
-		when(loader.load(project("B.xcodeproj"))).thenReturn(asList(project("C.xcodeproj"), project("E.xcodeproj")));
-		when(loader.load(project("C.xcodeproj"))).thenReturn(asList(project("D.xcodeproj"), project("E.xcodeproj")));
+		when(loader.load(project("A"))).thenReturn(asList(project("B"), project("C")));
+		when(loader.load(project("B"))).thenReturn(asList(project("C"), project("E")));
+		when(loader.load(project("C"))).thenReturn(asList(project("D"), project("E")));
 
-		assertThat(subject.obtain(), contains(project("A.xcodeproj"), project("B.xcodeproj"), project("C.xcodeproj"), project("E.xcodeproj"), project("D.xcodeproj")));
+		assertThat(subject.obtain(), contains(project("A"), project("B"), project("C"), project("E"), project("D")));
 	}
 }

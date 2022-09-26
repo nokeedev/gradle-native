@@ -24,6 +24,7 @@ import java.nio.file.Path;
 @EqualsAndHashCode
 public final class TestProjectReference implements XCProjectReference {
 	public static XCProjectReference project(String name) {
+		assert !name.endsWith(".xcodeproj") : "do not include .xcodeproj extension";
 		return new TestProjectReference(name);
 	}
 
