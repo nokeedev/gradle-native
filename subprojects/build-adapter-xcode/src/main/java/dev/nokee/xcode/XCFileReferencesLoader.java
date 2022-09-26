@@ -114,6 +114,8 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 		}
 
 		public XCFileReference get(PBXFileReference fileRef) {
+			// FIXME: When PBXFileReference comes from two different instance of the same project, they don't align.
+			//   We should find a way to normalize the file reference so they can be compared between project instance
 			return Objects.requireNonNull(fileRefs.get(System.identityHashCode(fileRef)));
 		}
 
