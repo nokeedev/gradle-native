@@ -102,7 +102,7 @@ class AllXCProjectReferencesValueSourceTests {
 
 	@Test
 	void ignoresDuplicatedProjectReferences() {
-		parameters.getProjectLocations().set(singletonList(project("A.xcodeproj")));
+		parameters.getProjectLocations().set(singletonList(project("A")));
 		when(loader.load(any())).thenReturn(Collections.emptyList());
 		when(loader.load(project("A"))).thenReturn(asList(project("B"), project("C")));
 		when(loader.load(project("B"))).thenReturn(asList(project("C"), project("E")));
