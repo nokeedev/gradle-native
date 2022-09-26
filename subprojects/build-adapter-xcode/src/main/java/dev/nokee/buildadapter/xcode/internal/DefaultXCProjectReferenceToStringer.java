@@ -16,6 +16,7 @@
 package dev.nokee.buildadapter.xcode.internal;
 
 import dev.nokee.xcode.XCProjectReference;
+import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
 
@@ -28,6 +29,6 @@ public final class DefaultXCProjectReferenceToStringer implements XCProjectRefer
 
 	@Override
 	public String toString(XCProjectReference reference) {
-		return "Xcode project '" + baseDirectory.relativize(reference.getLocation()) + "'";
+		return "Xcode project '" + FilenameUtils.separatorsToUnix(baseDirectory.relativize(reference.getLocation()).toString()) + "'";
 	}
 }
