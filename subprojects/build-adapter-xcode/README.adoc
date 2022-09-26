@@ -1,0 +1,163 @@
+= Building Xcode Workspaces and Projects
+
+WARNING: Building Xcode workspaces and projects is an experimental feature.
+Please open any issues or feature requests on the link:https://github.com/nokeedev/gradle-native[Nokee project].
+
+Nokee allows users to adapt Xcode workspaces or projects to the Gradle build tool.
+In a nutshell, Nokee will gather the necessary information from an existing Xcode build and configure Gradle appropriately.
+In the long run, users can expect improved performance and insight into their current Xcode workspace/project with near zero migration effort.
+At the moment, Nokee only supports building Xcode targets for any Apple platform, i.e. macOS, iOS, watchOS, tvOS, etc.
+This chapter covers the different features of building Xcode workspaces and projects.
+See <<sec:building-xcode-limitation, this section>> to learn more about the limitation.
+
+== Introduction
+
+The most straightforward build script applies the Xcode Build Adapter plugin:
+
+.Applying the Xcode Build Adapter Plugin
+====
+[.multi-language-sample]
+=====
+.settings.gradle
+[source,groovy,subs=attributes+]
+----
+plugins {
+   id 'dev.nokee.xcode-build-adapter'
+}
+----
+=====
+[.multi-language-sample]
+=====
+.settings.gradle.kts
+[source,kotlin,subs=attributes+]
+----
+plugins {
+   id("dev.nokee.xcode-build-adapter")
+}
+----
+=====
+====
+
+By applying the Xcode Build Adapter plugin, Nokee will load the first Xcode workspace found or all projects located at the build's root and perform the following actions:
+
+- Install CocoaPods dependencies, if present;
+- Map each Xcode project to a Gradle project;
+- Create a task to build each Xcode target;
+- Redirect all `build` folders under the root project's `build` folder.
+
+== Building Xcode target
+
+To build an Xcode target, invoke the Gradle task corresponding to the target to build; see _Xcode Targets_ group.
+For example, to build the VLC's iOS application for the iPhone Simulator, we would invoke the following command:
+
+.Build VLC for iPhone Simulator
+[source,terminal]
+----
+$ gradle VLC-iOS -Dsdk=iphonesimulator -Dconfiguration=Debug
+----
+
+If the project contains CocoaPods packages, Nokee will install the CocoaPods and keep them in sync with the `Podfile`.
+
+We can select which SDK or Configuration to use via the command line:
+- SDK: Gradle/System property `sdk`
+- Configuration: Gradle/System property `configuration`
+
+== How it works?
+
+The _build adapter_ concept is a specialization of the _build wrapper_ concept.
+In this context, a _build_ refers to a self-contained build system configuration.
+A _build wrapper_ would delegate any useful action to the external build system.
+On the other hand, a _build adapter_ would have a deeper understanding of the external build system.
+This deep understanding allows for more specialized integration and optimization with the host build system.
+In Nokee's case, the host build system is always Gradle.
+Both approaches end up delegating to the external build system, thus requiring an already functioning build system configuration.
+
+=== How performance compares?
+
+In its worst case, the build adapter would be as fast (or slow) as the existing build.
+In its best case, it can be *several* orders of magnitude faster than the existing build.
+How is that possible?
+In the case of the Xcode build system, Xcode relies on modification times to deem a file up-to-date/out-of-date.
+On the other hand, Gradle uses file hashes.
+One could think that modification times out-perform file hashing.
+However, Gradle is *very* efficient in calculating those file hashes.
+Nokee uses these out-performance to Gradle's advantage by avoiding complete Xcode invocation when possible.
+It also isolates Xcode targets so Gradle can calculate inputs/outputs per target instead of per project.
+This isolation effectively fragments the Xcode build plan into bit size, requiring less configuration on the Xcode side.
+
+=== Why not migrate the entire build to Gradle instead?
+
+A build migration effort can be very costly.
+Some companies took multiple months and several engineers to migrate their builds to other build systems, often at the expense of essential features.
+Several months later, their build is often faster, but they paid a hefty price.
+We propose a near-zero migration effort with similar performance improvement without losing features.
+Xcode's performance lies in the execution, not the declaration.
+Gradle has a lot of valuable features that don't require complete migration to use.
+For example, we use Gradle's superior up-to-date checking to avoid some of Xcode's inefficiency.
+The CocoaPods integration is a much more streamed line experience.
+It automatically detects when the dependencies are out-of-date and performs the right actions on each build invocation.
+
+=== Would we now have two problems: Xcode and Gradle
+
+A statement like this is sensational but doesn't reflect reality.
+Regardless of the build system, the Apple development ecosystem *always* requires an Xcode installation.
+When not using pure Xcode build configuration, there is always _two build system_ involved in shape or form.
+
+== Select Xcode Version
+
+The adapter uses the default Xcode installation, typically `/Applications/Xcode.app`.
+Use the `DEVELOPER_DIR` environment variable to the selected Xcode installation:
+
+.Select Xcode installation
+[source,terminal]
+----
+$ export DEVELOPER_DIR=/Applications/Xcode_13.4.1.app/Contents/Developer
+----
+
+Clear the `DEVELOPER_DIR` environment variable to revert to the default installation:
+
+.Select default Xcode installation
+[source,terminal]
+----
+$ export DEVELOPER_DIR=
+----
+
+== CocoaPods Support
+
+The adapter automatically installs CocoaPods when `Podfile` is present.
+It uses the `pod` executable found using the `PATH` environment variable.
+When the CocoaPods installation is deemed out-of-date, it executes `pod install --repo-update`.
+
+NOTE: The adapter doesn't support other package managers out-of-the-box yet.
+Installing the missing package manually before invoking Gradle should be enough to ensure a successful build.
+
+[[sec:building-xcode-limitation]]
+== Limitation
+
+The adapter is under heavy development and has the following limitation:
+
+- No support for schemes and their actions (e.g. test, launch, profile, archive).
+Xcode scheme is a powerful feature to help group several targets under Xcode lifecycle actions.
+We intend to map these actions in Gradle.
+We also plan on deeply understanding the test setup so users can benefit from Gradle Enterprise features such as predictive testing and test distribution.
+
+- Up-to-date checks are limited to the inputs/outputs declared on all build phases and the built product.
+This approach is not 100% correct.
+Xcode doesn't explicitly prevent overlapping outputs or reusing inputs as outputs.
+We are iteratively working on capturing more information so Gradle can provide accurate, up-to-date detection.
+We will also provide ways to inject additional information to guide Gradle to perform the correct behaviour when insufficient information is available.
+
+- Local caching is not enabled.
+We believe local caching with absolute path sensitivity will be possible soon.
+Relocatable caching will require more work to achieve.
+
+- Performance improvements are limited to build invocation from the command line.
+Invoking Gradle directly from the Xcode IDE in the context of the Xcode build adapter should be possible later.
+
+- Xcode's variants are not mapped in Gradle.
+Xcode variant detection requires a deeper understanding of the build settings.
+For now, use the `sdk` and `configuration` properties to select the variant to build.
+
+- Code signing is explicitly disabled.
+It was disabled out of convenience when testing against multiple real-world projects.
+In the future, we will introduce a flag to disable signing and relies on the default configuration.
