@@ -15,11 +15,8 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import dev.nokee.xcode.CrossProjectReferencesLoader;
-import dev.nokee.xcode.PBXProjectLoader;
-import dev.nokee.xcode.XCCacheLoader;
-import dev.nokee.xcode.XCFileReferencesLoader;
 import dev.nokee.xcode.XCLoader;
+import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.val;
 import org.gradle.api.provider.ListProperty;
@@ -40,7 +37,7 @@ public abstract class AllXCProjectReferencesValueSource implements ValueSource<I
 
 	@Inject
 	public AllXCProjectReferencesValueSource() {
-		this(new CrossProjectReferencesLoader(new XCCacheLoader<>(new PBXProjectLoader()), new XCCacheLoader<>(new XCFileReferencesLoader(new XCCacheLoader<>(new PBXProjectLoader())))));
+		this(XCLoaders.crossProjectReferencesLoader());
 	}
 
 	public AllXCProjectReferencesValueSource(XCLoader<Iterable<XCProjectReference>, XCProjectReference> projectReferencesLoader) {

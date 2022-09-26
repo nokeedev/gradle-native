@@ -48,6 +48,6 @@ public final class DefaultXCProjectReference implements XCProjectReference, Seri
 	}
 
 	public XCProject load() {
-		return load(new XCCacheLoader<>(new XCProjectLoader(new XCCacheLoader<>(new PBXProjectLoader()), new XCCacheLoader<>(new XCFileReferencesLoader(new XCCacheLoader<>(new PBXProjectLoader()))))));
+		return load(XCLoaders.projectLoader());
 	}
 }

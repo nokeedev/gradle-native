@@ -38,6 +38,6 @@ public final class DefaultXCTargetReference implements XCTargetReference, Serial
 	}
 
 	public XCTarget load() {
-		return new XCCacheLoader<>(new XCTargetLoader(new XCCacheLoader<>(new PBXProjectLoader()), new XCCacheLoader<>(new XCFileReferencesLoader(new XCCacheLoader<>(new PBXProjectLoader()))))).load(this);
+		return XCLoaders.targetLoader().load(this);
 	}
 }
