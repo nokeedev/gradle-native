@@ -61,12 +61,9 @@ class AllXCProjectLocationsValueSourceTests {
 	@Test
 	void returnsProjectReferenceAsFoundByLocator() {
 		Mockito.when(locator.findProjects(usingSearchDirectory())).thenReturn(asList(
-			project("A.xcodeproj"), project("C.xcodeproj"),
-			project("B.xcodeproj")));
+			project("A"), project("C"), project("B")));
 
-		assertThat(subject.obtain(), contains(
-			project("A.xcodeproj"), project("C.xcodeproj"),
-			project("B.xcodeproj")));
+		assertThat(subject.obtain(), contains(project("A"), project("C"), project("B")));
 	}
 
 	@Test

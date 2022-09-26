@@ -17,7 +17,6 @@ package dev.nokee.buildadapter.xcode;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.AllXCWorkspaceLocationsValueSource;
 import dev.nokee.buildadapter.xcode.internal.plugins.XCWorkspaceLocator;
-import dev.nokee.platform.xcode.EmptyXCWorkspace;
 import dev.nokee.xcode.XCWorkspace;
 import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.EqualsAndHashCode;
@@ -65,12 +64,9 @@ class AllXCWorkspaceLocationsValueSourceTests {
 	@Test
 	void returnsWorkspaceReferenceAsFoundByLocator() {
 		Mockito.when(locator.findWorkspaces(usingSearchDirectory())).thenReturn(asList(
-			workspace("A.xcworkspace"), workspace("C.xcworkspace"),
-			workspace("B.xcworkspace")));
+			workspace("A"), workspace("C"), workspace("B")));
 
-		assertThat(subject.obtain(), contains(
-			workspace("A.xcworkspace"), workspace("C.xcworkspace"),
-			workspace("B.xcworkspace")));
+		assertThat(subject.obtain(), contains(workspace("A"), workspace("C"), workspace("B")));
 	}
 
 	@Test
@@ -85,6 +81,7 @@ class AllXCWorkspaceLocationsValueSourceTests {
 	}
 
 	private static XCWorkspaceReference workspace(String name) {
+		assert !name.endsWith(".xcworkspace") : "do not include .xcworkspace extension";
 		return new TestWorkspaceReference(name);
 	}
 
