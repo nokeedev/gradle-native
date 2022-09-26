@@ -29,7 +29,6 @@ import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskGroupRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectsDiscoveryRule;
-import dev.nokee.buildadapter.xcode.internal.rules.XcodeWorkspaceRule;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -52,7 +51,6 @@ import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCWorkspace;
 import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -118,7 +116,6 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(GradleBuildLayout.forSettings(settings), providers));
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectPathRule(new DefaultGradleProjectPathService(settings.getSettingsDir().toPath())));
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectsDiscoveryRule(settings.getExtensions().getByType(ModelRegistry.class), objects, providers));
-		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeWorkspaceRule(settings, providers));
 
 		val settingsEntity = settings.getExtensions().getByType(ModelLookup.class).get(ModelPath.root());
 		settingsEntity.addComponent(new SettingsDirectoryComponent(settings.getSettingsDir().toPath()));
@@ -245,20 +242,6 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						});
 					});
 			})));
-			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
-				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, forParameters(it -> {
-					it.getProject().set(xcProject.get());
-				}))).get();
-				xcodeProject.getSchemeNames().forEach(schemeName -> {
-					project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeProjectSchemeExecTask.class, task -> {
-						task.setGroup("Xcode Scheme");
-						task.getXcodeProject().set(xcProject.get());
-						task.getSchemeName().set(schemeName);
-						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
-						action.execute(task);
-					});
-				});
-			}));
 
 			project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new XCProjectComponent(reference));
 		};
@@ -271,20 +254,6 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				capabilities.requireCapability("net.nokeedev.xcode:" + it.projectName + "-" + it.capabilityName + ":1.0");
 			});
 			return dep;
-		};
-	}
-
-	public static Action<Project> forXcodeWorkspace(XCWorkspace workspace, Action<? super XcodebuildExecTask> action) {
-		return project -> {
-			workspace.getSchemeNames().forEach(schemeName -> {
-				project.getTasks().register("build" + StringUtils.capitalize(schemeName), XcodeSchemeExecTask.class, task -> {
-					task.setGroup("Xcode Scheme");
-					task.getXcodeWorkspace().set(workspace.toReference());
-					task.getSchemeName().set(schemeName);
-					task.getDerivedDataPath().set(project.getRootProject().getLayout().getBuildDirectory().dir("derivedData"));
-					action.execute(task);
-				});
-			});
 		};
 	}
 
