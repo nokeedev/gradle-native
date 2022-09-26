@@ -17,13 +17,16 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.buildadapter.xcode.internal.DefaultGradleProjectPathService;
+import dev.nokee.buildadapter.xcode.internal.DefaultXCProjectReferenceToStringer;
 import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
 import dev.nokee.buildadapter.xcode.internal.components.GradleProjectPathComponent;
+import dev.nokee.buildadapter.xcode.internal.components.GradleProjectTag;
 import dev.nokee.buildadapter.xcode.internal.components.GradleSettingsTag;
 import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
+import dev.nokee.buildadapter.xcode.internal.rules.XCProjectDescriptionRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskDescriptionRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskGroupRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
@@ -136,6 +139,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetTaskDescriptionRule());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetTaskGroupRule());
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCProjectDescriptionRule(new DefaultXCProjectReferenceToStringer(project.getRootDir().toPath())));
 
 			@SuppressWarnings("unchecked")
 			final Provider<XcodeDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeDependenciesService, XcodeDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
@@ -243,7 +247,9 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					});
 			})));
 
-			project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()).addComponent(new XCProjectComponent(reference));
+			val projectEntity = project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root());
+			projectEntity.addComponent(new XCProjectComponent(reference));
+			projectEntity.addComponent(tag(GradleProjectTag.class));
 		};
 	}
 

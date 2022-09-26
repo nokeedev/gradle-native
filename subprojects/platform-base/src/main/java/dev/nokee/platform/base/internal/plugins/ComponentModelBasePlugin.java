@@ -26,7 +26,6 @@ import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.model.internal.core.ModelNodeUtils;
 import dev.nokee.model.internal.core.ModelNodes;
-import dev.nokee.model.internal.core.ModelPath;
 import dev.nokee.model.internal.core.ModelPathComponent;
 import dev.nokee.model.internal.core.ModelPropertyRegistrationFactory;
 import dev.nokee.model.internal.core.ParentComponent;
@@ -80,6 +79,8 @@ import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantCap
 import dev.nokee.platform.base.internal.elements.ComponentElementsCapabilityPlugin;
 import dev.nokee.platform.base.internal.elements.ComponentElementsPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.extensionaware.ExtensionAwareCapability;
+import dev.nokee.platform.base.internal.project.ProjectCapabilityPlugin;
+import dev.nokee.platform.base.internal.project.ProjectProjectionComponent;
 import dev.nokee.platform.base.internal.tasks.TaskCapabilityPlugin;
 import lombok.val;
 import org.gradle.api.Plugin;
@@ -93,6 +94,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.ofInstance;
+import static dev.nokee.model.internal.core.ModelPath.root;
 import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -107,10 +109,13 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 		val modeRegistry = project.getExtensions().getByType(ModelRegistry.class);
 		val modelLookup = project.getExtensions().getByType(ModelLookup.class);
 
+		project.getExtensions().getByType(ModelLookup.class).get(root()).addComponent(new ProjectProjectionComponent(project));
+
 		project.getExtensions().add(ComponentTasksPropertyRegistrationFactory.class, "__nokee_componentTasksPropertyFactory", new ComponentTasksPropertyRegistrationFactory());
 
 		project.getPluginManager().apply(DependencyBucketCapabilityPlugin.class);
 		project.getPluginManager().apply(TaskCapabilityPlugin.class);
+		project.getPluginManager().apply(ProjectCapabilityPlugin.class);
 		project.getPluginManager().apply(AssembleTaskCapabilityPlugin.class);
 
 		project.getExtensions().add(DimensionPropertyRegistrationFactory.class, "__nokee_dimensionPropertyFactory", new DimensionPropertyRegistrationFactory(project.getObjects()));
@@ -184,9 +189,9 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 
 		val components = modeRegistry.register(builder()
 			.withComponent(new ElementNameComponent("components"))
-			.withComponent(new ParentComponent(modelLookup.get(ModelPath.root())))
+			.withComponent(new ParentComponent(modelLookup.get(root())))
 			.mergeFrom(elementsPropertyFactory.newProperty()
-				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(ModelPath.root()))
+				.baseRef(project.getExtensions().getByType(ModelLookup.class).get(root()))
 				.elementType(of(Component.class))
 				.build())
 			.withComponent(createdUsing(of(ComponentContainer.class), () -> new ComponentContainerAdapter(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<Component>>() {})), modeRegistry)))
