@@ -64,7 +64,9 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 	}
 
 	private static void walk(XCFileReferences.Builder builder, FileNode previousNodes, PBXFileReference fileRef) {
-		val realPath = Optionals.or(fileRef.getPath().map(path -> fileRef.getName().filter(name -> !path.contains("/")).orElse(path)), fileRef::getName).orElse(null);
+		// FIXME: Clear up the rules to rebuild the fulle file reference path.
+		//   This is a bit messy. Xcode seems to sometime take the path while other time use the name...
+		val realPath = Optionals.or(fileRef.getPath().map(path -> fileRef.getName().filter(name -> !path.contains("/") && !path.contains(".")).orElse(path)), fileRef::getName).orElse(null);
 		builder.put(fileRef, parse(new FileNode(fileRef.getSourceTree(), previousNodes, realPath)));
 	}
 
