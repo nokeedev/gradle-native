@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class XcodeDependenciesService implements BuildService<XcodeDependenciesService.Parameters> {
@@ -57,7 +58,7 @@ public abstract class XcodeDependenciesService implements BuildService<XcodeDepe
 	public Coordinate forFile(XCFileReference file) {
 		if (file.getType() == XCFileReference.XCFileType.BUILT_PRODUCT) {
 			return Optional.ofNullable(fileToCoordinates.get(file)).orElseThrow(() -> {
-				return new RuntimeException("UNKNOWN " + file);
+				return new RuntimeException("UNKNOWN " + file + "\n" + fileToCoordinates.keySet().stream().map(it -> " - " + it).collect(Collectors.joining("\n")));
 			});
 		} else {
 			return null;
