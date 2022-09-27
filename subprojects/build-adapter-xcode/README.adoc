@@ -48,7 +48,7 @@ By applying the Xcode Build Adapter plugin, Nokee will load the first Xcode work
 == Building Xcode target
 
 To build an Xcode target, invoke the Gradle task corresponding to the target to build; see _Xcode Targets_ group.
-For example, to build the VLC's iOS application for the iPhone Simulator, we would invoke the following command:
+For example, to build the link:https://github.com/videolan/vlc-ios/[VLC's iOS application] for the iPhone Simulator, we would invoke the following command:
 
 .Build VLC for iPhone Simulator
 [source,terminal]
@@ -57,8 +57,10 @@ $ gradle VLC-iOS -Dsdk=iphonesimulator -Dconfiguration=Debug
 ----
 
 If the project contains CocoaPods packages, Nokee will install the CocoaPods and keep them in sync with the `Podfile`.
+See <<sec:building-xcode-cocoapods, CocoaPods Support section>> for more information.
 
 We can select which SDK or Configuration to use via the command line:
+
 - SDK: Gradle/System property `sdk`
 - Configuration: Gradle/System property `configuration`
 
@@ -91,7 +93,7 @@ A build migration effort can be very costly.
 Some companies took multiple months and several engineers to migrate their builds to other build systems, often at the expense of essential features.
 Several months later, their build is often faster, but they paid a hefty price.
 We propose a near-zero migration effort with similar performance improvement without losing features.
-Xcode's performance lies in the execution, not the declaration.
+Xcode's performance issues lies in the execution, not the declaration.
 Gradle has a lot of valuable features that don't require complete migration to use.
 For example, we use Gradle's superior up-to-date checking to avoid some of Xcode's inefficiency.
 The CocoaPods integration is a much more streamed line experience.
@@ -122,6 +124,7 @@ Clear the `DEVELOPER_DIR` environment variable to revert to the default installa
 $ export DEVELOPER_DIR=
 ----
 
+[[sec:building-xcode-cocoapods]]
 == CocoaPods Support
 
 The adapter automatically installs CocoaPods when `Podfile` is present.
@@ -136,28 +139,28 @@ Installing the missing package manually before invoking Gradle should be enough 
 
 The adapter is under heavy development and has the following limitation:
 
-- No support for schemes and their actions (e.g. test, launch, profile, archive).
+- *No support for schemes and their actions (e.g. test, launch, profile, archive).*
 Xcode scheme is a powerful feature to help group several targets under Xcode lifecycle actions.
 We intend to map these actions in Gradle.
-We also plan on deeply understanding the test setup so users can benefit from Gradle Enterprise features such as predictive testing and test distribution.
+We also plan on deeply understanding the test setup so users can benefit from Gradle Enterprise features such as link:https://gradle.com/gradle-enterprise-solutions/predictive-test-selection/[predictive testing] and link:https://gradle.com/gradle-enterprise-solutions/test-distribution/[test distribution].
 
-- Up-to-date checks are limited to the inputs/outputs declared on all build phases and the built product.
+- *Up-to-date checks are limited to the inputs/outputs declared on all build phases and the built product.*
 This approach is not 100% correct.
 Xcode doesn't explicitly prevent overlapping outputs or reusing inputs as outputs.
 We are iteratively working on capturing more information so Gradle can provide accurate, up-to-date detection.
 We will also provide ways to inject additional information to guide Gradle to perform the correct behaviour when insufficient information is available.
 
-- Local caching is not enabled.
+- *Local caching is not enabled.*
 We believe local caching with absolute path sensitivity will be possible soon.
 Relocatable caching will require more work to achieve.
 
-- Performance improvements are limited to build invocation from the command line.
+- *Performance improvements are limited to build invocation from the command line.*
 Invoking Gradle directly from the Xcode IDE in the context of the Xcode build adapter should be possible later.
 
-- Xcode's variants are not mapped in Gradle.
+- *Xcode's variants are not mapped in Gradle.*
 Xcode variant detection requires a deeper understanding of the build settings.
 For now, use the `sdk` and `configuration` properties to select the variant to build.
 
-- Code signing is explicitly disabled.
+- *Code signing is explicitly disabled.*
 It was disabled out of convenience when testing against multiple real-world projects.
 In the future, we will introduce a flag to disable signing and relies on the default configuration.
