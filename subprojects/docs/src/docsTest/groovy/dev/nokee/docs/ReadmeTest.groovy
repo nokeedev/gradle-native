@@ -35,6 +35,8 @@ import java.nio.file.Files
 
 import static dev.nokee.docs.fixtures.html.HtmlLinkTester.validEmails
 import static org.asciidoctor.OptionsBuilder.options
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.hasKey
 
 class ReadmeTest {
 	private static final String README_LOCATION_PROPERTY_NAME = 'dev.nokee.docs.readme.location'
@@ -42,7 +44,7 @@ class ReadmeTest {
 	/*@Shared*/ static Document readme = asciidoctor.loadFile(readmeFile, options().asMap())
 
 	private static File getReadmeFile() {
-		assert System.properties.containsKey(README_LOCATION_PROPERTY_NAME)
+		assertThat(System.properties, hasKey(README_LOCATION_PROPERTY_NAME));
 		return new File(System.getProperty(README_LOCATION_PROPERTY_NAME))
 	}
 

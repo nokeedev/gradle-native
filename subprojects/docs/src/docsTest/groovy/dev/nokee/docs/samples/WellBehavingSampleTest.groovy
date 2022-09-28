@@ -38,6 +38,7 @@ import net.nokeedev.testing.junit.jupiter.io.TestDirectory
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension
 import org.gradle.internal.logging.ConsoleRenderer
 import org.gradle.internal.os.OperatingSystem
+import org.hamcrest.Matchers
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -58,10 +59,12 @@ import static dev.gradleplugins.exemplarkit.StepExecutors.replaceIfAbsent
 import static dev.gradleplugins.exemplarkit.StepExecutors.skipIf
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemError
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toSystemOutput
+import static dev.nokee.internal.testing.FileSystemMatchers.anExistingFile
 import static org.apache.commons.io.FilenameUtils.getExtension
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix
 import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS
-import static org.hamcrest.Matchers.greaterThan
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.*
 import static org.junit.Assume.assumeThat
 import static org.junit.Assume.assumeTrue
 
@@ -98,7 +101,7 @@ abstract class WellBehavingSampleTest {
 
 	// TODO: Migrate to TestFile
 	protected static String unzipTo(File zipFile, File workingDirectory) {
-		assert zipFile.isFile()
+		assertThat(zipFile, anExistingFile())
 		workingDirectory.mkdirs()
 		def result = CommandLineTool.of('unzip')
 			.withArguments(zipFile.getCanonicalPath(), '-d', workingDirectory.getCanonicalPath())
@@ -206,7 +209,7 @@ abstract class WellBehavingSampleTest {
 	private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED) in \\d+(ms|s|m|h)( \\d+(ms|s|m|h))*");
 	private static void assertNoTimingInformationOnBuildResult(Step step) {
 		step.output.ifPresent { output ->
-			assert !BUILD_RESULT_PATTERN.matcher(output).find()
+			assertThat(output, not(matchesPattern(BUILD_RESULT_PATTERN)));
 		}
 	}
 
@@ -216,18 +219,18 @@ abstract class WellBehavingSampleTest {
 //		expect:
 		def it = fixture.bakedFile
 		def twitterImages = it.findAll(HtmlTag.META).findAll { it.twitterImage }
-		assert twitterImages.size() == 1, "${it.uri} does not have the right meta twitter image tag count"
-		assert twitterImages.first().content == "${it.canonicalPath}all-commands.png"
+		assertThat("${it.uri} does not have the right meta twitter image tag count", twitterImages, iterableWithSize(1))
+		assertThat(twitterImages.first().content, equalTo("${it.canonicalPath}all-commands.png"));
 
 //		and:
 		def twitterCards = it.findAll(HtmlTag.META).findAll { it.twitterCard }
-		assert twitterCards.size() == 1, "${it.uri} does not have the right meta twitter card tag count"
-		assert twitterCards.first().content == "player"
+		assertThat("${it.uri} does not have the right meta twitter card tag count", twitterCards, iterableWithSize(1))
+		assertThat(twitterCards.first().content, equalTo("player"));
 
 //		and:
 		def twitterPlayers = it.findAll(HtmlTag.META).findAll { it.twitterPlayer }
-		assert twitterPlayers.size() == 1, "${it.uri} does not have the right meta twitter player tag count"
-		assert twitterPlayers.first().content == "${it.canonicalPath}all-commands.embed.html"
+		assertThat("${it.uri} does not have the right meta twitter player tag count", twitterPlayers, iterableWithSize(1))
+		assertThat(twitterPlayers.first().content, equalTo("${it.canonicalPath}all-commands.embed.html"));
 	}
 
 	@ParameterizedTest(name = "can run ./gradlew {0} successfully [{1}]")
@@ -271,10 +274,10 @@ abstract class WellBehavingSampleTest {
 		assumeThat(exemplar.steps.size(), greaterThan(0))
 //		expect:
 		[exemplar.steps, result.stepResults].transpose().each { Step expected, StepExecutionResult actual ->
-			assert actual.outcome != StepExecutionOutcome.FAILED
+			assertThat(actual.outcome, not(equalTo(StepExecutionOutcome.FAILED)));
 
 			if (actual.outcome == StepExecutionOutcome.EXECUTED) {
-				assert actual.exitValue.get() == 0
+				assertThat(actual.exitValue.get(), Matchers.is(0));
 				if (expected.executable == './gradlew') {
 					def actualBuildResult = BuildResult.from(actual.output.get())
 						.withNormalizedTaskOutput({ it.taskName == 'xcode' }, normalizeXcodePath(testDirectory))
@@ -284,29 +287,29 @@ abstract class WellBehavingSampleTest {
 						def tokens = expected.output.get().split("\n?\\.\\.\\.\n?")
 						tokens.drop(1)
 						// the first element is empty because of the first ...\n
-						assert tokens.size() > 0
+						assertThat(tokens.size(), greaterThan(0));
 						tokens.each {
-							assert actualBuildResult.output.contains(it)
+							assertThat(actualBuildResult.output, containsString(it));
 						}
 					} else {
 						def expectedBuildResult = BuildResult.from(expected.output.get())
-						assert actualBuildResult == expectedBuildResult
+						assertThat(actualBuildResult, equalTo(expectedBuildResult));
 					}
 				} else if (expected.executable == 'tree') {
 					if (actual.output.present) {
-						assert TreeCommandOutput.from(actual.output.get()) == TreeCommandOutput.from(expected.output.get())
+						assertThat(TreeCommandOutput.from(actual.output.get()), equalTo(TreeCommandOutput.from(expected.output.get())));
 					}
 				} else if (expected.executable == 'unzip') {
 					if (actual.output.present) {
-						assert UnzipCommandOutput.from(actual.output.get()) == UnzipCommandOutput.from(expected.output.get())
+						assertThat(UnzipCommandOutput.from(actual.output.get()), equalTo(UnzipCommandOutput.from(expected.output.get())));
 					}
 				} else if (expected.executable == 'jar') {
-					assert JarCommandOutput.from(actual.output.get()) == JarCommandOutput.from(expected.output.get())
+					assertThat(JarCommandOutput.from(actual.output.get()), equalTo(JarCommandOutput.from(expected.output.get())));
 				} else if (expected.executable == 'xcodebuild') {
-					assert BuildResult.from(actual.output.get()) == BuildResult.from(expected.output.get())
+					assertThat(BuildResult.from(actual.output.get()), equalTo(BuildResult.from(expected.output.get())));
 				} else {
 					if (actual.output.present) {
-						assert actual.output.get().startsWith(expected.output.get())
+						assertThat(actual.output.get(), startsWith(expected.output.get()));
 					}
 				}
 			}
@@ -399,7 +402,7 @@ abstract class WellBehavingSampleTest {
 					// Check known location
 					javaHome = "C:\\Program Files\\Java\\jdk1.8.0_241"
 				}
-				assert javaHome != null
+				assertThat(javaHome, notNullValue())
 				tool = Optional.of(CommandLineTool.of(new File(javaHome, OperatingSystem.current().getExecutableName("bin/jar"))))
 			}
 			def result = tool.get()
