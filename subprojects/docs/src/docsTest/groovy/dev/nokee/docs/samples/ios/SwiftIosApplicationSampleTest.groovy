@@ -15,11 +15,9 @@
  */
 package dev.nokee.docs.samples.ios
 
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("swift-ios-application")
 class SwiftIosApplicationSampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'swift-ios-application'
-	}
 }

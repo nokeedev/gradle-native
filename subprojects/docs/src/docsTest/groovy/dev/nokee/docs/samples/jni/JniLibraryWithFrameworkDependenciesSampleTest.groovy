@@ -16,16 +16,13 @@
 package dev.nokee.docs.samples.jni
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 import org.apache.commons.lang3.SystemUtils
 import org.junit.Assume
 
+@SampleUnderTest("jni-library-with-framework-dependencies")
 class JniLibraryWithFrameworkDependenciesSampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'jni-library-with-framework-dependencies'
-	}
-
 	@Override
 	protected ToolChainRequirement getToolChainRequirement() {
 		Assume.assumeTrue(SystemUtils.IS_OS_MAC)

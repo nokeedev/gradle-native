@@ -15,11 +15,9 @@
  */
 package dev.nokee.docs.samples.jni
 
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("jni-library-as-uber-jar")
 class JniLibraryAsUberJarSampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'jni-library-as-uber-jar'
-	}
 }

@@ -15,11 +15,9 @@
  */
 package dev.nokee.docs.samples.ide
 
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("xcode-ide-composing")
 class XcodeIdeComposingSampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'xcode-ide-composing'
-	}
 }

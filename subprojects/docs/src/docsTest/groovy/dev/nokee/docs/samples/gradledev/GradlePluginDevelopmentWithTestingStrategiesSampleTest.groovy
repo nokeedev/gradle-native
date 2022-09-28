@@ -15,14 +15,11 @@
  */
 package dev.nokee.docs.samples.gradledev
 
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("gradle-plugin-development-with-testing-strategies")
 class GradlePluginDevelopmentWithTestingStrategiesSampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'gradle-plugin-development-with-testing-strategies'
-	}
-
 	List<String> getExpectedAdditionalExtensions() {
 		return ['groovy'] // for spock tests
 	}

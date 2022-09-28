@@ -15,11 +15,9 @@
  */
 package dev.nokee.docs.samples.ios
 
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("objective-c-ios-xctest-test-suite")
 class ObjectiveCIosXCTestTestSuiteSampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'objective-c-ios-xctest-test-suite'
-	}
 }

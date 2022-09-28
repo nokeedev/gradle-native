@@ -16,14 +16,11 @@
 package dev.nokee.docs.samples.swift
 
 import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("swift-library")
 class SwiftLibrarySampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'swift-library'
-	}
-
 	@Override
 	protected ToolChainRequirement getToolChainRequirement() {
 		return ToolChainRequirement.SWIFTC

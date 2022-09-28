@@ -15,11 +15,9 @@
  */
 package dev.nokee.docs.samples.jni
 
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("java-c-jni-library")
 class JavaCJniLibrarySampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'java-c-jni-library'
-	}
 }

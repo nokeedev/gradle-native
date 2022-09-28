@@ -15,11 +15,9 @@
  */
 package dev.nokee.docs.samples.c
 
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("c-application")
 class CApplicationSampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'c-application'
-	}
 }

@@ -15,11 +15,9 @@
  */
 package dev.nokee.docs.samples.jni
 
+import dev.nokee.docs.fixtures.SampleUnderTest
 import dev.nokee.docs.samples.WellBehavingSampleTest
 
+@SampleUnderTest("publish-jni-library-with-target-machines")
 class PublishJniLibraryWithTargetMachinesSampleTest extends WellBehavingSampleTest {
-	@Override
-	protected String getSampleName() {
-		return 'publish-jni-library-with-target-machines'
-	}
 }

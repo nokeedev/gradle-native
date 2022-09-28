@@ -31,6 +31,7 @@ import dev.nokee.core.exec.LoggingEngine
 import dev.nokee.core.exec.ProcessBuilderEngine
 import dev.nokee.docs.fixtures.OnlyIfCondition
 import dev.nokee.docs.fixtures.SampleContentFixture
+import dev.nokee.docs.fixtures.SampleUnderTestExtension
 import dev.nokee.docs.fixtures.html.HtmlTag
 import groovy.io.FileType
 import net.nokeedev.testing.file.TestDirectoryProvider
@@ -39,10 +40,10 @@ import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension
 import org.gradle.internal.logging.ConsoleRenderer
 import org.gradle.internal.os.OperatingSystem
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -68,12 +69,16 @@ import static org.hamcrest.Matchers.*
 import static org.junit.Assume.assumeThat
 import static org.junit.Assume.assumeTrue
 
-@ExtendWith(TestDirectoryExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ExtendWith([TestDirectoryExtension.class, SampleUnderTestExtension.class])
 abstract class WellBehavingSampleTest {
 	@TestDirectory public TestDirectoryProvider temporaryFolder
 
-	/*@Shared*/ SampleContentFixture fixture = new SampleContentFixture(sampleName)
+	SampleContentFixture fixture
+
+	@BeforeEach
+	void setup(SampleContentFixture fixture) {
+		this.fixture = fixture
+	}
 
 	protected GradleRunner configureLocalPluginResolution(GradleRunner runner) {
 		def initScriptFile = temporaryFolder.file('repo.init.gradle')
@@ -92,8 +97,6 @@ abstract class WellBehavingSampleTest {
 		"""
 		return runner.usingInitScript(initScriptFile.toFile())
 	}
-
-	protected abstract String getSampleName();
 
 	protected TestFile getTestDirectory() {
 		return TestFile.of(temporaryFolder.testDirectory.toFile())
@@ -123,7 +126,7 @@ abstract class WellBehavingSampleTest {
 
 //		expect:
 		// TODO: Improve assertion to ensure it's rootProject.name = <sampleName> and not just a random <sampleName> in the settings script
-		testDirectory.file(dsl.settingsFileName).assertIsFile().text.contains(sampleName)
+		testDirectory.file(dsl.settingsFileName).assertIsFile().text.contains(fixture.sampleName)
 	}
 
 	@Test
