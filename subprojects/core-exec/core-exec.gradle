@@ -1,6 +1,7 @@
 plugins {
 	id 'nokeebuild.java-gradle-library'
 	id 'nokeebuild.gradle-plugin-unit-test'
+	id 'java-test-fixtures'
 	id 'maven-publish'
 	id 'dev.gradleplugins.documentation.api-reference-module'
 }
@@ -14,6 +15,8 @@ dependencies {
 	implementation project(':coreUtils')
 
 	testImplementation 'org.fusesource.jansi:jansi:2.0'
+
+	testFixturesImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
 }
 
 configurations.testImplementation.exclude group: 'dev.gradleplugins', module: 'gradle-runner-kit'

@@ -64,7 +64,7 @@ import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.ifPresent;
 
-public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask {
+public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasConfigurableXcodeInstallation {
 	private final WorkerExecutor workerExecutor;
 
 	@Inject
