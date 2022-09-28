@@ -15,12 +15,15 @@
  */
 package dev.nokee.docs.samples.gradledev;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.docs.fixtures.SampleUnderTest;
 import dev.nokee.docs.samples.WellBehavingSampleTest;
 
+import java.util.List;
+
 @SampleUnderTest("gradle-plugin-development-with-test-suites")
 class GradlePluginDevelopmentWithTestSuitesSampleTest extends WellBehavingSampleTest {
-	List<String> getExpectedAdditionalExtensions() {
-		return ['groovy'] // for spock tests
+	public List<String> getExpectedAdditionalExtensions() {
+		return ImmutableList.of("groovy"); // for spock tests
 	}
 }

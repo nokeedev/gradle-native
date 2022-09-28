@@ -15,12 +15,15 @@
  */
 package dev.nokee.docs.samples.jni;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.docs.fixtures.SampleUnderTest;
 import dev.nokee.docs.samples.WellBehavingSampleTest;
 
+import java.util.List;
+
 @SampleUnderTest("jni-library-composing-from-pre-built-binaries")
 class JniLibraryComposingFromPrebuiltBinariesSampleTest extends WellBehavingSampleTest {
-	List<String> getExpectedAdditionalExtensions() {
-		return ['cpp'] // We include the source that produce the pre-built binaries
+	public List<String> getExpectedAdditionalExtensions() {
+		return ImmutableList.of("cpp"); // We include the source that produce the pre-built binaries
 	}
 }
