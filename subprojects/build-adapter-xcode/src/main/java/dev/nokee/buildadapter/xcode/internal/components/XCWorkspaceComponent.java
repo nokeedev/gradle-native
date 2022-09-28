@@ -18,7 +18,7 @@ package dev.nokee.buildadapter.xcode.internal.components;
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.xcode.XCWorkspaceReference;
 
-public class XCWorkspaceComponent implements ModelComponent {
+public final class XCWorkspaceComponent implements ModelComponent {
 	private final XCWorkspaceReference value;
 
 	public XCWorkspaceComponent(XCWorkspaceReference value) {
