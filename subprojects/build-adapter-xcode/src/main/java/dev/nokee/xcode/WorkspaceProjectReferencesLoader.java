@@ -16,27 +16,25 @@
 package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.workspace.XCWorkspaceDataReader;
+import dev.nokee.xcode.workspace.XCWorkspaceData;
 import lombok.val;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class WorkspaceProjectReferencesLoader implements XCLoader<Iterable<XCProjectReference>, XCWorkspaceReference> {
+	public final XCLoader<XCWorkspaceData, XCWorkspaceReference> workspaceDataLoader;
+	private final XCProjectReferenceFactory factory;
+
+	public WorkspaceProjectReferencesLoader(XCLoader<XCWorkspaceData, XCWorkspaceReference> workspaceDataLoader, XCProjectReferenceFactory factory) {
+		this.workspaceDataLoader = workspaceDataLoader;
+		this.factory = factory;
+	}
+
 	@Override
 	public Iterable<XCProjectReference> load(XCWorkspaceReference reference) {
 		val layout = new XCWorkspaceLayout(reference.getLocation());
-
-		try {
-			val data = new XCWorkspaceDataReader(Files.newBufferedReader(layout.getContentFile(), UTF_8)).read();
-			val resolver = new XCFileReferenceResolver(layout.getBaseDirectory().toFile());
-			return data.getFileRefs().stream().map(resolver::resolve).map(File::toPath).map(XCProjectReference::of).collect(ImmutableList.toImmutableList());
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+		val data = workspaceDataLoader.load(reference);
+		val resolver = new XCFileReferenceResolver(layout.getBaseDirectory().toFile());
+		return data.getFileRefs().stream().filter(it -> it.getLocation().endsWith(".xcodeproj")).map(resolver::resolve).map(File::toPath).map(factory::create).collect(ImmutableList.toImmutableList());
 	}
 }
