@@ -20,7 +20,6 @@ import dev.nokee.buildadapter.xcode.internal.plugins.DefaultXcodeInstallation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
 import java.nio.file.Paths;
 
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;

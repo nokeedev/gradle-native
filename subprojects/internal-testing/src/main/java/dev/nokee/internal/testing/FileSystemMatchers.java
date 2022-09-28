@@ -16,6 +16,7 @@
 package dev.nokee.internal.testing;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.provider.Provider;
 import org.hamcrest.FeatureMatcher;
@@ -30,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesPattern;
@@ -94,7 +96,12 @@ public final class FileSystemMatchers {
 	}
 
 	public static Matcher<File> hasAbsolutePath(String expectedAbsolutePath) {
-		return withAbsolutePath(equalTo(FilenameUtils.separatorsToUnix(expectedAbsolutePath)));
+		if (SystemUtils.IS_OS_WINDOWS) {
+			// On Windows, it prepends the drive letter
+			return withAbsolutePath(endsWith(FilenameUtils.separatorsToUnix(expectedAbsolutePath)));
+		} else {
+			return withAbsolutePath(equalTo(FilenameUtils.separatorsToUnix(expectedAbsolutePath)));
+		}
 	}
 
 	public static Matcher<Object> aFileNamed(String fileName) {
