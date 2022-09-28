@@ -67,7 +67,7 @@ public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<Proc
 	}
 
 	@RequiredArgsConstructor
-	public static class Handle implements CommandLineToolExecutionHandle {
+	public static class Handle implements CommandLineToolExecutionHandle.Waitable {
 		private final Process process;
 		private final PumpStreamHandler streamHandler;
 		private final Supplier<CommandLineToolLogContent> standardOutput;
