@@ -21,4 +21,7 @@ package dev.nokee.core.exec;
  * @since 0.4
  */
 public interface CommandLineToolExecutionHandle {
+	interface Waitable extends CommandLineToolExecutionHandle {
+		CommandLineToolExecutionResult waitFor();
+	}
 }
