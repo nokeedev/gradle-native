@@ -17,13 +17,15 @@ package dev.nokee.core.exec;
 
 import dev.nokee.core.exec.internal.AbstractCommandLineTool;
 import lombok.EqualsAndHashCode;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Optional;
 
 final class CommandLineTools {
@@ -63,7 +65,7 @@ final class CommandLineTools {
 
 		@Override
 		public CommandLineToolExecutable resolve(Context context) {
-			return new CommandLineToolExecutable(Arrays.stream(context.getEnvironmentVariables().getAsMap().get("PATH").split(File.pathSeparator)).map(it -> Paths.get(it, executable.toString())).filter(Files::exists).findFirst().orElseThrow(() -> new RuntimeException(String.format("Could not find '%s' using PATH '%s'.", executable.toString(), context.getEnvironmentVariables().get("PATH").orElse("<n/a>")))));
+			return new CommandLineToolExecutable(Paths.get(executable.toString()));
 		}
 	}
 
