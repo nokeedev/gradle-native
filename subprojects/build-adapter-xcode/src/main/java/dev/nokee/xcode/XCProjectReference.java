@@ -15,6 +15,9 @@
  */
 package dev.nokee.xcode;
 
+import com.google.common.base.Preconditions;
+
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public interface XCProjectReference extends XCReference {
@@ -23,6 +26,8 @@ public interface XCProjectReference extends XCReference {
 	Path getLocation();
 
 	static XCProjectReference of(Path location) {
+		Preconditions.checkArgument(Files.exists(location), "Xcode project '%s' does not exists", location);
+		Preconditions.checkArgument(Files.isDirectory(location), "Xcode project '%s' is not valid", location);
 		return new DefaultXCProjectReference(location);
 	}
 

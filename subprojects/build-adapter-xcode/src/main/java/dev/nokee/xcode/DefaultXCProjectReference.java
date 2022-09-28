@@ -15,13 +15,11 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.Serializable;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 @EqualsAndHashCode
@@ -29,8 +27,6 @@ public final class DefaultXCProjectReference implements XCProjectReference, Seri
 	private /*final*/ File location;
 
 	public DefaultXCProjectReference(Path location) {
-		Preconditions.checkArgument(Files.exists(location), "Xcode project '%s' does not exists", location);
-		Preconditions.checkArgument(Files.isDirectory(location), "Xcode project '%s' is not valid", location);
 		this.location = location.toFile();
 	}
 
