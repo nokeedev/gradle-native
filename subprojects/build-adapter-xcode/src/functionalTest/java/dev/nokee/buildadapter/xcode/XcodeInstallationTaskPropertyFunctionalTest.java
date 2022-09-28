@@ -32,6 +32,8 @@ import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
@@ -47,6 +49,7 @@ import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toN
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
+@EnabledOnOs(OS.MAC)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
 class XcodeInstallationTaskPropertyFunctionalTest {
 	GradleRunner executer;
