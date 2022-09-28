@@ -24,8 +24,6 @@ import dev.gradleplugins.integtests.fixtures.nativeplatform.ToolChainRequirement
 import dev.gradleplugins.runnerkit.BuildResult
 import dev.gradleplugins.runnerkit.GradleExecutor
 import dev.gradleplugins.runnerkit.GradleRunner
-import dev.gradleplugins.spock.lang.CleanupTestDirectory
-import dev.gradleplugins.spock.lang.TestNameTestDirectoryProvider
 import dev.gradleplugins.test.fixtures.file.TestFile
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
 import dev.nokee.core.exec.CommandLineTool
@@ -34,20 +32,26 @@ import dev.nokee.core.exec.ProcessBuilderEngine
 import dev.nokee.docs.fixtures.OnlyIfCondition
 import dev.nokee.docs.fixtures.SampleContentFixture
 import dev.nokee.docs.fixtures.html.HtmlTag
-import dev.nokee.docs.tags.Baked
 import groovy.io.FileType
+import net.nokeedev.testing.file.TestDirectoryProvider
+import net.nokeedev.testing.junit.jupiter.io.TestDirectory
+import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension
 import org.gradle.internal.logging.ConsoleRenderer
 import org.gradle.internal.os.OperatingSystem
-import org.junit.Rule
-import org.junit.experimental.categories.Category
-import spock.lang.Ignore
-import spock.lang.Shared
-import spock.lang.Specification
-import spock.lang.Unroll
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.MethodSource
 
 import java.time.Duration
 import java.util.function.UnaryOperator
 import java.util.regex.Pattern
+import java.util.stream.Stream
 
 import static dev.gradleplugins.exemplarkit.StepExecutionResult.stepExecuted
 import static dev.gradleplugins.exemplarkit.StepExecutors.replaceIfAbsent
@@ -61,12 +65,12 @@ import static org.hamcrest.Matchers.greaterThan
 import static org.junit.Assume.assumeThat
 import static org.junit.Assume.assumeTrue
 
-@CleanupTestDirectory
-abstract class WellBehavingSampleTest extends Specification {
-	@Rule
-	final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider(getClass())
+@ExtendWith(TestDirectoryExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+abstract class WellBehavingSampleTest {
+	@TestDirectory public TestDirectoryProvider temporaryFolder
 
-	@Shared def fixture = new SampleContentFixture(sampleName)
+	/*@Shared*/ SampleContentFixture fixture = new SampleContentFixture(sampleName)
 
 	protected GradleRunner configureLocalPluginResolution(GradleRunner runner) {
 		def initScriptFile = temporaryFolder.file('repo.init.gradle')
@@ -83,13 +87,13 @@ abstract class WellBehavingSampleTest extends Specification {
 				}
 			}
 		"""
-		return runner.usingInitScript(initScriptFile)
+		return runner.usingInitScript(initScriptFile.toFile())
 	}
 
 	protected abstract String getSampleName();
 
 	protected TestFile getTestDirectory() {
-		return TestFile.of(temporaryFolder.testDirectory)
+		return TestFile.of(temporaryFolder.testDirectory.toFile())
 	}
 
 	// TODO: Migrate to TestFile
@@ -109,25 +113,23 @@ abstract class WellBehavingSampleTest extends Specification {
 		return result.standardOutput.asString
 	}
 
-	@Unroll
-	def "ensure root project name is configured for the sample [#dsl]"(dsl) {
-		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
+	@ParameterizedTest(name = "ensure root project name is configured for the sample [{0}]")
+	@EnumSource(GradleScriptDsl)
+	void "ensure root project name is configured for the sample"(dsl) {
+		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory.toFile())
 
-		expect:
+//		expect:
 		// TODO: Improve assertion to ensure it's rootProject.name = <sampleName> and not just a random <sampleName> in the settings script
 		testDirectory.file(dsl.settingsFileName).assertIsFile().text.contains(sampleName)
-
-		where:
-		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
-	def "ensure sample has a category"() {
-		expect:
+	@Test
+	void "ensure sample has a category"() {
 		fixture.category != null
 	}
 
-	def "ensure sample has a valid summary"() {
-		expect:
+	@Test
+	void "ensure sample has a valid summary"() {
 		fixture.summary != null
 		fixture.summary.endsWith('.')
 	}
@@ -136,9 +138,10 @@ abstract class WellBehavingSampleTest extends Specification {
 		return []
 	}
 
-	@Unroll
-	def "ensure sample source files matches source layout [#dsl]"(dsl) {
-		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
+	@ParameterizedTest(name = "ensure sample source files matches source layout [{0}]")
+	@EnumSource(GradleScriptDsl)
+	void "ensure sample source files matches source layout"(dsl) {
+		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory.toFile())
 
 		def pluginIdsToExtensions = [
 			'dev.nokee.c': ['c'],
@@ -183,22 +186,20 @@ abstract class WellBehavingSampleTest extends Specification {
 		allFilesByExtensions.removeAll { k, v -> effectiveLanguageExtensions.contains(k) }
 		println "Left over files: ${allFilesByExtensions}"
 
-		expect:
+//		expect:
 		allFilesByExtensions.isEmpty()
-
-		where:
-		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
 	/**
 	 * Timing values are heavily dependent on the system where the command was executed.
 	 * It's better to remove the information to avoid creating false or misleading expectation on the performance.
 	 */
-	def "ensure gradle commands does not have any timing values in build result"() {
+	@Test
+	void "ensure gradle commands does not have any timing values in build result"() {
 		// TODO: Reports all the error at once instead of failing on the first one
 		def gradleSteps = fixture.getDslExemplar(GradleScriptDsl.GROOVY_DSL).steps.findAll { it.executable.endsWith('gradlew') }
 		assumeThat("Gradle commands are present", gradleSteps.size(), greaterThan(0))
-		expect:
+//		expect:
 		gradleSteps.each { assertNoTimingInformationOnBuildResult(it) }
 	}
 
@@ -209,36 +210,38 @@ abstract class WellBehavingSampleTest extends Specification {
 		}
 	}
 
-	@Ignore // sample player is deactivated
-	@Category(Baked)
+	@Disabled // sample player is deactivated
+	@Tag("Baked")
 	def "has the twitter player meta data"() {
-		expect:
+//		expect:
 		def it = fixture.bakedFile
 		def twitterImages = it.findAll(HtmlTag.META).findAll { it.twitterImage }
 		assert twitterImages.size() == 1, "${it.uri} does not have the right meta twitter image tag count"
 		assert twitterImages.first().content == "${it.canonicalPath}all-commands.png"
 
-		and:
+//		and:
 		def twitterCards = it.findAll(HtmlTag.META).findAll { it.twitterCard }
 		assert twitterCards.size() == 1, "${it.uri} does not have the right meta twitter card tag count"
 		assert twitterCards.first().content == "player"
 
-		and:
+//		and:
 		def twitterPlayers = it.findAll(HtmlTag.META).findAll { it.twitterPlayer }
 		assert twitterPlayers.size() == 1, "${it.uri} does not have the right meta twitter player tag count"
 		assert twitterPlayers.first().content == "${it.canonicalPath}all-commands.embed.html"
 	}
 
-	@Unroll
-	def "can run './gradlew #taskName' successfully [#dsl]"(taskName, dsl) {
-		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory)
+	@ParameterizedTest(name = "can run ./gradlew {0} successfully [{1}]")
+	@MethodSource("provideTaskNameWithDsl")
+	void "can run 'gradlew taskName' successfully"(taskName, dsl) {
+		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.testDirectory.toFile())
 
 		def executer = configureLocalPluginResolution(GradleRunner.create(GradleExecutor.gradleWrapper()).inDirectory(testDirectory))
-		expect:
+//		expect:
 		executer.withTasks(taskName).build()
+	}
 
-		where:
-		[taskName, dsl] << [['help', 'tasks'], [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]].combinations()
+	static Stream<Arguments> provideTaskNameWithDsl() {
+		return [['help', 'tasks'], [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]].combinations { taskName, dsl -> Arguments.of(taskName, dsl) }.stream().peek { it.get().join(', ')}
 	}
 
 	protected ToolChainRequirement getToolChainRequirement() {
@@ -246,9 +249,10 @@ abstract class WellBehavingSampleTest extends Specification {
 	}
 
 	AvailableToolChains.InstalledToolChain toolChain;
-	@Unroll
-	def "can execute commands successfully [#dsl]"(dsl) {
-		println "Sample under test directory: " + temporaryFolder.testDirectory.absolutePath
+	@ParameterizedTest(name = "can execute commands successfully [{0}]")
+	@EnumSource(GradleScriptDsl)
+	void "can execute commands successfully"(dsl) {
+		println "Sample under test directory: " + temporaryFolder.testDirectory
 		toolChain = AvailableToolChains.getToolChain(toolChainRequirement)
 		assumeTrue(toolChain != null && toolChain.meets(ToolChainRequirement.AVAILABLE))
 
@@ -262,10 +266,10 @@ abstract class WellBehavingSampleTest extends Specification {
 			.registerCommandLineToolExecutor(replaceIfAbsent('mv', 'move'))
 			.registerCommandLineToolExecutor(new GradleWrapperStepExecutor())
 			.build()
-		def result = ExemplarRunner.create(executor).inDirectory(temporaryFolder.testDirectory).using(exemplar).run()
+		def result = ExemplarRunner.create(executor).inDirectory(temporaryFolder.testDirectory.toFile()).using(exemplar).run()
 
 		assumeThat(exemplar.steps.size(), greaterThan(0))
-		expect:
+//		expect:
 		[exemplar.steps, result.stepResults].transpose().each { Step expected, StepExecutionResult actual ->
 			assert actual.outcome != StepExecutionOutcome.FAILED
 
@@ -307,9 +311,6 @@ abstract class WellBehavingSampleTest extends Specification {
 				}
 			}
 		}
-
-		where:
-		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
 	private static UnaryOperator<String> normalizeXcodePath(File testDirectory) {

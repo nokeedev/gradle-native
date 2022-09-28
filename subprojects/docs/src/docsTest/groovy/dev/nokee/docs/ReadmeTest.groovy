@@ -25,29 +25,30 @@ import org.asciidoctor.Asciidoctor
 import org.asciidoctor.ast.Block
 import org.asciidoctor.ast.Document
 import org.asciidoctor.ast.StructuralNode
-import spock.lang.Requires
-import spock.lang.Shared
-import spock.lang.Specification
-import spock.lang.Unroll
-import spock.util.environment.OperatingSystem
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.OS
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 import java.nio.file.Files
 
 import static dev.nokee.docs.fixtures.html.HtmlLinkTester.validEmails
 import static org.asciidoctor.OptionsBuilder.options
 
-class ReadmeTest extends Specification {
+class ReadmeTest {
 	private static final String README_LOCATION_PROPERTY_NAME = 'dev.nokee.docs.readme.location'
-	@Shared Asciidoctor asciidoctor = Asciidoctor.Factory.create()
-	@Shared Document readme = asciidoctor.loadFile(readmeFile, options().asMap())
+	/*@Shared*/ static Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+	/*@Shared*/ static Document readme = asciidoctor.loadFile(readmeFile, options().asMap())
 
 	private static File getReadmeFile() {
 		assert System.properties.containsKey(README_LOCATION_PROPERTY_NAME)
 		return new File(System.getProperty(README_LOCATION_PROPERTY_NAME))
 	}
 
-	def "uses the latest released version"() {
-		expect:
+	@Test
+	void "uses the latest released version"() {
+//		expect:
 		readme.attributes.get('jbake-version') == currentNokeeVersion
 	}
 
@@ -55,14 +56,14 @@ class ReadmeTest extends Specification {
 		return new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current.json'), [requestProperties: ['User-Agent': 'Fool-Us-github-pages']]).version
 	}
 
-	@Requires({ os.family == OperatingSystem.Family.MAC_OS })
-	def "checks for broken links"() {
-		given:
+	@EnabledOnOs(OS.MAC)
+	void "checks for broken links"() {
+//		given:
 		def rootDirectory = Files.createTempDirectory('nokee')
 		def renderedReadMeFile = rootDirectory.resolve('readme.html').toFile()
 		renderedReadMeFile.text = asciidoctor.convertFile(readmeFile, options().toFile(false))
 
-		expect:
+//		expect:
 		def report = new HtmlLinkTester(validEmails("hello@nokee.dev"), new HtmlLinkTester.BlackList() {
 			@Override
 			boolean isBlackListed(URI uri) {
@@ -78,9 +79,10 @@ class ReadmeTest extends Specification {
 		report.assertNoFailures()
 	}
 
-	@Unroll
-	def "check code snippet"(dsl) {
-		given:
+	@ParameterizedTest(name = "check code snippet [{0}]")
+	@EnumSource(GradleScriptDsl)
+	void "check code snippet"(dsl) {
+//		given:
 		def rootDirectory = Files.createTempDirectory('nokee')
 		def settingsFile = rootDirectory.resolve(dsl.settingsFileName).toFile()
 		def buildFile = rootDirectory.resolve(dsl.buildFileName).toFile()
@@ -97,15 +99,12 @@ class ReadmeTest extends Specification {
 			}
 		}
 
-		and:
+//		and:
 		GradleRunner runner = GradleRunner.create(GradleExecutor.gradleTestKit()).inDirectory(rootDirectory.toFile()).withGradleVersion("6.2.1").withGradleUserHomeDirectory(rootDirectory.resolve('gradle-user-home').toFile())
 
-		expect:
+//		expect:
 		runner.withArgument('help').build()
 		runner.withArgument('tasks').build()
-
-		where:
-		dsl << [GradleScriptDsl.GROOVY_DSL, GradleScriptDsl.KOTLIN_DSL]
 	}
 
 	List<StructuralNode> findSnippetBlocks() {

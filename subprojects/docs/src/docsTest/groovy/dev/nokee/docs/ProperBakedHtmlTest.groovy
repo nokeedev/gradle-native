@@ -17,23 +17,24 @@ package dev.nokee.docs
 
 import dev.nokee.docs.fixtures.html.BakedHtmlFixture
 import dev.nokee.docs.fixtures.html.HtmlTag
-import dev.nokee.docs.tags.Baked
 import groovy.json.JsonSlurper
-import org.junit.experimental.categories.Category
-import spock.lang.Ignore
-import spock.lang.Specification
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 
-@Category(Baked)
-class ProperBakedHtmlTest extends Specification {
-	def "has alt text on all images"() {
-		expect:
+@Tag("Baked")
+class ProperBakedHtmlTest {
+	@Test
+	void "has alt text on all images"() {
+//		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.allHtmlWithoutJavadoc.collect { it.findAll(HtmlTag.IMG) }.each {
 			it*.assertHasAltText()
 		}
 	}
 
-	def "has proper canonical links"() {
+	@Test
+	void "has proper canonical links"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.allHtmlWithoutJavadoc.each {
@@ -44,7 +45,8 @@ class ProperBakedHtmlTest extends Specification {
 		}
 	}
 
-	def "has proper open-graph URL"() {
+	@Test
+	void "has proper open-graph URL"() {
 		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.allHtmlWithoutJavadoc.each {
@@ -54,9 +56,10 @@ class ProperBakedHtmlTest extends Specification {
 		}
 	}
 
-	def "has proper description"() {
+	@Test
+	void "has proper description"() {
 		// It seems 160 characters is a good limit
-		expect:
+//		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.allHtmlWithoutJavadoc.each {
 			def metaDescriptions = it.findAll(HtmlTag.META).findAll { it.description }
@@ -66,8 +69,9 @@ class ProperBakedHtmlTest extends Specification {
 		}
 	}
 
-	def "has proper keywords"() {
-		expect:
+	@Test
+	void "has proper keywords"() {
+//		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.allHtmlWithoutJavadoc.each {
 			def metaKeywords = it.findAll(HtmlTag.META).findAll { it.keywords }
@@ -77,8 +81,9 @@ class ProperBakedHtmlTest extends Specification {
 		}
 	}
 
-	def "has proper twitter meta description"() {
-		expect:
+	@Test
+	void "has proper twitter meta description"() {
+//		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.allHtmlWithoutJavadoc.each {
 			def twitterDescriptions = it.findAll(HtmlTag.META).findAll { it.twitterDescription }
@@ -88,9 +93,10 @@ class ProperBakedHtmlTest extends Specification {
 		}
 	}
 
-	@Ignore
-	def "has breadcrumb structured data"() {
-		expect:
+	@Disabled
+	@Test
+	void "has breadcrumb structured data"() {
+//		expect:
 		def fixture = new BakedHtmlFixture(new File(System.getProperty('bakedContentDirectory')).toPath())
 		fixture.allHtmlWithoutRedirectionAndJavadoc.each {
 			// Retrieve structured data tag

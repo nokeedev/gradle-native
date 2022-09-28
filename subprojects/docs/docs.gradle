@@ -246,8 +246,8 @@ tasks.register('bakedDocsTest', Test) { task ->
 	task.inputs.dir(bakeDirectory)
 	task.systemProperty('bakedContentDirectory', bakeDirectory.get().asFile.absolutePath)
 
-	task.useJUnit {
-		includeCategories('dev.nokee.docs.tags.Baked')
+	task.useJUnitPlatform {
+		includeTags('Baked')
 	}
 	task.testClassesDirs = tasks.docsTest.testClassesDirs
 	task.classpath = tasks.docsTest.classpath
@@ -260,8 +260,8 @@ tasks.named('docsTest', Test) { task ->
 }
 
 tasks.named('docsTest', Test) { task ->
-	task.useJUnit {
-		excludeCategories('dev.nokee.docs.tags.Baked')
+	task.useJUnitPlatform {
+		excludeTags('Baked')
 	}
 
 	def zipsDirectory = tasks.named('assembleSampleZips', Sync).map { it.destinationDir }
