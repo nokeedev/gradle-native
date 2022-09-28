@@ -1,0 +1,3 @@
+This sample demonstrate a Xcode workspace with a Command-Line Tool target which depends on a Library target.
+
+NOTE: The workspace also include this README.
