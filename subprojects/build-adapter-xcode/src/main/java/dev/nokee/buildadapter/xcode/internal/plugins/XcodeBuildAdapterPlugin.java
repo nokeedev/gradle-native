@@ -48,6 +48,7 @@ import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketS
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
+import dev.nokee.utils.ActionUtils;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
@@ -190,6 +191,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getTargetName().set(target.getName());
 						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
+						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getInputDerivedData().from(derivedData);
 						task.getInputFiles().from((Callable<Object>) () -> target.load().getInputFiles().stream().filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT).map(it -> it.resolve(new XCFileReference.ResolveContext() {
 							@Override
