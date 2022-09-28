@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
+import dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.XCBuildSettings;
@@ -57,6 +58,7 @@ import java.util.Map;
 
 import static dev.nokee.buildadapter.xcode.internal.plugins.XCBuildSettingsUtils.codeSigningDisabled;
 import static dev.nokee.core.exec.CommandLineToolExecutionEngine.execOperations;
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toFile;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toNullStream;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toStandardStream;
@@ -105,6 +107,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				it.args(codeSigningDisabled());
 				it.args("-showBuildSettings", "-json");
 			}).newInvocation(it -> {
+				it.withEnvironmentVariables(inherit().putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
 				ifPresent(getWorkingDirectory(), it::workingDirectory);
 				it.redirectStandardOutput(toNullStream());
 				it.redirectErrorOutput(toNullStream());
@@ -191,6 +194,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			ifPresent(getConfiguration(), buildType -> it.args("-configuration", buildType));
 			it.args(codeSigningDisabled());
 		}).newInvocation(it -> {
+			it.withEnvironmentVariables(inherit().putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
 			ifPresent(getWorkingDirectory(), it::workingDirectory);
 			it.redirectStandardOutput(toFile(new File(getTemporaryDir(), "outputs.txt")));
 			it.redirectErrorOutput(toStandardStream());

@@ -172,6 +172,10 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 		return from(toStringOnEachEntry(properties));
 	}
 
+	public CommandLineToolInvocationEnvironmentVariables putOrReplace(String key, Object value) {
+		return new Builder().envs(environmentVariables).env(key, value).build();
+	}
+
 	public static final class Builder {
 		private final Map<String, String> envVars = new HashMap<>();
 		private final UnpackStrategy unpackStrategy;
@@ -188,6 +192,12 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 			Objects.requireNonNull(key, "'key' must not be null");
 			Objects.requireNonNull(value, "'value' must not be null");
 			envVars.put(key, unpackStrategy.unpack(value));
+			return this;
+		}
+
+		public Builder envs(Map<String, ?> envVars) {
+			Objects.requireNonNull(envVars, "'envVars' must not be null");
+			envVars.forEach(this::env);
 			return this;
 		}
 
