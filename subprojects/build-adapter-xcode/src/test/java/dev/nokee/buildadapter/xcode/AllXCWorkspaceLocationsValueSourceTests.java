@@ -17,9 +17,6 @@ package dev.nokee.buildadapter.xcode;
 
 import dev.nokee.buildadapter.xcode.internal.plugins.AllXCWorkspaceLocationsValueSource;
 import dev.nokee.buildadapter.xcode.internal.plugins.XCWorkspaceLocator;
-import dev.nokee.xcode.XCWorkspace;
-import dev.nokee.xcode.XCWorkspaceReference;
-import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
 
+import static dev.nokee.buildadapter.xcode.TestWorkspaceReference.workspace;
 import static dev.nokee.internal.testing.FileSystemMatchers.aFile;
 import static dev.nokee.internal.testing.FileSystemMatchers.hasAbsolutePath;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
@@ -76,29 +74,5 @@ class AllXCWorkspaceLocationsValueSourceTests {
 
 	private Path usingSearchDirectory() {
 		return argThat(aFile(hasAbsolutePath(testDirectory.toAbsolutePath().toString())));
-	}
-
-	private static XCWorkspaceReference workspace(String name) {
-		assert !name.endsWith(".xcworkspace") : "do not include .xcworkspace extension";
-		return new TestWorkspaceReference(name);
-	}
-
-	@EqualsAndHashCode
-	private static final class TestWorkspaceReference implements XCWorkspaceReference {
-		private final String name;
-
-		private TestWorkspaceReference(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public Path getLocation() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public XCWorkspace load() {
-			throw new UnsupportedOperationException();
-		}
 	}
 }

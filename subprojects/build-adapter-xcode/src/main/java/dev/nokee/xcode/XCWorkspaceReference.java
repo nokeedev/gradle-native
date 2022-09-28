@@ -18,6 +18,8 @@ package dev.nokee.xcode;
 import java.nio.file.Path;
 
 public interface XCWorkspaceReference extends XCReference {
+	String getName();
+
 	Path getLocation();
 
 	XCWorkspace load();
