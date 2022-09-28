@@ -15,16 +15,13 @@
  */
 package dev.nokee.docs
 
-import dev.gradleplugins.exemplarkit.asciidoc.AsciidoctorContent
+
 import dev.gradleplugins.runnerkit.GradleExecutor
 import dev.gradleplugins.runnerkit.GradleRunner
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
+import dev.nokee.docs.fixtures.NokeeReadMe
 import dev.nokee.docs.fixtures.html.HtmlLinkTester
 import groovy.json.JsonSlurper
-import org.asciidoctor.Asciidoctor
-import org.asciidoctor.ast.Block
-import org.asciidoctor.ast.Document
-import org.asciidoctor.ast.StructuralNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
@@ -36,12 +33,12 @@ import java.nio.file.Files
 import static dev.nokee.docs.fixtures.html.HtmlLinkTester.validEmails
 import static org.asciidoctor.OptionsBuilder.options
 import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.hasKey
 
 class ReadmeTest {
 	private static final String README_LOCATION_PROPERTY_NAME = 'dev.nokee.docs.readme.location'
-	/*@Shared*/ static Asciidoctor asciidoctor = Asciidoctor.Factory.create()
-	/*@Shared*/ static Document readme = asciidoctor.loadFile(readmeFile, options().asMap())
+	static NokeeReadMe readme = new NokeeReadMe(readmeFile.toPath())
 
 	private static File getReadmeFile() {
 		assertThat(System.properties, hasKey(README_LOCATION_PROPERTY_NAME));
@@ -51,7 +48,7 @@ class ReadmeTest {
 	@Test
 	void "uses the latest released version"() {
 //		expect:
-		readme.attributes.get('jbake-version') == currentNokeeVersion
+		assertThat(readme.getNokeeVersion(), equalTo(currentNokeeVersion));
 	}
 
 	private static String getCurrentNokeeVersion() {
@@ -88,12 +85,12 @@ class ReadmeTest {
 		def rootDirectory = Files.createTempDirectory('nokee')
 		def settingsFile = rootDirectory.resolve(dsl.settingsFileName).toFile()
 		def buildFile = rootDirectory.resolve(dsl.buildFileName).toFile()
-		findSnippetBlocks().each {
-			switch (it.getAttribute("file").toString()) {
-				case "build":
+		readme.findSnippetBlocks().each {
+			switch (it.getType()) {
+				case NokeeReadMe.SnippetBlock.Type.BUILD:
 					buildFile << it.content
 					break
-				case "settings":
+				case NokeeReadMe.SnippetBlock.Type.SETTINGS:
 					settingsFile << it.content
 					break
 				default:
@@ -107,21 +104,5 @@ class ReadmeTest {
 //		expect:
 		runner.withArgument('help').build()
 		runner.withArgument('tasks').build()
-	}
-
-	List<StructuralNode> findSnippetBlocks() {
-		def snippets = new ArrayList<StructuralNode>();
-		AsciidoctorContent.of(readme).walk(new AsciidoctorContent.Visitor() {
-			@Override
-			void visit(Document node) {}
-
-			@Override
-			void visit(Block node) {
-				if (node.isBlock() && node.getContext().equals("listing") && node.getStyle().equals("source")) {
-					snippets.add(node)
-				}
-			}
-		})
-		return snippets
 	}
 }
