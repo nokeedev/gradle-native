@@ -34,4 +34,9 @@ public final class XCFileReference implements Serializable {
 	public static XCFileReference of(String location) {
 		return new XCFileReference(location);
 	}
+
+	public static XCFileReference group(String path) {
+		assert !path.startsWith("/");
+		return new XCFileReference("group:" + path);
+	}
 }
