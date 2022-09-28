@@ -7,4 +7,7 @@
    <FileRef
       location = "group:GreeterLib.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:README">
+   </FileRef>
 </Workspace>
