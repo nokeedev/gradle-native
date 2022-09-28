@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,10 +43,17 @@ public final class DefaultXCWorkspaceReference implements XCWorkspaceReference, 
 		this.location = location.toFile();
 	}
 
+	@Override
+	public String getName() {
+		return FilenameUtils.removeExtension(location.getName());
+	}
+
+	@Override
 	public Path getLocation() {
 		return location.toPath();
 	}
 
+	@Override
 	public XCWorkspace load() {
 		return XCCache.cacheIfAbsent(this, key -> {
 			List<XCProjectReference> projects = ImmutableList.copyOf(XCLoaders.workspaceProjectReferencesLoader().load(this));
