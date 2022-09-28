@@ -40,8 +40,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AllXCProjectReferencesValueSourceTests {
-	@Mock
-	XCLoader<Iterable<XCProjectReference>, XCProjectReference> loader;
+	@Mock XCLoader<Iterable<XCProjectReference>, XCProjectReference> loader;
 	AllXCProjectReferencesValueSource.Parameters parameters;
 	AllXCProjectReferencesValueSource subject;
 
