@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 
-import static dev.nokee.core.exec.SerializableMatchers.isSerializable;
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class CommandLineToolExecutableSerializableTests {
