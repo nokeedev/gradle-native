@@ -131,13 +131,13 @@ abstract class WellBehavingSampleTest {
 
 	@Test
 	void "ensure sample has a category"() {
-		fixture.category != null
+		assertThat(fixture.category, notNullValue());
 	}
 
 	@Test
 	void "ensure sample has a valid summary"() {
-		fixture.summary != null
-		fixture.summary.endsWith('.')
+		assertThat(fixture.summary, notNullValue());
+		assertThat("is a complete sentence", fixture.summary, endsWith('.'));
 	}
 
 	List<String> getExpectedAdditionalExtensions() {
@@ -193,7 +193,7 @@ abstract class WellBehavingSampleTest {
 		println "Left over files: ${allFilesByExtensions}"
 
 //		expect:
-		allFilesByExtensions.isEmpty()
+		assertThat(allFilesByExtensions, anEmptyMap());
 	}
 
 	/**
