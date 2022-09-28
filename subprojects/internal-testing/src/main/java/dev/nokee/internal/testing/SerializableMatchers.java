@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.core.exec;
+package dev.nokee.internal.testing;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.hamcrest.Description;

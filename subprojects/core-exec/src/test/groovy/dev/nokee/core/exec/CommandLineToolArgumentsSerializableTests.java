@@ -16,6 +16,7 @@
 package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.internal.testing.SerializableMatchers;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
