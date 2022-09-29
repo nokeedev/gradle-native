@@ -32,5 +32,5 @@ import java.util.function.Supplier;
 @TestTemplate
 @ExtendWith(LinkCheckerExtension.class)
 public @interface LinkCheck {
-	Class<Supplier<Path>> value();
+	Class<? extends Supplier<Path>> value();
 }
