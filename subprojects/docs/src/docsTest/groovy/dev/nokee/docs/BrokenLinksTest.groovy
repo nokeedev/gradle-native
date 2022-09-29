@@ -15,39 +15,36 @@
  */
 package dev.nokee.docs
 
-import dev.nokee.docs.fixtures.html.HtmlLinkTester
-import org.junit.jupiter.api.Disabled
+import dev.nokee.docs.fixtures.LinkCheck
+import org.hamcrest.Matchers
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Tag
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnOs
-import org.junit.jupiter.api.condition.OS
+
+import java.nio.file.Path
+import java.util.function.Supplier
+
+import static dev.nokee.docs.fixtures.HttpRequestMatchers.statusCode
+import static org.hamcrest.MatcherAssert.assertThat
+import static org.hamcrest.Matchers.anyOf
+import static org.hamcrest.Matchers.equalTo
 
 @Tag("Baked")
-@EnabledOnOs(OS.MAC)
 class BrokenLinksTest {
-	@Disabled
-	@Test
-	void "checks HTML for broken links"() {
-//		expect:
-		def report = new HtmlLinkTester(HtmlLinkTester.validEmails("hello@nokee.dev"), new HtmlLinkTester.BlackList() {
-			@Override
-			boolean isBlackListed(URI uri) {
-				if (uri.toString().contains("/blog.gradle.org/")) {
-					return false
-				}
-				if (uri.toString().contains("/docs.gradle.org/")) {
-					return uri.toString().contains('/javadoc/org/gradle/internal.metaobject');
-				}
-				return uri.toString().contains("/services") ||
-					uri.toString().contains("/blog") ||
-					uri.toString().contains('/current/') ||
-					uri.toString().endsWith("/baked/index.html") ||
-					uri.toString().contains('/api/javax/annotation/Nullable.html') ||
-					uri.toString().contains('/api/javax/annotation/Nonnull.html') ||
-					uri.toString().contains('/github.com/') ||
-					uri.toString().contains('/javadoc/')
-			}
-		}).reportBrokenLinks(new File(System.getProperty('bakedContentDirectory')))
-		report.assertNoFailures()
+	@LinkCheck(BakedContentSupplier)
+	void "checks HTML for broken links"(URI context) {
+		if (context.getScheme().equals("mailto")) {
+			assertThat(context.toString(), equalTo("mailto:hello@nokee.dev"))
+		} else {
+			Assumptions.assumeFalse(context.getPath().contains("IgnoreEmptyDirectories.html"));
+			Assumptions.assumeFalse(context.getPath().contains("UntrackedTask.html"))
+			assertThat(context, statusCode(anyOf(Matchers.is(200), Matchers.is(301))));
+		}
+	}
+
+	public static final class BakedContentSupplier implements Supplier<Path> {
+		@Override
+		public Path get() {
+			return new File(System.getProperty('bakedContentDirectory')).toPath()
+		}
 	}
 }

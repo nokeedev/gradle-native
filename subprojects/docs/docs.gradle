@@ -73,6 +73,8 @@ dependencies {
 	docsTestImplementation project(':languageSwift')
 	docsTestImplementation project('exemplarKit')
 	docsTestImplementation testFixtures(project('exemplarKit'))
+	docsTestImplementation "org.testcontainers:testcontainers:${testcontainersVersion}"
+	docsTestImplementation "org.jsoup:jsoup:${jsoupVersion}"
 
 	jbake 'dev.nokee.docs:layout-page:latest.release'
 	jbake 'dev.nokee.docs:component-multi-language-sample:latest.release'

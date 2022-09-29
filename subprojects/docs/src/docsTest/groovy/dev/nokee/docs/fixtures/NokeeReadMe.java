@@ -36,6 +36,10 @@ public final class NokeeReadMe {
 		readme = asciidoctor.loadFile(location.toFile(), options().asMap());
 	}
 
+	public String renderToHtml() {
+		return asciidoctor.convertFile(location.toFile(), options().toFile(false));
+	}
+
 	public List<SnippetBlock> findSnippetBlocks() {
 		List<SnippetBlock> snippets = new ArrayList<>();
 		AsciidoctorContent.of(readme).walk(new AsciidoctorContent.Visitor() {

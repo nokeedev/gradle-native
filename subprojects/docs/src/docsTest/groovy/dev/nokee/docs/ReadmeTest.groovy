@@ -15,39 +15,38 @@
  */
 package dev.nokee.docs
 
-
 import dev.gradleplugins.runnerkit.GradleExecutor
 import dev.gradleplugins.runnerkit.GradleRunner
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl
+import dev.nokee.docs.fixtures.LinkCheck
 import dev.nokee.docs.fixtures.NokeeReadMe
-import dev.nokee.docs.fixtures.html.HtmlLinkTester
 import groovy.json.JsonSlurper
+import org.hamcrest.Matchers
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnOs
-import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.Path
+import java.util.function.Supplier
 
-import static dev.nokee.docs.fixtures.html.HtmlLinkTester.validEmails
-import static org.asciidoctor.OptionsBuilder.options
+import static dev.nokee.docs.fixtures.HttpRequestMatchers.statusCode
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.equalTo
-import static org.hamcrest.Matchers.hasKey
+import static org.hamcrest.Matchers.*
 
 class ReadmeTest {
 	private static final String README_LOCATION_PROPERTY_NAME = 'dev.nokee.docs.readme.location'
 	static NokeeReadMe readme = new NokeeReadMe(readmeFile.toPath())
 
-	private static File getReadmeFile() {
+	public static File getReadmeFile() {
 		assertThat(System.properties, hasKey(README_LOCATION_PROPERTY_NAME));
 		return new File(System.getProperty(README_LOCATION_PROPERTY_NAME))
 	}
 
 	@Test
 	void "uses the latest released version"() {
-//		expect:
 		assertThat(readme.getNokeeVersion(), equalTo(currentNokeeVersion));
 	}
 
@@ -55,27 +54,26 @@ class ReadmeTest {
 		return new JsonSlurper().parse(new URL('https://services.nokee.dev/versions/current.json'), [requestProperties: ['User-Agent': 'Fool-Us-github-pages']]).version
 	}
 
-	@EnabledOnOs(OS.MAC)
-	void "checks for broken links"() {
-//		given:
-		def rootDirectory = Files.createTempDirectory('nokee')
-		def renderedReadMeFile = rootDirectory.resolve('readme.html').toFile()
-		renderedReadMeFile.text = asciidoctor.convertFile(readmeFile, options().toFile(false))
-
-//		expect:
-		def report = new HtmlLinkTester(validEmails("hello@nokee.dev"), new HtmlLinkTester.BlackList() {
-			@Override
-			boolean isBlackListed(URI uri) {
-				if (uri.scheme == 'file') {
-					def path = rootDirectory.toUri().relativize(uri).toString()
-					if (new File(readmeFile.parentFile, path).exists()) {
-						return true
-					}
-				}
-				return false
+	@Nested
+	class WhenReadMeRenderedToHtml {
+		@LinkCheck(NokeeReadMeSupplier)
+		void checkUrls(URI context) {
+			if (context.getScheme().equals("mailto")) {
+				assertThat(context.toString(), equalTo("mailto:hello@nokee.dev"))
+			} else {
+				assertThat(context, statusCode(anyOf(Matchers.is(200), Matchers.is(301))))
 			}
-		}).reportBrokenLinks(rootDirectory.toFile())
-		report.assertNoFailures()
+		}
+	}
+
+	public static final class NokeeReadMeSupplier implements Supplier<Path> {
+		@Override
+		public Path get() {
+			NokeeReadMe readme = new NokeeReadMe(getReadmeFile().toPath());
+			Path testDirectory = Files.createTempDirectory("nokee");
+			Files.write(testDirectory.resolve("readme.html"), readme.renderToHtml().getBytes(StandardCharsets.UTF_8));
+			return testDirectory;
+		}
 	}
 
 	@ParameterizedTest(name = "check code snippet [{0}]")
