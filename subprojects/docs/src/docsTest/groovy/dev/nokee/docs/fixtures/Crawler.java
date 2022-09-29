@@ -86,8 +86,7 @@ public final class Crawler {
 				Connection connection = Jsoup.connect(next.toString());
 				try {
 					Document doc = connection.get();
-					visitor.visit(next, doc).stream().peek(it -> System.out.println("NEW URL TO CRAWL... " + it))
-						.forEach(CrawlRequest.this::submit);
+					visitor.visit(next, doc).stream().forEach(CrawlRequest.this::submit);
 				} catch (IOException e) {
 					// TODO: Visit as failure
 					throw new UncheckedIOException(e);

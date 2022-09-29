@@ -15,24 +15,29 @@
  */
 package dev.nokee.docs;
 
-import dev.nokee.docs.fixtures.LinkCheck;
+import dev.nokee.docs.fixtures.ClassSource;
+import dev.nokee.docs.fixtures.LinkCheckerUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
 
 import java.io.File;
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+import static dev.nokee.docs.fixtures.HttpRequestMatchers.document;
 import static dev.nokee.docs.fixtures.HttpRequestMatchers.statusCode;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 @Tag("Baked")
 class BrokenLinksTest {
-	@LinkCheck(BakedContentSupplier.class)
+	@ParameterizedTest(name = "check URL [{0}]")
+	@ClassSource(BakedContentSupplier.class)
 	void checksHtmlForBrokenLinks(URI context) {
 		if (context.getScheme().equals("mailto")) {
 			assertThat(context.toString(), equalTo("mailto:hello@nokee.dev"));
@@ -40,13 +45,17 @@ class BrokenLinksTest {
 			Assumptions.assumeFalse(context.getPath().contains("IgnoreEmptyDirectories.html"));
 			Assumptions.assumeFalse(context.getPath().contains("UntrackedTask.html"));
 			assertThat(context, statusCode(anyOf(Matchers.is(200), Matchers.is(301))));
+			if (context.getPath().contains("#")) {
+				String id = context.getPath().substring(context.getPath().lastIndexOf('#'));
+				assertThat(document(context).getElementById(id), notNullValue());
+			}
 		}
 	}
 
-	public static final class BakedContentSupplier implements Supplier<Path> {
+	public static final class BakedContentSupplier implements Supplier<Stream<URI>> {
 		@Override
-		public Path get() {
-			return new File(System.getProperty("bakedContentDirectory")).toPath();
+		public Stream<URI> get() {
+			return LinkCheckerUtils.findAllLinks(new File(System.getProperty("bakedContentDirectory")).toPath());
 		}
 	}
 }

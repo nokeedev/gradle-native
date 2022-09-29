@@ -20,7 +20,8 @@ import com.google.gson.reflect.TypeToken;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl;
-import dev.nokee.docs.fixtures.LinkCheck;
+import dev.nokee.docs.fixtures.ClassSource;
+import dev.nokee.docs.fixtures.LinkCheckerUtils;
 import dev.nokee.docs.fixtures.NokeeReadMe;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
@@ -41,12 +42,15 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+import static dev.nokee.docs.fixtures.HttpRequestMatchers.document;
 import static dev.nokee.docs.fixtures.HttpRequestMatchers.statusCode;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.notNullValue;
 
 class ReadmeTest {
 	private static final String README_LOCATION_PROPERTY_NAME = "dev.nokee.docs.readme.location";
@@ -71,24 +75,29 @@ class ReadmeTest {
 
 	@Nested
 	class WhenReadMeRenderedToHtml {
-		@LinkCheck(NokeeReadMeSupplier.class)
+		@ParameterizedTest(name = "check URL [{0}]")
+		@ClassSource(NokeeReadMeSupplier.class)
 		void checkUrls(URI context) {
 			if (context.getScheme().equals("mailto")) {
 				assertThat(context.toString(), equalTo("mailto:hello@nokee.dev"));
 			} else {
 				assertThat(context, statusCode(anyOf(Matchers.is(200), Matchers.is(301))));
+				if (context.getPath().contains("#")) {
+					String id = context.getPath().substring(context.getPath().lastIndexOf('#'));
+					assertThat(document(context).getElementById(id), notNullValue());
+				}
 			}
 		}
 	}
 
-	public static final class NokeeReadMeSupplier implements Supplier<Path> {
+	public static final class NokeeReadMeSupplier implements Supplier<Stream<URI>> {
 		@Override
-		public Path get() {
+		public Stream<URI> get() {
 			try {
 				NokeeReadMe readme = new NokeeReadMe(getReadmeFile().toPath());
 				Path testDirectory = Files.createTempDirectory("nokee");
 				Files.write(testDirectory.resolve("readme.html"), readme.renderToHtml().getBytes(StandardCharsets.UTF_8));
-				return testDirectory;
+				return LinkCheckerUtils.findAllLinks(testDirectory);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
