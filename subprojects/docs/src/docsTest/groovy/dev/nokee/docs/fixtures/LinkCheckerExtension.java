@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 
 import static org.junit.platform.commons.util.AnnotationUtils.isAnnotated;
 
-public class LinkCheckerExtension implements TestTemplateInvocationContextProvider {
+public final class LinkCheckerExtension implements TestTemplateInvocationContextProvider {
 	@Override
 	public boolean supportsTestTemplate(ExtensionContext context) {
 		if (!context.getTestMethod().isPresent()) {
