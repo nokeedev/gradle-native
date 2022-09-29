@@ -128,7 +128,7 @@ The `java` plugin is opinionated and creates a `main` and `test` source set.
 == What's next?
 
 You should now have a grasp on the anatomy of a Nokee plugin.
-Head over the link:../samples[samples] to see a demonstration of the Nokee plugins for common scenarios.
+Head over the link:../samples/[samples] to see a demonstration of the Nokee plugins for common scenarios.
 Bookmark the relevant <<plugin-references.adoc#,plugin chapters>> for future reference.
 
 [[sec:plugin-anatomy-help-improve-chapter]]
