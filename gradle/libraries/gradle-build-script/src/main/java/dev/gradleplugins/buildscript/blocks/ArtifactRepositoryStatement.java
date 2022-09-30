@@ -68,7 +68,13 @@ public final class ArtifactRepositoryStatement extends AbstractBlock {
 	}
 
 	public static final class Builder {
+		private String name;
 		private URI uri;
+
+		public Builder name(String name) {
+			this.name = Objects.requireNonNull(name);
+			return this;
+		}
 
 		public Builder url(URI uri) {
 			this.uri = Objects.requireNonNull(uri);
@@ -77,8 +83,12 @@ public final class ArtifactRepositoryStatement extends AbstractBlock {
 
 		public ArtifactRepositoryStatement build() {
 			Objects.requireNonNull(uri);
-			return new ArtifactRepositoryStatement(GroupStatement.of(ExpressionStatement.of(
-					property(literal("url")).assign(invoke("uri", string(uri.toString())).alwaysUseParenthesis()))));
+			final GroupStatement.Builder builder = GroupStatement.builder();
+			if (name != null) {
+				builder.add(ExpressionStatement.of(property(literal("name")).assign(string(name))));
+			}
+			builder.add(ExpressionStatement.of(property(literal("url")).assign(invoke("uri", string(uri.toString())).alwaysUseParenthesis())));
+			return new ArtifactRepositoryStatement(builder.build());
 		}
 	}
 

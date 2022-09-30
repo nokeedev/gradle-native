@@ -17,6 +17,7 @@ package dev.nokee.docs.samples;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import dev.gradleplugins.buildscript.blocks.GradleBlock;
 import dev.gradleplugins.exemplarkit.Exemplar;
 import dev.gradleplugins.exemplarkit.ExemplarExecutionResult;
 import dev.gradleplugins.exemplarkit.ExemplarExecutor;
@@ -107,21 +108,20 @@ public abstract class WellBehavingSampleTest {
 	protected GradleRunner configureLocalPluginResolution(GradleRunner runner) {
 		try {
 			Path initScriptFile = temporaryFolder.getTestDirectory().resolve("repo.init.gradle");
-			Files.write(initScriptFile, Arrays.asList("",
-				"beforeSettings { settings ->",
-				"	settings.pluginManagement {",
-				"		repositories {",
-				"			gradlePluginPortal()",
-				"			maven {",
-				"				name = 'docs'",
-				"				url = '" + new File(System.getProperty("dev.nokee.docsRepository")).toURI() + "'",
-				"			}",
-				"		}",
-				"	}",
-				"}"));
+			GradleBlock.builder().beforeSettings(settings -> {
+				settings.pluginManagement(spec -> {
+					spec.repositories(repos -> {
+						repos.gradlePluginPortal();
+						repos.maven(it -> {
+							it.name("docs");
+							it.url(new File(System.getProperty("dev.nokee.docsRepository")).toURI());
+						});
+					});
+				});
+			}).build().writeTo(initScriptFile);
 			return runner.usingInitScript(initScriptFile.toFile());
 		} catch (IOException e) {
-			throw new org.jsoup.UncheckedIOException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
@@ -155,7 +155,6 @@ public abstract class WellBehavingSampleTest {
 	void ensureRootProjectNameIsConfiguredForTheSample(GradleScriptDsl dsl) {
 		fixture.getDslSample(dsl).usingNativeTools().unzipTo(temporaryFolder.getTestDirectory().toFile());
 
-//		expect:
 		// TODO: Improve assertion to ensure it's rootProject.name = <sampleName> and not just a random <sampleName> in the settings script
 		assertThat(getTestDirectory().file(dsl.getSettingsFileName()).assertIsFile().getText(), containsString(fixture.getSampleName()));
 	}

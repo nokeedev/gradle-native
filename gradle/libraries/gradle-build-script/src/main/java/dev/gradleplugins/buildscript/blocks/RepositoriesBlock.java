@@ -65,9 +65,7 @@ public final class RepositoriesBlock extends AbstractBlock {
 		}
 
 		public Builder maven(Consumer<? super ArtifactRepositoryStatement.Builder> action) {
-			final ArtifactRepositoryStatement.Builder builder = new ArtifactRepositoryStatement.Builder();
-			action.accept(builder);
-			this.builder.add(builder.build());
+			this.builder.add(ArtifactRepositoryStatement.maven(action));
 			return this;
 		}
 
