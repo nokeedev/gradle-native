@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -69,9 +70,14 @@ class ReadmeTest {
 	}
 
 	private static String fetchCurrentNokeeVersion() throws IOException {
-		try (Reader reader = new InputStreamReader(new URL("https://services.nokee.dev/versions/current.json").openStream())) {
+		HttpURLConnection connection = (HttpURLConnection) new URL("https://services.nokee.dev/versions/current.json").openConnection();
+		connection.setRequestProperty("User-Agent", "Fool-Us-github-pages");
+		connection.connect();
+		try (Reader reader = new InputStreamReader(connection.getInputStream())) {
 			return new Gson().<Map<String, Object>>fromJson(reader, new TypeToken<Map<String, Object>>() {}.getType())
 				.get("version").toString();
+		} finally {
+			connection.disconnect();
 		}
 	}
 
