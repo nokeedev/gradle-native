@@ -15,18 +15,20 @@
  */
 package dev.nokee.docs;
 
-import dev.nokee.docs.fixtures.ClassSource;
 import dev.nokee.docs.fixtures.LinkCheckerUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import java.io.File;
 import java.net.URI;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static dev.nokee.docs.fixtures.HttpRequestMatchers.document;
@@ -40,7 +42,7 @@ import static org.hamcrest.Matchers.notNullValue;
 class BrokenLinksTest {
 	@EnabledOnOs(OS.LINUX)
 	@ParameterizedTest(name = "check URL [{0}]")
-	@ClassSource(BakedContentSupplier.class)
+	@ArgumentsSource(BakedContentProvider.class)
 	void checksHtmlForBrokenLinks(URI context) {
 		if (context.getScheme().equals("mailto")) {
 			assertThat(context.toString(), equalTo("mailto:hello@nokee.dev"));
@@ -55,10 +57,10 @@ class BrokenLinksTest {
 		}
 	}
 
-	public static final class BakedContentSupplier implements Supplier<Stream<URI>> {
+	public static final class BakedContentProvider implements ArgumentsProvider {
 		@Override
-		public Stream<URI> get() {
-			return LinkCheckerUtils.findAllLinks(new File(System.getProperty("bakedContentDirectory")).toPath());
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return LinkCheckerUtils.findAllLinks(new File(System.getProperty("bakedContentDirectory")).toPath()).map(Arguments::of);
 		}
 	}
 }

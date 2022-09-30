@@ -18,13 +18,15 @@ package dev.nokee.docs;
 import com.google.common.collect.MoreCollectors;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import dev.nokee.docs.fixtures.ClassSource;
 import dev.nokee.docs.fixtures.StreamMatchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +39,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static dev.nokee.docs.fixtures.HttpRequestMatchers.contentAttribute;
@@ -62,20 +63,20 @@ import static org.hamcrest.Matchers.not;
 @Tag("Baked")
 class ProperBakedHtmlTest {
 	@ParameterizedTest(name = "has alt test on all images [{0}]")
-	@ClassSource(AllHtmlWithoutJavadocSupplier.class)
+	@ArgumentsSource(AllHtmlWithoutJavadocProvider.class)
 	void hasAltTextOnAllImages(Path path, URI uri) {
 		assertThat(document(uri).select("img"), everyItem(hasAltText()));
 	}
 
 	@ParameterizedTest(name = "has proper canonical links [{0}]")
-	@ClassSource(AllHtmlWithoutJavadocSupplier.class)
+	@ArgumentsSource(AllHtmlWithoutJavadocProvider.class)
 	void hasProperCanonicalLinks(Path path, URI uri) {
 		assertThat(document(uri).select("link").stream().filter(relAttribute("canonical")),
 			StreamMatchers.yieldsExactly(hrefAttribute(equalTo("https://docs.nokee.dev/" + asCanonicalPath(path)))));
 	}
 
 	@ParameterizedTest(name = "has proper open-graph URL [{0}]")
-	@ClassSource(AllHtmlWithoutJavadocSupplier.class)
+	@ArgumentsSource(AllHtmlWithoutJavadocProvider.class)
 	void hasProperOpenGraphUrl(Path path, URI uri) {
 		assertThat(document(uri).select("meta").stream().filter(nameOrPropertyAttribute("og:url")),
 			StreamMatchers.yieldsExactly(contentAttribute(equalTo("https://docs.nokee.dev/" + asCanonicalPath(path)))));
@@ -95,7 +96,7 @@ class ProperBakedHtmlTest {
 	}
 
 	@ParameterizedTest(name = "has proper description [{0}]")
-	@ClassSource(AllHtmlWithoutJavadocSupplier.class)
+	@ArgumentsSource(AllHtmlWithoutJavadocProvider.class)
 	void hasProperDescription(Path path, URI uri) {
 		// It seems 160 characters is a good limit
 		assertThat(document(uri).select("meta").stream().filter(nameOrPropertyAttribute("description")),
@@ -103,7 +104,7 @@ class ProperBakedHtmlTest {
 	}
 
 	@ParameterizedTest(name = "has proper keywords [{0}]")
-	@ClassSource(AllHtmlWithoutJavadocSupplier.class)
+	@ArgumentsSource(AllHtmlWithoutJavadocProvider.class)
 	void hasProperKeywords(Path path, URI uri) {
 		assertThat(document(uri).select("meta").stream().filter(nameOrPropertyAttribute("keywords")),
 			StreamMatchers.yieldsExactly(contentAttribute(allOf(
@@ -113,14 +114,14 @@ class ProperBakedHtmlTest {
 	}
 
 	@ParameterizedTest(name = "has proper twitter meta description [{0}]")
-	@ClassSource(AllHtmlWithoutJavadocSupplier.class)
+	@ArgumentsSource(AllHtmlWithoutJavadocProvider.class)
 	void hasProperTwitterMetaDescription(Path path, URI uri) {
 		assertThat(document(uri).select("meta").stream().filter(nameOrPropertyAttribute("twitter:description")), StreamMatchers.yieldsExactly(contentAttribute(allOf(fullSentence(), reasonableLength()))));
 	}
 
-	public static final class AllHtmlWithoutJavadocSupplier implements Supplier<Stream<Arguments>> {
+	public static final class AllHtmlWithoutJavadocProvider implements ArgumentsProvider {
 		@Override
-		public Stream<Arguments> get() {
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
 			List<Arguments> result = new ArrayList<>();
 			Path baseDirectory = new File(System.getProperty("bakedContentDirectory")).toPath();
 			try {
@@ -151,7 +152,7 @@ class ProperBakedHtmlTest {
 
 	@Disabled
 	@ParameterizedTest(name = "has breadcrumb structured data [{0}]")
-	@ClassSource(AllHtmlWithoutJavadocSupplier.class)
+	@ArgumentsSource(AllHtmlWithoutJavadocProvider.class)
 	void hasBreadcrumbStructuredData(Path path, URI uri) {
 		Assumptions.assumeFalse(path.toString().equals("index.thml"), "ignores redirect page");
 		Assumptions.assumeFalse(path.toString().equals("manual/index.thml"), "ignores redirect page");

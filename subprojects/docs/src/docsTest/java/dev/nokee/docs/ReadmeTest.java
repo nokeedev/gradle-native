@@ -20,15 +20,16 @@ import com.google.gson.reflect.TypeToken;
 import dev.gradleplugins.runnerkit.GradleExecutor;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.gradleplugins.test.fixtures.gradle.GradleScriptDsl;
-import dev.nokee.docs.fixtures.ClassSource;
 import dev.nokee.docs.fixtures.LinkCheckerUtils;
 import dev.nokee.docs.fixtures.NokeeReadMe;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.File;
@@ -44,7 +45,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static dev.nokee.docs.fixtures.HttpRequestMatchers.document;
@@ -83,9 +83,9 @@ class ReadmeTest {
 
 	@Nested
 	class WhenReadMeRenderedToHtml {
-		@EnabledOnOs(OS.LINUX)
+//		@EnabledOnOs(OS.LINUX)
 		@ParameterizedTest(name = "check URL [{0}]")
-		@ClassSource(NokeeReadMeSupplier.class)
+		@ArgumentsSource(NokeeReadMeProvider.class)
 		void checkUrls(URI context) {
 			if (context.getScheme().equals("mailto")) {
 				assertThat(context.toString(), equalTo("mailto:hello@nokee.dev"));
@@ -99,14 +99,14 @@ class ReadmeTest {
 		}
 	}
 
-	public static final class NokeeReadMeSupplier implements Supplier<Stream<URI>> {
+	public static final class NokeeReadMeProvider implements ArgumentsProvider {
 		@Override
-		public Stream<URI> get() {
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
 			try {
 				NokeeReadMe readme = new NokeeReadMe(getReadmeFile().toPath());
 				Path testDirectory = Files.createTempDirectory("nokee");
 				Files.write(testDirectory.resolve("readme.html"), readme.renderToHtml().getBytes(StandardCharsets.UTF_8));
-				return LinkCheckerUtils.findAllLinks(testDirectory);
+				return LinkCheckerUtils.findAllLinks(testDirectory).map(Arguments::of);
 			} catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
