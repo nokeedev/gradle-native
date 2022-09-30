@@ -25,6 +25,8 @@ import dev.nokee.docs.fixtures.NokeeReadMe;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -83,7 +85,7 @@ class ReadmeTest {
 
 	@Nested
 	class WhenReadMeRenderedToHtml {
-//		@EnabledOnOs(OS.LINUX)
+		@EnabledOnOs(OS.LINUX)
 		@ParameterizedTest(name = "check URL [{0}]")
 		@ArgumentsSource(NokeeReadMeProvider.class)
 		void checkUrls(URI context) {
