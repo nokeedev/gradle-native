@@ -8,6 +8,8 @@ import net.nokeedev.jbake.JBakeTask
 
 import java.text.SimpleDateFormat
 
+import static org.gradle.internal.os.OperatingSystem.current
+
 buildscript {
 	repositories {
 		maven { url = 'https://repo.nokee.dev/release' }
@@ -255,7 +257,7 @@ tasks.register('bakedDocsTest', Test) { task ->
 	task.testClassesDirs = tasks.docsTest.testClassesDirs
 	task.classpath = tasks.docsTest.classpath
 
-	systemProperty 'junit.jupiter.execution.parallel.enabled', true
+	systemProperty 'junit.jupiter.execution.parallel.enabled', !current().windows
 	systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
 }
 
@@ -264,7 +266,7 @@ tasks.named('docsTest', Test) { task ->
 	task.inputs.dir(samplesDirectory)
 	task.systemProperty('sampleContentDirectory', samplesDirectory.get().absolutePath)
 
-	systemProperty 'junit.jupiter.execution.parallel.enabled', true
+	systemProperty 'junit.jupiter.execution.parallel.enabled', !current().windows
 	systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
 }
 
