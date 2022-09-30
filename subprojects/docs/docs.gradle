@@ -254,12 +254,18 @@ tasks.register('bakedDocsTest', Test) { task ->
 	}
 	task.testClassesDirs = tasks.docsTest.testClassesDirs
 	task.classpath = tasks.docsTest.classpath
+
+	systemProperty 'junit.jupiter.execution.parallel.enabled', true
+	systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
 }
 
 tasks.named('docsTest', Test) { task ->
 	def samplesDirectory = tasks.named('assembleSamples', Sync).map { it.destinationDir }
 	task.inputs.dir(samplesDirectory)
 	task.systemProperty('sampleContentDirectory', samplesDirectory.get().absolutePath)
+
+	systemProperty 'junit.jupiter.execution.parallel.enabled', true
+	systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
 }
 
 tasks.named('docsTest', Test) { task ->
