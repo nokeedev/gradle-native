@@ -20,6 +20,8 @@ import dev.nokee.docs.fixtures.LinkCheckerUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 
 import java.io.File;
@@ -36,6 +38,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @Tag("Baked")
 class BrokenLinksTest {
+	@EnabledOnOs(OS.LINUX)
 	@ParameterizedTest(name = "check URL [{0}]")
 	@ClassSource(BakedContentSupplier.class)
 	void checksHtmlForBrokenLinks(URI context) {
