@@ -49,6 +49,8 @@ import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.internal.os.OperatingSystem;
+import org.hamcrest.FeatureMatcher;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,6 +89,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.not;
@@ -233,16 +236,20 @@ public abstract class WellBehavingSampleTest {
 	 */
 	@Test
 	void ensureGradleCommandsDoesNotHaveAnyTimingValuesInBuildResult() {
-		// TODO: Reports all the error at once instead of failing on the first one
 		List<Step> gradleSteps = fixture.getDslExemplar(GradleScriptDsl.GROOVY_DSL).getSteps().stream().filter(it -> it.getExecutable().endsWith("gradlew")).collect(Collectors.toList());
-		assumeThat("Gradle commands are present", gradleSteps.size(), greaterThan(0));
+		Assumptions.assumeFalse(gradleSteps.isEmpty(), "Gradle commands are present");
 
-		gradleSteps.forEach(it -> assertNoTimingInformationOnBuildResult(it));
+		assertThat(gradleSteps, everyItem(noTimingInformationInBuildResult()));
 	}
 
 	private static final Pattern BUILD_RESULT_PATTERN = Pattern.compile("BUILD (SUCCESSFUL|FAILED) in \\d+(ms|s|m|h)( \\d+(ms|s|m|h))*");
-	private static void assertNoTimingInformationOnBuildResult(Step step) {
-		step.getOutput().ifPresent(output -> assertThat(output, not(matchesPattern(BUILD_RESULT_PATTERN))));
+	private static Matcher<Step> noTimingInformationInBuildResult() {
+		return new FeatureMatcher<Step, String>(not(matchesPattern(BUILD_RESULT_PATTERN)), "", "") {
+			@Override
+			protected String featureValueOf(Step actual) {
+				return actual.getOutput().orElse("");
+			}
+		};
 	}
 
 //	@Disabled // sample player is deactivated
