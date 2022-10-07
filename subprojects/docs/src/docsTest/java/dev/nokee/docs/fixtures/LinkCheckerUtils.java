@@ -39,6 +39,9 @@ public final class LinkCheckerUtils {
 		host = new GenericContainer<>("nginx:alpine").withFileSystemBind(path.toString(), "/usr/share/nginx/html", BindMode.READ_ONLY).withExposedPorts(80);
 		host.start();
 		host.waitingFor(new HostPortWaitStrategy());
+
+		System.out.println("HOST RUNNING? " + host.isRunning());
+		System.out.println("HOST HEALTHY? " + host.isHealthy());
 		Set<URI> foundLinks = new HashSet<>();
 
 		Set<String> l = new HashSet<>();
@@ -46,6 +49,7 @@ public final class LinkCheckerUtils {
 			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					System.out.println("FOUND " + path);
 					l.add("http://localhost:" + host.getMappedPort(80) + "/" + path.relativize(file));
 					return FileVisitResult.CONTINUE;
 				}
@@ -53,6 +57,8 @@ public final class LinkCheckerUtils {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		System.out.println("CRAWLING " + l);
 
 		new Crawler().crawl(l, new Crawler.Visitor() {
 			@Override
@@ -73,6 +79,7 @@ public final class LinkCheckerUtils {
 					.collect(Collectors.toList());
 			}
 		});
+		System.out.println("FOUND LINKS " + foundLinks);
 		return foundLinks.stream();
 	}
 }
