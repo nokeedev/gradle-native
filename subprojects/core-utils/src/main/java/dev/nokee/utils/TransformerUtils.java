@@ -17,6 +17,7 @@ package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.utils.internal.WrappedTransformer;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.specs.Spec;
@@ -529,8 +530,22 @@ public final class TransformerUtils {
 		}
 	}
 
+	public static <OUT, IN> Transformer<OUT, IN> ofTransformer(org.gradle.api.Transformer<? extends OUT, ? super IN> transformer) {
+		return Transformer.of(transformer);
+	}
+
 	@FunctionalInterface
 	public interface Transformer<OUT, IN> extends org.gradle.api.Transformer<OUT, IN> {
+		static <OUT, IN> Transformer<OUT, IN> of(org.gradle.api.Transformer<? extends OUT, ? super IN> transformer) {
+			if (transformer instanceof Transformer) {
+				@SuppressWarnings("unchecked")
+				final Transformer<OUT, IN> result = (Transformer<OUT, IN>) transformer;
+				return result;
+			} else {
+				return new WrappedTransformer<>(transformer);
+			}
+		}
+
 		default <V> Transformer<OUT, V> compose(org.gradle.api.Transformer<? extends IN, ? super V> before) {
 			return new ComposeTransformer<>(this, before);
 		}
