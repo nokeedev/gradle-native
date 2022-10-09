@@ -27,13 +27,18 @@ import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.ImmutableList.of;
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static dev.nokee.utils.TransformerUtils.flatTransformEach;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.iterableWithSize;
 
 class TransformerUtils_FlatTransformEachTest {
 	@Test
@@ -117,6 +122,11 @@ class TransformerUtils_FlatTransformEachTest {
 			.addEqualityGroup(flatTransformEach(aTransformer()), flatTransformEach(aTransformer()))
 			.addEqualityGroup(flatTransformEach(ImmutableList::of))
 			.testEquals();
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(flatTransformEach(aTransformer()), isSerializable());
 	}
 
 	private static Transformer<Iterable<String>, String> onlyIf(Predicate<? super String> predicate) {

@@ -23,6 +23,7 @@ import org.gradle.api.specs.Spec;
 import org.gradle.internal.Transformers;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -96,7 +97,7 @@ public final class TransformerUtils {
 
 	/** @see #toListTransformer(Class) */
 	@EqualsAndHashCode
-	private static final class ToListTransformerAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<List<OUT>, T> {
+	private static final class ToListTransformerAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<List<OUT>, T>, Serializable {
 		private final Class<OUT> type;
 
 		ToListTransformerAdapter(Class<OUT> type) {
@@ -150,7 +151,7 @@ public final class TransformerUtils {
 
 	/** @see #toSetTransformer(Class) */
 	@EqualsAndHashCode
-	private static final class ToSetTransformerAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Set<OUT>, T> {
+	private static final class ToSetTransformerAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Set<OUT>, T>, Serializable {
 		private final Class<OUT> type;
 
 		ToSetTransformerAdapter(Class<OUT> type) {
@@ -212,7 +213,7 @@ public final class TransformerUtils {
 
 	/** @see #flatTransformEach(org.gradle.api.Transformer) */
 	@EqualsAndHashCode
-	private static final class FlatTransformEachAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Iterable<OUT>, T> {
+	private static final class FlatTransformEachAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Iterable<OUT>, T>, Serializable {
 		private final org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper;
 
 		public FlatTransformEachAdapter(org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
@@ -253,7 +254,7 @@ public final class TransformerUtils {
 
 	/** @see #transformEach(org.gradle.api.Transformer) */
 	@EqualsAndHashCode
-	private static final class TransformEachAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Iterable<OUT>, T> {
+	private static final class TransformEachAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Iterable<OUT>, T>, Serializable {
 		private final org.gradle.api.Transformer<? extends OUT, ? super IN> mapper;
 
 		public TransformEachAdapter(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
@@ -289,7 +290,7 @@ public final class TransformerUtils {
 
 	/** @see #compose(org.gradle.api.Transformer, org.gradle.api.Transformer) */
 	@EqualsAndHashCode
-	private static final class ComposeTransformer<A, B, C> implements Transformer<C, A> {
+	private static final class ComposeTransformer<A, B, C> implements Transformer<C, A>, Serializable {
 		private final org.gradle.api.Transformer<? extends C, ? super B> g;
 		private final org.gradle.api.Transformer<? extends B, ? super A> f;
 
@@ -322,7 +323,7 @@ public final class TransformerUtils {
 
 	/** @see #forSupplier(Supplier) */
 	@EqualsAndHashCode
-	private static final class SupplierTransformer<T> implements Transformer<T, Object> {
+	private static final class SupplierTransformer<T> implements Transformer<T, Object>, Serializable {
 		private final Supplier<? extends T> supplier;
 
 		private SupplierTransformer(Supplier<? extends T> supplier) {

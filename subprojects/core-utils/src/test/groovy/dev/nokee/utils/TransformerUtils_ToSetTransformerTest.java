@@ -23,10 +23,18 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableSet.of;
-import static dev.nokee.utils.TransformerUtils.*;
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
+import static dev.nokee.utils.TransformerUtils.Transformer;
+import static dev.nokee.utils.TransformerUtils.constant;
+import static dev.nokee.utils.TransformerUtils.toSetTransformer;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.iterableWithSize;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -141,5 +149,11 @@ class TransformerUtils_ToSetTransformerTest {
 	@Test
 	void returnsNoCastToSetTransformerForObjectType() {
 		assertThat(toSetTransformer(Object.class), equalTo(toSetTransformer()));
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(toSetTransformer(), isSerializable());
+		assertThat(toSetTransformer(String.class), isSerializable());
 	}
 }
