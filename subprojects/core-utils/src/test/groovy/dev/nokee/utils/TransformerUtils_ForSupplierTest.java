@@ -20,9 +20,11 @@ import lombok.val;
 import org.gradle.api.Transformer;
 import org.junit.jupiter.api.Test;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.ofInstance;
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.utils.TransformerUtils.forSupplier;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -94,5 +96,10 @@ class TransformerUtils_ForSupplierTest {
 	@Test
 	void returnsEnhanceTransformer() {
 		assertThat(forSupplier(ofInstance(42)), isA(TransformerUtils.Transformer.class));
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(forSupplier((Supplier<String> & Serializable) () -> "some-value"), isSerializable());
 	}
 }

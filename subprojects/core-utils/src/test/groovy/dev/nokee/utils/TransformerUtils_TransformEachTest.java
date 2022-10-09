@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.of;
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static dev.nokee.utils.TransformerTestUtils.anotherTransformer;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
@@ -32,7 +33,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.iterableWithSize;
 
 class TransformerUtils_TransformEachTest {
 	@Test
@@ -109,6 +115,11 @@ class TransformerUtils_TransformEachTest {
 			.addEqualityGroup(transformEach(aTransformer()), transformEach(aTransformer()))
 			.addEqualityGroup(transformEach(anotherTransformer()))
 			.testEquals();
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(transformEach(aTransformer()), isSerializable());
 	}
 
 	private static Transformer<String, String> prefixWith(String prefix) {

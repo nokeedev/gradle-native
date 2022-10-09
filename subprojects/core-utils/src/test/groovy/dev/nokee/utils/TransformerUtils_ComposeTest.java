@@ -18,12 +18,15 @@ package dev.nokee.utils;
 import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static dev.nokee.utils.TransformerTestUtils.anotherTransformer;
 import static dev.nokee.utils.TransformerUtils.compose;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.isA;
 
 class TransformerUtils_ComposeTest {
 	@Test
@@ -66,6 +69,11 @@ class TransformerUtils_ComposeTest {
 	void canAndThen() {
 		assertThat(prefixWith("-").andThen(prefixWith("then")).transform("far"),
 			equalTo("then-far"));
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(compose(aTransformer(), anotherTransformer()), isSerializable());
 	}
 
 	private static TransformerUtils.Transformer<String, String> prefixWith(String prefix) {

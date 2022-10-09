@@ -19,6 +19,7 @@ import lombok.val;
 import org.gradle.api.Transformer;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -62,6 +63,11 @@ class TransformerUtils_NoOpTransformerTest {
 	void canUseNoOpTransformerWhenOutputTypeIsTheSameAsInputType() {
 		// compile-time assertion, uncomment to test -> it should not compile
 		bothInputAndOutputTypeAreTheSame(noOpTransformer());
+	}
+
+	@Test
+	void canSerialize() {
+		assertThat(noOpTransformer(), isSerializable());
 	}
 
 	private static void inputTypeToSuperType(Transformer<Base, Child> transformer) {}

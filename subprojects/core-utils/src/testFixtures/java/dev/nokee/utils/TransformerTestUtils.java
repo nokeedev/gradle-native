@@ -20,6 +20,8 @@ import org.gradle.api.Transformer;
 
 import javax.annotation.Nullable;
 
+import java.io.Serializable;
+
 import static dev.nokee.utils.ExecutionArgumentsFactory.create;
 
 public final class TransformerTestUtils {
@@ -30,7 +32,7 @@ public final class TransformerTestUtils {
 
 	/** @see #aTransformer() */
 	@EqualsAndHashCode
-	private static final class ATransformer<OUT, IN> implements TransformerUtils.Transformer<OUT, IN> {
+	private static final class ATransformer<OUT, IN> implements TransformerUtils.Transformer<OUT, IN>, Serializable {
 		@Override
 		@SuppressWarnings("unchecked")
 		public OUT transform(IN t) {
@@ -58,7 +60,7 @@ public final class TransformerTestUtils {
 
 	/** @see #anotherTransformer() */
 	@EqualsAndHashCode
-	private static final class AnotherTransformer<T> implements TransformerUtils.Transformer<T, T> {
+	private static final class AnotherTransformer<T> implements TransformerUtils.Transformer<T, T>, Serializable {
 		@Nullable private final Object what;
 
 		public AnotherTransformer(@Nullable Object what) {
