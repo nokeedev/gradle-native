@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.internal.components;
+package dev.nokee.buildadapter.xcode;
 
-import dev.nokee.model.internal.core.ModelComponent;
+import dev.nokee.buildadapter.xcode.internal.plugins.XCProjectLocator;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.util.List;
+
 @EqualsAndHashCode
-public final class XCProjectComponent implements ModelComponent {
-	private final XCProjectReference value;
-
-	public XCProjectComponent(XCProjectReference value) {
-		this.value = value;
-	}
-
-	public XCProjectReference get() {
-		return value;
+public final class TestSerializableXCProjectLocator implements XCProjectLocator, Serializable {
+	@Override
+	public List<XCProjectReference> findProjects(Path searchDirectory) {
+		throw new UnsupportedOperationException();
 	}
 }

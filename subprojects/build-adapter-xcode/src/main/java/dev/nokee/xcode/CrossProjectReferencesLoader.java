@@ -17,11 +17,14 @@ package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.PBXProject;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 
-public final class CrossProjectReferencesLoader implements XCLoader<Iterable<XCProjectReference>, XCProjectReference> {
+@EqualsAndHashCode
+public final class CrossProjectReferencesLoader implements XCLoader<Iterable<XCProjectReference>, XCProjectReference>, Serializable {
 	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
 	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 

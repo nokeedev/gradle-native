@@ -17,15 +17,18 @@ package dev.nokee.xcode;
 
 import dev.nokee.xcode.workspace.XCWorkspaceData;
 import dev.nokee.xcode.workspace.XCWorkspaceDataReader;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class XCWorkspaceDataLoader implements XCLoader<XCWorkspaceData, XCWorkspaceReference> {
+@EqualsAndHashCode
+public class XCWorkspaceDataLoader implements XCLoader<XCWorkspaceData, XCWorkspaceReference>, Serializable {
 	@Override
 	public XCWorkspaceData load(XCWorkspaceReference reference) {
 		val layout = new XCWorkspaceLayout(reference.getLocation());

@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.internal.components;
+package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.xcode.XCProjectReference;
+import com.google.common.collect.ImmutableSet;
+import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.EqualsAndHashCode;
+import org.gradle.api.Transformer;
+
+import java.io.File;
+import java.util.Set;
 
 @EqualsAndHashCode
-public final class XCProjectComponent implements ModelComponent {
-	private final XCProjectReference value;
+public final class LoadWorkspaceReferencesTransformer implements Transformer<Set<XCWorkspaceReference>, File> {
+	private final XCWorkspaceLocator locator;
 
-	public XCProjectComponent(XCProjectReference value) {
-		this.value = value;
+	public LoadWorkspaceReferencesTransformer(XCWorkspaceLocator locator) {
+		this.locator = locator;
 	}
 
-	public XCProjectReference get() {
-		return value;
+	@Override
+	public Set<XCWorkspaceReference> transform(File file) {
+		return ImmutableSet.copyOf(locator.findWorkspaces(file.toPath()));
 	}
 }

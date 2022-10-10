@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.internal.components;
+package dev.nokee.buildadapter.xcode;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.xcode.XCProjectReference;
-import lombok.EqualsAndHashCode;
+import dev.nokee.buildadapter.xcode.internal.plugins.DefaultXCWorkspaceLocator;
+import org.junit.jupiter.api.Test;
 
-@EqualsAndHashCode
-public final class XCProjectComponent implements ModelComponent {
-	private final XCProjectReference value;
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-	public XCProjectComponent(XCProjectReference value) {
-		this.value = value;
-	}
-
-	public XCProjectReference get() {
-		return value;
+class DefaultXCWorkspaceLocatorTests {
+	@Test
+	void canSerialize() {
+		assertThat(new DefaultXCWorkspaceLocator(), isSerializable());
 	}
 }

@@ -27,11 +27,11 @@ import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
 import dev.nokee.buildadapter.xcode.internal.rules.XCProjectDescriptionRule;
+import dev.nokee.buildadapter.xcode.internal.rules.XCProjectsDiscoveryRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskDescriptionRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskGroupRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
-import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectsDiscoveryRule;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNodes;
@@ -49,6 +49,7 @@ import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.ActionUtils;
+import dev.nokee.utils.TransformerUtils;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
@@ -93,17 +94,21 @@ import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.forParameters;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
+import static dev.nokee.utils.TransformerUtils.Transformer.of;
+import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 	private static final Logger LOGGER = Logging.getLogger(XcodeBuildAdapterPlugin.class);
 	private final ProviderFactory providers;
 	private final ObjectFactory objects;
+	private final BuildInputService buildInputs;
 
 	@Inject
 	public XcodeBuildAdapterPlugin(ProviderFactory providers, ObjectFactory objects) {
 		this.providers = providers;
 		this.objects = objects;
+		this.buildInputs = new BuildInputService(providers);
 	}
 
 	@Override
@@ -119,7 +124,16 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeBuildLayoutRule(GradleBuildLayout.forSettings(settings), providers));
 		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectPathRule(new DefaultGradleProjectPathService(settings.getSettingsDir().toPath())));
-		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XcodeProjectsDiscoveryRule(settings.getExtensions().getByType(ModelRegistry.class), objects, providers));
+
+		// This custom locator also capture inputs to the build
+		XCProjectLocator locator = toFileTransformer()
+			.andThen(buildInputs.capture(new LoadWorkspaceReferencesTransformer(new DefaultXCWorkspaceLocator())))
+			.andThen(new SelectSingleXCWorkspaceTransformer())
+			.andThen(buildInputs.capture(of(new LoadWorkspaceProjectReferencesIfAvailableTransformer(new XCProjectSupplier(settings.getSettingsDir().toPath())))
+				.andThen(new UnpackCrossProjectReferencesTransformer())))
+			.andThen(new WarnOnMissingXCProjectsTransformer(settings.getSettingsDir().toPath()))
+			.andThen(toListTransformer())::transform;
+		settings.getExtensions().getByType(ModelConfigurer.class).configure(new XCProjectsDiscoveryRule(settings.getExtensions().getByType(ModelRegistry.class), locator));
 
 		val settingsEntity = settings.getExtensions().getByType(ModelLookup.class).get(ModelPath.root());
 		settingsEntity.addComponent(new SettingsDirectoryComponent(settings.getSettingsDir().toPath()));
@@ -132,6 +146,10 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				}));
 			}));
 		});
+	}
+
+	public static TransformerUtils.Transformer<File, Path> toFileTransformer() {
+		return Path::toFile;
 	}
 
 	public static Action<Project> forXcodeProject(XCProjectReference reference, Action<? super XcodebuildExecTask> action) {

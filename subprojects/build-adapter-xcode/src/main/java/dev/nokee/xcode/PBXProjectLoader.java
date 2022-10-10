@@ -18,12 +18,15 @@ package dev.nokee.xcode;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.project.PBXObjectUnarchiver;
 import dev.nokee.xcode.project.PBXProjReader;
+import lombok.EqualsAndHashCode;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
-public final class PBXProjectLoader implements XCLoader<PBXProject, XCProjectReference> {
+@EqualsAndHashCode
+public final class PBXProjectLoader implements XCLoader<PBXProject, XCProjectReference>, Serializable {
 	@Override
 	public PBXProject load(XCProjectReference reference) {
 		try (final PBXProjReader reader = new PBXProjReader(new AsciiPropertyListReader(Files.newBufferedReader(reference.getLocation().resolve("project.pbxproj"))))) {

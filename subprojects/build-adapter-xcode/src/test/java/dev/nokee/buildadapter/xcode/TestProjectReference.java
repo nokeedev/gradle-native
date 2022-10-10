@@ -19,10 +19,11 @@ import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 
 @EqualsAndHashCode
-public final class TestProjectReference implements XCProjectReference {
+public final class TestProjectReference implements XCProjectReference, Serializable {
 	public static XCProjectReference project(String name) {
 		assert !name.endsWith(".xcodeproj") : "do not include .xcodeproj extension";
 		return new TestProjectReference(name);

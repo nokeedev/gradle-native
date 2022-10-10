@@ -17,11 +17,14 @@ package dev.nokee.xcode;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.workspace.XCWorkspaceData;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 
 import java.io.File;
+import java.io.Serializable;
 
-public final class WorkspaceProjectReferencesLoader implements XCLoader<Iterable<XCProjectReference>, XCWorkspaceReference> {
+@EqualsAndHashCode
+public final class WorkspaceProjectReferencesLoader implements XCLoader<Iterable<XCProjectReference>, XCWorkspaceReference>, Serializable {
 	public final XCLoader<XCWorkspaceData, XCWorkspaceReference> workspaceDataLoader;
 	private final XCProjectReferenceFactory factory;
 
