@@ -47,7 +47,7 @@ public final class SelectSingleXCWorkspaceTransformer implements Transformer</*@
 				break;
 			default:
 				result = workspaceLocations.iterator().next();
-				logger.accept(String.format("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '%s' because multiple Xcode workspace were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", result, result.getLocation().getParent()));
+				logger.accept(String.format("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '%s' because multiple Xcode workspace were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", result.getLocation(), result.getLocation().getParent()));
 				break;
 		}
 		return result;

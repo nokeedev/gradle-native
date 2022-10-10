@@ -15,10 +15,8 @@
  */
 package dev.nokee.buildadapter.xcode;
 
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.buildadapter.xcode.internal.plugins.SelectSingleXCWorkspaceTransformer;
 import dev.nokee.xcode.XCWorkspaceReference;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -95,7 +93,7 @@ class SelectSingleXCWorkspaceTransformerTests {
 
 		@Test
 		void logsWarningMessage() {
-			verify(logger).accept("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '" + Paths.get("/test") + "/ A.xcworkspace' because multiple Xcode workspace were found in '" + Paths.get("/test") + "'. See https://nokee.fyi/using-xcode-build-adapter for more details.");
+			verify(logger).accept("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '" + Paths.get("/test") + "/A.xcworkspace' because multiple Xcode workspace were found in '" + Paths.get("/test") + "'. See https://nokee.fyi/using-xcode-build-adapter for more details.");
 		}
 	}
 }
