@@ -18,14 +18,17 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import dev.nokee.xcode.XCWorkspaceReference;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public final class DefaultXCWorkspaceLocator implements XCWorkspaceLocator {
+@EqualsAndHashCode
+public final class DefaultXCWorkspaceLocator implements XCWorkspaceLocator, Serializable {
 	@Override
 	public List<XCWorkspaceReference> findWorkspaces(Path searchDirectory) {
 		if (Files.notExists(searchDirectory)) {

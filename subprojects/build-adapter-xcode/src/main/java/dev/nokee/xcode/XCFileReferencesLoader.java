@@ -22,9 +22,11 @@ import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,7 +35,8 @@ import static dev.nokee.xcode.objects.files.PBXSourceTree.BUILT_PRODUCTS_DIR;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.GROUP;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.SOURCE_ROOT;
 
-public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> {
+@EqualsAndHashCode
+public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference>, Serializable {
 	private final XCLoader<PBXProject, XCProjectReference> loader;
 
 	public XCFileReferencesLoader(XCLoader<PBXProject, XCProjectReference> loader) {

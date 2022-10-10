@@ -18,11 +18,13 @@ package dev.nokee.xcode;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.workspace.XCWorkspaceData;
 
+import java.io.Serializable;
+
 public final class XCLoaders {
 	private static final XCLoader<PBXProject, XCProjectReference> PBXPROJECT_LOADER = new XCCacheLoader<>(new PBXProjectLoader());
 	private static final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> FILE_REFERENCES_LOADER = new XCCacheLoader<>(new XCFileReferencesLoader(PBXPROJECT_LOADER));
 	private static final XCLoader<XCWorkspaceData, XCWorkspaceReference> WORKSPACE_DATA_LOADER = new XCCacheLoader<>(new XCWorkspaceDataLoader());
-	private static final XCLoader<Iterable<XCProjectReference>, XCWorkspaceReference> WORKSPACE_PROJECT_REFERENCES_LOADER = new XCCacheLoader<>(new WorkspaceProjectReferencesLoader(WORKSPACE_DATA_LOADER, XCProjectReference::of));
+	private static final XCLoader<Iterable<XCProjectReference>, XCWorkspaceReference> WORKSPACE_PROJECT_REFERENCES_LOADER = new XCCacheLoader<>(new WorkspaceProjectReferencesLoader(WORKSPACE_DATA_LOADER, new DefaultXCProjectReferenceFactory()));
 	private static final XCLoader<Iterable<XCProjectReference>, XCProjectReference> CROSS_PROJECT_REFERENCES_LOADER = new XCCacheLoader<>(new CrossProjectReferencesLoader(PBXPROJECT_LOADER, FILE_REFERENCES_LOADER));
 	private static final XCLoader<XCProject, XCProjectReference> PROJECT_LOADER = new XCCacheLoader<>(new XCProjectLoader(PBXPROJECT_LOADER, FILE_REFERENCES_LOADER));
 	private static final XCLoader<XCTarget, XCTargetReference> TARGET_LOADER = new XCCacheLoader<>(new XCTargetLoader(PBXPROJECT_LOADER, FILE_REFERENCES_LOADER));

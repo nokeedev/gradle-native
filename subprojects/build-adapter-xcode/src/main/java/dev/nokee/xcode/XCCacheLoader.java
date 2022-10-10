@@ -17,7 +17,10 @@ package dev.nokee.xcode;
 
 import lombok.EqualsAndHashCode;
 
-public final class XCCacheLoader<T, R extends XCReference> implements XCLoader<T, R> {
+import java.io.Serializable;
+
+@EqualsAndHashCode
+public final class XCCacheLoader<T, R extends XCReference> implements XCLoader<T, R>, Serializable {
 	private final XCLoader<T, R> delegate;
 
 	public XCCacheLoader(XCLoader<T, R> delegate) {

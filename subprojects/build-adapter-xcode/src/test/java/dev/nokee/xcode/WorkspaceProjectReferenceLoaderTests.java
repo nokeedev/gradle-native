@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode;
 
+import dev.nokee.buildadapter.xcode.TestSerializableXCLoader;
 import dev.nokee.xcode.workspace.XCWorkspaceData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 
 import static dev.nokee.buildadapter.xcode.TestProjectReference.project;
 import static dev.nokee.buildadapter.xcode.TestWorkspaceReference.workspace;
+import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.xcode.workspace.XCFileReference.group;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -94,5 +96,12 @@ class WorkspaceProjectReferenceLoaderTests {
 		void doesNotReturnNonXcodeProjectReference() {
 			assertThat(subject.load(reference), emptyIterable());
 		}
+	}
+
+	@Test
+	void canSerialize() {
+		XCLoader<XCWorkspaceData, XCWorkspaceReference> loader = new TestSerializableXCLoader<>();
+
+		assertThat(new WorkspaceProjectReferencesLoader(loader, new DefaultXCProjectReferenceFactory()), isSerializable());
 	}
 }

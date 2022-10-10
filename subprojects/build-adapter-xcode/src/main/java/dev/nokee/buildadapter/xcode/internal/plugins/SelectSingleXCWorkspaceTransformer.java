@@ -21,10 +21,23 @@ import org.gradle.api.Transformer;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
-public final class SelectXCWorkspaceLocationTransformation implements Transformer<XCWorkspaceReference, Iterable<XCWorkspaceReference>> {
-	private static final Logger LOGGER = Logging.getLogger(SelectXCWorkspaceLocationTransformation.class);
+import javax.annotation.Nullable;
+import java.util.function.Consumer;
+
+public final class SelectSingleXCWorkspaceTransformer implements Transformer</*@Nullable*/ XCWorkspaceReference, Iterable<XCWorkspaceReference>> {
+	private static final Logger LOGGER = Logging.getLogger(SelectSingleXCWorkspaceTransformer.class);
+	private final Consumer<? super String> logger;
+
+	public SelectSingleXCWorkspaceTransformer() {
+		this(LOGGER::warn);
+	}
+
+	public SelectSingleXCWorkspaceTransformer(Consumer<? super String> logger) {
+		this.logger = logger;
+	}
 
 	@Override
+	@Nullable
 	public XCWorkspaceReference transform(Iterable<XCWorkspaceReference> workspaceLocations) {
 		XCWorkspaceReference result = null;
 		switch (Iterables.size(workspaceLocations)) {
@@ -34,7 +47,7 @@ public final class SelectXCWorkspaceLocationTransformation implements Transforme
 				break;
 			default:
 				result = workspaceLocations.iterator().next();
-				LOGGER.warn(String.format("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '%s' because multiple Xcode workspace were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", result, result.getLocation().getParent()));
+				logger.accept(String.format("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '%s' because multiple Xcode workspace were found in '%s'. See https://nokee.fyi/using-xcode-build-adapter for more details.", result, result.getLocation().getParent()));
 				break;
 		}
 		return result;

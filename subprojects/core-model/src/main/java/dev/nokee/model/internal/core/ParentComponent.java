@@ -15,7 +15,10 @@
  */
 package dev.nokee.model.internal.core;
 
+import lombok.EqualsAndHashCode;
+
 // TODO: Should probably use a non-mutable ModelNode
+@EqualsAndHashCode
 public final class ParentComponent implements ModelComponent {
 	private final ModelNode value;
 

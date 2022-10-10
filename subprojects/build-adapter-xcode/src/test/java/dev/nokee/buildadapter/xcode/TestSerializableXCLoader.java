@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.internal.components;
+package dev.nokee.buildadapter.xcode;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCLoader;
+import dev.nokee.xcode.XCReference;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 @EqualsAndHashCode
-public final class XCProjectComponent implements ModelComponent {
-	private final XCProjectReference value;
-
-	public XCProjectComponent(XCProjectReference value) {
-		this.value = value;
-	}
-
-	public XCProjectReference get() {
-		return value;
+public final class TestSerializableXCLoader<T, R extends XCReference> implements XCLoader<T, R>, Serializable {
+	@Override
+	public T load(R ignored) {
+		throw new UnsupportedOperationException();
 	}
 }
