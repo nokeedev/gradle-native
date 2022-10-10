@@ -84,7 +84,6 @@ class ProperBakedHtmlTest {
 
 	private static String asCanonicalPath(Path path) {
 		assert !path.isAbsolute();
-		System.out.println(path);
 		if (path.toString().equals("index.html")) {
 			return "manual/user-manual.html";
 		} else if (path.toString().equals("manual/index.html")) {

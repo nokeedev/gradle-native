@@ -41,7 +41,7 @@ public final class LinkCheckerUtils {
 		host.waitingFor(new HostPortWaitStrategy());
 
 		System.out.println("HOST RUNNING? " + host.isRunning());
-		System.out.println("HOST HEALTHY? " + host.isHealthy());
+//		System.out.println("HOST HEALTHY? " + host.isHealthy());
 		Set<URI> foundLinks = new HashSet<>();
 
 		Set<String> l = new HashSet<>();
