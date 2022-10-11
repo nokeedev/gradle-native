@@ -21,10 +21,11 @@ import lombok.EqualsAndHashCode;
 import org.gradle.api.Transformer;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Set;
 
 @EqualsAndHashCode
-public final class LoadWorkspaceReferencesTransformer implements Transformer<Set<XCWorkspaceReference>, File> {
+public final class LoadWorkspaceReferencesTransformer implements Transformer<Set<XCWorkspaceReference>, File>, Serializable {
 	private final XCWorkspaceLocator locator;
 
 	public LoadWorkspaceReferencesTransformer(XCWorkspaceLocator locator) {
