@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
-import dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.XCBuildSettings;
@@ -36,9 +35,9 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -56,6 +55,9 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.ImmutableList.of;
+import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Iterables.skip;
 import static dev.nokee.buildadapter.xcode.internal.plugins.XCBuildSettingsUtils.codeSigningDisabled;
 import static dev.nokee.core.exec.CommandLineToolExecutionEngine.execOperations;
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
@@ -88,23 +90,30 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	public abstract DirectoryProperty getOutputDirectory();
 
 	@Internal
-	public abstract MapProperty<String, String> getBuildSettings();
+	public abstract ListProperty<String> getAllArguments();
+
+	@Internal
+	public abstract MapProperty<String, String> getAllBuildSettings();
 
 	@Inject
-	public XcodeTargetExecTask(ProviderFactory providers, WorkerExecutor workerExecutor) {
+	public XcodeTargetExecTask(WorkerExecutor workerExecutor) {
 		this.workerExecutor = workerExecutor;
-		finalizeValueOnRead(disallowChanges(getBuildSettings().value(providers.provider(() -> {
+
+		getAllArguments().addAll(getXcodeProject().map(it -> of("-project", it.getLocation().toString())));
+		getAllArguments().addAll(getTargetName().map(it -> of("-target", it)));
+		getAllArguments().addAll(getSdk().map(sdk -> of("-sdk", sdk)).orElse(of()));
+		getAllArguments().addAll(getConfiguration().map(buildType -> of("-configuration", buildType)).orElse(of()));
+		getAllArguments().addAll(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
+			.map(derivedDataPath -> of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"))));
+		getAllArguments().addAll(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
+			.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags));
+		getAllArguments().addAll(codeSigningDisabled());
+
+		finalizeValueOnRead(disallowChanges(getAllArguments()));
+
+		finalizeValueOnRead(disallowChanges(getAllBuildSettings().value(getAllArguments().map(allArguments -> {
 			return CommandLineTool.of("xcodebuild").withArguments(it -> {
-				it.args("-project", getXcodeProject().get().getLocation());
-				it.args("-target", getTargetName());
-				it.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
-					return ImmutableList.of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
-				}));
-				it.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
-					.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags));
-				ifPresent(getSdk(), sdk -> it.args("-sdk", sdk));
-				ifPresent(getConfiguration(), buildType -> it.args("-configuration", buildType));
-				it.args(codeSigningDisabled());
+				it.args(allArguments);
 				it.args("-showBuildSettings", "-json");
 			}).newInvocation(it -> {
 				it.withEnvironmentVariables(inherit().putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
@@ -183,16 +192,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		}
 
 		val invocation = CommandLineTool.of("xcodebuild").withArguments(it -> {
-			it.args("-project", isolatedProjectLocation);
-			it.args("-target", getTargetName());
-			it.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath).map(derivedDataPath -> {
-				return ImmutableList.of("PODS_BUILD_DIR=" + derivedDataPath.resolve("Build/Products"));
-			}));
-			it.args(getDerivedDataPath().map(FileSystemLocationUtils::asPath)
-				.map(new DerivedDataPathAsBuildSettings()).map(this::asFlags));
-			ifPresent(getSdk(), sdk -> it.args("-sdk", sdk));
-			ifPresent(getConfiguration(), buildType -> it.args("-configuration", buildType));
-			it.args(codeSigningDisabled());
+			it.args(getAllArguments().map(allArguments -> concat(of("-project", isolatedProjectLocation.toString()), skip(allArguments, 2))));
 		}).newInvocation(it -> {
 			it.withEnvironmentVariables(inherit().putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
 			ifPresent(getWorkingDirectory(), it::workingDirectory);
