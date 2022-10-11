@@ -22,9 +22,18 @@ import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Optional;
+import java.util.RandomAccess;
+import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.*;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import static java.util.Objects.requireNonNull;
 import static org.gradle.util.GUtil.uncheckedCall;
@@ -145,6 +154,8 @@ public final class DeferredUtils {
 			Object[] array = (Object[]) value;
 			addAllFirst(queue, array);
 			return true;
+		} else if (value instanceof Iterable) {
+			return flatten(ImmutableList.copyOf((Iterable<?>) value), queue); // Preserve ordering
 		}
 		return false;
 	}
