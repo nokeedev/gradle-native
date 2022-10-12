@@ -15,17 +15,17 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import dev.nokee.xcode.XCBuildSettings;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.Map;
 
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 final class DerivedDataPathAsBuildSettingsTest {
-	XCBuildSettings buildSettings = new DerivedDataPathAsBuildSettings().transform(new File("/my/derived/data/path").toPath());
+	Map<String, String> buildSettings = new DerivedDataPathAsBuildSettings().transform(new File("/my/derived/data/path").toPath());
 
 	@Test
 	void hasBuildDir() {

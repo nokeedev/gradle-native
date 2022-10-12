@@ -15,16 +15,17 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import dev.nokee.xcode.XCBuildSettings;
+import com.google.common.collect.ImmutableMap;
 import lombok.val;
 import org.gradle.api.Transformer;
 
 import java.nio.file.Path;
+import java.util.Map;
 
-final class DerivedDataPathAsBuildSettings implements Transformer<XCBuildSettings, Path> {
+final class DerivedDataPathAsBuildSettings implements Transformer<Map<String, String>, Path> {
 	@Override
-	public XCBuildSettings transform(Path derivedDataPath) {
-		val builder = XCBuildSettings.builder();
+	public Map<String, String> transform(Path derivedDataPath) {
+		val builder = ImmutableMap.<String, String>builder();
 		builder.put("BUILD_DIR", derivedDataPath.resolve("Build/Products").toString());
 		builder.put("BUILD_ROOT", derivedDataPath.resolve("Build/Products").toString());
 		builder.put("PROJECT_TEMP_DIR", derivedDataPath.resolve("Build/Intermediates.noindex/$(PROJECT_NAME).build").toString());

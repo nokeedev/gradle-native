@@ -23,7 +23,6 @@ import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.utils.FileSystemLocationUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
-import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProj;
@@ -230,7 +229,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		}
 	}
 
-	private List<String> asFlags(XCBuildSettings buildSettings) {
+	private List<String> asFlags(Map<String, String> buildSettings) {
 		val builder = ImmutableList.<String>builder();
 		buildSettings.forEach((k, v) -> builder.add(k + "=" + v));
 		return builder.build();
