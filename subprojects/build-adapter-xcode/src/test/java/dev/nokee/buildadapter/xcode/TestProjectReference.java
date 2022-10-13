@@ -52,6 +52,6 @@ public final class TestProjectReference implements XCProjectReference, Serializa
 
 	@Override
 	public String toString() {
-		return "project '" + name + "'";
+		return "project '" + name + ".xcodeproj'";
 	}
 }

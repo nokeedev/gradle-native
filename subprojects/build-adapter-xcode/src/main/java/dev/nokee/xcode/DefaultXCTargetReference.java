@@ -40,4 +40,9 @@ public final class DefaultXCTargetReference implements XCTargetReference, Serial
 	public XCTarget load() {
 		return XCLoaders.targetLoader().load(this);
 	}
+
+	@Override
+	public String toString() {
+		return "target '" + name + "' in " + project;
+	}
 }

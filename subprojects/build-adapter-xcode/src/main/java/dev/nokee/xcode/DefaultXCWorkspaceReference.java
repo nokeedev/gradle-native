@@ -77,6 +77,6 @@ public final class DefaultXCWorkspaceReference implements XCWorkspaceReference, 
 
 	@Override
 	public String toString() {
-		return location.toString();
+		return "workspace '" + location.toString() + "'";
 	}
 }
