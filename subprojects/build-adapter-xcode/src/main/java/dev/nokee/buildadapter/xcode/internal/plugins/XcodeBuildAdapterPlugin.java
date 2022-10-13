@@ -50,6 +50,7 @@ import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.base.internal.tasks.TaskName;
 import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.TransformerUtils;
+import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
@@ -211,44 +212,45 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getInputDerivedData().from(derivedData);
-						task.getInputFiles().from((Callable<Object>) () -> target.load().getInputFiles().stream()
-							.filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT)
-							.map(it -> it.resolve(new XCFileReference.ResolveContext() {
+						task.getInputFiles().from((Callable<Object>) () -> {
+							final XCBuildSettings buildSettings = new XCBuildSettings() {
 								@Override
-								public Path getBuiltProductDirectory() {
-									// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
-									// TODO: Guard against the missing derived data path
-									// TODO: We should map derived data path as a collection of build settings via helper method
-									return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().toPath();
-								}
-
-								@Override
-								public Path get(String name) {
+								public String get(String name) {
 									switch (name) {
+										case "BUILT_PRODUCT_DIR":
+											// TODO: The following is only an approximation of what the BUILT_PRODUCT_DIR would be, use -showBuildSettings
+											// TODO: Guard against the missing derived data path
+											// TODO: We should map derived data path as a collection of build settings via helper method
+											return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().getAbsolutePath();
 										case "DEVELOPER_DIR":
 											// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
-											return new File("/Applications/Xcode.app/Contents/Developer").toPath();
+											return new File("/Applications/Xcode.app/Contents/Developer").getAbsolutePath();
 										case "SDKROOT":
 											// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
 											return task.getSdk().map(it -> {
-												if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
-													return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toPath();
-												} else if (it.toLowerCase(Locale.ENGLISH).equals("macosx")) {
-													return new File("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toPath();
-												} else if (it.toLowerCase(Locale.ENGLISH).equals("iphonesimulator")) {
-													return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").toPath();
-												}
-												return null;
-											})
+													if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
+														return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").getAbsolutePath();
+													} else if (it.toLowerCase(Locale.ENGLISH).equals("macosx")) {
+														return new File("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").getAbsolutePath();
+													} else if (it.toLowerCase(Locale.ENGLISH).equals("iphonesimulator")) {
+														return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").getAbsolutePath();
+													}
+													return null;
+												})
 												// FIXME: Use -showBuildSettings to get default SDKROOT
-												.orElse(new File("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toPath()).get();
+												.orElse(new File("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").getAbsolutePath()).get();
 										case "SOURCE_ROOT":
-											return reference.getLocation().getParent();
+											return reference.getLocation().getParent().toString();
 										default:
-											return new File(task.getAllBuildSettings().get().get(name)).toPath();
+											return new File(task.getAllBuildSettings().get().get(name)).getAbsolutePath();
 									}
 								}
-							})).collect(Collectors.toList()));
+							};
+							val context = new BuildSettingsResolveContext(buildSettings);
+							return target.load().getInputFiles().stream()
+								.filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT)
+								.map(it -> it.resolve(context)).collect(Collectors.toList());
+						});
 						task.getInputFiles().finalizeValueOnRead();
 						action.execute(task);
 					});
