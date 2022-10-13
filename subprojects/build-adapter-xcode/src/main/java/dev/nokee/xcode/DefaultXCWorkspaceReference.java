@@ -38,8 +38,6 @@ public final class DefaultXCWorkspaceReference implements XCWorkspaceReference, 
 	private final File location;
 
 	public DefaultXCWorkspaceReference(Path location) {
-		Preconditions.checkArgument(Files.exists(location), "Xcode workspace '%s' does not exists", location);
-		Preconditions.checkArgument(Files.isDirectory(location), "Xcode workspace '%s' is not valid", location);
 		this.location = location.toFile();
 	}
 
