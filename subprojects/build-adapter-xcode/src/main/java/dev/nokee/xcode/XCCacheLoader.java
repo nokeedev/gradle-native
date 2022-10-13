@@ -41,5 +41,10 @@ public final class XCCacheLoader<T, R extends XCReference> implements XCLoader<T
 			this.loaderType = loaderType;
 			this.reference = reference;
 		}
+
+		@Override
+		public String toString() {
+			return loaderType.getSimpleName() + " - " + reference;
+		}
 	}
 }
