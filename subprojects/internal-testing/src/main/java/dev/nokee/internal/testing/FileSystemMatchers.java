@@ -133,6 +133,16 @@ public final class FileSystemMatchers {
 		return matchesPattern(Pattern.compile(".*" + path.replace("/", "[/\\\\]") + ".*"));
 	}
 
+	public static Matcher<String> normalizePaths(Matcher<? super String> matcher) {
+		return new FeatureMatcher<String, String>(matcher, "", "") {
+			@Override
+			protected String featureValueOf(String actual) {
+				// Replace Windows absolute path to *nix absolute path
+				return actual.replaceAll("[A-Z]:\\\\", "/").replace('\\', '/');
+			}
+		};
+	}
+
 	public static Matcher<Object> anExistingFile() {
 		return aFile(FileMatchers.anExistingFile());
 	}
