@@ -15,6 +15,9 @@
  */
 package dev.nokee.xcode;
 
+import com.google.common.base.Preconditions;
+
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public interface XCWorkspaceReference extends XCReference {
@@ -25,6 +28,8 @@ public interface XCWorkspaceReference extends XCReference {
 	XCWorkspace load();
 
 	static XCWorkspaceReference of(Path location) {
+		Preconditions.checkArgument(Files.exists(location), "Xcode workspace '%s' does not exists", location);
+		Preconditions.checkArgument(Files.isDirectory(location), "Xcode workspace '%s' is not valid", location);
 		return new DefaultXCWorkspaceReference(location);
 	}
 
