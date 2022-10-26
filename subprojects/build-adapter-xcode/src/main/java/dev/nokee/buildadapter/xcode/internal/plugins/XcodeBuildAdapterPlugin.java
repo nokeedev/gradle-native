@@ -86,7 +86,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.tags.ModelTags.tag;
@@ -212,7 +211,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getInputDerivedData().from(derivedData);
-						task.getInputFiles().from((Callable<Object>) () -> {
+						task.getInputFiles().from(task.getXcodeInstallation().map(xcodeInstallation -> {
 							final XCBuildSettings buildSettings = new XCBuildSettings() {
 								@Override
 								public String get(String name) {
@@ -224,21 +223,21 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 											return task.getDerivedDataPath().dir("Build/Products/" + task.getConfiguration().get() + "-" + task.getSdk().get()).get().getAsFile().getAbsolutePath();
 										case "DEVELOPER_DIR":
 											// TODO: Use -showBuildSettings to get DEVELOPER_DIR value (or we could guess it)
-											return new File("/Applications/Xcode.app/Contents/Developer").getAbsolutePath();
+											return xcodeInstallation.getDeveloperDirectory().toString();
 										case "SDKROOT":
 											// TODO: Use -showBuildSettings to get SDKROOT value (or we could guess it)
 											return task.getSdk().map(it -> {
 													if (it.toLowerCase(Locale.ENGLISH).equals("iphoneos")) {
-														return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").getAbsolutePath();
+														return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk").toString();
 													} else if (it.toLowerCase(Locale.ENGLISH).equals("macosx")) {
-														return new File("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").getAbsolutePath();
+														return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString();
 													} else if (it.toLowerCase(Locale.ENGLISH).equals("iphonesimulator")) {
-														return new File("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").getAbsolutePath();
+														return xcodeInstallation.getDeveloperDirectory().resolve("Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk").toString();
 													}
 													return null;
 												})
 												// FIXME: Use -showBuildSettings to get default SDKROOT
-												.orElse(new File("/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").getAbsolutePath()).get();
+												.orElse(xcodeInstallation.getDeveloperDirectory().resolve("Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk").toString()).get();
 										case "SOURCE_ROOT":
 											return reference.getLocation().getParent().toString();
 										default:
@@ -250,7 +249,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 							return target.load().getInputFiles().stream()
 								.filter(it -> it.getType() != XCFileReference.XCFileType.BUILT_PRODUCT)
 								.map(it -> it.resolve(context)).collect(Collectors.toList());
-						});
+						}));
 						task.getInputFiles().finalizeValueOnRead();
 						action.execute(task);
 					});
