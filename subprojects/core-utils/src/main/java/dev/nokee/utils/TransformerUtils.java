@@ -537,6 +537,7 @@ public final class TransformerUtils {
 	@FunctionalInterface
 	public interface Transformer<OUT, IN> extends org.gradle.api.Transformer<OUT, IN> {
 		static <OUT, IN> Transformer<OUT, IN> of(org.gradle.api.Transformer<? extends OUT, ? super IN> transformer) {
+			requireNonNull(transformer);
 			if (transformer instanceof Transformer) {
 				@SuppressWarnings("unchecked")
 				final Transformer<OUT, IN> result = (Transformer<OUT, IN>) transformer;

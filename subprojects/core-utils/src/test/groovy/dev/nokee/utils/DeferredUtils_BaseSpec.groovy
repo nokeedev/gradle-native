@@ -29,19 +29,19 @@ import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory
 
 class DeferredUtils_BaseSpec extends Specification {
-	protected Property<String> propertyOf(String value) {
+	static Property<String> propertyOf(String value) {
 		return propertyOf(String, value)
 	}
 
-	protected <T> Property<T> propertyOf(Class<T> type, T value) {
+	static <T> Property<T> propertyOf(Class<T> type, T value) {
 		return objectFactory().property(type).value(providerOf(value))
 	}
 
-	protected <T> Provider<T> providerOf(T value) {
+	static <T> Provider<T> providerOf(T value) {
 		return providerFactory().provider { ThrowIfResolvedGuard.resolve(value) }
 	}
 
-	protected <T> Supplier<T> supplierOf(T value) {
+	static <T> Supplier<T> supplierOf(T value) {
 		return new Supplier<T>() {
 			@Override
 			T get() {
@@ -50,11 +50,11 @@ class DeferredUtils_BaseSpec extends Specification {
 		}
 	}
 
-	protected <T> Closure<T> closureOf(T value) {
+	static <T> Closure<T> closureOf(T value) {
 		return { ThrowIfResolvedGuard.resolve(value) }
 	}
 
-	protected <T> Function0<T> kotlinFunctionOf(T value) {
+	static <T> Function0<T> kotlinFunctionOf(T value) {
 		return new Function0<T>() {
 			@Override
 			T invoke() {
@@ -63,7 +63,7 @@ class DeferredUtils_BaseSpec extends Specification {
 		}
 	}
 
-	protected <T> Callable<T> callableOf(T value) {
+	static <T> Callable<T> callableOf(T value) {
 		return new Callable<T>() {
 			@Override
 			T call() throws Exception {
