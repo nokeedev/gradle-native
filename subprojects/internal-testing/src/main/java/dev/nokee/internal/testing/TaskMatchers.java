@@ -67,14 +67,14 @@ public final class TaskMatchers {
 		return new FeatureMatcher<Task, Iterable<Object>>(matcher, "a task with dependency on", "task dependency") {
 			@Override
 			protected Iterable<Object> featureValueOf(Task actual) {
-				return DeferredUtils.flatUnpackWhile(actual.getDependsOn(), it -> {
+				return DeferredUtils.flatUnpack(it -> {
 					val result = DeferredUtils.unpack(it);
 					if (result instanceof Buildable) {
 						return ((Buildable) result).getBuildDependencies().getDependencies(null);
 					} else {
 						return result;
 					}
-				}, DeferredUtils::isDeferred);
+				}).whileTrue(value -> DeferredUtils.isDeferred(value) || DeferredUtils.isFlattenableType(value)).execute(actual.getDependsOn());
 			}
 		};
 	}

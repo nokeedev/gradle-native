@@ -21,13 +21,15 @@ import dev.nokee.utils.DeferredUtils;
 import java.util.Objects;
 
 import static dev.nokee.utils.DeferredUtils.flatUnpackWhile;
+import static dev.nokee.utils.DeferredUtils.isDeferred;
+import static dev.nokee.utils.DeferredUtils.isFlattenableType;
 
 enum UnpackStrategies implements UnpackStrategy {
 	FLAT_UNPACK_TO_STRING {
 		@Override
 		public <R> R unpack(Object value) {
 			@SuppressWarnings("unchecked")
-			R result = (R) flatUnpackWhile(value, DeferredUtils::isDeferred).stream()
+			R result = (R) flatUnpackWhile(it -> isDeferred(it) || isFlattenableType(it)).execute(value).stream()
 				.map(Object::toString).collect(ImmutableList.toImmutableList());
 			return result;
 		}

@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import com.google.common.base.Suppliers;
 import com.google.common.testing.EqualsTester;
 import lombok.val;
 import org.gradle.api.Transformer;
@@ -100,6 +101,6 @@ class TransformerUtils_ForSupplierTest {
 
 	@Test
 	void canSerialize() {
-		assertThat(forSupplier((Supplier<String> & Serializable) () -> "some-value"), isSerializable());
+		assertThat(forSupplier(ofInstance("some-value")), isSerializable());
 	}
 }

@@ -415,7 +415,7 @@ public final class ConfigurationUtils {
 		}
 
 		private List<Configuration> getConfigurations() {
-			return DeferredUtils.flatUnpackUntil(configurations, Configuration.class);
+			return DeferredUtils.flatUnpackUntil(Configuration.class).execute(configurations);
 		}
 
 		@Override

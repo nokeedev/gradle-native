@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils.internal;
 
+import dev.nokee.utils.DeferredUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
@@ -25,7 +26,6 @@ import org.gradle.api.file.Directory;
 import java.io.File;
 import java.nio.file.Path;
 
-import static dev.nokee.utils.DeferredUtils.flatUnpackUntil;
 import static dev.nokee.utils.DeferredUtils.unpack;
 
 
@@ -35,7 +35,8 @@ public class DeleteDirectoriesTaskAction implements Action<Task> {
 
 	@Override
 	public void execute(Task task) {
-		flatUnpackUntil(directories, this::unpackToFile, File.class).forEach(this::deleteDirectory);
+		DeferredUtils.<File>flatUnpack(this::unpackToFile).until(File.class).execute(directories)
+			.forEach(this::deleteDirectory);
 	}
 
 	@SneakyThrows

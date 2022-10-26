@@ -16,6 +16,7 @@
 package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.DomainObjectCollection;
 import org.gradle.api.provider.Provider;
@@ -30,12 +31,11 @@ import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Predicates.instanceOf;
+import static com.google.common.base.Predicates.not;
 import static org.gradle.util.GUtil.uncheckedCall;
 
 public final class DeferredUtils {
@@ -60,76 +60,209 @@ public final class DeferredUtils {
 		return value;
 	}
 
-	public static <T> List<T> flatUnpackUntil(@Nullable Object deferred, Class<T> type) {
-		return flatUnpackUntil(deferred, DeferredUtils::flatten, DeferredUtils::unpack, type);
+	public interface Flattener {
+		List<Object> flatten(@Nullable Object target);
 	}
 
-	public static <T> List<T> flatUnpackUntil(@Nullable Object deferred, UnaryOperator<Object> unpacker, Class<T> type) {
-		return flatUnpackUntil(deferred, DeferredUtils::flatten, unpacker, type);
+	public interface Unpacker {
+		@Nullable
+		Object unpack(@Nullable Object target);
 	}
 
-	/**
-	 * Unpack the specified deferred while flattening until all unpacked values are of the specified type.
-	 *
-	 * @param deferred the deferred object to unpack
-	 * @param flatter an flatter consumer for the deferred object
-	 * @param unpacker an unpacker operation for the deferred object
-	 * @param type the type to unpack
-	 * @param <T> the type to unpack
-	 * @return a list of {@code T} representing the unpackting of the specified object.
-	 * The method returns an empty list if the specified object is null.
-	 * @throws IllegalArgumentException if the unpacker operator returns the same object
-	 * @throws IllegalStateException if the flatter consumer removes elements from the queue
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> List<T> flatUnpackUntil(@Nullable Object deferred, BiFunction<Object, Deque<Object>, Boolean> flatter, UnaryOperator<Object> unpacker, Class<T> type) {
-		return (List<T>) flatUnpackWhile(deferred, flatter, it -> unpacker.apply(unpack(it)), it -> {
-			if (isFlattenableType(it)) {
-				return false;
+	public static final Flattener DEFAULT_FLATTENER = new Flattener() {
+		@Override
+		public List<Object> flatten(Object value) {
+			final ImmutableList.Builder<Object> result = ImmutableList.builder();
+			if (value instanceof Iterable) {
+				result.addAll((Iterable<?>) value);
+			} else if (value instanceof Object[]) {
+				result.add((Object[]) value);
+			} else {
+				result.add(value);
 			}
-			if (isNestableDeferred(it)) {
-				return true;
-			}
-			return !type.isInstance(it);
-		});
+			return result.build();
+		}
+	};
+
+	public static FlatteningBuilder flat() {
+		return new FlatBuilder(DEFAULT_FLATTENER);
+	}
+
+	public static FlatteningBuilder flat(Flattener flattener) {
+		return new FlatBuilder(flattener);
+	}
+
+	public static List<Object> flatten(@Nullable Object value) {
+		return flat().execute(value);
+	}
+
+	public static <T> UnpackingBuilder<List<T>> flatUnpack() {
+		return new FlatUnpackBuilder<>(DEFAULT_FLATTENER, DEFAULT_UNPACKER);
+	}
+
+	public static <T> UnpackingBuilder<List<T>> flatUnpack(Unpacker unpacker) {
+		return new FlatUnpackBuilder<>(DEFAULT_FLATTENER, unpacker);
 	}
 
 	public static List<Object> flatUnpack(@Nullable Object deferred) {
-		return flatUnpackWhile(deferred, DeferredUtils::flatten, DeferredUtils::unpack, DeferredUtils::isNestableDeferred);
+		return flatUnpack().execute(deferred);
 	}
 
-	public static List<Object> flatUnpackWhile(@Nullable Object deferred, Predicate<Object> predicate) {
-		return flatUnpackWhile(deferred, DeferredUtils::flatten, DeferredUtils::unpack, requireNonNull(predicate));
+	public static <T> Executable<List<T>> flatUnpackUntil(Class<T> type) {
+		return new FlatUnpackWhileExecutable<>(DEFAULT_FLATTENER, DEFAULT_UNPACKER, until(type));
 	}
 
-	public static List<Object> flatUnpackWhile(@Nullable Object deferred, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
-		return flatUnpackWhile(deferred, DeferredUtils::flatten, requireNonNull(unpacker), requireNonNull(predicate));
+	public static <T> Executable<List<T>> flatUnpackWhile(Predicate<Object> predicate) {
+		return new FlatUnpackWhileExecutable<>(DEFAULT_FLATTENER, DEFAULT_UNPACKER, predicate);
 	}
 
-	// TODO: Add tests
-	public static List<Object> flatUnpackWhile(@Nullable Object deferred, BiFunction<Object, Deque<Object>, Boolean> flatter, UnaryOperator<Object> unpacker, Predicate<Object> predicate) {
+	interface ConditionalBuilder<R> {
+		Executable<R> until(Class<?> type);
+		Executable<R> whileTrue(Predicate<Object> predicate);
+	}
+
+	public interface FlatteningBuilder extends ConditionalBuilder<List<Object>>, Executable<List<Object>> {
+		UnpackingBuilder<List<Object>> unpack();
+		UnpackingBuilder<List<Object>> unpack(Unpacker f);
+	}
+
+	public static final Unpacker DEFAULT_UNPACKER = new Unpacker() {
+		@Override
+		public @Nullable Object unpack(Object target) {
+			return DeferredUtils.unpack(target);
+		}
+	};
+
+	public static final Unpacker IDENTITY_UNPACKER = new Unpacker() {
+		@Override
+		public @Nullable Object unpack(@Nullable Object target) {
+			return target;
+		}
+	};
+
+	@EqualsAndHashCode
+	public static final class FlatBuilder implements FlatteningBuilder {
+		private final Flattener flattener;
+
+		public FlatBuilder(Flattener flattener) {
+			this.flattener = flattener;
+		}
+
+		@Override
+		public Executable<List<Object>> until(Class<?> type) {
+			return new FlatUnpackWhileExecutable<>(flattener, IDENTITY_UNPACKER, DeferredUtils.until(type));
+		}
+
+		@Override
+		public Executable<List<Object>> whileTrue(Predicate<Object> predicate) {
+			return new FlatUnpackWhileExecutable<>(flattener, IDENTITY_UNPACKER, predicate);
+		}
+
+		@Override
+		public UnpackingBuilder<List<Object>> unpack() {
+			return new FlatUnpackBuilder<>(flattener, DEFAULT_UNPACKER);
+		}
+
+		@Override
+		public UnpackingBuilder<List<Object>> unpack(Unpacker unpacker) {
+			return new FlatUnpackBuilder<>(flattener, unpacker);
+		}
+
+		@Override
+		public List<Object> execute(@Nullable Object obj) {
+			return flatUnpackWhile(obj, flattener, IDENTITY_UNPACKER, DeferredUtils::isFlattenableType);
+		}
+	}
+
+	public interface UnpackingBuilder<R> extends ConditionalBuilder<R>, Executable<R> {}
+
+	@EqualsAndHashCode
+	public static final class FlatUnpackBuilder<T> implements UnpackingBuilder<List<T>> {
+		private final Flattener flattener;
+		private final Unpacker unpacker;
+
+		public FlatUnpackBuilder(Flattener flattener, Unpacker unpacker) {
+			this.flattener = flattener;
+			this.unpacker = unpacker;
+		}
+
+		@Override
+		public Executable<List<T>> until(Class<?> type) {
+			return new FlatUnpackWhileExecutable<>(flattener, unpacker, DeferredUtils.until(type));
+		}
+
+		@Override
+		public Executable<List<T>> whileTrue(Predicate<Object> predicate) {
+			return new FlatUnpackWhileExecutable<>(flattener, unpacker, predicate);
+		}
+
+		@Override
+		public List<T> execute(@Nullable Object obj) {
+			@SuppressWarnings("unchecked")
+			List<T> result = (List<T>) flatUnpackWhile(obj, flattener, unpacker, it -> DeferredUtils.isNestableDeferred(it) || DeferredUtils.isFlattenableType(it));
+			return result;
+		}
+	}
+
+	public interface Executable<R> {
+		R execute(@Nullable Object obj);
+	}
+
+	@EqualsAndHashCode
+	public static final class FlatUnpackWhileExecutable<T> implements Executable<List<T>> {
+		private final Flattener flattener;
+		private final Unpacker unpacker;
+		private final Predicate<Object> predicate;
+
+		public FlatUnpackWhileExecutable(Flattener flattener, Unpacker unpacker, Predicate<Object> predicate) {
+			this.flattener = flattener;
+			this.unpacker = unpacker;
+			this.predicate = predicate;
+		}
+
+		@Override
+		public List<T> execute(@Nullable Object obj) {
+			@SuppressWarnings("unchecked")
+			final List<T> result = (List<T>) flatUnpackWhile(obj, flattener, unpacker, predicate);
+			return result;
+		}
+	}
+
+	private static Predicate<Object> until(Class<?> type) {
+		return not(instanceOf(type));
+	}
+
+	private static List<Object> flatUnpackWhile(@Nullable Object deferred, Flattener flattener, Unpacker unpacker, Predicate<Object> predicate) {
 		if (deferred == null) {
 			return ImmutableList.of();
 		}
 
-		final ImmutableList.Builder<Object> result = ImmutableList.builder();
+		final ImmutableList.Builder<Object> builder = ImmutableList.builder();
 		final Deque<Object> queue = new ArrayDeque<>();
 		queue.addFirst(deferred);
 		while (!queue.isEmpty()) {
 			Object value = queue.removeFirst();
+			// Check condition first in case the pre-unpack type is the one we are looking for (after flattening for example)
 			if (predicate.test(value)) {
-				queue.addFirst(unpacker.apply(value));
-			} else {
-				val sizeBefore = queue.size();
-				val didFlat = flatter.apply(value, queue);
-				if (sizeBefore > queue.size()) {
-					throw new IllegalStateException("Flatter consumer cannot remove items from the queue");
-				} else if (!didFlat) {
-					result.add(value);
+				value = unpacker.unpack(value);
+
+				// Check condition again in case the unpacked type is the one we are looking for BUT is also a flattening type
+				if (predicate.test(value)) {
+					final List<?> list = flattener.flatten(value);
+					final ListIterator<?> iterator = list.listIterator(list.size());
+					while (iterator.hasPrevious()) {
+						final Object item = iterator.previous();
+						queue.addFirst(item);
+					}
+				} else {
+					builder.add(value);
 				}
+			} else {
+				builder.add(value);
 			}
 		}
-		return result.build();
+
+		return builder.build();
 	}
 
 	static boolean flatten(Object value, Deque<Object> queue) {
@@ -160,8 +293,8 @@ public final class DeferredUtils {
 		return false;
 	}
 
-	static boolean isFlattenableType(Object value) {
-		return value instanceof List || value instanceof Set || value instanceof Object[];
+	public static boolean isFlattenableType(Object value) {
+		return value instanceof Object[] || value instanceof Iterable;
 	}
 
 	private static void addAllFirst(Deque<Object> queue, Object[] items) {
