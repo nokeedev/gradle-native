@@ -19,5 +19,5 @@ package dev.nokee.xcode.objects;
  * Superclass of all container types. This is here to reflect Xcode's object hierarchy, and does
  * not implement any special functionality.
  */
-public abstract class PBXContainer extends PBXObject {
+public interface PBXContainer extends PBXObject {
 }

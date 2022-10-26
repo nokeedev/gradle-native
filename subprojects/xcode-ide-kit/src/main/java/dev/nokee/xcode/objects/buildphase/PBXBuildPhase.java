@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.objects.buildphase;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.PBXProjectItem;
 
 import java.util.List;
@@ -23,14 +22,6 @@ import java.util.List;
 /**
  * Superclass of build phases. Each build phase represents one step in building a target.
  */
-public abstract class PBXBuildPhase extends PBXProjectItem {
-	private final ImmutableList<PBXBuildFile> files;
-
-	protected PBXBuildPhase(ImmutableList<PBXBuildFile> files) {
-		this.files = files;
-	}
-
-	public List<PBXBuildFile> getFiles() {
-		return files;
-	}
+public interface PBXBuildPhase extends PBXProjectItem {
+	List<PBXBuildFile> getFiles();
 }

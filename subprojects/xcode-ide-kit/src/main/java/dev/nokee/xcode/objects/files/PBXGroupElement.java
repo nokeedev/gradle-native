@@ -25,34 +25,22 @@ import static com.google.common.collect.Streams.stream;
 /**
  * A collection of files in Xcode's virtual filesystem hierarchy.
  */
-public abstract class PBXGroupElement extends PBXReference {
-	private final List<GroupChild> children;
-
+public interface PBXGroupElement extends PBXReference {
 	// Unfortunately, we can't determine this at constructor time, because CacheBuilder
 	// calls our constructor and it's not easy to pass arguments to it.
-	private SortPolicy sortPolicy;
+//	private SortPolicy sortPolicy;
 
 	// It seems the name or path can be null but not both which is a bit different from PBXFileReference.
 	//   Except for the mainGroup which both the name and path is null
-	protected PBXGroupElement(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
-		super(name, path, sourceTree);
 
-		this.sortPolicy = SortPolicy.BY_NAME;
-		this.children = children;
-	}
+	List<GroupChild> getChildren();
 
-	public List<GroupChild> getChildren() {
-		return children;
-	}
-
-	public SortPolicy getSortPolicy() {
-		return sortPolicy;
-	}
+	SortPolicy getSortPolicy();
 
 	/**
 	 * Method by which group contents will be sorted.
 	 */
-	public enum SortPolicy {
+	enum SortPolicy {
 		/**
 		 * By name, in default Java sort order.
 		 */
@@ -66,7 +54,7 @@ public abstract class PBXGroupElement extends PBXReference {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected static abstract class Builder<SELF extends Builder<SELF, RESULT>, RESULT extends PBXGroupElement> {
+	abstract class Builder<SELF extends Builder<SELF, RESULT>, RESULT extends PBXGroupElement> {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree = PBXSourceTree.GROUP;

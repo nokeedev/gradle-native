@@ -17,25 +17,8 @@ package dev.nokee.xcode.objects.configuration;
 
 import dev.nokee.xcode.objects.PBXProjectItem;
 
-public abstract class PBXBuildStyle extends PBXProjectItem {
-	private final String name;
-	private final BuildSettings buildSettings;
+public interface PBXBuildStyle extends PBXProjectItem {
+	String getName();
 
-	protected PBXBuildStyle(String name, BuildSettings buildSettings) {
-		this.name = name;
-		this.buildSettings = buildSettings;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public BuildSettings getBuildSettings() {
-		return buildSettings;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
+	BuildSettings getBuildSettings();
 }

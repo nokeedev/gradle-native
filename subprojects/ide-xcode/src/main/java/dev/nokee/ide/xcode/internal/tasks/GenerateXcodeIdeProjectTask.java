@@ -325,7 +325,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 		// Configures the product reference.
 		// We only configure the .xctest, the -Runner.app and co. are an implementation detail.
-		PBXFileReference productReference = pathToFileReferenceMapping.computeIfAbsent(xcodeTarget.getProductReference().get(), ignored -> new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXSourceTree.BUILT_PRODUCTS_DIR));
+		PBXFileReference productReference = pathToFileReferenceMapping.computeIfAbsent(xcodeTarget.getProductReference().get(), ignored -> PBXFileReference.builder().name(xcodeTarget.getProductReference().get()).path(xcodeTarget.getProductReference().get()).sourceTree(PBXSourceTree.BUILT_PRODUCTS_DIR).build());
 		targetBuilder.productReference(productReference);
 
 		targetBuilder.buildConfigurations(builder -> {
@@ -385,7 +385,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 	}
 
 	private PBXTarget toIndexTarget(XcodeIdeTarget xcodeTarget) {
-		PBXFileReference productReference = new PBXFileReference(xcodeTarget.getProductReference().get(), xcodeTarget.getProductReference().get(), PBXSourceTree.BUILT_PRODUCTS_DIR);
+		PBXFileReference productReference = PBXFileReference.builder().name(xcodeTarget.getProductReference().get()).path(xcodeTarget.getProductReference().get()).sourceTree(PBXSourceTree.BUILT_PRODUCTS_DIR).build();
 
 		PBXNativeTarget.Builder targetBuilder = PBXNativeTarget.builder();
 		targetBuilder.name("__indexer_" + xcodeTarget.getName());
@@ -530,7 +530,7 @@ public abstract class GenerateXcodeIdeProjectTask extends DefaultTask {
 
 	private PBXFileReference toBuildProductFileReference(String name) {
 		return computeFileReferenceIfAbsent(name,
-			key -> new PBXFileReference(name, name, PBXSourceTree.BUILT_PRODUCTS_DIR));
+			key -> PBXFileReference.builder().name(name).path(name).sourceTree(PBXSourceTree.BUILT_PRODUCTS_DIR).build());
 	}
 
 	// FIXME: Multiple group using the same code is only included in one place...

@@ -20,6 +20,9 @@ import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXNativeTarget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,32 +30,19 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.google.common.collect.Streams.stream;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build system.
  */
-public final class PBXNativeTarget extends PBXTarget {
-	private final ImmutableList<XCSwiftPackageProductDependency> packageProductDependencies;
+public interface PBXNativeTarget extends PBXTarget {
+	List<XCSwiftPackageProductDependency> getPackageProductDependencies();
 
-	private PBXNativeTarget(String name, ProductType productType, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, String productName, PBXFileReference productReference, ImmutableList<PBXTargetDependency> dependencies, ImmutableList<XCSwiftPackageProductDependency> packageProductDependencies) {
-		super(name, productType, buildPhases, buildConfigurationList, productName, productReference, dependencies);
-		this.packageProductDependencies = packageProductDependencies;
-	}
-
-	public List<XCSwiftPackageProductDependency> getPackageProductDependencies() {
-		return packageProductDependencies;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String name;
 		private ProductType productType;
 		private final List<PBXBuildPhase> buildPhases = new ArrayList<>();
@@ -63,17 +53,17 @@ public final class PBXNativeTarget extends PBXTarget {
 		private final List<XCSwiftPackageProductDependency> packageProductDependencies = new ArrayList<>();
 
 		public Builder name(String name) {
-			this.name = Objects.requireNonNull(name);
+			this.name = requireNonNull(name);
 			return this;
 		}
 
 		public Builder productType(ProductType productType) {
-			this.productType = Objects.requireNonNull(productType);
+			this.productType = requireNonNull(productType);
 			return this;
 		}
 
 		public Builder buildPhase(PBXBuildPhase buildPhase) {
-			this.buildPhases.add(Objects.requireNonNull(buildPhase));
+			this.buildPhases.add(requireNonNull(buildPhase));
 			return this;
 		}
 
@@ -91,17 +81,17 @@ public final class PBXNativeTarget extends PBXTarget {
 		}
 
 		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
-			this.buildConfigurationList = Objects.requireNonNull(buildConfigurationList);
+			this.buildConfigurationList = requireNonNull(buildConfigurationList);
 			return this;
 		}
 
 		public Builder productName(String productName) {
-			this.productName = Objects.requireNonNull(productName);
+			this.productName = requireNonNull(productName);
 			return this;
 		}
 
 		public Builder productReference(PBXFileReference productReference) {
-			this.productReference = Objects.requireNonNull(productReference);
+			this.productReference = requireNonNull(productReference);
 			return this;
 		}
 
@@ -118,7 +108,18 @@ public final class PBXNativeTarget extends PBXTarget {
 		}
 
 		public PBXNativeTarget build() {
-			return new PBXNativeTarget(Objects.requireNonNull(name, "'name' must not be null"), Objects.requireNonNull(productType, "'productType' must not be null"), ImmutableList.copyOf(buildPhases), Objects.requireNonNull(buildConfigurationList, "'buildConfigurations' must not be null"), Objects.requireNonNull(productName, "'productName' must not be null"), Objects.requireNonNull(productReference, "'productReference' must not be null"), ImmutableList.copyOf(dependencies), ImmutableList.copyOf(packageProductDependencies));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXNativeTarget");
+			builder.put(CodeablePBXNativeTarget.CodingKeys.name, requireNonNull(name, "'name' must not be null"));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productType, productType);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.buildPhases, ImmutableList.copyOf(buildPhases));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productName, requireNonNull(productName, "'productName' must not be null"));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productReference, requireNonNull(productReference, "'productReference' must not be null"));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurationList, "'buildConfigurations' must not be null"));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, ImmutableList.copyOf(dependencies));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, ImmutableList.copyOf(packageProductDependencies));
+
+			return new CodeablePBXNativeTarget(builder.build());
 		}
 	}
 }

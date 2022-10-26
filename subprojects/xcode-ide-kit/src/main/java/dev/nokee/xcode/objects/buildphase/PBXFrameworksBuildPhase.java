@@ -16,6 +16,9 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXFrameworksBuildPhase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,25 +26,16 @@ import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
 
-public final class PBXFrameworksBuildPhase extends PBXBuildPhase {
-	private PBXFrameworksBuildPhase(ImmutableList<PBXBuildFile> files) {
-		super(files);
-	}
-
+public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 	// Xcode maps Optional/Required status via {@link PBXBuildFile#getSettings()}
 	//   i.e. settings = {ATTRIBUTES = (Weak)}
 	//   We can use utility methods to extract the "optional" (Weak) vs "required" (<nothing>) status.
 
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
@@ -51,7 +45,11 @@ public final class PBXFrameworksBuildPhase extends PBXBuildPhase {
 		}
 
 		public PBXFrameworksBuildPhase build() {
-			return new PBXFrameworksBuildPhase(ImmutableList.copyOf(files));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXFrameworksBuildPhase");
+			builder.put(CodeablePBXFrameworksBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
+
+			return new CodeablePBXFrameworksBuildPhase(builder.build());
 		}
 	}
 }

@@ -23,6 +23,11 @@ import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXProject;
+import dev.nokee.xcode.project.CodeableProjectReference;
+import lombok.val;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,74 +37,29 @@ import java.util.function.Consumer;
 /**
  * The root object representing the project itself.
  */
-public final class PBXProject extends PBXContainer implements PBXContainerItemProxy.ContainerPortal {
-	private final PBXGroup mainGroup;
-	private final List<PBXTarget> targets;
-	private final XCConfigurationList buildConfigurationList;
-	private final String compatibilityVersion;
-	private final List<ProjectReference> projectReferences;
-	private final List<XCRemoteSwiftPackageReference> packageReferences;
+public interface PBXProject extends PBXContainer, PBXContainerItemProxy.ContainerPortal {
+	PBXGroup getMainGroup();
 
-	private PBXProject(ImmutableList<PBXTarget> targets, XCConfigurationList buildConfigurationList, PBXGroup mainGroup, List<ProjectReference> projectReferences, List<XCRemoteSwiftPackageReference> packageReferences) {
-		this.mainGroup = mainGroup;
-		this.targets = targets;
-		this.buildConfigurationList = buildConfigurationList;
-		this.projectReferences = projectReferences;
-		this.packageReferences = packageReferences;
-		this.compatibilityVersion = "Xcode 3.2";
-	}
+	List<PBXTarget> getTargets();
 
-	public PBXGroup getMainGroup() {
-		return mainGroup;
-	}
+	XCConfigurationList getBuildConfigurationList();
 
-	public List<PBXTarget> getTargets() {
-		return targets;
-	}
+	String getCompatibilityVersion();
 
-	public XCConfigurationList getBuildConfigurationList() {
-		return buildConfigurationList;
-	}
+	List<ProjectReference> getProjectReferences();
 
-	public String getCompatibilityVersion() {
-		return compatibilityVersion;
-	}
+	List<XCRemoteSwiftPackageReference> getPackageReferences();
 
-	public List<ProjectReference> getProjectReferences() {
-		return projectReferences;
-	}
+	interface ProjectReference {
+		PBXGroup getProductGroup();
 
-	public List<XCRemoteSwiftPackageReference> getPackageReferences() {
-		return packageReferences;
-	}
+		PBXFileReference getProjectReference();
 
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static final class ProjectReference {
-		private final PBXGroup productGroup;
-		private final PBXFileReference projectReference;
-
-		private ProjectReference(PBXGroup productGroup, PBXFileReference projectReference) {
-			this.productGroup = productGroup;
-			this.projectReference = projectReference;
-		}
-
-		public PBXGroup getProductGroup() {
-			return productGroup;
-		}
-
-		public PBXFileReference getProjectReference() {
-			return projectReference;
-		}
-
-		public static Builder builder() {
+		static Builder builder() {
 			return new Builder();
 		}
 
-		public static final class Builder {
+		final class Builder {
 			private PBXGroup productGroup;
 			private PBXFileReference projectReference;
 
@@ -114,16 +74,21 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 			}
 
 			public ProjectReference build() {
-				return new ProjectReference(productGroup, projectReference);
+				val builder = new DefaultKeyedObject.Builder();
+				builder.put(KeyedCoders.ISA, null);
+				builder.put(CodeableProjectReference.CodingKeys.ProductGroup, productGroup);
+				builder.put(CodeableProjectReference.CodingKeys.ProjectRef, projectReference);
+
+				return new CodeableProjectReference(builder.build());
 			}
 		}
 	}
 
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private final List<PBXTarget> targets = new ArrayList<>();
 		private XCConfigurationList buildConfigurations = XCConfigurationList.builder().build();
 		private final List<GroupChild> mainGroupChildren = new ArrayList<>();
@@ -199,7 +164,16 @@ public final class PBXProject extends PBXContainer implements PBXContainerItemPr
 			if (mainGroup == null) {
 				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
 			}
-			return new PBXProject(ImmutableList.copyOf(targets), buildConfigurations, mainGroup, ImmutableList.copyOf(projectReferences), ImmutableList.copyOf(packageReferences));
+
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXProject");
+			builder.put(CodeablePBXProject.CodingKeys.targets, ImmutableList.copyOf(targets));
+			builder.put(CodeablePBXProject.CodingKeys.buildConfigurationList, buildConfigurations);
+			builder.put(CodeablePBXProject.CodingKeys.mainGroup, mainGroup);
+			builder.put(CodeablePBXProject.CodingKeys.projectReferences, ImmutableList.copyOf(projectReferences));
+			builder.put(CodeablePBXProject.CodingKeys.packageReferences, ImmutableList.copyOf(packageReferences));
+
+			return new CodeablePBXProject(builder.build());
 		}
 	}
 }

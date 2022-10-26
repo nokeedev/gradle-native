@@ -20,36 +20,26 @@ import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
-import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Target backed by shell scripts or nothing (only specifying dependencies).
  */
-public final class PBXAggregateTarget extends PBXTarget {
-	private static final ProductType NEVER_HAS_PRODUCT_TYPE = null;
-	private static final String NEVER_HAS_PRODUCT_NAME = null;
-	private static final PBXFileReference NEVER_HAS_PRODUCT_REFERENCE = null;
-
-	private PBXAggregateTarget(String name, ImmutableList<PBXBuildPhase> buildPhases, XCConfigurationList buildConfigurationList, ImmutableList<PBXTargetDependency> dependencies) {
-		super(name, NEVER_HAS_PRODUCT_TYPE, buildPhases, buildConfigurationList, NEVER_HAS_PRODUCT_NAME, NEVER_HAS_PRODUCT_REFERENCE, dependencies);
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+public interface PBXAggregateTarget extends PBXTarget {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String name;
 		private String productName;
 		private XCConfigurationList buildConfigurations;
@@ -57,12 +47,12 @@ public final class PBXAggregateTarget extends PBXTarget {
 		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
 
 		public Builder name(String name) {
-			this.name = Objects.requireNonNull(name);
+			this.name = requireNonNull(name);
 			return this;
 		}
 
 		public Builder buildConfigurations(XCConfigurationList buildConfigurations) {
-			this.buildConfigurations = Objects.requireNonNull(buildConfigurations);
+			this.buildConfigurations = requireNonNull(buildConfigurations);
 			return this;
 		}
 
@@ -85,7 +75,14 @@ public final class PBXAggregateTarget extends PBXTarget {
 		}
 
 		public PBXAggregateTarget build() {
-			return new PBXAggregateTarget(Objects.requireNonNull(name, "'name' must not be null"), ImmutableList.copyOf(buildPhases), Objects.requireNonNull(buildConfigurations, "'buildConfiguration' must not be null"), ImmutableList.copyOf(dependencies));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXAggregateTarget");
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.name, requireNonNull(name, "'name' must not be null"));
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, ImmutableList.copyOf(buildPhases));
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurations, "'buildConfiguration' must not be null"));
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.dependencies, ImmutableList.copyOf(dependencies));
+
+			return new CodeablePBXAggregateTarget(builder.build());
 		}
 	}
 }

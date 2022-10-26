@@ -17,8 +17,10 @@ package dev.nokee.xcode.objects.targets;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXTargetDependency;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,39 +28,18 @@ import java.util.Optional;
  * Element of the {@link PBXTarget#getDependencies()}.
  * Represents a dependency of one target upon another target.
  */
-public final class PBXTargetDependency extends PBXProjectItem {
-	@Nullable private final String name;
-	@Nullable private final PBXTarget target;
-	private final PBXContainerItemProxy targetProxy;
+public interface PBXTargetDependency extends PBXProjectItem {
+	Optional<String> getName();
 
-	private PBXTargetDependency(@Nullable String name, @Nullable PBXTarget target, PBXContainerItemProxy targetProxy) {
-		this.name = name;
-		this.target = target;
-		this.targetProxy = targetProxy;
-	}
+	Optional<PBXTarget> getTarget();
 
-	public Optional<String> getName() {
-		return Optional.ofNullable(name);
-	}
+	PBXContainerItemProxy getTargetProxy();
 
-	public Optional<PBXTarget> getTarget() {
-		return Optional.ofNullable(target);
-	}
-
-	public PBXContainerItemProxy getTargetProxy() {
-		return targetProxy;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String name;
 		private PBXTarget target;
 		private PBXContainerItemProxy targetProxy;
@@ -83,7 +64,13 @@ public final class PBXTargetDependency extends PBXProjectItem {
 				throw new NullPointerException("either 'target' and 'targetProxy' must not be null");
 			}
 
-			return new PBXTargetDependency(name, target, targetProxy);
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXTargetDependency");
+			builder.put(CodeablePBXTargetDependency.CodingKeys.name, name);
+			builder.put(CodeablePBXTargetDependency.CodingKeys.target, target);
+			builder.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, targetProxy);
+
+			return new CodeablePBXTargetDependency(builder.build());
 		}
 	}
 }

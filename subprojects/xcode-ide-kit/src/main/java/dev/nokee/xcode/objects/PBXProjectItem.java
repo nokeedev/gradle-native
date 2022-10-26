@@ -15,5 +15,5 @@
  */
 package dev.nokee.xcode.objects;
 
-public abstract class PBXProjectItem extends PBXContainerItem {
+public interface PBXProjectItem extends PBXContainerItem {
 }
