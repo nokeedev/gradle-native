@@ -112,16 +112,16 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 	}
 
 	public static final class XCFileReferences {
-		private final Map<Integer, XCFileReference> fileRefs;
+		private final Map<PBXFileReference, XCFileReference> fileRefs;
 
-		public XCFileReferences(Map<Integer, XCFileReference> fileRefs) {
+		public XCFileReferences(Map<PBXFileReference, XCFileReference> fileRefs) {
 			this.fileRefs = fileRefs;
 		}
 
 		public XCFileReference get(PBXFileReference fileRef) {
 			// FIXME: When PBXFileReference comes from two different instance of the same project, they don't align.
 			//   We should find a way to normalize the file reference so they can be compared between project instance
-			return Objects.requireNonNull(fileRefs.get(System.identityHashCode(fileRef)));
+			return Objects.requireNonNull(fileRefs.get(fileRef));
 		}
 
 		public static Builder builder() {
@@ -129,10 +129,10 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 		}
 
 		public static final class Builder {
-			private final ImmutableMap.Builder<Integer, XCFileReference> fileRefs = ImmutableMap.builder();
+			private final ImmutableMap.Builder<PBXFileReference, XCFileReference> fileRefs = ImmutableMap.builder();
 
 			public Builder put(PBXFileReference fileRef, XCFileReference file) {
-				fileRefs.put(System.identityHashCode(fileRef), file);
+				fileRefs.put(fileRef, file);
 				return this;
 			}
 

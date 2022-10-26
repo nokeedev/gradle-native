@@ -17,6 +17,9 @@ package dev.nokee.xcode.objects.files;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXVariantGroup;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -25,32 +28,23 @@ import java.util.Objects;
 /**
  * Represents localized resources.
  */
-public final class PBXVariantGroup extends PBXGroupElement implements GroupChild, PBXBuildFile.FileReference {
-	public PBXVariantGroup(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, List<GroupChild> children) {
-		super(name, path, sourceTree, children);
-	}
-
-	@Override
-	public String toString() {
-		return String.format(
-			"%s isa=%s name=%s path=%s sourceTree=%s children=%s",
-			super.toString(),
-			this.getClass().getSimpleName(),
-			getName().orElse(null),
-			getPath().orElse(null),
-			getSourceTree(),
-			getChildren());
-	}
-
-	public static Builder builder() {
+public interface PBXVariantGroup extends PBXGroupElement, GroupChild, PBXBuildFile.FileReference {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder extends PBXGroupElement.Builder<Builder, PBXVariantGroup> {
+	final class Builder extends PBXGroupElement.Builder<Builder, PBXVariantGroup> {
 		@Override
 		protected PBXVariantGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
 			// mainGroup can have both null name and path
-			return new PBXVariantGroup(name, path, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"), ImmutableList.copyOf(children));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXVariantGroup");
+			builder.put(CodeablePBXVariantGroup.CodingKeys.name, name);
+			builder.put(CodeablePBXVariantGroup.CodingKeys.path, path);
+			builder.put(CodeablePBXVariantGroup.CodingKeys.sourceTree, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"));
+			builder.put(CodeablePBXVariantGroup.CodingKeys.children, ImmutableList.copyOf(children));
+
+			return new CodeablePBXVariantGroup(builder.build());
 		}
 	}
 }

@@ -18,8 +18,11 @@ package dev.nokee.xcode.objects;
 import com.google.common.base.Suppliers;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXContainerItemProxy;
+import dev.nokee.xcode.project.CodeablePBXContainerItemProxy.CodingKeys;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -29,8 +32,8 @@ import static java.util.Objects.requireNonNull;
  * Reference to another object used by {@link PBXTargetDependency}.
  * Can reference a remote file by specifying the {@link PBXFileReference} to the remote project file, and the GID of the object within that file.
  */
-public final class PBXContainerItemProxy extends PBXContainerItem {
-	public enum ProxyType {
+public interface PBXContainerItemProxy extends PBXContainerItem {
+	enum ProxyType {
 		TARGET_REFERENCE(1), // native target
 		FILE_REFERENCE(2);
 
@@ -43,55 +46,30 @@ public final class PBXContainerItemProxy extends PBXContainerItem {
 		public int getIntValue() {
 			return intValue;
 		}
+
+		public static ProxyType valueOf(int value) {
+			for (ProxyType candidate : values()) {
+				if (candidate.intValue == value) {
+					return candidate;
+				}
+			}
+			throw new IllegalArgumentException(String.format("value '%d' is not known", value));
+		}
 	}
 
-	// Why do we use a supplier here?
-	//   The field {@literal targetProxy} on PBXTargetDependency object is a bit troublesome. It references a
-	//   PBXContainerItemProxy which can reference both the current PBXProject (local reference) or the PBXProject of
-	//   another xcodeproj (remote reference). Given we split out the encoding/decoding and PBXObject model, we don't
-	//   have readily available global ID used to reference PBXObject. On top of this limitation, we decided the
-	//   PBXObject models should be immutable once built. Given the PBXContainerItemProxy may need to reference the
-	//   current PBXProject (e.g. local reference), we cannot fully create a working PBXContainerItemProxy until the
-	//   PBXProject model is fully decoded. Using a supplier delays the decoding of the containerPortal just enough so
-	//   the referenced PBXProject to be decoded.
-	private final Supplier<ContainerPortal> containerPortal;
-	private final String remoteGlobalIDString;
-	private final ProxyType proxyType;
-	@Nullable private final String remoteInfo;
+	ContainerPortal getContainerPortal();
 
-	private PBXContainerItemProxy(Supplier<ContainerPortal> containerPortal, String remoteGlobalIDString, ProxyType proxyType, @Nullable String remoteInfo) {
-		this.containerPortal = containerPortal;
-		this.remoteGlobalIDString = remoteGlobalIDString;
-		this.proxyType = proxyType;
-		this.remoteInfo = remoteInfo;
-	}
+	String getRemoteGlobalIDString();
 
-	public ContainerPortal getContainerPortal() {
-		return containerPortal.get();
-	}
+	ProxyType getProxyType();
 
-	public String getRemoteGlobalIDString() {
-		return remoteGlobalIDString;
-	}
+	Optional<String> getRemoteInfo();
 
-	public ProxyType getProxyType() {
-		return proxyType;
-	}
-
-	public Optional<String> getRemoteInfo() {
-		return Optional.ofNullable(remoteInfo);
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private Supplier<ContainerPortal> containerPortal;
 		private ProxyType proxyType;
 		private String remoteGlobalId;
@@ -123,12 +101,19 @@ public final class PBXContainerItemProxy extends PBXContainerItem {
 		}
 
 		public PBXContainerItemProxy build() {
-			return new PBXContainerItemProxy(requireNonNull(containerPortal, "'containerPortal' must not be null"), requireNonNull(remoteGlobalId, "'remoteGlobalId' must not be null"), requireNonNull(proxyType, "'proxyType' must not be null"), remoteInfo);
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXContainerItemProxy");
+			builder.put(CodingKeys.containerPortal, requireNonNull(containerPortal, "'containerPortal' must not be null"));
+			builder.put(CodingKeys.remoteGlobalIDString, requireNonNull(remoteGlobalId, "'remoteGlobalId' must not be null"));
+			builder.put(CodingKeys.proxyType, requireNonNull(proxyType, "'proxyType' must not be null"));
+			builder.put(CodingKeys.remoteInfo, remoteInfo);
+
+			return new CodeablePBXContainerItemProxy(builder.build());
 		}
 	}
 
 	/**
 	 * Represent a container portal for a {@link PBXContainerItemProxy}.
 	 */
-	public interface ContainerPortal {}
+	interface ContainerPortal {}
 }

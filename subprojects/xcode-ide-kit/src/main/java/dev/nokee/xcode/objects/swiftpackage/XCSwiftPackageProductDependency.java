@@ -16,36 +16,22 @@
 package dev.nokee.xcode.objects.swiftpackage;
 
 import dev.nokee.xcode.objects.PBXContainerItem;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeableXCSwiftPackageProductDependency;
 
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
 
-public final class XCSwiftPackageProductDependency extends PBXContainerItem {
-	private final String productName;
-	private final XCRemoteSwiftPackageReference packageReference;
+public interface XCSwiftPackageProductDependency extends PBXContainerItem {
+	String getProductName();
 
-	public XCSwiftPackageProductDependency(String productName, XCRemoteSwiftPackageReference packageReference) {
-		this.productName = productName;
-		this.packageReference = packageReference;
-	}
+	XCRemoteSwiftPackageReference getPackageReference();
 
-	public String getProductName() {
-		return productName;
-	}
-
-	public XCRemoteSwiftPackageReference getPackageReference() {
-		return packageReference;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String productName;
 		private XCRemoteSwiftPackageReference packageReference;
 
@@ -60,7 +46,12 @@ public final class XCSwiftPackageProductDependency extends PBXContainerItem {
 		}
 
 		public XCSwiftPackageProductDependency build() {
-			return new XCSwiftPackageProductDependency(Objects.requireNonNull(productName, "'productName' must not be null"), Objects.requireNonNull(packageReference, "'packageReference' must not be null"));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "XCSwiftPackageProductDependency");
+			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, requireNonNull(productName, "'productName' must not be null"));
+			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference, requireNonNull(packageReference, "'packageReference' must not be null"));
+
+			return new CodeableXCSwiftPackageProductDependency(builder.build());
 		}
 	}
 }

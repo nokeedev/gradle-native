@@ -18,5 +18,5 @@ package dev.nokee.xcode.objects;
 /**
  * Superclass in Xcode's object hierarchy, has no non-structural functionality here.
  */
-public abstract class PBXContainerItem extends PBXObject {
+public interface PBXContainerItem extends PBXObject {
 }

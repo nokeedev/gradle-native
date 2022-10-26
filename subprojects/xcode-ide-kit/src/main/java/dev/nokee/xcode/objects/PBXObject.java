@@ -15,5 +15,5 @@
  */
 package dev.nokee.xcode.objects;
 
-public abstract class PBXObject {
+public interface PBXObject {
 }

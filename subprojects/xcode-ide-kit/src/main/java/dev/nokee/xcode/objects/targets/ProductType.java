@@ -15,9 +15,12 @@
  */
 package dev.nokee.xcode.objects.targets;
 
+import lombok.EqualsAndHashCode;
+
 import javax.annotation.Nullable;
 import java.util.Optional;
 
+@EqualsAndHashCode
 public final class ProductType {
 	private static final ProductType NONE_PRODUCT_TYPE = new ProductType("", null);
 	private final String identifier;

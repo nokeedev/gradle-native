@@ -16,9 +16,10 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,30 +30,8 @@ import static com.google.common.collect.Streams.stream;
 /**
  * Build phase which represents running a shell script.
  */
-public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
-	private static final ImmutableList<PBXBuildFile> ALWAYS_HAS_EMPTY_FILES = ImmutableList.of();
-	@Nullable private final String name;
-	private final List<String> inputPaths;
-	private final List<String> inputFileListPaths;
-	private final List<String> outputPaths;
-	private final List<String> outputFileListPaths;
-	private final String shellPath;
-	private final String shellScript;
-
-	private PBXShellScriptBuildPhase(@Nullable String name, String shellScript, String shellPath, ImmutableList<String> inputPaths, ImmutableList<String> inputFileListPaths, ImmutableList<String> outputPaths, ImmutableList<String> outputFileListPaths) {
-		super(ALWAYS_HAS_EMPTY_FILES);
-		this.name = name;
-		this.shellPath = shellPath;
-		this.shellScript = shellScript;
-		this.inputPaths = inputPaths;
-		this.inputFileListPaths = inputFileListPaths;
-		this.outputPaths = outputPaths;
-		this.outputFileListPaths = outputFileListPaths;
-	}
-
-	public Optional<String> getName() {
-		return Optional.ofNullable(name);
-	}
+public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
+	Optional<String> getName();
 
 	/**
 	 * Returns the list (possibly empty) of files passed as input to the shell script.
@@ -60,18 +39,14 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	 *
 	 * @return input paths, never null
 	 */
-	public List<String> getInputPaths() {
-		return inputPaths;
-	}
+	List<String> getInputPaths();
 
 	/**
 	 * Returns the list (possibly empty) of file list files, e.g. {@literal *.xcfilelist}, passed as input to the shell script.
 	 *
 	 * @return input file list paths, never null
 	 */
-	public List<String> getInputFileListPaths() {
-		return inputFileListPaths;
-	}
+	List<String> getInputFileListPaths();
 
 	/**
 	 * Returns the list (possibly empty) of files created as output of the shell script.
@@ -79,18 +54,14 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	 *
 	 * @return output paths, never null
 	 */
-	public List<String> getOutputPaths() {
-		return outputPaths;
-	}
+	List<String> getOutputPaths();
 
 	/**
 	 * Returns the list (possibly empty) of file list files, e.g. {@literal *.xcfilelist}, passed as output to the shell script.
 	 *
 	 * @return output file list paths, never null
 	 */
-	public List<String> getOutputFileListPaths() {
-		return outputFileListPaths;
-	}
+	List<String> getOutputFileListPaths();
 
 	/**
 	 * Returns the path to the shell under which the script is to be executed.
@@ -98,9 +69,7 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	 *
 	 * @return shell path, may be null
 	 */
-	public String getShellPath() {
-		return shellPath;
-	}
+	String getShellPath();
 
 	/**
 	 * Gets the contents of the shell script to execute under the shell
@@ -108,20 +77,13 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 	 *
 	 * @return shell script, may be null
 	 */
-	public String getShellScript() {
-		return shellScript;
-	}
+	String getShellScript();
 
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private static final String DEFAULT_SHELL_PATH = "/bin/sh";
 		private static final String DEFAULT_SHELL_SCRIPT = "";
 
@@ -181,7 +143,17 @@ public final class PBXShellScriptBuildPhase extends PBXBuildPhase {
 				shellPath = DEFAULT_SHELL_PATH;
 			}
 
-			return new PBXShellScriptBuildPhase(name, shellScript, shellPath, ImmutableList.copyOf(inputPaths), ImmutableList.copyOf(inputFileListPaths), ImmutableList.copyOf(outputPaths), ImmutableList.copyOf(outputFileListPaths));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXShellScriptBuildPhase");
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, name);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, shellScript);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, shellPath);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, ImmutableList.copyOf(inputPaths));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, ImmutableList.copyOf(inputFileListPaths));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, ImmutableList.copyOf(outputPaths));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, ImmutableList.copyOf(outputFileListPaths));
+
+			return new CodeablePBXShellScriptBuildPhase(builder.build());
 		}
 	}
 }

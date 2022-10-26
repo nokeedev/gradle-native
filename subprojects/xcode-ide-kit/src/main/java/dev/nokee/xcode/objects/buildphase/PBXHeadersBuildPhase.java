@@ -16,8 +16,9 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
-import dev.nokee.xcode.objects.PBXObject;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXHeadersBuildPhase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,25 +26,16 @@ import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
 
-public final class PBXHeadersBuildPhase extends PBXBuildPhase {
-	private PBXHeadersBuildPhase(ImmutableList<PBXBuildFile> files) {
-		super(files);
-	}
-
+public interface PBXHeadersBuildPhase extends PBXBuildPhase {
 	// Xcode maps Public/Private/Project headers via {@link PBXBuildFile#getSettings()}
 	//   i.e. settings = {ATTRIBUTES = (Project, Public)}
 	//   We can use utility methods to extract the "project" vs "public" vs "private" headers.
 
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
@@ -53,7 +45,11 @@ public final class PBXHeadersBuildPhase extends PBXBuildPhase {
 		}
 
 		public PBXHeadersBuildPhase build() {
-			return new PBXHeadersBuildPhase(ImmutableList.copyOf(files));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXHeadersBuildPhase");
+			builder.put(CodeablePBXHeadersBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
+
+			return new CodeablePBXHeadersBuildPhase(builder.build());
 		}
 	}
 }

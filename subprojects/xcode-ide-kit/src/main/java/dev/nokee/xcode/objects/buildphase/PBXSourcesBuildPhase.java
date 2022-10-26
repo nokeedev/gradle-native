@@ -16,8 +16,10 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import dev.nokee.xcode.objects.targets.PBXTarget;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXSourcesBuildPhase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,24 +30,14 @@ import static com.google.common.collect.Streams.stream;
 /**
  * Lists the files to be compiled for the containing {@link PBXTarget}.
  *
- * A target should contain at most one of this build phase.
+ * <p>A target should contain at most one of this build phase.
  */
-public final class PBXSourcesBuildPhase extends PBXBuildPhase {
-
-	private PBXSourcesBuildPhase(ImmutableList<PBXBuildFile> files) {
-		super(files);
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+public interface PBXSourcesBuildPhase extends PBXBuildPhase {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 
 		public Builder file(PBXBuildFile file) {
@@ -60,7 +52,11 @@ public final class PBXSourcesBuildPhase extends PBXBuildPhase {
 		}
 
 		public PBXSourcesBuildPhase build() {
-			return new PBXSourcesBuildPhase(ImmutableList.copyOf(files));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXSourcesBuildPhase");
+			builder.put(CodeablePBXSourcesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
+
+			return new CodeablePBXSourcesBuildPhase(builder.build());
 		}
 	}
 }

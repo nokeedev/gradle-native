@@ -16,6 +16,9 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -26,11 +29,8 @@ import java.util.function.Consumer;
 import static com.google.common.collect.Streams.stream;
 import static org.apache.commons.io.FilenameUtils.concat;
 
-public final class PBXCopyFilesBuildPhase extends PBXBuildPhase {
-	private final String dstPath;
-	private final SubFolder dstSubfolderSpec;
-
-	public enum SubFolder {
+public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
+	enum SubFolder {
 		AbsolutePath(0),
 		ProductsDirectory(16),
 		Wrapper(1),
@@ -52,32 +52,26 @@ public final class PBXCopyFilesBuildPhase extends PBXBuildPhase {
 		public int getValue() {
 			return value;
 		}
+
+		public static SubFolder valueOf(int value) {
+			for (SubFolder candidate : values()) {
+				if (candidate.value == value) {
+					return candidate;
+				}
+			}
+			throw new IllegalArgumentException(String.format("value '%d' is not known", value));
+		}
 	}
 
-	private PBXCopyFilesBuildPhase(ImmutableList<PBXBuildFile> files, String dstPath, SubFolder dstSubfolderSpec) {
-		super(files);
-		this.dstPath = dstPath;
-		this.dstSubfolderSpec = dstSubfolderSpec;
-	}
+	String getDstPath();
 
-	public String getDstPath() {
-		return dstPath;
-	}
+	SubFolder getDstSubfolderSpec();
 
-	public SubFolder getDstSubfolderSpec() {
-		return dstSubfolderSpec;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 		private SubFolder dstSubfolderSpec;
 		private String dstPath;
@@ -104,7 +98,13 @@ public final class PBXCopyFilesBuildPhase extends PBXBuildPhase {
 		}
 
 		public PBXCopyFilesBuildPhase build() {
-			return new PBXCopyFilesBuildPhase(ImmutableList.copyOf(files), Objects.requireNonNull(dstPath, "'dstPath' must not be null"), Objects.requireNonNull(dstSubfolderSpec, "'dstSubfolderSpec' must not be null"));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXCopyFilesBuildPhase");
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, Objects.requireNonNull(dstPath, "'dstPath' must not be null"));
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, Objects.requireNonNull(dstSubfolderSpec, "'dstSubfolderSpec' must not be null"));
+
+			return new CodeablePBXCopyFilesBuildPhase(builder.build());
 		}
 
 		public final class DestinationBuilder {

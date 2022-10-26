@@ -16,10 +16,12 @@
 package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.EqualsAndHashCode;
 
 import java.util.Map;
 import java.util.Set;
 
+@EqualsAndHashCode
 public final class PBXObjectFields {
 	private final ImmutableMap<String, Object> fields;
 

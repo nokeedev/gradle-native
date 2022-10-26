@@ -15,10 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Streams;
-import dev.nokee.xcode.objects.PBXObject;
 import dev.nokee.xcode.objects.PBXProject;
 import lombok.val;
 
@@ -26,122 +22,119 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.collect.ImmutableMap.copyOf;
 
 public final class PBXObjectArchiver {
 	private final GidGenerator gidGenerator;
-	private final Map<String, PBXObjectCoder<Object>> coders;
-	private final StableHasher stableHasher;
+	private final CodingKeyCoders coders;
 
 	public PBXObjectArchiver() {
 		this(new GidGenerator(Collections.emptySet()));
 	}
 
 	public PBXObjectArchiver(GidGenerator gidGenerator) {
-		this(gidGenerator, ImmutableList.copyOf(PBXObjectCoders.values()), PBXObjectCoders::stableHash);
+		this(gidGenerator, it -> Optional.ofNullable(KeyedCoders.DECODERS.get(it)));
 	}
 
-	@SuppressWarnings("unchecked")
-	public PBXObjectArchiver(GidGenerator gidGenerator, Iterable<PBXObjectCoder<?>> coders, StableHasher stableHasher) {
+	public PBXObjectArchiver(GidGenerator gidGenerator, CodingKeyCoders coders) {
 		this.gidGenerator = gidGenerator;
-		this.coders = Streams.stream(coders).collect(ImmutableMap.toImmutableMap(it -> it.getType().getSimpleName(), it -> (PBXObjectCoder<Object>) it));
-		this.stableHasher = stableHasher;
+		this.coders = coders;
 	}
 
-	public PBXProj encode(PBXProject obj) {
+	public <T extends PBXProject> PBXProj encode(T obj) {
 		PBXObjects.Builder objects = PBXObjects.builder();
-		PBXObjectReference rootObject = new PBXObjectEncoder(new ConvertContext(objects)).encode(obj);
+		Map<Codeable, String> encodedObjects = new HashMap<>();
+		PBXObjectReference rootObject = encodeRefInternal(objects, encodedObjects, (Codeable) obj);
+		objects.add(rootObject);
 		return PBXProj.builder().objects(objects.build()).rootObject(rootObject.getGlobalID()).build();
 	}
 
-	private final class PBXObjectEncoder {
-		private final ConvertContext db;
-
-		private PBXObjectEncoder(ConvertContext db) {
-			this.db = db;
-		}
-
-		public Object encode(Object o) {
-			if (o instanceof PBXObject) {
-				return encode((PBXObject) o);
-			} else if (coders.containsKey(o.getClass().getSimpleName())) {
-				val builder = PBXObjectFields.builder();
-				coders.get(o.getClass().getSimpleName()).write(new BaseEncoder(this, builder), o);
-				return ImmutableMap.copyOf(builder.build().entrySet());
-			} else {
-				return o;
-			}
-		}
-
-		public PBXObjectReference encode(PBXObject o) {
-			return db.newObjectIfAbsent(o, obj -> {
-				obj.putField("isa", isa(o));
-				requireNonNull(coders.get(isa(o)), isa(o)).write(new BaseEncoder(this, obj), o);
-			});
-		}
+	interface KnownGlobalIdentificationCallback {
+		void onKnownGlobalId(String gid);
 	}
 
-	private static final class BaseEncoder implements PBXObjectCoder.Encoder {
-		private final PBXObjectEncoder delegate;
-		private final PBXObjectFields.Builder builder;
+	private <T extends Codeable> PBXObjectReference encodeRefInternal(PBXObjects.Builder objects, Map<Codeable, String> encodedObjects, T obj) {
+		val context = encodeContextOf(objects, encodedObjects, gid -> encodedObjects.put(obj, gid));
+		obj.encode(context);
 
-		BaseEncoder(PBXObjectEncoder delegate, PBXObjectFields.Builder builder) {
-			this.delegate = delegate;
-			this.builder = builder;
+		String gid = context.gid;
+		if (gid == null) {
+			gid = gidGenerator.generateGid(obj.isa(), obj.stableHash());
+			encodedObjects.put(obj, gid);
+		}
+
+		PBXObjectReference reference = PBXObjectReference.of(gid, it -> {
+			context.map.forEach((a, b) -> it.putField(a, b));
+		});
+		return reference;
+	}
+
+	private MyEncodeContext encodeContextOf(PBXObjects.Builder objects, Map<Codeable, String> encodedObjects, KnownGlobalIdentificationCallback watgid) {
+		return new MyEncodeContext(objects, encodedObjects, watgid);
+	}
+
+	private class MyEncodeContext implements Codeable.EncodeContext {
+		private final PBXObjects.Builder objects;
+		private final Map<Codeable, String> encodedObjects;
+		private final KnownGlobalIdentificationCallback knownGlobalIdCallback;
+		String gid;
+		Map<String, Object> map;
+
+		public MyEncodeContext(PBXObjects.Builder objects, Map<Codeable, String> encodedObjects, KnownGlobalIdentificationCallback knownGlobalIdCallback) {
+			this.objects = objects;
+			this.encodedObjects = encodedObjects;
+			this.knownGlobalIdCallback = knownGlobalIdCallback;
+			gid = null;
+			map = new LinkedHashMap<>();
 		}
 
 		@Override
-		public void encode(String key, Object value) {
-			if (value instanceof Iterable) {
-				builder.putField(key, Streams.stream((Iterable<?>) value).map(this::encode).collect(ImmutableList.toImmutableList()));
-			} else {
-				builder.putField(key, encode(value));
-			}
+		public void base(Map<String, ?> fields) {
+			val result = new LinkedHashMap<String, Object>(fields);
+			result.putAll(map);
+			map = result;
 		}
 
-		private Object encode(Object value) {
-			return delegate.encode(value);
-		}
-	}
-
-	private static String isa(Object o) {
-		return o.getClass().getSimpleName();
-	}
-
-	private final class ConvertContext {
-		private final PBXObjects.Builder builder;
-		private final Map<Object, String> knownGlobalIds = new HashMap<>();
-		private final Map<String, PBXObjectReference> objects = new LinkedHashMap<>();
-
-		private ConvertContext(PBXObjects.Builder builder) {
-			this.builder = builder;
+		@Override
+		public void gid(String globalID) {
+			gid = globalID;
+			knownGlobalIdCallback.onKnownGlobalId(globalID);
 		}
 
-		public PBXObjectReference newObjectIfAbsent(Object o, Consumer<? super PBXObjectFields.Builder> action) {
-			return newObjectIfAbsent(knownGlobalIds.computeIfAbsent(o, it -> gidGenerator.generateGid(isa(o), stableHasher.stableHash(o))), action);
+		@Override
+		public void noGid() {
+
 		}
 
-		public PBXObjectReference newObjectIfAbsent(String id, Consumer<? super PBXObjectFields.Builder> action) {
-			if (objects.containsKey(id)) {
-				return objects.get(id);
-			} else {
-				val result = PBXObjectReference.of(id, action);
-				objects.put(id, result);
-				builder.add(result);
-				return result;
-			}
-		}
-	}
+		@Override
+		public void tryEncode(Map<CodingKey, ?> data) {
+			data.forEach((key, obj) -> {
+				@SuppressWarnings("unchecked")
+				final KeyedCoder<Object> coder = (KeyedCoder<Object>) coders.get(key).orElseThrow(() -> new UnsupportedOperationException("Coder for " + key + " (" + key.getClass().getName().substring(key.getClass().getName().lastIndexOf('.') + 1) + ") not found."));
+				coder.encode(obj, new KeyedEncoderAdapter() {
+					@Override
+					protected void tryEncode(String key, Object value) {
+						map.put(key, value);
+					}
 
-	public interface StableHasher {
-		/**
-		 * This method is used to generate stable GIDs and must be stable for identical contents.
-		 * Returning a constant value is ok but will make the generated project order-dependent.
-		 *
-		 * @return stable hash
-		 */
-		int stableHash(Object o);
+					@Override
+					protected String encodeRef(Codeable object) {
+						final PBXObjectReference reference = encodeRefInternal(objects, encodedObjects, object);
+						objects.add(reference);
+						return reference.getGlobalID();
+					}
+
+					@Override
+					protected Map<String, ?> encodeObj(Codeable object) {
+						val context = encodeContextOf(objects, encodedObjects, gid -> encodedObjects.put(object, gid));
+						object.encode(context);
+						assert context.gid == null;
+						return copyOf(context.map);
+					}
+				});
+			});
+		}
 	}
 }

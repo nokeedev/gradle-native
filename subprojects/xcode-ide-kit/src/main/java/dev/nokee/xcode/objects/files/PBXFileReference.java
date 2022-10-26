@@ -20,10 +20,11 @@ import com.google.common.io.Files;
 import dev.nokee.xcode.objects.FileTypes;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import lombok.EqualsAndHashCode;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXFileReference;
 import org.apache.commons.io.FilenameUtils;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -32,80 +33,30 @@ import java.util.Optional;
 /**
  * Reference to a concrete file.
  */
-@EqualsAndHashCode(callSuper = true)
-public final class PBXFileReference extends PBXReference implements PBXContainerItemProxy.ContainerPortal, PBXBuildFile.FileReference, GroupChild {
-	@Nullable private final String explicitFileType;
-	@Nullable private final String lastKnownFileType;
-
-	public PBXFileReference(String name, String path, PBXSourceTree sourceTree) {
-		this(name, path, sourceTree, null);
-	}
-
+public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.ContainerPortal, PBXBuildFile.FileReference, GroupChild {
 	// It seems the name can be null but not path which is a bit different from PBXGroup.
-	public PBXFileReference(@Nullable String name, String path, PBXSourceTree sourceTree, @Nullable String defaultType) {
-		super(name, path, sourceTree);
 
-		// PBXVariantGroups create file references where the name doesn't contain the file
-		// extension.
-		//
-		// Try the path if it's present to check for an extension, then fall back to the name
-		// if the path isn't present.
-		String pathOrName = MoreObjects.firstNonNull(path, name);
+	Optional<String> getExplicitFileType();
 
-		// this is necessary to prevent O(n^2) behavior in xcode project loading
-		String fileType =
-			FileTypes.FILE_EXTENSION_TO_IDENTIFIER.get(Files.getFileExtension(pathOrName));
-		if (fileType != null && (FileTypes.EXPLICIT_FILE_TYPE_BROKEN_IDENTIFIERS.contains(fileType))
-			|| FileTypes.MODIFIABLE_FILE_TYPE_IDENTIFIERS.contains(fileType)) {
-			explicitFileType = null;
-			lastKnownFileType = fileType;
-		} else if (fileType != null) {
-			explicitFileType = fileType;
-			lastKnownFileType = null;
-		} else {
-			explicitFileType = defaultType;
-			lastKnownFileType = null;
-		}
+	Optional<String> getLastKnownFileType();
+
+	static PBXFileReference ofAbsolutePath(File path) {
+		return PBXFileReference.builder().name(path.getName()).path(path.getAbsolutePath()).sourceTree(PBXSourceTree.ABSOLUTE).build();
 	}
 
-	public Optional<String> getExplicitFileType() {
-		return Optional.ofNullable(explicitFileType);
+	static PBXFileReference ofAbsolutePath(Path path) {
+		return PBXFileReference.builder().name(path.getFileName().toString()).path(path.toAbsolutePath().toString()).sourceTree(PBXSourceTree.ABSOLUTE).build();
 	}
 
-	public Optional<String> getLastKnownFileType() {
-		return Optional.ofNullable(lastKnownFileType);
+	static PBXFileReference ofAbsolutePath(String path) {
+		return PBXFileReference.builder().name(FilenameUtils.getName(path)).path(path).sourceTree(PBXSourceTree.ABSOLUTE).build();
 	}
 
-
-	@Override
-	public String toString() {
-		return String.format(
-			"%s isa=%s name=%s path=%s sourceTree=%s explicitFileType=%s",
-			super.toString(),
-			this.getClass().getSimpleName(),
-			getName().orElse(null),
-			getPath().orElse(null),
-			getSourceTree(),
-			explicitFileType);
-	}
-
-	public static PBXFileReference ofAbsolutePath(File path) {
-		return new PBXFileReference(path.getName(), path.getAbsolutePath(), PBXSourceTree.ABSOLUTE);
-	}
-
-	public static PBXFileReference ofAbsolutePath(Path path) {
-		return new PBXFileReference(path.getFileName().toString(), path.toAbsolutePath().toString(), PBXSourceTree.ABSOLUTE);
-	}
-
-	public static PBXFileReference ofAbsolutePath(String path) {
-		return new PBXFileReference(FilenameUtils.getName(path), path, PBXSourceTree.ABSOLUTE);
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree;
@@ -126,7 +77,40 @@ public final class PBXFileReference extends PBXReference implements PBXContainer
 		}
 
 		public PBXFileReference build() {
-			return new PBXFileReference(name, Objects.requireNonNull(path, "'path' must not be null"), Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"));
+			String defaultType = null;
+			String explicitFileType;
+			String lastKnownFileType;
+			// PBXVariantGroups create file references where the name doesn't contain the file
+			// extension.
+			//
+			// Try the path if it's present to check for an extension, then fall back to the name
+			// if the path isn't present.
+			String pathOrName = MoreObjects.firstNonNull(path, name);
+
+			// this is necessary to prevent O(n^2) behavior in xcode project loading
+			String fileType =
+				FileTypes.FILE_EXTENSION_TO_IDENTIFIER.get(Files.getFileExtension(pathOrName));
+			if (fileType != null && (FileTypes.EXPLICIT_FILE_TYPE_BROKEN_IDENTIFIERS.contains(fileType))
+				|| FileTypes.MODIFIABLE_FILE_TYPE_IDENTIFIERS.contains(fileType)) {
+				explicitFileType = null;
+				lastKnownFileType = fileType;
+			} else if (fileType != null) {
+				explicitFileType = fileType;
+				lastKnownFileType = null;
+			} else {
+				explicitFileType = defaultType;
+				lastKnownFileType = null;
+			}
+
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXFileReference");
+			builder.put(CodeablePBXFileReference.CodingKeys.name, name);
+			builder.put(CodeablePBXFileReference.CodingKeys.path, Objects.requireNonNull(path, "'path' must not be null"));
+			builder.put(CodeablePBXFileReference.CodingKeys.sourceTree, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"));
+			builder.put(CodeablePBXFileReference.CodingKeys.explicitFileType, explicitFileType);
+			builder.put(CodeablePBXFileReference.CodingKeys.lastKnownFileType, lastKnownFileType);
+
+			return new CodeablePBXFileReference(builder.build());
 		}
 	}
 }

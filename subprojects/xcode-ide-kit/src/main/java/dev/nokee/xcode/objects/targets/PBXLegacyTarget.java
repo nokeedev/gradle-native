@@ -16,9 +16,11 @@
 package dev.nokee.xcode.objects.targets;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXLegacyTarget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,47 +32,20 @@ import static com.google.common.collect.Streams.stream;
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build system.
  */
-public final class PBXLegacyTarget extends PBXTarget {
-	private static final ImmutableList<PBXBuildPhase> ALWAYS_NO_BUILD_PHASES = ImmutableList.of();
-	private final String buildArgumentsString;
-	private final String buildToolPath;
-	private final String buildWorkingDirectory;
-	private final boolean passBuildSettingsInEnvironment;
+public interface PBXLegacyTarget extends PBXTarget {
+	String getBuildArgumentsString();
 
-	private PBXLegacyTarget(String name, ProductType productType, String productName, PBXFileReference productReference, XCConfigurationList buildConfigurationList, ImmutableList<PBXTargetDependency> dependencies, String buildArgumentsString, String buildToolPath, String buildWorkingDirectory, boolean passBuildSettingsInEnvironment) {
-		super(name, productType, ALWAYS_NO_BUILD_PHASES, buildConfigurationList, productName, productReference, dependencies);
-		this.buildArgumentsString = buildArgumentsString;
-		this.buildToolPath = buildToolPath;
-		this.buildWorkingDirectory = buildWorkingDirectory;
-		this.passBuildSettingsInEnvironment = passBuildSettingsInEnvironment;
-	}
+	String getBuildToolPath();
 
-	public String getBuildArgumentsString() {
-		return buildArgumentsString;
-	}
+	String getBuildWorkingDirectory();
 
-	public String getBuildToolPath() {
-		return buildToolPath;
-	}
+	boolean isPassBuildSettingsInEnvironment();
 
-	public String getBuildWorkingDirectory() {
-		return buildWorkingDirectory;
-	}
-
-	public boolean isPassBuildSettingsInEnvironment() {
-		return passBuildSettingsInEnvironment;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String name;
 		private ProductType productType;
 		private String buildArgumentsString = "$(ACTION)";
@@ -142,7 +117,21 @@ public final class PBXLegacyTarget extends PBXTarget {
 
 		public PBXLegacyTarget build() {
 			// TODO: Null checks
-			return new PBXLegacyTarget(name, productType, productName, productReference, buildConfigurationList, ImmutableList.copyOf(dependencies), buildArgumentsString, buildToolPath, buildWorkingDirectory, passBuildSettingsInEnvironment);
+
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXLegacyTarget");
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.name, name);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productType, productType);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productName, productName);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productReference, productReference);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, buildConfigurationList);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.dependencies, ImmutableList.copyOf(dependencies));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, buildArgumentsString);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, buildToolPath);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, buildWorkingDirectory);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, passBuildSettingsInEnvironment);
+
+			return new CodeablePBXLegacyTarget(builder.build());
 		}
 	}
 }

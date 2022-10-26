@@ -16,38 +16,28 @@
 package dev.nokee.xcode.objects.swiftpackage;
 
 import dev.nokee.xcode.objects.PBXContainerItem;
-import lombok.EqualsAndHashCode;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeableVersionRequirementBranch;
+import dev.nokee.xcode.project.CodeableVersionRequirementExact;
+import dev.nokee.xcode.project.CodeableVersionRequirementRange;
+import dev.nokee.xcode.project.CodeableVersionRequirementRevision;
+import dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMajorVersion;
+import dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMinorVersion;
+import dev.nokee.xcode.project.CodeableXCRemoteSwiftPackageReference;
 
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
 
-@EqualsAndHashCode(callSuper = false)
-public final class XCRemoteSwiftPackageReference extends PBXContainerItem {
-	private final String repositoryUrl;
-	private final VersionRequirement requirement;
+public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
+	String getRepositoryUrl();
 
-	private XCRemoteSwiftPackageReference(String repositoryUrl, VersionRequirement requirement) {
-		this.repositoryUrl = repositoryUrl;
-		this.requirement = requirement;
-	}
-
-	public String getRepositoryUrl() {
-		return repositoryUrl;
-	}
-
-	public VersionRequirement getRequirement() {
-		return requirement;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
+	VersionRequirement getRequirement();
 
 	/**
 	 * Represents a version requirement for a Swift package.
 	 * There are three categories of requirement: version-based requirement, branch-based requirement, and commit-based requirement.
 	 */
-	public interface VersionRequirement {
+	interface VersionRequirement {
 		Kind getKind();
 
 		/**
@@ -105,180 +95,92 @@ public final class XCRemoteSwiftPackageReference extends PBXContainerItem {
 			UP_TO_NEXT_MAJOR_VERSION
 		}
 
-		@EqualsAndHashCode
-		final class Revision implements VersionRequirement {
-			private String revision;
-
-			public Revision(String revision) {
-				this.revision = revision;
-			}
-
+		interface Revision extends VersionRequirement {
 			@Override
-			public Kind getKind() {
+			default Kind getKind() {
 				return Kind.REVISION;
 			}
 
-			public String getRevision() {
-				return revision;
-			}
-
-			@Override
-			public String toString() {
-				return "require revision '" + revision + "'";
-			}
+			String getRevision();
 		}
 
 		static Revision revision(String revision) {
-			return new Revision(Objects.requireNonNull(revision, "'revision' must not null"));
+			return new CodeableVersionRequirementRevision(requireNonNull(revision, "'revision' must not null"));
 		}
 
-		@EqualsAndHashCode
-		final class Branch implements VersionRequirement {
-			private String branch;
-
-			public Branch(String branch) {
-				this.branch = branch;
-			}
-
+		interface Branch extends VersionRequirement {
 			@Override
-			public Kind getKind() {
+			default Kind getKind() {
 				return Kind.BRANCH;
 			}
 
-			public String getBranch() {
-				return branch;
-			}
-
-			@Override
-			public String toString() {
-				return "require branch '" + branch + "'";
-			}
+			String getBranch();
 		}
 
 		static Branch branch(String branchName) {
-			return new Branch(Objects.requireNonNull(branchName, "'branchName' must not be null"));
+			return new CodeableVersionRequirementBranch(requireNonNull(branchName, "'branchName' must not be null"));
 		}
 
-		@EqualsAndHashCode
-		final class Exact implements VersionRequirement {
-			private String version;
-
-			public Exact(String version) {
-				this.version = version;
-			}
-
+		interface Exact extends VersionRequirement {
 			@Override
-			public Kind getKind() {
+			default Kind getKind() {
 				return Kind.EXACT;
 			}
 
-			public String getVersion() {
-				return version;
-			}
-
-			@Override
-			public String toString() {
-				return "require exact version '" + version + "'";
-			}
+			String getVersion();
 		}
 
 		static Exact exact(String version) {
-			return new Exact(Objects.requireNonNull(version, "'version' must not be null"));
+			return new CodeableVersionRequirementExact(requireNonNull(version, "'version' must not be null"));
 		}
 
-		@EqualsAndHashCode
-		final class Range implements VersionRequirement {
-			private String minimumVersion;
-			private String maximumVersion;
-
-			public Range(String minimumVersion, String maximumVersion) {
-				this.minimumVersion = minimumVersion;
-				this.maximumVersion = maximumVersion;
-			}
-
+		interface Range extends VersionRequirement {
 			@Override
-			public Kind getKind() {
+			default Kind getKind() {
 				return Kind.RANGE;
 			}
 
-			public String getMinimumVersion() {
-				return minimumVersion;
-			}
+			String getMinimumVersion();
 
-			public String getMaximumVersion() {
-				return maximumVersion;
-			}
-
-			@Override
-			public String toString() {
-				return "require range version from '" + minimumVersion + "' to '" + maximumVersion + "'";
-			}
+			String getMaximumVersion();
 		}
 
 		static Range range(String fromVersion, String toVersion) {
-			return new Range(Objects.requireNonNull(fromVersion, "'fromVersion' must not be null"), Objects.requireNonNull(toVersion, "'toVersion' must not be null"));
+			return new CodeableVersionRequirementRange(requireNonNull(fromVersion, "'fromVersion' must not be null"), requireNonNull(toVersion, "'toVersion' must not be null"));
 		}
 
-		@EqualsAndHashCode
-		final class UpToNextMinorVersion implements VersionRequirement {
-			private final  String minimumVersion;
-
-			public UpToNextMinorVersion(String minimumVersion) {
-				this.minimumVersion = minimumVersion;
-			}
-
+		interface UpToNextMinorVersion extends VersionRequirement {
 			@Override
-			public Kind getKind() {
+			default Kind getKind() {
 				return Kind.UP_TO_NEXT_MINOR_VERSION;
 			}
 
-			public String getMinimumVersion() {
-				return minimumVersion;
-			}
-
-			@Override
-			public String toString() {
-				return "require minimum version '" + minimumVersion + "' up to next minor version";
-			}
+			String getMinimumVersion();
 		}
 
 		static UpToNextMinorVersion upToNextMinorVersion(String minimumVersion) {
-			return new UpToNextMinorVersion(Objects.requireNonNull(minimumVersion, "'minimumVersion' must not be null"));
+			return new CodeableVersionRequirementUpToNextMinorVersion(requireNonNull(minimumVersion, "'minimumVersion' must not be null"));
 		}
 
-		@EqualsAndHashCode
-		final class UpToNextMajorVersion implements VersionRequirement {
-			private final String minimumVersion;
-
-			private UpToNextMajorVersion(String minimumVersion) {
-				this.minimumVersion = minimumVersion;
-			}
-
+		interface UpToNextMajorVersion extends VersionRequirement {
 			@Override
-			public Kind getKind() {
+			default Kind getKind() {
 				return Kind.UP_TO_NEXT_MAJOR_VERSION;
 			}
 
-			public String getMinimumVersion() {
-				return minimumVersion;
-			}
-
-			@Override
-			public String toString() {
-				return "require minimum version '" + minimumVersion + "' up to next major version";
-			}
+			String getMinimumVersion();
 		}
 
 		static UpToNextMajorVersion upToNextMajorVersion(String minimumVersion) {
-			return new UpToNextMajorVersion(Objects.requireNonNull(minimumVersion, "'minimumVersion' must not be null"));
+			return new CodeableVersionRequirementUpToNextMajorVersion(requireNonNull(minimumVersion, "'minimumVersion' must not be null"));
 		}
 	}
 
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String repositoryUrl;
 		private VersionRequirement requirement;
 
@@ -293,7 +195,12 @@ public final class XCRemoteSwiftPackageReference extends PBXContainerItem {
 		}
 
 		public XCRemoteSwiftPackageReference build() {
-			return new XCRemoteSwiftPackageReference(Objects.requireNonNull(repositoryUrl, "'repositoryUrl' must not be null"), Objects.requireNonNull(requirement, "'requirement' must not be null"));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "XCRemoteSwiftPackageReference");
+			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, requireNonNull(repositoryUrl, "'repositoryUrl' must not be null"));
+			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, requireNonNull(requirement, "'requirement' must not be null"));
+
+			return new CodeableXCRemoteSwiftPackageReference(builder.build());
 		}
 	}
 }

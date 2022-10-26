@@ -15,10 +15,12 @@
  */
 package dev.nokee.xcode.objects.configuration;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeableXCConfigurationList;
 
-import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -30,39 +32,18 @@ import static com.google.common.collect.Streams.stream;
 /**
  * List of build configurations.
  */
-public final class XCConfigurationList extends PBXProjectItem {
-	private final ImmutableMap<String, XCBuildConfiguration> buildConfigurationsByName;
-	@Nullable private final String defaultConfigurationName;
-	private final boolean defaultConfigurationIsVisible;
+public interface XCConfigurationList extends PBXProjectItem {
+	Map<String, XCBuildConfiguration> getBuildConfigurationsByName();
 
-	private XCConfigurationList(ImmutableMap<String, XCBuildConfiguration> buildConfigurations, @Nullable String defaultConfigurationName, DefaultConfigurationVisibility defaultConfigurationVisibility) {
-		this.defaultConfigurationName = defaultConfigurationName;
-		this.defaultConfigurationIsVisible = (defaultConfigurationVisibility == DefaultConfigurationVisibility.VISIBLE);
-		this.buildConfigurationsByName = buildConfigurations;
-	}
+	Optional<String> getDefaultConfigurationName();
 
-	public Map<String, XCBuildConfiguration> getBuildConfigurationsByName() {
-		return buildConfigurationsByName;
-	}
+	boolean isDefaultConfigurationIsVisible();
 
-	public Optional<String> getDefaultConfigurationName() {
-		return Optional.ofNullable(defaultConfigurationName);
-	}
-
-	public boolean isDefaultConfigurationIsVisible() {
-		return defaultConfigurationIsVisible;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private final Map<String, XCBuildConfiguration> buildConfigurations = new LinkedHashMap<>();
 		private DefaultConfigurationVisibility defaultConfigurationVisibility = DefaultConfigurationVisibility.HIDDEN;
 		private String defaultConfigurationName;
@@ -94,11 +75,17 @@ public final class XCConfigurationList extends PBXProjectItem {
 		}
 
 		public XCConfigurationList build() {
-			return new XCConfigurationList(ImmutableMap.copyOf(buildConfigurations), defaultConfigurationName, Objects.requireNonNull(defaultConfigurationVisibility, "'defaultConfigurationVisibility' must not be null"));
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "XCConfigurationList");
+			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, ImmutableList.copyOf(buildConfigurations.values()));
+			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, defaultConfigurationName);
+			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, (Objects.requireNonNull(defaultConfigurationVisibility, "'defaultConfigurationVisibility' must not be null") == DefaultConfigurationVisibility.VISIBLE));
+
+			return new CodeableXCConfigurationList(builder.build());
 		}
 	}
 
-	public enum DefaultConfigurationVisibility {
+	enum DefaultConfigurationVisibility {
 		HIDDEN,
 		VISIBLE;
 	}

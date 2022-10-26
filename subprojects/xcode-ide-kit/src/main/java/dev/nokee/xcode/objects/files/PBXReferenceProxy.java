@@ -17,46 +17,23 @@ package dev.nokee.xcode.objects.files;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-
-import javax.annotation.Nullable;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeablePBXReferenceProxy;
 
 /**
  * A proxy for another object which might belong to another project contained in the same workspace of the document.
  */
-public final class PBXReferenceProxy extends PBXReference implements PBXBuildFile.FileReference, GroupChild {
-	private final PBXContainerItemProxy remoteReference;
-	private final String fileType;
+public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileReference, GroupChild {
+	PBXContainerItemProxy getRemoteReference();
 
-	public PBXReferenceProxy(@Nullable String name, @Nullable String path, PBXSourceTree sourceTree, PBXContainerItemProxy remoteReference, String fileType) {
-		super(name, path, sourceTree);
-		this.remoteReference = remoteReference;
-		this.fileType = fileType;
-	}
+	String getFileType();
 
-	public PBXContainerItemProxy getRemoteReference() {
-		return remoteReference;
-	}
-
-	public String getFileType() {
-		return fileType;
-	}
-
-	@Override
-	public String toString() {
-		return String.format(
-			"%s isa=%s name=%s path=%s sourceTree=%s",
-			super.toString(),
-			this.getClass().getSimpleName(),
-			getName().orElse(null),
-			getPath().orElse(null),
-			getSourceTree());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree;
@@ -89,7 +66,15 @@ public final class PBXReferenceProxy extends PBXReference implements PBXBuildFil
 		}
 
 		public PBXReferenceProxy build() {
-			return new PBXReferenceProxy(name, path, sourceTree, remoteReference, fileType);
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "PBXReferenceProxy");
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.name, name);
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.path, path);
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.sourceTree, sourceTree);
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.remoteRef, remoteReference);
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.fileType, fileType);
+
+			return new CodeablePBXReferenceProxy(builder.build());
 		}
 	}
 }

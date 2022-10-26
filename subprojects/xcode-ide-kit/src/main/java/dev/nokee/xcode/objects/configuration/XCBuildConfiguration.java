@@ -16,38 +16,26 @@
 package dev.nokee.xcode.objects.configuration;
 
 import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.CodeableXCBuildConfiguration;
 
-import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Build configuration containing a file reference to a xcconfig file and additional inline settings.
  */
-public final class XCBuildConfiguration extends PBXBuildStyle {
-	@Nullable
-	private PBXFileReference baseConfigurationReference;
+public interface XCBuildConfiguration extends PBXBuildStyle {
+	Optional<PBXFileReference> getBaseConfigurationReference();
 
-	private XCBuildConfiguration(String name, BuildSettings buildSettings, @Nullable PBXFileReference baseConfigurationReference) {
-		super(name, buildSettings);
-		this.baseConfigurationReference = baseConfigurationReference;
-	}
-
-	public Optional<PBXFileReference> getBaseConfigurationReference() {
-		return Optional.ofNullable(baseConfigurationReference);
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%s isa=%s", super.toString(), this.getClass().getSimpleName());
-	}
-
-	public static Builder builder() {
+	static Builder builder() {
 		return new Builder();
 	}
 
-	public static final class Builder {
+	final class Builder {
 		private String name;
 		private BuildSettings buildSettings;
 		private PBXFileReference baseConfigurationReference;
@@ -55,7 +43,7 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 		private Builder() {}
 
 		public Builder name(String name) {
-			this.name = Objects.requireNonNull(name);
+			this.name = requireNonNull(name);
 			return this;
 		}
 
@@ -72,7 +60,7 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 		}
 
 		public Builder buildSettings(BuildSettings buildSettings) {
-			this.buildSettings = Objects.requireNonNull(buildSettings);
+			this.buildSettings = requireNonNull(buildSettings);
 			return this;
 		}
 
@@ -81,7 +69,13 @@ public final class XCBuildConfiguration extends PBXBuildStyle {
 				buildSettings = BuildSettings.empty();
 			}
 
-			return new XCBuildConfiguration(Objects.requireNonNull(name, "'name' must not be null"), buildSettings, baseConfigurationReference);
+			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.put(KeyedCoders.ISA, "XCBuildConfiguration");
+			builder.put(CodeableXCBuildConfiguration.CodingKeys.name, requireNonNull(name, "'name' must not be null"));
+			builder.put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, buildSettings);
+			builder.put(CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference, baseConfigurationReference);
+
+			return new CodeableXCBuildConfiguration(builder.build());
 		}
 	}
 }
