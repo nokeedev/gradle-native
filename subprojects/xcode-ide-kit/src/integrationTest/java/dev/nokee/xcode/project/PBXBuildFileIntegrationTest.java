@@ -32,10 +32,10 @@ import java.nio.file.Path;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.emptyOptional;
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
-import static dev.nokee.xcode.objects.files.PBXFileReference.builder;
 import static dev.nokee.xcode.objects.files.PBXSourceTree.BUILT_PRODUCTS_DIR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 
 @ExtendWith(TestDirectoryExtension.class)
@@ -77,7 +77,8 @@ class PBXBuildFileIntegrationTest {
 			assertThat(buildPhase.getFiles(), hasSize(1));
 
 			val subject = buildPhase.getFiles().get(0);
-			assertThat(subject.getFileRef(), optionalWithValue(equalTo(builder().path("libGreeterLib.a").sourceTree(BUILT_PRODUCTS_DIR).build())));
+			assertThat(subject.getFileRef(), optionalWithValue(hasProperty("path", optionalWithValue(equalTo("libGreeterLib.a")))));
+			assertThat(subject.getFileRef(), optionalWithValue(hasProperty("sourceTree", equalTo(BUILT_PRODUCTS_DIR))));
 			assertThat(subject.getProductRef(), emptyOptional());
 		}
 	}
