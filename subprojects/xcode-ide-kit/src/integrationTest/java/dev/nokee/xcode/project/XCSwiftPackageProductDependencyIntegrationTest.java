@@ -28,9 +28,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.upToNextMajorVersion;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.UP_TO_NEXT_MAJOR_VERSION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isA;
 
@@ -51,7 +52,8 @@ class XCSwiftPackageProductDependencyIntegrationTest {
 			assertThat(subject, hasSize(1));
 			assertThat(subject.get(0).getProductName(), equalTo("o"));
 			assertThat(subject.get(0).getPackageReference().getRepositoryUrl(), equalTo("https://github.com/0xOpenBytes/o.git"));
-			assertThat(subject.get(0).getPackageReference().getRequirement(), equalTo(upToNextMajorVersion("0.2.1")));
+			assertThat(subject.get(0).getPackageReference().getRequirement().getKind(), equalTo(UP_TO_NEXT_MAJOR_VERSION));
+			assertThat(subject.get(0).getPackageReference().getRequirement(), hasProperty("minimumVersion", equalTo("0.2.1")));
 		}
 	}
 }

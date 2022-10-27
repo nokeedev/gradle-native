@@ -28,9 +28,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.upToNextMajorVersion;
+import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.UP_TO_NEXT_MAJOR_VERSION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 
 @ExtendWith(TestDirectoryExtension.class)
@@ -46,7 +47,8 @@ class XCRemoteSwiftPackageReferenceIntegrationTest {
 			val subject = project.getPackageReferences();
 			assertThat(subject, hasSize(1));
 			assertThat(subject.get(0).getRepositoryUrl(), equalTo("https://github.com/0xOpenBytes/o.git"));
-			assertThat(subject.get(0).getRequirement(), equalTo(upToNextMajorVersion("0.2.1")));
+			assertThat(subject.get(0).getRequirement().getKind(), equalTo(UP_TO_NEXT_MAJOR_VERSION));
+			assertThat(subject.get(0).getRequirement(), hasProperty("minimumVersion", equalTo("0.2.1")));
 		}
 	}
 
