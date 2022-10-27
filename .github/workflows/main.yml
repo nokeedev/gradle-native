@@ -3,6 +3,18 @@ name: CI
 on: push
 
 jobs:
+    master-check:
+        runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/master'
+        steps:
+            -   uses: actions/checkout@v2
+            -   uses: actions/setup-node@v1
+                with:
+                    version: 12
+            -   run: npm install @octokit/action
+            -   run: node .github/actions/check-master.js
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     sanity-check:
         runs-on: ubuntu-latest
         steps:
