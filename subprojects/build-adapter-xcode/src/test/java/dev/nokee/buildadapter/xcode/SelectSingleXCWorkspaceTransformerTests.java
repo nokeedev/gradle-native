@@ -93,7 +93,7 @@ class SelectSingleXCWorkspaceTransformerTests {
 
 		@Test
 		void logsWarningMessage() {
-			verify(logger).accept("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '" + Paths.get("/test") + "/A.xcworkspace' because multiple Xcode workspace were found in '" + Paths.get("/test") + "'. See https://nokee.fyi/using-xcode-build-adapter for more details.");
+			verify(logger).accept("The plugin 'dev.nokee.xcode-build-adapter' will use Xcode workspace located at '" + Paths.get("/test/A.xcworkspace") + "' because multiple Xcode workspace were found in '" + Paths.get("/test") + "'. See https://nokee.fyi/using-xcode-build-adapter for more details.");
 		}
 	}
 }
