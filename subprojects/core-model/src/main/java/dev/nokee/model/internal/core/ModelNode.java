@@ -24,6 +24,7 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import lombok.val;
 
+import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -134,6 +135,13 @@ public final class ModelNode {
 		@SuppressWarnings("unchecked")
 		val result = (T) components.get(componentType);
 		return Optional.ofNullable(result);
+	}
+
+	@Nullable
+	public <T> T findComponentNullable(ModelComponentType<T> componentType) {
+		@SuppressWarnings("unchecked")
+		val result = (T) components.get(componentType);
+		return result;
 	}
 
 	public boolean hasComponent(ModelComponentType<?> componentType) {
