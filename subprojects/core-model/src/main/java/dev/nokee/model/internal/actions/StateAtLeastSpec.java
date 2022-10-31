@@ -18,6 +18,7 @@ package dev.nokee.model.internal.actions;
 import com.google.common.collect.Iterables;
 import dev.nokee.model.internal.state.ModelState;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.gradle.api.specs.Spec;
 
 import java.util.Optional;
@@ -35,6 +36,11 @@ final class StateAtLeastSpec implements Spec<DomainObjectIdentity>, ModelSpec {
 
 	@Override
 	public boolean isSatisfiedBy(DomainObjectIdentity identity) {
-		return identity.get(ModelState.class).map(it -> it.isAtLeast(state)).orElse(false);
+		val value = identity.get(ModelState.class);
+		if (value == null) {
+			return false;
+		} else {
+			return value.isAtLeast(state);
+		}
 	}
 }

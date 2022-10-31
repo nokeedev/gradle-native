@@ -16,6 +16,7 @@
 package dev.nokee.model.internal.actions;
 
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.gradle.api.specs.Spec;
 
 @EqualsAndHashCode
@@ -28,6 +29,11 @@ final class EqualSpec implements ModelSpec, Spec<DomainObjectIdentity> {
 
 	@Override
 	public boolean isSatisfiedBy(DomainObjectIdentity element) {
-		return element.get(value.getClass()).map(value::equals).orElse(false);
+		val value = element.get(this.value.getClass());
+		if (value == null) {
+			return false;
+		} else {
+			return value.equals(this.value);
+		}
 	}
 }

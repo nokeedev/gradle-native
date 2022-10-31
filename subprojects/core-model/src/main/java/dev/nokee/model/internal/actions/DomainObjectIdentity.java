@@ -22,6 +22,7 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import lombok.val;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -49,11 +50,12 @@ final class DomainObjectIdentity {
 		return new DomainObjectIdentity(ImmutableSetMultimap.<Class<?>, Object>builder().putAll(firstElement.getClass(), value).build());
 	}
 
-	public <T> Optional<T> get(Class<T> type) {
+	@Nullable
+	public <T> T get(Class<T> type) {
 		Objects.requireNonNull(type);
 		@SuppressWarnings("unchecked")
 		T value = (T) Iterables.getOnlyElement(values.get(type), null);
-		return Optional.ofNullable(value);
+		return value;
 	}
 
 	public <T> Set<T> getAll(Class<T> type) {
