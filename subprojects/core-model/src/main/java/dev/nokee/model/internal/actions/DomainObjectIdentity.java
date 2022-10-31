@@ -34,7 +34,7 @@ final class DomainObjectIdentity {
 	private final SetMultimap<Class<?>, Object> values;
 
 	private DomainObjectIdentity(SetMultimap<Class<?>, Object> values) {
-		this.values = ImmutableSetMultimap.copyOf(values);
+		this.values = values;
 	}
 
 	public static DomainObjectIdentity of(Object value) {
