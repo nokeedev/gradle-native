@@ -22,6 +22,7 @@ import lombok.val;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 @SuppressWarnings("unchecked")
 public abstract class ModelComponentType<T> {
@@ -78,15 +79,18 @@ public abstract class ModelComponentType<T> {
 		return (ModelComponentType<? super T>) ((ModelComponent) component).getComponentType();
 	}
 
+	private static final Function<Type, ModelComponentType<?>> COMPUTE_COMPONENT_TYPE = t -> new ComponentType<>((Class<?>) t);
 
 	public static <T> ModelComponentType<T> componentOf(Class<T> type) {
 		Objects.requireNonNull(type);
-		return (ModelComponentType<T>) knownComponentTypes.computeIfAbsent(type, t -> new ComponentType<>(type));
+		return (ModelComponentType<T>) knownComponentTypes.computeIfAbsent(type, COMPUTE_COMPONENT_TYPE);
 	}
+
+	private static final Function<Type, ModelComponentType<?>> COMPUTE_PROJECTION_TYPE = t -> new ProjectionType<>((Class<?>) t);
 
 	public static <T> ModelComponentType<ModelProjection> projectionOf(Class<T> type) {
 		Objects.requireNonNull(type);
-		return (ModelComponentType<ModelProjection>) knownComponentTypes.computeIfAbsent(type, t -> new ProjectionType<>(type));
+		return (ModelComponentType<ModelProjection>) knownComponentTypes.computeIfAbsent(type, COMPUTE_PROJECTION_TYPE);
 	}
 
 	private static int id = 0;
