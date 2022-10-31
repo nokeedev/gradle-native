@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DomainObjectIdentityTest {
@@ -35,7 +36,7 @@ class DomainObjectIdentityTest {
 
 	@Test
 	void returnsCurrentValueWhenExist() {
-		assertThat(subject.get(MyValue.class), optionalWithValue(equalTo(VALUE)));
+		assertThat(subject.get(MyValue.class), equalTo(VALUE));
 	}
 
 	@Test
@@ -45,7 +46,7 @@ class DomainObjectIdentityTest {
 
 	@Test
 	void returnsEmptyWhenValueDoesNotExists() {
-		assertThat(subject.get(MyOtherValue.class), emptyOptional());
+		assertThat(subject.get(MyOtherValue.class), nullValue());
 	}
 
 	@Test
@@ -67,7 +68,7 @@ class DomainObjectIdentityTest {
 
 	@Test
 	void canReplaceCurrentValue() {
-		assertThat(subject.with(ALTERNATE_VALUE).get(MyValue.class), optionalWithValue(equalTo(ALTERNATE_VALUE)));
+		assertThat(subject.with(ALTERNATE_VALUE).get(MyValue.class), equalTo(ALTERNATE_VALUE));
 	}
 
 	@Test
@@ -84,13 +85,13 @@ class DomainObjectIdentityTest {
 
 	@Test
 	void canSetNonExistentValue() {
-		assertThat(subject.with(OTHER_VALUE).get(MyOtherValue.class), optionalWithValue(equalTo(OTHER_VALUE)));
+		assertThat(subject.with(OTHER_VALUE).get(MyOtherValue.class), equalTo(OTHER_VALUE));
 	}
 
 	@Test
 	void doesNotChangeOriginalSubjectWhenReplaceValue() {
 		subject.with(ALTERNATE_VALUE);
-		assertThat(subject.get(MyValue.class), optionalWithValue(equalTo(VALUE)));
+		assertThat(subject.get(MyValue.class), equalTo(VALUE));
 	}
 
 	@Test
@@ -100,14 +101,14 @@ class DomainObjectIdentityTest {
 
 	@Test
 	void canAddValueToNonExistentValue() {
-		assertThat(subject.plus(OTHER_VALUE).get(MyOtherValue.class), optionalWithValue(equalTo(OTHER_VALUE)));
+		assertThat(subject.plus(OTHER_VALUE).get(MyOtherValue.class), equalTo(OTHER_VALUE));
 		assertThat(subject.plus(OTHER_VALUE).getAll(MyOtherValue.class), containsInAnyOrder(OTHER_VALUE));
 	}
 
 	@Test
 	void doesNotChangeOriginalSubjectWhenAddMoreValues() {
 		subject.plus(ALTERNATE_VALUE);
-		assertThat(subject.get(MyValue.class), optionalWithValue(equalTo(VALUE)));
+		assertThat(subject.get(MyValue.class), equalTo(VALUE));
 		assertThat(subject.getAll(MyValue.class), containsInAnyOrder(VALUE));
 	}
 
