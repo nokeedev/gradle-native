@@ -127,8 +127,12 @@ public final class ModelActionSystem<T extends ExtensionAware & PluginAware> imp
 
 	private static Predicate<ModelNode> actionMatching(ActionSelectorComponent component) {
 		return it -> {
-			val identity = it.findComponent(componentOf(ModelSpecComponent.class));
-			return identity.map(actionIdentityComponent -> ((Spec<DomainObjectIdentity>) actionIdentityComponent.get()).isSatisfiedBy(component.get())).orElse(false);
+			val identity = it.findComponentNullable(componentOf(ModelSpecComponent.class));
+			if (identity == null) {
+				return false;
+			} else {
+				return ((Spec<DomainObjectIdentity>) identity.get()).isSatisfiedBy(component.get());
+			}
 		};
 	}
 
@@ -205,8 +209,12 @@ public final class ModelActionSystem<T extends ExtensionAware & PluginAware> imp
 
 	private static Predicate<ModelNode> onlyMatching(ModelSpecComponent component) {
 		return entity -> {
-			val selector = entity.findComponent(componentOf(ActionSelectorComponent.class));
-			return selector.map(t -> ((Spec<DomainObjectIdentity>) component.get()).isSatisfiedBy(t.get())).orElse(false);
+			val selector = entity.findComponentNullable(componentOf(ActionSelectorComponent.class));
+			if (selector == null) {
+				return false;
+			} else {
+				return ((Spec<DomainObjectIdentity>) component.get()).isSatisfiedBy(selector.get());
+			}
 		};
 	}
 
