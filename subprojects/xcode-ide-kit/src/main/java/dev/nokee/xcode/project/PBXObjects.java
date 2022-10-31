@@ -15,22 +15,21 @@
  */
 package dev.nokee.xcode.project;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.MoreCollectors;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Iterator;
 import java.util.stream.Stream;
 
 public final class PBXObjects implements Iterable<PBXObjectReference> {
-	private final ImmutableList<PBXObjectReference> objects;
+	private final ImmutableMap<String, PBXObjectReference> objects;
 
-	private PBXObjects(ImmutableList<PBXObjectReference> objects) {
+	private PBXObjects(ImmutableMap<String, PBXObjectReference> objects) {
 		this.objects = objects;
 	}
 
 	@Override
 	public Iterator<PBXObjectReference> iterator() {
-		return objects.iterator();
+		return objects.values().iterator();
 	}
 
 	public int size() {
@@ -38,11 +37,11 @@ public final class PBXObjects implements Iterable<PBXObjectReference> {
 	}
 
 	public Stream<PBXObjectReference> get(String isa) {
-		return objects.stream().filter(it -> it.isa().equals(isa));
+		return objects.values().stream().filter(it -> it.isa().equals(isa));
 	}
 
 	public Stream<PBXObjectReference> stream() {
-		return objects.stream();
+		return objects.values().stream();
 	}
 
 	public static Builder builder() {
@@ -50,14 +49,14 @@ public final class PBXObjects implements Iterable<PBXObjectReference> {
 	}
 
 	public PBXObjectReference getById(String gid) {
-		return objects.stream().filter(it -> it.getGlobalID().equals(gid)).collect(MoreCollectors.onlyElement());
+		return objects.get(gid);
 	}
 
 	public static final class Builder {
-		private final ImmutableList.Builder<PBXObjectReference> builder = ImmutableList.builder();
+		private final ImmutableMap.Builder<String, PBXObjectReference> builder = ImmutableMap.builder();
 
 		public Builder add(PBXObjectReference ref) {
-			this.builder.add(ref);
+			this.builder.put(ref.getGlobalID(), ref);
 			return this;
 		}
 
