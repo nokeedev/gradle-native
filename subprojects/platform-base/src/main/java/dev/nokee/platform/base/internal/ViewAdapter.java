@@ -31,7 +31,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static dev.nokee.utils.TransformerUtils.*;
+import static dev.nokee.utils.TransformerUtils.flatTransformEach;
+import static dev.nokee.utils.TransformerUtils.matching;
+import static dev.nokee.utils.TransformerUtils.toListTransformer;
+import static dev.nokee.utils.TransformerUtils.transformEach;
 
 @EqualsAndHashCode
 public final class ViewAdapter<T> implements View<T> {
@@ -91,7 +94,7 @@ public final class ViewAdapter<T> implements View<T> {
 
 	@Override
 	public <S> Provider<List<S>> map(Transformer<? extends S, ? super T> mapper) {
-		return getElements().map(transformEach(mapper).andThen(toListTransformer()));
+		return getElements().map(transformEach((T it) -> mapper.transform(it)).andThen(toListTransformer()));
 	}
 
 	@Override

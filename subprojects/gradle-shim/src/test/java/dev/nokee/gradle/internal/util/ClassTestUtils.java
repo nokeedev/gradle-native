@@ -64,7 +64,7 @@ public final class ClassTestUtils {
 			return Object.class;
 		} else if (type.getSimpleName().equals("ExecutionTimeValue")) {
 			try {
-				return Class.forName("org.gradle.api.internal.provider.ValueSupplier$MissingExecutionTimeValue").newInstance();
+				return Class.forName("org.gradle.api.internal.provider.ValueSupplier$MissingExecutionTimeValue").getConstructor().newInstance();
 			} catch (Throwable ex) {
 				return null;
 			}

@@ -77,7 +77,7 @@ class TransformerUtils_TransformEachTest {
 
 	@Test
 	void canUseTransformEachFromIterable() {
-		Transformer<Iterable<Integer>, Iterable<? extends Integer>> transformer1 = transformEach(aTransformer());
+		Transformer<Iterable<Integer>, Iterable<Integer>> transformer1 = transformEach(aTransformer());
 		assertThat(transformer1.transform(asList(1, 2, 3)), iterableWithSize(3));
 
 		Transformer<Iterable<Integer>, Iterable<Integer>> transformer2 = transformEach(anotherTransformer());
@@ -86,7 +86,7 @@ class TransformerUtils_TransformEachTest {
 
 	@Test
 	void canUseTransformEachFromList() {
-		Transformer<Iterable<Integer>, List<? extends Integer>> transformer1 = transformEach(aTransformer());
+		Transformer<Iterable<Integer>, List<Integer>> transformer1 = transformEach(aTransformer());
 		assertThat(transformer1.transform(asList(1, 2, 3)), iterableWithSize(3));
 
 		Transformer<Iterable<Integer>, List<Integer>> transformer2 = transformEach(anotherTransformer());
@@ -95,7 +95,7 @@ class TransformerUtils_TransformEachTest {
 
 	@Test
 	void canUseTransformEachFromSet() {
-		Transformer<Iterable<Integer>, Set<? extends Integer>> transformer1 = transformEach(aTransformer());
+		Transformer<Iterable<Integer>, Set<Integer>> transformer1 = transformEach(aTransformer());
 		assertThat(transformer1.transform(ImmutableSet.of(1, 2, 3)), iterableWithSize(3));
 
 		Transformer<Iterable<Integer>, Set<Integer>> transformer2 = transformEach(anotherTransformer());
