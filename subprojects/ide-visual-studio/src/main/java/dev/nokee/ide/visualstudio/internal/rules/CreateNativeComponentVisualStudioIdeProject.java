@@ -111,8 +111,9 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 				return sourceViewOf(component).getElements().map(transformEach(LanguageSourceSet::getAsFileTree).andThen(toListTransformer()));
 			}
 
-			private Provider<List<? extends FileTree>> componentHeaders(BaseComponent<?> component) {
-				return sourceViewOf(component).filter(this::forHeaderSets).map(transformEach(it -> ((HasHeaders) it).getHeaders().getAsFileTree()).andThen(toListTransformer()));
+			private Provider<List<FileTree>> componentHeaders(BaseComponent<?> component) {
+				return sourceViewOf(component).filter(this::forHeaderSets)
+					.map(transformEach((Transformer<FileTree, LanguageSourceSet>) it -> ((HasHeaders) it).getHeaders().getAsFileTree()).andThen(toListTransformer()));
 			}
 
 			private boolean forHeaderSets(LanguageSourceSet sourceSet) {

@@ -86,36 +86,24 @@ class TransformerUtils_ToSetTransformerTest {
 
 	@Test
 	void canUseToSetTransformerForSameElementTypes() {
-		Transformer<Set<String>, Iterable<? extends String>> transformer1 = toSetTransformer();
-		Transformer<Set<String>, List<? extends String>> transformer2 = toSetTransformer();
-		Transformer<Set<String>, Set<? extends String>> transformer3 = toSetTransformer();
-		Transformer<Set<String>, Iterable<String>> transformer4 = toSetTransformer();
-		Transformer<Set<String>, List<String>> transformer5 = toSetTransformer();
-		Transformer<Set<String>, Set<String>> transformer6 = toSetTransformer();
+		Transformer<Set<String>, Iterable<String>> transformer1 = toSetTransformer();
+		Transformer<Set<String>, List<String>> transformer2 = toSetTransformer();
+		Transformer<Set<String>, Set<String>> transformer3 = toSetTransformer();
 
 		assertThat(transformer1.transform(asList("1", "2")), iterableWithSize(2));
 		assertThat(transformer2.transform(asList("1", "2")), iterableWithSize(2));
 		assertThat(transformer3.transform(of("1", "2")), iterableWithSize(2));
-		assertThat(transformer4.transform(asList("1", "2")), iterableWithSize(2));
-		assertThat(transformer5.transform(asList("1", "2")), iterableWithSize(2));
-		assertThat(transformer6.transform(of("1", "2")), iterableWithSize(2));
 	}
 
 	@Test
 	void canUseToSetTransformerForSuperElementTypes() {
-		Transformer<Set<Object>, Iterable<? extends String>> transformer1 = toSetTransformer();
-		Transformer<Set<Object>, List<? extends String>> transformer2 = toSetTransformer();
-		Transformer<Set<Object>, Set<? extends String>> transformer3 = toSetTransformer();
-		Transformer<Set<Object>, Iterable<String>> transformer4 = toSetTransformer();
-		Transformer<Set<Object>, List<String>> transformer5 = toSetTransformer();
-		Transformer<Set<Object>, Set<String>> transformer6 = toSetTransformer();
+		Transformer<Set<Object>, Iterable<String>> transformer1 = toSetTransformer();
+		Transformer<Set<Object>, List<String>> transformer2 = toSetTransformer();
+		Transformer<Set<Object>, Set<String>> transformer3 = toSetTransformer();
 
 		assertThat(transformer1.transform(asList("1", "2")), iterableWithSize(2));
 		assertThat(transformer2.transform(asList("1", "2")), iterableWithSize(2));
 		assertThat(transformer3.transform(of("1", "2")), iterableWithSize(2));
-		assertThat(transformer4.transform(asList("1", "2")), iterableWithSize(2));
-		assertThat(transformer5.transform(asList("1", "2")), iterableWithSize(2));
-		assertThat(transformer6.transform(of("1", "2")), iterableWithSize(2));
 	}
 
 	@Test

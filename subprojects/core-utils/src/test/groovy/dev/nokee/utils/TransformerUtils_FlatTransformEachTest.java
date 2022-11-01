@@ -21,6 +21,8 @@ import com.google.common.testing.EqualsTester;
 import org.gradle.api.Transformer;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -84,16 +86,16 @@ class TransformerUtils_FlatTransformEachTest {
 
 	@Test
 	void canUseFlatTransformEachFromList() {
-		Transformer<Iterable<Integer>, List<? extends Integer>> transformer1 = flatTransformEach(ImmutableList::of);
+		Transformer<Iterable<Integer>, List<Integer>> transformer1 = flatTransformEach(ImmutableList::of);
 		assertThat(transformer1.transform(asList(1, 2, 3)), iterableWithSize(3));
 
 		Transformer<Iterable<Integer>, List<Integer>> transformer2 = flatTransformEach(ImmutableList::of);
-		assertThat(transformer2.transform(asList(1, 2, 3)), iterableWithSize(3));
+		assertThat(transformer2.transform(new ArrayList<>(asList(1, 2, 3))), iterableWithSize(3));
 	}
 
 	@Test
 	void canUseFlatTransformEachFromIterable() {
-		Transformer<Iterable<Integer>, Iterable<? extends Integer>> transformer1 = flatTransformEach(ImmutableList::of);
+		Transformer<Iterable<Integer>, Iterable<Integer>> transformer1 = flatTransformEach(ImmutableList::of);
 		assertThat(transformer1.transform(asList(1, 2, 3)), iterableWithSize(3));
 
 		Transformer<Iterable<Integer>, Iterable<Integer>> transformer2 = flatTransformEach(ImmutableList::of);
@@ -102,8 +104,8 @@ class TransformerUtils_FlatTransformEachTest {
 
 	@Test
 	void canUseFlatTransformEachFromSet() {
-		Transformer<Iterable<Integer>, Set<? extends Integer>> transformer1 = flatTransformEach(ImmutableList::of);
-		assertThat(transformer1.transform(ImmutableSet.of(1, 2, 3)), iterableWithSize(3));
+		Transformer<Iterable<Integer>, Set<Integer>> transformer1 = flatTransformEach(ImmutableList::of);
+		assertThat(transformer1.transform(new HashSet<>(ImmutableSet.of(1, 2, 3))), iterableWithSize(3));
 
 		Transformer<Iterable<Integer>, Set<Integer>> transformer2 = flatTransformEach(ImmutableList::of);
 		assertThat(transformer2.transform(ImmutableSet.of(1, 2, 3)), iterableWithSize(3));

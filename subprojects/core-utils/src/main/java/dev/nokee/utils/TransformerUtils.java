@@ -66,7 +66,7 @@ public final class TransformerUtils {
 		return transformer == NoOpTransformer.INSTANCE || transformer.equals(Transformers.noOpTransformer());
 	}
 
-	public static <OUT, IN extends OUT, T extends Iterable<? extends IN>> Transformer<List<OUT>, T> toListTransformer() {
+	public static <OUT, IN extends OUT, T extends Iterable<IN>> Transformer<List<OUT>, T> toListTransformer() {
 		return ToListTransformer.INSTANCE.withNarrowTypes();
 	}
 
@@ -120,7 +120,7 @@ public final class TransformerUtils {
 		}
 	}
 
-	public static <OUT, IN extends OUT, T extends Iterable<? extends IN>> Transformer<Set<OUT>, T> toSetTransformer() {
+	public static <OutputElementType, InputElementType extends OutputElementType, InputType extends Iterable<InputElementType>> Transformer<Set<OutputElementType>, InputType> toSetTransformer() {
 		return ToSetTransformer.INSTANCE.withNarrowTypes();
 	}
 
@@ -203,12 +203,12 @@ public final class TransformerUtils {
 	 * The result will apply a proper flatMap algorithm to the provided collection.
 	 *
 	 * @param mapper  an element mapper
-	 * @param <OUT>  output element type resulting from the transform
-	 * @param <IN>  input element type to transform
-	 * @param <T>  input iterable type
+	 * @param <OutputElementType>>  output element type resulting from the transform
+	 * @param <InputElementType>>  input element type to transform
+	 * @param <InputType>>  input iterable type
 	 * @return a {@link Transformer} instance to flat transform each the element of an iterable, never null.
 	 */
-	public static <OUT, IN, T extends Iterable<? extends IN>> Transformer<Iterable<OUT>, T> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OUT>, ? super IN> mapper) {
+	public static <OutputElementType, InputElementType, InputType extends Iterable<? extends InputElementType>> Transformer<Iterable<OutputElementType>, InputType> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OutputElementType>, ? super InputElementType> mapper) {
 		return new FlatTransformEachAdapter<>(mapper);
 	}
 
@@ -241,12 +241,12 @@ public final class TransformerUtils {
 	 * The result will apply a proper map algorithm to the provided collection.
 	 *
 	 * @param mapper  an element mapper
-	 * @param <OUT>  output element type resulting from the transform
-	 * @param <IN>  input element type to transform
-	 * @param <T>  input iterable type
+	 * @param <OutputElementType>  output element type resulting from the transform
+	 * @param <InputElementType>  input element type to transform
+	 * @param <InputType>  input iterable type
 	 * @return a {@link Transformer} instance to transform each the element of an iterable, never null.
 	 */
-	public static <OUT, IN, T extends Iterable<? extends IN>> Transformer<Iterable<OUT>, T> transformEach(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
+	public static <OutputElementType, InputElementType, InputType extends Iterable<InputElementType>> Transformer<Iterable<OutputElementType>, InputType> transformEach(org.gradle.api.Transformer<OutputElementType, InputElementType> mapper) {
 		if (isNoOpTransformer(mapper)) {
 			return NoOpTransformer.INSTANCE.withNarrowTypes();
 		}
