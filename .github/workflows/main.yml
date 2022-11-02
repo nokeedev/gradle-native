@@ -10,7 +10,7 @@ jobs:
             -   uses: actions/checkout@v2
             -   uses: actions/setup-node@v1
                 with:
-                    version: 12
+                    version: 18
             -   run: npm install @octokit/action
             -   run: node .github/actions/check-master.js
                 env:
