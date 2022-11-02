@@ -13,8 +13,8 @@ dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
 	implementation 'com.google.guava:guava:31.0.1-jre'
 	api 'com.github.javaparser:javaparser-core:3.15.18'
-	annotationProcessor 'org.projectlombok:lombok:1.18.12'
-	compileOnly 'org.projectlombok:lombok:1.18.12'
+	annotationProcessor 'org.projectlombok:lombok:1.18.24'
+	compileOnly 'org.projectlombok:lombok:1.18.24'
 
 	testImplementation 'org.codehaus.groovy:groovy:3.0.10'
 	testImplementation platform('org.spockframework:spock-bom:2.1-groovy-3.0')

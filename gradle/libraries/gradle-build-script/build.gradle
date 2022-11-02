@@ -8,8 +8,8 @@ java {
 }
 
 dependencies {
-	annotationProcessor 'org.projectlombok:lombok:1.18.12'
-	compileOnly 'org.projectlombok:lombok:1.18.12'
+	annotationProcessor 'org.projectlombok:lombok:1.18.24'
+	compileOnly 'org.projectlombok:lombok:1.18.24'
 
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.0'
 	testImplementation 'org.mockito:mockito-core:3.6.0'
