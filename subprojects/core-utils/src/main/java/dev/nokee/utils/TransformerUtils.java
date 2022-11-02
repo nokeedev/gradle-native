@@ -203,9 +203,9 @@ public final class TransformerUtils {
 	 * The result will apply a proper flatMap algorithm to the provided collection.
 	 *
 	 * @param mapper  an element mapper
-	 * @param <OutputElementType>>  output element type resulting from the transform
-	 * @param <InputElementType>>  input element type to transform
-	 * @param <InputType>>  input iterable type
+	 * @param <OutputElementType>  output element type resulting from the transform
+	 * @param <InputElementType>  input element type to transform
+	 * @param <InputType>  input iterable type
 	 * @return a {@link Transformer} instance to flat transform each the element of an iterable, never null.
 	 */
 	public static <OutputElementType, InputElementType, InputType extends Iterable<? extends InputElementType>> Transformer<Iterable<OutputElementType>, InputType> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OutputElementType>, ? super InputElementType> mapper) {
