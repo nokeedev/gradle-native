@@ -16,18 +16,17 @@
 package dev.nokee.buildadapter.xcode.internal.components;
 
 import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.xcode.XCTargetReference;
-import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode
-public final class XCTargetComponent implements ModelComponent {
-	private final XCTargetReference value;
+import java.util.List;
 
-	public XCTargetComponent(XCTargetReference value) {
-		this.value = value;
+public final class XCConfigurationsComponent implements ModelComponent {
+	private final List<String> values;
+
+	public XCConfigurationsComponent(List<String> values) {
+		this.values = values;
 	}
 
-	public XCTargetReference get() {
-		return value;
+	public List<String> get() {
+		return values;
 	}
 }

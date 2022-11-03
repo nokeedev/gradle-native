@@ -22,6 +22,7 @@ import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeableXCConfigurationList;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,6 +35,8 @@ import static com.google.common.collect.Streams.stream;
  */
 public interface XCConfigurationList extends PBXProjectItem {
 	Map<String, XCBuildConfiguration> getBuildConfigurationsByName();
+
+	List<XCBuildConfiguration> getBuildConfigurations();
 
 	Optional<String> getDefaultConfigurationName();
 

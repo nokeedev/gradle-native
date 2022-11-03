@@ -25,6 +25,8 @@ public interface XCProjectReference extends XCReference {
 
 	Path getLocation();
 
+	XCTargetReference ofTarget(String name);
+
 	static XCProjectReference of(Path location) {
 		Preconditions.checkArgument(Files.exists(location), "Xcode project '%s' does not exists", location);
 		Preconditions.checkArgument(Files.isDirectory(location), "Xcode project '%s' is not valid", location);

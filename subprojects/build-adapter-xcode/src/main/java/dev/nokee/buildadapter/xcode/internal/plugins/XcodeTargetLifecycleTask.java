@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.buildadapter.xcode.internal.components;
+package dev.nokee.buildadapter.xcode.internal.plugins;
 
-import dev.nokee.model.internal.core.ModelComponent;
-import dev.nokee.xcode.XCTargetReference;
-import lombok.EqualsAndHashCode;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.options.Option;
 
-@EqualsAndHashCode
-public final class XCTargetComponent implements ModelComponent {
-	private final XCTargetReference value;
-
-	public XCTargetComponent(XCTargetReference value) {
-		this.value = value;
-	}
-
-	public XCTargetReference get() {
-		return value;
-	}
+public abstract class XcodeTargetLifecycleTask extends DefaultTask {
+	@Internal
+	@Option(option = "configuration", description = "Build configuration.")
+	public abstract Property<String> getConfigurationFlag();
 }

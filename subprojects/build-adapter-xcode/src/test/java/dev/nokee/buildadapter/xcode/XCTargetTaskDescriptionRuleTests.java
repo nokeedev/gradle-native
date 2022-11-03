@@ -15,19 +15,15 @@
  */
 package dev.nokee.buildadapter.xcode;
 
-import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskDescriptionRule;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.ModelAction;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
-import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.buildadapter.xcode.TestTargetReference.target;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -38,21 +34,17 @@ class XCTargetTaskDescriptionRuleTests {
 
 	@BeforeEach
 	void createEntities() {
-		val parent = new ModelNode();
-		parent.addComponent(new DisplayNameComponent("project ':foo:bar'"));
-
 		task = new ModelNode();
 
 		target = new ModelNode();
-		target.addComponent(new ParentComponent(parent));
-		target.addComponent(new XCTargetComponent(target("my-target")));
+		target.addComponent(new DisplayNameComponent("my awesome target"));
 		target.addComponent(new XCTargetTaskComponent(task));
 	}
 
 	@Test
-	void addsTaskDescriptionOnTargetTaskReferencingTargetNameAndParentDisplayName() {
+	void addsTaskDescriptionOnTargetTaskReferencingEntityDisplayName() {
 		subject.execute(target);
 
-		assertThat(task.get(TaskDescriptionComponent.class).get(), equalTo("Builds target 'my-target' for project ':foo:bar'."));
+		assertThat(task.get(TaskDescriptionComponent.class).get(), equalTo("Builds my awesome target."));
 	}
 }

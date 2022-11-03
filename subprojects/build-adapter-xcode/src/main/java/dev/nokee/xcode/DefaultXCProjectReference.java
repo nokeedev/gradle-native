@@ -39,6 +39,11 @@ public final class DefaultXCProjectReference implements XCProjectReference, Seri
 	}
 
 	@Override
+	public XCTargetReference ofTarget(String name) {
+		return new DefaultXCTargetReference(this, name);
+	}
+
+	@Override
 	public String toString() {
 		return "project '" + location + "'";
 	}
