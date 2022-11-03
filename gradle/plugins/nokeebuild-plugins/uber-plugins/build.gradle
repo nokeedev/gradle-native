@@ -23,5 +23,9 @@ gradlePlugin {
 			id = 'nokeebuild.java-gradle-library'
 			implementationClass = 'nokeebuild.JavaGradleLibraryDevelopmentPlugin'
 		}
+		universalModule {
+			id = 'nokeebuild.universal-module'
+			implementationClass = 'nokeebuild.UniversalModuleDevelopmentPlugin'
+		}
 	}
 }
