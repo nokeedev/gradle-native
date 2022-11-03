@@ -16,9 +16,11 @@
 package dev.nokee.model.internal.names;
 
 import dev.nokee.model.internal.core.ModelComponent;
+import lombok.EqualsAndHashCode;
 
 import java.util.function.Supplier;
 
+@EqualsAndHashCode
 public final class ElementNameComponent implements ModelComponent, Supplier<ElementName> {
 	private final ElementName value;
 

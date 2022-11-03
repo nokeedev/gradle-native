@@ -17,7 +17,7 @@ package dev.nokee.platform.nativebase.internal.plugins;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import dev.nokee.internal.Factory;
 import dev.nokee.language.c.internal.plugins.CSourceSetSpec;
 import dev.nokee.language.cpp.internal.plugins.CppSourceSetSpec;
@@ -33,6 +33,8 @@ import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftSourceSetSpec;
 import dev.nokee.language.swift.tasks.internal.SwiftCompileTask;
 import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
+import dev.nokee.model.internal.ModelElementFactory;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
@@ -51,9 +53,10 @@ import dev.nokee.model.internal.names.ExcludeFromQualifyingNameTag;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -67,7 +70,6 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.DimensionPropertyRegistrationFactory;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.assembletask.AssembleTaskComponent;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
@@ -79,6 +81,7 @@ import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigur
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkedConfiguration;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -147,6 +150,7 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Sync;
 
@@ -156,7 +160,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import static dev.nokee.model.internal.actions.ModelAction.configure;
@@ -466,10 +470,10 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				})))));
 		}));
 
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeApplicationTag.class), (entity, ignored, tag) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeApplicationTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, tag, variants) -> {
 			new CalculateNativeApplicationVariantAction(project).execute(entity);
 		}));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeLibraryTag.class), (entity, ignored, tag) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelTags.referenceOf(NativeLibraryTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, tag, variants) -> {
 			new CalculateNativeLibraryVariantAction(project).execute(entity);
 		}));
 
@@ -560,26 +564,26 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}
 
 		public void execute(ModelNode entity) {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val variants = entity.get(LinkedVariantsComponent.class);
 			val component = ModelNodeUtils.get(entity, of(DefaultNativeApplicationComponent.class));
 
-			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
+			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), new BiFunction<BuildVariant, ModelNode, Void>() {
 				@Override
-				public void accept(BuildVariant buildVariant) {
+				public Void apply(BuildVariant buildVariant, ModelNode variant) {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					val variant = registry.register(nativeApplicationVariant(variantIdentifier, component, project));
-					ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
+					nativeApplicationVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
+					variant.addComponent(new BuildVariantComponent(buildVariant));
+					ModelStates.register(variant);
 
-					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(NativeApplication.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
+					onEachVariantDependencies(variant, variant.getComponent(componentOf(VariantComponentDependencies.class)), project.getProviders());
+					return null;
 				}
 
-				private void onEachVariantDependencies(DomainObjectProvider<NativeApplication> variant, VariantComponentDependencies<?> dependencies) {
-					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
+				@SuppressWarnings("unchecked")
+				private void onEachVariantDependencies(ModelNode variant, VariantComponentDependencies<?> dependencies, ProviderFactory providers) {
+					dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> (Provider<Binary>) ModelStates.finalize(variant).get(DevelopmentBinaryPropertyComponent.class).get().get(GradlePropertyComponent.class).get()).flatMap(it -> it));
 				}
-			});
-			entity.addComponent(new Variants(variants.build()));
+			}).forEach(it -> {});
 
 			component.finalizeExtension(null);
 		}
@@ -593,43 +597,41 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 		}
 
 		public void execute(ModelNode entity) {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+			val variants = entity.get(LinkedVariantsComponent.class);
 			val component = ModelNodeUtils.get(entity, of(DefaultNativeLibraryComponent.class));
 
-			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-			component.getBuildVariants().get().forEach(new Consumer<BuildVariant>() {
+			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), new BiFunction<BuildVariant, ModelNode, Void>() {
 				private final ModelLookup modelLookup = project.getExtensions().getByType(ModelLookup.class);
 
 				@Override
-				public void accept(BuildVariant buildVariant) {
+				public Void apply(BuildVariant buildVariant, ModelNode variant) {
 					val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
-					val variant = registry.register(nativeLibraryVariant(variantIdentifier, component, project));
-					ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
+					nativeLibraryVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
+					variant.addComponent(new BuildVariantComponent(buildVariant));
+					ModelStates.register(variant);
 
-					variants.put(buildVariant, ModelNodes.of(variant));
-					onEachVariantDependencies(variant.as(NativeLibrary.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), variantIdentifier);
+					onEachVariantDependencies(variant.get(ModelElementFactory.class).createObject(variant, ModelType.of(NativeLibrary.class)), variant.getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), variantIdentifier);
+					return null;
 				}
 
 				private void onEachVariantDependencies(DomainObjectProvider<NativeLibrary> variant, VariantComponentDependencies<?> dependencies, VariantIdentifier variantIdentifier) {
-					if (NativeLibrary.class.isAssignableFrom(DefaultNativeLibraryVariant.class)) {
-						if (modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))))) {
-							dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
-								List<? extends Provider<RegularFile>> result = it.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
-									List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();
-									return modules;
-								}).get();
-								return one(result);
-							}));
-						}
-						val syncTask = project.getTasks().register("sync" + StringUtils.capitalize(variantIdentifier.getUnambiguousName()) + "PublicHeaders", Sync.class, task -> {
-							task.from((Callable<?>) () -> {
-								ModelStates.finalize(entity);
-								return entity.get(PublicHeadersComponent.class).get();
-							});
-							task.setDestinationDir(project.getLayout().getBuildDirectory().dir("tmp/" + task.getName()).get().getAsFile());
-						});
-						dependencies.getOutgoing().getExportedHeaders().fileProvider(syncTask.map(it -> it.getDestinationDir()));
+					if (modelLookup.anyMatch(ModelSpecs.of(withType(of(SwiftSourceSet.class))))) {
+						dependencies.getOutgoing().getExportedSwiftModule().convention(variant.flatMap(it -> {
+							List<? extends Provider<RegularFile>> result = it.getBinaries().withType(NativeBinary.class).flatMap(binary -> {
+								List<? extends Provider<RegularFile>> modules = binary.getCompileTasks().withType(SwiftCompileTask.class).map(task -> task.getModuleFile()).get();
+								return modules;
+							}).get();
+							return one(result);
+						}));
 					}
+					val syncTask = project.getTasks().register("sync" + StringUtils.capitalize(variantIdentifier.getUnambiguousName()) + "PublicHeaders", Sync.class, task -> {
+						task.from((Callable<?>) () -> {
+							ModelStates.finalize(entity);
+							return entity.get(PublicHeadersComponent.class).get();
+						});
+						task.setDestinationDir(project.getLayout().getBuildDirectory().dir("tmp/" + task.getName()).get().getAsFile());
+					});
+					dependencies.getOutgoing().getExportedHeaders().fileProvider(syncTask.map(it -> it.getDestinationDir()));
 					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 				}
 
@@ -640,8 +642,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					Preconditions.checkArgument(!iterator.hasNext(), "collection needs to only have one element, more than one element found");
 					return result;
 				}
-			});
-			entity.addComponent(new Variants(variants.build()));
+			}).forEach(it -> {});
 
 			component.finalizeExtension(null);
 		}

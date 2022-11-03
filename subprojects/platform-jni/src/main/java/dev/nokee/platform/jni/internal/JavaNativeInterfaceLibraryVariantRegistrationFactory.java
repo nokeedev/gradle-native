@@ -22,7 +22,9 @@ import dev.nokee.model.internal.core.ModelRegistration;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import lombok.val;
+import org.gradle.api.model.ObjectFactory;
 
+import static dev.nokee.model.internal.core.ModelProjections.createdUsing;
 import static dev.nokee.model.internal.core.ModelProjections.managed;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -30,6 +32,12 @@ import static dev.nokee.platform.base.internal.DomainObjectEntities.tagsOf;
 import static dev.nokee.runtime.nativebase.TargetMachine.TARGET_MACHINE_COORDINATE_AXIS;
 
 public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
+	private final ObjectFactory objects;
+
+	public JavaNativeInterfaceLibraryVariantRegistrationFactory(ObjectFactory objects) {
+		this.objects = objects;
+	}
+
 	public ModelRegistration create(VariantIdentifier identifier) {
 		val buildVariant = (BuildVariantInternal) identifier.getBuildVariant();
 		Preconditions.checkArgument(buildVariant.hasAxisValue(TARGET_MACHINE_COORDINATE_AXIS));
@@ -39,7 +47,7 @@ public final class JavaNativeInterfaceLibraryVariantRegistrationFactory {
 			.withComponent(new IdentifierComponent(identifier))
 			.withComponent(tag(JniLibraryVariantTag.class))
 			.mergeFrom(tagsOf(JniLibraryInternal.class))
-			.withComponent(managed(of(JniLibraryInternal.class)))
+			.withComponent(createdUsing(of(JniLibraryInternal.class), () -> objects.newInstance(JniLibraryInternal.class)))
 			.build();
 	}
 }

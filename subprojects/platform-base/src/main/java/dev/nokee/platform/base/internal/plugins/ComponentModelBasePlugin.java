@@ -15,9 +15,13 @@
  */
 package dev.nokee.platform.base.internal.plugins;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.model.capabilities.variants.CreateVariantsRule;
+import dev.nokee.model.capabilities.variants.KnownVariantInformationElement;
 import dev.nokee.model.internal.DefaultDomainObjectIdentifier;
+import dev.nokee.model.internal.buffers.ModelBuffers;
 import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
 import dev.nokee.model.internal.core.IdentifierComponent;
@@ -43,6 +47,7 @@ import dev.nokee.model.internal.type.TypeOf;
 import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BinaryAwareComponent;
 import dev.nokee.platform.base.BinaryView;
+import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.ComponentContainer;
 import dev.nokee.platform.base.ComponentDependencies;
@@ -91,6 +96,7 @@ import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.ofInstance;
@@ -141,9 +147,15 @@ public class ComponentModelBasePlugin implements Plugin<Project> {
 				.withComponent(createdUsing(of(VariantView.class), () -> new VariantViewAdapter<>(ModelNodeUtils.get(ModelNodeContext.getCurrentModelNode(), of(new TypeOf<ViewAdapter<? extends Variant>>() {})))))
 				.build());
 		})));
+		project.getExtensions().getByType(ModelConfigurer.class).configure(new CreateVariantsRule(project.getExtensions().getByType(ModelRegistry.class)));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelComponentReference.of(BuildVariantsPropertyComponent.class), (entity, ignored, buildVariants) -> {
 			// TODO: Each plugins should just map the build variants into the variants.
-			((Provider<?>) buildVariants.get().get(GradlePropertyComponent.class).get()).get();
+			//   Sort-of, each plugins should complete the configuration but not create the variant themselves
+			final ImmutableSet.Builder<KnownVariantInformationElement> builder = ImmutableSet.builder();
+			((Provider<Set<BuildVariant>>) buildVariants.get().get(GradlePropertyComponent.class).get()).get().forEach(it -> {
+				builder.add(new KnownVariantInformationElement(it.toString()));
+			});
+			entity.addComponent(ModelBuffers.of(KnownVariantInformationElement.class, builder.build()));
 		}));
 		project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.ofProjection(ModelType.of(ModelBackedTaskAwareComponentMixIn.class)), ModelComponentReference.of(IdentifierComponent.class), (entity, projection, identifier) -> {
 			modeRegistry.register(builder()

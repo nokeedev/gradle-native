@@ -30,9 +30,9 @@ import java.util.Objects;
  */
 @EqualsAndHashCode
 public final class ModelRegistration {
-	private final List<Object> components;
+	private final List<ModelComponent> components;
 
-	private ModelRegistration(List<Object> components) {
+	private ModelRegistration(List<ModelComponent> components) {
 		this.components = components;
 	}
 
@@ -74,16 +74,16 @@ public final class ModelRegistration {
 		return new Builder();
 	}
 
-	public List<Object> getComponents() {
+	public List<ModelComponent> getComponents() {
 		return components;
 	}
 
 	public static final class Builder {
-		private final List<Object> components = new ArrayList<>();
+		private final List<ModelComponent> components = new ArrayList<>();
 
 		Builder withComponent(Object component) {
 			if (!components.contains(component)) {
-				components.add(Objects.requireNonNull(component));
+				components.add(Objects.requireNonNull((ModelComponent) component));
 			}
 			return this;
 		}

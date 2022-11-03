@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.capabilities.variants;
 
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.platform.base.BuildVariant;
-import dev.nokee.platform.base.ComponentVariants;
 
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
-public final class Variants implements ComponentVariants, Iterable<ModelNode>, ModelComponent {
-	private final Map<BuildVariant, ModelNode> variants;
+public final class LinkedVariantsComponent implements ModelComponent, Iterable<ModelNode> {
+	private final List<ModelNode> linkedVariants;
 
-	public Variants(Map<BuildVariant, ModelNode> variants) {
-		this.variants = variants;
+	public LinkedVariantsComponent(List<ModelNode> linkedVariants) {
+		this.linkedVariants = linkedVariants;
 	}
 
 	@Override
 	public Iterator<ModelNode> iterator() {
-		return variants.values().iterator();
+		return linkedVariants.iterator();
 	}
 }
