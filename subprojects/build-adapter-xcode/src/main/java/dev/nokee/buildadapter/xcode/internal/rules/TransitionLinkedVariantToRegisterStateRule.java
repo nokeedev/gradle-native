@@ -15,15 +15,16 @@
  */
 package dev.nokee.buildadapter.xcode.internal.rules;
 
-import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
-import dev.nokee.model.internal.core.DisplayNameComponent;
+import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelNode;
-import dev.nokee.platform.base.internal.tasks.TaskDescriptionComponent;
+import dev.nokee.model.internal.state.ModelStates;
 
-public final class XCTargetTaskDescriptionRule extends ModelActionWithInputs.ModelAction2<XCTargetTaskComponent, DisplayNameComponent> {
+public final class TransitionLinkedVariantToRegisterStateRule extends ModelActionWithInputs.ModelAction1<LinkedVariantsComponent> {
 	@Override
-	protected void execute(ModelNode entity, XCTargetTaskComponent task, DisplayNameComponent displayName) {
-		task.get().addComponent(new TaskDescriptionComponent(String.format("Builds %s.", displayName.get())));
+	protected void execute(ModelNode entity, LinkedVariantsComponent variants) {
+		for (ModelNode variant : variants) {
+			ModelStates.register(variant);
+		}
 	}
 }

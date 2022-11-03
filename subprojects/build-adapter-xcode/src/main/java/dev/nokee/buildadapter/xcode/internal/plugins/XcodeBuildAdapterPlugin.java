@@ -16,6 +16,7 @@
 package dev.nokee.buildadapter.xcode.internal.plugins;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import dev.nokee.buildadapter.xcode.internal.DefaultGradleProjectPathService;
 import dev.nokee.buildadapter.xcode.internal.DefaultXCProjectReferenceToStringer;
 import dev.nokee.buildadapter.xcode.internal.GradleBuildLayout;
@@ -26,23 +27,33 @@ import dev.nokee.buildadapter.xcode.internal.components.SettingsDirectoryCompone
 import dev.nokee.buildadapter.xcode.internal.components.XCProjectComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetComponent;
 import dev.nokee.buildadapter.xcode.internal.components.XCTargetTaskComponent;
+import dev.nokee.buildadapter.xcode.internal.rules.AttachXCTargetToVariantRule;
+import dev.nokee.buildadapter.xcode.internal.rules.TransitionLinkedVariantToRegisterStateRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCProjectDescriptionRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCProjectsDiscoveryRule;
+import dev.nokee.buildadapter.xcode.internal.rules.XCTargetComponentDiscoveryRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskDescriptionRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XCTargetTaskGroupRule;
+import dev.nokee.buildadapter.xcode.internal.rules.XCTargetVariantDiscoveryRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeBuildLayoutRule;
 import dev.nokee.buildadapter.xcode.internal.rules.XcodeProjectPathRule;
+import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
+import dev.nokee.model.capabilities.variants.VariantInformationComponent;
+import dev.nokee.model.internal.core.DisplayNameComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
+import dev.nokee.model.internal.core.ModelComponentType;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelPath;
-import dev.nokee.model.internal.core.ModelRegistration;
-import dev.nokee.model.internal.core.ParentComponent;
-import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
+import dev.nokee.model.internal.state.ModelStates;
+import dev.nokee.model.internal.tags.ModelTags;
+import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
+import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.ResolvableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
@@ -52,8 +63,10 @@ import dev.nokee.utils.ActionUtils;
 import dev.nokee.utils.TransformerUtils;
 import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCFileReference;
+import dev.nokee.xcode.XCLoaders;
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCTargetReference;
 import dev.nokee.xcode.XCWorkspace;
 import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
@@ -64,6 +77,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ProjectDependency;
+import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.internal.GradleInternal;
@@ -81,18 +95,18 @@ import org.gradle.build.event.BuildEventsListenerRegistry;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
-import static dev.nokee.utils.ProviderUtils.forParameters;
-import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 import static dev.nokee.utils.TransformerUtils.Transformer.of;
 import static dev.nokee.utils.TransformerUtils.toListTransformer;
@@ -156,6 +170,8 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 		return project -> {
 			project.getPluginManager().apply(ComponentModelBasePlugin.class);
 
+			val buildInputs = new BuildInputService(project.getProviders());
+
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetTaskDescriptionRule());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetTaskGroupRule());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCProjectDescriptionRule(new DefaultXCProjectReferenceToStringer(project.getRootDir().toPath())));
@@ -163,17 +179,8 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			@SuppressWarnings("unchecked")
 			final Provider<XcodeDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeDependenciesService, XcodeDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
 
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetComponentDiscoveryRule(project.getExtensions().getByType(ModelRegistry.class), buildInputs.capture((Transformer<Iterable<XCTargetReference>, XCProjectReference> & Serializable) XCLoaders.allTargetsLoader()::load)::transform));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
-				val xcodeProject = forUseAtConfigurationTime(project.getProviders().of(XCProjectDataValueSource.class, forParameters(it -> {
-					it.getProject().set(reference);
-				}))).get();
-				xcodeProject.getTargets().forEach(target -> {
-					project.getExtensions().getByType(ModelRegistry.class).register(ModelRegistration.builder()
-						.withComponent(new ElementNameComponent(target.getName()))
-						.withComponent(new XCTargetComponent(target))
-						.withComponent(new ParentComponent(entity))
-						.build());
-				});
 				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("inspect"), InspectXcodeTask.class, it -> it.ownedBy(entity)))
 					.as(InspectXcodeTask.class)
 					.configure(task -> {
@@ -181,7 +188,27 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					});
 			}));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), (entity, xcTarget) -> {
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new XCTargetVariantDiscoveryRule(buildInputs.capture((Transformer<Iterable<String>, XCTargetReference> & Serializable) XCLoaders.targetConfigurationsLoader()::load)::transform)));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachXCTargetToVariantRule());
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new TransitionLinkedVariantToRegisterStateRule());
+
+			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), ModelComponentReference.of(VariantInformationComponent.class), (entity, target, variantInfo) -> {
+				entity.addComponent(new DisplayNameComponent(String.format("target variant '%s:%s' of %s", target.get().getName(), variantInfo.getName(), project)));
+			}));
+
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), ModelTags.referenceOf(IsComponent.class), (entity, target, ignored1) -> {
+				val targetLifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetLifecycleTask.class, it -> it.ownedBy(entity)))
+					.as(XcodeTargetLifecycleTask.class)
+					.configure(task -> {
+						task.getConfigurationFlag().convention(project.getProviders().systemProperty("configuration").orElse(project.getProviders().gradleProperty("configuration"))/* TODO: orElse(default configuration for target) */);
+						task.dependsOn((Callable<Object>) task.getConfigurationFlag().map(configuration -> {
+							return Streams.stream(ModelStates.finalize(entity).get(LinkedVariantsComponent.class)).filter(it -> it.find(BuildVariantComponent.class).map(t -> t.get().hasAxisOf(configuration)).orElse(false)).map(it -> ModelStates.discover(ModelStates.discover(it).get(XCTargetTaskComponent.class).get()).getComponent(ModelComponentType.projectionOf(XcodeTargetExecTask.class)).get(ModelType.of(XcodeTargetExecTask.class))).collect(Collectors.toList());
+						})::get);
+					});
+				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetLifecycleTask)));
+			})));
+
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(ModelActionWithInputs.of(ModelComponentReference.of(XCTargetComponent.class), ModelComponentReference.of(VariantInformationComponent.class), (entity, xcTarget, variantInfo) -> {
 				val target = xcTarget.get();
 
 				val derivedData = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity("derivedData", ResolvableDependencyBucketSpec.class, it -> it.ownedBy(entity)))
@@ -189,6 +216,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.configure(configuration -> {
 						configuration.attributes(attributes -> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
 					})
 					.configure(configuration -> {
@@ -211,6 +239,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
 						task.getInputDerivedData().from(derivedData);
+						task.getConfiguration().set(variantInfo.getName());
 						task.getInputFiles().from(task.getXcodeInstallation().map(xcodeInstallation -> {
 							final XCBuildSettings buildSettings = new XCBuildSettings() {
 								@Override
@@ -260,6 +289,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.configure(configuration -> {
 						configuration.attributes(attributes -> {
 							attributes.attribute(Usage.USAGE_ATTRIBUTE, project.getObjects().named(Usage.class, "xcode-derived-data"));
+							attributes.attribute(Attribute.of("dev.nokee.xcode.configuration", String.class), variantInfo.getName());
 						});
 					})
 					.configure(configuration -> {

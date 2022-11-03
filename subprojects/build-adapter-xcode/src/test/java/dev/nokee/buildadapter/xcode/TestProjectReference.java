@@ -17,6 +17,7 @@ package dev.nokee.buildadapter.xcode;
 
 import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCTargetReference;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
@@ -43,6 +44,11 @@ public final class TestProjectReference implements XCProjectReference, Serializa
 	@Override
 	public Path getLocation() {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public XCTargetReference ofTarget(String name) {
+		return new TestTargetReference(name, this);
 	}
 
 	@Override

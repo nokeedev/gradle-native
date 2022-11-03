@@ -15,8 +15,11 @@
  */
 package dev.nokee.model.internal.core;
 
+import lombok.EqualsAndHashCode;
+
 import java.util.function.Supplier;
 
+@EqualsAndHashCode
 public final class DisplayNameComponent implements Supplier<DisplayName>, ModelComponent {
 	private final DisplayName value;
 
@@ -31,5 +34,10 @@ public final class DisplayNameComponent implements Supplier<DisplayName>, ModelC
 	@Override
 	public DisplayName get() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return "display name of '" + value + "'";
 	}
 }

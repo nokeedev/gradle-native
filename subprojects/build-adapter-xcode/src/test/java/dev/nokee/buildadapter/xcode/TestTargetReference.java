@@ -23,10 +23,14 @@ import lombok.EqualsAndHashCode;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(doNotUseGetters = true)
 public final class TestTargetReference implements XCTargetReference {
 	public static XCTargetReference target(String name) {
 		return new TestTargetReference(name, null);
+	}
+
+	public static XCTargetReference target(String name, XCProjectReference project) {
+		return new TestTargetReference(name, project);
 	}
 
 	private final String name;

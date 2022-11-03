@@ -46,8 +46,7 @@ public final class XcodeBuildLayoutRule extends ModelActionWithInputs.ModelActio
 			project.getPluginManager().apply("dev.nokee.model-base");
 			forXcodeProject(projectReference.get(), composite(
 				workingDirectory(set(project.getRootProject().getLayout().getProjectDirectory())),
-				(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk")),
-				(XcodebuildExecTask task) -> task.getConfiguration().set(fromCommandLine("configuration"))
+				(XcodebuildExecTask task) -> task.getSdk().set(fromCommandLine("sdk"))
 			)).execute(project);
 		});
 	}
