@@ -77,6 +77,8 @@ public class DefaultBuildVariant implements BuildVariantInternal {
 				val value = it.getValue();
 				if (value instanceof Named) {
 					return ((Named) value).getName();
+				} else if (value instanceof String) {
+					return (String) value;
 				}
 			}
 			throw new UnsupportedOperationException("Need to be named");
