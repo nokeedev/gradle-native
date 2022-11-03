@@ -1,0 +1,19 @@
+plugins {
+	id 'java-base'
+	id 'nokeebuild.universal-module'
+	id 'maven-publish'
+}
+
+dependencies {
+	implementation project(':coreModel')
+	implementation "com.google.guava:guava:${guavaVersion}"
+	testImplementation project(':internalTesting')
+}
+
+publishing {
+	publications {
+		java(MavenPublication) {
+			from components.java
+		}
+	}
+}

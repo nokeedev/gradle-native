@@ -15,11 +15,11 @@
  */
 package dev.nokee.testing.xctest.internal.plugins;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import dev.nokee.language.objectivec.internal.plugins.SupportObjectiveCSourceSetTag;
 import dev.nokee.model.DomainObjectFactory;
-import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -38,16 +38,15 @@ import dev.nokee.model.internal.core.NodeRegistrationFactoryRegistry;
 import dev.nokee.model.internal.core.ParentComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
+import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
 import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.GroupId;
 import dev.nokee.platform.base.internal.VariantIdentifier;
-import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
@@ -55,6 +54,7 @@ import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurati
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.ios.ObjectiveCIosApplication;
 import dev.nokee.platform.ios.internal.IosApplicationOutgoingDependencies;
@@ -92,6 +92,8 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 import javax.inject.Inject;
@@ -162,21 +164,19 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), (entity, path, ignored, tag) -> {
-			val registry = project.getExtensions().getByType(ModelRegistry.class);
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelTags.referenceOf(XCTestTestSuiteComponentTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, path, tag, variants) -> {
 			val component = ModelNodeUtils.get(entity, BaseXCTestTestSuiteComponent.class);
 
-			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-			component.getBuildVariants().get().forEach(buildVariant -> {
+			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
 				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 
-				val variant = registry.register(xcTestTestSuiteVariant(variantIdentifier, component, project));
-				ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
+				xcTestTestSuiteVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
+				variant.addComponent(new BuildVariantComponent(buildVariant));
+				ModelStates.register(variant);
 
-				variants.put(buildVariant, ModelNodes.of(variant));
-				onEachVariantDependencies(variant.as(DefaultXCTestTestSuiteVariant.class), ModelNodes.of(variant).getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
-			});
-			entity.addComponent(new Variants(variants.build()));
+				onEachVariantDependencies(variant, variant.getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)), project.getProviders());
+				return null;
+			}).forEach(it -> {});
 
 			component.finalizeExtension(project);
 			component.getDevelopmentVariant().convention(project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> component.getVariants().get())));
@@ -281,7 +281,8 @@ public class ObjectiveCXCTestTestSuitePlugin implements Plugin<Project> {
 			;
 	}
 
-	private static void onEachVariantDependencies(DomainObjectProvider<DefaultXCTestTestSuiteVariant> variant, VariantComponentDependencies<?> dependencies) {
-		dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
+	@SuppressWarnings("unchecked")
+	private static void onEachVariantDependencies(ModelNode variant, VariantComponentDependencies<?> dependencies, ProviderFactory providers) {
+		dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> (Provider<Binary>) ModelStates.finalize(variant).get(DevelopmentBinaryPropertyComponent.class).get().get(GradlePropertyComponent.class).get()).flatMap(it -> it));
 	}
 }

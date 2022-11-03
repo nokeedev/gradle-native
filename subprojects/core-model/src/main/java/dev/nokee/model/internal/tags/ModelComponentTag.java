@@ -17,7 +17,9 @@ package dev.nokee.model.internal.tags;
 
 import dev.nokee.model.internal.core.ModelComponent;
 import dev.nokee.model.internal.core.ModelComponentType;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class ModelComponentTag<T extends ModelTag> implements ModelComponent {
 	private final Class<T> tagType;
 

@@ -15,8 +15,8 @@
  */
 package dev.nokee.testing.nativebase.internal.plugins;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import dev.nokee.language.c.internal.plugins.CLanguageBasePlugin;
 import dev.nokee.language.c.internal.plugins.SupportCSourceSetTag;
 import dev.nokee.language.cpp.internal.plugins.CppLanguageBasePlugin;
@@ -27,7 +27,7 @@ import dev.nokee.language.objectivecpp.internal.plugins.ObjectiveCppLanguageBase
 import dev.nokee.language.objectivecpp.internal.plugins.SupportObjectiveCppSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SupportSwiftSourceSetTag;
 import dev.nokee.language.swift.internal.plugins.SwiftLanguageBasePlugin;
-import dev.nokee.model.DomainObjectProvider;
+import dev.nokee.model.capabilities.variants.LinkedVariantsComponent;
 import dev.nokee.model.internal.ProjectIdentifier;
 import dev.nokee.model.internal.actions.ConfigurableTag;
 import dev.nokee.model.internal.core.GradlePropertyComponent;
@@ -49,10 +49,9 @@ import dev.nokee.model.internal.names.ElementNameComponent;
 import dev.nokee.model.internal.registry.ModelConfigurer;
 import dev.nokee.model.internal.registry.ModelLookup;
 import dev.nokee.model.internal.registry.ModelRegistry;
-import dev.nokee.model.internal.state.ModelState;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
-import dev.nokee.platform.base.BuildVariant;
+import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.BuildVariantInternal;
@@ -60,7 +59,6 @@ import dev.nokee.platform.base.internal.ComponentIdentifier;
 import dev.nokee.platform.base.internal.ComponentName;
 import dev.nokee.platform.base.internal.VariantIdentifier;
 import dev.nokee.platform.base.internal.VariantInternal;
-import dev.nokee.platform.base.internal.Variants;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.DeclarableDependencyBucketSpec;
 import dev.nokee.platform.base.internal.dependencies.ExtendsFromParentConfigurationAction;
@@ -68,6 +66,7 @@ import dev.nokee.platform.base.internal.dependencybuckets.CompileOnlyConfigurati
 import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
+import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.nativebase.NativeComponentDependencies;
 import dev.nokee.platform.nativebase.internal.NativeVariantTag;
@@ -102,6 +101,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 
 import java.util.Collections;
@@ -174,21 +174,20 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 
 			registry.instantiate(configureMatching(ownedBy(entity.getId()).and(subtypeOf(of(Configuration.class))), new ExtendsFromParentConfigurationAction()));
 		})));
-		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelComponentReference.of(ModelState.IsAtLeastFinalized.class), ModelTags.referenceOf(NativeTestSuiteComponentTag.class), (entity, path, ignored, tag) -> {
+		project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(ModelPathComponent.class), ModelTags.referenceOf(NativeTestSuiteComponentTag.class), ModelComponentReference.of(LinkedVariantsComponent.class), (entity, path, tag, variants) -> {
 			val registry = project.getExtensions().getByType(ModelRegistry.class);
 			val component = ModelNodeUtils.get(entity, DefaultNativeTestSuiteComponent.class);
 
-			val variants = ImmutableMap.<BuildVariant, ModelNode>builder();
-			component.getBuildVariants().get().forEach(buildVariant -> {
+			Streams.zip(component.getBuildVariants().get().stream(), Streams.stream(variants), (buildVariant, variant) -> {
 				val variantIdentifier = VariantIdentifier.builder().withBuildVariant((BuildVariantInternal) buildVariant).withComponentIdentifier(component.getIdentifier()).build();
 
-				val variant = registry.register(nativeTestSuiteVariant(variantIdentifier, component, project));
-				ModelNodes.of(variant).addComponent(new BuildVariantComponent(buildVariant));
+				nativeTestSuiteVariant(variantIdentifier, component, project).getComponents().forEach(variant::addComponent);
+				variant.addComponent(new BuildVariantComponent(buildVariant));
+				ModelStates.register(variant);
 
-				variants.put(buildVariant, ModelNodes.of(variant));
-				onEachVariantDependencies(variant.as(DefaultNativeTestSuiteVariant.class), ModelNodes.of(variant).getComponent(componentOf(VariantComponentDependencies.class)));
-			});
-			entity.addComponent(new Variants(variants.build()));
+				onEachVariantDependencies(variant, variant.getComponent(componentOf(VariantComponentDependencies.class)), project.getProviders());
+				return null;
+			}).forEach(it -> {});
 
 			component.finalizeExtension(project);
 			component.getDevelopmentVariant().convention((Provider<? extends DefaultNativeTestSuiteVariant>) project.getProviders().provider(new BuildableDevelopmentVariantConvention<>(() -> (Iterable<? extends VariantInternal>) component.getVariants().map(VariantInternal.class::cast).get())));
@@ -270,7 +269,8 @@ public class NativeUnitTestingPlugin implements Plugin<Project> {
 			;
 	}
 
-	private static void onEachVariantDependencies(DomainObjectProvider<DefaultNativeTestSuiteVariant> variant, VariantComponentDependencies<?> dependencies) {
-		dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
+	@SuppressWarnings("unchecked")
+	private static void onEachVariantDependencies(ModelNode variant, VariantComponentDependencies<?> dependencies, ProviderFactory providers) {
+		dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> (Provider<Binary>) ModelStates.finalize(variant).get(DevelopmentBinaryPropertyComponent.class).get().get(GradlePropertyComponent.class).get()).flatMap(it -> it));
 	}
 }

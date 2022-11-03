@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.capabilities.variants;
 
-import dev.nokee.model.capabilities.variants.IsVariant;
-import dev.nokee.platform.base.Variant;
+public interface VariantInformation {
 
-@DomainObjectEntities.Tag(IsVariant.class)
-public interface VariantMixIn extends Variant, ModelBackedNamedMixIn {
+	String getName();
+
+	// get coordinate Axis value
+	// get as coordinate
+
+	interface Dimension {
+
+	}
 }

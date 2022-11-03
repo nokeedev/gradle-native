@@ -13,11 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.platform.base.internal;
+package dev.nokee.model.capabilities.variants;
 
-import dev.nokee.model.capabilities.variants.IsVariant;
-import dev.nokee.platform.base.Variant;
+import dev.nokee.model.internal.buffers.ModelBufferElement;
+import lombok.EqualsAndHashCode;
 
-@DomainObjectEntities.Tag(IsVariant.class)
-public interface VariantMixIn extends Variant, ModelBackedNamedMixIn {
+@EqualsAndHashCode
+public final class KnownVariantInformationElement implements VariantInformation, ModelBufferElement {
+	private final String name;
+
+	public KnownVariantInformationElement(String name) {
+		this.name = name;
+	}
+
+	public KnownVariantInformationElement(VariantInformation variantInfo) {
+		this(variantInfo.getName());
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
 }
