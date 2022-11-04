@@ -181,7 +181,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					});
 			}));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new XCTargetVariantDiscoveryRule(buildInputs.capture((Transformer<Iterable<String>, XCTargetReference> & Serializable) XCLoaders.targetConfigurationsLoader()::load)::transform)));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new XCTargetVariantDiscoveryRule(buildInputs.capture((Transformer<Iterable<String>, XCTargetReference> & Serializable) it -> XCLoaders.targetConfigurationsLoader().load(it))::transform)));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachXCTargetToVariantRule());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new TransitionLinkedVariantToRegisterStateRule());
 
