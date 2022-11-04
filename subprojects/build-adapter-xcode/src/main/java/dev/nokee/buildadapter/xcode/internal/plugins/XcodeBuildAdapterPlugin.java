@@ -64,11 +64,8 @@ import dev.nokee.utils.TransformerUtils;
 import dev.nokee.xcode.XCBuildSettings;
 import dev.nokee.xcode.XCFileReference;
 import dev.nokee.xcode.XCLoaders;
-import dev.nokee.xcode.XCProject;
 import dev.nokee.xcode.XCProjectReference;
 import dev.nokee.xcode.XCTargetReference;
-import dev.nokee.xcode.XCWorkspace;
-import dev.nokee.xcode.XCWorkspaceReference;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -84,15 +81,11 @@ import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.provider.ValueSource;
-import org.gradle.api.provider.ValueSourceParameters;
 import org.gradle.api.services.BuildServiceRegistration;
 import org.gradle.build.event.BuildEventsListenerRegistry;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.Serializable;
@@ -314,37 +307,5 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			});
 			return dep;
 		};
-	}
-
-	public static abstract class XCWorkspaceDataValueSource implements ValueSource<XCWorkspace, XCWorkspaceDataValueSource.Parameters> {
-		public interface Parameters extends ValueSourceParameters {
-			Property<XCWorkspaceReference> getWorkspace();
-		}
-
-		@Nullable
-		@Override
-		public XCWorkspace obtain() {
-			if (getParameters().getWorkspace().isPresent()) {
-				return getParameters().getWorkspace().get().load();
-			} else {
-				return null;
-			}
-		}
-	}
-
-	public static abstract class XCProjectDataValueSource implements ValueSource<XCProject, XCProjectDataValueSource.Parameters> {
-		public interface Parameters extends ValueSourceParameters {
-			Property<XCProjectReference> getProject();
-		}
-
-		@Nullable
-		@Override
-		public XCProject obtain() {
-			if (getParameters().getProject().isPresent()) {
-				return getParameters().getProject().get().load();
-			} else {
-				return null;
-			}
-		}
 	}
 }
