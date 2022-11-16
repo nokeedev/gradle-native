@@ -17,6 +17,7 @@ package dev.nokee.model.internal.core;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface ModelRegistrationTester {
 	default void returnsAnImmutableComponentList() {
 		val initialSize = subject().getComponents().size();
 		try {
-			subject().getComponents().add(new Object());
+			subject().getComponents().add(Mockito.mock(ModelComponent.class));
 		} catch (Throwable ignored) {
 			// Components can either be a list copy or an immutable list
 		}
