@@ -56,7 +56,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.Binary;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.Component;
 import dev.nokee.platform.base.HasDevelopmentVariant;
@@ -81,7 +80,6 @@ import dev.nokee.platform.base.internal.dependencybuckets.ImplementationConfigur
 import dev.nokee.platform.base.internal.dependencybuckets.LinkOnlyConfigurationComponent;
 import dev.nokee.platform.base.internal.dependencybuckets.LinkedConfiguration;
 import dev.nokee.platform.base.internal.dependencybuckets.RuntimeOnlyConfigurationComponent;
-import dev.nokee.platform.base.internal.developmentbinary.DevelopmentBinaryPropertyComponent;
 import dev.nokee.platform.base.internal.developmentvariant.DevelopmentVariantPropertyComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
@@ -150,7 +148,6 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Sync;
 
@@ -169,7 +166,6 @@ import static dev.nokee.model.internal.actions.ModelAction.configureMatching;
 import static dev.nokee.model.internal.actions.ModelSpec.descendantOf;
 import static dev.nokee.model.internal.actions.ModelSpec.ownedBy;
 import static dev.nokee.model.internal.actions.ModelSpec.subtypeOf;
-import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.core.ModelNodes.withType;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.model.internal.type.ModelType.of;
@@ -575,13 +571,12 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 					variant.addComponent(new BuildVariantComponent(buildVariant));
 					ModelStates.register(variant);
 
-					onEachVariantDependencies(variant, variant.getComponent(componentOf(VariantComponentDependencies.class)), project.getProviders());
+					onEachVariantDependencies(variant.get(ModelElementFactory.class).createObject(variant, ModelType.of(NativeApplication.class)), variant.getComponent(ModelComponentType.componentOf(VariantComponentDependencies.class)));
 					return null;
 				}
 
-				@SuppressWarnings("unchecked")
-				private void onEachVariantDependencies(ModelNode variant, VariantComponentDependencies<?> dependencies, ProviderFactory providers) {
-					dependencies.getOutgoing().getExportedBinary().convention(providers.provider(() -> (Provider<Binary>) ModelStates.finalize(variant).get(DevelopmentBinaryPropertyComponent.class).get().get(GradlePropertyComponent.class).get()).flatMap(it -> it));
+				private void onEachVariantDependencies(DomainObjectProvider<NativeApplication> variant, VariantComponentDependencies<?> dependencies) {
+					dependencies.getOutgoing().getExportedBinary().convention(variant.flatMap(it -> it.getDevelopmentBinary()));
 				}
 			}).forEach(it -> {});
 
