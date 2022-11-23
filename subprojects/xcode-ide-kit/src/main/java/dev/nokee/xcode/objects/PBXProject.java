@@ -27,8 +27,10 @@ import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeablePBXProject;
 import dev.nokee.xcode.project.CodeableProjectReference;
+import dev.nokee.xcode.project.KeyedObject;
 import lombok.val;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +51,8 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 	List<ProjectReference> getProjectReferences();
 
 	List<XCRemoteSwiftPackageReference> getPackageReferences();
+
+	Builder toBuilder();
 
 	interface ProjectReference {
 		PBXGroup getProductGroup();
@@ -89,12 +93,21 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 	}
 
 	final class Builder {
-		private final List<PBXTarget> targets = new ArrayList<>();
-		private XCConfigurationList buildConfigurations = XCConfigurationList.builder().build();
+		@Nullable private final KeyedObject parent;
+		private List<PBXTarget> targets;// = new ArrayList<>();
+		private XCConfigurationList buildConfigurations;// = XCConfigurationList.builder().build();
 		private final List<GroupChild> mainGroupChildren = new ArrayList<>();
 		private PBXGroup mainGroup;
-		private final List<ProjectReference> projectReferences = new ArrayList<>();
-		private final List<XCRemoteSwiftPackageReference> packageReferences = new ArrayList<>();
+		private List<ProjectReference> projectReferences;// = new ArrayList<>();
+		private List<XCRemoteSwiftPackageReference> packageReferences;// = new ArrayList<>();
+
+		public Builder() {
+			this.parent = null;
+		}
+
+		public Builder(KeyedObject parent) {
+			this.parent = parent;
+		}
 
 		public Builder target(PBXTarget target) {
 			targets.add(target);
@@ -102,7 +115,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		}
 
 		public Builder targets(Iterable<? extends PBXTarget> targets) {
-			this.targets.clear();
+			this.targets = new ArrayList<>();
 			targets.forEach(this.targets::add);
 			return this;
 		}
@@ -139,39 +152,46 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		}
 
 		public Builder projectReference(ProjectReference projectReference) {
+			if (projectReferences == null) {
+				projectReferences = new ArrayList<>();
+			}
 			projectReferences.add(projectReference);
 			return this;
 		}
 
 		public Builder projectReferences(Iterable<? extends ProjectReference> projectReferences) {
-			this.projectReferences.clear();
+			this.projectReferences = new ArrayList<>();
 			projectReferences.forEach(this.projectReferences::add);
 			return this;
 		}
 
 		public Builder packageReference(XCRemoteSwiftPackageReference packageReference) {
+			if (packageReferences == null) {
+				packageReferences = new ArrayList<>();
+			}
 			this.packageReferences.add(packageReference);
 			return this;
 		}
 
 		public Builder packageReferences(Iterable<? extends XCRemoteSwiftPackageReference> packageReferences) {
-			this.packageReferences.clear();
+			this.packageReferences = new ArrayList<>();
 			packageReferences.forEach(this.packageReferences::add);
 			return this;
 		}
 
 		public PBXProject build() {
-			if (mainGroup == null) {
+			if (mainGroup == null && parent == null) {
 				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
 			}
 
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+			builder.parent(parent);
 			builder.put(KeyedCoders.ISA, "PBXProject");
-			builder.put(CodeablePBXProject.CodingKeys.targets, ImmutableList.copyOf(targets));
+			builder.put(CodeablePBXProject.CodingKeys.targets, targets);
 			builder.put(CodeablePBXProject.CodingKeys.buildConfigurationList, buildConfigurations);
 			builder.put(CodeablePBXProject.CodingKeys.mainGroup, mainGroup);
-			builder.put(CodeablePBXProject.CodingKeys.projectReferences, ImmutableList.copyOf(projectReferences));
-			builder.put(CodeablePBXProject.CodingKeys.packageReferences, ImmutableList.copyOf(packageReferences));
+			builder.put(CodeablePBXProject.CodingKeys.projectReferences, projectReferences);
+			builder.put(CodeablePBXProject.CodingKeys.packageReferences, packageReferences);
 
 			return CodeablePBXProject.newInstance(builder.build());
 		}
