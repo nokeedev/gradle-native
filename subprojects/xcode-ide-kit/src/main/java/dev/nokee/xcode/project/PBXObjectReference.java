@@ -50,4 +50,9 @@ public final class PBXObjectReference {
 		builderConsumer.accept(builder);
 		return new PBXObjectReference(globalID, builder.build());
 	}
+
+	@Override
+	public String toString() {
+		return String.format("isa=%s gid=%s", isa(), globalID);
+	}
 }
