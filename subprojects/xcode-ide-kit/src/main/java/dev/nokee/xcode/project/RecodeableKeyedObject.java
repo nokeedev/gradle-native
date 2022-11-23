@@ -15,10 +15,15 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 
 import javax.annotation.Nullable;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @EqualsAndHashCode
 public final class RecodeableKeyedObject implements KeyedObject {
@@ -49,5 +54,13 @@ public final class RecodeableKeyedObject implements KeyedObject {
 	@Override
 	public void encode(EncodeContext context) {
 		delegate.encode(context);
+		context.tryEncode(knownKeys.stream().flatMap(key -> {
+			final Object value = delegate.tryDecode(key);
+			if (value != null) {
+				return Stream.of(new AbstractMap.SimpleImmutableEntry<>(key, value));
+			} else {
+				return Stream.empty();
+			}
+		}).collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 }

@@ -86,7 +86,6 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 							public void encode(EncodeContext context) {
 								context.noGid();
 								context.base(value);
-								throw new UnsupportedOperationException("for now, we don't support encoding existent object");
 							}
 
 							@Override
@@ -115,7 +114,6 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 	public void encode(EncodeContext context) {
 		context.gid(reference.getGlobalID());
 		context.base(copyOf(reference.getFields().entrySet()));
-		throw new UnsupportedOperationException("for now, we don't support re-encoding existent object");
 	}
 
 	@Override

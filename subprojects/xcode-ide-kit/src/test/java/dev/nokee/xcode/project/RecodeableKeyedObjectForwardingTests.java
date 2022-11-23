@@ -22,7 +22,7 @@ import static dev.nokee.xcode.project.forwarding.ForwardingWrapper.forwarding;
 import static dev.nokee.xcode.project.forwarding.ForwardingWrapperMatchers.forwardsToDelegate;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class RecodeableKeyedObjectTests {
+class RecodeableKeyedObjectForwardingTests {
 	@Test
 	void forwardsGlobalIdToDelegate() {
 		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate("globalId"));
