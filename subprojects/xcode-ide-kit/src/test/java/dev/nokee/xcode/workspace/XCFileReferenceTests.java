@@ -15,32 +15,21 @@
  */
 package dev.nokee.xcode.workspace;
 
-import lombok.EqualsAndHashCode;
+import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
+import static dev.nokee.xcode.workspace.XCFileReference.group;
+import static dev.nokee.xcode.workspace.XCFileReference.self;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-@EqualsAndHashCode
-public final class XCFileReference implements Serializable {
-	private final String location;
-
-	private XCFileReference(String location) {
-		this.location = location;
+class XCFileReferenceTests {
+	@Test
+	void canCreateSelfFileReference() {
+		assertThat(self(), equalTo(XCFileReference.of("self:")));
 	}
 
-	public String getLocation() {
-		return location;
-	}
-
-	public static XCFileReference of(String location) {
-		return new XCFileReference(location);
-	}
-
-	public static XCFileReference group(String path) {
-		assert !path.startsWith("/");
-		return new XCFileReference("group:" + path);
-	}
-
-	public static XCFileReference self() {
-		return new XCFileReference("self:");
+	@Test
+	void canCreateGroupFileReference() {
+		assertThat(group("some/path/in/group"), equalTo(XCFileReference.of("group:some/path/in/group")));
 	}
 }
