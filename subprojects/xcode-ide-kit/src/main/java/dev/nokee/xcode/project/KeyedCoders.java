@@ -79,8 +79,28 @@ public final class KeyedCoders {
 	private static final ValueCoder<XCConfigurationList> objectRefOfConfigurationList = uncheckedCast("only interested in main type", objectRef(new XCConfigurationListFactory<>()));
 	private static final ValueCoder<PBXTarget> objectRefOfTarget = uncheckedCast("only interested in main type", objectRef(new TargetFactory<>()));
 
-	public static final CodingKey ISA = () -> "isa";
-	public static final CodingKey VERSION_REQUIREMENT_KIND = () -> "kind";
+	public static final CodingKey ISA = new CodingKey() {
+		@Override
+		public String getName() {
+			return "isa";
+		}
+
+		@Override
+		public String toString() {
+			return getName();
+		}
+	};
+	public static final CodingKey VERSION_REQUIREMENT_KIND = new CodingKey() {
+		@Override
+		public String getName() {
+			return "kind";
+		}
+
+		@Override
+		public String toString() {
+			return getName();
+		}
+	};
 
 	public static final Map<CodingKey, KeyedCoder<?>> DECODERS = ImmutableMap.<CodingKey, KeyedCoder<?>>builder()
 		.put(ISA, forKey("isa"))
