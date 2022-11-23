@@ -30,6 +30,9 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 	@EqualsAndHashCode.Exclude private final CodingKeyCoders coders;
 
 	public PBXObjectReferenceKeyedObject(PBXObjects objects, PBXObjectReference reference, CodingKeyCoders coders) {
+		assert objects != null;
+		assert reference != null;
+		assert coders != null;
 		this.objects = objects;
 		this.reference = reference;
 		this.coders = coders;
