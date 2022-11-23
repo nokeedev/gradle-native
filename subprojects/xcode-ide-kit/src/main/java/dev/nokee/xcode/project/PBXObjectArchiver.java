@@ -106,7 +106,7 @@ public final class PBXObjectArchiver {
 
 		@Override
 		public void noGid() {
-
+			gid = null;
 		}
 
 		@Override
