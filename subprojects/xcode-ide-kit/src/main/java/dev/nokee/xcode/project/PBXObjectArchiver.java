@@ -59,6 +59,7 @@ public final class PBXObjectArchiver {
 		assert !encodedObjects.containsKey(obj);
 		val context = encodeContextOf(objects, encodedObjects, gid -> encodedObjects.put(obj, gid));
 		obj.encode(context);
+		context.flushEncoding();
 
 		String gid = context.gid;
 		if (gid == null) {
@@ -82,6 +83,7 @@ public final class PBXObjectArchiver {
 		private final KnownGlobalIdentificationCallback knownGlobalIdCallback;
 		String gid;
 		Map<String, Object> map;
+		Map<CodingKey, Object> codingMap = new LinkedHashMap<>();
 
 		public MyEncodeContext(PBXObjects.Builder objects, Map<Codeable, String> encodedObjects, KnownGlobalIdentificationCallback knownGlobalIdCallback) {
 			this.objects = objects;
@@ -111,7 +113,11 @@ public final class PBXObjectArchiver {
 
 		@Override
 		public void tryEncode(Map<CodingKey, ?> data) {
-			data.forEach((key, obj) -> {
+			codingMap.putAll(data);
+		}
+
+		public void flushEncoding() {
+			codingMap.forEach((key, obj) -> {
 				@SuppressWarnings("unchecked")
 				final KeyedCoder<Object> coder = (KeyedCoder<Object>) coders.get(key).orElseThrow(() -> new UnsupportedOperationException("Coder for " + key + " (" + key.getClass().getName().substring(key.getClass().getName().lastIndexOf('.') + 1) + ") not found."));
 				coder.encode(obj, new KeyedEncoderAdapter() {
@@ -136,6 +142,7 @@ public final class PBXObjectArchiver {
 					}
 				});
 			});
+			codingMap.clear();
 		}
 	}
 }
