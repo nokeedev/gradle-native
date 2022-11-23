@@ -16,9 +16,9 @@
 package dev.nokee.xcode.objects.configuration;
 
 import dev.nokee.xcode.objects.files.PBXFileReference;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeableXCBuildConfiguration;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.Optional;
 import java.util.function.Consumer;

@@ -23,16 +23,26 @@ import java.util.Optional;
 
 @EqualsAndHashCode
 public final class DefaultKeyedObject implements KeyedObject {
+	private final KeyedObject parent;
 	private final ImmutableMap<CodingKey, Object> values;
 
 	public DefaultKeyedObject(ImmutableMap<CodingKey, Object> values) {
+		this(null, values);
+	}
+
+	public DefaultKeyedObject(KeyedObject parent, ImmutableMap<CodingKey, Object> values) {
+		this.parent = parent;
 		this.values = values;
 	}
 
 	@Nullable
 	@Override
 	public String globalId() {
-		return null;
+		if (parent == null) {
+			return null;
+		} else {
+			return parent.globalId();
+		}
 	}
 
 	@Override
@@ -42,17 +52,24 @@ public final class DefaultKeyedObject implements KeyedObject {
 
 	@Override
 	public void encode(EncodeContext context) {
+		if (parent != null) {
+			parent.encode(context);
+		}
 		context.tryEncode(values);
 	}
 
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		@SuppressWarnings("unchecked")
-		final T result = (T) values.get(key);
+		T result = (T) values.get(key);
+		if (result == null && parent != null) {
+			result = parent.tryDecode(key);
+		}
 		return result;
 	}
 
 	public static final class Builder {
+		private KeyedObject parent = null;
 		private final ImmutableMap.Builder<CodingKey, Object> builder = ImmutableMap.builder();
 
 		public Builder put(CodingKey key, @Nullable Object object) {
@@ -62,8 +79,13 @@ public final class DefaultKeyedObject implements KeyedObject {
 			return this;
 		}
 
+		public Builder parent(KeyedObject parent) {
+			this.parent = parent;
+			return this;
+		}
+
 		public DefaultKeyedObject build() {
-			return new DefaultKeyedObject(builder.build());
+			return new DefaultKeyedObject(parent, builder.build());
 		}
 	}
 
