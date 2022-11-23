@@ -128,6 +128,12 @@ public final class PBXObjectArchiver {
 
 					@Override
 					protected String encodeRef(Codeable object) {
+						// Skip encoding if object already encoded
+						if (encodedObjects.containsKey(object)) {
+							return encodedObjects.get(object);
+						} else if (object.globalId() != null && encodedObjects.containsValue(object.globalId())) {
+							return object.globalId(); // already encoded but the object was different, we really only care about the reference (ex. PBXProject was changed but some other object still reference the old object)
+						}
 						final PBXObjectReference reference = encodeRefInternal(objects, encodedObjects, object);
 						objects.add(reference);
 						return reference.getGlobalID();
