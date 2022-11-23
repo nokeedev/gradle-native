@@ -28,6 +28,6 @@ public final class PBXBuildFileFactory<T extends PBXBuildFile & Codeable> implem
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		assert "PBXBuildFile".equals(map.isa());
-		return (T) new CodeablePBXBuildFile(map);
+		return (T) CodeablePBXBuildFile.newInstance(map);
 	}
 }

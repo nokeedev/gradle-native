@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXResourcesBuildPhase;
 import lombok.EqualsAndHashCode;
@@ -72,5 +73,9 @@ public final class CodeablePBXResourcesBuildPhase implements PBXResourcesBuildPh
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
+	}
+
+	public static CodeablePBXResourcesBuildPhase newInstance(KeyedObject delegate) {
+		return new CodeablePBXResourcesBuildPhase(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

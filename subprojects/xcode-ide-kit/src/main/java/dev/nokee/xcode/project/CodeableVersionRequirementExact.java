@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import lombok.EqualsAndHashCode;
 
@@ -77,5 +78,9 @@ public final class CodeableVersionRequirementExact implements XCRemoteSwiftPacka
 	@Override
 	public String toString() {
 		return "require exact version '" + getVersion() + "'";
+	}
+
+	public static CodeableVersionRequirementExact newInstance(KeyedObject delegate) {
+		return new CodeableVersionRequirementExact(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

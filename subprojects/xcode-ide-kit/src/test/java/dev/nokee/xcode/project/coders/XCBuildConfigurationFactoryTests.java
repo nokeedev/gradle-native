@@ -45,7 +45,7 @@ public class XCBuildConfigurationFactoryTests {
 
 		@Test
 		void createsXCBuildConfiguration() {
-			assertThat(subject.create(map), equalTo(new CodeableXCBuildConfiguration(map)));
+			assertThat(subject.create(map), equalTo(CodeableXCBuildConfiguration.newInstance(map)));
 		}
 	}
 }

@@ -45,7 +45,7 @@ public class PBXGroupFactoryTests {
 
 		@Test
 		void createsPBXGroup() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXGroup(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXGroup.newInstance(map)));
 		}
 	}
 }

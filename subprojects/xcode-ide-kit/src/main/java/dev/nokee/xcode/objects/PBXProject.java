@@ -173,7 +173,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			builder.put(CodeablePBXProject.CodingKeys.projectReferences, ImmutableList.copyOf(projectReferences));
 			builder.put(CodeablePBXProject.CodingKeys.packageReferences, ImmutableList.copyOf(packageReferences));
 
-			return new CodeablePBXProject(builder.build());
+			return CodeablePBXProject.newInstance(builder.build());
 		}
 	}
 }

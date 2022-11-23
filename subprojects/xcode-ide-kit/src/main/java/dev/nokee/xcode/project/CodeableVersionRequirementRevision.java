@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import lombok.EqualsAndHashCode;
 
@@ -77,5 +78,9 @@ public final class CodeableVersionRequirementRevision implements XCRemoteSwiftPa
 	@Override
 	public String toString() {
 		return "require revision '" + getRevision() + "'";
+	}
+
+	public static CodeableVersionRequirementRevision newInstance(KeyedObject delegate) {
+		return new CodeableVersionRequirementRevision(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

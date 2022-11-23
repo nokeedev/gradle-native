@@ -30,9 +30,9 @@ public final class TargetFactory<T extends PBXTarget & Codeable> implements Code
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		switch (map.isa()) {
-			case "PBXAggregateTarget": return (T) new CodeablePBXAggregateTarget(map);
-			case "PBXLegacyTarget": return (T) new CodeablePBXLegacyTarget(map);
-			case "PBXNativeTarget": return (T) new CodeablePBXNativeTarget(map);
+			case "PBXAggregateTarget": return (T) CodeablePBXAggregateTarget.newInstance(map);
+			case "PBXLegacyTarget": return (T) CodeablePBXLegacyTarget.newInstance(map);
+			case "PBXNativeTarget": return (T) CodeablePBXNativeTarget.newInstance(map);
 			default: throw new UnsupportedOperationException();
 		}
 	}

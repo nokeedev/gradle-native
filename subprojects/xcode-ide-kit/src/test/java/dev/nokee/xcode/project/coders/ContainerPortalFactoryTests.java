@@ -44,7 +44,7 @@ class ContainerPortalFactoryTests {
 
 		@Test
 		void createsPBXFileReference() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXFileReference(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXFileReference.newInstance(map)));
 		}
 	}
 
@@ -57,7 +57,7 @@ class ContainerPortalFactoryTests {
 
 		@Test
 		void createsPBXProject() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXProject(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXProject.newInstance(map)));
 		}
 	}
 }

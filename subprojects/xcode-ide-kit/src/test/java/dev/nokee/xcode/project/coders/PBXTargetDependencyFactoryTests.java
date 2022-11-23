@@ -46,7 +46,7 @@ public class PBXTargetDependencyFactoryTests {
 
 		@Test
 		void createsPBXTargetDependency() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXTargetDependency(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXTargetDependency.newInstance(map)));
 		}
 	}
 }

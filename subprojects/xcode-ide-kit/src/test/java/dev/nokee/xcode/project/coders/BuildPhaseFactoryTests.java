@@ -48,7 +48,7 @@ class BuildPhaseFactoryTests {
 
 		@Test
 		void createsPBXCopyFilesBuildPhase() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXCopyFilesBuildPhase(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXCopyFilesBuildPhase.newInstance(map)));
 		}
 	}
 
@@ -61,7 +61,7 @@ class BuildPhaseFactoryTests {
 
 		@Test
 		void createsPBXFrameworksBuildPhase() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXFrameworksBuildPhase(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXFrameworksBuildPhase.newInstance(map)));
 		}
 	}
 
@@ -74,7 +74,7 @@ class BuildPhaseFactoryTests {
 
 		@Test
 		void createsPBXHeadersBuildPhase() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXHeadersBuildPhase(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXHeadersBuildPhase.newInstance(map)));
 		}
 	}
 
@@ -87,7 +87,7 @@ class BuildPhaseFactoryTests {
 
 		@Test
 		void createsPBXResourcesBuildPhase() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXResourcesBuildPhase(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXResourcesBuildPhase.newInstance(map)));
 		}
 	}
 
@@ -100,7 +100,7 @@ class BuildPhaseFactoryTests {
 
 		@Test
 		void createsPBXShellScriptBuildPhase() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXShellScriptBuildPhase(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXShellScriptBuildPhase.newInstance(map)));
 		}
 	}
 
@@ -113,7 +113,7 @@ class BuildPhaseFactoryTests {
 
 		@Test
 		void createsPBXSourcesBuildPhase() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXSourcesBuildPhase(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXSourcesBuildPhase.newInstance(map)));
 		}
 	}
 }

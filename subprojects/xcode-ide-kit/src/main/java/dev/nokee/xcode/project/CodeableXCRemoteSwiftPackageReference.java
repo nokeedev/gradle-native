@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import lombok.EqualsAndHashCode;
 
@@ -77,5 +78,9 @@ public final class CodeableXCRemoteSwiftPackageReference implements XCRemoteSwif
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
+	}
+
+	public static CodeableXCRemoteSwiftPackageReference newInstance(KeyedObject delegate) {
+		return new CodeableXCRemoteSwiftPackageReference(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

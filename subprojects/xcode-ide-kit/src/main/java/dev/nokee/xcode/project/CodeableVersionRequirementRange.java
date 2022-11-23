@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import lombok.EqualsAndHashCode;
 
@@ -82,5 +83,9 @@ public class CodeableVersionRequirementRange implements XCRemoteSwiftPackageRefe
 	@Override
 	public String toString() {
 		return "require range version from '" + getMinimumVersion() + "' to '" + getMaximumVersion() + "'";
+	}
+
+	public static CodeableVersionRequirementRange newInstance(KeyedObject delegate) {
+		return new CodeableVersionRequirementRange(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

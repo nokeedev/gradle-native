@@ -46,7 +46,7 @@ public class PBXFileReferenceFactoryTests {
 
 		@Test
 		void createsPBXFileReference() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXFileReference(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXFileReference.newInstance(map)));
 		}
 	}
 }

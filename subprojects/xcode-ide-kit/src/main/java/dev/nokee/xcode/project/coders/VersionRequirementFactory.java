@@ -34,12 +34,12 @@ public final class VersionRequirementFactory<T extends XCRemoteSwiftPackageRefer
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		switch (map.<XCRemoteSwiftPackageReference.VersionRequirement.Kind>tryDecode(KeyedCoders.VERSION_REQUIREMENT_KIND)) {
-			case BRANCH: return (T) new CodeableVersionRequirementBranch(map);
-			case EXACT: return (T) new CodeableVersionRequirementExact(map);
-			case RANGE: return (T) new CodeableVersionRequirementRange(map);
-			case REVISION: return (T) new CodeableVersionRequirementRevision(map);
-			case UP_TO_NEXT_MAJOR_VERSION: return (T) new CodeableVersionRequirementUpToNextMajorVersion(map);
-			case UP_TO_NEXT_MINOR_VERSION: return (T) new CodeableVersionRequirementUpToNextMinorVersion(map);
+			case BRANCH: return (T) CodeableVersionRequirementBranch.newInstance(map);
+			case EXACT: return (T) CodeableVersionRequirementExact.newInstance(map);
+			case RANGE: return (T) CodeableVersionRequirementRange.newInstance(map);
+			case REVISION: return (T) CodeableVersionRequirementRevision.newInstance(map);
+			case UP_TO_NEXT_MAJOR_VERSION: return (T) CodeableVersionRequirementUpToNextMajorVersion.newInstance(map);
+			case UP_TO_NEXT_MINOR_VERSION: return (T) CodeableVersionRequirementUpToNextMinorVersion.newInstance(map);
 			default: throw new UnsupportedOperationException();
 		}
 	}

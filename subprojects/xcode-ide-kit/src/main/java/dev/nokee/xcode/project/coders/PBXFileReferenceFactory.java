@@ -28,6 +28,6 @@ public final class PBXFileReferenceFactory<T extends PBXFileReference & Codeable
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		assert "PBXFileReference".equals(map.isa());
-		return (T) new CodeablePBXFileReference(map);
+		return (T) CodeablePBXFileReference.newInstance(map);
 	}
 }

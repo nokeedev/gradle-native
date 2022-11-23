@@ -29,8 +29,8 @@ public class ContainerPortalFactory<T extends PBXContainerItemProxy.ContainerPor
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		switch (map.isa()) {
-			case "PBXFileReference": return (T) new CodeablePBXFileReference(map);
-			case "PBXProject": return (T) new CodeablePBXProject(map);
+			case "PBXFileReference": return (T) CodeablePBXFileReference.newInstance(map);
+			case "PBXProject": return (T) CodeablePBXProject.newInstance(map);
 			default: throw new UnsupportedOperationException();
 		}
 	}

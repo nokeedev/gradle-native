@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import lombok.EqualsAndHashCode;
 
@@ -77,5 +78,9 @@ public class CodeableVersionRequirementUpToNextMajorVersion implements XCRemoteS
 	@Override
 	public String toString() {
 		return "require minimum version '" + getMinimumVersion() + "' up to next major version";
+	}
+
+	public static CodeableVersionRequirementUpToNextMajorVersion newInstance(KeyedObject delegate) {
+		return new CodeableVersionRequirementUpToNextMajorVersion(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

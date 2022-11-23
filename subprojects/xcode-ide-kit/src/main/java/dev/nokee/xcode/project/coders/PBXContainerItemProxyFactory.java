@@ -30,6 +30,6 @@ public final class PBXContainerItemProxyFactory<T extends PBXContainerItemProxy 
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		assert "PBXContainerItemProxy".equals(map.isa());
-		return (T) new CodeablePBXContainerItemProxy(map);
+		return (T) CodeablePBXContainerItemProxy.newInstance(map);
 	}
 }
