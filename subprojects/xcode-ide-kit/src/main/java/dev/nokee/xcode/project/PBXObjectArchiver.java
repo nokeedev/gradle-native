@@ -56,6 +56,7 @@ public final class PBXObjectArchiver {
 	}
 
 	private <T extends Codeable> PBXObjectReference encodeRefInternal(PBXObjects.Builder objects, Map<Codeable, String> encodedObjects, T obj) {
+		assert !encodedObjects.containsKey(obj);
 		val context = encodeContextOf(objects, encodedObjects, gid -> encodedObjects.put(obj, gid));
 		obj.encode(context);
 
