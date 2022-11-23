@@ -45,7 +45,7 @@ public class PBXContainerItemProxyFactoryTests {
 
 		@Test
 		void createsPBXContainerItemProxy() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXContainerItemProxy(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXContainerItemProxy.newInstance(map)));
 		}
 	}
 }

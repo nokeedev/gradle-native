@@ -28,6 +28,6 @@ public final class XCSwiftPackageProductDependencyFactory<T extends XCSwiftPacka
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		assert "XCSwiftPackageProductDependency".equals(map.isa());
-		return (T) new CodeableXCSwiftPackageProductDependency(map);
+		return (T) CodeableXCSwiftPackageProductDependency.newInstance(map);
 	}
 }

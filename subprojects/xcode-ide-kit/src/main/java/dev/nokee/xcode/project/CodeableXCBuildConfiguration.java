@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -89,5 +90,9 @@ public final class CodeableXCBuildConfiguration implements XCBuildConfiguration,
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
+	}
+
+	public static CodeableXCBuildConfiguration newInstance(KeyedObject delegate) {
+		return new CodeableXCBuildConfiguration(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

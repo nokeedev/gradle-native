@@ -48,7 +48,7 @@ class GroupChildFactoryTests {
 
 		@Test
 		void createsPBXFileReference() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXFileReference(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXFileReference.newInstance(map)));
 		}
 	}
 
@@ -61,7 +61,7 @@ class GroupChildFactoryTests {
 
 		@Test
 		void createsPBXGroup() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXGroup(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXGroup.newInstance(map)));
 		}
 	}
 
@@ -74,7 +74,7 @@ class GroupChildFactoryTests {
 
 		@Test
 		void createsPBXReferenceProxy() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXReferenceProxy(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXReferenceProxy.newInstance(map)));
 		}
 	}
 
@@ -87,7 +87,7 @@ class GroupChildFactoryTests {
 
 		@Test
 		void createsPBXVariantGroup() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXVariantGroup(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXVariantGroup.newInstance(map)));
 		}
 	}
 
@@ -100,7 +100,7 @@ class GroupChildFactoryTests {
 
 		@Test
 		void createsXCVersionGroup() {
-			assertThat(subject.create(map), equalTo(new CodeableXCVersionGroup(map)));
+			assertThat(subject.create(map), equalTo(CodeableXCVersionGroup.newInstance(map)));
 		}
 	}
 }

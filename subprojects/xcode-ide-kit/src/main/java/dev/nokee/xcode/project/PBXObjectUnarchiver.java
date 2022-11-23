@@ -31,6 +31,6 @@ public final class PBXObjectUnarchiver {
 	}
 
 	public PBXProject decode(PBXProj proj) {
-		return new CodeablePBXProject(new CachingKeyedObject(new PBXObjectReferenceKeyedObject(proj.getObjects(), proj.getObjects().getById(proj.getRootObject()), coders)));
+		return CodeablePBXProject.newInstance(new CachingKeyedObject(new PBXObjectReferenceKeyedObject(proj.getObjects(), proj.getObjects().getById(proj.getRootObject()), coders)));
 	}
 }

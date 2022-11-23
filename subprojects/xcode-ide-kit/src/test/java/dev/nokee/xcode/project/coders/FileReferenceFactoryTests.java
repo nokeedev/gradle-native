@@ -47,7 +47,7 @@ class FileReferenceFactoryTests {
 
 		@Test
 		void createsPBXFileReference() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXFileReference(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXFileReference.newInstance(map)));
 		}
 	}
 
@@ -60,7 +60,7 @@ class FileReferenceFactoryTests {
 
 		@Test
 		void createsPBXReferenceProxy() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXReferenceProxy(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXReferenceProxy.newInstance(map)));
 		}
 	}
 
@@ -73,7 +73,7 @@ class FileReferenceFactoryTests {
 
 		@Test
 		void createsPBXVariantGroup() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXVariantGroup(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXVariantGroup.newInstance(map)));
 		}
 	}
 
@@ -86,7 +86,7 @@ class FileReferenceFactoryTests {
 
 		@Test
 		void createsXCVersionGroup() {
-			assertThat(subject.create(map), equalTo(new CodeableXCVersionGroup(map)));
+			assertThat(subject.create(map), equalTo(CodeableXCVersionGroup.newInstance(map)));
 		}
 	}
 }

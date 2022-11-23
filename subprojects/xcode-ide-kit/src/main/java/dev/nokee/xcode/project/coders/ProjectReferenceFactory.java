@@ -28,6 +28,6 @@ public final class ProjectReferenceFactory<T extends PBXProject.ProjectReference
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		assert map.isa() == null;
-		return (T) new CodeableProjectReference(map);
+		return (T) CodeableProjectReference.newInstance(map);
 	}
 }

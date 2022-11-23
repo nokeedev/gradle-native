@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import lombok.EqualsAndHashCode;
@@ -91,5 +92,9 @@ public final class CodeableXCConfigurationList implements XCConfigurationList, C
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
+	}
+
+	public static CodeableXCConfigurationList newInstance(KeyedObject delegate) {
+		return new CodeableXCConfigurationList(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

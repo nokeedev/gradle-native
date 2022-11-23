@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
@@ -123,5 +124,9 @@ public final class CodeableXCVersionGroup implements XCVersionGroup, Codeable {
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
+	}
+
+	public static CodeableXCVersionGroup newInstance(KeyedObject delegate) {
+		return new CodeableXCVersionGroup(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

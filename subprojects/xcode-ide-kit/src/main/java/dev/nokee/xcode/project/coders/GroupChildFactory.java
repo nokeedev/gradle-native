@@ -32,11 +32,11 @@ public final class GroupChildFactory<T extends GroupChild & Codeable> implements
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		switch (map.isa()) {
-			case "PBXFileReference": return (T) new CodeablePBXFileReference(map);
-			case "PBXGroup": return (T) new CodeablePBXGroup(map);
-			case "PBXReferenceProxy": return (T) new CodeablePBXReferenceProxy(map);
-			case "PBXVariantGroup": return (T) new CodeablePBXVariantGroup(map);
-			case "XCVersionGroup": return (T) new CodeableXCVersionGroup(map);
+			case "PBXFileReference": return (T) CodeablePBXFileReference.newInstance(map);
+			case "PBXGroup": return (T) CodeablePBXGroup.newInstance(map);
+			case "PBXReferenceProxy": return (T) CodeablePBXReferenceProxy.newInstance(map);
+			case "PBXVariantGroup": return (T) CodeablePBXVariantGroup.newInstance(map);
+			case "XCVersionGroup": return (T) CodeableXCVersionGroup.newInstance(map);
 			default: throw new UnsupportedOperationException();
 		}
 	}

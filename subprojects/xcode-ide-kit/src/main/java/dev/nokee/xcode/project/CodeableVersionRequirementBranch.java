@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import lombok.EqualsAndHashCode;
 
@@ -76,5 +77,9 @@ public class CodeableVersionRequirementBranch implements XCRemoteSwiftPackageRef
 	@Override
 	public String toString() {
 		return "require branch '" + getBranch() + "'";
+	}
+
+	public static CodeableVersionRequirementBranch newInstance(KeyedObject delegate) {
+		return new CodeableVersionRequirementBranch(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

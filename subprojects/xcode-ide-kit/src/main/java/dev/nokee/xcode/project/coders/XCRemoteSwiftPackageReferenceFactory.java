@@ -28,6 +28,6 @@ public final class XCRemoteSwiftPackageReferenceFactory<T extends XCRemoteSwiftP
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		assert "XCRemoteSwiftPackageReference".equals(map.isa());
-		return (T) new CodeableXCRemoteSwiftPackageReference(map);
+		return (T) CodeableXCRemoteSwiftPackageReference.newInstance(map);
 	}
 }

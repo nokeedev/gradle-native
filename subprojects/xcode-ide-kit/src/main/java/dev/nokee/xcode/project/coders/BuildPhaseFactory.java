@@ -33,12 +33,12 @@ public final class BuildPhaseFactory<T extends PBXBuildPhase & Codeable> impleme
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		switch (map.isa()) {
-			case "PBXCopyFilesBuildPhase": return (T) new CodeablePBXCopyFilesBuildPhase(map);
-			case "PBXFrameworksBuildPhase": return (T) new CodeablePBXFrameworksBuildPhase(map);
-			case "PBXHeadersBuildPhase": return (T) new CodeablePBXHeadersBuildPhase(map);
-			case "PBXResourcesBuildPhase": return (T) new CodeablePBXResourcesBuildPhase(map);
-			case "PBXShellScriptBuildPhase": return (T) new CodeablePBXShellScriptBuildPhase(map);
-			case "PBXSourcesBuildPhase": return (T) new CodeablePBXSourcesBuildPhase(map);
+			case "PBXCopyFilesBuildPhase": return (T) CodeablePBXCopyFilesBuildPhase.newInstance(map);
+			case "PBXFrameworksBuildPhase": return (T) CodeablePBXFrameworksBuildPhase.newInstance(map);
+			case "PBXHeadersBuildPhase": return (T) CodeablePBXHeadersBuildPhase.newInstance(map);
+			case "PBXResourcesBuildPhase": return (T) CodeablePBXResourcesBuildPhase.newInstance(map);
+			case "PBXShellScriptBuildPhase": return (T) CodeablePBXShellScriptBuildPhase.newInstance(map);
+			case "PBXSourcesBuildPhase": return (T) CodeablePBXSourcesBuildPhase.newInstance(map);
 			default: throw new UnsupportedOperationException();
 		}
 	}

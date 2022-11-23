@@ -46,7 +46,7 @@ class TargetFactoryTests {
 
 		@Test
 		void createsPBXAggregateTarget() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXAggregateTarget(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXAggregateTarget.newInstance(map)));
 		}
 	}
 
@@ -59,7 +59,7 @@ class TargetFactoryTests {
 
 		@Test
 		void createsPBXNativeTarget() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXNativeTarget(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXNativeTarget.newInstance(map)));
 		}
 	}
 
@@ -72,7 +72,7 @@ class TargetFactoryTests {
 
 		@Test
 		void createsPBXLegacyTarget() {
-			assertThat(subject.create(map), equalTo(new CodeablePBXLegacyTarget(map)));
+			assertThat(subject.create(map), equalTo(CodeablePBXLegacyTarget.newInstance(map)));
 		}
 	}
 }

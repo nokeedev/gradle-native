@@ -28,6 +28,6 @@ public final class PBXTargetDependencyFactory<T extends PBXTargetDependency & Co
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		assert "PBXTargetDependency".equals(map.isa());
-		return (T) new CodeablePBXTargetDependency(map);
+		return (T) CodeablePBXTargetDependency.newInstance(map);
 	}
 }

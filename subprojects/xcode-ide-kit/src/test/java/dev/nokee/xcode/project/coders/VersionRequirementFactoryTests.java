@@ -55,7 +55,7 @@ class VersionRequirementFactoryTests {
 
 		@Test
 		void createsBranch() {
-			assertThat(subject.create(map), equalTo(new CodeableVersionRequirementBranch(map)));
+			assertThat(subject.create(map), equalTo(CodeableVersionRequirementBranch.newInstance(map)));
 		}
 	}
 
@@ -68,7 +68,7 @@ class VersionRequirementFactoryTests {
 
 		@Test
 		void createsExact() {
-			assertThat(subject.create(map), equalTo(new CodeableVersionRequirementExact(map)));
+			assertThat(subject.create(map), equalTo(CodeableVersionRequirementExact.newInstance(map)));
 		}
 	}
 
@@ -81,7 +81,7 @@ class VersionRequirementFactoryTests {
 
 		@Test
 		void createsRange() {
-			assertThat(subject.create(map), equalTo(new CodeableVersionRequirementRange(map)));
+			assertThat(subject.create(map), equalTo(CodeableVersionRequirementRange.newInstance(map)));
 		}
 	}
 
@@ -94,7 +94,7 @@ class VersionRequirementFactoryTests {
 
 		@Test
 		void createsRevision() {
-			assertThat(subject.create(map), equalTo(new CodeableVersionRequirementRevision(map)));
+			assertThat(subject.create(map), equalTo(CodeableVersionRequirementRevision.newInstance(map)));
 		}
 	}
 
@@ -107,7 +107,7 @@ class VersionRequirementFactoryTests {
 
 		@Test
 		void createsUpToNextMajorVersion() {
-			assertThat(subject.create(map), equalTo(new CodeableVersionRequirementUpToNextMajorVersion(map)));
+			assertThat(subject.create(map), equalTo(CodeableVersionRequirementUpToNextMajorVersion.newInstance(map)));
 		}
 	}
 
@@ -120,7 +120,7 @@ class VersionRequirementFactoryTests {
 
 		@Test
 		void createsUpToNextMinorVersion() {
-			assertThat(subject.create(map), equalTo(new CodeableVersionRequirementUpToNextMinorVersion(map)));
+			assertThat(subject.create(map), equalTo(CodeableVersionRequirementUpToNextMinorVersion.newInstance(map)));
 		}
 	}
 }

@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import lombok.EqualsAndHashCode;
@@ -91,5 +92,9 @@ public final class CodeablePBXBuildFile implements PBXBuildFile, Codeable {
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
+	}
+
+	public static CodeablePBXBuildFile newInstance(KeyedObject delegate) {
+		return new CodeablePBXBuildFile(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }

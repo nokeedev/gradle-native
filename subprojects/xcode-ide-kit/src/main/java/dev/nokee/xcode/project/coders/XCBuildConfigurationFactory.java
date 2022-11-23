@@ -28,6 +28,6 @@ public final class XCBuildConfigurationFactory<T extends XCBuildConfiguration & 
 	@SuppressWarnings("unchecked")
 	public T create(KeyedObject map) {
 		assert "XCBuildConfiguration".equals(map.isa());
-		return (T) new CodeableXCBuildConfiguration(map);
+		return (T) CodeableXCBuildConfiguration.newInstance(map);
 	}
 }

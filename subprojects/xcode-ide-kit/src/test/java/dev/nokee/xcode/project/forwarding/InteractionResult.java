@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project.coders;
+package dev.nokee.xcode.project.forwarding;
 
-import dev.nokee.xcode.objects.files.PBXGroup;
-import dev.nokee.xcode.project.Codeable;
-import dev.nokee.xcode.project.CodeableObjectFactory;
-import dev.nokee.xcode.project.CodeablePBXGroup;
-import dev.nokee.xcode.project.KeyedObject;
-import lombok.EqualsAndHashCode;
+import java.lang.reflect.Method;
 
-@EqualsAndHashCode
-public final class PBXGroupFactory<T extends PBXGroup & Codeable> implements CodeableObjectFactory<T> {
-	@Override
-	@SuppressWarnings("unchecked")
-	public T create(KeyedObject map) {
-		assert "PBXGroup".equals(map.isa());
-		return (T) CodeablePBXGroup.newInstance(map);
-	}
+public interface InteractionResult {
+
+	boolean isPossibleChainingCall();
+
+	Object wrapper();
+
+	Object actualReturnValue();
+
+	Object returnValue();
+
+	Object delegate();
+
+	Method methodUnderTest();
+
+	Object[] expectedParameters();
+
+	Throwable thrownException();
 }

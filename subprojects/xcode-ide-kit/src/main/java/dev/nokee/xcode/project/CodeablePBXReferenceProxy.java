@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.files.PBXReferenceProxy;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
@@ -108,5 +109,9 @@ public final class CodeablePBXReferenceProxy implements PBXReferenceProxy, Codea
 	@Override
 	public <T> T tryDecode(CodingKey key) {
 		return delegate.tryDecode(key);
+	}
+
+	public static CodeablePBXReferenceProxy newInstance(KeyedObject delegate) {
+		return new CodeablePBXReferenceProxy(new RecodeableKeyedObject(delegate, ImmutableSet.copyOf(CodingKeys.values())));
 	}
 }
