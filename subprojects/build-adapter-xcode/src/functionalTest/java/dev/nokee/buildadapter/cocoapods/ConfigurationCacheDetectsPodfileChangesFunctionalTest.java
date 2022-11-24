@@ -38,9 +38,10 @@ import java.util.Arrays;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.buildadapter.xcode.GradleTestSnippets.doSomethingVerifyTask;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.recalculated;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.reused;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 
 @EnabledOnOs(OS.MAC)
 @RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
@@ -68,7 +69,7 @@ class ConfigurationCacheDetectsPodfileChangesFunctionalTest {
 
 	@Test
 	void reuseConfigurationCacheWhenNoChanges() {
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 
 	@Test
@@ -80,30 +81,35 @@ class ConfigurationCacheDetectsPodfileChangesFunctionalTest {
 			"  pod 'Alamofire', '~> 3.0'",
 			"  pod 'GoogleAnalytics', '~> 3.1'",
 			"end"));
-		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
+		assertThat(executer.build(), configurationCache(recalculated()));
 	}
 
 	@Test
 	void doesNotReuseConfigurationWhenPodfileLockChanges() throws IOException {
 		Files.write(testDirectory.resolve("Podfile.lock"), Arrays.asList("# something, different"), StandardOpenOption.APPEND);
-		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
+		assertThat(executer.build(), configurationCache(recalculated()));
 	}
 
 	@Test
 	void reusesConfigurationWhenPodfileLockDeleted() throws IOException {
 		Files.delete(testDirectory.resolve("Podfile.lock")); // when we reinstall, everything is the same
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 
 	@Test
-	void doesNotReuseConfigurationWhenManifestLockChanges() throws IOException {
+	void reusesConfigurationWhenManifestLockChanges() throws IOException {
+		// We ignore changes to Manifest.lock because...
+		//   1- we will reexecute `pod install`
+		//   2- it will override Manifest.lock with the same information
+		//   3- that information match what we already have
+		// Everything is up-to-date in terms of configuration cache.
 		Files.write(testDirectory.resolve("Pods/Manifest.lock"), Arrays.asList("# something, different"), StandardOpenOption.APPEND);
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 
 	@Test
 	void reusesConfigurationWhenManifestLockDeleted() throws IOException {
 		Files.delete(testDirectory.resolve("Pods/Manifest.lock")); // when we reinstall, everything is the same
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 }

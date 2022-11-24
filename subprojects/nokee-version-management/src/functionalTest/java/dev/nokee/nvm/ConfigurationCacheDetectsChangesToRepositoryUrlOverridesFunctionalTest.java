@@ -16,10 +16,10 @@
 package dev.nokee.nvm;
 
 import dev.gradleplugins.runnerkit.GradleRunner;
+import dev.gradleplugins.testscript.TestLayout;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
 import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
-import dev.gradleplugins.testscript.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,13 +30,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.recalculated;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.reused;
 import static dev.nokee.nvm.GradleRunnerActions.warmConfigurationCache;
 import static dev.nokee.nvm.ProjectFixtures.applyAnyNokeePlugin;
 import static dev.nokee.nvm.ProjectFixtures.nokeeBuild;
 import static dev.nokee.nvm.ProjectFixtures.writeVersionFile;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 
 /**
  * Note that we use the backend repositories, e.g. nokeedev.net, as we need usable repositories.
@@ -66,18 +67,18 @@ class ConfigurationCacheDetectsChangesToRepositoryUrlOverridesFunctionalTest {
 
 		@Test
 		void reusesConfigurationCacheWhenRepositoryUrlOverrideDoesNotChanges() {
-			assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+			assertThat(executer.build(), configurationCache(reused()));
 		}
 
 		@Test
 		void reusesConfigurationCacheWhenOnlySnapshotRepositoryUrlOverrideChange() throws IOException {
-			assertThat(executer.withArgument("-Ddev.nokee.repository.snapshot.url.override=https://my-company.com/snapshot").build().getOutput(), containsString("Reusing configuration cache"));
+			assertThat(executer.withArgument("-Ddev.nokee.repository.snapshot.url.override=https://my-company.com/snapshot").build(), configurationCache(reused()));
 		}
 
 		@Test
 		void doesNotReuseConfigurationCacheWhenRepositoryUrlOverrideChange() throws IOException {
 			// Use gradlePluginPortal() URL as all released plugins should be present
-			assertThat(executer.withArgument("-Ddev.nokee.repository.release.url.override=https://plugins.gradle.org/m2").build().getOutput(), not(containsString("Reusing configuration cache")));
+			assertThat(executer.withArgument("-Ddev.nokee.repository.release.url.override=https://plugins.gradle.org/m2").build(), configurationCache(recalculated()));
 		}
 	}
 
@@ -93,18 +94,18 @@ class ConfigurationCacheDetectsChangesToRepositoryUrlOverridesFunctionalTest {
 
 		@Test
 		void reusesConfigurationCacheWhenRepositoryUrlOverrideDoesNotChanges() {
-			assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+			assertThat(executer.build(), configurationCache(reused()));
 		}
 
 		@Test
 		void reusesConfigurationCacheWhenOnlyReleaseRepositoryUrlOverrideChange() throws IOException {
-			assertThat(executer.withArgument("-Ddev.nokee.repository.release.url.override=https://my-company.com/release").build().getOutput(), containsString("Reusing configuration cache"));
+			assertThat(executer.withArgument("-Ddev.nokee.repository.release.url.override=https://my-company.com/release").build(), configurationCache(reused()));
 		}
 
 		@Test
 		void doesNotReuseConfigurationCacheWhenRepositoryUrlOverrideChange() throws IOException {
 			// We fake a change to the repo by appending an additional slash. In theory, this should not be a meaningful change.
-			assertThat(executer.withArgument("-Ddev.nokee.repository.snapshot.url.override=https://repo-snapshot.nokeedev.net/").build().getOutput(), not(containsString("Reusing configuration cache")));
+			assertThat(executer.withArgument("-Ddev.nokee.repository.snapshot.url.override=https://repo-snapshot.nokeedev.net/").build(), configurationCache(recalculated()));
 		}
 	}
 }

@@ -37,9 +37,10 @@ import java.util.Arrays;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.buildadapter.xcode.GradleTestSnippets.doSomethingVerifyTask;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.recalculated;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.reused;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 
 @EnabledOnOs(OS.MAC)
 @RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
@@ -70,7 +71,7 @@ class ConfigurationCacheDetectsCocoapodsInitializationFunctionalTest {
 
 	@Test
 	void reuseConfigurationCacheWhenNoPodfile() {
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 
 	@Test
@@ -81,6 +82,6 @@ class ConfigurationCacheDetectsCocoapodsInitializationFunctionalTest {
 			"  use_frameworks!",
 			"  pod 'Alamofire', '~> 3.0'",
 			"end"));
-		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
+		assertThat(executer.build(), configurationCache(recalculated()));
 	}
 }

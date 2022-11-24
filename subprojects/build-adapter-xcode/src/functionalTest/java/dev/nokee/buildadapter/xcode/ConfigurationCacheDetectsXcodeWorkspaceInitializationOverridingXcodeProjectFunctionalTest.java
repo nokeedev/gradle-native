@@ -33,9 +33,9 @@ import java.nio.file.Path;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.buildadapter.xcode.GradleTestSnippets.doSomethingVerifyTask;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.recalculated;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 
 @RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
@@ -56,6 +56,6 @@ class ConfigurationCacheDetectsXcodeWorkspaceInitializationOverridingXcodeProjec
 	@Test
 	void doesNotReuseConfigurationCacheWhenWorkspaceAppearsSupersedingProject() {
 		new EmptyXCWorkspace("Test").writeToProject(testDirectory);
-		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
+		assertThat(executer.build(), configurationCache(recalculated()));
 	}
 }
