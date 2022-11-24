@@ -16,9 +16,6 @@
 package dev.nokee.buildadapter.xcode;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import dev.gradleplugins.fixtures.sources.SourceElement;
-import dev.gradleplugins.fixtures.sources.SourceFile;
 import dev.gradleplugins.runnerkit.BuildResult;
 import dev.gradleplugins.runnerkit.GradleRunner;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
@@ -26,26 +23,18 @@ import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
 import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
 import dev.nokee.platform.xcode.XcodeSwiftApp;
 import dev.nokee.xcode.AsciiPropertyListReader;
-import dev.nokee.xcode.JavaPropertyListWriter;
-import dev.nokee.xcode.PropertyListVersion;
-import dev.nokee.xcode.XmlPropertyListWriter;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
-import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.targets.PBXAggregateTarget;
 import dev.nokee.xcode.objects.targets.PBXNativeTarget;
 import dev.nokee.xcode.objects.targets.PBXTarget;
-import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.objects.targets.ProductTypes;
 import dev.nokee.xcode.project.PBXObjectArchiver;
 import dev.nokee.xcode.project.PBXObjectUnarchiver;
 import dev.nokee.xcode.project.PBXProjReader;
 import dev.nokee.xcode.project.PBXProjWriter;
-import dev.nokee.xcode.workspace.XCFileReference;
-import dev.nokee.xcode.workspace.XCWorkspaceData;
-import dev.nokee.xcode.workspace.XCWorkspaceDataWriter;
 import lombok.val;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
@@ -54,20 +43,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -144,7 +128,7 @@ class ConfigurationCacheDetectsXcodeProjectChangesFunctionalTests {
 		}
 
 		@Test
-		void ignoresChangesAndReuseConfigurationCache() throws IOException {
+		void ignoresChangesAndReuseConfigurationCache() {
 			assertThat(executer.build(), configurationCache(reused()));
 		}
 	}
@@ -193,7 +177,7 @@ class ConfigurationCacheDetectsXcodeProjectChangesFunctionalTests {
 		@BeforeEach
 		void givenTargetReplaced() throws IOException {
 			// We only care about the target name during configuration
-			project(testDirectory.resolve("xcodeSwiftApp.xcodeproj"), targets(replace(it -> it.getName().equals("XcodeSwiftApp"), withDifferentTargetButSameName())));
+			project(testDirectory.resolve("XcodeSwiftApp.xcodeproj"), targets(replace(it -> it.getName().equals("XcodeSwiftApp"), withDifferentTargetButSameName())));
 		}
 
 		@Test
@@ -206,7 +190,7 @@ class ConfigurationCacheDetectsXcodeProjectChangesFunctionalTests {
 	class WhenProjectConfigurationAdded {
 		@BeforeEach
 		void givenConfigurationAdded() throws IOException {
-			project(testDirectory.resolve("xcodeSwiftApp.xcodeproj"), buildConfigurationList(buildConfigurations(add(it -> XCBuildConfiguration.builder().name("DebugOptimized").build()))));
+			project(testDirectory.resolve("XcodeSwiftApp.xcodeproj"), buildConfigurationList(buildConfigurations(add(it -> XCBuildConfiguration.builder().name("DebugOptimized").build()))));
 		}
 
 		@Test
