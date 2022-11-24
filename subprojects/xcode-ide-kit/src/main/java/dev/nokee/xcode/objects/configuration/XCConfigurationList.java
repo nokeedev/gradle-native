@@ -17,15 +17,17 @@ package dev.nokee.xcode.objects.configuration;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.PBXProjectItem;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeableXCConfigurationList;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
+import dev.nokee.xcode.project.KeyedObject;
 
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.collect.Streams.stream;
@@ -46,23 +48,37 @@ public interface XCConfigurationList extends PBXProjectItem {
 		return new Builder();
 	}
 
+	Builder toBuilder();
+
 	final class Builder {
-		private final Map<String, XCBuildConfiguration> buildConfigurations = new LinkedHashMap<>();
-		private DefaultConfigurationVisibility defaultConfigurationVisibility = DefaultConfigurationVisibility.HIDDEN;
+		private final KeyedObject parent;
+		private Set<XCBuildConfiguration> buildConfigurations;
+		private DefaultConfigurationVisibility defaultConfigurationVisibility;
 		private String defaultConfigurationName;
+
+		public Builder() {
+			this.parent = null;
+		}
+
+		public Builder(KeyedObject parent) {
+			this.parent = parent;
+		}
 
 		public Builder buildConfiguration(Consumer<? super XCBuildConfiguration.Builder> builderConsumer) {
 			final XCBuildConfiguration.Builder builder = XCBuildConfiguration.builder();
 			builderConsumer.accept(builder);
 			final XCBuildConfiguration buildConfiguration = builder.build();
-			this.buildConfigurations.put(buildConfiguration.getName(), buildConfiguration);
+			if (this.buildConfigurations == null) {
+				this.buildConfigurations = new LinkedHashSet<>();
+			}
+			this.buildConfigurations.add(buildConfiguration);
 			return this;
 		}
 
 		public Builder buildConfigurations(Iterable<? extends XCBuildConfiguration> buildConfigurations) {
-			this.buildConfigurations.clear();
+			this.buildConfigurations = new LinkedHashSet<>();
 			stream(buildConfigurations).map(Objects::requireNonNull).forEach(buildConfiguration -> {
-				this.buildConfigurations.put(buildConfiguration.getName(), buildConfiguration);
+				this.buildConfigurations.add(buildConfiguration);
 			});
 			return this;
 		}
@@ -80,9 +96,14 @@ public interface XCConfigurationList extends PBXProjectItem {
 		public XCConfigurationList build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "XCConfigurationList");
-			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, ImmutableList.copyOf(buildConfigurations.values()));
+			builder.parent(parent);
+			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, buildConfigurations != null ? ImmutableList.copyOf(buildConfigurations) : null);
 			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, defaultConfigurationName);
-			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, (Objects.requireNonNull(defaultConfigurationVisibility, "'defaultConfigurationVisibility' must not be null") == DefaultConfigurationVisibility.VISIBLE));
+			if (defaultConfigurationVisibility != null) {
+				builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, defaultConfigurationVisibility == DefaultConfigurationVisibility.VISIBLE);
+			} else if (parent != null && parent.tryDecode(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible) == null) {
+				throw new NullPointerException("'defaultConfigurationVisibility' must not be null");
+			}
 
 			return new CodeableXCConfigurationList(builder.build());
 		}
