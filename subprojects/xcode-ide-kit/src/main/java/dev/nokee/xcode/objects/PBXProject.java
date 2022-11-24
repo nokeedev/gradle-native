@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.objects;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -23,10 +22,10 @@ import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeablePBXProject;
 import dev.nokee.xcode.project.CodeableProjectReference;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.KeyedObject;
 import lombok.val;
 
@@ -94,12 +93,12 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 
 	final class Builder {
 		@Nullable private final KeyedObject parent;
-		private List<PBXTarget> targets;// = new ArrayList<>();
-		private XCConfigurationList buildConfigurations;// = XCConfigurationList.builder().build();
+		private List<PBXTarget> targets;
+		private XCConfigurationList buildConfigurations;
 		private final List<GroupChild> mainGroupChildren = new ArrayList<>();
 		private PBXGroup mainGroup;
-		private List<ProjectReference> projectReferences;// = new ArrayList<>();
-		private List<XCRemoteSwiftPackageReference> packageReferences;// = new ArrayList<>();
+		private List<ProjectReference> projectReferences;
+		private List<XCRemoteSwiftPackageReference> packageReferences;
 
 		public Builder() {
 			this.parent = null;
@@ -110,6 +109,10 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		}
 
 		public Builder target(PBXTarget target) {
+			assert target != null : "'target' must not be null";
+			if (targets == null) {
+				this.targets = new ArrayList<>();
+			}
 			targets.add(target);
 			return this;
 		}
