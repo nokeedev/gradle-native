@@ -16,10 +16,10 @@
 package dev.nokee.nvm;
 
 import dev.gradleplugins.runnerkit.GradleRunner;
+import dev.gradleplugins.testscript.TestLayout;
 import dev.nokee.internal.testing.junit.jupiter.ContextualGradleRunnerParameterResolver;
 import dev.nokee.internal.testing.junit.jupiter.GradleFeatureRequirement;
 import dev.nokee.internal.testing.junit.jupiter.RequiresGradleFeature;
-import dev.gradleplugins.testscript.TestLayout;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectory;
 import net.nokeedev.testing.junit.jupiter.io.TestDirectoryExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,13 +29,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.recalculated;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.reused;
 import static dev.nokee.nvm.GradleRunnerActions.warmConfigurationCache;
 import static dev.nokee.nvm.ProjectFixtures.applyAnyNokeePlugin;
 import static dev.nokee.nvm.ProjectFixtures.nokeeBuild;
 import static dev.nokee.nvm.ProjectFixtures.writeVersionFile;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 
 @RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
@@ -53,18 +54,17 @@ class ConfigurationCacheDetectsChangesToNokeeVersionEnvironmentVariableFunctiona
 
 	@Test
 	void reusesConfigurationCacheWhenNokeeVersionEnvironmentVariableDoesNotChanges() {
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 
 	@Test
 	void doesNotReuseConfigurationCacheWhenNokeeVersionEnvironmentVariableChange() {
-		assertThat(executer.withEnvironmentVariable("NOKEE_VERSION", "0.4.0").build().getOutput(),
-			not(containsString("Reusing configuration cache")));
+		assertThat(executer.withEnvironmentVariable("NOKEE_VERSION", "0.4.0").build(), configurationCache(recalculated()));
 	}
 
 	@Test
 	void reusesConfigurationCacheWhenNokeeVersionFileChangeButEnvironmentVariableDoesNotChange() {
 		layout.configure(writeVersionFile("0.2.0"));
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 }

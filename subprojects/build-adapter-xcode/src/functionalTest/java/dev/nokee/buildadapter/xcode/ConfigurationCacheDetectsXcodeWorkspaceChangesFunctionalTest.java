@@ -40,6 +40,9 @@ import java.util.Collections;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.buildadapter.xcode.GradleTestSnippets.doSomethingVerifyTask;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.recalculated;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.reused;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -65,14 +68,14 @@ class ConfigurationCacheDetectsXcodeWorkspaceChangesFunctionalTest {
 	@Test
 	void reuseConfigurationCacheWhenOnlyUserDataChanged() throws IOException {
 		Files.write(testDirectory.resolve("Test.xcworkspace/xcuserdata/foo.xcuserdatad/UserInterfaceState.xcuserstate"), new byte[] {0xB, 0x0, 0xB}, StandardOpenOption.APPEND);
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 
 	@Test
 	void reuseConfigurationCacheWhenWorkspaceContentChangeInNonMeaningfulWay() throws IOException {
 		// We serialize the workspace model hence, any change that doesn't change the model will be no-op.
 		Files.write(testDirectory.resolve("Test.xcworkspace/contents.xcworkspacedata"), Collections.singletonList(""), StandardOpenOption.APPEND);
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 
 	@Test
@@ -81,12 +84,12 @@ class ConfigurationCacheDetectsXcodeWorkspaceChangesFunctionalTest {
 			writer.write(XCWorkspaceData.builder().fileRef(XCFileReference.of("group:Pods/Pods.xcodeproj")).build());
 		}
 		new EmptyXCProject("Pods").writeToProject(testDirectory.resolve("Pods"));
-		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
+		assertThat(executer.build(), configurationCache(recalculated()));
 	}
 
 	@Test
 	void doesNotReuseConfigurationCacheWhenNewWorkspaceFound() {
 		new EmptyXCWorkspace("App").writeToProject(testDirectory);
-		assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
+		assertThat(executer.build(), configurationCache(recalculated()));
 	}
 }

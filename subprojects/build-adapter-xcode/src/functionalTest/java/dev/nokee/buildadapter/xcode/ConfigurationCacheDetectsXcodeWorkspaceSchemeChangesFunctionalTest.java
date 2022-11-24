@@ -36,9 +36,10 @@ import java.nio.file.Path;
 
 import static dev.gradleplugins.buildscript.blocks.PluginsBlock.plugins;
 import static dev.nokee.buildadapter.xcode.GradleTestSnippets.doSomethingVerifyTask;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.recalculated;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.reused;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 
 @RequiresGradleFeature(GradleFeatureRequirement.CONFIGURATION_CACHE)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
@@ -60,7 +61,7 @@ class ConfigurationCacheDetectsXcodeWorkspaceSchemeChangesFunctionalTest {
 
 	@Test
 	void reusesConfigurationCacheWhenNoXcodeScheme() {
-		assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+		assertThat(executer.build(), configurationCache(reused()));
 	}
 
 	@Nested
@@ -75,18 +76,18 @@ class ConfigurationCacheDetectsXcodeWorkspaceSchemeChangesFunctionalTest {
 
 		@Test
 		void doesNotReuseConfigurationCacheWhenXcodeSchemeInitialized() {
-			assertThat(result.getOutput(), not(containsString("Reusing configuration cache")));
+			assertThat(result, configurationCache(recalculated()));
 		}
 
 		@Test
 		void reusesConfigurationCacheWhenNoChangesToXcodeScheme() {
-			assertThat(executer.build().getOutput(), containsString("Reusing configuration cache"));
+			assertThat(executer.build(), configurationCache(reused()));
 		}
 
 		@Test
 		void doesNotReuseConfigurationCacheWhenNewXcodeSchemeAdded() throws IOException {
 			Files.createFile(testDirectory.resolve("App.xcodeproj/xcshareddata/xcschemes/Bar.xcscheme"));
-			assertThat(executer.build().getOutput(), not(containsString("Reusing configuration cache")));
+			assertThat(executer.build(), configurationCache(recalculated()));
 		}
 	}
 }

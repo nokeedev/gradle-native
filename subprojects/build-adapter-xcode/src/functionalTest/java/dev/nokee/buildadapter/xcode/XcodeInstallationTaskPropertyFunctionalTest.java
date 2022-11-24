@@ -46,8 +46,9 @@ import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.classpath;
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.tasksExecutedAndNotSkipped;
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.tasksSkipped;
 import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toNullStream;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
+import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.reused;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 
 @EnabledOnOs(OS.MAC)
 @ExtendWith({TestDirectoryExtension.class, ContextualGradleRunnerParameterResolver.class})
@@ -110,14 +111,14 @@ class XcodeInstallationTaskPropertyFunctionalTest {
 			executer = executer.withArgument("--configuration-cache");
 			result = executer.build();
 			result = executer.build();
-			assertThat(result.getOutput(), containsString("Reusing configuration cache"));
+			assertThat(result, configurationCache(reused()));
 		}
 
 		@Test
 		void doesNotInvalidateConfigurationCacheWhenXcodeInstallationChangesToTheSameVersion() {
 			// Reuse configuration when DEVELOPER_DIR changes to the same value
 			result = executer.withEnvironmentVariable("DEVELOPER_DIR", CommandLine.of("xcode-select", "--print-path").newInvocation().redirectStandardOutput(toNullStream()).redirectErrorOutput(toNullStream()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().getOutput().getAsString().trim()).build();
-			assertThat(result.getOutput(), containsString("Reusing configuration cache"));
+			assertThat(result, configurationCache(reused()));
 		}
 
 		@Test
@@ -125,7 +126,7 @@ class XcodeInstallationTaskPropertyFunctionalTest {
 			// Reuse configuration cache when DEVELOPER_DIR changes to a different value
 			executer = executer.withEnvironmentVariable("DEVELOPER_DIR", "/Applications/Xcode_13.4.1.app/Contents/Developer");
 			result = executer.build();
-			assertThat(result.getOutput(), containsString("Reusing configuration cache"));
+			assertThat(result, configurationCache(reused()));
 		}
 	}
 }
