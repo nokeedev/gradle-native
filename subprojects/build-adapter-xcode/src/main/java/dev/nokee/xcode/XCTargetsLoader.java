@@ -15,13 +15,14 @@
  */
 package dev.nokee.xcode;
 
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 
 import java.io.Serializable;
-import java.util.stream.Collectors;
+import java.util.Set;
 
-public final class XCTargetsLoader implements XCLoader<Iterable<XCTargetReference>, XCProjectReference>, Serializable {
+public final class XCTargetsLoader implements XCLoader<Set<XCTargetReference>, XCProjectReference>, Serializable {
 	private final XCLoader<PBXProject, XCProjectReference> pbxprojectLoader;
 
 	public XCTargetsLoader(XCLoader<PBXProject, XCProjectReference> pbxprojectLoader) {
@@ -29,7 +30,7 @@ public final class XCTargetsLoader implements XCLoader<Iterable<XCTargetReferenc
 	}
 
 	@Override
-	public Iterable<XCTargetReference> load(XCProjectReference reference) {
-		return pbxprojectLoader.load(reference).getTargets().stream().map(PBXTarget::getName).map(reference::ofTarget).collect(Collectors.toList());
+	public Set<XCTargetReference> load(XCProjectReference reference) {
+		return pbxprojectLoader.load(reference).getTargets().stream().map(PBXTarget::getName).map(reference::ofTarget).collect(ImmutableSet.toImmutableSet());
 	}
 }
