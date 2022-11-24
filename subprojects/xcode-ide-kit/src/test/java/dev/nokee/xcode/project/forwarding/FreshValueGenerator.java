@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package dev.nokee.xcode.project.forwarding;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.throwIfUnchecked;
-
-import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
 import com.google.common.base.Equivalence;
@@ -70,6 +65,9 @@ import com.google.common.reflect.Invokable;
 import com.google.common.reflect.Parameter;
 import com.google.common.reflect.Reflection;
 import com.google.common.reflect.TypeToken;
+import com.google.common.testing.ArbitraryInstances;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -123,8 +121,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import com.google.common.testing.ArbitraryInstances;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.throwIfUnchecked;
 
 /**
  * Generates fresh instances of types that are different from each other (if possible).

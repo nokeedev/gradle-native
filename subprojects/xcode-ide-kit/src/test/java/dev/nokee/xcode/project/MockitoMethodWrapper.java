@@ -41,33 +41,33 @@ public final class MockitoMethodWrapper<A extends InvocationResult> implements H
 		return invocations;
 	}
 
-	static <T> MockitoMethodWrapper<InvocationResult0> method(T mock, A0<? super T> mapper) {
+	public static <T> MockitoMethodWrapper<InvocationResult0> method(T mock, MethodCallable0<? super T> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())));
 		return new MockitoMethodWrapper<>(invocationList.stream().map(DefaultInvocationResult::new).collect(Collectors.toList()));
 	}
 
-	interface A0<MockType> {
+	public interface MethodCallable0<MockType> {
 		void call(MockType self);
 	}
 
-	static <T, A0> MockitoMethodWrapper<InvocationResult1<A0>> method(T mock, A1<T, A0> mapper) {
+	public static <T, A0> MockitoMethodWrapper<InvocationResult1<A0>> method(T mock, MethodCallable1<? super T, ? super A0> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())), Mockito.any());
 		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<A0, Void>(it)).collect(Collectors.toList()));
 	}
 
-	interface A1<MockType, A0> {
+	public interface MethodCallable1<MockType, A0> {
 		void call(MockType self, A0 a0);
 	}
 
-	static <T, A0, A1> MockitoMethodWrapper<InvocationResult2<A0, A1>> method(T mock, A2<T, A0, A1> mapper) {
+	public static <T, A0, A1> MockitoMethodWrapper<InvocationResult2<A0, A1>> method(T mock, MethodCallable2<T, A0, A1> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())), Mockito.any(), Mockito.any());
 		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<A0, A1>(it)).collect(Collectors.toList()));
 	}
 
-	interface A2<MockType, A0, A1> {
+	public interface MethodCallable2<MockType, A0, A1> {
 		void call(MockType self, A0 a0, A1 a1);
 	}
 
