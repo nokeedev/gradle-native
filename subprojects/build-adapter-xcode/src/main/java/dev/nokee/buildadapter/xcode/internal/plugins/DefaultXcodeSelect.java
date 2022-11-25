@@ -18,13 +18,9 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import dev.nokee.core.exec.CommandLine;
 import dev.nokee.core.exec.CommandLineToolExecutionEngine;
 import dev.nokee.core.exec.CommandLineToolExecutionHandle;
-import dev.nokee.core.exec.CommandLineToolInvocationErrorOutputRedirect;
-import dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toNullStream;
 
 public final class DefaultXcodeSelect implements XcodeSelect {
 	private final CommandLineToolExecutionEngine<? extends CommandLineToolExecutionHandle.Waitable> engine;
@@ -35,7 +31,7 @@ public final class DefaultXcodeSelect implements XcodeSelect {
 
 	@Override
 	public Path developerDirectory() {
-		return CommandLine.of("xcode-select", "--print-path").newInvocation().redirectStandardOutput(toNullStream()).redirectErrorOutput(toNullStream()).buildAndSubmit(engine).waitFor().getOutput()
+		return CommandLine.of("xcode-select", "--print-path").execute(engine).waitFor().getOutput()
 			.parse(this::parsePrintedPath);
 	}
 

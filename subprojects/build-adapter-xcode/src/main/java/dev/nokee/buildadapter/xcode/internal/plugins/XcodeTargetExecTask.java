@@ -118,8 +118,6 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 			}).newInvocation(it -> {
 				it.withEnvironmentVariables(inherit().putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
 				ifPresent(getWorkingDirectory(), it::workingDirectory);
-				it.redirectStandardOutput(toNullStream());
-				it.redirectErrorOutput(toNullStream());
 			}).submitTo(execOperations(getExecOperations())).result()
 				.getStandardOutput().parse(output -> {
 					@SuppressWarnings("unchecked")

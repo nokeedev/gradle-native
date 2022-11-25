@@ -45,7 +45,6 @@ import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.buildscript;
 import static dev.gradleplugins.buildscript.blocks.BuildScriptBlock.classpath;
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.tasksExecutedAndNotSkipped;
 import static dev.gradleplugins.fixtures.runnerkit.BuildResultMatchers.tasksSkipped;
-import static dev.nokee.core.exec.CommandLineToolInvocationOutputRedirection.toNullStream;
 import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.configurationCache;
 import static dev.nokee.internal.testing.GradleConfigurationCacheMatchers.reused;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -91,7 +90,7 @@ class XcodeInstallationTaskPropertyFunctionalTest {
 
 		@Test
 		void skipsTaskWhenXcodeInstallationDoesNotChangesFromPreviousInvocation() {
-			result = executer.withEnvironmentVariable("DEVELOPER_DIR", CommandLine.of("xcode-select", "--print-path").newInvocation().redirectStandardOutput(toNullStream()).redirectErrorOutput(toNullStream()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().getOutput().getAsString().trim()).build();
+			result = executer.withEnvironmentVariable("DEVELOPER_DIR", CommandLine.of("xcode-select", "--print-path").execute(new ProcessBuilderEngine()).waitFor().getOutput().getAsString().trim()).build();
 			assertThat(result, tasksSkipped(":verify"));
 		}
 
@@ -117,7 +116,7 @@ class XcodeInstallationTaskPropertyFunctionalTest {
 		@Test
 		void doesNotInvalidateConfigurationCacheWhenXcodeInstallationChangesToTheSameVersion() {
 			// Reuse configuration when DEVELOPER_DIR changes to the same value
-			result = executer.withEnvironmentVariable("DEVELOPER_DIR", CommandLine.of("xcode-select", "--print-path").newInvocation().redirectStandardOutput(toNullStream()).redirectErrorOutput(toNullStream()).buildAndSubmit(new ProcessBuilderEngine()).waitFor().getOutput().getAsString().trim()).build();
+			result = executer.withEnvironmentVariable("DEVELOPER_DIR", CommandLine.of("xcode-select", "--print-path").newInvocation().buildAndSubmit(new ProcessBuilderEngine()).waitFor().getOutput().getAsString().trim()).build();
 			assertThat(result, configurationCache(reused()));
 		}
 

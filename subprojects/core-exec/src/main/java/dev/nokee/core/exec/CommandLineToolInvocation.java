@@ -134,8 +134,8 @@ public final class CommandLineToolInvocation implements Serializable {
 		private Object executable = null;
 		private CommandLineToolArguments arguments = new CommandLineToolArguments();
 		private Object workingDirectory = null;
-		private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = new CommandLineToolInvocationInheritedStandardOutputRedirection();
-		private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = new CommandLineToolInvocationInheritedStandardErrorRedirection();
+		private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = CommandLineToolInvocationOutputRedirection.toNullStream();
+		private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = CommandLineToolInvocationOutputRedirection.toNullStream();
 		private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
 
 		public Builder commandLine(CommandLine commandLine) {
