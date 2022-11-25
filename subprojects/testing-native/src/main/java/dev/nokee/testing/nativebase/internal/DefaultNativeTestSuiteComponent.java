@@ -83,6 +83,7 @@ import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.testing.nativebase.NativeTestSuite;
 import dev.nokee.testing.nativebase.NativeTestSuiteVariant;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -98,7 +99,6 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.language.nativeplatform.tasks.UnexportMainSymbol;
 import org.gradle.language.swift.tasks.SwiftCompile;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
-import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -162,7 +162,7 @@ public /*final*/ class DefaultNativeTestSuiteComponent extends BaseNativeCompone
 
 	@Override
 	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtil.configureUsing(closure));
+		dependencies(ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override

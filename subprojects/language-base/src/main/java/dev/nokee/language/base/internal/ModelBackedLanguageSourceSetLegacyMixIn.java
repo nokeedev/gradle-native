@@ -21,13 +21,13 @@ import dev.nokee.language.base.SelfAwareLanguageSourceSet;
 import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.model.internal.names.FullyQualifiedNameComponent;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.util.PatternFilterable;
-import org.gradle.util.ConfigureUtil;
 
 @SuppressWarnings("unchecked")
 public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSourceSet> extends SelfAwareLanguageSourceSet<SELF> {
@@ -55,7 +55,7 @@ public interface ModelBackedLanguageSourceSetLegacyMixIn<SELF extends LanguageSo
 	}
 
 	default SELF filter(@DelegatesTo(value = PatternFilterable.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		return filter(ConfigureUtil.configureUsing(closure));
+		return filter(ConfigureUtils.configureUsing(closure));
 	}
 
 	default PatternFilterable getFilter() {

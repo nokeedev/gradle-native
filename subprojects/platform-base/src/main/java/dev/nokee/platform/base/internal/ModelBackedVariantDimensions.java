@@ -25,12 +25,12 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.VariantDimensionBuilder;
 import dev.nokee.platform.base.VariantDimensions;
 import dev.nokee.runtime.core.CoordinateAxis;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.provider.SetProperty;
-import org.gradle.util.ConfigureUtil;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -85,6 +85,6 @@ public final class ModelBackedVariantDimensions implements VariantDimensions, Mo
 	@Override
 	public <T> SetProperty<T> newAxis(Class<T> axisType, @SuppressWarnings("rawtypes") Closure closure) {
 		Objects.requireNonNull(closure);
-		return newAxis(axisType, ConfigureUtil.configureUsing(closure));
+		return newAxis(axisType, ConfigureUtils.configureUsing(closure));
 	}
 }

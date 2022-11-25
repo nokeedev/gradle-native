@@ -15,13 +15,13 @@
  */
 package dev.nokee.platform.base;
 
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
-import org.gradle.util.ConfigureUtil;
 
 import java.util.List;
 import java.util.Set;
@@ -50,7 +50,7 @@ public interface View<T> {
 	 * @param closure The closure to execute on each element for configuration.
 	 */
 	default void configureEach(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		configureEach(ConfigureUtil.configureUsing(closure));
+		configureEach(ConfigureUtils.configureUsing(closure));
 	}
 
 	/**
@@ -78,7 +78,7 @@ public interface View<T> {
 	 * @param closure the closure to execute on each element for configuration.
 	 */
 	default <S extends T> void configureEach(Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		configureEach(type, ConfigureUtil.configureUsing(closure));
+		configureEach(type, ConfigureUtils.configureUsing(closure));
 	}
 
 	/**
@@ -102,7 +102,7 @@ public interface View<T> {
 	 * @since 0.4
 	 */
 	default void configureEach(Spec<? super T> spec, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		configureEach(spec, ConfigureUtil.configureUsing(closure));
+		configureEach(spec, ConfigureUtils.configureUsing(closure));
 	}
 
 	/**

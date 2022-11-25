@@ -63,6 +63,7 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecyc
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.tasks.LinkExecutable;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.val;
@@ -79,7 +80,6 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.nativeplatform.toolchain.Swiftc;
-import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -137,7 +137,7 @@ public /*final*/ class DefaultIosApplicationComponent extends BaseNativeComponen
 
 	@Override
 	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtil.configureUsing(closure));
+		dependencies(ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override

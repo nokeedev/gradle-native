@@ -43,12 +43,12 @@ import dev.nokee.platform.nativebase.NativeApplicationComponentDependencies;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAssembleLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentObjectsLifecycleTaskRule;
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.util.ConfigureUtil;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -91,7 +91,7 @@ public /*final*/ class DefaultNativeApplicationComponent extends BaseNativeCompo
 
 	@Override
 	public void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtil.configureUsing(closure));
+		dependencies(ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override

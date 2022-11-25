@@ -15,12 +15,12 @@
  */
 package dev.nokee.platform.ios;
 
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 
 import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceViewOf;
-import static org.gradle.util.ConfigureUtil.configureUsing;
 
 /**
  * Represents a component that carries iOS resources.
@@ -57,6 +57,6 @@ public interface HasIosResources {
 	 * @see #getResources()
 	 */
 	default void resources(@DelegatesTo(value = IosResourceSet.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		resources(configureUsing(closure));
+		resources(ConfigureUtils.configureUsing(closure));
 	}
 }

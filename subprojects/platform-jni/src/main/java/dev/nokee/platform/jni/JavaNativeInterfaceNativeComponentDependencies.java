@@ -17,13 +17,13 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ProjectDependency;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * Allows the native implementation dependencies of a Java Native Interface (JNI) library to be specified.
@@ -57,7 +57,7 @@ public interface JavaNativeInterfaceNativeComponentDependencies extends Componen
 	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	default void nativeImplementation(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		nativeImplementation(notation, ConfigureUtil.configureUsing(closure));
+		nativeImplementation(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	/**
@@ -87,7 +87,7 @@ public interface JavaNativeInterfaceNativeComponentDependencies extends Componen
 	 * @since 0.4
 	 */
 	default void nativeLinkOnly(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		nativeLinkOnly(notation, ConfigureUtil.configureUsing(closure));
+		nativeLinkOnly(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	/**
@@ -115,7 +115,7 @@ public interface JavaNativeInterfaceNativeComponentDependencies extends Componen
 	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	default void nativeRuntimeOnly(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		nativeRuntimeOnly(notation, ConfigureUtil.configureUsing(closure));
+		nativeRuntimeOnly(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	/**

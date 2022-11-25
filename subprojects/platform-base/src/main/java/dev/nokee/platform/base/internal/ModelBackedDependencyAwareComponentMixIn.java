@@ -19,9 +19,9 @@ import com.google.common.reflect.TypeToken;
 import dev.nokee.model.internal.core.ModelProperties;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
-import org.gradle.util.ConfigureUtil;
 
 public interface ModelBackedDependencyAwareComponentMixIn<T extends ComponentDependencies, S extends T> extends DependencyAwareComponent<T> {
 	@Override
@@ -37,6 +37,6 @@ public interface ModelBackedDependencyAwareComponentMixIn<T extends ComponentDep
 
 	@Override
 	default void dependencies(@SuppressWarnings("rawtypes") Closure closure) {
-		dependencies(ConfigureUtil.configureUsing(closure));
+		dependencies(ConfigureUtils.configureUsing(closure));
 	}
 }
