@@ -23,13 +23,13 @@ import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
 import dev.nokee.platform.base.internal.ViewAdapter;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibrarySources;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
-import org.gradle.util.ConfigureUtil;
 
 import java.util.List;
 import java.util.Set;
@@ -54,7 +54,7 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	public void groovy(@SuppressWarnings("rawtypes") Closure closure) {
-		groovy(ConfigureUtil.configureUsing(closure));
+		groovy(ConfigureUtils.configureUsing(closure));
 	}
 
 	public NamedDomainObjectProvider<JavaSourceSet> getJava() {
@@ -70,7 +70,7 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	public void java(@SuppressWarnings("rawtypes") Closure closure) {
-		java(ConfigureUtil.configureUsing(closure));
+		java(ConfigureUtils.configureUsing(closure));
 	}
 
 	public NamedDomainObjectProvider<KotlinSourceSet> getKotlin() {
@@ -86,7 +86,7 @@ public final class JavaNativeInterfaceSourcesViewAdapter implements JavaNativeIn
 	}
 
 	public void kotlin(@SuppressWarnings("rawtypes") Closure closure) {
-		kotlin(ConfigureUtil.configureUsing(closure));
+		kotlin(ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override

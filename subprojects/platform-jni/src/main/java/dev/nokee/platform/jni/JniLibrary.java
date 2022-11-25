@@ -20,6 +20,7 @@ import dev.nokee.language.base.SourceView;
 import dev.nokee.platform.base.*;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
@@ -76,7 +77,7 @@ public interface JniLibrary extends Variant
 	 * @since 0.3
 	 */
 	default void sharedLibrary(@DelegatesTo(value = SharedLibraryBinary.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		sharedLibrary(ConfigureUtil.configureUsing(closure));
+		sharedLibrary(ConfigureUtils.configureUsing(closure));
 	}
 
 	JniJarBinary getJavaNativeInterfaceJar();

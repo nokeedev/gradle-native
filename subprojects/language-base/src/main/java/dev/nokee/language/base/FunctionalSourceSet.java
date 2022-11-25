@@ -17,11 +17,11 @@ package dev.nokee.language.base;
 
 import dev.nokee.model.KnownDomainObject;
 import dev.nokee.platform.base.View;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * A view of the language source sets with a similar function (production code, test code, etc.).
@@ -65,7 +65,7 @@ public interface FunctionalSourceSet extends View<LanguageSourceSet> {
 	 * @param <S> The type of the element to configure.
 	 */
 	default <S extends LanguageSourceSet> void configure(String name, Class<S> type, @DelegatesTo(type = "S", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		configure(name, type, ConfigureUtil.configureUsing(closure));
+		configure(name, type, ConfigureUtils.configureUsing(closure));
 	}
 
 	<S extends LanguageSourceSet> NamedDomainObjectProvider<S> named(String name, Class<S> type);

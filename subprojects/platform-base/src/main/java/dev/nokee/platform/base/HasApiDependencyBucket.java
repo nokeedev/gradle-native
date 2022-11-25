@@ -15,6 +15,7 @@
  */
 package dev.nokee.platform.base;
 
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
@@ -24,7 +25,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ProjectDependency;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * Represents something that carries an API dependency bucket represented by a {@link Configuration}.
@@ -51,7 +51,7 @@ public interface HasApiDependencyBucket {
 		getApi().addDependency(notation, action);
 	}
 	default void api(Object notation, @ClosureParams(value = SimpleType.class, options = "org.gradle.api.artifacts.ModuleDependency") @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		api(notation, ConfigureUtil.configureUsing(closure));
+		api(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	/**

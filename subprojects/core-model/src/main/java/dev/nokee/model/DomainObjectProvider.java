@@ -17,10 +17,10 @@ package dev.nokee.model;
 
 import dev.nokee.model.internal.core.ModelElement;
 import dev.nokee.model.internal.type.ModelType;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
-import org.gradle.util.ConfigureUtil;
 
 import static java.util.Objects.requireNonNull;
 
@@ -36,7 +36,7 @@ public interface DomainObjectProvider<T> extends KnownDomainObject<T>, ModelElem
 	 */
 	@Override
 	default DomainObjectProvider<T> configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		return configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
+		return configure(ConfigureUtils.configureUsing(requireNonNull(closure)));
 	}
 
 	/**

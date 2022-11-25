@@ -16,13 +16,13 @@
 package dev.nokee.model;
 
 import dev.nokee.provider.ProviderConvertible;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
-import org.gradle.util.ConfigureUtil;
 
 import static java.util.Objects.requireNonNull;
 
@@ -32,7 +32,7 @@ public interface KnownDomainObject<T> extends ProviderConvertible<T> {
 	Class<T> getType();
 
 	default KnownDomainObject<T> configure(@DelegatesTo(type = "T", strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		return configure(ConfigureUtil.configureUsing(requireNonNull(closure)));
+		return configure(ConfigureUtils.configureUsing(requireNonNull(closure)));
 	}
 	KnownDomainObject<T> configure(Action<? super T> action);
 

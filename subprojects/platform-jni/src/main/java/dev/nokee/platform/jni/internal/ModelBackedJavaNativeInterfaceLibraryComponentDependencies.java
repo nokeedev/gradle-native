@@ -21,11 +21,11 @@ import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.jni.JavaNativeInterfaceLibraryComponentDependencies;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.provider.MapProperty;
-import org.gradle.util.ConfigureUtil;
 
 public final class ModelBackedJavaNativeInterfaceLibraryComponentDependencies implements JavaNativeInterfaceLibraryComponentDependencies, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -42,7 +42,7 @@ public final class ModelBackedJavaNativeInterfaceLibraryComponentDependencies im
 
 	@Override
 	public void api(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getApi().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getApi().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public final class ModelBackedJavaNativeInterfaceLibraryComponentDependencies im
 
 	@Override
 	public void jvmImplementation(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getJvmImplementation().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getJvmImplementation().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public final class ModelBackedJavaNativeInterfaceLibraryComponentDependencies im
 
 	@Override
 	public void jvmRuntimeOnly(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getJvmRuntimeOnly().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getJvmRuntimeOnly().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public final class ModelBackedJavaNativeInterfaceLibraryComponentDependencies im
 
 	@Override
 	public void nativeImplementation(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeImplementation().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getNativeImplementation().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public final class ModelBackedJavaNativeInterfaceLibraryComponentDependencies im
 
 	@Override
 	public void nativeLinkOnly(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeLinkOnly().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getNativeLinkOnly().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public final class ModelBackedJavaNativeInterfaceLibraryComponentDependencies im
 
 	@Override
 	public void nativeRuntimeOnly(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeRuntimeOnly().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getNativeRuntimeOnly().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override

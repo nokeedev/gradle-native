@@ -15,12 +15,12 @@
  */
 package dev.nokee.gradle.internal.v66;
 
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.util.ConfigureUtil;
 
 interface NamedDomainObjectProviderMixIn<T> extends NamedDomainObjectProvider<T> {
 	default void configure(@SuppressWarnings("rawtypes") Closure closure) {
-		configure(ConfigureUtil.configureUsing(closure));
+		configure(ConfigureUtils.configureUsing(closure));
 	}
 }

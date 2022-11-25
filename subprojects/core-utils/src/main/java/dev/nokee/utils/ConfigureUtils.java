@@ -15,7 +15,9 @@
  */
 package dev.nokee.utils;
 
+import groovy.lang.Closure;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.internal.provider.PropertyInternal;
@@ -25,6 +27,7 @@ import org.gradle.api.provider.SetProperty;
 import org.gradle.internal.Describables;
 import org.gradle.internal.DisplayName;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -179,6 +182,14 @@ public final class ConfigureUtils {
 			});
 		} catch (NoSuchMethodException | ClassNotFoundException e) {
 			return Optional.empty();
+		}
+	}
+
+	public static <T> Action<T> configureUsing(@Nullable @SuppressWarnings("rawtypes") Closure configureClosure) {
+		if (configureClosure == null) {
+			return ActionUtils.doNothing();
+		} else {
+			return new ClosureWrappedConfigureAction<>(configureClosure);
 		}
 	}
 }

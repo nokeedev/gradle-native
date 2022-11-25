@@ -18,13 +18,13 @@ package dev.nokee.platform.jni;
 import dev.nokee.platform.base.ComponentDependencies;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.HasApiDependencyBucket;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.ProjectDependency;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * Allows the API, JVM implementation and native implementation dependencies of a Java Native Interface (JNI) library to be specified.
@@ -57,7 +57,7 @@ public interface JavaNativeInterfaceLibraryComponentDependencies extends JavaNat
 	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	default void jvmImplementation(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		jvmImplementation(notation, ConfigureUtil.configureUsing(closure));
+		jvmImplementation(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	/**
@@ -85,7 +85,7 @@ public interface JavaNativeInterfaceLibraryComponentDependencies extends JavaNat
 	 * @param closure The closure to run to configure the dependency (project dependencies are {@link ProjectDependency} and external dependencies are {@link ExternalModuleDependency}).
 	 */
 	default void jvmRuntimeOnly(Object notation, @DelegatesTo(value = ModuleDependency.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		jvmRuntimeOnly(notation, ConfigureUtil.configureUsing(closure));
+		jvmRuntimeOnly(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	/**

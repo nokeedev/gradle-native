@@ -21,11 +21,11 @@ import dev.nokee.model.internal.core.ModelNodeAware;
 import dev.nokee.model.internal.core.ModelNodeContext;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.jni.JavaNativeInterfaceNativeComponentDependencies;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.provider.MapProperty;
-import org.gradle.util.ConfigureUtil;
 
 public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies implements JavaNativeInterfaceNativeComponentDependencies, ModelNodeAware {
 	private final ModelNode node = ModelNodeContext.getCurrentModelNode();
@@ -42,7 +42,7 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 
 	@Override
 	public void nativeImplementation(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeImplementation().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getNativeImplementation().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 
 	@Override
 	public void nativeLinkOnly(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeLinkOnly().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getNativeLinkOnly().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public final class ModelBackedJavaNativeInterfaceNativeComponentDependencies imp
 
 	@Override
 	public void nativeRuntimeOnly(Object notation, @SuppressWarnings("rawtypes") Closure closure) {
-		getNativeRuntimeOnly().addDependency(notation, ConfigureUtil.configureUsing(closure));
+		getNativeRuntimeOnly().addDependency(notation, ConfigureUtils.configureUsing(closure));
 	}
 
 	@Override

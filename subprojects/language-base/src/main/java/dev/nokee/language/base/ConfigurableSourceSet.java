@@ -15,13 +15,13 @@
  */
 package dev.nokee.language.base;
 
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
 import org.gradle.api.Action;
 import org.gradle.api.tasks.util.PatternFilterable;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * Represent a configurable logical grouping of several files or directories.
@@ -47,7 +47,7 @@ public interface ConfigurableSourceSet extends SourceSet {
 	 */
 	ConfigurableSourceSet filter(Action<? super PatternFilterable> action);
 	default ConfigurableSourceSet filter(@ClosureParams(value = SimpleType.class, options = "org.gradle.api.tasks.util.PatternFilterable") @DelegatesTo(value = PatternFilterable.class, strategy = Closure.DELEGATE_FIRST) @SuppressWarnings("rawtypes") Closure closure) {
-		return filter(ConfigureUtil.configureUsing(closure));
+		return filter(ConfigureUtils.configureUsing(closure));
 	}
 
 	/**

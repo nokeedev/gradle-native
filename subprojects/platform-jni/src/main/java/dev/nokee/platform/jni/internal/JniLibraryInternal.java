@@ -43,6 +43,7 @@ import dev.nokee.platform.jni.JniJarBinary;
 import dev.nokee.platform.jni.JniLibrary;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
+import dev.nokee.utils.ConfigureUtils;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -109,7 +110,7 @@ public /*final*/ class JniLibraryInternal extends BaseVariant implements JniLibr
 
 	@Override
 	public void sharedLibrary(@SuppressWarnings("rawtypes") Closure closure) {
-		sharedLibrary(ConfigureUtil.configureUsing(closure));
+		sharedLibrary(ConfigureUtils.configureUsing(closure));
 	}
 
 	public TargetMachine getTargetMachine() {
