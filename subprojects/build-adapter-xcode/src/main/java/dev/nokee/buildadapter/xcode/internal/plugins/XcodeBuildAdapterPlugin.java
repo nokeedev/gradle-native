@@ -51,7 +51,6 @@ import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.model.internal.state.ModelStates;
 import dev.nokee.model.internal.tags.ModelTags;
 import dev.nokee.model.internal.type.ModelType;
-import dev.nokee.platform.base.internal.BuildVariantComponent;
 import dev.nokee.platform.base.internal.DomainObjectEntities;
 import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.dependencies.ConsumableDependencyBucketSpec;
@@ -195,7 +194,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.configure(task -> {
 						task.getConfigurationFlag().convention(project.getProviders().systemProperty("configuration").orElse(project.getProviders().gradleProperty("configuration"))/* TODO: orElse(default configuration for target) */);
 						task.dependsOn((Callable<Object>) task.getConfigurationFlag().map(configuration -> {
-							return Streams.stream(ModelStates.finalize(entity).get(LinkedVariantsComponent.class)).filter(it -> it.find(BuildVariantComponent.class).map(t -> t.get().hasAxisOf(configuration)).orElse(false)).map(it -> ModelStates.discover(ModelStates.discover(it).get(XCTargetTaskComponent.class).get()).getComponent(ModelComponentType.projectionOf(XcodeTargetExecTask.class)).get(ModelType.of(XcodeTargetExecTask.class))).collect(Collectors.toList());
+							return Streams.stream(ModelStates.finalize(entity).get(LinkedVariantsComponent.class)).filter(it -> it.find(VariantInformationComponent.class).map(t -> t.getName().equals(configuration)).orElse(false)).map(it -> ModelStates.discover(ModelStates.discover(it).get(XCTargetTaskComponent.class).get()).getComponent(ModelComponentType.projectionOf(XcodeTargetExecTask.class)).get(ModelType.of(XcodeTargetExecTask.class))).collect(Collectors.toList());
 						})::get);
 					});
 				entity.addComponent(new XCTargetTaskComponent(ModelNodes.of(targetLifecycleTask)));
