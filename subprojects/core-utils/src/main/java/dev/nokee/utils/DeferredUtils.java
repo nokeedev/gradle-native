@@ -36,7 +36,7 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Predicates.not;
-import static org.gradle.util.GUtil.uncheckedCall;
+import static dev.nokee.utils.CallableUtils.uncheckedCall;
 
 public final class DeferredUtils {
 	private static final Optional<Class<?>> KOTLIN_FUNCTION0_CLASS = loadKotlinFunction0Class();
