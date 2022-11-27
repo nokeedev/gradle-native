@@ -17,7 +17,6 @@ package dev.nokee.ide.fixtures
 
 import dev.gradleplugins.test.fixtures.file.TestFile
 import groovy.transform.CompileStatic
-import org.gradle.util.GUtil
 
 @CompileStatic
 abstract class IdeCommandLineUtils {
@@ -92,7 +91,11 @@ Actual: \${actual[key]}
 		Map<String, String> envvars = new HashMap<>()
 		envvars.putAll(System.getenv())
 
-		Properties props = GUtil.loadProperties(testDirectory.file("gradle-environment"))
+		Properties props = (Properties) testDirectory.file('gradle-environment').withInputStream {
+			final Properties properties = new Properties()
+			properties.load(it)
+			return properties
+		}
 		assert !props.isEmpty()
 
 		for (Map.Entry<Object, Object> entry : props.entrySet()) {

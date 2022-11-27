@@ -20,10 +20,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.reflect.TypeOf;
-import org.gradle.util.GUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -115,11 +115,11 @@ public final class Coordinates {
 	}
 
 	static String inferCoordinateAxisNameFromType(Class<?> type) {
-		return GUtil.toWords(type.getSimpleName(), '-');
+		return TextCaseUtils.toKebabCase(type.getSimpleName());
 	}
 
 	static String inferCoordinateAxisDisplayNameFromType(Class<?> type) {
-		return GUtil.toWords(type.getSimpleName());
+		return TextCaseUtils.toWords(type.getSimpleName());
 	}
 
 	public static <T> Coordinate<T> absentCoordinate(CoordinateAxis<T> axis) {

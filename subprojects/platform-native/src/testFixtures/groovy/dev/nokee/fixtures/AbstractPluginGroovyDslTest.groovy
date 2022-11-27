@@ -16,10 +16,10 @@
 package dev.nokee.fixtures
 
 import dev.nokee.internal.testing.util.ProjectTestUtils
+import dev.nokee.utils.TextCaseUtils
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
-import org.gradle.util.GUtil
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -50,7 +50,7 @@ abstract class AbstractPluginGroovyDslTest extends Specification {
 	}
 
 	protected String getPluginId() {
-		return 'dev.nokee.' + GUtil.toWords(getClass().simpleName.replace('Plugin_GroovyDslTest', '')).split(' ').collect { it.toLowerCase() }.join('-')
+		return 'dev.nokee.' + TextCaseUtils.toWords(getClass().simpleName.replace('Plugin_GroovyDslTest', '')).split(' ').collect { it.toLowerCase() }.join('-')
 	}
 
 	private List<PropertyGetter> discoverTypes(String pluginId) {

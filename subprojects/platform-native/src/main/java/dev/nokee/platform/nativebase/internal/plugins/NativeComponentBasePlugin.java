@@ -135,6 +135,7 @@ import dev.nokee.runtime.nativebase.TargetLinkage;
 import dev.nokee.runtime.nativebase.internal.NativeRuntimePlugin;
 import dev.nokee.runtime.nativebase.internal.TargetLinkages;
 import dev.nokee.utils.Optionals;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
@@ -148,7 +149,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Sync;
-import org.gradle.util.GUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -264,7 +264,7 @@ public class NativeComponentBasePlugin implements Plugin<Project> {
 				}));
 				registry.instantiate(configureEach(descendantOf(entity.getId()), SwiftSourceSetSpec.class, sourceSet -> {
 					sourceSet.getCompileTask().configure(task -> NativePlatformFactory.create(buildVariant).ifPresent(task.getTargetPlatform()::set));
-					sourceSet.getCompileTask().configure(task -> task.getModuleName().set(project.getProviders().provider(() -> GUtil.toCamelCase(ModelStates.finalize(ModelNodes.of(sourceSet).get(ParentComponent.class).get()).get(BaseNameComponent.class).get()))));
+					sourceSet.getCompileTask().configure(task -> task.getModuleName().set(project.getProviders().provider(() -> TextCaseUtils.toCamelCase(ModelStates.finalize(ModelNodes.of(sourceSet).get(ParentComponent.class).get()).get(BaseNameComponent.class).get()))));
 					ModelNodes.of(sourceSet).addComponent(new BuildVariantComponent(buildVariant));
 				}));
 

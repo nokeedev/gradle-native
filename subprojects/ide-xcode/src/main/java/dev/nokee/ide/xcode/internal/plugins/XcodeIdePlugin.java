@@ -31,6 +31,7 @@ import dev.nokee.platform.base.internal.IsComponent;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.internal.plugins.OnDiscover;
 import dev.nokee.platform.ios.tasks.internal.CreateIosApplicationBundleTask;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -40,7 +41,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
-import org.gradle.util.GUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public abstract class XcodeIdePlugin implements Plugin<Project> {
 
 		project.getPlugins().withType(ComponentModelBasePlugin.class, mapComponentToXcodeIdeProjects(project, (XcodeIdeProjectExtension) project.getExtensions().getByName(XcodeIdeBasePlugin.XCODE_EXTENSION_NAME)));
 		project.getPluginManager().withPlugin("dev.nokee.objective-c-xctest-test-suite", appliedPlugin -> {
-			String moduleName = GUtil.toCamelCase(project.getName());
+			String moduleName = TextCaseUtils.toCamelCase(project.getName());
 
 			// The Xcode IDE model will sync the `.xctest` product but we need the `-Runner.app`.
 			// We can't just sync the `-Runner.app` as Xcode will complain about a missing `.xctest`.

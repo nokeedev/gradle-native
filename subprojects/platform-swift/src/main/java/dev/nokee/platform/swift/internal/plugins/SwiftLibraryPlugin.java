@@ -48,6 +48,7 @@ import dev.nokee.platform.nativebase.internal.NativeLibraryComponentModelRegistr
 import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeLibraryComponentDependencies;
 import dev.nokee.platform.nativebase.internal.plugins.NativeComponentBasePlugin;
 import dev.nokee.platform.swift.SwiftLibrary;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -55,7 +56,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.toolchain.plugins.SwiftCompilerPlugin;
-import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
@@ -81,7 +81,7 @@ public class SwiftLibraryPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(NativeComponentBasePlugin.class);
 		project.getPluginManager().apply(SwiftLanguageBasePlugin.class);
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(swiftLibrary("main", project)).as(SwiftLibrary.class);
-		componentProvider.configure(baseName(convention(GUtil.toCamelCase(project.getName()))));
+		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
 		val extension = componentProvider.get();
 
 		// Other configurations

@@ -15,8 +15,8 @@
  */
 package dev.nokee.platform.base.internal;
 
+import dev.nokee.utils.TextCaseUtils;
 import lombok.EqualsAndHashCode;
-import org.gradle.util.GUtil;
 
 @EqualsAndHashCode
 public final class BaseName {
@@ -35,15 +35,15 @@ public final class BaseName {
 	}
 
 	public String getAsKebabCase() {
-		return GUtil.toWords(baseName.replace("_", ""), '-');
+		return TextCaseUtils.toKebabCase(baseName.replace("_", ""));
 	}
 
 	public String getAsCamelCase() {
-		return GUtil.toCamelCase(baseName.replace("_", ""));
+		return TextCaseUtils.toCamelCase(baseName.replace("_", ""));
 	}
 
 	public String getAsLowerCamelCase() {
-		return GUtil.toLowerCamelCase(baseName.replace("_", ""));
+		return TextCaseUtils.toLowerCamelCase(baseName.replace("_", ""));
 	}
 
 	@Override

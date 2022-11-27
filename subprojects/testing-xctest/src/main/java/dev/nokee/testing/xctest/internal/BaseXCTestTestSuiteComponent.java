@@ -42,6 +42,7 @@ import dev.nokee.platform.nativebase.internal.rules.CreateVariantAwareComponentO
 import dev.nokee.platform.nativebase.internal.rules.CreateVariantObjectsLifecycleTaskRule;
 import dev.nokee.testing.base.TestSuiteComponent;
 import dev.nokee.utils.Cast;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.Getter;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -51,7 +52,6 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.nativeplatform.toolchain.Swiftc;
-import org.gradle.util.GUtil;
 
 import java.util.Set;
 
@@ -152,7 +152,7 @@ public abstract class BaseXCTestTestSuiteComponent extends BaseNativeComponent<D
 		// TODO: Use component binary view instead once finish cleanup, it remove one level of indirection
 		getVariants().configureEach(variant -> {
 			variant.getBinaries().configureEach(BaseNativeBinary.class, binary -> {
-				((HasBaseName) binary).getBaseName().convention(GUtil.toCamelCase(project.getName()));
+				((HasBaseName) binary).getBaseName().convention(TextCaseUtils.toCamelCase(project.getName()));
 			});
 		});
 		whenElementKnown(this.getNode(), this::onEachVariant);

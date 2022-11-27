@@ -26,6 +26,7 @@ import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.BundleBinary;
 import dev.nokee.platform.nativebase.ExecutableBinary;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -42,7 +43,6 @@ import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
-import org.gradle.util.GUtil;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -91,7 +91,7 @@ final class ConfigureLinkTaskFromBaseNameRule extends ModelActionWithInputs.Mode
 	}
 
 	private static Transformer<String, String> toModuleName() {
-		return GUtil::toCamelCase;
+		return TextCaseUtils::toCamelCase;
 	}
 	//endregion
 
