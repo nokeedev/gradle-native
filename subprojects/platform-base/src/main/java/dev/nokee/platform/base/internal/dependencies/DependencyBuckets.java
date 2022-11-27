@@ -16,11 +16,11 @@
 package dev.nokee.platform.base.internal.dependencies;
 
 import dev.nokee.model.internal.names.ElementName;
+import dev.nokee.utils.TextCaseUtils;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
 import org.gradle.api.provider.Provider;
-import org.gradle.util.GUtil;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -36,7 +36,7 @@ public final class DependencyBuckets {
 	 */
 	public static String defaultDisplayName(ElementName name) {
 		assert name != null;
-		return Arrays.stream(GUtil.toWords(name.toString()).split(" ")).map(it -> {
+		return Arrays.stream(TextCaseUtils.toWords(name.toString()).split(" ")).map(it -> {
 			if (it.equals("api")) {
 				return "API";
 			} else if (it.equals("jvm")) {

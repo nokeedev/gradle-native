@@ -54,6 +54,7 @@ import dev.nokee.platform.nativebase.internal.dependencies.ModelBackedNativeComp
 import dev.nokee.runtime.darwin.internal.plugins.DarwinRuntimePlugin;
 import dev.nokee.runtime.nativebase.MachineArchitecture;
 import dev.nokee.runtime.nativebase.OperatingSystemFamily;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -62,7 +63,6 @@ import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.toolchain.Clang;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.gcc.DefaultGccPlatformToolChain;
-import org.gradle.util.GUtil;
 
 import java.util.Arrays;
 
@@ -89,7 +89,7 @@ public class ObjectiveCIosApplicationPlugin implements Plugin<Project> {
 		project.getPluginManager().apply(IosResourcePlugin.class);
 
 		val componentProvider = project.getExtensions().getByType(ModelRegistry.class).register(objectiveCIosApplication("main", project)).as(ObjectiveCIosApplication.class);
-		componentProvider.configure(baseName(convention(GUtil.toCamelCase(project.getName()))));
+		componentProvider.configure(baseName(convention(TextCaseUtils.toCamelCase(project.getName()))));
 		componentProvider.configure(configureUsingProjection(DefaultIosApplicationComponent.class, (t, projection) -> projection.getGroupId().set(GroupId.of(project::getGroup))));
 		project.getExtensions().add(ObjectiveCIosApplication.class, EXTENSION_NAME, componentProvider.get());
 

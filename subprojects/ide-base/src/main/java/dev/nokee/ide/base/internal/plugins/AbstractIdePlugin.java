@@ -18,13 +18,23 @@ package dev.nokee.ide.base.internal.plugins;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.ide.base.IdeProject;
 import dev.nokee.ide.base.IdeProjectReference;
-import dev.nokee.ide.base.internal.*;
+import dev.nokee.ide.base.internal.BaseIdeCleanMetadata;
+import dev.nokee.ide.base.internal.BaseIdeProjectReference;
+import dev.nokee.ide.base.internal.IdeProjectExtension;
+import dev.nokee.ide.base.internal.IdeProjectInternal;
+import dev.nokee.ide.base.internal.IdeWorkspaceExtension;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.gradle.api.*;
+import org.gradle.api.Action;
+import org.gradle.api.Describable;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.UncheckedIOException;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.model.ObjectFactory;
@@ -41,19 +51,22 @@ import org.gradle.internal.logging.ConsoleRenderer;
 import org.gradle.plugins.ide.internal.IdeArtifactRegistry;
 import org.gradle.plugins.ide.internal.IdeProjectMetadata;
 import org.gradle.process.ExecOperations;
-import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static dev.nokee.utils.DeferredUtils.realize;
-import static dev.nokee.utils.GradleUtils.*;
+import static dev.nokee.utils.GradleUtils.isCompositeBuild;
+import static dev.nokee.utils.GradleUtils.isHostBuild;
 import static dev.nokee.utils.ProjectUtils.isRootProject;
 import static dev.nokee.utils.TaskNameUtils.getShortestName;
 
@@ -268,7 +281,7 @@ public abstract class AbstractIdePlugin<T extends IdeProject> implements Plugin<
 
 	@Override
 	public String getDisplayName() {
-		return Arrays.stream(GUtil.toWords(getExtensionName()).split(" ")).map(StringUtils::capitalize).collect(Collectors.joining(" ")) + " IDE";
+		return Arrays.stream(TextCaseUtils.toWords(getExtensionName()).split(" ")).map(StringUtils::capitalize).collect(Collectors.joining(" ")) + " IDE";
 	}
 
 	/**

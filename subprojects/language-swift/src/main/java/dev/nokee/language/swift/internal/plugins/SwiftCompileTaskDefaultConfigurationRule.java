@@ -32,6 +32,7 @@ import dev.nokee.model.internal.names.ElementName;
 import dev.nokee.model.internal.registry.ModelRegistry;
 import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
+import dev.nokee.utils.TextCaseUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.file.Directory;
@@ -39,7 +40,6 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.swift.SwiftVersion;
-import org.gradle.util.GUtil;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -112,7 +112,7 @@ final class SwiftCompileTaskDefaultConfigurationRule extends ModelActionWithInpu
 	}
 
 	private static String toModuleName(ElementName name) {
-		return GUtil.toCamelCase(name.toString());
+		return TextCaseUtils.toCamelCase(name.toString());
 	}
 	//endregion
 

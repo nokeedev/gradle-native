@@ -43,6 +43,7 @@ import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.platform.nativebase.tasks.internal.LinkBundleTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkExecutableTask;
 import dev.nokee.platform.nativebase.tasks.internal.LinkSharedLibraryTask;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -60,7 +61,6 @@ import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
-import org.gradle.util.GUtil;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Objects;
@@ -189,7 +189,7 @@ final class NativeLinkTaskRegistrationRule extends ModelActionWithInputs.ModelAc
 	}
 
 	private static Transformer<String, String> toModuleName() {
-		return GUtil::toCamelCase;
+		return TextCaseUtils::toCamelCase;
 	}
 	//endregion
 

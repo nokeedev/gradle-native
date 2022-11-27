@@ -22,7 +22,6 @@ import dev.nokee.language.base.HasDestinationDirectory;
 import dev.nokee.language.nativebase.internal.NativeToolChainSelector;
 import dev.nokee.model.DomainObjectIdentifier;
 import dev.nokee.model.DomainObjectProvider;
-import dev.nokee.model.internal.core.IdentifierComponent;
 import dev.nokee.model.internal.core.ModelActionWithInputs;
 import dev.nokee.model.internal.core.ModelComponentReference;
 import dev.nokee.model.internal.core.ModelNode;
@@ -33,6 +32,7 @@ import dev.nokee.platform.base.internal.OutputDirectoryPath;
 import dev.nokee.platform.base.internal.util.PropertyUtils;
 import dev.nokee.platform.nativebase.tasks.ObjectLink;
 import dev.nokee.platform.nativebase.tasks.internal.CreateStaticLibraryTask;
+import dev.nokee.utils.TextCaseUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -50,7 +50,6 @@ import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.Swiftc;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
-import org.gradle.util.GUtil;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -61,7 +60,6 @@ import static dev.nokee.platform.base.internal.util.PropertyUtils.CollectionProp
 import static dev.nokee.platform.base.internal.util.PropertyUtils.convention;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.lockProperty;
 import static dev.nokee.platform.base.internal.util.PropertyUtils.wrap;
-import static dev.nokee.utils.TaskUtils.configureDescription;
 
 final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.ModelAction1<ModelProjection> {
 	private final ModelRegistry registry;
@@ -143,7 +141,7 @@ final class NativeArchiveTaskRegistrationRule extends ModelActionWithInputs.Mode
 	}
 
 	private static Transformer<String, String> toModuleName() {
-		return GUtil::toCamelCase;
+		return TextCaseUtils::toCamelCase;
 	}
 	//endregion
 
