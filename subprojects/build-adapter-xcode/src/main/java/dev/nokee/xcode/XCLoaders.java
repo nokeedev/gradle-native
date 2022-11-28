@@ -31,6 +31,8 @@ public final class XCLoaders {
 	private static final XCLoader<Set<XCTargetReference>, XCProjectReference> ALL_TARGETS_LOADER = new XCCacheLoader<>(new XCTargetsLoader(PBXPROJECT_LOADER));
 	private static final XCLoader<Set<String>, XCTargetReference> TARGET_CONFIGURATION_LOADER = new XCCacheLoader<>(new ConfigurationLoader(PBXPROJECT_LOADER));
 
+	private static final XCLoader<String, XCTargetReference> DEFAULT_TARGET_CONFIGURATION_LOADER = new XCCacheLoader<>(new DefaultTargetConfigurationLoader(PBXPROJECT_LOADER));
+
 	public static XCLoader<Iterable<XCProjectReference>, XCProjectReference> crossProjectReferencesLoader() {
 		return CROSS_PROJECT_REFERENCES_LOADER;
 	}
@@ -53,5 +55,9 @@ public final class XCLoaders {
 
 	public static XCLoader<Set<String>, XCTargetReference> targetConfigurationsLoader() {
 		return TARGET_CONFIGURATION_LOADER;
+	}
+
+	public static XCLoader<String, XCTargetReference> defaultTargetConfigurationLoader() {
+		return DEFAULT_TARGET_CONFIGURATION_LOADER;
 	}
 }
