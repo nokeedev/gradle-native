@@ -21,8 +21,8 @@ import dev.nokee.core.exec.ProcessBuilderEngine;
 import dev.nokee.runtime.base.internal.tools.CommandLineToolDescriptor;
 import dev.nokee.runtime.base.internal.tools.CommandLineToolLocator;
 import dev.nokee.runtime.base.internal.tools.DefaultCommandLineToolDescriptor;
+import dev.nokee.utils.VersionNumber;
 import lombok.val;
-import org.gradle.util.VersionNumber;
 
 import java.io.File;
 import java.util.Collections;

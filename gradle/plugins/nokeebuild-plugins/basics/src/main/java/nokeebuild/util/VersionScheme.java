@@ -15,7 +15,7 @@
  */
 package nokeebuild.util;
 
-import org.gradle.util.VersionNumber;
+import org.gradle.util.internal.VersionNumber;
 
 interface VersionScheme {
 	VersionNumber format(NokeeVersionParameters version);
