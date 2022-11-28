@@ -38,7 +38,7 @@ class HeaderOnlyLibraryFunctionalTest extends AbstractGradleSpecification implem
 
 			application {
 				dependencies {
-					implementation 'com.github.SergiusTheBest.plog:plog-headers:1.1.5'
+					implementation 'com.github.SergiusTheBest.plog:plog-headers:1.1.8'
 				}
 			}
 		"""
