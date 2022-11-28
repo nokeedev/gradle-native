@@ -98,6 +98,7 @@ import java.util.stream.Collectors;
 
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
+import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.TaskUtils.temporaryDirectoryPath;
 import static dev.nokee.utils.TransformerUtils.Transformer.of;
@@ -192,7 +193,8 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 				val targetLifecycleTask = project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.lifecycle(), XcodeTargetLifecycleTask.class, it -> it.ownedBy(entity)))
 					.as(XcodeTargetLifecycleTask.class)
 					.configure(task -> {
-						task.getConfigurationFlag().convention(project.getProviders().systemProperty("configuration").orElse(project.getProviders().gradleProperty("configuration"))/* TODO: orElse(default configuration for target) */);
+						final XCTargetReference targetReference = target.get();
+						task.getConfigurationFlag().convention(project.getProviders().systemProperty("configuration").orElse(project.getProviders().gradleProperty("configuration")).orElse(new DefaultProviderFactory(project.getProviders()).provider(ofSerializableCallable(() -> targetReference.load(XCLoaders.defaultTargetConfigurationLoader())))));
 						task.dependsOn((Callable<Object>) task.getConfigurationFlag().map(configuration -> {
 							return Streams.stream(ModelStates.finalize(entity).get(LinkedVariantsComponent.class)).filter(it -> it.find(VariantInformationComponent.class).map(t -> t.getName().equals(configuration)).orElse(false)).map(it -> ModelStates.discover(ModelStates.discover(it).get(XCTargetTaskComponent.class).get()).getComponent(ModelComponentType.projectionOf(XcodeTargetExecTask.class)).get(ModelType.of(XcodeTargetExecTask.class))).collect(Collectors.toList());
 						})::get);

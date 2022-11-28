@@ -27,7 +27,16 @@ public class SerializableMatchers {
 		return new TypeSafeMatcher<Object>() {
 			@Override
 			public void describeTo(Description description) {
+				description.appendText("serializable object");
+			}
 
+			@Override
+			protected void describeMismatchSafely(Object item, Description mismatchDescription) {
+				if (!(item instanceof Serializable)) {
+					mismatchDescription.appendText("not serializable");
+				} else if (!item.equals(SerializationUtils.clone((Serializable) item))) {
+					mismatchDescription.appendText("not equals after serialization");
+				}
 			}
 
 			@Override
