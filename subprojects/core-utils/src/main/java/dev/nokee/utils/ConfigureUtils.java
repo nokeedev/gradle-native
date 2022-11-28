@@ -185,6 +185,9 @@ public final class ConfigureUtils {
 		}
 	}
 
+	/**
+	 * Creates an action that uses the given closure to configure objects of type T.
+	 */
 	public static <T> Action<T> configureUsing(@Nullable @SuppressWarnings("rawtypes") Closure configureClosure) {
 		if (configureClosure == null) {
 			return ActionUtils.doNothing();

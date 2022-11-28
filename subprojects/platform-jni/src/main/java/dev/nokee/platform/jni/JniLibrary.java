@@ -17,7 +17,12 @@ package dev.nokee.platform.jni;
 
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.language.base.SourceView;
-import dev.nokee.platform.base.*;
+import dev.nokee.platform.base.BinaryAwareComponent;
+import dev.nokee.platform.base.DependencyAwareComponent;
+import dev.nokee.platform.base.HasBaseName;
+import dev.nokee.platform.base.SourceAwareComponent;
+import dev.nokee.platform.base.TaskAwareComponent;
+import dev.nokee.platform.base.Variant;
 import dev.nokee.platform.nativebase.SharedLibraryBinary;
 import dev.nokee.runtime.nativebase.TargetMachine;
 import dev.nokee.utils.ConfigureUtils;
@@ -26,7 +31,6 @@ import groovy.lang.DelegatesTo;
 import org.gradle.api.Action;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.provider.Property;
-import org.gradle.util.ConfigureUtil;
 
 /**
  * Configuration for a specific Java Native Interface (JNI) library variant, defining the dependencies that make up the library plus other settings.

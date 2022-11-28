@@ -18,10 +18,11 @@ package dev.nokee.utils;
 import groovy.lang.Closure;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Action;
+import org.gradle.util.GradleVersion;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Objects;
-
-import static org.gradle.util.ConfigureUtil.configure;
 
 @EqualsAndHashCode
 public final class ClosureWrappedConfigureAction<T> implements Action<T> {
@@ -33,7 +34,21 @@ public final class ClosureWrappedConfigureAction<T> implements Action<T> {
 
 	@Override
 	public void execute(T t) {
-		configure(configureClosure, t);
+		try {
+			final Class<?> ConfigureUtil = findConfigureUtilClass();
+			final Method configure = ConfigureUtil.getMethod("configure", Closure.class, Object.class);
+			configure.invoke(null, configureClosure, t);
+		} catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static Class<?> findConfigureUtilClass() throws ClassNotFoundException {
+		if (GradleVersion.current().compareTo(GradleVersion.version("7.1")) > 0) {
+			return Class.forName("org.gradle.util.internal.ConfigureUtil");
+		} else {
+			return Class.forName("org.gradle.util.ConfigureUtil");
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
