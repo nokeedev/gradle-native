@@ -39,7 +39,9 @@ public final class AdhocArtifactRepositoryFactory {
 		this.objects = project.getObjects();
 		this.providers = project.getProviders();
 		this.mavenRepositoryFactory = ((ProjectInternal) project).getServices().get(BaseRepositoryFactory.class)::createMavenRepository;
-		if (GradleVersion.current().compareTo(GradleVersion.version("6.6")) >= 0) {
+		if (GradleVersion.current().compareTo(GradleVersion.version("7.6")) >= 0) {
+			this.factory = new ArtifactRepositoryFactory("dev.nokee.gradle.internal.repositories.v76.DefaultAdhocArtifactRepository");
+		} else if (GradleVersion.current().compareTo(GradleVersion.version("6.6")) >= 0) {
 			this.factory = new ArtifactRepositoryFactory("dev.nokee.gradle.internal.repositories.v66.DefaultAdhocArtifactRepository");
 		} else {
 			throw new UnsupportedOperationException("Gradle version lower than 6.5 are not supported. " + GradleVersion.current());
