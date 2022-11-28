@@ -49,6 +49,6 @@ class CrossProjectTargetDependenciesFunctionalTest {
 
 	@Test
 	void doesNotFailTheBuild() {
-		assertThat(result, tasksExecuted(":Library:GreeterLib", ":CrossProjectReference:GreeterApp"));
+		assertThat(result, tasksExecuted(":Library:GreeterLibRelease", ":CrossProjectReference:GreeterAppRelease", ":CrossProjectReference:GreeterApp"));
 	}
 }
