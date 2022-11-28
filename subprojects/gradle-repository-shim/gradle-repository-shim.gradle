@@ -7,14 +7,16 @@ plugins {
 
 sourceSets {
 	'v6.6' {}
+	'v7.6' {}
 }
 
 dependencies {
 	api project(':publishingCore')
 	v66Implementation "commons-io:commons-io:${commonsIoVersion}"
+	v76Implementation "commons-io:commons-io:${commonsIoVersion}"
 }
 
 test {
-	testedGradleVersions.set(['6.6', '6.7', '6.8', '6.9', '7.0', '7.1', '7.2', '7.3', '7.4', '7.5'])
+	testedGradleVersions.set(['6.6', '6.7', '6.8', '6.9', '7.0', '7.1', '7.2', '7.3', '7.4', '7.5', '7.6'])
 	testedOsFamilies.set([it.osFamilies.agnostic])
 }

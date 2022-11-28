@@ -26,7 +26,9 @@ public final class NamedDomainObjectProviderFactory {
 	private final ProviderFactory factory;
 
 	public NamedDomainObjectProviderFactory() {
-		if (GradleVersion.current().compareTo(GradleVersion.version("7.0")) >= 0) {
+		if (GradleVersion.current().compareTo(GradleVersion.version("7.6")) >= 0) {
+			this.factory = new ProviderFactory("dev.nokee.gradle.internal.v76.DefaultNamedDomainObjectProvider");
+		} else if (GradleVersion.current().compareTo(GradleVersion.version("7.0")) >= 0) {
 			this.factory = new ProviderFactory("dev.nokee.gradle.internal.v70.DefaultNamedDomainObjectProvider");
 		} else if (GradleVersion.current().compareTo(GradleVersion.version("6.6")) >= 0) {
 			this.factory = new ProviderFactory("dev.nokee.gradle.internal.v66.DefaultNamedDomainObjectProvider");

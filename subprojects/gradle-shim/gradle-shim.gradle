@@ -10,10 +10,11 @@ sourceSets {
 	'v6.5' {}
 	'v6.6' {}
 	'v7.0' {}
+	'v7.6' {}
 }
 
 test {
-	testedGradleVersions.set(['6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8', '6.9', '7.0', '7.1', '7.2', '7.3', '7.4', '7.5'])
+	testedGradleVersions.set(['6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8', '6.9', '7.0', '7.1', '7.2', '7.3', '7.4', '7.5', '7.6'])
 	testedOsFamilies.set([it.osFamilies.agnostic])
 }
 
@@ -23,4 +24,5 @@ dependencies {
 	add('v65Implementation', project(':coreUtils'))
 	add('v66Implementation', project(':coreUtils'))
 	add('v70Implementation', project(':coreUtils'))
+	add('v76Implementation', project(':coreUtils'))
 }
