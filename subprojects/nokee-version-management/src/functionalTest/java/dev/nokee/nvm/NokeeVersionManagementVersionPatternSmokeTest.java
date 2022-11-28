@@ -38,7 +38,7 @@ class NokeeVersionManagementVersionPatternSmokeTest {
 	@GradleAtLeast("6.9")
 	void canLoadVersionFromNokeeServices(GradleRunner runner) {
 		singleNokeeBuild(TestLayout.newBuild(testDirectory)).rootBuild(applyAnyNokeePlugin().andThen(writeVersionFile("0.4.+")));
-		runner/*.publishBuildScans()*/.withTasks("verify").build(); // manually checked, it resolves a nightly version
+		runner/*.publishBuildScans()*/.withTasks("verify").withoutDeprecationChecks()/*until we release a new version*/.build(); // manually checked, it resolves a nightly version
 		// Although it's somewhat fine, we most likely want to use the concept of latest.release and latest.integration.
 		// We could consider supporting 0.4.+ which should mean latest.release under the 0.4 release (latest 0.4 patch release).
 		// In theory, it should not be a nightly version
