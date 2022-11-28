@@ -19,7 +19,7 @@ import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
-import org.gradle.util.VersionNumber;
+import org.gradle.util.internal.VersionNumber;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;

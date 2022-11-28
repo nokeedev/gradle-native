@@ -16,7 +16,7 @@
 package dev.nokee.core.exec.internal;
 
 import dev.nokee.core.exec.CommandLineToolMetadata;
-import org.gradle.util.VersionNumber;
+import dev.nokee.utils.VersionNumber;
 
 public class CommandLineToolVersionMetadata implements CommandLineToolMetadata {
 	private final VersionNumber version;
