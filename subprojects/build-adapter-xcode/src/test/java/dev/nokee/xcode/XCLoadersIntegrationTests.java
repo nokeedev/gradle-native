@@ -18,6 +18,8 @@ package dev.nokee.xcode;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -35,6 +37,36 @@ class XCLoadersIntegrationTests {
 	@Nested
 	class WhenCrossProjectReferencesLoader {
 		XCLoader<Iterable<XCProjectReference>, XCProjectReference> subject = XCLoaders.crossProjectReferencesLoader();
+
+		@Test
+		void canSerialize() {
+			assertThat(subject, isSerializable());
+		}
+	}
+
+	@Nested
+	class WhenTargetConfigurationsLoader {
+		XCLoader<Set<String>, XCTargetReference> subject = XCLoaders.targetConfigurationsLoader();
+
+		@Test
+		void canSerialize() {
+			assertThat(subject, isSerializable());
+		}
+	}
+
+	@Nested
+	class WhenDefaultTargetConfigurationLoader {
+		XCLoader<String, XCTargetReference> subject = XCLoaders.defaultTargetConfigurationLoader();
+
+		@Test
+		void canSerialize() {
+			assertThat(subject, isSerializable());
+		}
+	}
+
+	@Nested
+	class WhenAllTargetsLoader {
+		XCLoader<Set<XCTargetReference>, XCProjectReference> subject = XCLoaders.allTargetsLoader();
 
 		@Test
 		void canSerialize() {
