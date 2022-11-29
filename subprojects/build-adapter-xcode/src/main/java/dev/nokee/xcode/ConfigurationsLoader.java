@@ -22,10 +22,10 @@ import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import java.io.Serializable;
 import java.util.Set;
 
-public final class ConfigurationLoader implements XCLoader<Set<String>, XCTargetReference>, Serializable {
+public final class ConfigurationsLoader implements XCLoader<Set<String>, XCTargetReference>, Serializable {
 	private final XCLoader<PBXProject, XCProjectReference> loader;
 
-	public ConfigurationLoader(XCLoader<PBXProject, XCProjectReference> loader) {
+	public ConfigurationsLoader(XCLoader<PBXProject, XCProjectReference> loader) {
 		this.loader = loader;
 	}
 
