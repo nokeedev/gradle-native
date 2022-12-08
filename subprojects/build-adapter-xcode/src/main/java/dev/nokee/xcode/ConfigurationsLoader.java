@@ -18,8 +18,10 @@ package dev.nokee.xcode;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
+import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Set;
 
 public final class ConfigurationsLoader implements XCLoader<Set<String>, XCTargetReference>, Serializable {
@@ -31,6 +33,11 @@ public final class ConfigurationsLoader implements XCLoader<Set<String>, XCTarge
 
 	@Override
 	public Set<String> load(XCTargetReference reference) {
-		return reference.getProject().load(loader).getBuildConfigurationList().getBuildConfigurations().stream().map(XCBuildConfiguration::getName).collect(ImmutableSet.toImmutableSet());
+		final XCConfigurationList configurationList = reference.getProject().load(loader).getBuildConfigurationList();
+		if (configurationList == null) {
+			return Collections.emptySet();
+		} else {
+			return configurationList.getBuildConfigurations().stream().map(XCBuildConfiguration::getName).collect(ImmutableSet.toImmutableSet());
+		}
 	}
 }

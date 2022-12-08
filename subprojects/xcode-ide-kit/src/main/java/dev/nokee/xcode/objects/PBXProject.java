@@ -33,6 +33,7 @@ import lombok.val;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -123,6 +124,10 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			}
 			targets.add(target);
 			return this;
+		}
+
+		public Builder targets(PBXTarget... targets) {
+			return targets(Arrays.asList(targets));
 		}
 
 		public Builder targets(Iterable<? extends PBXTarget> targets) {
