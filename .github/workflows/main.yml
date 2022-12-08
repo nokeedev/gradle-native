@@ -54,7 +54,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+                os: ['ubuntu-20.04', 'windows-latest', 'macos-latest']
         steps:
             -   uses: actions/checkout@v2
                 with:
@@ -75,7 +75,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+                os: ['ubuntu-20.04', 'windows-latest', 'macos-latest']
         steps:
             -   uses: actions/checkout@v2
                 with:
@@ -91,7 +91,7 @@ jobs:
                     github-token: ${{ secrets.GITHUB_TOKEN }}
 
     check-baked-documentation:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
         steps:
             -   uses: actions/checkout@v2
                 with:
@@ -111,7 +111,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+                os: ['ubuntu-20.04', 'windows-latest', 'macos-latest']
         steps:
             -   uses: actions/checkout@v2
                 with:
