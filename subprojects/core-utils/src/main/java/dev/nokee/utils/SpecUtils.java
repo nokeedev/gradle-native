@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import dev.nokee.util.internal.UncheckedCastTransformer;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.Transformer;
@@ -37,6 +38,10 @@ public final class SpecUtils {
 			return Cast.uncheckedCast("no op transformer implies the output type is the same", spec);
 		}
 		return new ComposeSpec<>(spec, transformer);
+	}
+
+	public static <CastedType, InputType> Spec<InputType> uncheckedCast(org.gradle.api.specs.Spec<? super CastedType> delegate) {
+		return compose(delegate, UncheckedCastTransformer.uncheckedCast());
 	}
 
 	@EqualsAndHashCode
