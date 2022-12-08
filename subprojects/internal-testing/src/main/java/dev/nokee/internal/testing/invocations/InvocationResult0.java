@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project.invocations;
+package dev.nokee.internal.testing.invocations;
 
-import java.util.List;
+public interface InvocationResult0 extends InvocationResult {
 
-public interface HasInvocationResults<A extends InvocationResult> {
-	List<A> getAllInvocations();
 }

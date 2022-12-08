@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project;
+package dev.nokee.internal.testing;
 
 import com.google.common.collect.Iterators;
-import dev.nokee.xcode.project.invocations.HasInvocationResults;
-import dev.nokee.xcode.project.invocations.InvocationResult;
-import dev.nokee.xcode.project.invocations.InvocationResult0;
-import dev.nokee.xcode.project.invocations.InvocationResult1;
-import dev.nokee.xcode.project.invocations.InvocationResult2;
+import dev.nokee.internal.testing.invocations.HasInvocationResults;
+import dev.nokee.internal.testing.invocations.InvocationResult;
+import dev.nokee.internal.testing.invocations.InvocationResult0;
+import dev.nokee.internal.testing.invocations.InvocationResult1;
+import dev.nokee.internal.testing.invocations.InvocationResult2;
 import org.mockito.Mockito;
 import org.mockito.invocation.Invocation;
 

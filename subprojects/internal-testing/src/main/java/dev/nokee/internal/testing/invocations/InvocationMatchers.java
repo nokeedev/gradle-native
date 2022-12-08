@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project.invocations;
+package dev.nokee.internal.testing.invocations;
 
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -40,6 +40,10 @@ public final class InvocationMatchers {
 
 	public static <T extends HasInvocationResults<?>> Matcher<T> neverCalled() {
 		return called(equalTo(0L));
+	}
+
+	public static <T extends HasInvocationResults<A>, A extends InvocationResult1<A0>, A0> Matcher<T> calledOnceWith(A0 expectedValue) {
+		return calledOnceWith(equalTo(expectedValue));
 	}
 
 	@SuppressWarnings("unchecked")

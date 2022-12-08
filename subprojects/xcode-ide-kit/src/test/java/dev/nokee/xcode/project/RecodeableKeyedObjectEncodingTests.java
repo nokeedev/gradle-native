@@ -24,8 +24,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static dev.nokee.xcode.project.MockitoMethodWrapper.method;
-import static dev.nokee.xcode.project.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.MockitoMethodWrapper.method;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
