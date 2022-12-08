@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project.invocations;
+package dev.nokee.internal.testing.invocations;
 
-import dev.nokee.xcode.project.invocations.InvocationResult;
+public interface InvocationResult extends Iterable<Object> {
+	<A> A getArgument(int index);
 
-public interface InvocationResult1<A0> extends InvocationResult {
-	A0 getFirstArgument();
+	<A> A getArgument(int index, Class<A> argumentType);
 }

@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project.invocations;
+package dev.nokee.internal.testing.invocations;
 
-public interface InvocationResult2<A0, A1> extends InvocationResult {
+public interface InvocationResult1<A0> extends InvocationResult {
 	A0 getFirstArgument();
-
-	A1 getSecondArgument();
 }
