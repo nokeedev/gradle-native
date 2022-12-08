@@ -15,11 +15,12 @@
  */
 package dev.nokee.xcode;
 
-import com.google.common.collect.MoreCollectors;
-import dev.nokee.utils.Optionals;
 import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.objects.configuration.XCConfigurationList;
+import dev.nokee.xcode.objects.targets.PBXTarget;
 import lombok.EqualsAndHashCode;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 
 @EqualsAndHashCode
@@ -33,6 +34,50 @@ public final class DefaultTargetConfigurationLoader implements XCLoader<String, 
 	@Override
 	public String load(XCTargetReference reference) {
 		final PBXProject project = loader.load(reference.getProject());
-		return Optionals.or(project.getTargets().stream().filter(it -> it.getName().equals(reference.getName())).collect(MoreCollectors.onlyElement()).getBuildConfigurationList().getDefaultConfigurationName(), () -> project.getBuildConfigurationList().getDefaultConfigurationName()).orElse(null);
+		final PBXTarget target = findTarget(project, reference.getName());
+		if (target == null) {
+			throw new RuntimeException(String.format("%s refers to unknown target", reference));
+		}
+
+		String result = defaultBuildConfigurationName(target);
+		if (result == null) {
+			result = defaultBuildConfigurationName(project);
+		}
+
+		return result;
+	}
+
+	@Nullable
+	private static PBXTarget findTarget(PBXProject project, String targetName) {
+		assert project != null : "'project' must not be null";
+		assert targetName != null : "'targetName' must not be null";
+
+		for (PBXTarget target : project.getTargets()) {
+			if (targetName.equals(target.getName())) {
+				return target;
+			}
+		}
+		return null; // no target found
+	}
+
+	@Nullable
+	private static String defaultBuildConfigurationName(PBXTarget target) {
+		assert target != null : "'target' must not be null";
+		return defaultBuildConfigurationName(target.getBuildConfigurationList());
+	}
+
+	@Nullable
+	private static String defaultBuildConfigurationName(PBXProject project) {
+		assert project != null : "'project' must not be null";
+		return defaultBuildConfigurationName(project.getBuildConfigurationList());
+	}
+
+	@Nullable
+	private static String defaultBuildConfigurationName(@Nullable XCConfigurationList buildConfigurations) {
+		if (buildConfigurations == null) {
+			return null;
+		} else {
+			return buildConfigurations.getDefaultConfigurationName().orElse(null);
+		}
 	}
 }
