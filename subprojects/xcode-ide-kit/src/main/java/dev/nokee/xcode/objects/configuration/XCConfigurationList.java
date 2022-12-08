@@ -67,7 +67,11 @@ public interface XCConfigurationList extends PBXProjectItem {
 		public Builder buildConfiguration(Consumer<? super XCBuildConfiguration.Builder> builderConsumer) {
 			final XCBuildConfiguration.Builder builder = XCBuildConfiguration.builder();
 			builderConsumer.accept(builder);
-			final XCBuildConfiguration buildConfiguration = builder.build();
+			return buildConfiguration(builder.build());
+		}
+
+		public Builder buildConfiguration(XCBuildConfiguration buildConfiguration) {
+			final XCBuildConfiguration.Builder builder = XCBuildConfiguration.builder();
 			if (this.buildConfigurations == null) {
 				this.buildConfigurations = new LinkedHashSet<>();
 			}

@@ -42,7 +42,7 @@ public interface PBXNativeTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder> {
 		private String name;
 		private ProductType productType;
 		private final List<PBXBuildPhase> buildPhases = new ArrayList<>();
@@ -62,24 +62,20 @@ public interface PBXNativeTarget extends PBXTarget {
 			return this;
 		}
 
+		@Override
 		public Builder buildPhase(PBXBuildPhase buildPhase) {
 			this.buildPhases.add(requireNonNull(buildPhase));
 			return this;
 		}
 
+		@Override
 		public Builder buildPhases(Iterable<? extends PBXBuildPhase> buildPhases) {
 			this.buildPhases.clear();
 			stream(buildPhases).map(Objects::requireNonNull).forEach(this.buildPhases::add);
 			return this;
 		}
 
-		public Builder buildConfigurations(Consumer<? super XCConfigurationList.Builder> builderConsumer) {
-			final XCConfigurationList.Builder builder = XCConfigurationList.builder();
-			builderConsumer.accept(builder);
-			this.buildConfigurationList = builder.build();
-			return this;
-		}
-
+		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
 			this.buildConfigurationList = requireNonNull(buildConfigurationList);
 			return this;
