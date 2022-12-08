@@ -32,6 +32,10 @@ public interface Codeable {
 
 	void encode(EncodeContext context);
 
+	default boolean has(CodingKey key) {
+		return tryDecode(key) != null;
+	}
+
 	interface EncodeContext {
 
 		void base(Map<String, ?> fields);

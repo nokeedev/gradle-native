@@ -19,7 +19,10 @@ import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @EqualsAndHashCode
 public final class DefaultKeyedObject implements KeyedObject {
@@ -71,6 +74,8 @@ public final class DefaultKeyedObject implements KeyedObject {
 	public static final class Builder {
 		private KeyedObject parent = null;
 		private final ImmutableMap.Builder<CodingKey, Object> builder = ImmutableMap.builder();
+		private final Set<CodingKey> requiredKeys = new LinkedHashSet<>();
+		private boolean lenient = false;
 
 		public Builder put(CodingKey key, @Nullable Object object) {
 			if (object != null) {
@@ -85,9 +90,27 @@ public final class DefaultKeyedObject implements KeyedObject {
 		}
 
 		public DefaultKeyedObject build() {
-			return new DefaultKeyedObject(parent, builder.build());
+			DefaultKeyedObject result = new DefaultKeyedObject(parent, builder.build());
+			if (!lenient) {
+				for (CodingKey it : requiredKeys) {
+					if (!result.has(it)) {
+						throw new NullPointerException(String.format("'%s' must not be null", it));
+					}
+				}
+			}
+			return result;
 		}
-	}
+
+		public Builder requires(CodeablePBXAggregateTarget.CodingKeys... codingKey) {
+			requiredKeys.addAll(Arrays.asList(codingKey));
+			return this;
+		}
+
+		public Builder lenient() {
+			lenient = true;
+			return this;
+		}
+    }
 
 	@Override
 	public String toString() {
