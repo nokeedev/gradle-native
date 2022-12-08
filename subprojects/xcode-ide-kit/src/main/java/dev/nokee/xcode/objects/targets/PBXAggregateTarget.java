@@ -20,9 +20,9 @@ import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXShellScriptBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,26 +39,47 @@ public interface PBXAggregateTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
 		private String name;
 		private String productName;
 		private XCConfigurationList buildConfigurations;
 		private final List<PBXBuildPhase> buildPhases = new ArrayList<>();
 		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXAggregateTarget");
+			builder.requires(CodeablePBXAggregateTarget.CodingKeys.name, CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList);
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder name(String name) {
 			this.name = requireNonNull(name);
 			return this;
 		}
 
+		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurations) {
 			this.buildConfigurations = requireNonNull(buildConfigurations);
 			return this;
 		}
 
+		@Override
 		public Builder buildPhases(Iterable<? extends PBXBuildPhase> buildPhases) {
 			this.buildPhases.clear();
 			stream(buildPhases).peek(Objects::requireNonNull).peek(this::assertOnlyRunOrCopyPhase).forEach(this.buildPhases::add);
+			return this;
+		}
+
+		@Override
+		public Builder buildPhase(PBXBuildPhase buildPhase) {
+			Objects.requireNonNull(buildPhase);
+			buildPhases.add(buildPhase);
 			return this;
 		}
 
@@ -75,11 +96,9 @@ public interface PBXAggregateTarget extends PBXTarget {
 		}
 
 		public PBXAggregateTarget build() {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXAggregateTarget");
-			builder.put(CodeablePBXAggregateTarget.CodingKeys.name, requireNonNull(name, "'name' must not be null"));
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.name, name);
 			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, ImmutableList.copyOf(buildPhases));
-			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurations, "'buildConfiguration' must not be null"));
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, buildConfigurations);
 			builder.put(CodeablePBXAggregateTarget.CodingKeys.dependencies, ImmutableList.copyOf(dependencies));
 
 			return new CodeablePBXAggregateTarget(builder.build());

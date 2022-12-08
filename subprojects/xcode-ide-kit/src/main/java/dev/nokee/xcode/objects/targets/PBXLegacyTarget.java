@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.targets;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.project.KeyedCoders;
@@ -45,7 +46,7 @@ public interface PBXLegacyTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements BuildConfigurationsAwareBuilder<Builder> {
 		private String name;
 		private ProductType productType;
 		private String buildArgumentsString = "$(ACTION)";
@@ -67,13 +68,7 @@ public interface PBXLegacyTarget extends PBXTarget {
 			return this;
 		}
 
-		public Builder buildConfigurations(Consumer<? super XCConfigurationList.Builder> builderConsumer) {
-			final XCConfigurationList.Builder builder = XCConfigurationList.builder();
-			builderConsumer.accept(builder);
-			this.buildConfigurationList = builder.build();
-			return this;
-		}
-
+		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
 			this.buildConfigurationList = Objects.requireNonNull(buildConfigurationList);
 			return this;

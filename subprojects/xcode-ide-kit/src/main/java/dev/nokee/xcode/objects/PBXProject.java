@@ -21,7 +21,9 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
+import dev.nokee.xcode.objects.targets.BuildConfigurationsAwareBuilder;
 import dev.nokee.xcode.objects.targets.PBXTarget;
+import dev.nokee.xcode.objects.targets.SelfConfigurationAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXProject;
 import dev.nokee.xcode.project.CodeableProjectReference;
 import dev.nokee.xcode.project.DefaultKeyedObject;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 /**
  * The root object representing the project itself.
@@ -91,7 +94,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements BuildConfigurationsAwareBuilder<Builder>, SelfConfigurationAwareBuilder<Builder> {
 		@Nullable private final KeyedObject parent;
 		private List<PBXTarget> targets;
 		private XCConfigurationList buildConfigurations;
@@ -106,6 +109,11 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 
 		public Builder(KeyedObject parent) {
 			this.parent = parent;
+		}
+
+		@Override
+		public Builder with(UnaryOperator<Builder> action) {
+			return action.apply(this);
 		}
 
 		public Builder target(PBXTarget target) {
@@ -123,13 +131,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			return this;
 		}
 
-		public Builder buildConfigurations(Consumer<? super XCConfigurationList.Builder> builderConsumer) {
-			final XCConfigurationList.Builder builder = XCConfigurationList.builder();
-			builderConsumer.accept(builder);
-			this.buildConfigurations = builder.build();
-			return this;
-		}
-
+		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurations) {
 			this.buildConfigurations = Objects.requireNonNull(buildConfigurations);
 			return this;
