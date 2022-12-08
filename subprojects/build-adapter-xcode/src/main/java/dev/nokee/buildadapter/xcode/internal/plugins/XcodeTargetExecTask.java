@@ -22,8 +22,10 @@ import com.google.gson.reflect.TypeToken;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolInvocation;
 import dev.nokee.utils.FileSystemLocationUtils;
+import dev.nokee.utils.ProviderUtils;
 import dev.nokee.xcode.AsciiPropertyListReader;
 import dev.nokee.xcode.XCProjectReference;
+import dev.nokee.xcode.XCTargetReference;
 import dev.nokee.xcode.project.PBXObjectReference;
 import dev.nokee.xcode.project.PBXProj;
 import dev.nokee.xcode.project.PBXProjReader;
@@ -34,9 +36,11 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -68,8 +72,9 @@ import static dev.nokee.utils.ProviderUtils.disallowChanges;
 import static dev.nokee.utils.ProviderUtils.finalizeValueOnRead;
 import static dev.nokee.utils.ProviderUtils.ifPresent;
 
-public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasConfigurableXcodeInstallation {
+public abstract class XcodeTargetExecTask extends DefaultTask implements XcodebuildExecTask, HasConfigurableXcodeInstallation, HasXcodeTargetReference {
 	private final WorkerExecutor workerExecutor;
+	private final Provider<XCTargetReference> targetReference;
 
 	@Inject
 	protected abstract ExecOperations getExecOperations();
@@ -95,8 +100,13 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	@Internal
 	public abstract MapProperty<String, String> getAllBuildSettings();
 
+	@Override
+	public Provider<XCTargetReference> getTargetReference() {
+		return targetReference;
+	}
+
 	@Inject
-	public XcodeTargetExecTask(WorkerExecutor workerExecutor) {
+	public XcodeTargetExecTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
 		this.workerExecutor = workerExecutor;
 
 		getAllArguments().addAll(getXcodeProject().map(it -> of("-project", it.getLocation().toString())));
@@ -125,6 +135,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 					return parsedOutput.get(0).getBuildSettings();
 				});
 		}))));
+
+		this.targetReference = ProviderUtils.zip(() -> objects.listProperty(Object.class), getXcodeProject(), getTargetName(), XCProjectReference::ofTarget);
 	}
 
 	private static final class ShowBuildSettingsEntry {

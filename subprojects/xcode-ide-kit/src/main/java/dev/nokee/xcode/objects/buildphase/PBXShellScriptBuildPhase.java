@@ -116,9 +116,21 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 			return this;
 		}
 
+		public Builder outputPath(String outputPath) {
+			Objects.requireNonNull(outputPath);
+			outputPaths.add(outputPath);
+			return this;
+		}
+
 		public Builder inputPaths(Iterable<String> inputPaths) {
 			this.inputPaths.clear();
 			stream(inputPaths).map(Objects::requireNonNull).forEach(this.inputPaths::add);
+			return this;
+		}
+
+		public Builder inputPath(String inputPath) {
+			Objects.requireNonNull(inputPath);
+			inputPaths.add(inputPath);
 			return this;
 		}
 

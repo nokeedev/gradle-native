@@ -83,6 +83,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.services.BuildServiceRegistration;
+import org.gradle.api.specs.Spec;
 import org.gradle.build.event.BuildEventsListenerRegistry;
 
 import javax.inject.Inject;
@@ -96,6 +97,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import static dev.nokee.util.internal.OutOfDateReasonSpec.because;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.utils.BuildServiceUtils.registerBuildServiceIfAbsent;
 import static dev.nokee.utils.CallableUtils.ofSerializableCallable;
@@ -229,6 +231,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					.configure(task -> {
 						task.getXcodeProject().set(reference);
 						task.getTargetName().set(target.getName());
+						task.getOutputs().upToDateWhen(because(String.format("a shell script build phase of %s has no inputs or outputs defined", reference.ofTarget(target.getName())), everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs()));
 						task.getDerivedDataPath().set(project.getLayout().getBuildDirectory().dir(temporaryDirectoryPath(task) + "/derivedData"));
 						task.getOutputDirectory().set(project.getLayout().getBuildDirectory().dir("derivedData/" + target.getName()));
 						task.getXcodeInstallation().set(project.getProviders().of(CurrentXcodeInstallationValueSource.class, ActionUtils.doNothing()));
@@ -298,6 +301,10 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			projectEntity.addComponent(new XCProjectComponent(reference));
 			projectEntity.addComponent(tag(GradleProjectTag.class));
 		};
+	}
+
+	public static Spec<HasXcodeTargetReference> everyShellScriptBuildPhaseHasDeclaredInputsAndOutputs() {
+		return new XcodeTargetExecTaskOutOfDateSpec(XCLoaders.pbxtargetLoader(), new XcodeTargetExecTaskOutOfDateSpec.DefaultPredicate());
 	}
 
 	public static Transformer<Dependency, XcodeDependenciesService.Coordinate> asDependency(Project project) {
