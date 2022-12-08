@@ -7,7 +7,7 @@ jobs:
         runs-on: ubuntu-latest
         if: github.ref != 'refs/heads/master'
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
             -   uses: actions/setup-node@v3
                 with:
                     node-version: 18
@@ -18,7 +18,7 @@ jobs:
     sanity-check:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
                 with:
                     submodules: true
             -   uses: ./.github/actions/install-documentation-dependencies
@@ -34,7 +34,7 @@ jobs:
         needs: sanity-check
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
                 with:
                     submodules: true
                     fetch-depth: '0' # will fetch the entire history for auto-version plugin
@@ -56,7 +56,7 @@ jobs:
             matrix:
                 os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
                 with:
                     submodules: true
             -   uses: ./.github/actions/install-build-dependencies
@@ -77,7 +77,7 @@ jobs:
             matrix:
                 os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
                 with:
                     submodules: true
             -   uses: ./.github/actions/install-build-dependencies
@@ -93,7 +93,7 @@ jobs:
     check-baked-documentation:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
                 with:
                     submodules: true
             -   uses: ./.github/actions/install-documentation-dependencies
@@ -113,7 +113,7 @@ jobs:
             matrix:
                 os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
                 with:
                     submodules: true
             -   uses: ./.github/actions/install-documentation-dependencies
@@ -130,7 +130,7 @@ jobs:
     check-documentations-freebsd:
         runs-on: macos-10.15
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
                 with:
                     submodules: true
             -   uses: nokeedev/actions/setup-vagrant@main
@@ -151,7 +151,7 @@ jobs:
         needs: [quick-test, full-test, check-documentations, check-baked-documentation]
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
                 with:
                     submodules: true
                     fetch-depth: '0' # will fetch the entire history for auto-version plugin
