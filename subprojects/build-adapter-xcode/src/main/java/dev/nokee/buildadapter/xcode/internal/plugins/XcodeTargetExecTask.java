@@ -101,6 +101,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 	public abstract MapProperty<String, String> getAllBuildSettings();
 
 	@Override
+	@Internal
 	public Provider<XCTargetReference> getTargetReference() {
 		return targetReference;
 	}
