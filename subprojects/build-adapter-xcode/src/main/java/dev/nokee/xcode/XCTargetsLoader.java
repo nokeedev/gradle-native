@@ -18,10 +18,12 @@ package dev.nokee.xcode;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.targets.PBXTarget;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Set;
 
+@EqualsAndHashCode
 public final class XCTargetsLoader implements XCLoader<Set<XCTargetReference>, XCProjectReference>, Serializable {
 	private final XCLoader<PBXProject, XCProjectReference> pbxprojectLoader;
 
