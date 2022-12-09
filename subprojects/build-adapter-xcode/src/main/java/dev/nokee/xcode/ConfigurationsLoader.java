@@ -19,11 +19,13 @@ import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
+@EqualsAndHashCode
 public final class ConfigurationsLoader implements XCLoader<Set<String>, XCTargetReference>, Serializable {
 	private final XCLoader<PBXProject, XCProjectReference> loader;
 
