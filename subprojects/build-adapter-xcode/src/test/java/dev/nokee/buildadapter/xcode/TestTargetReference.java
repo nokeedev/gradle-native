@@ -55,4 +55,9 @@ public final class TestTargetReference implements XCTargetReference {
 	public XCTarget load() {
 		throw new UnsupportedOperationException();
 	}
+
+	@Override
+	public String toString() {
+		return "target '" + name + "'";
+	}
 }
