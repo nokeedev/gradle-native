@@ -12,6 +12,7 @@ plugins {
 dependencies {
 	implementation project(':platformBase')
 	implementation project(':coreExec') // for build adapter
+	implementation project(':coreUtils')
 	implementation project(':platformNative')
 	implementation project(':runtimeBase')
 	implementation project(':runtimeNative')
