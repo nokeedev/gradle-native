@@ -33,7 +33,7 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXReferenceProxy> {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree;
@@ -65,6 +65,7 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 			return this;
 		}
 
+		@Override
 		public PBXReferenceProxy build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "PBXReferenceProxy");

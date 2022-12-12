@@ -39,7 +39,7 @@ public interface PBXTargetDependency extends PBXProjectItem {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXTargetDependency> {
 		private String name;
 		private PBXTarget target;
 		private PBXContainerItemProxy targetProxy;
@@ -59,6 +59,7 @@ public interface PBXTargetDependency extends PBXProjectItem {
 			return this;
 		}
 
+		@Override
 		public PBXTargetDependency build() {
 			if (target == null && targetProxy == null) {
 				throw new NullPointerException("either 'target' and 'targetProxy' must not be null");

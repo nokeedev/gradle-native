@@ -49,7 +49,7 @@ public interface PBXBuildFile extends PBXProjectItem {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXBuildFile> {
 		private FileReference fileRef;
 		private XCSwiftPackageProductDependency productRef;
 		private ImmutableMap<String, Object> settings;
@@ -69,6 +69,7 @@ public interface PBXBuildFile extends PBXProjectItem {
 			return this;
 		}
 
+		@Override
 		public PBXBuildFile build() {
 			// We can't assert either 'fileRef' and 'productRef' must not be null because it can happen...
 			//   See global ID 'D8EC3E1B1E9BDA35006712EB' in Wikipedia Xcode project:

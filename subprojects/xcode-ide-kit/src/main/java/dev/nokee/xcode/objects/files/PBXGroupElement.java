@@ -54,7 +54,7 @@ public interface PBXGroupElement extends PBXReference {
 	}
 
 	@SuppressWarnings("unchecked")
-	abstract class Builder<SELF extends Builder<SELF, RESULT>, RESULT extends PBXGroupElement> {
+	abstract class Builder<SELF extends Builder<SELF, RESULT>, RESULT extends PBXGroupElement> implements org.apache.commons.lang3.builder.Builder<RESULT> {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree = PBXSourceTree.GROUP;
@@ -93,6 +93,7 @@ public interface PBXGroupElement extends PBXReference {
 			return (SELF) this;
 		}
 
+		@Override
 		public RESULT build() {
 			return newGroupElement(name, path, sourceTree, children);
 		}

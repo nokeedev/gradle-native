@@ -31,7 +31,7 @@ public interface PBXResourcesBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXResourcesBuildPhase> {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
@@ -40,6 +40,7 @@ public interface PBXResourcesBuildPhase extends PBXBuildPhase {
 			return this;
 		}
 
+		@Override
 		public PBXResourcesBuildPhase build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "PBXResourcesBuildPhase");

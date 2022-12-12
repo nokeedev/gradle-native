@@ -66,7 +66,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			return new Builder();
 		}
 
-		final class Builder {
+		final class Builder implements org.apache.commons.lang3.builder.Builder<ProjectReference> {
 			private PBXGroup productGroup;
 			private PBXFileReference projectReference;
 
@@ -80,6 +80,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 				return this;
 			}
 
+			@Override
 			public ProjectReference build() {
 				val builder = new DefaultKeyedObject.Builder();
 				builder.put(KeyedCoders.ISA, null);
@@ -95,7 +96,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		return new Builder();
 	}
 
-	final class Builder implements BuildConfigurationsAwareBuilder<Builder>, SelfConfigurationAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXProject>, BuildConfigurationsAwareBuilder<Builder>, SelfConfigurationAwareBuilder<Builder> {
 		@Nullable private final KeyedObject parent;
 		private List<PBXTarget> targets;
 		private XCConfigurationList buildConfigurations;
@@ -189,6 +190,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			return this;
 		}
 
+		@Override
 		public PBXProject build() {
 			if (mainGroup == null && parent == null) {
 				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();

@@ -56,7 +56,7 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFileReference> {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree;
@@ -76,6 +76,7 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 			return this;
 		}
 
+		@Override
 		public PBXFileReference build() {
 			String defaultType = null;
 			String explicitFileType;

@@ -180,7 +180,7 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<XCRemoteSwiftPackageReference> {
 		private String repositoryUrl;
 		private VersionRequirement requirement;
 
@@ -194,6 +194,7 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 			return this;
 		}
 
+		@Override
 		public XCRemoteSwiftPackageReference build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "XCRemoteSwiftPackageReference");

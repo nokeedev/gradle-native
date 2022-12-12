@@ -31,7 +31,7 @@ public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<XCSwiftPackageProductDependency> {
 		private String productName;
 		private XCRemoteSwiftPackageReference packageReference;
 
@@ -45,6 +45,7 @@ public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 			return this;
 		}
 
+		@Override
 		public XCSwiftPackageProductDependency build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "XCSwiftPackageProductDependency");

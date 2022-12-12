@@ -35,7 +35,7 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFrameworksBuildPhase> {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
@@ -44,6 +44,7 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 			return this;
 		}
 
+		@Override
 		public PBXFrameworksBuildPhase build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "PBXFrameworksBuildPhase");

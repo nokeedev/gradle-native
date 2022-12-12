@@ -71,7 +71,7 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXCopyFilesBuildPhase> {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 		private SubFolder dstSubfolderSpec;
 		private String dstPath;
@@ -97,6 +97,7 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 			return this;
 		}
 
+		@Override
 		public PBXCopyFilesBuildPhase build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "PBXCopyFilesBuildPhase");

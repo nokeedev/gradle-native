@@ -14,6 +14,7 @@ dependencies {
 	implementation "com.google.guava:guava:${guavaVersion}"
 	implementation "org.antlr:antlr4:${antlrVersion}"
 	implementation "commons-io:commons-io:${commonsIoVersion}"
+	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation project(':coreUtils')
 	antlr "org.antlr:antlr4:${antlrVersion}"
 }
