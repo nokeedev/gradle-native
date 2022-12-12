@@ -15,11 +15,13 @@
  */
 package dev.nokee.xcode.objects.swiftpackage;
 
-import dev.nokee.xcode.objects.PBXContainerItem;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
+import dev.nokee.xcode.objects.PBXContainerItem;
 import dev.nokee.xcode.project.CodeableXCSwiftPackageProductDependency;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 
 public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 	String getProductName();
@@ -37,7 +39,8 @@ public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "XCSwiftPackageProductDependency");
-			builder.requires(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference);
+			builder.requires(key(CodeableXCSwiftPackageProductDependency.CodingKeys.productName));
+			builder.requires(key(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference));
 		}
 
 		@Override

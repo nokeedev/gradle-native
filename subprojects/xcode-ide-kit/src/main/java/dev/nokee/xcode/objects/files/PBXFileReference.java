@@ -18,9 +18,9 @@ package dev.nokee.xcode.objects.files;
 import com.google.common.base.MoreObjects;
 import com.google.common.io.Files;
 import dev.nokee.xcode.objects.FileTypes;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXFileReference;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
@@ -30,6 +30,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
+
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 
 /**
  * Reference to a concrete file.
@@ -69,7 +71,8 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXFileReference");
-			builder.requires(CodeablePBXFileReference.CodingKeys.path, CodeablePBXFileReference.CodingKeys.sourceTree);
+			builder.requires(key(CodeablePBXFileReference.CodingKeys.path));
+			builder.requires(key(CodeablePBXFileReference.CodingKeys.sourceTree));
 		}
 
 		@Override

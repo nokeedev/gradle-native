@@ -24,6 +24,8 @@ import dev.nokee.xcode.project.KeyedCoders;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
+
 /**
  * A collection of files in Xcode's virtual filesystem hierarchy.
  */
@@ -40,7 +42,7 @@ public interface PBXGroup extends PBXGroupElement, GroupChild {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXGroup");
-			builder.requires(CodeablePBXGroup.CodingKeys.sourceTree);
+			builder.requires(key(CodeablePBXGroup.CodingKeys.sourceTree));
 		}
 
 		@Override

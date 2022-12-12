@@ -24,6 +24,7 @@ import dev.nokee.xcode.project.KeyedCoders;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -44,7 +45,7 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "XCBuildConfiguration");
-			builder.requires(CodeableXCBuildConfiguration.CodingKeys.name);
+			builder.requires(key(CodeableXCBuildConfiguration.CodingKeys.name));
 		}
 
 		@Override

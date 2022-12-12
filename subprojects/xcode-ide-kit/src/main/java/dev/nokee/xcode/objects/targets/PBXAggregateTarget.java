@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -50,7 +51,8 @@ public interface PBXAggregateTarget extends PBXTarget {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXAggregateTarget");
-			builder.requires(CodeablePBXAggregateTarget.CodingKeys.name, CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList);
+			builder.requires(key(CodeablePBXAggregateTarget.CodingKeys.name));
+			builder.requires(key(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList));
 		}
 
 		@Override

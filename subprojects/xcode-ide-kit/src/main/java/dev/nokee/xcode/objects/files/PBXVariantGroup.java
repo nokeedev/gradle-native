@@ -16,14 +16,16 @@
 package dev.nokee.xcode.objects.files;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.project.CodeablePBXVariantGroup;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
 import javax.annotation.Nullable;
 import java.util.List;
+
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 
 /**
  * Represents localized resources.
@@ -38,7 +40,7 @@ public interface PBXVariantGroup extends PBXGroupElement, GroupChild, PBXBuildFi
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXVariantGroup");
-			builder.requires(CodeablePBXVariantGroup.CodingKeys.sourceTree);
+			builder.requires(key(CodeablePBXVariantGroup.CodingKeys.sourceTree));
 		}
 
 		@Override
