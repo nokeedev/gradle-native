@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.google.common.collect.Streams.stream;
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 import static org.apache.commons.io.FilenameUtils.concat;
 
 public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
@@ -116,7 +117,8 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXCopyFilesBuildPhase");
-			builder.requires(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec);
+			builder.requires(key(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath));
+			builder.requires(key(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec));
 		}
 
 		@Override

@@ -15,8 +15,8 @@
  */
 package dev.nokee.xcode.objects.swiftpackage;
 
-import dev.nokee.xcode.objects.PBXContainerItem;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
+import dev.nokee.xcode.objects.PBXContainerItem;
 import dev.nokee.xcode.project.CodeableVersionRequirementBranch;
 import dev.nokee.xcode.project.CodeableVersionRequirementExact;
 import dev.nokee.xcode.project.CodeableVersionRequirementRange;
@@ -27,6 +27,7 @@ import dev.nokee.xcode.project.CodeableXCRemoteSwiftPackageReference;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 import static java.util.Objects.requireNonNull;
 
 public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
@@ -188,7 +189,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "XCRemoteSwiftPackageReference");
-			builder.requires(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement);
+			builder.requires(key(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl));
+			builder.requires(key(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement));
 		}
 
 		@Override

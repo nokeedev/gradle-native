@@ -20,11 +20,8 @@ import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode
@@ -77,7 +74,6 @@ public final class DefaultKeyedObject implements KeyedObject {
 	public static final class Builder {
 		private KeyedObject parent = null;
 		private final ImmutableMap.Builder<CodingKey, Object> builder = ImmutableMap.builder();
-		private final Set<CodingKey> requiredKeys = new LinkedHashSet<>();
 		private final List<Predicate<? super KeyedObject>> requirements = new ArrayList<>();
 		private boolean lenient = false;
 
@@ -96,11 +92,6 @@ public final class DefaultKeyedObject implements KeyedObject {
 		public DefaultKeyedObject build() {
 			DefaultKeyedObject result = new DefaultKeyedObject(parent, builder.build());
 			if (!lenient) {
-				for (CodingKey it : requiredKeys) {
-					if (!result.has(it)) {
-						throw new NullPointerException(String.format("'%s' must not be null", it));
-					}
-				}
 				for (Predicate<? super KeyedObject> requirement : requirements) {
 					if (!requirement.test(result)) {
 						throw new NullPointerException(String.format("%s must not be null", requirement));
@@ -108,11 +99,6 @@ public final class DefaultKeyedObject implements KeyedObject {
 				}
 			}
 			return result;
-		}
-
-		public Builder requires(CodingKey... codingKey) {
-			requiredKeys.addAll(Arrays.asList(codingKey));
-			return this;
 		}
 
 		public Builder lenient() {
