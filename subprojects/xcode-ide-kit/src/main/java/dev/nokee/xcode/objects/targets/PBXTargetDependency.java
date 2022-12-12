@@ -25,6 +25,8 @@ import dev.nokee.xcode.project.KeyedCoders;
 import java.util.Objects;
 import java.util.Optional;
 
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
+
 /**
  * Element of the {@link PBXTarget#getDependencies()}.
  * Represents a dependency of one target upon another target.
@@ -48,6 +50,7 @@ public interface PBXTargetDependency extends PBXProjectItem {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXTargetDependency");
+			builder.requires(key(CodeablePBXTargetDependency.CodingKeys.target).or(key(CodeablePBXTargetDependency.CodingKeys.targetProxy)));
 		}
 
 		@Override
@@ -73,10 +76,6 @@ public interface PBXTargetDependency extends PBXProjectItem {
 
 		@Override
 		public PBXTargetDependency build() {
-			if (target == null && targetProxy == null) {
-				throw new NullPointerException("either 'target' and 'targetProxy' must not be null");
-			}
-
 			builder.put(CodeablePBXTargetDependency.CodingKeys.name, name);
 			builder.put(CodeablePBXTargetDependency.CodingKeys.target, target);
 			builder.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, targetProxy);

@@ -19,10 +19,13 @@ import com.google.common.collect.ImmutableMap;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 @EqualsAndHashCode
 public final class DefaultKeyedObject implements KeyedObject {
@@ -75,6 +78,7 @@ public final class DefaultKeyedObject implements KeyedObject {
 		private KeyedObject parent = null;
 		private final ImmutableMap.Builder<CodingKey, Object> builder = ImmutableMap.builder();
 		private final Set<CodingKey> requiredKeys = new LinkedHashSet<>();
+		private final List<Predicate<? super KeyedObject>> requirements = new ArrayList<>();
 		private boolean lenient = false;
 
 		public Builder put(CodingKey key, @Nullable Object object) {
@@ -97,6 +101,11 @@ public final class DefaultKeyedObject implements KeyedObject {
 						throw new NullPointerException(String.format("'%s' must not be null", it));
 					}
 				}
+				for (Predicate<? super KeyedObject> requirement : requirements) {
+					if (!requirement.test(result)) {
+						throw new NullPointerException(String.format("%s must not be null", requirement));
+					}
+				}
 			}
 			return result;
 		}
@@ -110,10 +119,44 @@ public final class DefaultKeyedObject implements KeyedObject {
 			lenient = true;
 			return this;
 		}
-    }
+
+		public Builder requires(Predicate<? super KeyedObject> predicate) {
+			requirements.add(predicate);
+			return this;
+		}
+	}
 
 	@Override
 	public String toString() {
 		return String.format("%s gid=none", Optional.ofNullable(tryDecode(KeyedCoders.ISA)).orElse("object"));
+	}
+
+	public static Predicate<KeyedObject> key(CodingKey codingKey) {
+		return new Predicate<KeyedObject>() {
+			@Override
+			public boolean test(KeyedObject it) {
+				return it.has(codingKey);
+			}
+
+			@Override
+			public Predicate<KeyedObject> or(Predicate<? super KeyedObject> other) {
+				return new Predicate<KeyedObject>() {
+					@Override
+					public boolean test(KeyedObject keyedObject) {
+						return false;
+					}
+
+					@Override
+					public String toString() {
+						return "'" + codingKey + "' or " + other;
+					}
+				};
+			}
+
+			@Override
+			public String toString() {
+				return "'" + codingKey.getName() + "'";
+			}
+		};
 	}
 }
