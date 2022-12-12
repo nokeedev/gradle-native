@@ -39,7 +39,7 @@ public interface PBXAggregateTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder implements BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXAggregateTarget>, BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
 		private String name;
 		private String productName;
 		private XCConfigurationList buildConfigurations;
@@ -95,6 +95,7 @@ public interface PBXAggregateTarget extends PBXTarget {
 			return this;
 		}
 
+		@Override
 		public PBXAggregateTarget build() {
 			builder.put(CodeablePBXAggregateTarget.CodingKeys.name, name);
 			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, ImmutableList.copyOf(buildPhases));

@@ -50,7 +50,7 @@ public interface XCConfigurationList extends PBXProjectItem {
 
 	Builder toBuilder();
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<XCConfigurationList> {
 		private final KeyedObject parent;
 		private Set<XCBuildConfiguration> buildConfigurations;
 		private DefaultConfigurationVisibility defaultConfigurationVisibility;
@@ -97,6 +97,7 @@ public interface XCConfigurationList extends PBXProjectItem {
 			return this;
 		}
 
+		@Override
 		public XCConfigurationList build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "XCConfigurationList");

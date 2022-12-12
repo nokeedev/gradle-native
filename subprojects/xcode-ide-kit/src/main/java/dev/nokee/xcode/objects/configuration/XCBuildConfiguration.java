@@ -35,7 +35,7 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<XCBuildConfiguration> {
 		private String name;
 		private BuildSettings buildSettings;
 		private PBXFileReference baseConfigurationReference;
@@ -64,6 +64,7 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 			return this;
 		}
 
+		@Override
 		public XCBuildConfiguration build() {
 			if (buildSettings == null) {
 				buildSettings = BuildSettings.empty();

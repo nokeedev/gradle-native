@@ -83,7 +83,7 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXShellScriptBuildPhase> {
 		private static final String DEFAULT_SHELL_PATH = "/bin/sh";
 		private static final String DEFAULT_SHELL_SCRIPT = "";
 
@@ -146,6 +146,7 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 			return this;
 		}
 
+		@Override
 		public PBXShellScriptBuildPhase build() {
 			if (shellScript == null) {
 				shellScript = DEFAULT_SHELL_SCRIPT;

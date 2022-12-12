@@ -42,7 +42,7 @@ public interface PBXNativeTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder implements BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXNativeTarget>, BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder> {
 		private String name;
 		private ProductType productType;
 		private final List<PBXBuildPhase> buildPhases = new ArrayList<>();
@@ -103,6 +103,7 @@ public interface PBXNativeTarget extends PBXTarget {
 			return this;
 		}
 
+		@Override
 		public PBXNativeTarget build() {
 			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 			builder.put(KeyedCoders.ISA, "PBXNativeTarget");

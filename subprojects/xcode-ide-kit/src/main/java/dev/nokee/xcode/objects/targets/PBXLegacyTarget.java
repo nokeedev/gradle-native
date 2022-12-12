@@ -46,7 +46,7 @@ public interface PBXLegacyTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder implements BuildConfigurationsAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXLegacyTarget>, BuildConfigurationsAwareBuilder<Builder> {
 		private String name;
 		private ProductType productType;
 		private String buildArgumentsString = "$(ACTION)";
@@ -110,6 +110,7 @@ public interface PBXLegacyTarget extends PBXTarget {
 			return this;
 		}
 
+		@Override
 		public PBXLegacyTarget build() {
 			// TODO: Null checks
 
