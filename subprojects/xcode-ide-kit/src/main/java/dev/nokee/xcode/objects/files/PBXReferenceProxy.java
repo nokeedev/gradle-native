@@ -17,9 +17,10 @@ package dev.nokee.xcode.objects.files;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXReferenceProxy;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 /**
  * A proxy for another object which might belong to another project contained in the same workspace of the document.
@@ -33,12 +34,23 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXReferenceProxy> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXReferenceProxy>, LenientAwareBuilder<Builder> {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree;
 		private PBXContainerItemProxy remoteReference;
 		private String fileType;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXReferenceProxy");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder name(String name) {
 			this.name = name;
@@ -67,8 +79,6 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 
 		@Override
 		public PBXReferenceProxy build() {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXReferenceProxy");
 			builder.put(CodeablePBXReferenceProxy.CodingKeys.name, name);
 			builder.put(CodeablePBXReferenceProxy.CodingKeys.path, path);
 			builder.put(CodeablePBXReferenceProxy.CodingKeys.sourceTree, sourceTree);

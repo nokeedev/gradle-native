@@ -18,6 +18,7 @@ package dev.nokee.xcode.objects.buildphase;
 import com.google.common.collect.ImmutableMap;
 import dev.nokee.xcode.objects.PBXProjectItem;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
@@ -49,10 +50,21 @@ public interface PBXBuildFile extends PBXProjectItem {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXBuildFile> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXBuildFile>, LenientAwareBuilder<Builder> {
 		private FileReference fileRef;
 		private XCSwiftPackageProductDependency productRef;
 		private ImmutableMap<String, Object> settings;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXBuildFile");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder fileRef(FileReference fileRef) {
 			this.fileRef = fileRef;
@@ -75,8 +87,6 @@ public interface PBXBuildFile extends PBXProjectItem {
 			//   See global ID 'D8EC3E1B1E9BDA35006712EB' in Wikipedia Xcode project:
 			//   https://raw.githubusercontent.com/wikimedia/wikipedia-ios/main/Wikipedia.xcodeproj/project.pbxproj
 
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXBuildFile");
 			builder.put(CodeablePBXBuildFile.CodingKeys.fileRef, fileRef);
 			builder.put(CodeablePBXBuildFile.CodingKeys.productRef, productRef);
 			builder.put(CodeablePBXBuildFile.CodingKeys.settings, settings);

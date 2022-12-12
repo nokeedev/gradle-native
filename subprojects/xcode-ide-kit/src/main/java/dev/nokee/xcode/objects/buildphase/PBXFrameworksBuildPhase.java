@@ -16,9 +16,10 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXFrameworksBuildPhase;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,19 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFrameworksBuildPhase>, BuildFileAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFrameworksBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
 		private final List<PBXBuildFile> files = new ArrayList<>();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXFrameworksBuildPhase");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		@Override
 		public Builder file(PBXBuildFile file) {
@@ -53,8 +65,6 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public PBXFrameworksBuildPhase build() {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXFrameworksBuildPhase");
 			builder.put(CodeablePBXFrameworksBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
 
 			return new CodeablePBXFrameworksBuildPhase(builder.build());

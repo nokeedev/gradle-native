@@ -16,17 +16,16 @@
 package dev.nokee.xcode.objects.targets;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.PBXFileReference;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeablePBXLegacyTarget;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 import static com.google.common.collect.Streams.stream;
 
@@ -46,7 +45,7 @@ public interface PBXLegacyTarget extends PBXTarget {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXLegacyTarget>, BuildConfigurationsAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXLegacyTarget>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
 		private String name;
 		private ProductType productType;
 		private String buildArgumentsString = "$(ACTION)";
@@ -57,6 +56,17 @@ public interface PBXLegacyTarget extends PBXTarget {
 		private String productName;
 		private PBXFileReference productReference;
 		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXLegacyTarget");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder name(String name) {
 			this.name = Objects.requireNonNull(name);
@@ -114,8 +124,6 @@ public interface PBXLegacyTarget extends PBXTarget {
 		public PBXLegacyTarget build() {
 			// TODO: Null checks
 
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXLegacyTarget");
 			builder.put(CodeablePBXLegacyTarget.CodingKeys.name, name);
 			builder.put(CodeablePBXLegacyTarget.CodingKeys.productType, productType);
 			builder.put(CodeablePBXLegacyTarget.CodingKeys.productName, productName);

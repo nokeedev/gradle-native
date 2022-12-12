@@ -20,9 +20,10 @@ import com.google.common.io.Files;
 import dev.nokee.xcode.objects.FileTypes;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXFileReference;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -52,14 +53,30 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 		return PBXFileReference.builder().name(FilenameUtils.getName(path)).path(path).sourceTree(PBXSourceTree.ABSOLUTE).build();
 	}
 
+	static PBXFileReference ofSourceRoot(String path) {
+		return PBXFileReference.builder().name(FilenameUtils.getBaseName(path)).path(path).sourceTree(PBXSourceTree.SOURCE_ROOT).build();
+	}
+
 	static Builder builder() {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFileReference> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFileReference>, LenientAwareBuilder<Builder> {
 		private String name;
 		private String path;
 		private PBXSourceTree sourceTree;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXFileReference");
+			builder.requires(CodeablePBXFileReference.CodingKeys.path, CodeablePBXFileReference.CodingKeys.sourceTree);
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder name(String name) {
 			this.name = Objects.requireNonNull(name);
@@ -103,11 +120,9 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 				lastKnownFileType = null;
 			}
 
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXFileReference");
 			builder.put(CodeablePBXFileReference.CodingKeys.name, name);
-			builder.put(CodeablePBXFileReference.CodingKeys.path, Objects.requireNonNull(path, "'path' must not be null"));
-			builder.put(CodeablePBXFileReference.CodingKeys.sourceTree, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"));
+			builder.put(CodeablePBXFileReference.CodingKeys.path, path);
+			builder.put(CodeablePBXFileReference.CodingKeys.sourceTree, sourceTree);
 			builder.put(CodeablePBXFileReference.CodingKeys.explicitFileType, explicitFileType);
 			builder.put(CodeablePBXFileReference.CodingKeys.lastKnownFileType, lastKnownFileType);
 

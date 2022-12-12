@@ -17,6 +17,7 @@ package dev.nokee.xcode.objects.configuration;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.PBXProjectItem;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeableXCConfigurationList;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
@@ -50,18 +51,28 @@ public interface XCConfigurationList extends PBXProjectItem {
 
 	Builder toBuilder();
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<XCConfigurationList> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<XCConfigurationList>, LenientAwareBuilder<Builder> {
 		private final KeyedObject parent;
 		private Set<XCBuildConfiguration> buildConfigurations;
 		private DefaultConfigurationVisibility defaultConfigurationVisibility;
 		private String defaultConfigurationName;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
 			this.parent = null;
+			builder.put(KeyedCoders.ISA, "XCConfigurationList");
 		}
 
 		public Builder(KeyedObject parent) {
 			this.parent = parent;
+			builder.put(KeyedCoders.ISA, "XCConfigurationList");
+			builder.parent(parent);
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
 		}
 
 		public Builder buildConfiguration(Consumer<? super XCBuildConfiguration.Builder> builderConsumer) {
@@ -99,9 +110,6 @@ public interface XCConfigurationList extends PBXProjectItem {
 
 		@Override
 		public XCConfigurationList build() {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "XCConfigurationList");
-			builder.parent(parent);
 			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, buildConfigurations != null ? ImmutableList.copyOf(buildConfigurations) : null);
 			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, defaultConfigurationName);
 			if (defaultConfigurationVisibility != null) {

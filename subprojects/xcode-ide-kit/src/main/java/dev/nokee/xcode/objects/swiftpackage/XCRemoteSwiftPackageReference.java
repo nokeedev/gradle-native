@@ -16,8 +16,7 @@
 package dev.nokee.xcode.objects.swiftpackage;
 
 import dev.nokee.xcode.objects.PBXContainerItem;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeableVersionRequirementBranch;
 import dev.nokee.xcode.project.CodeableVersionRequirementExact;
 import dev.nokee.xcode.project.CodeableVersionRequirementRange;
@@ -25,6 +24,8 @@ import dev.nokee.xcode.project.CodeableVersionRequirementRevision;
 import dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMajorVersion;
 import dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMinorVersion;
 import dev.nokee.xcode.project.CodeableXCRemoteSwiftPackageReference;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import static java.util.Objects.requireNonNull;
 
@@ -180,9 +181,21 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<XCRemoteSwiftPackageReference> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<XCRemoteSwiftPackageReference>, LenientAwareBuilder<Builder> {
 		private String repositoryUrl;
 		private VersionRequirement requirement;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "XCRemoteSwiftPackageReference");
+			builder.requires(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement);
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder repositoryUrl(String repositoryUrl) {
 			this.repositoryUrl = repositoryUrl;
@@ -196,10 +209,8 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 
 		@Override
 		public XCRemoteSwiftPackageReference build() {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "XCRemoteSwiftPackageReference");
-			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, requireNonNull(repositoryUrl, "'repositoryUrl' must not be null"));
-			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, requireNonNull(requirement, "'requirement' must not be null"));
+			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, repositoryUrl);
+			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, requirement);
 
 			return new CodeableXCRemoteSwiftPackageReference(builder.build());
 		}

@@ -16,9 +16,10 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXHeadersBuildPhase;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,19 @@ public interface PBXHeadersBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXHeadersBuildPhase>, BuildFileAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXHeadersBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
 		private final List<PBXBuildFile> files = new ArrayList<>();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXHeadersBuildPhase");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		@Override
 		public Builder file(PBXBuildFile file) {
@@ -52,8 +64,6 @@ public interface PBXHeadersBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public PBXHeadersBuildPhase build() {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXHeadersBuildPhase");
 			builder.put(CodeablePBXHeadersBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
 
 			return new CodeablePBXHeadersBuildPhase(builder.build());

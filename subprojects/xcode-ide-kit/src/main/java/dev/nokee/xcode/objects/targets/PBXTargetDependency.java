@@ -15,11 +15,12 @@
  */
 package dev.nokee.xcode.objects.targets;
 
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.PBXProjectItem;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeablePBXTargetDependency;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -39,10 +40,21 @@ public interface PBXTargetDependency extends PBXProjectItem {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXTargetDependency> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXTargetDependency>, LenientAwareBuilder<Builder> {
 		private String name;
 		private PBXTarget target;
 		private PBXContainerItemProxy targetProxy;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXTargetDependency");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder name(String name) {
 			this.name = Objects.requireNonNull(name);
@@ -65,8 +77,6 @@ public interface PBXTargetDependency extends PBXProjectItem {
 				throw new NullPointerException("either 'target' and 'targetProxy' must not be null");
 			}
 
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXTargetDependency");
 			builder.put(CodeablePBXTargetDependency.CodingKeys.name, name);
 			builder.put(CodeablePBXTargetDependency.CodingKeys.target, target);
 			builder.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, targetProxy);

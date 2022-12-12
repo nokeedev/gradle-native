@@ -17,13 +17,13 @@ package dev.nokee.xcode.objects.files;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXVariantGroup;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Represents localized resources.
@@ -33,15 +33,26 @@ public interface PBXVariantGroup extends PBXGroupElement, GroupChild, PBXBuildFi
 		return new Builder();
 	}
 
-	final class Builder extends PBXGroupElement.Builder<Builder, PBXVariantGroup> {
+	final class Builder extends PBXGroupElement.Builder<Builder, PBXVariantGroup> implements LenientAwareBuilder<Builder> {
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXVariantGroup");
+			builder.requires(CodeablePBXVariantGroup.CodingKeys.sourceTree);
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
+
 		@Override
 		protected PBXVariantGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
 			// mainGroup can have both null name and path
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXVariantGroup");
 			builder.put(CodeablePBXVariantGroup.CodingKeys.name, name);
 			builder.put(CodeablePBXVariantGroup.CodingKeys.path, path);
-			builder.put(CodeablePBXVariantGroup.CodingKeys.sourceTree, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"));
+			builder.put(CodeablePBXVariantGroup.CodingKeys.sourceTree, sourceTree);
 			builder.put(CodeablePBXVariantGroup.CodingKeys.children, ImmutableList.copyOf(children));
 
 			return new CodeablePBXVariantGroup(builder.build());
