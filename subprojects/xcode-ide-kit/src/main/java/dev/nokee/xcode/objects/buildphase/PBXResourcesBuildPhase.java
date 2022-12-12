@@ -31,9 +31,16 @@ public interface PBXResourcesBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXResourcesBuildPhase> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXResourcesBuildPhase>, BuildFileAwareBuilder<Builder> {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 
+		@Override
+		public Builder file(PBXBuildFile file) {
+			files.add(Objects.requireNonNull(file, "'file' must not be null"));
+			return this;
+		}
+
+		@Override
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
 			this.files.clear();
 			stream(files).map(Objects::requireNonNull).forEach(this.files::add);
