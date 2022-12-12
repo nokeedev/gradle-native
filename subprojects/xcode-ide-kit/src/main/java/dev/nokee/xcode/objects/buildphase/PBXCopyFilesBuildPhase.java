@@ -33,14 +33,50 @@ import static org.apache.commons.io.FilenameUtils.concat;
 public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 	enum SubFolder {
 		AbsolutePath(0),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)}.
+		 */
 		ProductsDirectory(16),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)/$(WRAPPER_NAME)}.
+		 */
 		Wrapper(1),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)/$(EXECUTABLE_FOLDER_PATH)}.
+		 */
 		Executables(6),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)}.
+		 */
 		Resources(7),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)/$(JAVA_FOLDER_PATH)}.
+		 */
 		JavaResources(15),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)}.
+		 */
 		Frameworks(10),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)/$(SHARED_FRAMEWORKS_FOLDER_PATH)}.
+		 */
 		SharedFrameworks(11),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)/$(SHARED_SUPPORT_FOLDER_PATH)}.
+		 */
 		SharedSupport(12),
+
+		/**
+		 * Based on {@code $(BUILT_PRODUCTS_DIR)/$(PLUGINS_FOLDER_PATH)}.
+		 */
 		PlugIns(13)
 		;
 
