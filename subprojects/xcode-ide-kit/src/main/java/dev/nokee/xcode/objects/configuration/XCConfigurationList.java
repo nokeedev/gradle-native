@@ -82,7 +82,6 @@ public interface XCConfigurationList extends PBXProjectItem {
 		}
 
 		public Builder buildConfiguration(XCBuildConfiguration buildConfiguration) {
-			final XCBuildConfiguration.Builder builder = XCBuildConfiguration.builder();
 			if (this.buildConfigurations == null) {
 				this.buildConfigurations = new LinkedHashSet<>();
 			}

@@ -16,15 +16,17 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableMap;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXProjectItem;
 import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
-import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.Map;
 import java.util.Optional;
+
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 
 /**
  * File referenced by a build phase, unique to each build phase.
@@ -58,6 +60,7 @@ public interface PBXBuildFile extends PBXProjectItem {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXBuildFile");
+			builder.requires(key(CodeablePBXBuildFile.CodingKeys.fileRef).or(key(CodeablePBXBuildFile.CodingKeys.productRef)));
 		}
 
 		@Override
@@ -83,10 +86,6 @@ public interface PBXBuildFile extends PBXProjectItem {
 
 		@Override
 		public PBXBuildFile build() {
-			// We can't assert either 'fileRef' and 'productRef' must not be null because it can happen...
-			//   See global ID 'D8EC3E1B1E9BDA35006712EB' in Wikipedia Xcode project:
-			//   https://raw.githubusercontent.com/wikimedia/wikipedia-ios/main/Wikipedia.xcodeproj/project.pbxproj
-
 			builder.put(CodeablePBXBuildFile.CodingKeys.fileRef, fileRef);
 			builder.put(CodeablePBXBuildFile.CodingKeys.productRef, productRef);
 			builder.put(CodeablePBXBuildFile.CodingKeys.settings, settings);
