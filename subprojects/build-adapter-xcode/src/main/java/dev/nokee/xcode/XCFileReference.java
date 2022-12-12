@@ -15,11 +15,14 @@
  */
 package dev.nokee.xcode;
 
+import dev.nokee.util.internal.NotPredicate;
 import lombok.EqualsAndHashCode;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class XCFileReference {
 	public abstract Path resolve(ResolveContext context);
@@ -40,8 +43,13 @@ public abstract class XCFileReference {
 		return new AbsoluteFileReference(Objects.requireNonNull(path));
 	}
 
-	public static XCFileReference builtProduct(String path) {
-		return new BuiltProductReference(Objects.requireNonNull(path));
+	public static XCFileReference builtProduct(String... paths) {
+		final String path = Arrays.stream(paths) //
+			.map(Objects::requireNonNull) //
+			.map(String::trim) //
+			.filter(NotPredicate.not(String::isEmpty)) //
+			.collect(Collectors.joining("/"));
+		return new BuiltProductReference(path);
 	}
 
 	public static XCFileReference fromBuildSetting(String buildSetting, String path) {
@@ -92,7 +100,12 @@ public abstract class XCFileReference {
 
 		@Override
 		public String toString() {
-			return "$(BUILT_PRODUCT_DIR)/" + path;
+			final StringBuilder builder = new StringBuilder();
+			builder.append("$(BUILT_PRODUCT_DIR)");
+			if (!path.isEmpty()) {
+				builder.append('/').append(path);
+			}
+			return builder.toString();
 		}
 	}
 
