@@ -29,7 +29,6 @@ import dev.nokee.xcode.project.CodeableProjectReference;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.KeyedObject;
-import lombok.val;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -66,9 +65,20 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			return new Builder();
 		}
 
-		final class Builder implements org.apache.commons.lang3.builder.Builder<ProjectReference> {
+		final class Builder implements org.apache.commons.lang3.builder.Builder<ProjectReference>, LenientAwareBuilder<Builder> {
 			private PBXGroup productGroup;
 			private PBXFileReference projectReference;
+			private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+			public Builder() {
+				builder.put(KeyedCoders.ISA, null);
+			}
+
+			@Override
+			public Builder lenient() {
+				builder.lenient();
+				return this;
+			}
 
 			public Builder productGroup(PBXGroup productGroup) {
 				this.productGroup = productGroup;
@@ -82,8 +92,6 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 
 			@Override
 			public ProjectReference build() {
-				val builder = new DefaultKeyedObject.Builder();
-				builder.put(KeyedCoders.ISA, null);
 				builder.put(CodeableProjectReference.CodingKeys.ProductGroup, productGroup);
 				builder.put(CodeableProjectReference.CodingKeys.ProjectRef, projectReference);
 
@@ -96,7 +104,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXProject>, BuildConfigurationsAwareBuilder<Builder>, SelfConfigurationAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXProject>, BuildConfigurationsAwareBuilder<Builder>, SelfConfigurationAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
 		@Nullable private final KeyedObject parent;
 		private List<PBXTarget> targets;
 		private XCConfigurationList buildConfigurations;
@@ -104,13 +112,23 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		private PBXGroup mainGroup;
 		private List<ProjectReference> projectReferences;
 		private List<XCRemoteSwiftPackageReference> packageReferences;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
 			this.parent = null;
+			builder.put(KeyedCoders.ISA, "PBXProject");
 		}
 
 		public Builder(KeyedObject parent) {
 			this.parent = parent;
+			builder.parent(parent);
+			builder.put(KeyedCoders.ISA, "PBXProject");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
 		}
 
 		@Override
@@ -196,9 +214,6 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
 			}
 
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.parent(parent);
-			builder.put(KeyedCoders.ISA, "PBXProject");
 			builder.put(CodeablePBXProject.CodingKeys.targets, targets);
 			builder.put(CodeablePBXProject.CodingKeys.buildConfigurationList, buildConfigurations);
 			builder.put(CodeablePBXProject.CodingKeys.mainGroup, mainGroup);

@@ -16,9 +16,10 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXShellScriptBuildPhase> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXShellScriptBuildPhase>, LenientAwareBuilder<Builder> {
 		private static final String DEFAULT_SHELL_PATH = "/bin/sh";
 		private static final String DEFAULT_SHELL_SCRIPT = "";
 
@@ -94,6 +95,17 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 		private final List<String> inputPaths = new ArrayList<>();
 		private final List<String> inputFileListPaths = new ArrayList<>();
 		private final List<String> outputFileListPaths = new ArrayList<>();
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXShellScriptBuildPhase");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder name(String name) {
 			this.name = name;
@@ -156,8 +168,6 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 				shellPath = DEFAULT_SHELL_PATH;
 			}
 
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXShellScriptBuildPhase");
 			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, name);
 			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, shellScript);
 			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, shellPath);

@@ -16,9 +16,10 @@
 package dev.nokee.xcode.objects.buildphase;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -71,10 +72,22 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXCopyFilesBuildPhase>, BuildFileAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXCopyFilesBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
 		private final List<PBXBuildFile> files = new ArrayList<>();
 		private SubFolder dstSubfolderSpec;
 		private String dstPath;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXCopyFilesBuildPhase");
+			builder.requires(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec);
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		@Override
 		public Builder file(PBXBuildFile file) {
@@ -106,11 +119,9 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public PBXCopyFilesBuildPhase build() {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXCopyFilesBuildPhase");
 			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
-			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, Objects.requireNonNull(dstPath, "'dstPath' must not be null"));
-			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, Objects.requireNonNull(dstSubfolderSpec, "'dstSubfolderSpec' must not be null"));
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, dstPath);
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, dstSubfolderSpec);
 
 			return new CodeablePBXCopyFilesBuildPhase(builder.build());
 		}

@@ -17,9 +17,10 @@ package dev.nokee.xcode.objects.files;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeableXCVersionGroup;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -40,9 +41,20 @@ public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFil
 		return new Builder();
 	}
 
-	final class Builder extends PBXGroupElement.Builder<Builder, XCVersionGroup> {
+	final class Builder extends PBXGroupElement.Builder<Builder, XCVersionGroup> implements LenientAwareBuilder<Builder> {
 		private PBXFileReference currentVersion;
 		private String versionGroupType;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "XCVersionGroup");
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder currentVersion(PBXFileReference currentVersion) {
 			this.currentVersion = currentVersion;
@@ -56,8 +68,6 @@ public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFil
 
 		@Override
 		protected XCVersionGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "XCVersionGroup");
 			builder.put(CodeableXCVersionGroup.CodingKeys.name, name);
 			builder.put(CodeableXCVersionGroup.CodingKeys.path, path);
 			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, sourceTree);

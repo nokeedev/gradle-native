@@ -16,6 +16,7 @@
 package dev.nokee.xcode.objects.configuration;
 
 import dev.nokee.xcode.objects.files.PBXFileReference;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeableXCBuildConfiguration;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
@@ -35,12 +36,22 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 		return new Builder();
 	}
 
-	final class Builder implements org.apache.commons.lang3.builder.Builder<XCBuildConfiguration> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<XCBuildConfiguration>, LenientAwareBuilder<Builder> {
 		private String name;
 		private BuildSettings buildSettings;
 		private PBXFileReference baseConfigurationReference;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
-		private Builder() {}
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "XCBuildConfiguration");
+			builder.requires(CodeableXCBuildConfiguration.CodingKeys.name);
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
 
 		public Builder name(String name) {
 			this.name = requireNonNull(name);
@@ -70,9 +81,7 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 				buildSettings = BuildSettings.empty();
 			}
 
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "XCBuildConfiguration");
-			builder.put(CodeableXCBuildConfiguration.CodingKeys.name, requireNonNull(name, "'name' must not be null"));
+			builder.put(CodeableXCBuildConfiguration.CodingKeys.name, name);
 			builder.put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, buildSettings);
 			builder.put(CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference, baseConfigurationReference);
 

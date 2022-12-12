@@ -16,13 +16,13 @@
 package dev.nokee.xcode.objects.files;
 
 import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXGroup;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A collection of files in Xcode's virtual filesystem hierarchy.
@@ -35,15 +35,26 @@ public interface PBXGroup extends PBXGroupElement, GroupChild {
 		return new Builder();
 	}
 
-	final class Builder extends PBXGroupElement.Builder<Builder, PBXGroup> {
+	final class Builder extends PBXGroupElement.Builder<Builder, PBXGroup> implements LenientAwareBuilder<Builder> {
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXGroup");
+			builder.requires(CodeablePBXGroup.CodingKeys.sourceTree);
+		}
+
+		@Override
+		public Builder lenient() {
+			builder.lenient();
+			return this;
+		}
+
 		@Override
 		protected PBXGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
 			// mainGroup can have both null name and path
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXGroup");
 			builder.put(CodeablePBXGroup.CodingKeys.name, name);
 			builder.put(CodeablePBXGroup.CodingKeys.path, path);
-			builder.put(CodeablePBXGroup.CodingKeys.sourceTree, Objects.requireNonNull(sourceTree, "'sourceTree' must not be null"));
+			builder.put(CodeablePBXGroup.CodingKeys.sourceTree, sourceTree);
 			builder.put(CodeablePBXGroup.CodingKeys.children, ImmutableList.copyOf(children));
 
 			return new CodeablePBXGroup(builder.build());

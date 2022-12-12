@@ -101,7 +101,7 @@ public final class DefaultKeyedObject implements KeyedObject {
 			return result;
 		}
 
-		public Builder requires(CodeablePBXAggregateTarget.CodingKeys... codingKey) {
+		public Builder requires(CodingKey... codingKey) {
 			requiredKeys.addAll(Arrays.asList(codingKey));
 			return this;
 		}
