@@ -15,13 +15,19 @@
  */
 package dev.nokee.xcode.project;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode
@@ -73,7 +79,7 @@ public final class DefaultKeyedObject implements KeyedObject {
 
 	public static final class Builder {
 		private KeyedObject parent = null;
-		private final ImmutableMap.Builder<CodingKey, Object> builder = ImmutableMap.builder();
+		private final LinkedHashMap<CodingKey, Object> builder = new LinkedHashMap<>();
 		private final List<Predicate<? super KeyedObject>> requirements = new ArrayList<>();
 		private boolean lenient = false;
 
@@ -90,7 +96,7 @@ public final class DefaultKeyedObject implements KeyedObject {
 		}
 
 		public DefaultKeyedObject build() {
-			DefaultKeyedObject result = new DefaultKeyedObject(parent, builder.build());
+			DefaultKeyedObject result = new DefaultKeyedObject(parent, ImmutableMap.copyOf(builder));
 			if (!lenient) {
 				for (Predicate<? super KeyedObject> requirement : requirements) {
 					if (!requirement.test(result)) {
@@ -109,6 +115,20 @@ public final class DefaultKeyedObject implements KeyedObject {
 		public Builder requires(Predicate<? super KeyedObject> predicate) {
 			requirements.add(predicate);
 			return this;
+		}
+
+		public void add(CodingKey codingKey, Object element) {
+			Objects.requireNonNull(element, () -> String.format("'%s' must not be null", codingKey.getName()));
+			Object value = builder.get(codingKey);
+			if (value == null) {
+				builder.put(codingKey, ImmutableList.of(element));
+			} else if (value instanceof List) {
+				builder.put(codingKey, ImmutableList.builder().addAll((List<?>) value).add(element).build());
+			} else if (value instanceof Set) {
+				builder.put(codingKey, ImmutableSet.builder().addAll((Set<?>) value).add(element).build());
+			} else {
+				throw new UnsupportedOperationException();
+			}
 		}
 	}
 

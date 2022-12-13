@@ -25,7 +25,6 @@ import dev.nokee.xcode.project.CodeablePBXNativeTarget;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,14 +43,6 @@ public interface PBXNativeTarget extends PBXTarget {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXNativeTarget>, BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private String name;
-		private ProductType productType;
-		private final List<PBXBuildPhase> buildPhases = new ArrayList<>();
-		private XCConfigurationList buildConfigurationList;
-		private String productName;
-		private PBXFileReference productReference;
-		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
-		private final List<XCSwiftPackageProductDependency> packageProductDependencies = new ArrayList<>();
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -69,67 +60,57 @@ public interface PBXNativeTarget extends PBXTarget {
 		}
 
 		public Builder name(String name) {
-			this.name = requireNonNull(name);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.name, requireNonNull(name));
 			return this;
 		}
 
 		public Builder productType(ProductType productType) {
-			this.productType = requireNonNull(productType);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productType, requireNonNull(productType));
 			return this;
 		}
 
 		@Override
 		public Builder buildPhase(PBXBuildPhase buildPhase) {
-			this.buildPhases.add(requireNonNull(buildPhase));
+			builder.add(CodeablePBXNativeTarget.CodingKeys.buildPhases, buildPhase);
 			return this;
 		}
-
 		@Override
 		public Builder buildPhases(Iterable<? extends PBXBuildPhase> buildPhases) {
-			this.buildPhases.clear();
-			stream(buildPhases).map(Objects::requireNonNull).forEach(this.buildPhases::add);
+			List<PBXBuildPhase> sanitizedBuildPhases = stream(buildPhases).peek(Objects::requireNonNull).collect(ImmutableList.toImmutableList());
+			builder.put(CodeablePBXNativeTarget.CodingKeys.buildPhases, sanitizedBuildPhases);
 			return this;
 		}
 
 		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
-			this.buildConfigurationList = requireNonNull(buildConfigurationList);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurationList));
 			return this;
 		}
 
 		public Builder productName(String productName) {
-			this.productName = requireNonNull(productName);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productName, requireNonNull(productName));
 			return this;
 		}
 
 		public Builder productReference(PBXFileReference productReference) {
-			this.productReference = requireNonNull(productReference);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productReference, requireNonNull(productReference));
 			return this;
 		}
 
 		public Builder dependencies(Iterable<? extends PBXTargetDependency> dependencies) {
-			this.dependencies.clear();
-			stream(dependencies).map(Objects::requireNonNull).forEach(this.dependencies::add);
+			List<PBXTargetDependency> sanitizedDependencies = stream(dependencies).peek(Objects::requireNonNull).collect(ImmutableList.toImmutableList());
+			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, sanitizedDependencies);
 			return this;
 		}
 
 		public Builder packageProductDependencies(Iterable<? extends XCSwiftPackageProductDependency> packageProductDependencies) {
-			this.packageProductDependencies.clear();
-			stream(packageProductDependencies).map(Objects::requireNonNull).forEach(this.packageProductDependencies::add);
+			List<XCSwiftPackageProductDependency> sanitizedProductDependencies = stream(packageProductDependencies).peek(Objects::requireNonNull).collect(ImmutableList.toImmutableList());
+			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, sanitizedProductDependencies);
 			return this;
 		}
 
 		@Override
 		public PBXNativeTarget build() {
-			builder.put(CodeablePBXNativeTarget.CodingKeys.name, name);
-			builder.put(CodeablePBXNativeTarget.CodingKeys.productType, productType);
-			builder.put(CodeablePBXNativeTarget.CodingKeys.buildPhases, ImmutableList.copyOf(buildPhases));
-			builder.put(CodeablePBXNativeTarget.CodingKeys.productName, productName);
-			builder.put(CodeablePBXNativeTarget.CodingKeys.productReference, productReference);
-			builder.put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, buildConfigurationList);
-			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, ImmutableList.copyOf(dependencies));
-			builder.put(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, ImmutableList.copyOf(packageProductDependencies));
-
 			return new CodeablePBXNativeTarget(builder.build());
 		}
 	}

@@ -21,12 +21,10 @@ import dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-import static com.google.common.collect.Streams.stream;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Build phase which represents running a shell script.
@@ -88,17 +86,14 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 		private static final String DEFAULT_SHELL_PATH = "/bin/sh";
 		private static final String DEFAULT_SHELL_SCRIPT = "";
 
-		private String name;
-		private String shellScript;
-		private String shellPath;
-		private final List<String> outputPaths = new ArrayList<>();
-		private final List<String> inputPaths = new ArrayList<>();
-		private final List<String> inputFileListPaths = new ArrayList<>();
-		private final List<String> outputFileListPaths = new ArrayList<>();
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXShellScriptBuildPhase");
+
+			// Default values
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, DEFAULT_SHELL_SCRIPT);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, DEFAULT_SHELL_PATH);
 		}
 
 		@Override
@@ -108,74 +103,52 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 		}
 
 		public Builder name(String name) {
-			this.name = name;
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, requireNonNull(name));
 			return this;
 		}
 
 		public Builder shellScript(String shellScript) {
-			this.shellScript = Objects.requireNonNull(shellScript);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, requireNonNull(shellScript));
 			return this;
 		}
 
 		public Builder shellPath(String shellPath) {
-			this.shellPath = Objects.requireNonNull(shellPath);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, requireNonNull(shellPath));
 			return this;
 		}
 
 		public Builder outputPaths(Iterable<String> outputPaths) {
-			this.outputPaths.clear();
-			stream(outputPaths).map(Objects::requireNonNull).forEach(this.outputPaths::add);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, ImmutableList.copyOf(outputPaths));
 			return this;
 		}
 
 		public Builder outputPath(String outputPath) {
-			Objects.requireNonNull(outputPath);
-			outputPaths.add(outputPath);
+			builder.add(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, outputPath);
 			return this;
 		}
 
 		public Builder inputPaths(Iterable<String> inputPaths) {
-			this.inputPaths.clear();
-			stream(inputPaths).map(Objects::requireNonNull).forEach(this.inputPaths::add);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, ImmutableList.copyOf(inputPaths));
 			return this;
 		}
 
 		public Builder inputPath(String inputPath) {
-			Objects.requireNonNull(inputPath);
-			inputPaths.add(inputPath);
+			builder.add(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, inputPath);
 			return this;
 		}
 
 		public Builder inputFileListPaths(Iterable<String> inputFileListPaths) {
-			this.inputFileListPaths.clear();
-			stream(inputFileListPaths).map(Objects::requireNonNull).forEach(this.inputFileListPaths::add);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, ImmutableList.copyOf(inputFileListPaths));
 			return this;
 		}
 
 		public Builder outputFileListPaths(Iterable<String> outputFileListPaths) {
-			this.outputFileListPaths.clear();
-			stream(outputFileListPaths).map(Objects::requireNonNull).forEach(this.outputFileListPaths::add);
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, ImmutableList.copyOf(outputFileListPaths));
 			return this;
 		}
 
 		@Override
 		public PBXShellScriptBuildPhase build() {
-			if (shellScript == null) {
-				shellScript = DEFAULT_SHELL_SCRIPT;
-			}
-
-			if (shellPath == null) {
-				shellPath = DEFAULT_SHELL_PATH;
-			}
-
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, name);
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, shellScript);
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, shellPath);
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, ImmutableList.copyOf(inputPaths));
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, ImmutableList.copyOf(inputFileListPaths));
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, ImmutableList.copyOf(outputPaths));
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, ImmutableList.copyOf(outputFileListPaths));
-
 			return new CodeablePBXShellScriptBuildPhase(builder.build());
 		}
 	}

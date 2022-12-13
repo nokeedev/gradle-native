@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
+import static java.util.Objects.requireNonNull;
 
 /**
  * File referenced by a build phase, unique to each build phase.
@@ -53,9 +54,6 @@ public interface PBXBuildFile extends PBXProjectItem {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXBuildFile>, LenientAwareBuilder<Builder> {
-		private FileReference fileRef;
-		private XCSwiftPackageProductDependency productRef;
-		private ImmutableMap<String, Object> settings;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -70,26 +68,22 @@ public interface PBXBuildFile extends PBXProjectItem {
 		}
 
 		public Builder fileRef(FileReference fileRef) {
-			this.fileRef = fileRef;
+			builder.put(CodeablePBXBuildFile.CodingKeys.fileRef, requireNonNull(fileRef));
 			return this;
 		}
 
 		public Builder productRef(XCSwiftPackageProductDependency productRef) {
-			this.productRef = productRef;
+			builder.put(CodeablePBXBuildFile.CodingKeys.productRef, requireNonNull(productRef));
 			return this;
 		}
 
 		public Builder settings(Map<String, ?> settings) {
-			this.settings = ImmutableMap.copyOf(settings);
+			builder.put(CodeablePBXBuildFile.CodingKeys.settings, ImmutableMap.copyOf(settings));
 			return this;
 		}
 
 		@Override
 		public PBXBuildFile build() {
-			builder.put(CodeablePBXBuildFile.CodingKeys.fileRef, fileRef);
-			builder.put(CodeablePBXBuildFile.CodingKeys.productRef, productRef);
-			builder.put(CodeablePBXBuildFile.CodingKeys.settings, settings);
-
 			return new CodeablePBXBuildFile(builder.build());
 		}
 	}

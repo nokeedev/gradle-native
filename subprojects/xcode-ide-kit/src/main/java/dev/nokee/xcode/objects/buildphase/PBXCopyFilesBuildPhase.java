@@ -22,13 +22,10 @@ import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.google.common.collect.Streams.stream;
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.io.FilenameUtils.concat;
 
 public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
@@ -110,9 +107,6 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXCopyFilesBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private final List<PBXBuildFile> files = new ArrayList<>();
-		private SubFolder dstSubfolderSpec;
-		private String dstPath;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -129,24 +123,23 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public Builder file(PBXBuildFile file) {
-			files.add(Objects.requireNonNull(file, "'file' must not be null"));
+			builder.add(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, file);
 			return this;
 		}
 
 		@Override
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
-			this.files.clear();
-			stream(files).map(Objects::requireNonNull).forEach(this.files::add);
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
 			return this;
 		}
 
 		public Builder dstPath(String dstPath) {
-			this.dstPath = Objects.requireNonNull(dstPath);
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, requireNonNull(dstPath));
 			return this;
 		}
 
 		public Builder dstSubfolderSpec(SubFolder dstSubfolderSpec) {
-			this.dstSubfolderSpec = Objects.requireNonNull(dstSubfolderSpec);
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, requireNonNull(dstSubfolderSpec));
 			return this;
 		}
 
@@ -157,10 +150,6 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public PBXCopyFilesBuildPhase build() {
-			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
-			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, dstPath);
-			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, dstSubfolderSpec);
-
 			return new CodeablePBXCopyFilesBuildPhase(builder.build());
 		}
 

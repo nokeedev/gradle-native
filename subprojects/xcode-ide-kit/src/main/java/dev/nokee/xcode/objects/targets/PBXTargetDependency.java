@@ -43,9 +43,6 @@ public interface PBXTargetDependency extends PBXProjectItem {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXTargetDependency>, LenientAwareBuilder<Builder> {
-		private String name;
-		private PBXTarget target;
-		private PBXContainerItemProxy targetProxy;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -60,26 +57,22 @@ public interface PBXTargetDependency extends PBXProjectItem {
 		}
 
 		public Builder name(String name) {
-			this.name = Objects.requireNonNull(name);
+			builder.put(CodeablePBXTargetDependency.CodingKeys.name, Objects.requireNonNull(name));
 			return this;
 		}
 
 		public Builder target(PBXTarget target) {
-			this.target = Objects.requireNonNull(target);
+			builder.put(CodeablePBXTargetDependency.CodingKeys.target, Objects.requireNonNull(target));
 			return this;
 		}
 
 		public Builder targetProxy(PBXContainerItemProxy targetProxy) {
-			this.targetProxy = Objects.requireNonNull(targetProxy);
+			builder.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, Objects.requireNonNull(targetProxy));
 			return this;
 		}
 
 		@Override
 		public PBXTargetDependency build() {
-			builder.put(CodeablePBXTargetDependency.CodingKeys.name, name);
-			builder.put(CodeablePBXTargetDependency.CodingKeys.target, target);
-			builder.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, targetProxy);
-
 			return new CodeablePBXTargetDependency(builder.build());
 		}
 	}

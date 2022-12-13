@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build system.
@@ -46,20 +47,15 @@ public interface PBXLegacyTarget extends PBXTarget {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXLegacyTarget>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private String name;
-		private ProductType productType;
-		private String buildArgumentsString = "$(ACTION)";
-		private String buildToolPath = "/usr/bin/make";
-		private String buildWorkingDirectory;
-		private boolean passBuildSettingsInEnvironment = true;
-		private XCConfigurationList buildConfigurationList;
-		private String productName;
-		private PBXFileReference productReference;
-		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXLegacyTarget");
+
+			// Default values
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, "$(ACTION)");
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, "/usr/bin/make");
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, true);
 		}
 
 		@Override
@@ -69,72 +65,60 @@ public interface PBXLegacyTarget extends PBXTarget {
 		}
 
 		public Builder name(String name) {
-			this.name = Objects.requireNonNull(name);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.name, requireNonNull(name));
 			return this;
 		}
 
 		public Builder productType(ProductType productType) {
-			this.productType = Objects.requireNonNull(productType);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productType, requireNonNull(productType));
 			return this;
 		}
 
 		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
-			this.buildConfigurationList = Objects.requireNonNull(buildConfigurationList);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurationList));
 			return this;
 		}
 
 		public Builder dependencies(Iterable<? extends PBXTargetDependency> dependencies) {
-			this.dependencies.clear();
-			stream(dependencies).map(Objects::requireNonNull).forEach(this.dependencies::add);
+			List<PBXTargetDependency> sanitizedDependencies = stream(dependencies).peek(Objects::requireNonNull).collect(ImmutableList.toImmutableList());
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.dependencies, sanitizedDependencies);
 			return this;
 		}
 
 		public Builder productName(String productName) {
-			this.productName = Objects.requireNonNull(productName);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productName, requireNonNull(productName));
 			return this;
 		}
 
 		public Builder productReference(PBXFileReference productReference) {
-			this.productReference = Objects.requireNonNull(productReference);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productReference, requireNonNull(productReference));
 			return this;
 		}
 
 		public Builder buildArguments(String buildArguments) {
-			this.buildArgumentsString = Objects.requireNonNull(buildArguments);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, requireNonNull(buildArguments));
 			return this;
 		}
 
 		public Builder buildToolPath(String buildToolPath) {
-			this.buildToolPath = Objects.requireNonNull(buildToolPath);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, requireNonNull(buildToolPath));
 			return this;
 		}
 
 		public Builder buildWorkingDirectory(String buildWorkingDirectory) {
-			this.buildWorkingDirectory = Objects.requireNonNull(buildWorkingDirectory);
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, requireNonNull(buildWorkingDirectory));
 			return this;
 		}
 
 		public Builder passBuildSettingsInEnvironment(boolean passBuildSettingsInEnvironment) {
-			this.passBuildSettingsInEnvironment = passBuildSettingsInEnvironment;
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, passBuildSettingsInEnvironment);
 			return this;
 		}
 
 		@Override
 		public PBXLegacyTarget build() {
 			// TODO: Null checks
-
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.name, name);
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.productType, productType);
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.productName, productName);
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.productReference, productReference);
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, buildConfigurationList);
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.dependencies, ImmutableList.copyOf(dependencies));
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, buildArgumentsString);
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, buildToolPath);
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, buildWorkingDirectory);
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, passBuildSettingsInEnvironment);
-
 			return new CodeablePBXLegacyTarget(builder.build());
 		}
 	}

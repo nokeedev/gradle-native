@@ -15,23 +15,21 @@
  */
 package dev.nokee.xcode.objects.configuration;
 
-import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.objects.PBXProjectItem;
+import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
+import dev.nokee.xcode.objects.PBXProjectItem;
 import dev.nokee.xcode.project.CodeableXCConfigurationList;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.KeyedObject;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
-import static com.google.common.collect.Streams.stream;
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
+import static java.util.Objects.requireNonNull;
 
 /**
  * List of build configurations.
@@ -52,19 +50,14 @@ public interface XCConfigurationList extends PBXProjectItem {
 	Builder toBuilder();
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<XCConfigurationList>, LenientAwareBuilder<Builder> {
-		private final KeyedObject parent;
-		private Set<XCBuildConfiguration> buildConfigurations;
-		private DefaultConfigurationVisibility defaultConfigurationVisibility;
-		private String defaultConfigurationName;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
-			this.parent = null;
 			builder.put(KeyedCoders.ISA, "XCConfigurationList");
+			builder.requires(key(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible));
 		}
 
 		public Builder(KeyedObject parent) {
-			this.parent = parent;
 			builder.put(KeyedCoders.ISA, "XCConfigurationList");
 			builder.parent(parent);
 		}
@@ -82,41 +75,27 @@ public interface XCConfigurationList extends PBXProjectItem {
 		}
 
 		public Builder buildConfiguration(XCBuildConfiguration buildConfiguration) {
-			if (this.buildConfigurations == null) {
-				this.buildConfigurations = new LinkedHashSet<>();
-			}
-			this.buildConfigurations.add(buildConfiguration);
+			builder.add(CodeableXCConfigurationList.CodingKeys.buildConfigurations, buildConfiguration);
 			return this;
 		}
 
 		public Builder buildConfigurations(Iterable<? extends XCBuildConfiguration> buildConfigurations) {
-			this.buildConfigurations = new LinkedHashSet<>();
-			stream(buildConfigurations).map(Objects::requireNonNull).forEach(buildConfiguration -> {
-				this.buildConfigurations.add(buildConfiguration);
-			});
+			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, ImmutableSet.copyOf(buildConfigurations));
 			return this;
 		}
 
 		public Builder defaultConfigurationName(String name) {
-			this.defaultConfigurationName = Objects.requireNonNull(name);
+			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, requireNonNull(name));
 			return this;
 		}
 
 		public Builder defaultConfigurationVisibility(DefaultConfigurationVisibility visibility) {
-			this.defaultConfigurationVisibility = Objects.requireNonNull(visibility);
+			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, visibility == DefaultConfigurationVisibility.VISIBLE);
 			return this;
 		}
 
 		@Override
 		public XCConfigurationList build() {
-			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, buildConfigurations != null ? ImmutableList.copyOf(buildConfigurations) : null);
-			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, defaultConfigurationName);
-			if (defaultConfigurationVisibility != null) {
-				builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, defaultConfigurationVisibility == DefaultConfigurationVisibility.VISIBLE);
-			} else if (parent != null && parent.tryDecode(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible) == null) {
-				throw new NullPointerException("'defaultConfigurationVisibility' must not be null");
-			}
-
 			return new CodeableXCConfigurationList(builder.build());
 		}
 	}

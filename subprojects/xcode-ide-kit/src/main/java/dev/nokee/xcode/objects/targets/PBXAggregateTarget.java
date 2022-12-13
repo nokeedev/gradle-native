@@ -25,7 +25,6 @@ import dev.nokee.xcode.project.CodeablePBXAggregateTarget;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,11 +41,6 @@ public interface PBXAggregateTarget extends PBXTarget {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXAggregateTarget>, BuildPhaseAwareBuilder<Builder>, BuildConfigurationsAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private String name;
-		private String productName;
-		private XCConfigurationList buildConfigurations;
-		private final List<PBXBuildPhase> buildPhases = new ArrayList<>();
-		private final List<PBXTargetDependency> dependencies = new ArrayList<>();
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -62,27 +56,26 @@ public interface PBXAggregateTarget extends PBXTarget {
 		}
 
 		public Builder name(String name) {
-			this.name = requireNonNull(name);
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.name, requireNonNull(name));
 			return this;
 		}
 
 		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurations) {
-			this.buildConfigurations = requireNonNull(buildConfigurations);
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurations));
 			return this;
 		}
 
 		@Override
 		public Builder buildPhases(Iterable<? extends PBXBuildPhase> buildPhases) {
-			this.buildPhases.clear();
-			stream(buildPhases).peek(Objects::requireNonNull).peek(this::assertOnlyRunOrCopyPhase).forEach(this.buildPhases::add);
+			List<PBXBuildPhase> sanitizedBuildPhases = stream(buildPhases).peek(Objects::requireNonNull).peek(this::assertOnlyRunOrCopyPhase).collect(ImmutableList.toImmutableList());
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, sanitizedBuildPhases);
 			return this;
 		}
 
 		@Override
 		public Builder buildPhase(PBXBuildPhase buildPhase) {
-			Objects.requireNonNull(buildPhase);
-			buildPhases.add(buildPhase);
+			builder.add(CodeablePBXAggregateTarget.CodingKeys.buildPhases, buildPhase);
 			return this;
 		}
 
@@ -93,18 +86,13 @@ public interface PBXAggregateTarget extends PBXTarget {
 		}
 
 		public Builder dependencies(Iterable<? extends PBXTargetDependency> dependencies) {
-			this.dependencies.clear();
-			dependencies.forEach(this.dependencies::add);
+			List<PBXTargetDependency> sanitizedDependencies = stream(dependencies).peek(Objects::requireNonNull).collect(ImmutableList.toImmutableList());
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.dependencies, sanitizedDependencies);
 			return this;
 		}
 
 		@Override
 		public PBXAggregateTarget build() {
-			builder.put(CodeablePBXAggregateTarget.CodingKeys.name, name);
-			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildPhases, ImmutableList.copyOf(buildPhases));
-			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, buildConfigurations);
-			builder.put(CodeablePBXAggregateTarget.CodingKeys.dependencies, ImmutableList.copyOf(dependencies));
-
 			return new CodeablePBXAggregateTarget(builder.build());
 		}
 	}

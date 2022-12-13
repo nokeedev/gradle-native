@@ -15,17 +15,16 @@
  */
 package dev.nokee.xcode.objects;
 
-import com.google.common.base.Suppliers;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
-import dev.nokee.xcode.project.KeyedCoders;
-import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.CodeablePBXContainerItemProxy;
 import dev.nokee.xcode.project.CodeablePBXContainerItemProxy.CodingKeys;
+import dev.nokee.xcode.project.DefaultKeyedObject;
+import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -70,44 +69,36 @@ public interface PBXContainerItemProxy extends PBXContainerItem {
 	}
 
 	final class Builder {
-		private Supplier<ContainerPortal> containerPortal;
-		private ProxyType proxyType;
-		private String remoteGlobalId;
-		private String remoteInfo;
+		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
-		public Builder containerPortal(ContainerPortal containerPortal) {
-			this.containerPortal = Suppliers.ofInstance(containerPortal);
-			return this;
+		public Builder() {
+			builder.put(KeyedCoders.ISA, "PBXContainerItemProxy");
+			builder.requires(key(CodingKeys.containerPortal));
+			builder.requires(key(CodingKeys.remoteGlobalIDString));
+			builder.requires(key(CodingKeys.proxyType));
 		}
 
-		public Builder containerPortal(Supplier<ContainerPortal> containerPortal) {
-			this.containerPortal = containerPortal;
+		public Builder containerPortal(ContainerPortal containerPortal) {
+			builder.put(CodingKeys.containerPortal, requireNonNull(containerPortal, "'containerPortal' must not be null"));
 			return this;
 		}
 
 		public Builder proxyType(ProxyType proxyType) {
-			this.proxyType = proxyType;
+			builder.put(CodingKeys.proxyType, requireNonNull(proxyType, "'proxyType' must not be null"));
 			return this;
 		}
 
 		public Builder remoteGlobalId(String remoteGlobalId) {
-			this.remoteGlobalId = remoteGlobalId;
+			builder.put(CodingKeys.remoteGlobalIDString, requireNonNull(remoteGlobalId, "'remoteGlobalId' must not be null"));
 			return this;
 		}
 
 		public Builder remoteInfo(String remoteInfo) {
-			this.remoteInfo = remoteInfo;
+			builder.put(CodingKeys.remoteInfo, requireNonNull(remoteInfo));
 			return this;
 		}
 
 		public PBXContainerItemProxy build() {
-			final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
-			builder.put(KeyedCoders.ISA, "PBXContainerItemProxy");
-			builder.put(CodingKeys.containerPortal, requireNonNull(containerPortal, "'containerPortal' must not be null"));
-			builder.put(CodingKeys.remoteGlobalIDString, requireNonNull(remoteGlobalId, "'remoteGlobalId' must not be null"));
-			builder.put(CodingKeys.proxyType, requireNonNull(proxyType, "'proxyType' must not be null"));
-			builder.put(CodingKeys.remoteInfo, remoteInfo);
-
 			return new CodeablePBXContainerItemProxy(builder.build());
 		}
 	}

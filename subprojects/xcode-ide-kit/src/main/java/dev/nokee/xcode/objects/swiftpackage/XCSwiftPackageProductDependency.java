@@ -22,6 +22,7 @@ import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
+import static java.util.Objects.requireNonNull;
 
 public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 	String getProductName();
@@ -33,8 +34,6 @@ public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<XCSwiftPackageProductDependency>, LenientAwareBuilder<Builder> {
-		private String productName;
-		private XCRemoteSwiftPackageReference packageReference;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -50,20 +49,17 @@ public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 		}
 
 		public Builder productName(String productName) {
-			this.productName = productName;
+			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, requireNonNull(productName));
 			return this;
 		}
 
 		public Builder packageReference(XCRemoteSwiftPackageReference packageReference) {
-			this.packageReference = packageReference;
+			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference, requireNonNull(packageReference));
 			return this;
 		}
 
 		@Override
 		public XCSwiftPackageProductDependency build() {
-			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, productName);
-			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference, packageReference);
-
 			return new CodeableXCSwiftPackageProductDependency(builder.build());
 		}
 	}

@@ -21,12 +21,6 @@ import dev.nokee.xcode.project.CodeablePBXFrameworksBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import static com.google.common.collect.Streams.stream;
-
 public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 	// Xcode maps Optional/Required status via {@link PBXBuildFile#getSettings()}
 	//   i.e. settings = {ATTRIBUTES = (Weak)}
@@ -37,7 +31,6 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFrameworksBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private final List<PBXBuildFile> files = new ArrayList<>();
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -52,21 +45,18 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public Builder file(PBXBuildFile file) {
-			files.add(Objects.requireNonNull(file, "'file' must not be null"));
+			builder.add(CodeablePBXFrameworksBuildPhase.CodingKeys.files, file);
 			return this;
 		}
 
 		@Override
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
-			this.files.clear();
-			stream(files).map(Objects::requireNonNull).forEach(this.files::add);
+			builder.put(CodeablePBXFrameworksBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
 			return this;
 		}
 
 		@Override
 		public PBXFrameworksBuildPhase build() {
-			builder.put(CodeablePBXFrameworksBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
-
 			return new CodeablePBXFrameworksBuildPhase(builder.build());
 		}
 	}

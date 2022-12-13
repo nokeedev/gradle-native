@@ -183,8 +183,6 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<XCRemoteSwiftPackageReference>, LenientAwareBuilder<Builder> {
-		private String repositoryUrl;
-		private VersionRequirement requirement;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -200,20 +198,17 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 		}
 
 		public Builder repositoryUrl(String repositoryUrl) {
-			this.repositoryUrl = repositoryUrl;
+			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, requireNonNull(repositoryUrl));
 			return this;
 		}
 
 		public Builder requirement(VersionRequirement requirement) {
-			this.requirement = requirement;
+			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, requireNonNull(requirement));
 			return this;
 		}
 
 		@Override
 		public XCRemoteSwiftPackageReference build() {
-			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, repositoryUrl);
-			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, requirement);
-
 			return new CodeableXCRemoteSwiftPackageReference(builder.build());
 		}
 	}
