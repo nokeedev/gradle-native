@@ -22,7 +22,6 @@ import dev.nokee.xcode.project.CodeablePBXTargetDependency;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
@@ -57,17 +56,17 @@ public interface PBXTargetDependency extends PBXProjectItem {
 		}
 
 		public Builder name(String name) {
-			builder.put(CodeablePBXTargetDependency.CodingKeys.name, Objects.requireNonNull(name));
+			builder.put(CodeablePBXTargetDependency.CodingKeys.name, name);
 			return this;
 		}
 
 		public Builder target(PBXTarget target) {
-			builder.put(CodeablePBXTargetDependency.CodingKeys.target, Objects.requireNonNull(target));
+			builder.put(CodeablePBXTargetDependency.CodingKeys.target, target);
 			return this;
 		}
 
 		public Builder targetProxy(PBXContainerItemProxy targetProxy) {
-			builder.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, Objects.requireNonNull(targetProxy));
+			builder.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, targetProxy);
 			return this;
 		}
 

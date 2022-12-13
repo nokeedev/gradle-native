@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.objects.files;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.project.CodeablePBXVariantGroup;
@@ -52,10 +51,10 @@ public interface PBXVariantGroup extends PBXGroupElement, GroupChild, PBXBuildFi
 		@Override
 		protected PBXVariantGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
 			// mainGroup can have both null name and path
-			builder.put(CodeablePBXVariantGroup.CodingKeys.name, name);
-			builder.put(CodeablePBXVariantGroup.CodingKeys.path, path);
-			builder.put(CodeablePBXVariantGroup.CodingKeys.sourceTree, sourceTree);
-			builder.put(CodeablePBXVariantGroup.CodingKeys.children, ImmutableList.copyOf(children));
+			builder.putNullable(CodeablePBXVariantGroup.CodingKeys.name, name);
+			builder.putNullable(CodeablePBXVariantGroup.CodingKeys.path, path);
+			builder.putNullable(CodeablePBXVariantGroup.CodingKeys.sourceTree, sourceTree);
+			builder.put(CodeablePBXVariantGroup.CodingKeys.children, children);
 
 			return new CodeablePBXVariantGroup(builder.build());
 		}

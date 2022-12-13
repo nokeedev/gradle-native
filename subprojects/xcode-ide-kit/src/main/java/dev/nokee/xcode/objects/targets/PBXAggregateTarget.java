@@ -56,13 +56,13 @@ public interface PBXAggregateTarget extends PBXTarget {
 		}
 
 		public Builder name(String name) {
-			builder.put(CodeablePBXAggregateTarget.CodingKeys.name, requireNonNull(name));
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.name, name);
 			return this;
 		}
 
 		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurations) {
-			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurations));
+			builder.put(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, buildConfigurations);
 			return this;
 		}
 

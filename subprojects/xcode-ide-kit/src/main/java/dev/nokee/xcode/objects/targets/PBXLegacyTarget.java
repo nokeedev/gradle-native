@@ -23,12 +23,10 @@ import dev.nokee.xcode.project.CodeablePBXLegacyTarget;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build system.
@@ -65,18 +63,18 @@ public interface PBXLegacyTarget extends PBXTarget {
 		}
 
 		public Builder name(String name) {
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.name, requireNonNull(name));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.name, name);
 			return this;
 		}
 
 		public Builder productType(ProductType productType) {
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.productType, requireNonNull(productType));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productType, productType);
 			return this;
 		}
 
 		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurationList));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, buildConfigurationList);
 			return this;
 		}
 
@@ -87,27 +85,27 @@ public interface PBXLegacyTarget extends PBXTarget {
 		}
 
 		public Builder productName(String productName) {
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.productName, requireNonNull(productName));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productName, productName);
 			return this;
 		}
 
 		public Builder productReference(PBXFileReference productReference) {
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.productReference, requireNonNull(productReference));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.productReference, productReference);
 			return this;
 		}
 
 		public Builder buildArguments(String buildArguments) {
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, requireNonNull(buildArguments));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, buildArguments);
 			return this;
 		}
 
 		public Builder buildToolPath(String buildToolPath) {
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, requireNonNull(buildToolPath));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, buildToolPath);
 			return this;
 		}
 
 		public Builder buildWorkingDirectory(String buildWorkingDirectory) {
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, requireNonNull(buildWorkingDirectory));
+			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, buildWorkingDirectory);
 			return this;
 		}
 

@@ -22,10 +22,6 @@ import dev.nokee.xcode.project.CodeablePBXReferenceProxy;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
-
 /**
  * A proxy for another object which might belong to another project contained in the same workspace of the document.
  */
@@ -52,27 +48,27 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 		}
 
 		public Builder name(String name) {
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.name, requireNonNull(name));
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.name, name);
 			return this;
 		}
 
 		public Builder path(String path) {
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.path, requireNonNull(path));
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.path, path);
 			return this;
 		}
 
 		public Builder sourceTree(PBXSourceTree sourceTree) {
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.sourceTree, requireNonNull(sourceTree));
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.sourceTree, sourceTree);
 			return this;
 		}
 
 		public Builder remoteReference(PBXContainerItemProxy remoteReference) {
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.remoteRef, Objects.requireNonNull(remoteReference));
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.remoteRef, remoteReference);
 			return this;
 		}
 
 		public Builder fileType(String fileType) {
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.fileType, requireNonNull(fileType));
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.fileType, fileType);
 			return this;
 		}
 

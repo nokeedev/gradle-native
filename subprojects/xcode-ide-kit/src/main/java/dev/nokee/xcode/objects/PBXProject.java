@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.objects;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
@@ -37,8 +36,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * The root object representing the project itself.
@@ -71,7 +68,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 			public Builder() {
-				builder.put(KeyedCoders.ISA, null);
+				// There is no ISA value for this model
 			}
 
 			@Override
@@ -81,12 +78,12 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 			}
 
 			public Builder productGroup(PBXGroup productGroup) {
-				builder.put(CodeableProjectReference.CodingKeys.ProductGroup, requireNonNull(productGroup));
+				builder.put(CodeableProjectReference.CodingKeys.ProductGroup, productGroup);
 				return this;
 			}
 
 			public Builder projectReference(PBXFileReference projectReference) {
-				builder.put(CodeableProjectReference.CodingKeys.ProjectRef, requireNonNull(projectReference));
+				builder.put(CodeableProjectReference.CodingKeys.ProjectRef, projectReference);
 				return this;
 			}
 
@@ -139,13 +136,13 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		}
 
 		public Builder targets(Iterable<? extends PBXTarget> targets) {
-			builder.put(CodeablePBXProject.CodingKeys.targets, ImmutableList.copyOf(targets));
+			builder.put(CodeablePBXProject.CodingKeys.targets, targets);
 			return this;
 		}
 
 		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurations) {
-			builder.put(CodeablePBXProject.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurations));
+			builder.put(CodeablePBXProject.CodingKeys.buildConfigurationList, buildConfigurations);
 			return this;
 		}
 
@@ -174,7 +171,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		}
 
 		public Builder projectReferences(Iterable<? extends ProjectReference> projectReferences) {
-			builder.put(CodeablePBXProject.CodingKeys.projectReferences, ImmutableList.copyOf(projectReferences));
+			builder.put(CodeablePBXProject.CodingKeys.projectReferences, projectReferences);
 			return this;
 		}
 
@@ -184,7 +181,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 		}
 
 		public Builder packageReferences(Iterable<? extends XCRemoteSwiftPackageReference> packageReferences) {
-			builder.put(CodeablePBXProject.CodingKeys.packageReferences, ImmutableList.copyOf(packageReferences));
+			builder.put(CodeablePBXProject.CodingKeys.packageReferences, packageReferences);
 			return this;
 		}
 

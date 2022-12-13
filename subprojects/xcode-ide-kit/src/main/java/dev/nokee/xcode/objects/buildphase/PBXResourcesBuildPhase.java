@@ -47,7 +47,7 @@ public interface PBXResourcesBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
-			builder.put(CodeablePBXResourcesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
+			builder.put(CodeablePBXResourcesBuildPhase.CodingKeys.files, files);
 			return this;
 		}
 

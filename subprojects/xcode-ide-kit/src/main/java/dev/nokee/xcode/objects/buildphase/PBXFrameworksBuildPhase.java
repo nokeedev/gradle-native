@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.objects.buildphase;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXFrameworksBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
@@ -51,7 +50,7 @@ public interface PBXFrameworksBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
-			builder.put(CodeablePBXFrameworksBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
+			builder.put(CodeablePBXFrameworksBuildPhase.CodingKeys.files, files);
 			return this;
 		}
 

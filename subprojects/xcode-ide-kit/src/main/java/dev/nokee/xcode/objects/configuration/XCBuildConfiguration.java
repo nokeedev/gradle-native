@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Build configuration containing a file reference to a xcconfig file and additional inline settings.
@@ -55,7 +54,7 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 		}
 
 		public Builder name(String name) {
-			builder.put(CodeableXCBuildConfiguration.CodingKeys.name, requireNonNull(name));
+			builder.put(CodeableXCBuildConfiguration.CodingKeys.name, name);
 			return this;
 		}
 
@@ -66,12 +65,12 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 		}
 
 		public Builder baseConfigurationReference(PBXFileReference baseConfigurationReference) {
-			builder.put(CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference, requireNonNull(baseConfigurationReference));
+			builder.put(CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference, baseConfigurationReference);
 			return this;
 		}
 
 		public Builder buildSettings(BuildSettings buildSettings) {
-			builder.put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, requireNonNull(buildSettings));
+			builder.put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, buildSettings);
 			return this;
 		}
 

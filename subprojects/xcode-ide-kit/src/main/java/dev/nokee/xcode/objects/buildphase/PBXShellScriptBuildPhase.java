@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.objects.buildphase;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
@@ -23,8 +22,6 @@ import dev.nokee.xcode.project.KeyedCoders;
 
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Build phase which represents running a shell script.
@@ -103,22 +100,22 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 		}
 
 		public Builder name(String name) {
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, requireNonNull(name));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.name, name);
 			return this;
 		}
 
 		public Builder shellScript(String shellScript) {
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, requireNonNull(shellScript));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, shellScript);
 			return this;
 		}
 
 		public Builder shellPath(String shellPath) {
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, requireNonNull(shellPath));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, shellPath);
 			return this;
 		}
 
 		public Builder outputPaths(Iterable<String> outputPaths) {
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, ImmutableList.copyOf(outputPaths));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputPaths, outputPaths);
 			return this;
 		}
 
@@ -128,7 +125,7 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 		}
 
 		public Builder inputPaths(Iterable<String> inputPaths) {
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, ImmutableList.copyOf(inputPaths));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths, inputPaths);
 			return this;
 		}
 
@@ -138,12 +135,12 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 		}
 
 		public Builder inputFileListPaths(Iterable<String> inputFileListPaths) {
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, ImmutableList.copyOf(inputFileListPaths));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths, inputFileListPaths);
 			return this;
 		}
 
 		public Builder outputFileListPaths(Iterable<String> outputFileListPaths) {
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, ImmutableList.copyOf(outputFileListPaths));
+			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.outputFileListPaths, outputFileListPaths);
 			return this;
 		}
 

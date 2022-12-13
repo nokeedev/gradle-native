@@ -30,7 +30,6 @@ import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Concrete target type representing targets built by xcode itself, rather than an external build system.
@@ -60,12 +59,12 @@ public interface PBXNativeTarget extends PBXTarget {
 		}
 
 		public Builder name(String name) {
-			builder.put(CodeablePBXNativeTarget.CodingKeys.name, requireNonNull(name));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.name, name);
 			return this;
 		}
 
 		public Builder productType(ProductType productType) {
-			builder.put(CodeablePBXNativeTarget.CodingKeys.productType, requireNonNull(productType));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productType, productType);
 			return this;
 		}
 
@@ -83,29 +82,27 @@ public interface PBXNativeTarget extends PBXTarget {
 
 		@Override
 		public Builder buildConfigurations(XCConfigurationList buildConfigurationList) {
-			builder.put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, requireNonNull(buildConfigurationList));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, buildConfigurationList);
 			return this;
 		}
 
 		public Builder productName(String productName) {
-			builder.put(CodeablePBXNativeTarget.CodingKeys.productName, requireNonNull(productName));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productName, productName);
 			return this;
 		}
 
 		public Builder productReference(PBXFileReference productReference) {
-			builder.put(CodeablePBXNativeTarget.CodingKeys.productReference, requireNonNull(productReference));
+			builder.put(CodeablePBXNativeTarget.CodingKeys.productReference, productReference);
 			return this;
 		}
 
 		public Builder dependencies(Iterable<? extends PBXTargetDependency> dependencies) {
-			List<PBXTargetDependency> sanitizedDependencies = stream(dependencies).peek(Objects::requireNonNull).collect(ImmutableList.toImmutableList());
-			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, sanitizedDependencies);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, dependencies);
 			return this;
 		}
 
 		public Builder packageProductDependencies(Iterable<? extends XCSwiftPackageProductDependency> packageProductDependencies) {
-			List<XCSwiftPackageProductDependency> sanitizedProductDependencies = stream(packageProductDependencies).peek(Objects::requireNonNull).collect(ImmutableList.toImmutableList());
-			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, sanitizedProductDependencies);
+			builder.put(CodeablePBXNativeTarget.CodingKeys.dependencies, packageProductDependencies);
 			return this;
 		}
 

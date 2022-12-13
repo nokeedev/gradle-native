@@ -22,7 +22,6 @@ import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-import static java.util.Objects.requireNonNull;
 
 public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 	String getProductName();
@@ -49,12 +48,12 @@ public interface XCSwiftPackageProductDependency extends PBXContainerItem {
 		}
 
 		public Builder productName(String productName) {
-			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, requireNonNull(productName));
+			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, productName);
 			return this;
 		}
 
 		public Builder packageReference(XCRemoteSwiftPackageReference packageReference) {
-			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference, requireNonNull(packageReference));
+			builder.put(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference, packageReference);
 			return this;
 		}
 

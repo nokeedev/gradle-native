@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-import static java.util.Objects.requireNonNull;
 
 /**
  * File referenced by a build phase, unique to each build phase.
@@ -68,12 +67,12 @@ public interface PBXBuildFile extends PBXProjectItem {
 		}
 
 		public Builder fileRef(FileReference fileRef) {
-			builder.put(CodeablePBXBuildFile.CodingKeys.fileRef, requireNonNull(fileRef));
+			builder.put(CodeablePBXBuildFile.CodingKeys.fileRef, fileRef);
 			return this;
 		}
 
 		public Builder productRef(XCSwiftPackageProductDependency productRef) {
-			builder.put(CodeablePBXBuildFile.CodingKeys.productRef, requireNonNull(productRef));
+			builder.put(CodeablePBXBuildFile.CodingKeys.productRef, productRef);
 			return this;
 		}
 

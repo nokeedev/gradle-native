@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-import static java.util.Objects.requireNonNull;
 import static org.apache.commons.io.FilenameUtils.concat;
 
 public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
@@ -129,17 +128,17 @@ public interface PBXCopyFilesBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
-			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, files);
 			return this;
 		}
 
 		public Builder dstPath(String dstPath) {
-			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, requireNonNull(dstPath));
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, dstPath);
 			return this;
 		}
 
 		public Builder dstSubfolderSpec(SubFolder dstSubfolderSpec) {
-			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, requireNonNull(dstSubfolderSpec));
+			builder.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, dstSubfolderSpec);
 			return this;
 		}
 
