@@ -15,19 +15,15 @@
  */
 package dev.nokee.xcode.objects.files;
 
-import com.google.common.collect.ImmutableList;
-import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.project.CodeableXCVersionGroup;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a group that contains multiple file references to the different versions of a resource.
@@ -61,7 +57,7 @@ public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFil
 
 		public Builder currentVersion(PBXFileReference currentVersion) {
 			this.currentVersion = currentVersion;
-			builder.put(CodeableXCVersionGroup.CodingKeys.currentVersion, requireNonNull(currentVersion));
+			builder.put(CodeableXCVersionGroup.CodingKeys.currentVersion, currentVersion);
 			return this;
 		}
 
@@ -72,16 +68,16 @@ public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFil
 
 		@Override
 		protected XCVersionGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
-			builder.put(CodeableXCVersionGroup.CodingKeys.name, name);
-			builder.put(CodeableXCVersionGroup.CodingKeys.path, path);
-			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, sourceTree);
-			builder.put(CodeableXCVersionGroup.CodingKeys.children, ImmutableList.copyOf(children));
+			builder.putNullable(CodeableXCVersionGroup.CodingKeys.name, name);
+			builder.putNullable(CodeableXCVersionGroup.CodingKeys.path, path);
+			builder.putNullable(CodeableXCVersionGroup.CodingKeys.sourceTree, sourceTree);
+			builder.put(CodeableXCVersionGroup.CodingKeys.children, children);
 
 			String versionGroupType = this.versionGroupType;
 			if (versionGroupType == null && currentVersion != null) {
 				versionGroupType = currentVersion.getExplicitFileType().orElse(null);
 			}
-			builder.put(CodeableXCVersionGroup.CodingKeys.versionGroupType, versionGroupType);
+			builder.putNullable(CodeableXCVersionGroup.CodingKeys.versionGroupType, versionGroupType);
 
 			// TODO: Should we verify that currentVersion reference is part of the the children?
 			return new CodeableXCVersionGroup(builder.build());

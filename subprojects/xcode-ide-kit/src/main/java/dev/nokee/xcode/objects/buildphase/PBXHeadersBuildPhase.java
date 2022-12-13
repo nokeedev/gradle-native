@@ -15,14 +15,10 @@
  */
 package dev.nokee.xcode.objects.buildphase;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXHeadersBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public interface PBXHeadersBuildPhase extends PBXBuildPhase {
 	// Xcode maps Public/Private/Project headers via {@link PBXBuildFile#getSettings()}
@@ -54,7 +50,7 @@ public interface PBXHeadersBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
-			builder.put(CodeablePBXHeadersBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
+			builder.put(CodeablePBXHeadersBuildPhase.CodingKeys.files, files);
 			return this;
 		}
 

@@ -15,8 +15,6 @@
  */
 package dev.nokee.xcode.objects.configuration;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXProjectItem;
 import dev.nokee.xcode.project.CodeableXCConfigurationList;
@@ -30,7 +28,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-import static java.util.Objects.requireNonNull;
 
 /**
  * List of build configurations.
@@ -81,12 +78,12 @@ public interface XCConfigurationList extends PBXProjectItem {
 		}
 
 		public Builder buildConfigurations(Iterable<? extends XCBuildConfiguration> buildConfigurations) {
-			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, ImmutableList.copyOf(buildConfigurations));
+			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, buildConfigurations);
 			return this;
 		}
 
 		public Builder defaultConfigurationName(String name) {
-			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, requireNonNull(name));
+			builder.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, name);
 			return this;
 		}
 

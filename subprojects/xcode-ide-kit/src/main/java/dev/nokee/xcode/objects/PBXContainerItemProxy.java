@@ -25,7 +25,6 @@ import dev.nokee.xcode.project.KeyedCoders;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Reference to another object used by {@link PBXTargetDependency}.
@@ -79,22 +78,22 @@ public interface PBXContainerItemProxy extends PBXContainerItem {
 		}
 
 		public Builder containerPortal(ContainerPortal containerPortal) {
-			builder.put(CodingKeys.containerPortal, requireNonNull(containerPortal, "'containerPortal' must not be null"));
+			builder.put(CodingKeys.containerPortal, containerPortal);
 			return this;
 		}
 
 		public Builder proxyType(ProxyType proxyType) {
-			builder.put(CodingKeys.proxyType, requireNonNull(proxyType, "'proxyType' must not be null"));
+			builder.put(CodingKeys.proxyType, proxyType);
 			return this;
 		}
 
 		public Builder remoteGlobalId(String remoteGlobalId) {
-			builder.put(CodingKeys.remoteGlobalIDString, requireNonNull(remoteGlobalId, "'remoteGlobalId' must not be null"));
+			builder.put(CodingKeys.remoteGlobalIDString, remoteGlobalId);
 			return this;
 		}
 
 		public Builder remoteInfo(String remoteInfo) {
-			builder.put(CodingKeys.remoteInfo, requireNonNull(remoteInfo));
+			builder.put(CodingKeys.remoteInfo, remoteInfo);
 			return this;
 		}
 

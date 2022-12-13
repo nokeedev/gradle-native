@@ -198,12 +198,12 @@ public interface XCRemoteSwiftPackageReference extends PBXContainerItem {
 		}
 
 		public Builder repositoryUrl(String repositoryUrl) {
-			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, requireNonNull(repositoryUrl));
+			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, repositoryUrl);
 			return this;
 		}
 
 		public Builder requirement(VersionRequirement requirement) {
-			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, requireNonNull(requirement));
+			builder.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, requirement);
 			return this;
 		}
 

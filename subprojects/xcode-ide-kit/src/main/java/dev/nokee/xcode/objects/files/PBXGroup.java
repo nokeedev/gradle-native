@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.objects.files;
 
-import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXGroup;
 import dev.nokee.xcode.project.DefaultKeyedObject;
@@ -54,10 +53,10 @@ public interface PBXGroup extends PBXGroupElement, GroupChild {
 		@Override
 		protected PBXGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
 			// mainGroup can have both null name and path
-			builder.put(CodeablePBXGroup.CodingKeys.name, name);
-			builder.put(CodeablePBXGroup.CodingKeys.path, path);
-			builder.put(CodeablePBXGroup.CodingKeys.sourceTree, sourceTree);
-			builder.put(CodeablePBXGroup.CodingKeys.children, ImmutableList.copyOf(children));
+			builder.putNullable(CodeablePBXGroup.CodingKeys.name, name);
+			builder.putNullable(CodeablePBXGroup.CodingKeys.path, path);
+			builder.putNullable(CodeablePBXGroup.CodingKeys.sourceTree, sourceTree);
+			builder.put(CodeablePBXGroup.CodingKeys.children, children);
 
 			return new CodeablePBXGroup(builder.build());
 		}

@@ -17,8 +17,6 @@ package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nullable;
@@ -27,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode
@@ -83,7 +80,19 @@ public final class DefaultKeyedObject implements KeyedObject {
 		private final List<Predicate<? super KeyedObject>> requirements = new ArrayList<>();
 		private boolean lenient = false;
 
-		public Builder put(CodingKey key, @Nullable Object object) {
+		public Builder put(CodingKey key, Object object) {
+			Objects.requireNonNull(object, () -> String.format("'%s' must not be null", key.getName()));
+			builder.put(key, object);
+			return this;
+		}
+
+		public Builder put(CodingKey key, Iterable<?> object) {
+			Objects.requireNonNull(object, () -> String.format("'%s' must not be null", key.getName()));
+			builder.put(key, ImmutableList.copyOf(object));
+			return this;
+		}
+
+		public Builder putNullable(CodingKey key, @Nullable Object object) {
 			if (object != null) {
 				builder.put(key, object);
 			}
