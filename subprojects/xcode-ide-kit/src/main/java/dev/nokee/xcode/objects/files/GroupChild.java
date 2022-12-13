@@ -18,6 +18,9 @@ package dev.nokee.xcode.objects.files;
 import java.util.Optional;
 
 public interface GroupChild {
+	// It seems the name or path can be null but not both which is a bit different from PBXFileReference.
+	//   Except for the mainGroup which both the name and path is null
+
 	Optional<String> getName();
 
 	Optional<String> getPath();

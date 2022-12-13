@@ -15,21 +15,27 @@
  */
 package dev.nokee.xcode.objects.files;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
+import dev.nokee.xcode.project.CodeablePBXGroup;
 import dev.nokee.xcode.project.CodeableXCVersionGroup;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+
+import static com.google.common.collect.Streams.stream;
+import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 
 /**
  * Represents a group that contains multiple file references to the different versions of a resource.
  * Users use this kind of group to contain the different versions of a {@literal xcdatamodel}.
  */
-public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFile.FileReference {
+public interface XCVersionGroup extends GroupChild, PBXBuildFile.FileReference {
+	List<GroupChild> getChildren();
+
 	Optional<PBXFileReference> getCurrentVersion();
 
 	// Identifier of the group type
@@ -40,18 +46,55 @@ public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFil
 		return new Builder();
 	}
 
-	final class Builder extends PBXGroupElement.Builder<Builder, XCVersionGroup> implements LenientAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<XCVersionGroup>, LenientAwareBuilder<Builder> {
 		private PBXFileReference currentVersion;
 		private String versionGroupType;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "XCVersionGroup");
+			builder.requires(key(CodeablePBXGroup.CodingKeys.sourceTree));
+			// mainGroup can have both null name and path
+
+			// Default values
+			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, PBXSourceTree.GROUP);
 		}
 
 		@Override
 		public Builder lenient() {
 			builder.lenient();
+			return this;
+		}
+
+		public Builder name(String name) {
+			builder.put(CodeableXCVersionGroup.CodingKeys.name, name);
+			return this;
+		}
+
+		public Builder path(String path) {
+			builder.put(CodeableXCVersionGroup.CodingKeys.path, path);
+			return this;
+		}
+
+		public Builder child(GroupChild reference) {
+			assertValid(reference);
+			builder.add(CodeableXCVersionGroup.CodingKeys.children, reference);
+			return this;
+		}
+
+		private void assertValid(GroupChild reference) {
+			if (!reference.getName().isPresent() && !reference.getPath().isPresent()) {
+				throw new NullPointerException("either 'name' or 'path' must not be null for non-main PBXGroup");
+			}
+		}
+
+		public Builder sourceTree(PBXSourceTree sourceTree) {
+			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, sourceTree);
+			return this;
+		}
+
+		public Builder children(Iterable<? extends GroupChild> references) {
+			builder.put(CodeableXCVersionGroup.CodingKeys.children, stream(references).peek(this::assertValid).collect(ImmutableList.toImmutableList()));
 			return this;
 		}
 
@@ -67,12 +110,7 @@ public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFil
 		}
 
 		@Override
-		protected XCVersionGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
-			builder.putNullable(CodeableXCVersionGroup.CodingKeys.name, name);
-			builder.putNullable(CodeableXCVersionGroup.CodingKeys.path, path);
-			builder.putNullable(CodeableXCVersionGroup.CodingKeys.sourceTree, sourceTree);
-			builder.put(CodeableXCVersionGroup.CodingKeys.children, children);
-
+		public XCVersionGroup build() {
 			String versionGroupType = this.versionGroupType;
 			if (versionGroupType == null && currentVersion != null) {
 				versionGroupType = currentVersion.getExplicitFileType().orElse(null);
