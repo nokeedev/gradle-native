@@ -48,6 +48,10 @@ public interface PBXBuildFile extends PBXProjectItem {
 		return PBXBuildFile.builder().fileRef(fileReference).build();
 	}
 
+	static PBXBuildFile ofProduct(XCSwiftPackageProductDependency productReference) {
+		return PBXBuildFile.builder().productRef(productReference).build();
+	}
+
 	static Builder builder() {
 		return new Builder();
 	}
