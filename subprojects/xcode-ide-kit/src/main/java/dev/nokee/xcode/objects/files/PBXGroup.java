@@ -15,33 +15,41 @@
  */
 package dev.nokee.xcode.objects.files;
 
+import com.google.common.collect.ImmutableList;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXGroup;
+import dev.nokee.xcode.project.CodeableXCVersionGroup;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
+import static com.google.common.collect.Streams.stream;
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 
 /**
  * A collection of files in Xcode's virtual filesystem hierarchy.
  */
-public interface PBXGroup extends PBXGroupElement, GroupChild {
+public interface PBXGroup extends GroupChild {
 	// It seems the name or path can be null but not both which is a bit different from PBXFileReference.
 	//   Except for the mainGroup which both the name and path is null
+
+	List<GroupChild> getChildren();
 
 	static Builder builder() {
 		return new Builder();
 	}
 
-	final class Builder extends PBXGroupElement.Builder<Builder, PBXGroup> implements LenientAwareBuilder<Builder> {
+	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXGroup>,  LenientAwareBuilder<Builder> {
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "PBXGroup");
 			builder.requires(key(CodeablePBXGroup.CodingKeys.sourceTree));
+			// mainGroup can have both null name and path
+
+			// Default values
+			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, PBXSourceTree.GROUP);
 		}
 
 		@Override
@@ -50,14 +58,40 @@ public interface PBXGroup extends PBXGroupElement, GroupChild {
 			return this;
 		}
 
-		@Override
-		protected PBXGroup newGroupElement(@Nullable String name, @Nullable String path, @Nullable PBXSourceTree sourceTree, List<GroupChild> children) {
-			// mainGroup can have both null name and path
-			builder.putNullable(CodeablePBXGroup.CodingKeys.name, name);
-			builder.putNullable(CodeablePBXGroup.CodingKeys.path, path);
-			builder.putNullable(CodeablePBXGroup.CodingKeys.sourceTree, sourceTree);
-			builder.put(CodeablePBXGroup.CodingKeys.children, children);
+		public Builder name(String name) {
+			builder.put(CodeablePBXGroup.CodingKeys.name, name);
+			return this;
+		}
 
+		public Builder path(String path) {
+			builder.put(CodeablePBXGroup.CodingKeys.path, path);
+			return this;
+		}
+
+		public Builder child(GroupChild reference) {
+			assertValid(reference);
+			builder.add(CodeablePBXGroup.CodingKeys.children, reference);
+			return this;
+		}
+
+		private void assertValid(GroupChild reference) {
+			if (!reference.getName().isPresent() && !reference.getPath().isPresent()) {
+				throw new NullPointerException("either 'name' or 'path' must not be null for non-main PBXGroup");
+			}
+		}
+
+		public Builder sourceTree(PBXSourceTree sourceTree) {
+			builder.put(CodeablePBXGroup.CodingKeys.sourceTree, sourceTree);
+			return this;
+		}
+
+		public Builder children(Iterable<? extends GroupChild> references) {
+			builder.put(CodeablePBXGroup.CodingKeys.children, stream(references).peek(this::assertValid).collect(ImmutableList.toImmutableList()));
+			return this;
+		}
+
+		@Override
+		public PBXGroup build() {
 			return new CodeablePBXGroup(builder.build());
 		}
 	}
