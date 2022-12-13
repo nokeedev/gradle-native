@@ -142,6 +142,6 @@ class XcodeTargetExecTaskOutOfDateSpecTests {
 	}
 
 	private static XCConfigurationList defaultConfigurations() {
-		return XCConfigurationList.builder().buildConfiguration(it -> it.name("Debug")).buildConfiguration(it -> it.name("Release")).build();
+		return XCConfigurationList.builder().lenient().buildConfiguration(it -> it.name("Debug")).buildConfiguration(it -> it.name("Release")).build();
 	}
 }

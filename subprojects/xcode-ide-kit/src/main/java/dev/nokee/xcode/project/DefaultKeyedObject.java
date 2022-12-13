@@ -124,8 +124,6 @@ public final class DefaultKeyedObject implements KeyedObject {
 				builder.put(codingKey, ImmutableList.of(element));
 			} else if (value instanceof List) {
 				builder.put(codingKey, ImmutableList.builder().addAll((List<?>) value).add(element).build());
-			} else if (value instanceof Set) {
-				builder.put(codingKey, ImmutableSet.builder().addAll((Set<?>) value).add(element).build());
 			} else {
 				throw new UnsupportedOperationException();
 			}
@@ -146,10 +144,11 @@ public final class DefaultKeyedObject implements KeyedObject {
 
 			@Override
 			public Predicate<KeyedObject> or(Predicate<? super KeyedObject> other) {
+				final Predicate<KeyedObject> firstPredicate = this;
 				return new Predicate<KeyedObject>() {
 					@Override
 					public boolean test(KeyedObject keyedObject) {
-						return false;
+						return firstPredicate.test(keyedObject) || other.test(keyedObject);
 					}
 
 					@Override
