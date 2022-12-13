@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Reference to a concrete file.
@@ -66,7 +67,6 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXFileReference>, LenientAwareBuilder<Builder> {
 		private String name;
 		private String path;
-		private PBXSourceTree sourceTree;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -82,17 +82,19 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 		}
 
 		public Builder name(String name) {
-			this.name = Objects.requireNonNull(name);
+			this.name = requireNonNull(name);
+			builder.put(CodeablePBXFileReference.CodingKeys.name, requireNonNull(name));
 			return this;
 		}
 
 		public Builder path(String path) {
-			this.path = Objects.requireNonNull(path);
+			this.path = requireNonNull(path);
+			builder.put(CodeablePBXFileReference.CodingKeys.path, requireNonNull(path));
 			return this;
 		}
 
 		public Builder sourceTree(PBXSourceTree sourceTree) {
-			this.sourceTree = Objects.requireNonNull(sourceTree);
+			builder.put(CodeablePBXFileReference.CodingKeys.sourceTree, requireNonNull(sourceTree));
 			return this;
 		}
 
@@ -123,9 +125,6 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 				lastKnownFileType = null;
 			}
 
-			builder.put(CodeablePBXFileReference.CodingKeys.name, name);
-			builder.put(CodeablePBXFileReference.CodingKeys.path, path);
-			builder.put(CodeablePBXFileReference.CodingKeys.sourceTree, sourceTree);
 			builder.put(CodeablePBXFileReference.CodingKeys.explicitFileType, explicitFileType);
 			builder.put(CodeablePBXFileReference.CodingKeys.lastKnownFileType, lastKnownFileType);
 

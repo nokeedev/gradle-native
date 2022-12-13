@@ -22,12 +22,6 @@ import dev.nokee.xcode.project.CodeablePBXSourcesBuildPhase;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import static com.google.common.collect.Streams.stream;
-
 /**
  * Lists the files to be compiled for the containing {@link PBXTarget}.
  *
@@ -39,7 +33,6 @@ public interface PBXSourcesBuildPhase extends PBXBuildPhase {
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXSourcesBuildPhase>, BuildFileAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		private final List<PBXBuildFile> files = new ArrayList<>();
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -54,21 +47,18 @@ public interface PBXSourcesBuildPhase extends PBXBuildPhase {
 
 		@Override
 		public Builder file(PBXBuildFile file) {
-			files.add(Objects.requireNonNull(file, "'file' must not be null"));
+			builder.add(CodeablePBXSourcesBuildPhase.CodingKeys.files, file);
 			return this;
 		}
 
 		@Override
 		public Builder files(Iterable<? extends PBXBuildFile> files) {
-			this.files.clear();
-			stream(files).map(Objects::requireNonNull).forEach(this.files::add);
+			builder.put(CodeablePBXSourcesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
 			return this;
 		}
 
 		@Override
 		public PBXSourcesBuildPhase build() {
-			builder.put(CodeablePBXSourcesBuildPhase.CodingKeys.files, ImmutableList.copyOf(files));
-
 			return new CodeablePBXSourcesBuildPhase(builder.build());
 		}
 	}

@@ -24,7 +24,10 @@ import dev.nokee.xcode.project.KeyedCoders;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a group that contains multiple file references to the different versions of a resource.
@@ -58,6 +61,7 @@ public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFil
 
 		public Builder currentVersion(PBXFileReference currentVersion) {
 			this.currentVersion = currentVersion;
+			builder.put(CodeableXCVersionGroup.CodingKeys.currentVersion, requireNonNull(currentVersion));
 			return this;
 		}
 
@@ -72,7 +76,6 @@ public interface XCVersionGroup extends PBXGroupElement, GroupChild, PBXBuildFil
 			builder.put(CodeableXCVersionGroup.CodingKeys.path, path);
 			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, sourceTree);
 			builder.put(CodeableXCVersionGroup.CodingKeys.children, ImmutableList.copyOf(children));
-			builder.put(CodeableXCVersionGroup.CodingKeys.currentVersion, currentVersion);
 
 			String versionGroupType = this.versionGroupType;
 			if (versionGroupType == null && currentVersion != null) {

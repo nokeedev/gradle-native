@@ -15,12 +15,16 @@
  */
 package dev.nokee.xcode.objects.files;
 
+import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.project.CodeablePBXReferenceProxy;
 import dev.nokee.xcode.project.DefaultKeyedObject;
 import dev.nokee.xcode.project.KeyedCoders;
+
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A proxy for another object which might belong to another project contained in the same workspace of the document.
@@ -35,11 +39,6 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXReferenceProxy>, LenientAwareBuilder<Builder> {
-		private String name;
-		private String path;
-		private PBXSourceTree sourceTree;
-		private PBXContainerItemProxy remoteReference;
-		private String fileType;
 		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
 
 		public Builder() {
@@ -53,38 +52,32 @@ public interface PBXReferenceProxy extends PBXReference, PBXBuildFile.FileRefere
 		}
 
 		public Builder name(String name) {
-			this.name = name;
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.name, requireNonNull(name));
 			return this;
 		}
 
 		public Builder path(String path) {
-			this.path = path;
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.path, requireNonNull(path));
 			return this;
 		}
 
 		public Builder sourceTree(PBXSourceTree sourceTree) {
-			this.sourceTree = sourceTree;
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.sourceTree, requireNonNull(sourceTree));
 			return this;
 		}
 
 		public Builder remoteReference(PBXContainerItemProxy remoteReference) {
-			this.remoteReference = remoteReference;
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.remoteRef, Objects.requireNonNull(remoteReference));
 			return this;
 		}
 
 		public Builder fileType(String fileType) {
-			this.fileType = fileType;
+			builder.put(CodeablePBXReferenceProxy.CodingKeys.fileType, requireNonNull(fileType));
 			return this;
 		}
 
 		@Override
 		public PBXReferenceProxy build() {
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.name, name);
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.path, path);
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.sourceTree, sourceTree);
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.remoteRef, remoteReference);
-			builder.put(CodeablePBXReferenceProxy.CodingKeys.fileType, fileType);
-
 			return new CodeablePBXReferenceProxy(builder.build());
 		}
 	}
