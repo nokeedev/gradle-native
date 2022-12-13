@@ -150,7 +150,7 @@ class ConfigurationCacheDetectsXcodeProjectChangesFunctionalTests {
 	class WhenTargetAdded {
 		@BeforeEach
 		void givenTargetAdded() throws IOException {
-			project(testDirectory.resolve("XcodeSwiftApp.xcodeproj"), targets(add(project -> PBXAggregateTarget.builder().name("Foo").buildConfigurations(XCConfigurationList.builder().buildConfigurations(project.getBuildConfigurationList().getBuildConfigurations().stream().map(it -> XCBuildConfiguration.builder().name(it.getName()).build()).collect(Collectors.toList())).build()).build())));
+			project(testDirectory.resolve("XcodeSwiftApp.xcodeproj"), targets(add(project -> PBXAggregateTarget.builder().name("Foo").buildConfigurations(XCConfigurationList.builder().lenient().buildConfigurations(project.getBuildConfigurationList().getBuildConfigurations().stream().map(it -> XCBuildConfiguration.builder().name(it.getName()).build()).collect(Collectors.toList())).build()).build())));
 		}
 
 		@Test
@@ -281,7 +281,7 @@ class ConfigurationCacheDetectsXcodeProjectChangesFunctionalTests {
 
 	private static BiFunction<PBXProject, PBXTarget, PBXTarget> withDifferentTargetButSameName() {
 		return (self, item) -> {
-			return PBXNativeTarget.builder().name(item.getName()).productName("SomeOtherName").productReference(PBXFileReference.ofAbsolutePath("/some/path")).productType(ProductTypes.FRAMEWORK).buildConfigurations(XCConfigurationList.builder().build()).build();
+			return PBXNativeTarget.builder().name(item.getName()).productName("SomeOtherName").productReference(PBXFileReference.ofAbsolutePath("/some/path")).productType(ProductTypes.FRAMEWORK).buildConfigurations(XCConfigurationList.builder().lenient().build()).build();
 		};
 	}
 

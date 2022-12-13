@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.objects.configuration;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.xcode.objects.LenientAwareBuilder;
 import dev.nokee.xcode.objects.PBXProjectItem;
@@ -80,7 +81,7 @@ public interface XCConfigurationList extends PBXProjectItem {
 		}
 
 		public Builder buildConfigurations(Iterable<? extends XCBuildConfiguration> buildConfigurations) {
-			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, ImmutableSet.copyOf(buildConfigurations));
+			builder.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, ImmutableList.copyOf(buildConfigurations));
 			return this;
 		}
 
