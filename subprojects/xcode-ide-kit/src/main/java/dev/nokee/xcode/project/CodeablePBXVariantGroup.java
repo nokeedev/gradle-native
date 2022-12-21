@@ -56,11 +56,6 @@ public final class CodeablePBXVariantGroup implements PBXVariantGroup, Codeable 
 	}
 
 	@Override
-	public SortPolicy getSortPolicy() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Optional<String> getName() {
 		return orEmpty(delegate.tryDecode(CodingKeys.name));
 	}

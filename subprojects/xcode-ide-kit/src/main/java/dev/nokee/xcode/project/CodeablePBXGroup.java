@@ -55,12 +55,6 @@ public final class CodeablePBXGroup implements PBXGroup, Codeable {
 	}
 
 	@Override
-	public SortPolicy getSortPolicy() {
-//		return super.getSortPolicy();
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Optional<String> getName() {
 		return orEmpty(delegate.tryDecode(CodingKeys.name));
 	}
