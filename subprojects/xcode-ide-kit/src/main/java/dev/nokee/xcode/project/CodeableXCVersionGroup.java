@@ -59,11 +59,6 @@ public final class CodeableXCVersionGroup implements XCVersionGroup, Codeable {
 	}
 
 	@Override
-	public SortPolicy getSortPolicy() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Optional<String> getName() {
 		return orEmpty(delegate.tryDecode(CodingKeys.name));
 	}
