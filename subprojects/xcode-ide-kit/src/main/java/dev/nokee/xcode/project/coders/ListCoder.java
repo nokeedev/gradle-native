@@ -39,4 +39,8 @@ public final class ListCoder<T> implements ValueCoder<List<T>> {
 	public void encode(List<T> value, Encoder context) {
 		context.encodeArray(value, delegate);
 	}
+
+	public ValueCoder<T> getDelegate() {
+		return delegate;
+	}
 }

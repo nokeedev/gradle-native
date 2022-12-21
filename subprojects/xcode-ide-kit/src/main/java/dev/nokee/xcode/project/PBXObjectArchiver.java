@@ -35,7 +35,7 @@ public final class PBXObjectArchiver {
 	}
 
 	public PBXObjectArchiver(GidGenerator gidGenerator) {
-		this(gidGenerator, it -> Optional.ofNullable(KeyedCoders.DECODERS.get(it)));
+		this(gidGenerator, new PBXObjectCodingKeyCoders());
 	}
 
 	public PBXObjectArchiver(GidGenerator gidGenerator, CodingKeyCoders coders) {

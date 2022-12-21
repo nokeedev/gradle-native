@@ -15,22 +15,11 @@
  */
 package dev.nokee.xcode.project;
 
-import dev.nokee.xcode.objects.PBXProject;
-
 import java.util.Optional;
 
-public final class PBXObjectUnarchiver {
-	private final CodingKeyCoders coders;
-
-	public PBXObjectUnarchiver() {
-		this(new PBXObjectCodingKeyCoders());
-	}
-
-	public PBXObjectUnarchiver(CodingKeyCoders coders) {
-		this.coders = coders;
-	}
-
-	public PBXProject decode(PBXProj proj) {
-		return CodeablePBXProject.newInstance(new CachingKeyedObject(new PBXObjectReferenceKeyedObject(proj.getObjects(), proj.getObjects().getById(proj.getRootObject()), coders)));
+public final class PBXObjectCodingKeyCoders implements CodingKeyCoders {
+	@Override
+	public Optional<KeyedCoder<?>> get(CodingKey key) {
+		return Optional.ofNullable(KeyedCoders.DECODERS.get(key));
 	}
 }
