@@ -30,6 +30,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 import static java.util.Objects.requireNonNull;
 
@@ -57,6 +58,12 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 
 	static PBXFileReference ofSourceRoot(String path) {
 		return PBXFileReference.builder().name(FilenameUtils.getBaseName(path)).path(path).sourceTree(PBXSourceTree.SOURCE_ROOT).build();
+	}
+
+	static PBXFileReference ofBuiltProductsDir(String path) {
+		path = FilenameUtils.normalizeNoEndSeparator(path);
+		path = FilenameUtils.separatorsToUnix(path);
+		return builder().name(FilenameUtils.getBaseName(path)).path(path).sourceTree(PBXSourceTree.BUILT_PRODUCTS_DIR).build();
 	}
 
 	static Builder builder() {
@@ -87,7 +94,9 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 		}
 
 		public Builder path(String path) {
-			this.path = requireNonNull(path);
+			path = requireNonNull(path).trim();
+			checkArgument(!path.isEmpty());
+			this.path = path;
 			builder.put(CodeablePBXFileReference.CodingKeys.path, path);
 			return this;
 		}
