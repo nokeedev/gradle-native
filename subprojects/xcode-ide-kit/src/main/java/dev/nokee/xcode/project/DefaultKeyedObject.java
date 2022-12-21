@@ -74,6 +74,10 @@ public final class DefaultKeyedObject implements KeyedObject {
 		return result;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
 	public static final class Builder {
 		private KeyedObject parent = null;
 		private final LinkedHashMap<CodingKey, Object> builder = new LinkedHashMap<>();
