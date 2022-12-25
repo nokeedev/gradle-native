@@ -8,6 +8,8 @@ import net.nokeedev.jbake.JBakeTask
 
 import java.text.SimpleDateFormat
 
+import static org.gradle.internal.os.OperatingSystem.current
+
 buildscript {
 	repositories {
 		maven { url = 'https://repo.nokee.dev/release' }
@@ -73,6 +75,9 @@ dependencies {
 	docsTestImplementation project(':languageSwift')
 	docsTestImplementation project('exemplarKit')
 	docsTestImplementation testFixtures(project('exemplarKit'))
+	docsTestImplementation "org.testcontainers:testcontainers:${testcontainersVersion}"
+	docsTestImplementation "org.jsoup:jsoup:${jsoupVersion}"
+	docsTestImplementation "com.google.code.gson:gson:${gsonVersion}"
 
 	jbake 'dev.nokee.docs:layout-page:latest.release'
 	jbake 'dev.nokee.docs:component-multi-language-sample:latest.release'
@@ -246,22 +251,28 @@ tasks.register('bakedDocsTest', Test) { task ->
 	task.inputs.dir(bakeDirectory)
 	task.systemProperty('bakedContentDirectory', bakeDirectory.get().asFile.absolutePath)
 
-	task.useJUnit {
-		includeCategories('dev.nokee.docs.tags.Baked')
+	task.useJUnitPlatform {
+		includeTags('Baked')
 	}
 	task.testClassesDirs = tasks.docsTest.testClassesDirs
 	task.classpath = tasks.docsTest.classpath
+
+	systemProperty 'junit.jupiter.execution.parallel.enabled', !current().windows
+	systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
 }
 
 tasks.named('docsTest', Test) { task ->
 	def samplesDirectory = tasks.named('assembleSamples', Sync).map { it.destinationDir }
 	task.inputs.dir(samplesDirectory)
 	task.systemProperty('sampleContentDirectory', samplesDirectory.get().absolutePath)
+
+	systemProperty 'junit.jupiter.execution.parallel.enabled', !current().windows
+	systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
 }
 
 tasks.named('docsTest', Test) { task ->
-	task.useJUnit {
-		excludeCategories('dev.nokee.docs.tags.Baked')
+	task.useJUnitPlatform {
+		excludeTags('Baked')
 	}
 
 	def zipsDirectory = tasks.named('assembleSampleZips', Sync).map { it.destinationDir }

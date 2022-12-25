@@ -12,7 +12,7 @@ Still, they serve a purpose to simplify build script authoring.
 
 In this chapter, we will look at JNI projects in detail.
 The chapter covers the core concept behind the configuration of JNI projects.
-If you are only looking for a solution to a particular use case, have a link:../samples[look at the samples].
+If you are only looking for a solution to a particular use case, have a link:../samples/[look at the samples].
 If you are simply looking for a quick reference for a particular plugin, have a <<plugin-references.adoc#, look at the plugin reference chapters>>.
 
 [[sec:building-jni-introduction]]
@@ -44,7 +44,7 @@ It has no opinion on the <<terminology.adoc#sec:terminology-language,implementat
 The implementation language refers to what language will be complied to form our project's artifacts.
 We will need to choose the corresponding <<plugin-references.adoc#sec:plugin-reference-native-languages,language plugins>> to apply as well.
 
-NOTE: Applying language plugins is not required when link:../samples/jni-library-composing-from-source[composing a JNI library from various sources].
+NOTE: Applying language plugins is not required when link:../samples/jni-library-composing-from-source/[composing a JNI library from various sources].
 The JNI components could be coming from different build systems that are orchestrated by Gradle.
 Please link:https://github.com/nokeedev/gradle-native/issues/35[suggest and vote for the external build system wrapper] that would be the most beneficial for you.
 
@@ -320,7 +320,7 @@ It is possible to add files to the collection.
 Those files can be any file required at runtime that is ad-hoc runtime binaries or configuration data files.
 
 For more complex use cases, removing the default values disconnects the native compilation from the generation of the JNI JAR file.
-A particular useful application is the link:../samples/jni-library-with-pre-built-binaries[inclusion of pre-built binaries on host system not configured for native compilation].
+A particular useful application is the link:../samples/jni-library-with-pre-built-binaries/[inclusion of pre-built binaries on host system not configured for native compilation].
 
 TIP: The native runtime file collection is task dependency aware.
 When we add the output of a task to the collection through a provider, Gradle will automatically wire the task producing the output to the task consuming it.
@@ -342,7 +342,7 @@ In the particular case where we produce a single variant, the plugin will includ
 
 We don't provide a mirrored plugin to the JNI library plugin for the application entry point.
 The recommendation is to split the application into two projects: the application and the JNI library.
-See link:../samples/jvm-application-with-jni-library[this sample] for more information on solving this use case.
+See link:../samples/jvm-application-with-jni-library/[this sample] for more information on solving this use case.
 
 [[sec:building-jni-whats-next]]
 == What's next?
