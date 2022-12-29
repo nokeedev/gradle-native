@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface KeyedEncoder {
-	<T> void encode(String key, T object, ValueCoder<T> decoder);
+	<T> void encode(String key, T object, ValueCoder<T> coder);
 
 	void encodeByRefObject(String key, Object/*Encodable*/ object);
 
@@ -33,5 +33,5 @@ public interface KeyedEncoder {
 
 	void encodeBoolean(String key, boolean value);
 
-	<T> void encodeArray(String key, List<T> values, ValueCoder<T> encoder);
+	<T> void encodeArray(String key, List<T> values, ValueEncoder<T, Object> encoder);
 }

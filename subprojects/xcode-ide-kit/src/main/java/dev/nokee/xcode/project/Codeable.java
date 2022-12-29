@@ -16,9 +16,8 @@
 package dev.nokee.xcode.project;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 
-public interface Codeable {
+public interface Codeable extends Encodeable, Decodeable {
 	String isa();
 
 	@Nullable
@@ -28,22 +27,7 @@ public interface Codeable {
 		return 0;
 	}
 
-	<T> T tryDecode(CodingKey key);
-
-	void encode(EncodeContext context);
-
 	default boolean has(CodingKey key) {
 		return tryDecode(key) != null;
-	}
-
-	interface EncodeContext {
-
-		void base(Map<String, ?> fields);
-
-		void gid(String globalID);
-
-		void tryEncode(Map<CodingKey, ?> data);
-
-		void noGid();
 	}
 }

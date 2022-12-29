@@ -80,7 +80,7 @@ public abstract class KeyedEncoderAdapter implements KeyedEncoder {
 	}
 
 	@Override
-	public <T> void encodeArray(String key, List<T> values, ValueCoder<T> encoder) {
+	public <T> void encodeArray(String key, List<T> values, ValueEncoder<T, Object> encoder) {
 		newEncoder(key).encodeArray(values, encoder);
 	}
 }

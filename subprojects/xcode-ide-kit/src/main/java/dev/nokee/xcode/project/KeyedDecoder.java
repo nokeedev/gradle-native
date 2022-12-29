@@ -21,10 +21,10 @@ import java.util.Map;
 
 public interface KeyedDecoder {
 	@Nullable
-	<T> T decode(String key, ValueCoder<T> decoder);
+	<T> T decode(String key, ValueDecoder<T, Object> decoder);
 
 	@Nullable
-	<T extends Codeable> T decodeObject(String key, CodeableObjectFactory<T> factory);
+	<T extends Codeable> T decodeObject(String key, ValueDecoder<T, KeyedObject> factory);
 
 	@Nullable
 	Boolean decodeBoolean(String key);
@@ -39,5 +39,5 @@ public interface KeyedDecoder {
 	Integer decodeInteger(String key);
 
 	@Nullable
-	<T> List<T> decodeArray(String key, ValueCoder<T> decoder);
+	<T> List<T> decodeArray(String key, ValueDecoder<T, Object> decoder);
 }

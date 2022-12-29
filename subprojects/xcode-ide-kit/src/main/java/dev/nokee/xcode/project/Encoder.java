@@ -31,5 +31,5 @@ public interface Encoder {
 
 	void encodeBoolean(boolean value);
 
-	<T> void encodeArray(List<T> values, ValueCoder<T> encoder);
+	<T> void encodeArray(List<T> values, ValueEncoder<T, Object> encoder);
 }

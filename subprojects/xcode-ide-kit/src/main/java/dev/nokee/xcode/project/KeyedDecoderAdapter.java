@@ -15,51 +15,54 @@
  */
 package dev.nokee.xcode.project;
 
-import dev.nokee.xcode.project.coders.ZeroOneBooleanCoder;
-import dev.nokee.xcode.project.coders.DictionaryCoder;
-import dev.nokee.xcode.project.coders.IntegerCoder;
-import dev.nokee.xcode.project.coders.ListCoder;
-import dev.nokee.xcode.project.coders.ObjectCoder;
-import dev.nokee.xcode.project.coders.StringCoder;
+import dev.nokee.xcode.project.coders.DictionaryDecoder;
+import dev.nokee.xcode.project.coders.FalseTrueBooleanDecoder;
+import dev.nokee.xcode.project.coders.IntegerDecoder;
+import dev.nokee.xcode.project.coders.ListDecoder;
+import dev.nokee.xcode.project.coders.NoYesBooleanDecoder;
+import dev.nokee.xcode.project.coders.ObjectDecoder;
+import dev.nokee.xcode.project.coders.StringDecoder;
+import dev.nokee.xcode.project.coders.ThrowingValueDecoder;
+import dev.nokee.xcode.project.coders.ZeroOneBooleanDecoder;
 
 import java.util.List;
 import java.util.Map;
 
 public abstract class KeyedDecoderAdapter implements KeyedDecoder {
-	protected abstract <T> T tryDecode(String key, ValueCoder<T> decoder);
+	protected abstract <T> T tryDecode(String key, ValueDecoder<T, Object> decoder);
 
 	@Override
-	public final <T> T decode(String key, ValueCoder<T> decoder) {
+	public final <T> T decode(String key, ValueDecoder<T, Object> decoder) {
 		return tryDecode(key, decoder);
 	}
 
 	@Override
-	public final <T extends Codeable> T decodeObject(String key, CodeableObjectFactory<T> factory) {
-		return tryDecode(key, new ObjectCoder<>(factory));
+	public final <T extends Codeable> T decodeObject(String key, ValueDecoder<T, KeyedObject> factory) {
+		return tryDecode(key, new ObjectDecoder<>(factory));
 	}
 
 	@Override
 	public final Boolean decodeBoolean(String key) {
-		return tryDecode(key, new ZeroOneBooleanCoder());
+		return tryDecode(key, new ZeroOneBooleanDecoder(new NoYesBooleanDecoder(new FalseTrueBooleanDecoder())));
 	}
 
 	@Override
 	public final Map<String, ?> decodeDictionary(String key) {
-		return tryDecode(key, new DictionaryCoder());
+		return tryDecode(key, DictionaryDecoder.newDictionaryDecoder());
 	}
 
 	@Override
 	public final String decodeString(String key) {
-		return tryDecode(key, new StringCoder());
+		return tryDecode(key, StringDecoder.newStringDecoder());
 	}
 
 	@Override
 	public final Integer decodeInteger(String key) {
-		return tryDecode(key, new IntegerCoder());
+		return tryDecode(key, IntegerDecoder.newIntegerDecoder());
 	}
 
 	@Override
-	public final <T> List<T> decodeArray(String key, ValueCoder<T> decoder) {
-		return tryDecode(key, new ListCoder<>(decoder));
+	public final <T> List<T> decodeArray(String key, ValueDecoder<T, Object> decoder) {
+		return tryDecode(key, new ListDecoder<>(decoder));
 	}
 }
