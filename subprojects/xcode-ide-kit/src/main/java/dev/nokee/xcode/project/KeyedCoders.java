@@ -16,48 +16,61 @@
 package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableMap;
-import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.configuration.XCConfigurationList;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
-import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
-import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.objects.targets.ProductType;
-import dev.nokee.xcode.project.coders.PBXBuildFileFactory;
-import dev.nokee.xcode.project.coders.PBXContainerItemProxyFactory;
-import dev.nokee.xcode.project.coders.PBXFileReferenceFactory;
-import dev.nokee.xcode.project.coders.PBXGroupFactory;
-import dev.nokee.xcode.project.coders.PBXTargetDependencyFactory;
-import dev.nokee.xcode.project.coders.ProjectReferenceFactory;
-import dev.nokee.xcode.project.coders.XCBuildConfigurationFactory;
-import dev.nokee.xcode.project.coders.XCConfigurationListFactory;
-import dev.nokee.xcode.project.coders.XCRemoteSwiftPackageReferenceFactory;
-import dev.nokee.xcode.project.coders.XCSwiftPackageProductDependencyFactory;
-import dev.nokee.xcode.project.coders.ZeroOneBooleanCoder;
-import dev.nokee.xcode.project.coders.BuildPhaseFactory;
-import dev.nokee.xcode.project.coders.BuildSettingsCoder;
-import dev.nokee.xcode.project.coders.ContainerPortalFactory;
-import dev.nokee.xcode.project.coders.DictionaryCoder;
+import dev.nokee.xcode.project.coders.BuildPhaseDecoder;
+import dev.nokee.xcode.project.coders.BuildSettingsDecoder;
+import dev.nokee.xcode.project.coders.BuildSettingsEncoder;
+import dev.nokee.xcode.project.coders.ContainerPortalDecoder;
+import dev.nokee.xcode.project.coders.DefaultCoder;
+import dev.nokee.xcode.project.coders.DictionaryDecoder;
+import dev.nokee.xcode.project.coders.DictionaryEncoder;
 import dev.nokee.xcode.project.coders.FieldCoder;
-import dev.nokee.xcode.project.coders.FileReferenceFactory;
-import dev.nokee.xcode.project.coders.GroupChildFactory;
-import dev.nokee.xcode.project.coders.ListCoder;
-import dev.nokee.xcode.project.coders.ObjectCoder;
-import dev.nokee.xcode.project.coders.ObjectRefCoder;
-import dev.nokee.xcode.project.coders.ProductTypeCoder;
-import dev.nokee.xcode.project.coders.ProxyTypeCoder;
-import dev.nokee.xcode.project.coders.SourceTreeCoder;
-import dev.nokee.xcode.project.coders.StringCoder;
-import dev.nokee.xcode.project.coders.SubFolderCoder;
-import dev.nokee.xcode.project.coders.TargetFactory;
-import dev.nokee.xcode.project.coders.VersionRequirementFactory;
-import dev.nokee.xcode.project.coders.VersionRequirementKindCoder;
+import dev.nokee.xcode.project.coders.FileReferenceDecoder;
+import dev.nokee.xcode.project.coders.GroupChildDecoder;
+import dev.nokee.xcode.project.coders.IntegerDecoder;
+import dev.nokee.xcode.project.coders.IntegerEncoder;
+import dev.nokee.xcode.project.coders.ListDecoder;
+import dev.nokee.xcode.project.coders.ListEncoder;
+import dev.nokee.xcode.project.coders.NoOpEncoder;
+import dev.nokee.xcode.project.coders.ObjectDecoder;
+import dev.nokee.xcode.project.coders.ObjectEncoder;
+import dev.nokee.xcode.project.coders.ObjectRefDecoder;
+import dev.nokee.xcode.project.coders.ObjectRefEncoder;
+import dev.nokee.xcode.project.coders.PBXBuildFileDecoder;
+import dev.nokee.xcode.project.coders.PBXContainerItemProxyDecoder;
+import dev.nokee.xcode.project.coders.PBXFileReferenceDecoder;
+import dev.nokee.xcode.project.coders.PBXGroupDecoder;
+import dev.nokee.xcode.project.coders.PBXTargetDependencyDecoder;
+import dev.nokee.xcode.project.coders.ProductTypeDecoder;
+import dev.nokee.xcode.project.coders.ProductTypeEncoder;
+import dev.nokee.xcode.project.coders.ProjectReferenceDecoder;
+import dev.nokee.xcode.project.coders.ProxyTypeDecoder;
+import dev.nokee.xcode.project.coders.ProxyTypeEncoder;
+import dev.nokee.xcode.project.coders.SourceTreeDecoder;
+import dev.nokee.xcode.project.coders.SourceTreeEncoder;
+import dev.nokee.xcode.project.coders.StringDecoder;
+import dev.nokee.xcode.project.coders.StringEncoder;
+import dev.nokee.xcode.project.coders.SubFolderDecoder;
+import dev.nokee.xcode.project.coders.SubFolderEncoder;
+import dev.nokee.xcode.project.coders.TargetDecoder;
+import dev.nokee.xcode.project.coders.VersionRequirementDecoder;
+import dev.nokee.xcode.project.coders.VersionRequirementKindDecoder;
+import dev.nokee.xcode.project.coders.VersionRequirementKindEncoder;
+import dev.nokee.xcode.project.coders.XCBuildConfigurationDecoder;
+import dev.nokee.xcode.project.coders.XCConfigurationListDecoder;
+import dev.nokee.xcode.project.coders.XCRemoteSwiftPackageReferenceDecoder;
+import dev.nokee.xcode.project.coders.XCSwiftPackageProductDependencyDecoder;
+import dev.nokee.xcode.project.coders.ZeroOneBooleanDecoder;
+import dev.nokee.xcode.project.coders.ZeroOneBooleanEncoder;
 
 import java.util.List;
 import java.util.Map;
@@ -65,19 +78,19 @@ import java.util.Map;
 import static dev.nokee.utils.Cast.uncheckedCast;
 
 public final class KeyedCoders {
-	private static final ValueCoder<PBXSourceTree> sourceTree = new SourceTreeCoder();
-	private static final ValueCoder<ProductType> productType = new ProductTypeCoder();
-	private static final ValueCoder<Kind> requirementKind = new VersionRequirementKindCoder();
-	private static final ValueCoder<Map<String, ?>> dictionary = new DictionaryCoder();
-	private static final ValueCoder<String> string = new StringCoder();
+	private static final ValueCoder<PBXSourceTree> sourceTree = new DefaultCoder<>(new StringDecoder<>(new SourceTreeDecoder()), new StringEncoder<>(new SourceTreeEncoder()));
+	private static final ValueCoder<ProductType> productType = new DefaultCoder<>(new StringDecoder<>(new ProductTypeDecoder()), new StringEncoder<>(new ProductTypeEncoder()));
+	private static final ValueCoder<Kind> requirementKind = new DefaultCoder<>(new StringDecoder<>(new VersionRequirementKindDecoder()), new StringEncoder<>(new VersionRequirementKindEncoder()));
+	private static final ValueCoder<Map<String, ?>> dictionary = new DefaultCoder<>(DictionaryDecoder.newDictionaryDecoder(), DictionaryEncoder.newDictionaryEncoder());
+	private static final ValueCoder<String> string = new DefaultCoder<>(StringDecoder.newStringDecoder(), StringEncoder.newStringEncoder());
 	private static final ValueCoder<List<String>> listOfString = listOf(string);
-	private static final ValueCoder<PBXBuildPhase> objectRefOfBuildPhase = uncheckedCast("only interested in main type", objectRef(new BuildPhaseFactory<>()));
-	private static final ValueCoder<PBXTargetDependency> objectRefOfTargetDependency = uncheckedCast("only interested in main type", objectRef(new PBXTargetDependencyFactory<>()));
-	private static final ValueCoder<PBXFileReference> objectRefOfFileReference = uncheckedCast("only interested in main type", objectRef(new PBXFileReferenceFactory<>()));
-	private static final ValueCoder<List<PBXBuildFile>> listOfBuildFiles = uncheckedCast("only interested in main type", listOf(objectRef(new PBXBuildFileFactory<>())));
-	private static final ValueCoder<List<GroupChild>> listOfGroupChildren = uncheckedCast("only interested in main type", listOf(objectRef(new GroupChildFactory<>())));
-	private static final ValueCoder<XCConfigurationList> objectRefOfConfigurationList = uncheckedCast("only interested in main type", objectRef(new XCConfigurationListFactory<>()));
-	private static final ValueCoder<PBXTarget> objectRefOfTarget = uncheckedCast("only interested in main type", objectRef(new TargetFactory<>()));
+	private static final ValueCoder<PBXBuildPhase> objectRefOfBuildPhase = uncheckedCast("only interested in main type", objectRef(new BuildPhaseDecoder<>()));
+	private static final ValueCoder<PBXTargetDependency> objectRefOfTargetDependency = uncheckedCast("only interested in main type", objectRef(new PBXTargetDependencyDecoder<>()));
+	private static final ValueCoder<PBXFileReference> objectRefOfFileReference = uncheckedCast("only interested in main type", objectRef(new PBXFileReferenceDecoder<>()));
+	private static final ValueCoder<List<PBXBuildFile>> listOfBuildFiles = uncheckedCast("only interested in main type", listOf(objectRef(new PBXBuildFileDecoder<>())));
+	private static final ValueCoder<List<GroupChild>> listOfGroupChildren = uncheckedCast("only interested in main type", listOf(objectRef(new GroupChildDecoder<>())));
+	private static final ValueCoder<XCConfigurationList> objectRefOfConfigurationList = uncheckedCast("only interested in main type", objectRef(new XCConfigurationListDecoder<>()));
+	private static final ValueCoder<PBXTarget> objectRefOfTarget = uncheckedCast("only interested in main type", objectRef(new TargetDecoder<>()));
 
 	public static final CodingKey ISA = new CodingKey() {
 		@Override
@@ -116,20 +129,20 @@ public final class KeyedCoders {
 		.put(CodeablePBXAggregateTarget.CodingKeys.productReference, forKey("productReference", objectRefOfFileReference))
 
 		// PBXBuildFile
-		.put(CodeablePBXBuildFile.CodingKeys.fileRef, forKey("fileRef", objectRef(new FileReferenceFactory<>())))
+		.put(CodeablePBXBuildFile.CodingKeys.fileRef, forKey("fileRef", objectRef(new FileReferenceDecoder<>())))
 		.put(CodeablePBXBuildFile.CodingKeys.settings, forKey("settings", dictionary))
-		.put(CodeablePBXBuildFile.CodingKeys.productRef, forKey("productRef", objectRef(new XCSwiftPackageProductDependencyFactory<>())))
+		.put(CodeablePBXBuildFile.CodingKeys.productRef, forKey("productRef", objectRef(new XCSwiftPackageProductDependencyDecoder<>())))
 
 		// PBXContainerItemProxy
-		.put(CodeablePBXContainerItemProxy.CodingKeys.containerPortal, forKey("containerPortal", objectRef(new ContainerPortalFactory<>())))
+		.put(CodeablePBXContainerItemProxy.CodingKeys.containerPortal, forKey("containerPortal", objectRef(new ContainerPortalDecoder<>())))
 		.put(CodeablePBXContainerItemProxy.CodingKeys.remoteGlobalIDString, forKey("remoteGlobalIDString"))
 		.put(CodeablePBXContainerItemProxy.CodingKeys.remoteInfo, forKey("remoteInfo"))
-		.put(CodeablePBXContainerItemProxy.CodingKeys.proxyType, forKey("proxyType", new ProxyTypeCoder()))
+		.put(CodeablePBXContainerItemProxy.CodingKeys.proxyType, forKey("proxyType", new DefaultCoder<>(new IntegerDecoder<>(new ProxyTypeDecoder()), new IntegerEncoder<>(new ProxyTypeEncoder()))))
 
 		// PBXCopyFilesBuildPhase
 		.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, forKey("files", listOfBuildFiles))
 		.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, forKey("dstPath"))
-		.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, forKey("dstSubfolderSpec", new SubFolderCoder()))
+		.put(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, forKey("dstSubfolderSpec", new DefaultCoder<>(new IntegerDecoder<>(new SubFolderDecoder()), new IntegerEncoder<>(new SubFolderEncoder()))))
 
 		// PBXFileReference
 		.put(CodeablePBXFileReference.CodingKeys.name, forKey("name"))
@@ -161,7 +174,7 @@ public final class KeyedCoders {
 		.put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, forKey("buildArgumentsString"))
 		.put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, forKey("buildToolPath"))
 		.put(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, forKey("buildWorkingDirectory"))
-		.put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, forKey("passBuildSettingsInEnvironment", new ZeroOneBooleanCoder()))
+		.put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, forKey("passBuildSettingsInEnvironment", new DefaultCoder<>(new ZeroOneBooleanDecoder(), new ZeroOneBooleanEncoder())))
 
 		// PBXNativeTarget
 		.put(CodeablePBXNativeTarget.CodingKeys.name, forKey("name"))
@@ -171,22 +184,22 @@ public final class KeyedCoders {
 		.put(CodeablePBXNativeTarget.CodingKeys.dependencies, forKey("dependencies", listOf(objectRefOfTargetDependency)))
 		.put(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, forKey("buildConfigurationList", objectRefOfConfigurationList))
 		.put(CodeablePBXNativeTarget.CodingKeys.buildPhases, forKey("buildPhases", listOf(objectRefOfBuildPhase)))
-		.put(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, forKey("packageProductDependencies", listOf(objectRef(new XCSwiftPackageProductDependencyFactory<>()))))
+		.put(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, forKey("packageProductDependencies", listOf(objectRef(new XCSwiftPackageProductDependencyDecoder<>()))))
 
 		// PBXProject
-		.put(CodeablePBXProject.CodingKeys.mainGroup, forKey("mainGroup", objectRef(new PBXGroupFactory<>())))
+		.put(CodeablePBXProject.CodingKeys.mainGroup, forKey("mainGroup", objectRef(new PBXGroupDecoder<>())))
 		.put(CodeablePBXProject.CodingKeys.targets, forKey("targets", listOf(objectRefOfTarget)))
 		.put(CodeablePBXProject.CodingKeys.buildConfigurationList, forKey("buildConfigurationList", objectRefOfConfigurationList))
 		.put(CodeablePBXProject.CodingKeys.compatibilityVersion, forKey("compatibilityVersion"))
-		.put(CodeablePBXProject.CodingKeys.projectReferences, forKey("projectReferences", listOf(objectOf(new ProjectReferenceFactory<>()))))
-		.put(CodeablePBXProject.CodingKeys.packageReferences, forKey("packageReferences", listOf(objectRef(new XCRemoteSwiftPackageReferenceFactory<>()))))
+		.put(CodeablePBXProject.CodingKeys.projectReferences, forKey("projectReferences", listOf(objectOf(new ProjectReferenceDecoder<>()))))
+		.put(CodeablePBXProject.CodingKeys.packageReferences, forKey("packageReferences", listOf(objectRef(new XCRemoteSwiftPackageReferenceDecoder<>()))))
 
 		// PBXReferenceProxy
 		.put(CodeablePBXReferenceProxy.CodingKeys.name, forKey("name"))
 		.put(CodeablePBXReferenceProxy.CodingKeys.path, forKey("path"))
 		.put(CodeablePBXReferenceProxy.CodingKeys.sourceTree, forKey("sourceTree", sourceTree))
 		.put(CodeablePBXReferenceProxy.CodingKeys.fileType, forKey("fileType"))
-		.put(CodeablePBXReferenceProxy.CodingKeys.remoteRef, forKey("remoteRef", objectRef(new PBXContainerItemProxyFactory<>())))
+		.put(CodeablePBXReferenceProxy.CodingKeys.remoteRef, forKey("remoteRef", objectRef(new PBXContainerItemProxyDecoder<>())))
 
 		// PBXResourcesBuildPhase
 		.put(CodeablePBXResourcesBuildPhase.CodingKeys.files, forKey("files", listOfBuildFiles))
@@ -207,7 +220,7 @@ public final class KeyedCoders {
 		// PBXTargetDependency
 		.put(CodeablePBXTargetDependency.CodingKeys.name, forKey("name"))
 		.put(CodeablePBXTargetDependency.CodingKeys.target, forKey("target", objectRefOfTarget))
-		.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, forKey("targetProxy", objectRef(new PBXContainerItemProxyFactory<>())))
+		.put(CodeablePBXTargetDependency.CodingKeys.targetProxy, forKey("targetProxy", objectRef(new PBXContainerItemProxyDecoder<>())))
 
 		// PBXVariantGroup
 		.put(CodeablePBXVariantGroup.CodingKeys.name, forKey("name"))
@@ -217,7 +230,7 @@ public final class KeyedCoders {
 
 		// ProjectReference
 		.put(CodeableProjectReference.CodingKeys.ProjectRef, forKey("ProjectRef", objectRefOfFileReference))
-		.put(CodeableProjectReference.CodingKeys.ProductGroup, forKey("ProductGroup", objectRef(new PBXGroupFactory<>())))
+		.put(CodeableProjectReference.CodingKeys.ProductGroup, forKey("ProductGroup", objectRef(new PBXGroupDecoder<>())))
 
 		// VersionRequirement.Branch
 		.put(CodeableVersionRequirementBranch.CodingKeys.kind, forKey("kind", requirementKind))
@@ -246,21 +259,21 @@ public final class KeyedCoders {
 
 		// XCBuildConfiguration
 		.put(CodeableXCBuildConfiguration.CodingKeys.name, forKey("name"))
-		.put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, forKey("buildSettings", new BuildSettingsCoder()))
+		.put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, forKey("buildSettings", new DefaultCoder<>(new DictionaryDecoder<>(new BuildSettingsDecoder()), new DictionaryEncoder<>(new BuildSettingsEncoder()))))
 		.put(CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference, forKey("baseConfigurationReference", objectRefOfFileReference))
 
 		// XCConfigurationList
-		.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, forKey("defaultConfigurationIsVisible", new ZeroOneBooleanCoder()))
-		.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, forKey("buildConfigurations", listOf(objectRef(new XCBuildConfigurationFactory<>()))))
+		.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, forKey("defaultConfigurationIsVisible", new DefaultCoder<>(new ZeroOneBooleanDecoder(), new ZeroOneBooleanEncoder())))
+		.put(CodeableXCConfigurationList.CodingKeys.buildConfigurations, forKey("buildConfigurations", listOf(objectRef(new XCBuildConfigurationDecoder<>()))))
 		.put(CodeableXCConfigurationList.CodingKeys.defaultConfigurationName, forKey("defaultConfigurationName"))
 
 		// XCRemoteSwiftPackageReference
 		.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.repositoryUrl, forKey("repositoryURL"))
-		.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, forKey("requirement", objectOf(new VersionRequirementFactory<>())))
+		.put(CodeableXCRemoteSwiftPackageReference.CodingKeys.requirement, forKey("requirement", objectOf(new VersionRequirementDecoder<>())))
 
 		// XCSwiftPackageProductDependency
 		.put(CodeableXCSwiftPackageProductDependency.CodingKeys.productName, forKey("productName"))
-		.put(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference, forKey("package", objectRef(new XCRemoteSwiftPackageReferenceFactory<>())))
+		.put(CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference, forKey("package", objectRef(new XCRemoteSwiftPackageReferenceDecoder<>())))
 
 		// XCVersionGroup
 		.put(CodeableXCVersionGroup.CodingKeys.name, forKey("name"))
@@ -273,10 +286,10 @@ public final class KeyedCoders {
 		.build();
 
 	private static <T> ValueCoder<List<T>> listOf(ValueCoder<T> elementCoder) {
-		return new ListCoder<>(elementCoder);
+		return new DefaultCoder<>(new ListDecoder<>(elementCoder), new ListEncoder<>(elementCoder));
 	}
 
-	private static FieldCoder<String> forKey(String key) {
+	public static FieldCoder<String> forKey(String key) {
 		return new FieldCoder<>(key, string);
 	}
 
@@ -284,11 +297,11 @@ public final class KeyedCoders {
 		return new FieldCoder<>(key, valueCoder);
 	}
 
-	private static <T extends Codeable> ValueCoder<T> objectRef(CodeableObjectFactory<T> factory) {
-		return new ObjectRefCoder<>(factory);
+	private static <T extends Codeable> ValueCoder<T> objectRef(ValueDecoder<T, KeyedObject> decoder) {
+		return new DefaultCoder<>(new ObjectRefDecoder<>(decoder), new ObjectRefEncoder<>(new NoOpEncoder<>(decoder.getDecodeType())));
 	}
 
-	private static <T extends Codeable> ValueCoder<T> objectOf(CodeableObjectFactory<T> factory) {
-		return new ObjectCoder<>(factory);
+	private static <T extends Codeable> ValueCoder<T> objectOf(ValueDecoder<T, KeyedObject> decoder) {
+		return new DefaultCoder<>(new ObjectDecoder<>(decoder), new ObjectEncoder<>(new NoOpEncoder<>(decoder.getDecodeType())));
 	}
 }

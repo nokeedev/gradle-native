@@ -16,6 +16,8 @@
 package dev.nokee.xcode.project;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.xcode.project.coders.BycopyObject;
+import dev.nokee.xcode.project.coders.ByrefObject;
 
 import java.util.List;
 import java.util.Map;
@@ -58,26 +60,21 @@ public abstract class EncoderAdapter implements Encoder {
 	}
 
 	@Override
-	public final <T> void encodeArray(List<T> values, ValueCoder<T> encoder) {
+	public final <T> void encodeArray(List<T> values, ValueEncoder<T, Object> encoder) {
 		final ImmutableList.Builder<T> builder = ImmutableList.builder();
-		values.stream().forEach(it -> encoder.encode(it, new EncoderAdapter() {
+		values.stream().forEach(it -> builder.add(encoder.encode(it, new ValueEncoder.Context() {
 			@Override
-			protected String encodeRef(Codeable object) {
-				return EncoderAdapter.this.encodeRef(object);
+			public BycopyObject encodeBycopyObject(Encodeable object) {
+//				return new BycopyObject(EncoderAdapter.this.encodeObj((Codeable) object));
+				throw new UnsupportedOperationException();
 			}
 
 			@Override
-			protected Map<String, ?> encodeObj(Codeable object) {
-				return EncoderAdapter.this.encodeObj(object);
+			public ByrefObject encodeByrefObject(Encodeable object) {
+//				return new ByrefObject(EncoderAdapter.this.encodeRef((Codeable) object));
+				throw new UnsupportedOperationException();
 			}
-
-			@Override
-			protected void tryEncode(Object value) {
-				@SuppressWarnings("unchecked")
-				final T element = (T) value;
-				builder.add(element);
-			}
-		}));
+		})));
 		tryEncode(builder.build());
 	}
 }

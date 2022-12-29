@@ -52,19 +52,14 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 	private KeyedDecoder decodeContextOf(Map<String, ?> value) {
 		return new KeyedDecoderAdapter() {
 			@Override
-			protected <R> R tryDecode(String key, ValueCoder<R> decoder) {
+			protected <R> R tryDecode(String key, ValueDecoder<R, Object> decoder) {
 				if (!value.containsKey(key)) {
 					return null;
 				}
 
-				return decoder.decode(new DecoderAdapter(value.get(key)) {
+				return decoder.decode(value.get(key), new ValueDecoder.Context() {
 					@Override
-					protected KeyedObject create(String gid) {
-						return new PBXObjectReferenceKeyedObject(objects, objects.getById(gid), coders);
-					}
-
-					@Override
-					protected KeyedObject create(Map<String, ?> value) {
+					public KeyedObject decodeBycopyObject(Map<String, ?> object) {
 						return new KeyedObject() {
 							@Override
 							public <T> T tryDecode(CodingKey key) {
@@ -93,6 +88,11 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 								return String.format("%s gid=none", Optional.ofNullable(value.get("isa")).map(Object::toString).orElse("object"));
 							}
 						};
+					}
+
+					@Override
+					public KeyedObject decodeByrefObject(Object gid) {
+						return new PBXObjectReferenceKeyedObject(objects, objects.getById((String) gid), coders);
 					}
 				});
 			}

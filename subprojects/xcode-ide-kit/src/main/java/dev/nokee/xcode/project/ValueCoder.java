@@ -15,8 +15,7 @@
  */
 package dev.nokee.xcode.project;
 
-public interface ValueCoder<OUT> {
-
+public interface ValueCoder<OUT> extends ValueEncoder<Object, OUT>, ValueDecoder<OUT, Object> {
 	OUT decode(Decoder context);
 
 	void encode(OUT value, Encoder context);
