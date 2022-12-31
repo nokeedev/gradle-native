@@ -18,7 +18,7 @@ package dev.nokee.xcode.project.coders;
 import dev.nokee.xcode.project.Encodeable;
 import dev.nokee.xcode.project.ValueEncoder;
 
-public final class ObjectEncoder<IN> implements ValueEncoder<Object, IN> {
+public final class ObjectEncoder<IN> implements ValueEncoder<BycopyObject, IN> {
 	private final ValueEncoder<Encodeable, IN> delegate;
 
 	public ObjectEncoder(ValueEncoder<Encodeable, IN> delegate) {
@@ -26,7 +26,7 @@ public final class ObjectEncoder<IN> implements ValueEncoder<Object, IN> {
 	}
 
 	@Override
-	public Object encode(IN value, Context context) {
+	public BycopyObject encode(IN value, Context context) {
 		return context.encodeBycopyObject(delegate.encode(value, context));
 	}
 

@@ -43,7 +43,7 @@ class ObjectDecoderTests {
 			}
 
 			@Override
-			public KeyedObject decodeByrefObject(Object object) {
+			public KeyedObject decodeByrefObject(String object) {
 				throw new UnsupportedOperationException();
 			}
 		};

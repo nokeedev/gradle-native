@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-abstract class Select<T, R> {
+public abstract class Select<T, R> {
 
 	public static final class SwitchCase<T, C, R> extends Select<T, R> {
 		private final Map<C, Function<? super T, ? extends R>> cases = new LinkedHashMap<>();
@@ -44,7 +46,7 @@ abstract class Select<T, R> {
 			final Function<? super T, ? extends R> execution = cases.get(inputValue);
 
 			if (execution == null) {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(String.format("Switch '%s' is not valid on '%s'. Valid values are: %s", inputValue, instance, cases.keySet().stream().map(Objects::toString).collect(Collectors.joining(", "))));
 			}
 
 			@SuppressWarnings("unchecked")

@@ -17,13 +17,14 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueEncoder;
 
-public final class IntegerEncoder<IN> implements ValueEncoder<Object, IN> {
+public final class IntegerEncoder<IN> implements ValueEncoder<Integer, IN> {
 	private final ValueEncoder<Integer, IN> delegate;
 
 	public IntegerEncoder(ValueEncoder<Integer, IN> delegate) {
 		this.delegate = delegate;
 	}
 
+	@Override
 	public Integer encode(IN value, Context context) {
 		return delegate.encode(value, context);
 	}

@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project;
+package dev.nokee.xcode.project.coders;
 
-import java.util.List;
 import java.util.Map;
 
-public interface Encoder {
-	void encodeByRefObject(Object/*Encodable*/ object);
+public class DefaultBycopyObject implements BycopyObject {
+	private final Map<String, ?> value;
 
-	void encodeByCopyObject(Object/*Encodable*/ object);
+	public DefaultBycopyObject(Map<String, ?> value) {
+		this.value = value;
+	}
 
-	void encodeString(CharSequence string);
-
-	void encodeInteger(int integer);
-
-	void encodeDictionary(Map<String, ?> dict);
-
-	void encodeBoolean(boolean value);
-
-	<T> void encodeArray(List<T> values, ValueEncoder<T, Object> encoder);
+	@Override
+	public Map<String, ?> asMap() {
+		return value;
+	}
 }

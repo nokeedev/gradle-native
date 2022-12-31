@@ -27,7 +27,7 @@ public final class ThrowingDecoderContext implements ValueDecoder.Context {
 	}
 
 	@Override
-	public KeyedObject decodeByrefObject(Object object) {
+	public KeyedObject decodeByrefObject(String object) {
 		throw new UnsupportedOperationException();
 	}
 }

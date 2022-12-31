@@ -17,8 +17,6 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.PBXProject;
 
-import java.util.Optional;
-
 public final class PBXObjectUnarchiver {
 	private final CodingKeyCoders coders;
 

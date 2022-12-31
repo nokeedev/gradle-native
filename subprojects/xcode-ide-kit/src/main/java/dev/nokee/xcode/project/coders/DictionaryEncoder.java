@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 import java.util.Map;
 
 @EqualsAndHashCode
-public final class DictionaryEncoder<IN> implements ValueEncoder<Object, IN> {
+public final class DictionaryEncoder<IN> implements ValueEncoder<Map<String, ?>, IN> {
 	private final ValueEncoder<Map<String, ?>, IN> delegate;
 
 	public DictionaryEncoder(ValueEncoder<Map<String, ?>, IN> delegate) {
@@ -29,7 +29,7 @@ public final class DictionaryEncoder<IN> implements ValueEncoder<Object, IN> {
 	}
 
 	@Override
-	public Object encode(IN object, Context context) {
+	public Map<String, ?> encode(IN object, Context context) {
 		return delegate.encode(object, context);
 	}
 

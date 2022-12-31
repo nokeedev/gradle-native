@@ -15,72 +15,11 @@
  */
 package dev.nokee.xcode.project;
 
-import java.util.List;
-import java.util.Map;
-
-public abstract class KeyedEncoderAdapter implements KeyedEncoder {
+public abstract class KeyedEncoderAdapter implements KeyedEncoder, ValueEncoder.Context {
 	protected abstract void tryEncode(String key, Object value);
-
-	private Encoder newEncoder(String key) {
-		return new EncoderAdapter() {
-			@Override
-			protected String encodeRef(Codeable object) {
-				return KeyedEncoderAdapter.this.encodeRef(object);
-			}
-
-			@Override
-			protected Map<String, ?> encodeObj(Codeable object) {
-				return KeyedEncoderAdapter.this.encodeObj(object);
-			}
-
-			@Override
-			protected void tryEncode(Object value) {
-				KeyedEncoderAdapter.this.tryEncode(key, value);
-			}
-		};
-	}
 
 	@Override
 	public <T> void encode(String key, T value, ValueCoder<T> decoder) {
-		decoder.encode(value, newEncoder(key));
-	}
-
-	@Override
-	public void encodeByRefObject(String key, Object object) {
-		newEncoder(key).encodeByRefObject(object);
-	}
-
-	@Override
-	public void encodeByCopyObject(String key, Object object) {
-		newEncoder(key).encodeByCopyObject(object);
-	}
-
-	protected abstract String encodeRef(Codeable object);
-
-	protected abstract Map<String, ?> encodeObj(Codeable object);
-
-	@Override
-	public void encodeString(String key, CharSequence string) {
-		newEncoder(key).encodeString(string);
-	}
-
-	@Override
-	public void encodeInteger(String key, int integer) {
-		newEncoder(key).encodeInteger(integer);
-	}
-
-	@Override
-	public void encodeDictionary(String key, Map<String, ?> dict) {
-		newEncoder(key).encodeDictionary(dict);
-	}
-
-	@Override
-	public void encodeBoolean(String key, boolean value) {
-		newEncoder(key).encodeBoolean(value);
-	}
-
-	@Override
-	public <T> void encodeArray(String key, List<T> values, ValueEncoder<T, Object> encoder) {
-		newEncoder(key).encodeArray(values, encoder);
+		tryEncode(key, decoder.encode(value, this));
 	}
 }

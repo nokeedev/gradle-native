@@ -20,15 +20,15 @@ import dev.nokee.xcode.project.ValueEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class ListEncoder<IN> implements ValueEncoder<Object, List<IN>> {
-	private final ValueEncoder<? extends Object, IN> delegate;
+public final class ListEncoder<OUT, IN> implements ValueEncoder<List<OUT>, List<IN>> {
+	private final ValueEncoder<OUT, IN> delegate;
 
-	public ListEncoder(ValueEncoder<? extends Object, IN> delegate) {
+	public ListEncoder(ValueEncoder<OUT, IN> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public Object encode(List<IN> value, Context context) {
+	public List<OUT> encode(List<IN> value, Context context) {
 		return value.stream().map(it -> delegate.encode(it, context)).collect(Collectors.toList());
 	}
 

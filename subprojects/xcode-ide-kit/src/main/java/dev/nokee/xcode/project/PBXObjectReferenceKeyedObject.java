@@ -50,51 +50,42 @@ public final class PBXObjectReferenceKeyedObject implements KeyedObject {
 	}
 
 	private KeyedDecoder decodeContextOf(Map<String, ?> value) {
-		return new KeyedDecoderAdapter() {
+		return new KeyedDecoderAdapter(value) {
 			@Override
-			protected <R> R tryDecode(String key, ValueDecoder<R, Object> decoder) {
-				if (!value.containsKey(key)) {
-					return null;
-				}
-
-				return decoder.decode(value.get(key), new ValueDecoder.Context() {
+			public KeyedObject decodeBycopyObject(Map<String, ?> object) {
+				return new KeyedObject() {
 					@Override
-					public KeyedObject decodeBycopyObject(Map<String, ?> object) {
-						return new KeyedObject() {
-							@Override
-							public <T> T tryDecode(CodingKey key) {
-								return PBXObjectReferenceKeyedObject.this.tryDecode(key, value);
-							}
+					public <T> T tryDecode(CodingKey key) {
+						return PBXObjectReferenceKeyedObject.this.tryDecode(key, object);
+					}
 
-							@Nullable
-							@Override
-							public String globalId() {
-								return null;
-							}
-
-							@Override
-							public String isa() {
-								return tryDecode(KeyedCoders.ISA);
-							}
-
-							@Override
-							public void encode(EncodeContext context) {
-								context.noGid();
-								context.base(value);
-							}
-
-							@Override
-							public String toString() {
-								return String.format("%s gid=none", Optional.ofNullable(value.get("isa")).map(Object::toString).orElse("object"));
-							}
-						};
+					@Nullable
+					@Override
+					public String globalId() {
+						return null;
 					}
 
 					@Override
-					public KeyedObject decodeByrefObject(Object gid) {
-						return new PBXObjectReferenceKeyedObject(objects, objects.getById((String) gid), coders);
+					public String isa() {
+						return tryDecode(KeyedCoders.ISA);
 					}
-				});
+
+					@Override
+					public void encode(EncodeContext context) {
+						context.noGid();
+						context.base(object);
+					}
+
+					@Override
+					public String toString() {
+						return String.format("%s gid=none", Optional.ofNullable(object.get("isa")).map(Object::toString).orElse("object"));
+					}
+				};
+			}
+
+			@Override
+			public KeyedObject decodeByrefObject(String gid) {
+				return new PBXObjectReferenceKeyedObject(objects, objects.getById(gid), coders);
 			}
 		};
 	}

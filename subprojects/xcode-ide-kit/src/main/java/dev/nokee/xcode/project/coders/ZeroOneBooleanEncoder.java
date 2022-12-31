@@ -17,9 +17,9 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueEncoder;
 
-public final class ZeroOneBooleanEncoder implements ValueEncoder<Object, Boolean> {
+public final class ZeroOneBooleanEncoder implements ValueEncoder<Integer, Boolean> {
 	@Override
-	public Object encode(Boolean value, Context context) {
+	public Integer encode(Boolean value, Context context) {
 		if (value) {
 			return 1;
 		} else {
