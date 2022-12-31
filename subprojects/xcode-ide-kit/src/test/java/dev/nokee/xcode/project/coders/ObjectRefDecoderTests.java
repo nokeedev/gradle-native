@@ -43,8 +43,8 @@ class ObjectRefDecoderTests {
 			}
 
 			@Override
-			public KeyedObject decodeByrefObject(Object object) {
-				return new RefKeyedObject((String) object);
+			public KeyedObject decodeByrefObject(String object) {
+				return new RefKeyedObject(object);
 			}
 		};
 		String objectToDecode = "a-gid";

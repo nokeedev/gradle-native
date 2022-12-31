@@ -16,30 +16,18 @@
 package dev.nokee.xcode.project.coders;
 
 import com.google.common.base.Preconditions;
-import dev.nokee.xcode.project.Decoder;
-import dev.nokee.xcode.project.Encoder;
 import dev.nokee.xcode.project.ValueCoder;
 import dev.nokee.xcode.project.ValueDecoder;
 import dev.nokee.xcode.project.ValueEncoder;
 
 public final class DefaultCoder<OUT> implements ValueCoder<OUT> {
 	private final ValueDecoder<OUT, Object> decoder;
-	private final ValueEncoder<Object, OUT> encoder;
+	private final ValueEncoder<?, OUT> encoder;
 
-	public DefaultCoder(ValueDecoder<OUT, Object> decoder, ValueEncoder<Object, OUT> encoder) {
+	public DefaultCoder(ValueDecoder<OUT, Object> decoder, ValueEncoder<?, OUT> encoder) {
 		Preconditions.checkArgument(decoder.getDecodeType().equals(encoder.getEncodeType()));
 		this.decoder = decoder;
 		this.encoder = encoder;
-	}
-
-	@Override
-	public OUT decode(Decoder context) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void encode(OUT value, Encoder context) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -72,13 +60,5 @@ public final class DefaultCoder<OUT> implements ValueCoder<OUT> {
 	public void accept(ValueEncoder.Visitor visitor) {
 		ValueCoder.super.accept(visitor);
 		encoder.accept(visitor);
-	}
-
-	public ValueDecoder<OUT, Object> getDecoder() {
-		return decoder;
-	}
-
-	public ValueEncoder<Object, OUT> getEncoder() {
-		return encoder;
 	}
 }

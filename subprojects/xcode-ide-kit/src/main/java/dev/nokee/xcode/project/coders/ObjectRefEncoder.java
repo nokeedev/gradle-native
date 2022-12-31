@@ -18,7 +18,7 @@ package dev.nokee.xcode.project.coders;
 import dev.nokee.xcode.project.Encodeable;
 import dev.nokee.xcode.project.ValueEncoder;
 
-public final class ObjectRefEncoder<IN> implements ValueEncoder<Object, IN> {
+public final class ObjectRefEncoder<IN> implements ValueEncoder<ByrefObject, IN> {
 	private final ValueEncoder<Encodeable, IN> delegate;
 
 	public ObjectRefEncoder(ValueEncoder<Encodeable, IN> delegate) {

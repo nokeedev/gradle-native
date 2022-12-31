@@ -15,54 +15,27 @@
  */
 package dev.nokee.xcode.project;
 
-import dev.nokee.xcode.project.coders.DictionaryDecoder;
-import dev.nokee.xcode.project.coders.FalseTrueBooleanDecoder;
-import dev.nokee.xcode.project.coders.IntegerDecoder;
-import dev.nokee.xcode.project.coders.ListDecoder;
-import dev.nokee.xcode.project.coders.NoYesBooleanDecoder;
-import dev.nokee.xcode.project.coders.ObjectDecoder;
-import dev.nokee.xcode.project.coders.StringDecoder;
-import dev.nokee.xcode.project.coders.ThrowingValueDecoder;
-import dev.nokee.xcode.project.coders.ZeroOneBooleanDecoder;
-
-import java.util.List;
+import javax.annotation.Nullable;
 import java.util.Map;
 
-public abstract class KeyedDecoderAdapter implements KeyedDecoder {
-	protected abstract <T> T tryDecode(String key, ValueDecoder<T, Object> decoder);
+public abstract class KeyedDecoderAdapter implements KeyedDecoder, ValueDecoder.Context {
+	private final Map<String, ?> values;
 
-	@Override
-	public final <T> T decode(String key, ValueDecoder<T, Object> decoder) {
-		return tryDecode(key, decoder);
+	public KeyedDecoderAdapter(Map<String, ?> values) {
+		this.values = values;
 	}
 
+	@Nullable
 	@Override
-	public final <T extends Codeable> T decodeObject(String key, ValueDecoder<T, KeyedObject> factory) {
-		return tryDecode(key, new ObjectDecoder<>(factory));
-	}
+	public <T> T decode(String key, ValueDecoder<T, Object> decoder) {
+		if (!values.containsKey(key)) {
+			return null;
+		}
 
-	@Override
-	public final Boolean decodeBoolean(String key) {
-		return tryDecode(key, new ZeroOneBooleanDecoder(new NoYesBooleanDecoder(new FalseTrueBooleanDecoder())));
-	}
-
-	@Override
-	public final Map<String, ?> decodeDictionary(String key) {
-		return tryDecode(key, DictionaryDecoder.newDictionaryDecoder());
-	}
-
-	@Override
-	public final String decodeString(String key) {
-		return tryDecode(key, StringDecoder.newStringDecoder());
-	}
-
-	@Override
-	public final Integer decodeInteger(String key) {
-		return tryDecode(key, IntegerDecoder.newIntegerDecoder());
-	}
-
-	@Override
-	public final <T> List<T> decodeArray(String key, ValueDecoder<T, Object> decoder) {
-		return tryDecode(key, new ListDecoder<>(decoder));
+		try {
+			return decoder.decode(values.get(key), this);
+		} catch (Throwable ex) {
+			throw new RuntimeException(String.format("Exception while decoding '%s', value %s", key, values.get(key)), ex);
+		}
 	}
 }

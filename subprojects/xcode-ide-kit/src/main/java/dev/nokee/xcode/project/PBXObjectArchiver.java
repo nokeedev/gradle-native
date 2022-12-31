@@ -16,6 +16,10 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.PBXProject;
+import dev.nokee.xcode.project.coders.BycopyObject;
+import dev.nokee.xcode.project.coders.ByrefObject;
+import dev.nokee.xcode.project.coders.DefaultBycopyObject;
+import dev.nokee.xcode.project.coders.DefaultByrefObject;
 import lombok.val;
 
 import java.util.Collections;
@@ -45,8 +49,8 @@ public final class PBXObjectArchiver {
 
 	public <T extends PBXProject> PBXProj encode(T obj) {
 		PBXObjects.Builder objects = PBXObjects.builder();
-		Map<Codeable, String> encodedObjects = new HashMap<>();
-		PBXObjectReference rootObject = encodeRefInternal(objects, encodedObjects, (Codeable) obj);
+		Map<Encodeable, String> encodedObjects = new HashMap<>();
+		PBXObjectReference rootObject = encodeRefInternal(objects, encodedObjects, (Encodeable) obj);
 		objects.add(rootObject);
 		return PBXProj.builder().objects(objects.build()).rootObject(rootObject.getGlobalID()).build();
 	}
@@ -55,7 +59,7 @@ public final class PBXObjectArchiver {
 		void onKnownGlobalId(String gid);
 	}
 
-	private <T extends Codeable> PBXObjectReference encodeRefInternal(PBXObjects.Builder objects, Map<Codeable, String> encodedObjects, T obj) {
+	private <T extends Encodeable> PBXObjectReference encodeRefInternal(PBXObjects.Builder objects, Map<Encodeable, String> encodedObjects, T obj) {
 		assert !encodedObjects.containsKey(obj);
 		val context = encodeContextOf(objects, encodedObjects, gid -> encodedObjects.put(obj, gid));
 		obj.encode(context);
@@ -73,19 +77,19 @@ public final class PBXObjectArchiver {
 		return reference;
 	}
 
-	private MyEncodeContext encodeContextOf(PBXObjects.Builder objects, Map<Codeable, String> encodedObjects, KnownGlobalIdentificationCallback watgid) {
+	private MyEncodeContext encodeContextOf(PBXObjects.Builder objects, Map<Encodeable, String> encodedObjects, KnownGlobalIdentificationCallback watgid) {
 		return new MyEncodeContext(objects, encodedObjects, watgid);
 	}
 
 	private class MyEncodeContext implements Codeable.EncodeContext {
 		private final PBXObjects.Builder objects;
-		private final Map<Codeable, String> encodedObjects;
+		private final Map<Encodeable, String> encodedObjects;
 		private final KnownGlobalIdentificationCallback knownGlobalIdCallback;
 		String gid;
 		Map<String, Object> map;
 		Map<CodingKey, Object> codingMap = new LinkedHashMap<>();
 
-		public MyEncodeContext(PBXObjects.Builder objects, Map<Codeable, String> encodedObjects, KnownGlobalIdentificationCallback knownGlobalIdCallback) {
+		public MyEncodeContext(PBXObjects.Builder objects, Map<Encodeable, String> encodedObjects, KnownGlobalIdentificationCallback knownGlobalIdCallback) {
 			this.objects = objects;
 			this.encodedObjects = encodedObjects;
 			this.knownGlobalIdCallback = knownGlobalIdCallback;
@@ -127,24 +131,24 @@ public final class PBXObjectArchiver {
 					}
 
 					@Override
-					protected String encodeRef(Codeable object) {
+					public ByrefObject encodeByrefObject(Encodeable object) {
 						// Skip encoding if object already encoded
 						if (encodedObjects.containsKey(object)) {
-							return encodedObjects.get(object);
+							return new DefaultByrefObject(encodedObjects.get(object));
 						} else if (object.globalId() != null && encodedObjects.containsValue(object.globalId())) {
-							return object.globalId(); // already encoded but the object was different, we really only care about the reference (ex. PBXProject was changed but some other object still reference the old object)
+							return new DefaultByrefObject(object.globalId()); // already encoded but the object was different, we really only care about the reference (ex. PBXProject was changed but some other object still reference the old object)
 						}
 						final PBXObjectReference reference = encodeRefInternal(objects, encodedObjects, object);
 						objects.add(reference);
-						return reference.getGlobalID();
+						return new DefaultByrefObject(reference.getGlobalID());
 					}
 
 					@Override
-					protected Map<String, ?> encodeObj(Codeable object) {
+					public BycopyObject encodeBycopyObject(Encodeable object) {
 						val context = encodeContextOf(objects, encodedObjects, gid -> encodedObjects.put(object, gid));
 						object.encode(context);
 						assert context.gid == null;
-						return copyOf(context.map);
+						return new DefaultBycopyObject(copyOf(context.map));
 					}
 				});
 			});

@@ -15,9 +15,19 @@
  */
 package dev.nokee.xcode.project;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public interface Encodeable {
+	String isa();
+
+	@Nullable
+	String globalId();
+
+	default int stableHash() {
+		return 0;
+	}
+
 	void encode(EncodeContext context);
 
 	interface EncodeContext {

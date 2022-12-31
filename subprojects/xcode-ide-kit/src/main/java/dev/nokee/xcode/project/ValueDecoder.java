@@ -26,7 +26,7 @@ public interface ValueDecoder<OUT, IN> {
 
 	interface Context {
 		KeyedObject decodeBycopyObject(Map<String, ?> object);
-		KeyedObject decodeByrefObject(Object/*GlobalId*/ object);
+		KeyedObject decodeByrefObject(String/*GlobalId*/ object);
 	}
 
 	default void accept(Visitor visitor) {

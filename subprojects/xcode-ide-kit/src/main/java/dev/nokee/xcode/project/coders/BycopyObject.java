@@ -15,5 +15,8 @@
  */
 package dev.nokee.xcode.project.coders;
 
+import java.util.Map;
+
 public interface BycopyObject {
+	Map<String, ?> asMap();
 }

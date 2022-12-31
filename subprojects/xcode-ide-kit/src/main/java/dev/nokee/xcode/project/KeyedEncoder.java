@@ -15,23 +15,6 @@
  */
 package dev.nokee.xcode.project;
 
-import java.util.List;
-import java.util.Map;
-
 public interface KeyedEncoder {
 	<T> void encode(String key, T object, ValueCoder<T> coder);
-
-	void encodeByRefObject(String key, Object/*Encodable*/ object);
-
-	void encodeByCopyObject(String key, Object/*Encodable*/ object);
-
-	void encodeString(String key, CharSequence string);
-
-	void encodeInteger(String key, int integer);
-
-	void encodeDictionary(String key, Map<String, ?> dict);
-
-	void encodeBoolean(String key, boolean value);
-
-	<T> void encodeArray(String key, List<T> values, ValueEncoder<T, Object> encoder);
 }

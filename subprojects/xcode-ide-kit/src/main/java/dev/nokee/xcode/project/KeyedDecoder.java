@@ -16,28 +16,8 @@
 package dev.nokee.xcode.project;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
 
 public interface KeyedDecoder {
 	@Nullable
 	<T> T decode(String key, ValueDecoder<T, Object> decoder);
-
-	@Nullable
-	<T extends Codeable> T decodeObject(String key, ValueDecoder<T, KeyedObject> factory);
-
-	@Nullable
-	Boolean decodeBoolean(String key);
-
-	@Nullable
-	Map<String, ?> decodeDictionary(String key);
-
-	@Nullable
-	String decodeString(String key);
-
-	@Nullable
-	Integer decodeInteger(String key);
-
-	@Nullable
-	<T> List<T> decodeArray(String key, ValueDecoder<T, Object> decoder);
 }

@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project;
+package dev.nokee.xcode.project.coders;
 
-public interface CodeableObjectFactory<T extends Codeable> {
-	T create(KeyedObject map);
+public final class DefaultByrefObject implements ByrefObject {
+	private final String gid;
+
+	public DefaultByrefObject(String gid) {
+		this.gid = gid;
+	}
 }

@@ -17,7 +17,7 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueEncoder;
 
-public final class StringEncoder<IN> implements ValueEncoder<Object, IN> {
+public final class StringEncoder<IN> implements ValueEncoder<String, IN> {
 	private final ValueEncoder<String, IN> delegate;
 
 	public StringEncoder(ValueEncoder<String, IN> delegate) {
@@ -25,7 +25,7 @@ public final class StringEncoder<IN> implements ValueEncoder<Object, IN> {
 	}
 
 	@Override
-	public Object encode(IN value, Context context) {
+	public String encode(IN value, Context context) {
 		return delegate.encode(value, context);
 	}
 
