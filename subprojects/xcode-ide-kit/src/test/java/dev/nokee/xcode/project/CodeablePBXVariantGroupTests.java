@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.files.GroupChild;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +37,7 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesIterable;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -105,5 +107,10 @@ class CodeablePBXVariantGroupTests {
 		CodingKey key = mock(CodingKey.class);
 		subject.tryDecode(key);
 		verify(map).tryDecode(key);
+	}
+
+	@Test
+	void isPBXReference() {
+		assertThat(subject, isA(PBXReference.class));
 	}
 }
