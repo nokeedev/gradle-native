@@ -68,10 +68,14 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 	}
 
 	private static void walk(XCFileReferences.Builder builder, FileNode previousNodes, PBXReference fileRef) {
-		// FIXME: Clear up the rules to rebuild the fulle file reference path.
+		builder.put(fileRef, parse(new FileNode(fileRef.getSourceTree(), previousNodes, pathOf(fileRef))));
+	}
+
+	@Nullable
+	private static String pathOf(PBXReference fileRef) {
+		// FIXME: Clear up the rules to rebuild the full file reference path.
 		//   This is a bit messy. Xcode seems to sometime take the path while other time use the name...
-		val realPath = Optionals.or(fileRef.getPath().map(path -> fileRef.getName().filter(name -> !path.contains("/") && !path.contains(".")).orElse(path)), fileRef::getName).orElse(null);
-		builder.put(fileRef, parse(new FileNode(fileRef.getSourceTree(), previousNodes, realPath)));
+		return Optionals.or(fileRef.getPath().map(path -> fileRef.getName().filter(name -> !path.contains("/") && !path.contains(".")).orElse(path)), fileRef::getName).orElse(null);
 	}
 
 	private static XCFileReference parse(FileNode node) {
@@ -122,6 +126,15 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 		public XCFileReference get(PBXReference fileRef) {
 			// FIXME: When PBXFileReference comes from two different instance of the same project, they don't align.
 			//   We should find a way to normalize the file reference so they can be compared between project instance
+			if (fileRef instanceof PBXFileReference) {
+				if (fileRef.getSourceTree().equals(ABSOLUTE)) {
+					return XCFileReference.absoluteFile(pathOf(fileRef));
+				} else if (fileRef.getSourceTree().equals(BUILT_PRODUCTS_DIR)) {
+					return XCFileReference.builtProduct(pathOf(fileRef));
+				} else if (!fileRef.getSourceTree().equals(GROUP)) {
+					return XCFileReference.fromBuildSetting(fileRef.getSourceTree().toString(), pathOf(fileRef));
+				}
+			}
 			return Objects.requireNonNull(fileRefs.get(fileRef));
 		}
 
