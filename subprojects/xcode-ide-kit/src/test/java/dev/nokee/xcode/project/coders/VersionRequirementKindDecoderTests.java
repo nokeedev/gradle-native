@@ -18,6 +18,7 @@ package dev.nokee.xcode.project.coders;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import dev.nokee.xcode.project.ValueDecoder;
+import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;

@@ -17,12 +17,12 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.project.ValueDecoder;
+import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Mockito.when;
 
 class BuildSettingsDecoderTests {
 	ValueDecoder.Context context = new ThrowingDecoderContext();

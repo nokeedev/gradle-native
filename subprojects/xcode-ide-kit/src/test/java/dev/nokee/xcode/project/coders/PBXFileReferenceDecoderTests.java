@@ -19,6 +19,7 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.project.CodeablePBXFileReference;
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
+import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

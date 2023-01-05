@@ -17,6 +17,7 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.project.ValueEncoder;
+import dev.nokee.xcode.utils.ThrowingEncoderContext;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.collect.ImmutableMap.of;

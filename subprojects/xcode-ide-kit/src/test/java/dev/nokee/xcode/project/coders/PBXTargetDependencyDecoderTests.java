@@ -19,6 +19,7 @@ import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.project.CodeablePBXTargetDependency;
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
+import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
