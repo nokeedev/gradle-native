@@ -21,6 +21,7 @@ import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.files.PBXGroup;
+import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -60,13 +61,13 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 			// TODO: Should have some support for PBXVariantGroup or XCVersionGroup
 			if (child instanceof PBXGroup) {
 				walk(builder, node, (PBXGroup) child);
-			} else if (child instanceof PBXFileReference) {
-				walk(builder, node, (PBXFileReference) child);
+			} else if (child instanceof PBXReference) {
+				walk(builder, node, (PBXReference) child);
 			}
 		}
 	}
 
-	private static void walk(XCFileReferences.Builder builder, FileNode previousNodes, PBXFileReference fileRef) {
+	private static void walk(XCFileReferences.Builder builder, FileNode previousNodes, PBXReference fileRef) {
 		// FIXME: Clear up the rules to rebuild the fulle file reference path.
 		//   This is a bit messy. Xcode seems to sometime take the path while other time use the name...
 		val realPath = Optionals.or(fileRef.getPath().map(path -> fileRef.getName().filter(name -> !path.contains("/") && !path.contains(".")).orElse(path)), fileRef::getName).orElse(null);
@@ -112,13 +113,13 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 	}
 
 	public static final class XCFileReferences {
-		private final Map<PBXFileReference, XCFileReference> fileRefs;
+		private final Map<PBXReference, XCFileReference> fileRefs;
 
-		public XCFileReferences(Map<PBXFileReference, XCFileReference> fileRefs) {
+		public XCFileReferences(Map<PBXReference, XCFileReference> fileRefs) {
 			this.fileRefs = fileRefs;
 		}
 
-		public XCFileReference get(PBXFileReference fileRef) {
+		public XCFileReference get(PBXReference fileRef) {
 			// FIXME: When PBXFileReference comes from two different instance of the same project, they don't align.
 			//   We should find a way to normalize the file reference so they can be compared between project instance
 			return Objects.requireNonNull(fileRefs.get(fileRef));
@@ -129,9 +130,9 @@ public final class XCFileReferencesLoader implements XCLoader<XCFileReferencesLo
 		}
 
 		public static final class Builder {
-			private final ImmutableMap.Builder<PBXFileReference, XCFileReference> fileRefs = ImmutableMap.builder();
+			private final ImmutableMap.Builder<PBXReference, XCFileReference> fileRefs = ImmutableMap.builder();
 
-			public Builder put(PBXFileReference fileRef, XCFileReference file) {
+			public Builder put(PBXReference fileRef, XCFileReference file) {
 				fileRefs.put(fileRef, file);
 				return this;
 			}
