@@ -38,11 +38,11 @@ import static org.hamcrest.Matchers.equalTo;
 class ListEncoderTests {
 	ValueEncoder.Context context = new ThrowingEncoderContext();
 	UnwrapEncoder<String> delegate = new UnwrapEncoder<>(string());
-	ListEncoder<UnwrapEncoder.Wrapper<String>> subject = new ListEncoder<>(delegate);
+	ListEncoder<String, UnwrapEncoder.Wrapper<String>> subject = new ListEncoder<>(delegate);
 
 	@Nested
 	class WhenEncodingEmptyList {
-		List<?> result = (List<?>) subject.encode(of(), context);
+		List<String> result = subject.encode(of(), context);
 
 		@Test
 		void returnsEmptyList() {
@@ -57,7 +57,7 @@ class ListEncoderTests {
 
 	@Nested
 	class WhenEncodingListWithElements {
-		List<?> result = (List<?>) subject.encode(of(wrap("first"), wrap("second"), wrap("third")), context);
+		List<String> result = subject.encode(of(wrap("first"), wrap("second"), wrap("third")), context);
 
 		@Test
 		void returnsEncodedList() {
