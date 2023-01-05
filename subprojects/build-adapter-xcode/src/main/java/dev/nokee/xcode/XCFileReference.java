@@ -39,8 +39,13 @@ public abstract class XCFileReference {
 		ABSOLUTE, BUILT_PRODUCT, BUILD_SETTING
 	}
 
-	public static XCFileReference absoluteFile(String path) {
-		return new AbsoluteFileReference(Objects.requireNonNull(path));
+	public static XCFileReference absoluteFile(String... paths) {
+		final String path = Arrays.stream(paths) //
+			.map(Objects::requireNonNull) //
+			.map(String::trim) //
+			.filter(NotPredicate.not(String::isEmpty)) //
+			.collect(Collectors.joining("/"));
+		return new AbsoluteFileReference(path);
 	}
 
 	public static XCFileReference builtProduct(String... paths) {
