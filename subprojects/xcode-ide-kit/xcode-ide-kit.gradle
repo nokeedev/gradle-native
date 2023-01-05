@@ -17,6 +17,8 @@ dependencies {
 	implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
 	implementation project(':coreUtils')
 	antlr "org.antlr:antlr4:${antlrVersion}"
+
+	testFixturesApi project(':internalTesting')
 }
 
 test {

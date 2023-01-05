@@ -24,7 +24,7 @@ import dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase;
 import dev.nokee.xcode.project.CodeablePBXSourcesBuildPhase;
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
-import org.junit.jupiter.api.Assertions;
+import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

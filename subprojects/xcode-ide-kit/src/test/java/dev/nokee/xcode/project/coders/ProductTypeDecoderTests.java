@@ -17,6 +17,7 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.project.ValueDecoder;
+import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

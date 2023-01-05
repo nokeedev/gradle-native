@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode.project.coders;
+package dev.nokee.xcode.utils;
 
 import com.google.common.collect.Iterators;
 import dev.nokee.internal.testing.invocations.HasInvocationResults;
 import dev.nokee.internal.testing.invocations.InvocationResult2;
 import dev.nokee.xcode.project.ValueDecoder;
+import dev.nokee.xcode.project.coders.CoderType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
