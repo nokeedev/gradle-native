@@ -116,7 +116,7 @@ public abstract class XCFileReference {
 
 	@EqualsAndHashCode(callSuper = false)
 	private static final class BuildSettingFileReference extends XCFileReference {
-		private String buildSetting;
+		private final String buildSetting;
 		private final String path;
 
 		private BuildSettingFileReference(String buildSetting, String path) {
