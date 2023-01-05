@@ -16,5 +16,7 @@
 package dev.nokee.internal.testing.invocations;
 
 public interface InvocationResult1<A0> extends InvocationResult {
-	A0 getFirstArgument();
+	default A0 getFirstArgument() {
+		return getArgument(0);
+	}
 }

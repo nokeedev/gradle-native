@@ -15,8 +15,11 @@
  */
 package dev.nokee.internal.testing.invocations;
 
+import com.google.common.collect.ImmutableList;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
@@ -51,6 +54,10 @@ public final class InvocationMatchers {
 		return allOf(calledOnce(), lastArguments(contains((Matcher<Object>) matcher)));
 	}
 
+	public static <T extends HasInvocationResults<A>, A extends InvocationResult2<A0, A1>, A0, A1> Matcher<T> calledOnceWith(A0 instance0, A1 instance1) {
+		return calledOnceWith(equalTo(instance0), equalTo(instance1));
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T extends HasInvocationResults<A>, A extends InvocationResult2<A0, A1>, A0, A1> Matcher<T> calledOnceWith(Matcher<? super A0> matcher0, Matcher<? super A1> matcher1) {
 		return allOf(calledOnce(), lastArguments(contains((Matcher<Object>) matcher0, (Matcher<Object>) matcher1)));
@@ -61,6 +68,45 @@ public final class InvocationMatchers {
 			@Override
 			protected A featureValueOf(T actual) {
 				return actual.getAllInvocations().get(actual.getAllInvocations().size() - 1);
+			}
+		};
+	}
+
+	@SuppressWarnings("varargs")
+	@SafeVarargs
+	public static <T extends HasInvocationResults<A>, A extends InvocationResult> Matcher<T> called(Matcher<? super A>... matcher) {
+		return new FeatureMatcher<T, Iterable<A>>(contains(ImmutableList.copyOf(matcher)), "", "") {
+			@Override
+			protected Iterable<A> featureValueOf(T actual) {
+				return actual.getAllInvocations();
+			}
+		};
+	}
+
+	public static <A extends InvocationResult1<A0>, A0> Matcher<A> with(A0 expectedValue) {
+		return with(equalTo(expectedValue));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A extends InvocationResult1<A0>, A0> Matcher<A> with(Matcher<? super A0> matcher) {
+		return new FeatureMatcher<A, List<?>>(contains((Matcher<Object>) matcher), "", "") {
+			@Override
+			protected List<?> featureValueOf(A actual) {
+				return ImmutableList.copyOf(actual);
+			}
+		};
+	}
+
+	public static <A extends InvocationResult2<A0, A1>, A0, A1> Matcher<A> with(A0 instance0, A1 instance1) {
+		return with(equalTo(instance0), equalTo(instance1));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A extends InvocationResult2<A0, A1>, A0, A1> Matcher<A> with(Matcher<? super A0> matcher0, Matcher<? super A1> matcher1) {
+		return new FeatureMatcher<A, List<?>>(contains((Matcher<Object>) matcher0, (Matcher<Object>) matcher1), "", "") {
+			@Override
+			protected List<?> featureValueOf(A actual) {
+				return ImmutableList.copyOf(actual);
 			}
 		};
 	}
