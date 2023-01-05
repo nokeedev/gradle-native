@@ -21,6 +21,8 @@ import dev.nokee.xcode.project.ValueEncoder;
 import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.xcode.project.coders.CoderType.byCopy;
 import static dev.nokee.xcode.project.coders.CoderType.of;
@@ -68,6 +70,11 @@ class ObjectEncoderTests {
 
 		public TestBycopyObject(Encodeable object) {
 			this.object = object;
+		}
+
+		@Override
+		public Map<String, ?> asMap() {
+			throw new UnsupportedOperationException();
 		}
 	}
 }
