@@ -31,7 +31,7 @@ import static dev.nokee.xcode.project.DefaultKeyedObject.key;
 /**
  * Represents localized resources.
  */
-public interface PBXVariantGroup extends GroupChild, PBXBuildFile.FileReference {
+public interface PBXVariantGroup extends PBXReference, GroupChild, PBXBuildFile.FileReference {
 	List<GroupChild> getChildren();
 
 	static Builder builder() {
