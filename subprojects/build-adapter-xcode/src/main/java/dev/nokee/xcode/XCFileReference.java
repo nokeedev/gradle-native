@@ -63,15 +63,15 @@ public abstract class XCFileReference {
 
 	@EqualsAndHashCode(callSuper = false)
 	private static final class AbsoluteFileReference extends XCFileReference {
-		private final Path path;
+		private final String path;
 
 		private AbsoluteFileReference(String path) {
-			this.path = new File(path).toPath();
+			this.path = path;
 		}
 
 		@Override
 		public Path resolve(ResolveContext context) {
-			return path;
+			return new File(path).toPath();
 		}
 
 		@Override
@@ -81,7 +81,7 @@ public abstract class XCFileReference {
 
 		@Override
 		public String toString() {
-			return path.toString();
+			return path;
 		}
 	}
 
