@@ -15,8 +15,16 @@
  */
 package dev.nokee.internal.testing.invocations;
 
-public interface InvocationResult extends Iterable<Object> {
-	<A> A getArgument(int index);
+import com.google.common.collect.Iterators;
 
-	<A> A getArgument(int index, Class<A> argumentType);
+public interface InvocationResult extends Iterable<Object> {
+	default <A> A getArgument(int index) {
+		@SuppressWarnings("unchecked")
+		final A result = (A) Iterators.get(iterator(), index);
+		return result;
+	}
+
+	default <A> A getArgument(int index, Class<A> argumentType) {
+		return argumentType.cast(getArgument(0));
+	}
 }
