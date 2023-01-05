@@ -34,7 +34,7 @@ public final class ListEncoder<OUT, IN> implements ValueEncoder<List<OUT>, List<
 
 	@Override
 	public CoderType<?> getEncodeType() {
-		return CoderType.listOf(delegate.getEncodeType());
+		return CoderType.list(delegate.getEncodeType());
 	}
 
 	@Override

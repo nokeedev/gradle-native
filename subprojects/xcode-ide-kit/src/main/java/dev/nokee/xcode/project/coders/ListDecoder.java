@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.xcode.project.ValueDecoder;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public final class ListDecoder<OUT> implements ValueDecoder<List<OUT>, Object> {
 
 	@Override
 	public CoderType<?> getDecodeType() {
-		return CoderType.listOf(delegate.getDecodeType());
+		return CoderType.list(delegate.getDecodeType());
 	}
 
 	@Override

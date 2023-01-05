@@ -26,7 +26,7 @@ import static com.google.common.collect.ImmutableList.of;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.called;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.with;
-import static dev.nokee.xcode.project.coders.CoderType.listOf;
+import static dev.nokee.xcode.project.coders.CoderType.list;
 import static dev.nokee.xcode.project.coders.CoderType.of;
 import static dev.nokee.xcode.project.coders.WrapDecoder.wrap;
 import static dev.nokee.xcode.project.coders.WrapDecoder.wrapper;
@@ -78,6 +78,6 @@ class ListDecoderTests {
 
 	@Test
 	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(listOf(wrapper(of(Object.class)))));
+		assertThat(subject.getDecodeType(), equalTo(list(wrapper(of(Object.class)))));
 	}
 }

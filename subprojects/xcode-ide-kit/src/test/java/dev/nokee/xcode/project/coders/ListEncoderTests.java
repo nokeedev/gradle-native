@@ -26,7 +26,7 @@ import static com.google.common.collect.ImmutableList.of;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.called;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.with;
-import static dev.nokee.xcode.project.coders.CoderType.listOf;
+import static dev.nokee.xcode.project.coders.CoderType.list;
 import static dev.nokee.xcode.project.coders.CoderType.string;
 import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrap;
 import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrapper;
@@ -72,6 +72,6 @@ class ListEncoderTests {
 
 	@Test
 	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(listOf(wrapper(string()))));
+		assertThat(subject.getEncodeType(), equalTo(list(wrapper(string()))));
 	}
 }
