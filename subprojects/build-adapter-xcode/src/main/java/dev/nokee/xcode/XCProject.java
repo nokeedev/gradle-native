@@ -58,7 +58,7 @@ public final class XCProject {
 			.map(it -> getFileReferences().get(it))
 			.map(it -> it.resolve(new XCFileReference.ResolveContext() {
 				@Override
-				public Path getBuiltProductDirectory() {
+				public Path getBuiltProductsDirectory() {
 					throw new UnsupportedOperationException("Should not call");
 				}
 

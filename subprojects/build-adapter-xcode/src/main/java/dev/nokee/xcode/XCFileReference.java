@@ -30,7 +30,7 @@ public abstract class XCFileReference {
 	public abstract XCFileType getType();
 
 	public interface ResolveContext {
-		Path getBuiltProductDirectory();
+		Path getBuiltProductsDirectory();
 
 		Path get(String name);
 	}
@@ -95,7 +95,7 @@ public abstract class XCFileReference {
 
 		@Override
 		public Path resolve(ResolveContext context) {
-			return context.getBuiltProductDirectory().resolve(path);
+			return context.getBuiltProductsDirectory().resolve(path);
 		}
 
 		@Override

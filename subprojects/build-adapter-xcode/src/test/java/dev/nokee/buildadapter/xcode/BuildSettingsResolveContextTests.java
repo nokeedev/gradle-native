@@ -45,7 +45,7 @@ class BuildSettingsResolveContextTests {
 
 		@Test
 		void returnsPathToBuiltProductDir() {
-			assertThat(subject.getBuiltProductDirectory(), aFile(withAbsolutePath(endsWith("/derived-data/Products"))));
+			assertThat(subject.getBuiltProductsDirectory(), aFile(withAbsolutePath(endsWith("/derived-data/Products"))));
 		}
 	}
 
