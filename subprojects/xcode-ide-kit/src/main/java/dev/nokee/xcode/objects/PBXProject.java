@@ -99,20 +99,21 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 	}
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<PBXProject>, BuildConfigurationsAwareBuilder<Builder>, SelfConfigurationAwareBuilder<Builder>, LenientAwareBuilder<Builder> {
-		@Nullable private final KeyedObject parent;
 		private final List<GroupChild> mainGroupChildren = new ArrayList<>();
 		private PBXGroup mainGroup;
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			this.parent = null;
-			builder.put(KeyedCoders.ISA, "PBXProject");
+			this(new DefaultKeyedObject.Builder());
 		}
 
 		public Builder(KeyedObject parent) {
-			this.parent = parent;
-			builder.parent(parent);
-			builder.put(KeyedCoders.ISA, "PBXProject");
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder.put(KeyedCoders.ISA, "PBXProject")
+				.ifAbsent(CodeablePBXProject.CodingKeys.mainGroup, PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build());
 		}
 
 		@Override
@@ -187,7 +188,7 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 
 		@Override
 		public PBXProject build() {
-			if (mainGroup == null && parent == null) {
+			if (mainGroup == null && !builder.hasParent()) {
 				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
 			}
 

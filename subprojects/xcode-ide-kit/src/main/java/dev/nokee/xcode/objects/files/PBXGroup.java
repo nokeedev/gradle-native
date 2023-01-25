@@ -49,7 +49,7 @@ public interface PBXGroup extends GroupChild {
 			// mainGroup can have both null name and path
 
 			// Default values
-			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, PBXSourceTree.GROUP);
+			builder.ifAbsent(CodeablePBXGroup.CodingKeys.sourceTree, PBXSourceTree.GROUP);
 		}
 
 		@Override

@@ -44,7 +44,7 @@ public interface XCBuildConfiguration extends PBXBuildStyle {
 			builder.requires(key(CodeableXCBuildConfiguration.CodingKeys.name));
 
 			// Default values
-			builder.put(CodeableXCBuildConfiguration.CodingKeys.buildSettings, BuildSettings.empty());
+			builder.ifAbsent(CodeableXCBuildConfiguration.CodingKeys.buildSettings, BuildSettings.empty());
 		}
 
 		@Override

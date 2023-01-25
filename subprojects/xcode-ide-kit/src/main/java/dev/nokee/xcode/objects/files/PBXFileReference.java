@@ -79,6 +79,8 @@ public interface PBXFileReference extends PBXReference, PBXContainerItemProxy.Co
 			builder.put(KeyedCoders.ISA, "PBXFileReference");
 			builder.requires(key(CodeablePBXFileReference.CodingKeys.path));
 			builder.requires(key(CodeablePBXFileReference.CodingKeys.sourceTree));
+
+			builder.ifAbsent(CodeablePBXFileReference.CodingKeys.sourceTree, PBXSourceTree.GROUP);
 		}
 
 		@Override

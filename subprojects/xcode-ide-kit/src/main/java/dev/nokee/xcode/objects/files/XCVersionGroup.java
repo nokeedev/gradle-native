@@ -53,11 +53,11 @@ public interface XCVersionGroup extends GroupChild, PBXBuildFile.FileReference {
 
 		public Builder() {
 			builder.put(KeyedCoders.ISA, "XCVersionGroup");
-			builder.requires(key(CodeablePBXGroup.CodingKeys.sourceTree));
+			builder.requires(key(CodeableXCVersionGroup.CodingKeys.sourceTree));
 			// mainGroup can have both null name and path
 
 			// Default values
-			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, PBXSourceTree.GROUP);
+			builder.ifAbsent(CodeableXCVersionGroup.CodingKeys.sourceTree, PBXSourceTree.GROUP);
 		}
 
 		@Override
