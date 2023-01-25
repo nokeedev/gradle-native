@@ -48,16 +48,20 @@ public interface XCConfigurationList extends PBXProjectItem {
 	Builder toBuilder();
 
 	final class Builder implements org.apache.commons.lang3.builder.Builder<XCConfigurationList>, LenientAwareBuilder<Builder> {
-		private final DefaultKeyedObject.Builder builder = new DefaultKeyedObject.Builder();
+		private final DefaultKeyedObject.Builder builder;
 
 		public Builder() {
-			builder.put(KeyedCoders.ISA, "XCConfigurationList");
-			builder.requires(key(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible));
+			this(new DefaultKeyedObject.Builder());
 		}
 
 		public Builder(KeyedObject parent) {
-			builder.put(KeyedCoders.ISA, "XCConfigurationList");
-			builder.parent(parent);
+			this(new DefaultKeyedObject.Builder().parent(parent));
+		}
+
+		private Builder(DefaultKeyedObject.Builder builder) {
+			this.builder = builder
+				.put(KeyedCoders.ISA, "XCConfigurationList")
+				.ifAbsent(CodeableXCConfigurationList.CodingKeys.defaultConfigurationIsVisible, false);
 		}
 
 		@Override

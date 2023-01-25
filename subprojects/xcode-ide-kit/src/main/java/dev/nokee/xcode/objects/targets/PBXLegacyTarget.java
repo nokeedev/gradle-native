@@ -51,9 +51,9 @@ public interface PBXLegacyTarget extends PBXTarget {
 			builder.put(KeyedCoders.ISA, "PBXLegacyTarget");
 
 			// Default values
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, "$(ACTION)");
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, "/usr/bin/make");
-			builder.put(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, true);
+			builder.ifAbsent(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, "$(ACTION)");
+			builder.ifAbsent(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, "/usr/bin/make");
+			builder.ifAbsent(CodeablePBXLegacyTarget.CodingKeys.passBuildSettingsInEnvironment, true);
 		}
 
 		@Override

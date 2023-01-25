@@ -47,7 +47,7 @@ public interface PBXVariantGroup extends PBXReference, GroupChild, PBXBuildFile.
 			// mainGroup can have both null name and path
 
 			// Default values
-			builder.put(CodeableXCVersionGroup.CodingKeys.sourceTree, PBXSourceTree.GROUP);
+			builder.ifAbsent(CodeablePBXVariantGroup.CodingKeys.sourceTree, PBXSourceTree.GROUP);
 		}
 
 		@Override

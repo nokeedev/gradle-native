@@ -30,7 +30,6 @@ import java.util.Objects;
 
 import static com.google.common.collect.Streams.stream;
 import static dev.nokee.xcode.project.DefaultKeyedObject.key;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Target backed by shell scripts or nothing (only specifying dependencies).

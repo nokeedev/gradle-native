@@ -89,8 +89,8 @@ public interface PBXShellScriptBuildPhase extends PBXBuildPhase {
 			builder.put(KeyedCoders.ISA, "PBXShellScriptBuildPhase");
 
 			// Default values
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, DEFAULT_SHELL_SCRIPT);
-			builder.put(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, DEFAULT_SHELL_PATH);
+			builder.ifAbsent(CodeablePBXShellScriptBuildPhase.CodingKeys.shellScript, DEFAULT_SHELL_SCRIPT);
+			builder.ifAbsent(CodeablePBXShellScriptBuildPhase.CodingKeys.shellPath, DEFAULT_SHELL_PATH);
 		}
 
 		@Override
