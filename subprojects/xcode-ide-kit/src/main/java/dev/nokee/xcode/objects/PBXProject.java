@@ -188,11 +188,12 @@ public interface PBXProject extends PBXContainer, PBXContainerItemProxy.Containe
 
 		@Override
 		public PBXProject build() {
-			if (mainGroup == null && !builder.hasParent()) {
-				this.mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
+			PBXGroup mainGroup = this.mainGroup;
+			if (mainGroup == null) {
+				mainGroup = PBXGroup.builder().name("mainGroup").sourceTree(PBXSourceTree.GROUP).children(mainGroupChildren).build();
 			}
 
-			builder.put(CodeablePBXProject.CodingKeys.mainGroup, mainGroup);
+			builder.ifAbsent(CodeablePBXProject.CodingKeys.mainGroup, mainGroup);
 
 			return CodeablePBXProject.newInstance(builder.build());
 		}
