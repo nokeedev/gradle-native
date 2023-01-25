@@ -303,6 +303,7 @@ digraph G {
 	//   > It seems like 0x8 would be install build action and possibly 0x4 would be the "build" build action
 	// runOnlyForDeploymentPostprocessing -> boolean 0/1 ('Copy only when installing' checked (1) vs unchecked (0))
 	// files -> if 'Code Sign On Copy" checked -> PBXBuildFile settings: ATTRIBUTES = (CodeSignOnCopy, )
+	// NOTE: It seems files cannot include PBXBuildFile of Swift packages
 	PBXCopyFilesBuildPhase [
 		shape=plain
 		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
@@ -598,6 +599,7 @@ digraph G {
 	//endregion:PBXGroup
 
 	//region:PBXVariantGroup
+	// seems to be Storyboard and it can be treated as a "single location", no need to check the children
 	PBXVariantGroup [
 		shape=plain
 		label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4">
