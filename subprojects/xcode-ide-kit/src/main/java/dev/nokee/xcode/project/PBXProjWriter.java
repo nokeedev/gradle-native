@@ -18,6 +18,8 @@ package dev.nokee.xcode.project;
 import dev.nokee.xcode.AsciiPropertyListWriter;
 import dev.nokee.xcode.JavaPropertyListWriter;
 import dev.nokee.xcode.PropertyListVersion;
+import dev.nokee.xcode.project.coders.BycopyObject;
+import dev.nokee.xcode.project.coders.ByrefObject;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -36,6 +38,10 @@ public final class PBXProjWriter implements Closeable {
 	private static void writePBXObjectReferenceAsGlobalID(JavaPropertyListWriter.ValueWriter writer, Object obj) {
 		if (obj instanceof PBXObjectReference) {
 			writer.writeObject(((PBXObjectReference) obj).getGlobalID());
+		} else if (obj instanceof ByrefObject) {
+			writer.writeObject(((ByrefObject) obj).getGlobalId());
+		} else if (obj instanceof BycopyObject) {
+			writer.writeObject(((BycopyObject) obj).asMap());
 		} else {
 			throw new UnsupportedOperationException(String.format("Unknown object of type %s", obj.getClass().getSimpleName()));
 		}

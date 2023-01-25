@@ -16,4 +16,5 @@
 package dev.nokee.xcode.project.coders;
 
 public interface ByrefObject {
+	String getGlobalId();
 }

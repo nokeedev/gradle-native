@@ -69,5 +69,10 @@ class ObjectRefEncoderTests {
 		public TestByrefObject(Encodeable object) {
 			this.object = object;
 		}
+
+		@Override
+		public String getGlobalId() {
+			throw new UnsupportedOperationException();
+		}
 	}
 }
