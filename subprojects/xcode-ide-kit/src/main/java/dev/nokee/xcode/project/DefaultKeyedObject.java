@@ -81,6 +81,7 @@ public final class DefaultKeyedObject implements KeyedObject {
 	public static final class Builder {
 		private KeyedObject parent = null;
 		private final LinkedHashMap<CodingKey, Object> builder = new LinkedHashMap<>();
+		private final LinkedHashMap<CodingKey, Object> defaultValues = new LinkedHashMap<>();
 		private final List<Predicate<? super KeyedObject>> requirements = new ArrayList<>();
 		private boolean lenient = false;
 
@@ -108,7 +109,16 @@ public final class DefaultKeyedObject implements KeyedObject {
 			return this;
 		}
 
+		public boolean hasParent() {
+			return parent != null;
+		}
+
 		public DefaultKeyedObject build() {
+			defaultValues.forEach((k, v) -> {
+				if (!(builder.containsKey(k) || (parent != null && parent.has(k)))) {
+					builder.put(k, v);
+				}
+			});
 			DefaultKeyedObject result = new DefaultKeyedObject(parent, ImmutableMap.copyOf(builder));
 			if (!lenient) {
 				for (Predicate<? super KeyedObject> requirement : requirements) {
@@ -140,6 +150,11 @@ public final class DefaultKeyedObject implements KeyedObject {
 			} else {
 				throw new UnsupportedOperationException();
 			}
+		}
+
+		public Builder ifAbsent(CodingKey codingKey, Object value) {
+			defaultValues.put(codingKey, value);
+			return this;
 		}
 	}
 
