@@ -21,4 +21,9 @@ public final class DefaultByrefObject implements ByrefObject {
 	public DefaultByrefObject(String gid) {
 		this.gid = gid;
 	}
+
+	@Override
+	public String getGlobalId() {
+		return gid;
+	}
 }
