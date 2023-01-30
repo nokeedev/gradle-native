@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project.forwarding;
 
+import dev.nokee.internal.testing.reflect.MethodInformation;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -30,19 +31,19 @@ import static org.hamcrest.Matchers.allOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class ForwardingWrapperMatchers {
-	public static <T> Matcher<ForwardingWrapper<T>> forwardsToDelegate(String methodName) {
-		return allOf(forwardsParametersToDelegate(methodName), forwardsExceptionsToDelegate(methodName));
+	public static <T> Matcher<ForwardingWrapper<T>> forwardsToDelegate(MethodInformation<T, ?> methodInfo) {
+		return allOf(forwardsParametersToDelegate(methodInfo), forwardsExceptionsToDelegate(methodInfo));
 	}
 
-	public static <T> Matcher<ForwardingWrapper<T>> forwardsParametersToDelegate(String methodName) {
-		return new InteractionMatcher<>(methodName);
+	public static <T> Matcher<ForwardingWrapper<T>> forwardsParametersToDelegate(MethodInformation<T, ?> methodInfo) {
+		return new InteractionMatcher<>(methodInfo);
 	}
 
-	public static <T> Matcher<ForwardingWrapper<T>> forwardsExceptionsToDelegate(String methodName) {
+	public static <T> Matcher<ForwardingWrapper<T>> forwardsExceptionsToDelegate(MethodInformation<T, ?> methodInfo) {
 		return new TypeSafeMatcher<ForwardingWrapper<T>>() {
 			@Override
 			protected boolean matchesSafely(ForwardingWrapper<T> actual) {
-				Method method = actual.getMethod(methodName);
+				Method method = methodInfo.resolve(actual.getForwardType());
 				Object[] passedArgs = ForwardingTestUtils.getParameterValues(method);
 
 				final RuntimeException exception = new RuntimeException();
@@ -58,13 +59,11 @@ public final class ForwardingWrapperMatchers {
 					method.invoke(wrapper, passedArgs);
 					Assertions.fail(method + " failed to throw exception as is.");
 					return false; // appeasing the compiler: this line will never be executed.
-				} catch (
-					InvocationTargetException e) {
+				} catch (InvocationTargetException e) {
 					if (exception != e.getCause()) {
 						throw new RuntimeException(e);
 					}
-				} catch (
-					IllegalAccessException e) {
+				} catch (IllegalAccessException e) {
 					throw new AssertionError(e);
 				}
 				return true;
