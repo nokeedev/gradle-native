@@ -18,17 +18,17 @@ package dev.nokee.xcode.project.coders;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import dev.nokee.xcode.project.ValueDecoder;
-import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class VersionRequirementKindDecoderTests {
-	ValueDecoder.Context context = new ThrowingDecoderContext();
+	ValueDecoder.Context context = newAlwaysThrowingMock(ValueDecoder.Context.class);
     VersionRequirementKindDecoder subject = new VersionRequirementKindDecoder();
 
 	@ParameterizedTest

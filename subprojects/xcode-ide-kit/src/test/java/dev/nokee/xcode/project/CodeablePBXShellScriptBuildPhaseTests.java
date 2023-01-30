@@ -16,8 +16,7 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import lombok.val;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
@@ -27,12 +26,13 @@ import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase.CodingKeys.files;
 import static dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase.CodingKeys.inputFileListPaths;
 import static dev.nokee.xcode.project.CodeablePBXShellScriptBuildPhase.CodingKeys.inputPaths;
@@ -45,112 +45,76 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesIterable;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class CodeablePBXShellScriptBuildPhaseTests {
-	@Mock
-	KeyedObject map;
-	@InjectMocks
-	CodeablePBXShellScriptBuildPhase subject;
-
+class CodeablePBXShellScriptBuildPhaseTests extends CodeableAdapterTester<CodeablePBXShellScriptBuildPhase> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXTargetBuildFilesProvider.class)
 	void checkGetFiles(List<PBXBuildFile> expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(files)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getFiles(), matchesIterable(expectedValue));
-		verify(map).tryDecode(files);
 	}
 
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXObjectNamesProvider.class)
 	void checkGetName(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(name)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getName(), matchesOptional(expectedValue));
-		verify(map).tryDecode(name);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"/bin/bash"})
 	void checkGetShellPath(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(shellPath)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getShellPath(), matchesObject(expectedValue));
-		verify(map).tryDecode(shellPath);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"some shell script\n"})
 	void checkGetShellScript(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(shellScript)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getShellScript(), matchesObject(expectedValue));
-		verify(map).tryDecode(shellScript);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"$(SOURCE_ROOT)/Foo.c"})
 	void checkGetInputPaths(@AggregateWith(ToList.class) List<String> expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(inputPaths)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getInputPaths(), matchesIterable(expectedValue));
-		verify(map).tryDecode(inputPaths);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"$(SOURCE_ROOT)/MyInputs.xcfilelist"})
 	void checkGetInputFileListPaths(@AggregateWith(ToList.class) List<String> expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(inputFileListPaths)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getInputFileListPaths(), matchesIterable(expectedValue));
-		verify(map).tryDecode(inputFileListPaths);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"$(BUILT_PRODUCT_DIR)/Output.lib"})
 	void checkGetOutputPaths(@AggregateWith(ToList.class) List<String> expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(outputPaths)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getOutputPaths(), matchesIterable(expectedValue));
-		verify(map).tryDecode(outputPaths);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"$(SOURCE_ROOT)/MyOutputs.xcfilelist"})
 	void checkGetOutputFileListPaths(@AggregateWith(ToList.class) List<String> expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(outputFileListPaths)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getOutputFileListPaths(), matchesIterable(expectedValue));
-		verify(map).tryDecode(outputFileListPaths);
-	}
-
-	@Test
-	void forwardsEncodingToDelegate() {
-		Codeable.EncodeContext context = mock(Codeable.EncodeContext.class);
-		subject.encode(context);
-		verify(map).encode(context);
-	}
-
-	@Test
-	void forwardsIsaToDelegate() {
-		subject.isa();
-		verify(map).isa();
-	}
-
-	@Test
-	void forwardsGlobalIdToDelegate() {
-		subject.globalId();
-		verify(map).globalId();
-	}
-
-	@Test
-	void forwardsTryDecodeToDelegate() {
-		CodingKey key = mock(CodingKey.class);
-		subject.tryDecode(key);
-		verify(map).tryDecode(key);
 	}
 
 	static final class ToList implements ArgumentsAggregator {

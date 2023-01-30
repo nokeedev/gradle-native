@@ -16,7 +16,6 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueDecoder;
-import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -24,12 +23,13 @@ import java.util.Map;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DictionaryDecoderTests {
-	ValueDecoder.Context context = new ThrowingDecoderContext();
+	ValueDecoder.Context context = newAlwaysThrowingMock(ValueDecoder.Context.class);
 	WrapDecoder<Map<String, ?>> delegate = new WrapDecoder<>(CoderType.dict());
 	DictionaryDecoder<WrapDecoder.Wrapper<Map<String, ?>>> subject = new DictionaryDecoder<>(delegate);
 

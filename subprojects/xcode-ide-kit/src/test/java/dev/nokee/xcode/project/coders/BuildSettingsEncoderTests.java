@@ -17,10 +17,10 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.project.ValueEncoder;
-import dev.nokee.xcode.utils.ThrowingEncoderContext;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.collect.ImmutableMap.of;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 
 class BuildSettingsEncoderTests {
-	ValueEncoder.Context context = new ThrowingEncoderContext();
+	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
 	BuildSettingsEncoder subject = new BuildSettingsEncoder();
 
 	@Test

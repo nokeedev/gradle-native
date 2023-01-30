@@ -17,7 +17,6 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
-import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +24,7 @@ import java.util.Map;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static dev.nokee.xcode.project.coders.CoderType.byCopy;
 import static dev.nokee.xcode.project.coders.WrapDecoder.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -64,7 +64,7 @@ class ObjectDecoderTests {
 
 	@Test
 	void throwsExceptionIfObjectTypeIsNotMap() {
-		assertThrows(IllegalArgumentException.class, () -> subject.decode(new Object(), new ThrowingDecoderContext()));
+		assertThrows(IllegalArgumentException.class, () -> subject.decode(new Object(), newAlwaysThrowingMock(ValueDecoder.Context.class)));
 	}
 
 	@Test

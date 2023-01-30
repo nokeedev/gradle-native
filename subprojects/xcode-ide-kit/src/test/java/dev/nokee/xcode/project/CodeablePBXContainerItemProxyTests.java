@@ -16,17 +16,16 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import lombok.val;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.CodeablePBXContainerItemProxy.CodingKeys.containerPortal;
 import static dev.nokee.xcode.project.CodeablePBXContainerItemProxy.CodingKeys.proxyType;
 import static dev.nokee.xcode.project.CodeablePBXContainerItemProxy.CodingKeys.remoteGlobalIDString;
@@ -34,78 +33,41 @@ import static dev.nokee.xcode.project.CodeablePBXContainerItemProxy.CodingKeys.r
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class CodeablePBXContainerItemProxyTests {
-	@Mock
-	KeyedObject map;
-	@InjectMocks
-	CodeablePBXContainerItemProxy subject;
-
+class CodeablePBXContainerItemProxyTests extends CodeableAdapterTester<CodeablePBXContainerItemProxy> {
 	@ParameterizedTest
 	@NullSource
 	@MockitoSource(PBXContainerItemProxy.ContainerPortal.class)
 	void checkGetContainerPortal(PBXContainerItemProxy.ContainerPortal expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(containerPortal)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getContainerPortal(), matchesObject(expectedValue));
-		verify(map).tryDecode(containerPortal);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"407EB587257A418900686B1F"})
 	void checkGetRemoteGlobalIDString(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(remoteGlobalIDString)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getRemoteGlobalIDString(), matchesObject(expectedValue));
-		verify(map).tryDecode(remoteGlobalIDString);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@EnumSource(PBXContainerItemProxy.ProxyType.class)
 	void checkGetProxyType(PBXContainerItemProxy.ProxyType expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(proxyType)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getProxyType(), matchesObject(expectedValue));
-		verify(map).tryDecode(proxyType);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"FooBar"})
 	void checkGetRemoteInfo(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(remoteInfo)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getRemoteInfo(), matchesOptional(expectedValue));
-		verify(map).tryDecode(remoteInfo);
-	}
-
-	@Test
-	void forwardsEncodingToDelegate() {
-		Codeable.EncodeContext context = mock(Codeable.EncodeContext.class);
-		subject.encode(context);
-		verify(map).encode(context);
-	}
-
-	@Test
-	void forwardsIsaToDelegate() {
-		subject.isa();
-		verify(map).isa();
-	}
-
-	@Test
-	void forwardsGlobalIdToDelegate() {
-		subject.globalId();
-		verify(map).globalId();
-	}
-
-	@Test
-	void forwardsTryDecodeToDelegate() {
-		CodingKey key = mock(CodingKey.class);
-		subject.tryDecode(key);
-		verify(map).tryDecode(key);
 	}
 }

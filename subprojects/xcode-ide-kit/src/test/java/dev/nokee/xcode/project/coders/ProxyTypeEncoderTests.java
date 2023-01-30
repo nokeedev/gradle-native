@@ -17,16 +17,16 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.project.ValueEncoder;
-import dev.nokee.xcode.utils.ThrowingEncoderContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class ProxyTypeEncoderTests {
-	ValueEncoder.Context context = new ThrowingEncoderContext();
+	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
 	ProxyTypeEncoder subject = new ProxyTypeEncoder();
 
 	@ParameterizedTest
