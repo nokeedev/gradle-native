@@ -15,8 +15,6 @@
  */
 package dev.nokee.xcode.project.forwarding;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.function.Function;
 
 public final class ForwardingWrapper<T> {
@@ -26,11 +24,6 @@ public final class ForwardingWrapper<T> {
 	private ForwardingWrapper(Class<T> interfaceType, Function<? super T, ? extends T> wrapperFactory) {
 		this.interfaceType = interfaceType;
 		this.wrapperFactory = wrapperFactory;
-	}
-
-	public Method getMethod(String methodName) {
-		return Arrays.stream(interfaceType.getMethods()).filter(it -> it.getName().equals(methodName)).findFirst()
-			.orElseThrow(RuntimeException::new);
 	}
 
 	public T wrap(T proxy) {

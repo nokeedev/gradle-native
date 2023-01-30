@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project.forwarding;
 
+import dev.nokee.internal.testing.reflect.MethodInformation;
 import org.hamcrest.FeatureMatcher;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -27,17 +28,16 @@ import static org.hamcrest.Matchers.allOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 final class InteractionMatcher<T> extends FeatureMatcher<ForwardingWrapper<T>, InteractionResult> {
-	private final String methodName;
+	private final MethodInformation<T, ?> methodInformation;
 
-	public InteractionMatcher(String methodName) {
-		super(allOf(ForwardingTestUtils.returnValueForwarded(), ForwardingTestUtils.calledMethodOnceWithPassedParameters()/*calledMethod(methodName), calledOnce(), */), "an interaction with " + methodName + "()", "interaction with " + methodName + "()");
-		this.methodName = methodName;
+	public InteractionMatcher(MethodInformation<T, ?> methodInformation) {
+		super(allOf(ForwardingTestUtils.returnValueForwarded(), ForwardingTestUtils.calledMethodOnceWithPassedParameters()/*calledMethod(methodName), calledOnce(), */), "an interaction with " + methodInformation, "interaction with " + methodInformation);
+		this.methodInformation = methodInformation;
 	}
 
 	@Override
 	protected InteractionResult featureValueOf(ForwardingWrapper<T> actual) {
-		// TODO: Figure out the right method to use
-		Method method = actual.getMethod(methodName);
+		Method method = methodInformation.resolve(actual.getForwardType());
 		Object[] passedArgs = ForwardingTestUtils.getParameterValues(method);
 
 
