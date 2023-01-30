@@ -17,81 +17,45 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.objects.files.PBXFileReference;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import lombok.val;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.CodeableXCBuildConfiguration.CodingKeys.baseConfigurationReference;
 import static dev.nokee.xcode.project.CodeableXCBuildConfiguration.CodingKeys.buildSettings;
 import static dev.nokee.xcode.project.CodeableXCBuildConfiguration.CodingKeys.name;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class CodeableXCBuildConfigurationTests {
-	@Mock
-	KeyedObject map;
-	@InjectMocks
-	CodeableXCBuildConfiguration subject;
-
+class CodeableXCBuildConfigurationTests extends CodeableAdapterTester<CodeableXCBuildConfiguration> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXObjectNamesProvider.class)
 	void checkGetName(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(name)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getName(), matchesObject(expectedValue));
-		verify(map).tryDecode(name);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@MockitoSource(PBXFileReference.class)
 	void checkGetBaseConfigurationReference(PBXFileReference expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(baseConfigurationReference)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getBaseConfigurationReference(), matchesOptional(expectedValue));
-		verify(map).tryDecode(baseConfigurationReference);
 	}
 
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.BuildSettingsProvider.class)
 	void checkGetBuildSettings(BuildSettings expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(buildSettings)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getBuildSettings(), matchesObject(expectedValue));
-		verify(map).tryDecode(buildSettings);
-	}
-
-	@Test
-	void forwardsEncodingToDelegate() {
-		Codeable.EncodeContext context = mock(Codeable.EncodeContext.class);
-		subject.encode(context);
-		verify(map).encode(context);
-	}
-
-	@Test
-	void forwardsIsaToDelegate() {
-		subject.isa();
-		verify(map).isa();
-	}
-
-	@Test
-	void forwardsGlobalIdToDelegate() {
-		subject.globalId();
-		verify(map).globalId();
-	}
-
-	@Test
-	void forwardsTryDecodeToDelegate() {
-		CodingKey key = mock(CodingKey.class);
-		subject.tryDecode(key);
-		verify(map).tryDecode(key);
 	}
 }

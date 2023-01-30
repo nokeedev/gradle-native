@@ -16,80 +16,46 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
+import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMinorVersion.CodingKeys.kind;
 import static dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMinorVersion.CodingKeys.minimumVersion;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasToString;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class CodeableVersionRequirementUpToNextMinorVersionTests {
-	@Mock
-	KeyedObject map;
-	@InjectMocks
-	CodeableVersionRequirementUpToNextMinorVersion subject;
-
+class CodeableVersionRequirementUpToNextMinorVersionTests extends CodeableAdapterTester<CodeableVersionRequirementUpToNextMinorVersion> {
 	@ParameterizedTest
 	@NullSource
 	@EnumSource(value = Kind.class, names = "UP_TO_NEXT_MINOR_VERSION")
 	void checkGetKind(Kind expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(kind)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getKind(), matchesObject(expectedValue));
-		verify(map).tryDecode(kind);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = "1.2.3")
 	void checkGetMinimumVersion(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(minimumVersion)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getMinimumVersion(), matchesObject(expectedValue));
-		verify(map).tryDecode(minimumVersion);
-	}
-
-	@Test
-	void forwardsEncodingToDelegate() {
-		Codeable.EncodeContext context = mock(Codeable.EncodeContext.class);
-		subject.encode(context);
-		verify(map).encode(context);
-	}
-
-	@Test
-	void forwardsIsaToDelegate() {
-		subject.isa();
-		verify(map).isa();
-	}
-
-	@Test
-	void forwardsGlobalIdToDelegate() {
-		subject.globalId();
-		verify(map).globalId();
-	}
-
-	@Test
-	void forwardsTryDecodeToDelegate() {
-		CodingKey key = mock(CodingKey.class);
-		subject.tryDecode(key);
-		verify(map).tryDecode(key);
 	}
 
 	@Test
 	void checkToString() {
-		when(map.tryDecode(minimumVersion)).thenReturn("3.4");
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(minimumVersion)).then(doReturn("3.4"))));
+
 		assertThat(subject, hasToString("require minimum version '3.4' up to next minor version"));
 	}
 }

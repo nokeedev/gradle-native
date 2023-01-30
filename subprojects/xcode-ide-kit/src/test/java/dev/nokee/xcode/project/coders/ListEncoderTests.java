@@ -16,7 +16,6 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueEncoder;
-import dev.nokee.xcode.utils.ThrowingEncoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +25,7 @@ import static com.google.common.collect.ImmutableList.of;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.called;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.with;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static dev.nokee.xcode.project.coders.CoderType.list;
 import static dev.nokee.xcode.project.coders.CoderType.string;
 import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrap;
@@ -36,7 +36,7 @@ import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
 
 class ListEncoderTests {
-	ValueEncoder.Context context = new ThrowingEncoderContext();
+	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
 	UnwrapEncoder<String> delegate = new UnwrapEncoder<>(string());
 	ListEncoder<String, UnwrapEncoder.Wrapper<String>> subject = new ListEncoder<>(delegate);
 

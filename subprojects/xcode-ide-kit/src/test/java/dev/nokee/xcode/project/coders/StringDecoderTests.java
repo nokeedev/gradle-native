@@ -16,17 +16,17 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueDecoder;
-import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StringDecoderTests {
-	ValueDecoder.Context context = new ThrowingDecoderContext();
+	ValueDecoder.Context context = newAlwaysThrowingMock(ValueDecoder.Context.class);
 	WrapDecoder<String> delegate = new WrapDecoder<>(CoderType.string());
 	StringDecoder<WrapDecoder.Wrapper<String>> subject = new StringDecoder<>(delegate);
 

@@ -17,17 +17,17 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import dev.nokee.xcode.project.ValueDecoder;
-import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SubFolderDecoderTests {
-	ValueDecoder.Context context = new ThrowingDecoderContext();
+	ValueDecoder.Context context = newAlwaysThrowingMock(ValueDecoder.Context.class);
 	SubFolderDecoder subject = new SubFolderDecoder();
 
 	@ParameterizedTest

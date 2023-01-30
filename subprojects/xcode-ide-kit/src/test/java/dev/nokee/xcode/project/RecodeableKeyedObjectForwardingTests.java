@@ -18,6 +18,7 @@ package dev.nokee.xcode.project;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.xcode.project.forwarding.ForwardingWrapper.forwarding;
 import static dev.nokee.xcode.project.forwarding.ForwardingWrapperMatchers.forwardsToDelegate;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,22 +26,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class RecodeableKeyedObjectForwardingTests {
 	@Test
 	void forwardsGlobalIdToDelegate() {
-		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate("globalId"));
+		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate(method("globalId")));
 	}
 
 	@Test
 	void forwardsIsaToDelegate() {
-		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate("isa"));
+		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate(method("isa")));
 	}
 
 	@Test
 	void forwardsTryDecodeToDelegate() {
-		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate("tryDecode"));
+		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate(method("tryDecode")));
 	}
 
 	@Test
 	void forwardsEncodeToDelegate() {
-		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate("encode"));
+		assertThat(forwarding(KeyedObject.class, this::forWrapper), forwardsToDelegate(method("encode")));
 	}
 
 	private RecodeableKeyedObject forWrapper(KeyedObject delegate) {

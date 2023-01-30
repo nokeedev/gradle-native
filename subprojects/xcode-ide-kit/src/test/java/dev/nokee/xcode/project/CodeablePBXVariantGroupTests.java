@@ -18,17 +18,18 @@ package dev.nokee.xcode.project;
 import dev.nokee.xcode.objects.files.GroupChild;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.objects.files.PBXSourceTree;
+import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.CodeablePBXVariantGroup.CodingKeys.children;
 import static dev.nokee.xcode.project.CodeablePBXVariantGroup.CodingKeys.name;
 import static dev.nokee.xcode.project.CodeablePBXVariantGroup.CodingKeys.path;
@@ -38,79 +39,43 @@ import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesOptional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class CodeablePBXVariantGroupTests {
-	@Mock
-	KeyedObject map;
-	@InjectMocks
-	CodeablePBXVariantGroup subject;
-
+class CodeablePBXVariantGroupTests extends CodeableAdapterTester<CodeablePBXVariantGroup> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXObjectNamesProvider.class)
 	void checkGetName(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(name)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getName(), matchesOptional(expectedValue));
-		verify(map).tryDecode(name);
 	}
 
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXReferencePathsProvider.class)
 	void checkGetPath(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(path)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getPath(), matchesOptional(expectedValue));
-		verify(map).tryDecode(path);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@MockitoSource(listOf = {GroupChild.class, GroupChild.class, GroupChild.class})
 	void checkGetChildren(List<GroupChild> expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(children)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getChildren(), matchesIterable(expectedValue));
-		verify(map).tryDecode(children);
 	}
 
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXReferenceSourceTreesProvider.class)
 	void checkGetSourceTree(PBXSourceTree expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(sourceTree)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getSourceTree(), matchesObject(expectedValue));
-		verify(map).tryDecode(sourceTree);
-	}
-
-	@Test
-	void forwardsEncodingToDelegate() {
-		Codeable.EncodeContext context = mock(Codeable.EncodeContext.class);
-		subject.encode(context);
-		verify(map).encode(context);
-	}
-
-	@Test
-	void forwardsIsaToDelegate() {
-		subject.isa();
-		verify(map).isa();
-	}
-
-	@Test
-	void forwardsGlobalIdToDelegate() {
-		subject.globalId();
-		verify(map).globalId();
-	}
-
-	@Test
-	void forwardsTryDecodeToDelegate() {
-		CodingKey key = mock(CodingKey.class);
-		subject.tryDecode(key);
-		verify(map).tryDecode(key);
 	}
 
 	@Test
 	void isPBXReference() {
-		assertThat(subject, isA(PBXReference.class));
+		assertThat(newSubject(), isA(PBXReference.class));
 	}
 }

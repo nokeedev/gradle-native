@@ -17,86 +17,50 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import lombok.val;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath;
 import static dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec;
 import static dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase.CodingKeys.files;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesIterable;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class CodeablePBXCopyFilesBuildPhaseTests {
-	@Mock
-	KeyedObject map;
-	@InjectMocks
-	CodeablePBXCopyFilesBuildPhase subject;
-
+class CodeablePBXCopyFilesBuildPhaseTests extends CodeableAdapterTester<CodeablePBXCopyFilesBuildPhase> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXTargetBuildFilesProvider.class)
 	void checkGetFiles(List<PBXBuildFile> expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(files)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getFiles(), matchesIterable(expectedValue));
-		verify(map).tryDecode(files);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@ValueSource(strings = {"some/path"})
 	void checkGetDstPath(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(dstPath)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getDstPath(), matchesObject(expectedValue));
-		verify(map).tryDecode(dstPath);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@EnumSource(PBXCopyFilesBuildPhase.SubFolder.class)
 	void checkGetDstSubfolderSpec(PBXCopyFilesBuildPhase.SubFolder expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(dstSubfolderSpec)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getDstSubfolderSpec(), matchesObject(expectedValue));
-		verify(map).tryDecode(dstSubfolderSpec);
-	}
-
-	@Test
-	void forwardsEncodingToDelegate() {
-		Codeable.EncodeContext context = mock(Codeable.EncodeContext.class);
-		subject.encode(context);
-		verify(map).encode(context);
-	}
-
-	@Test
-	void forwardsIsaToDelegate() {
-		subject.isa();
-		verify(map).isa();
-	}
-
-	@Test
-	void forwardsGlobalIdToDelegate() {
-		subject.globalId();
-		verify(map).globalId();
-	}
-
-	@Test
-	void forwardsTryDecodeToDelegate() {
-		CodingKey key = mock(CodingKey.class);
-		subject.tryDecode(key);
-		verify(map).tryDecode(key);
 	}
 }

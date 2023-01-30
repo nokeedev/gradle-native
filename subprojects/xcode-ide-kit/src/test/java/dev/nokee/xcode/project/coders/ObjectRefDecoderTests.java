@@ -17,14 +17,16 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
-import dev.nokee.xcode.utils.ThrowingDecoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.coders.CoderType.byRef;
 import static dev.nokee.xcode.project.coders.WrapDecoder.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,17 +39,9 @@ class ObjectRefDecoderTests {
 
 	@Nested
 	class WhenDecodingObjectCopy {
-		ValueDecoder.Context context = new ValueDecoder.Context() {
-			@Override
-			public KeyedObject decodeBycopyObject(Map<String, ?> object) {
-				throw new UnsupportedOperationException();
-			}
-
-			@Override
-			public KeyedObject decodeByrefObject(String object) {
-				return new RefKeyedObject(object);
-			}
-		};
+		ValueDecoder.Context context = newMock(ValueDecoder.Context.class)
+			.when(any(callTo(method(ValueDecoder.Context::decodeByrefObject))).then(doReturn((it, args) -> new RefKeyedObject(args.getArgument(0)))))
+			.alwaysThrows().instance();
 		String objectToDecode = "a-gid";
 		WrapDecoder.Wrapper<KeyedObject> result = subject.decode(objectToDecode, context);
 
@@ -64,7 +58,7 @@ class ObjectRefDecoderTests {
 
 	@Test
 	void throwsExceptionIfObjectTypeIsNotString() {
-		assertThrows(IllegalArgumentException.class, () -> subject.decode(new Object(), new ThrowingDecoderContext()));
+		assertThrows(IllegalArgumentException.class, () -> subject.decode(new Object(), newAlwaysThrowingMock(ValueDecoder.Context.class)));
 	}
 
 	@Test

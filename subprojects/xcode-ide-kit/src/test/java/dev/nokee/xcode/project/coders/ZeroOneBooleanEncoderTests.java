@@ -16,16 +16,16 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueEncoder;
-import dev.nokee.xcode.utils.ThrowingEncoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static dev.nokee.xcode.project.coders.CoderType.oneZeroBoolean;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class ZeroOneBooleanEncoderTests {
-	ValueEncoder.Context context = new ThrowingEncoderContext();
+	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
 	ZeroOneBooleanEncoder subject = new ZeroOneBooleanEncoder();
 
 	@Nested

@@ -22,6 +22,11 @@ import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.coders.CoderType.byRef;
 import static dev.nokee.xcode.project.coders.CoderType.of;
 import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrap;
@@ -30,17 +35,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class ObjectRefEncoderTests {
-	ValueEncoder.Context context = new ValueEncoder.Context() {
-		@Override
-		public BycopyObject encodeBycopyObject(Encodeable object) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public ByrefObject encodeByrefObject(Encodeable object) {
-			return new TestByrefObject(object);
-		}
-	};
+	ValueEncoder.Context context = newMock(ValueEncoder.Context.class)
+		.when(any(callTo(method(ValueEncoder.Context::encodeByrefObject))).then(doReturn((it, args) -> new TestByrefObject(args.getArgument(0)))))
+		.alwaysThrows().instance();
 	UnwrapEncoder<Encodeable> delegate = new UnwrapEncoder<>(of(Encodeable.class));
 	ObjectRefEncoder<UnwrapEncoder.Wrapper<Encodeable>> subject = new ObjectRefEncoder<>(delegate);
 

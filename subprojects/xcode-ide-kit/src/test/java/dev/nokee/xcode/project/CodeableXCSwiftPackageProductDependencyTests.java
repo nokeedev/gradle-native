@@ -16,74 +16,35 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import lombok.val;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.project.CodeableXCSwiftPackageProductDependency.CodingKeys.packageReference;
 import static dev.nokee.xcode.project.CodeableXCSwiftPackageProductDependency.CodingKeys.productName;
 import static dev.nokee.xcode.project.PBXObjectMatchers.matchesObject;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class CodeableXCSwiftPackageProductDependencyTests {
-	@Mock
-	KeyedObject map;
-	@InjectMocks
-	CodeableXCSwiftPackageProductDependency subject;
-
+class CodeableXCSwiftPackageProductDependencyTests extends CodeableAdapterTester<CodeableXCSwiftPackageProductDependency> {
 	@ParameterizedTest
 	@ArgumentsSource(PBXObjectArgumentsProviders.PBXTargetProductNameProvider.class)
 	void checkGetProductName(String expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(productName)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getProductName(), matchesObject(expectedValue));
-		verify(map).tryDecode(productName);
 	}
 
 	@ParameterizedTest
 	@NullSource
 	@MockitoSource(XCRemoteSwiftPackageReference.class)
 	void checkGetPackageReference(XCRemoteSwiftPackageReference expectedValue) {
-		when(map.tryDecode(any())).thenReturn(expectedValue);
+		val subject = newSubject(it -> it.when(callTo(method(KeyedObject_tryDecode())).with(args(packageReference)).then(doReturn(expectedValue))));
+
 		assertThat(subject.getPackageReference(), matchesObject(expectedValue));
-		verify(map).tryDecode(packageReference);
-	}
-
-	@Test
-	void forwardsEncodingToDelegate() {
-		Codeable.EncodeContext context = mock(Codeable.EncodeContext.class);
-		subject.encode(context);
-		verify(map).encode(context);
-	}
-
-	@Test
-	void forwardsIsaToDelegate() {
-		subject.isa();
-		verify(map).isa();
-	}
-
-	@Test
-	void forwardsGlobalIdToDelegate() {
-		subject.globalId();
-		verify(map).globalId();
-	}
-
-	@Test
-	void forwardsTryDecodeToDelegate() {
-		CodingKey key = mock(CodingKey.class);
-		subject.tryDecode(key);
-		verify(map).tryDecode(key);
 	}
 }
