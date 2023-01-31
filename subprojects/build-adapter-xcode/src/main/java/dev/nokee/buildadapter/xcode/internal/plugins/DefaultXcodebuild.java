@@ -18,10 +18,13 @@ package dev.nokee.buildadapter.xcode.internal.plugins;
 import dev.nokee.core.exec.CommandLineTool;
 import dev.nokee.core.exec.CommandLineToolExecutionEngine;
 import dev.nokee.core.exec.CommandLineToolExecutionHandle;
+import dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables;
 import dev.nokee.core.exec.CommandLineToolOutputParser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 
 public final class DefaultXcodebuild implements Xcodebuild {
 	private final CommandLineToolExecutionEngine<? extends CommandLineToolExecutionHandle.Waitable> engine;
@@ -32,7 +35,7 @@ public final class DefaultXcodebuild implements Xcodebuild {
 
 	@Override
 	public String version() {
-		return CommandLineTool.of("xcodebuild").withArguments("-version").execute(engine).waitFor().getOutput().parse(asXcodeRunVersion());
+		return CommandLineTool.of("xcodebuild").withArguments("-version").newInvocation().withEnvironmentVariables(inherit("PATH", "DEVELOPER_DIR")).buildAndSubmit(engine).waitFor().getOutput().parse(asXcodeRunVersion());
 	}
 
 	private static final Pattern XCODEBUILD_VERSION_PATTERN = Pattern.compile("(\\d+.\\d+(.\\d+)?)");
