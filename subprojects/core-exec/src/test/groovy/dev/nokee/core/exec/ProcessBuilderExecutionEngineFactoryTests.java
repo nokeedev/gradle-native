@@ -20,8 +20,14 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.core.exec.CommandLineToolExecutionEngine.processBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.sameInstance;
 
 class ProcessBuilderExecutionEngineFactoryTests {
+	@Test
+	void alwaysReturnsSameProcessBuilderInstance() {
+		assertThat(processBuilder(), sameInstance(processBuilder()));
+	}
+
 	@Test
 	void returnsProcessBuilder() {
 		assertThat(processBuilder(), equalTo(new ProcessBuilderEngine()));
