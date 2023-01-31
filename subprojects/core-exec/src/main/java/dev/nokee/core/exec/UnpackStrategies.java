@@ -18,9 +18,11 @@ package dev.nokee.core.exec;
 import com.google.common.collect.ImmutableList;
 import dev.nokee.utils.DeferredUtils;
 
+import java.nio.file.Path;
 import java.util.Objects;
 
-import static dev.nokee.utils.DeferredUtils.flatUnpackWhile;
+import static dev.nokee.utils.DeferredUtils.DEFAULT_FLATTENER;
+import static dev.nokee.utils.DeferredUtils.flat;
 import static dev.nokee.utils.DeferredUtils.isDeferred;
 import static dev.nokee.utils.DeferredUtils.isFlattenableType;
 
@@ -29,7 +31,9 @@ enum UnpackStrategies implements UnpackStrategy {
 		@Override
 		public <R> R unpack(Object value) {
 			@SuppressWarnings("unchecked")
-			R result = (R) flatUnpackWhile(it -> isDeferred(it) || isFlattenableType(it)).execute(value).stream()
+			R result = (R) flat(new IgnoreJavaPathFlattener(DEFAULT_FLATTENER)).unpack()
+				.whileTrue(it -> isDeferred(it) || (isFlattenableType(it) && !(it instanceof Path)))
+				.execute(value).stream()
 				.map(Object::toString).collect(ImmutableList.toImmutableList());
 			return result;
 		}
