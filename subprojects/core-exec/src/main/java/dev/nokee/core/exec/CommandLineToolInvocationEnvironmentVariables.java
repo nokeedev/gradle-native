@@ -136,7 +136,7 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 	/**
 	 * Creates the invocation environment variables from the current process.
 	 *
-	 * @return a instance representing the environment variables to use, never null.
+	 * @return an instance representing the environment variables to use, never null.
 	 */
 	public static CommandLineToolInvocationEnvironmentVariables inherit() {
 		return new CommandLineToolInvocationEnvironmentVariables(System.getenv());
