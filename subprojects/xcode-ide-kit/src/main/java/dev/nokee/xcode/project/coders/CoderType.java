@@ -19,8 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class CoderType<T> {
-	public static <T> CoderType<? extends T> anyOf(Class<T> baseType) {
+	public static <T> CoderType</*? extends*/ T> anyOf(Class<T> baseType) {
 		return new CoderAnyOfType<>(baseType);
+	}
+
+	public static <T> CoderType<T> or(CoderType<T> left, CoderType<? super T> right) {
+		return new CoderOrType<>(left, right);
 	}
 
 	public static CoderType<Boolean> trueFalseBoolean() {

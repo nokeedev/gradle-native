@@ -34,7 +34,7 @@ public final class ObjectDecoder<OUT> implements ValueDecoder<OUT, Object> {
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<? super OUT> getDecodeType() {
 		return CoderType.byCopy(delegate.getDecodeType());
 	}
 

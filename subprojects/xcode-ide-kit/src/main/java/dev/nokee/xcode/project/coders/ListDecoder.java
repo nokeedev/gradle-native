@@ -33,8 +33,9 @@ public final class ListDecoder<OUT> implements ValueDecoder<List<OUT>, Object> {
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.list(delegate.getDecodeType());
+	@SuppressWarnings("unchecked")
+	public CoderType<? super List<OUT>> getDecodeType() {
+		return CoderType.list((CoderType<OUT>) delegate.getDecodeType());
 	}
 
 	@Override

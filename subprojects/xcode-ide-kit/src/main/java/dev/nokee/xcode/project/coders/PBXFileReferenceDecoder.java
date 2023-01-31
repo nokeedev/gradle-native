@@ -31,7 +31,7 @@ public final class PBXFileReferenceDecoder<T extends PBXFileReference & Codeable
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXFileReference> getDecodeType() {
 		return CoderType.of(PBXFileReference.class);
 	}
 }

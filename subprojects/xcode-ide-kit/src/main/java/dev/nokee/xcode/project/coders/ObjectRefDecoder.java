@@ -33,7 +33,7 @@ public final class ObjectRefDecoder<OUT> implements ValueDecoder<OUT, Object> {
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<? super OUT> getDecodeType() {
 		return CoderType.byRef(delegate.getDecodeType());
 	}
 

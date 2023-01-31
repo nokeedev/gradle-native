@@ -30,7 +30,7 @@ public final class XCSwiftPackageProductDependencyDecoder<T extends XCSwiftPacka
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<XCSwiftPackageProductDependency> getDecodeType() {
 		return CoderType.of(XCSwiftPackageProductDependency.class);
 	}
 }

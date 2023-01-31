@@ -36,7 +36,7 @@ public final class TargetDecoder<T extends PBXTarget & Codeable> implements Valu
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXTarget> getDecodeType() {
 		return CoderType.anyOf(PBXTarget.class);
 	}
 }

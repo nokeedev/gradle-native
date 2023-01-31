@@ -36,7 +36,7 @@ public final class DictionaryDecoder<OUT> implements ValueDecoder<OUT, Object> {
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<? super OUT> getDecodeType() {
 		return delegate.getDecodeType();
 	}
 

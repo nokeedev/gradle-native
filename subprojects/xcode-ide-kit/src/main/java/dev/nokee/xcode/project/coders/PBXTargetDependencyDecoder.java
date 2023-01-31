@@ -32,7 +32,7 @@ public final class PBXTargetDependencyDecoder<T extends PBXTargetDependency & Co
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXTargetDependency> getDecodeType() {
 		return CoderType.of(PBXTargetDependency.class);
 	}
 }

@@ -32,7 +32,7 @@ public final class VersionRequirementKindDecoder implements ValueDecoder<XCRemot
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<XCRemoteSwiftPackageReference.VersionRequirement.Kind> getDecodeType() {
 		return CoderType.of(XCRemoteSwiftPackageReference.VersionRequirement.Kind.class);
 	}
 }

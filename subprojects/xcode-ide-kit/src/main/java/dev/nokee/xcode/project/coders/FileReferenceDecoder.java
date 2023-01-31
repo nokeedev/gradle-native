@@ -38,7 +38,7 @@ public final class FileReferenceDecoder<T extends PBXBuildFile.FileReference & C
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXBuildFile.FileReference> getDecodeType() {
 		return CoderType.anyOf(PBXBuildFile.FileReference.class);
 	}
 }

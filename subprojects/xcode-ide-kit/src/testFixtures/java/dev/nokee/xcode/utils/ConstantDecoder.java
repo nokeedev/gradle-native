@@ -51,7 +51,8 @@ public final class ConstantDecoder<OUT, IN> implements ValueDecoder<OUT, IN>, Ha
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(returnValue.getClass());
+	@SuppressWarnings("unchecked")
+	public CoderType<OUT> getDecodeType() {
+		return CoderType.of((Class<OUT>) returnValue.getClass());
 	}
 }

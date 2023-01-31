@@ -51,7 +51,7 @@ public final class WrapDecoder<T> implements ValueDecoder<WrapDecoder.Wrapper<T>
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<Wrapper<T>> getDecodeType() {
 		return wrapper(inputType);
 	}
 

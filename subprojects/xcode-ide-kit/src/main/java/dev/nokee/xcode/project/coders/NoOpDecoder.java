@@ -30,7 +30,7 @@ public final class NoOpDecoder<T> implements ValueDecoder<T, T> {
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<T> getDecodeType() {
 		return decodeType;
 	}
 }

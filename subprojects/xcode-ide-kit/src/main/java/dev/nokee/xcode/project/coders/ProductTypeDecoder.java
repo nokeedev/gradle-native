@@ -31,7 +31,7 @@ public final class ProductTypeDecoder implements ValueDecoder<ProductType, Strin
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<ProductType> getDecodeType() {
 		return CoderType.of(ProductType.class);
 	}
 }

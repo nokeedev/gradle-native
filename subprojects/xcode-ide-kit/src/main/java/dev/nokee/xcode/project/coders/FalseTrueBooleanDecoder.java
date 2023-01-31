@@ -44,8 +44,8 @@ public final class FalseTrueBooleanDecoder implements ValueDecoder<Boolean, Obje
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
+	public CoderType<Boolean> getDecodeType() {
+		return CoderType.or(CoderType.trueFalseBoolean(), delegate.getDecodeType());
 	}
 
 	@Override

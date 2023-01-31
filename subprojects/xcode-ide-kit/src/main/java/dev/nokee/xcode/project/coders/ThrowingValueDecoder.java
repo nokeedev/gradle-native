@@ -30,7 +30,7 @@ public final class ThrowingValueDecoder<OUT, IN> implements ValueDecoder<OUT, IN
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<OUT> getDecodeType() {
 		return coderType;
 	}
 }

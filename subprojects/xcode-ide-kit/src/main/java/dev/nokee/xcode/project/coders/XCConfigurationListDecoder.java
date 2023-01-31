@@ -30,7 +30,7 @@ public final class XCConfigurationListDecoder<T extends XCConfigurationList & Co
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<XCConfigurationList> getDecodeType() {
 		return CoderType.of(XCConfigurationList.class);
 	}
 }

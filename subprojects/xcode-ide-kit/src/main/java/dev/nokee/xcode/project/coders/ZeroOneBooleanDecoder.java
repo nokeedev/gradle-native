@@ -53,7 +53,7 @@ public final class ZeroOneBooleanDecoder implements ValueDecoder<Boolean, Object
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
+	public CoderType<Boolean> getDecodeType() {
+		return CoderType.or(CoderType.oneZeroBoolean(), delegate.getDecodeType());
 	}
 }

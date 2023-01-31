@@ -30,7 +30,7 @@ public final class PBXGroupDecoder<T extends PBXGroup & Codeable> implements Val
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXGroup> getDecodeType() {
 		return CoderType.of(PBXGroup.class);
 	}
 }

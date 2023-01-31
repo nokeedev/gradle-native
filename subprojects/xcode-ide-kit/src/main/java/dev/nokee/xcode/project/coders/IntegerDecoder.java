@@ -40,7 +40,7 @@ public final class IntegerDecoder<OUT> implements ValueDecoder<OUT, Object> {
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<? super OUT> getDecodeType() {
 		return delegate.getDecodeType();
 	}
 

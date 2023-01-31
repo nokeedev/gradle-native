@@ -15,6 +15,7 @@
  */
 package dev.nokee.xcode.project.coders;
 
+import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase;
@@ -42,7 +43,7 @@ public final class BuildPhaseDecoder<T extends PBXBuildPhase & Codeable> impleme
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXBuildPhase> getDecodeType() {
 		return CoderType.anyOf(PBXBuildPhase.class);
 	}
 }

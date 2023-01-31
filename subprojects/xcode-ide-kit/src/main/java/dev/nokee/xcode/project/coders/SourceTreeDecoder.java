@@ -25,7 +25,7 @@ public final class SourceTreeDecoder implements ValueDecoder<PBXSourceTree, Stri
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXSourceTree> getDecodeType() {
 		return CoderType.of(PBXSourceTree.class);
 	}
 }

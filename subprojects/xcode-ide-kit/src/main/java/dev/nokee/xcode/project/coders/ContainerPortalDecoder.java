@@ -34,7 +34,7 @@ public final class ContainerPortalDecoder<T extends PBXContainerItemProxy.Contai
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXContainerItemProxy.ContainerPortal> getDecodeType() {
 		return CoderType.anyOf(PBXContainerItemProxy.ContainerPortal.class);
 	}
 }

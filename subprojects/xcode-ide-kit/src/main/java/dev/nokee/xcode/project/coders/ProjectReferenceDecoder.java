@@ -30,7 +30,7 @@ public final class ProjectReferenceDecoder<T extends PBXProject.ProjectReference
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXProject.ProjectReference> getDecodeType() {
 		return CoderType.of(PBXProject.ProjectReference.class);
 	}
 }

@@ -31,7 +31,7 @@ public final class BuildSettingsDecoder implements ValueDecoder<BuildSettings, M
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<BuildSettings> getDecodeType() {
 		return CoderType.of(BuildSettings.class);
 	}
 }

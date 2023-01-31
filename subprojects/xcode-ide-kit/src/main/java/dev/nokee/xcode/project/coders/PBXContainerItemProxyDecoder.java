@@ -30,7 +30,7 @@ public final class PBXContainerItemProxyDecoder<T extends PBXContainerItemProxy 
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXContainerItemProxy> getDecodeType() {
 		return CoderType.of(PBXContainerItemProxy.class);
 	}
 }

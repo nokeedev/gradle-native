@@ -30,7 +30,7 @@ public final class XCRemoteSwiftPackageReferenceDecoder<T extends XCRemoteSwiftP
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<XCRemoteSwiftPackageReference> getDecodeType() {
 		return CoderType.of(XCRemoteSwiftPackageReference.class);
 	}
 }

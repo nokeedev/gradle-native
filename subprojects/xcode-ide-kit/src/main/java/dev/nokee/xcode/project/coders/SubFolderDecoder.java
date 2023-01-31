@@ -25,7 +25,7 @@ public final class SubFolderDecoder implements ValueDecoder<PBXCopyFilesBuildPha
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXCopyFilesBuildPhase.SubFolder> getDecodeType() {
 		return CoderType.of(PBXCopyFilesBuildPhase.SubFolder.class);
 	}
 }

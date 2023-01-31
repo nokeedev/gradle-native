@@ -48,7 +48,7 @@ public final class VersionRequirementDecoder<T extends XCRemoteSwiftPackageRefer
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<XCRemoteSwiftPackageReference.VersionRequirement> getDecodeType() {
 		return CoderType.anyOf(XCRemoteSwiftPackageReference.VersionRequirement.class);
 	}
 }

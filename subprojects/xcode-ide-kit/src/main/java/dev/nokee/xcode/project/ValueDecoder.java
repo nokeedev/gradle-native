@@ -22,7 +22,7 @@ import java.util.Map;
 public interface ValueDecoder<OUT, IN> {
 	OUT decode(IN object, Context context);
 
-	CoderType<?> getDecodeType();
+	CoderType<? super OUT> getDecodeType();
 
 	interface Context {
 		KeyedObject decodeBycopyObject(Map<String, ?> object);

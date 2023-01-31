@@ -42,8 +42,8 @@ public final class NoYesBooleanDecoder implements ValueDecoder<Boolean, Object> 
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
+	public CoderType<Boolean> getDecodeType() {
+		return CoderType.or(CoderType.yesNoBoolean(), delegate.getDecodeType());
 	}
 
 	@Override

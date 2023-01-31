@@ -36,7 +36,7 @@ public final class DefaultCoder<OUT> implements ValueCoder<OUT> {
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<? super OUT> getDecodeType() {
 		return decoder.getDecodeType();
 	}
 

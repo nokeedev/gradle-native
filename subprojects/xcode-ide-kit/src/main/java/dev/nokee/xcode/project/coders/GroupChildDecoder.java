@@ -40,7 +40,7 @@ public final class GroupChildDecoder<T extends GroupChild & Codeable> implements
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<GroupChild> getDecodeType() {
 		return CoderType.anyOf(GroupChild.class);
 	}
 }

@@ -25,7 +25,7 @@ public final class ProxyTypeDecoder implements ValueDecoder<PBXContainerItemProx
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
+	public CoderType<PBXContainerItemProxy.ProxyType> getDecodeType() {
 		return CoderType.of(PBXContainerItemProxy.ProxyType.class);
 	}
 }
