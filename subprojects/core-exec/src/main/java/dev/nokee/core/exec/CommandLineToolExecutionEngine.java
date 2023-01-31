@@ -51,6 +51,6 @@ public interface CommandLineToolExecutionEngine<T extends CommandLineToolExecuti
 	}
 
 	static ProcessBuilderEngine processBuilder() {
-		return new ProcessBuilderEngine();
+		return CommandLineUtils.PROCESS_BUILDER_ENGINE;
 	}
 }

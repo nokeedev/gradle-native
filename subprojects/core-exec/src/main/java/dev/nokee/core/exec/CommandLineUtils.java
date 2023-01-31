@@ -29,6 +29,8 @@ import static org.apache.commons.lang3.SystemUtils.IS_OS_FREE_BSD;
 import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 
 final class CommandLineUtils {
+	public static final ProcessBuilderEngine PROCESS_BUILDER_ENGINE = new ProcessBuilderEngine();
+
 	private CommandLineUtils() {}
 
 	public static List<Object> getScriptCommandLine() {
