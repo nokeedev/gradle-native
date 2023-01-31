@@ -15,6 +15,7 @@
  */
 package dev.nokee.core.exec;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
@@ -25,5 +26,11 @@ class CommandLineToolInvocationEnvironmentVariablesInheritFactoryTests {
 	@Test
 	void returnsInheritedEnvironmentVariables() {
 		assertThat(inherit(), equalTo(new CommandLineToolInvocationEnvironmentVariables(System.getenv())));
+	}
+
+	@Test
+	void returnsOnlySpecifiedInheritedEnvironmentVariables() {
+		assertThat(inherit("PATH"),
+			equalTo(new CommandLineToolInvocationEnvironmentVariables(ImmutableMap.of("PATH", System.getenv("PATH")))));
 	}
 }

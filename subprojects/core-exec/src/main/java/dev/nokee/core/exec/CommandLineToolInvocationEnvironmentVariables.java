@@ -143,6 +143,20 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 	}
 
 	/**
+	 * Creates the invocation environment variables from the current process of only the specified environment variable names.
+	 *
+	 * @param keys  the environment variable names to inherit, must not be empty
+	 * @return an instance representing the environment variables to use from the current process, never null.
+	 */
+	public static CommandLineToolInvocationEnvironmentVariables inherit(String... keys) {
+		final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+		for (String key : keys) {
+			builder.put(key, System.getenv(key));
+		}
+		return new CommandLineToolInvocationEnvironmentVariables(builder.build());
+	}
+
+	/**
 	 * Creates the empty invocation environment variables.
 	 *
 	 * @return a instance representing the environment variables to use, never null.
