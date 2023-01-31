@@ -17,6 +17,7 @@ package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.core.exec.internal.DefaultCommandLineToolExecutionResult;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -29,6 +30,7 @@ import java.util.function.Supplier;
 
 import static dev.nokee.core.exec.CommandLineToolOutputStreams.execute;
 
+@EqualsAndHashCode
 public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<ProcessBuilderEngine.Handle> {
 	@Override
 	public Handle submit(CommandLineToolInvocation invocation) {

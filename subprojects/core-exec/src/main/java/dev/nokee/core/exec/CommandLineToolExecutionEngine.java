@@ -49,4 +49,8 @@ public interface CommandLineToolExecutionEngine<T extends CommandLineToolExecuti
 	static GradleWorkerExecutorEngine newWorkerQueue(WorkerExecutor workerExecutor) {
 		return new GradleWorkerExecutorEngine(workerExecutor);
 	}
+
+	static ProcessBuilderEngine processBuilder() {
+		return new ProcessBuilderEngine();
+	}
 }
