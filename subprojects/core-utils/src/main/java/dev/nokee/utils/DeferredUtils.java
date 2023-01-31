@@ -16,6 +16,7 @@
 package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.util.internal.AlwaysFalsePredicate;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.DomainObjectCollection;
@@ -58,6 +59,46 @@ public final class DeferredUtils {
 			return ((Provider<?>) value).get();
 		}
 		return value;
+	}
+
+	public static <T> UnpackingBuilder<T> unpack(Unpacker unpacker) {
+		return new UnpackingBuilder<T>() {
+			@Override
+			public Executable<T> until(Class<?> type) {
+				return new UnpackWhileExecutable<>(unpacker, DeferredUtils.until(type));
+			}
+
+			@Override
+			public Executable<T> whileTrue(Predicate<Object> predicate) {
+				return new UnpackWhileExecutable<>(unpacker, predicate);
+			}
+
+			@Override
+			public T execute(@Nullable Object obj) {
+				return new UnpackWhileExecutable<T>(unpacker, AlwaysFalsePredicate.alwaysFalse()).execute(obj);
+			}
+		};
+	}
+
+	@EqualsAndHashCode
+	public static final class UnpackWhileExecutable<T> implements Executable<T> {
+		private final Unpacker unpacker;
+		private final Predicate<Object> predicate;
+
+		public UnpackWhileExecutable(Unpacker unpacker, Predicate<Object> predicate) {
+			this.unpacker = unpacker;
+			this.predicate = predicate;
+		}
+
+		@Override
+		public T execute(@Nullable Object obj) {
+			while (predicate.test(obj)) {
+				obj = unpacker.unpack(obj);
+			}
+			@SuppressWarnings("unchecked")
+			final T result = (T) obj;
+			return result;
+		}
 	}
 
 	public interface Flattener {
