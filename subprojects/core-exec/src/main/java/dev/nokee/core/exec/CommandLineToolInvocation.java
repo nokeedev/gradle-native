@@ -136,7 +136,7 @@ public final class CommandLineToolInvocation implements Serializable {
 		private Object workingDirectory = null;
 		private CommandLineToolInvocationStandardOutputRedirect standardOutputRedirect = CommandLineToolInvocationOutputRedirection.toNullStream();
 		private CommandLineToolInvocationErrorOutputRedirect errorOutputRedirect = CommandLineToolInvocationOutputRedirection.toNullStream();
-		private CommandLineToolInvocationEnvironmentVariables environmentVariables = CommandLineToolInvocationEnvironmentVariables.inherit();
+		private CommandLineToolInvocationEnvironmentVariables environmentVariables = null;
 
 		public Builder commandLine(CommandLine commandLine) {
 			this.executable = commandLine.getTool();
@@ -168,6 +168,8 @@ public final class CommandLineToolInvocation implements Serializable {
 
 			Objects.requireNonNull(executable, "'commandLine' must not be null");
 
+			final CommandLineToolInvocationEnvironmentVariables environmentVariables = resolveEnvironmentVariables();
+
 			CommandLineToolExecutable executable = null;
 			if (this.executable instanceof CommandLineTool) {
 				executable = ((CommandLineToolExecutableResolvable) this.executable).resolve(new CommandLineToolExecutableResolvable.Context() {
@@ -195,6 +197,15 @@ public final class CommandLineToolInvocation implements Serializable {
 			} else {
 				return result;
 			}
+		}
+
+		private CommandLineToolInvocationEnvironmentVariables resolveEnvironmentVariables() {
+			CommandLineToolInvocationEnvironmentVariables result = this.environmentVariables;
+			if (result == null) {
+				result = CommandLineToolInvocationEnvironmentVariables.inherit();
+			}
+
+			return result;
 		}
 
 		public <T extends CommandLineToolExecutionHandle> T buildAndSubmit(CommandLineToolExecutionEngine<T> engine) {
