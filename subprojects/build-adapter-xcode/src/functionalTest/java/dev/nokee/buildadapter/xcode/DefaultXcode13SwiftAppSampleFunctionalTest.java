@@ -44,7 +44,7 @@ class DefaultXcode13SwiftAppSampleFunctionalTest {
 	static void setup(GradleRunner runner) throws IOException {
 		new XcodeSwiftApp().writeToProject(testDirectory);
 		plugins(it -> it.id("dev.nokee.xcode-build-adapter")).writeTo(testDirectory.resolve("settings.gradle"));
-		executer = runner.withTasks("XcodeSwiftApp");
+		executer = runner.withTasks("XcodeSwiftApp").withArgument("-i");
 	}
 
 	@Test

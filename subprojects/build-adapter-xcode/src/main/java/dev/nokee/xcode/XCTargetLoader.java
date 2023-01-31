@@ -23,6 +23,7 @@ import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import lombok.val;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ import java.util.stream.Stream;
 import static com.google.common.base.Preconditions.checkArgument;
 import static dev.nokee.utils.Optionals.stream;
 
-public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReference> {
+public final class XCTargetLoader implements XCLoader<XCTarget, XCTargetReference>, Serializable {
 	private final XCLoader<PBXProject, XCProjectReference> pbxLoader;
 	private final XCLoader<XCFileReferencesLoader.XCFileReferences, XCProjectReference> fileReferencesLoader;
 

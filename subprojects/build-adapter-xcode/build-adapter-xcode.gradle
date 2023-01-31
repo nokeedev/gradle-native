@@ -7,6 +7,7 @@ plugins {
 	id 'maven-publish'
 	id 'dev.gradleplugins.documentation.api-reference-module'
 	id 'nokeedocs.sample-templates'
+	id 'antlr'
 }
 
 dependencies {
@@ -26,6 +27,11 @@ dependencies {
 	implementation 'org.simpleframework:simple-xml:2.7.1'
 	implementation "com.googlecode.plist:dd-plist:${ddPlist}"
 	implementation project(':xcodeIdeKit')
+	implementation "org.antlr:antlr4:${antlrVersion}"
+	antlr "org.antlr:antlr4:${antlrVersion}"
+}
+tasks.named('generateGrammarSource', AntlrTask) { task ->
+	task.arguments += ['-visitor']
 }
 
 gradlePlugin {
@@ -46,6 +52,13 @@ test {
 		implementation 'dev.nokee:templates'
 		implementation templates(project(':xcodeIdeKit'))
 		implementation testFixtures(project(':coreExec'))
+		implementation testFixtures(project(':xcodeIdeKit'))
+	}
+	testTasks.configureEach {
+		maxParallelForks = Runtime.runtime.availableProcessors()
+		forkEvery 1
+		systemProperty 'junit.jupiter.execution.parallel.enabled', true
+		systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
 	}
 }
 

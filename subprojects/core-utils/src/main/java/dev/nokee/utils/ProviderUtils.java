@@ -16,6 +16,7 @@
 package dev.nokee.utils;
 
 import lombok.val;
+import org.apache.commons.lang3.function.TriFunction;
 import org.gradle.api.Action;
 import org.gradle.api.internal.provider.CollectionProviderInternal;
 import org.gradle.api.internal.provider.DefaultProvider;
@@ -23,11 +24,17 @@ import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.internal.provider.Providers;
 import org.gradle.api.provider.HasConfigurableValue;
 import org.gradle.api.provider.HasMultipleValues;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 import org.gradle.api.provider.ValueSourceSpec;
 import org.gradle.util.GradleVersion;
 
+import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -38,6 +45,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import static dev.nokee.utils.ProviderUtils.ZipExProviderValueSource.combine;
 import static java.util.Objects.requireNonNull;
 
 public final class ProviderUtils {
@@ -220,12 +228,225 @@ public final class ProviderUtils {
 	 * @param <U>  the right provider type
 	 * @param <R>  the return provider type
 	 */
-	@SuppressWarnings("unchecked")
-	public static <A extends Provider<? extends List<Object>> & HasMultipleValues<Object>, T, U, R> Provider<R> zip(Supplier<A> supplier, Provider<T> left, Provider<U> right, BiFunction<T, U, R> combiner) {
+	public static <A extends Provider<? extends List<Object>> & HasMultipleValues<Object>, T, U, R> Provider<R> zip(Supplier<A> supplier, Provider<T> left, Provider<U> right, Combiner2<T, U, R> combiner) {
 		val accumulator = supplier.get();
 		accumulator.add(left);
 		accumulator.add(right);
-		return accumulator.map(it -> combiner.apply((T) it.get(0), (U) it.get(1)));
+		return accumulator.map(combine(combiner)::apply);
+	}
+
+	public static <A extends Provider<? extends List<Object>> & HasMultipleValues<Object>, T, U, V, R> Provider<R> zip(Supplier<A> supplier, Provider<T> p0, Provider<U> p1, Provider<V> p2, Combiner3<T, U, V, R> combiner) {
+		val accumulator = supplier.get();
+		accumulator.add(p0);
+		accumulator.add(p1);
+		accumulator.add(p2);
+		return accumulator.map(combine(combiner)::apply);
+	}
+
+	public static <A extends Provider<? extends List<Object>> & HasMultipleValues<Object>, A0, A1, A2, A3, A4, A5, A6, R> Provider<R> zip(Supplier<A> supplier, Provider<A0> p0, Provider<A1> p1, Provider<A2> p2, Provider<A3> p3, Provider<A4> p4, Provider<A5> p5, Provider<A6> p6, Combiner7<A0, A1, A2, A3, A4, A5, A6, R> combiner) {
+		val accumulator = supplier.get();
+		accumulator.add(p0);
+		accumulator.add(p1);
+		accumulator.add(p2);
+		accumulator.add(p3);
+		accumulator.add(p4);
+		accumulator.add(p5);
+		accumulator.add(p6);
+		return accumulator.map(combine(combiner)::apply);
+	}
+
+	public static <A extends Provider<? extends List<Object>> & HasMultipleValues<Object>, A0, A1, A2, A3, A4, A5, A6, A7, R> Provider<R> zip(Supplier<A> supplier, Provider<A0> p0, Provider<A1> p1, Provider<A2> p2, Provider<A3> p3, Provider<A4> p4, Provider<A5> p5, Provider<A6> p6, Provider<A7> p7, Combiner8<A0, A1, A2, A3, A4, A5, A6, A7, R> combiner) {
+		val accumulator = supplier.get();
+		accumulator.add(p0);
+		accumulator.add(p1);
+		accumulator.add(p2);
+		accumulator.add(p3);
+		accumulator.add(p4);
+		accumulator.add(p5);
+		accumulator.add(p6);
+		accumulator.add(p7);
+		return accumulator.map(combine(combiner)::apply);
+	}
+
+	public static <A extends Provider<? extends List<Object>> & HasMultipleValues<Object>, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, R> Provider<R> zip(Supplier<A> supplier, Provider<A0> p0, Provider<A1> p1, Provider<A2> p2, Provider<A3> p3, Provider<A4> p4, Provider<A5> p5, Provider<A6> p6, Provider<A7> p7, Provider<A8> p8, Provider<A9> p9, Combiner10<A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, R> combiner) {
+		val accumulator = supplier.get();
+		accumulator.add(p0);
+		accumulator.add(p1);
+		accumulator.add(p2);
+		accumulator.add(p3);
+		accumulator.add(p4);
+		accumulator.add(p5);
+		accumulator.add(p6);
+		accumulator.add(p7);
+		accumulator.add(p8);
+		accumulator.add(p9);
+		return accumulator.map(combine(combiner)::apply);
+	}
+
+	public static <A extends Provider<? extends List<Object>> & HasMultipleValues<Object>, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R> Provider<R> zip(Supplier<A> supplier, Provider<A0> p0, Provider<A1> p1, Provider<A2> p2, Provider<A3> p3, Provider<A4> p4, Provider<A5> p5, Provider<A6> p6, Provider<A7> p7, Provider<A8> p8, Provider<A9> p9, Provider<A10> p10, Combiner11<A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R> combiner) {
+		val accumulator = supplier.get();
+		accumulator.add(p0);
+		accumulator.add(p1);
+		accumulator.add(p2);
+		accumulator.add(p3);
+		accumulator.add(p4);
+		accumulator.add(p5);
+		accumulator.add(p6);
+		accumulator.add(p7);
+		accumulator.add(p8);
+		accumulator.add(p9);
+		accumulator.add(p10);
+		return accumulator.map(combine(combiner)::apply);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A0, A1, A2, R> Provider<R> zip(ProviderFactory self, Provider<A0> p0, Provider<A1> p1, Provider<A2> p2, Combiner3<A0, A1, A2, R> combiner) {
+		return (Provider<R>) self.of(ZipExProviderValueSource.class, forParameters(spec -> {
+			spec.getAccumulator().add(p0);
+			spec.getAccumulator().add(p1);
+			spec.getAccumulator().add(p2);
+			spec.getCombiner().set(combine(combiner));
+		}));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A0, A1, A2, A3, A4, A5, R> Provider<R> zip(ProviderFactory self, Provider<A0> p0, Provider<A1> p1, Provider<A2> p2, Provider<A3> p3, Provider<A4> p4, Provider<A5> p5, Combiner6<A0, A1, A2, A3, A4, A5, R> combiner) {
+		return (Provider<R>) self.of(ZipExProviderValueSource.class, forParameters(spec -> {
+			spec.getAccumulator().add(p0);
+			spec.getAccumulator().add(p1);
+			spec.getAccumulator().add(p2);
+			spec.getAccumulator().add(p3);
+			spec.getAccumulator().add(p4);
+			spec.getAccumulator().add(p5);
+			spec.getCombiner().set(combine(combiner));
+		}));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R> Provider<R> zip(ProviderFactory self, Provider<A0> p0, Provider<A1> p1, Provider<A2> p2, Provider<A3> p3, Provider<A4> p4, Provider<A5> p5, Provider<A6> p6, Provider<A7> p7, Provider<A8> p8, Provider<A9> p9, Provider<A10> p10, Combiner11<A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R> combiner) {
+		return (Provider<R>) self.of(ZipExProviderValueSource.class, forParameters(spec -> {
+			spec.getAccumulator().add(p0);
+			spec.getAccumulator().add(p1);
+			spec.getAccumulator().add(p2);
+			spec.getAccumulator().add(p3);
+			spec.getAccumulator().add(p4);
+			spec.getAccumulator().add(p5);
+			spec.getAccumulator().add(p6);
+			spec.getAccumulator().add(p7);
+			spec.getAccumulator().add(p8);
+			spec.getAccumulator().add(p9);
+			spec.getAccumulator().add(p10);
+			spec.getCombiner().set(combine(combiner));
+		}));
+	}
+
+	@SuppressWarnings({"rawtypes", "UnstableApiUsage"})
+	public static abstract class ZipExProviderValueSource implements ValueSource<Object, ZipExProviderValueSource.Parameters> {
+		public interface Parameters extends ValueSourceParameters {
+			ListProperty<Object> getAccumulator();
+			Property<CombinerCallable> getCombiner();
+		}
+
+		@Nullable
+		@Override
+		@SuppressWarnings("unchecked")
+		public Object obtain() {
+			return getParameters().getCombiner().get().apply(getParameters().getAccumulator().get());
+		}
+
+		public interface CombinerCallable<R> extends Serializable {
+			R apply(List<Object> args);
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1> CombinerCallable<R> combine(Combiner2<A0, A1, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2> CombinerCallable<R> combine(Combiner3<A0, A1, A2, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2, A3> CombinerCallable<R> combine(Combiner4<A0, A1, A2, A3, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2), (A3) args.get(3));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2, A3, A4> CombinerCallable<R> combine(Combiner5<A0, A1, A2, A3, A4, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2), (A3) args.get(3), (A4) args.get(4));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2, A3, A4, A5> CombinerCallable<R> combine(Combiner6<A0, A1, A2, A3, A4, A5, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2), (A3) args.get(3), (A4) args.get(4), (A5) args.get(5));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2, A3, A4, A5, A6> CombinerCallable<R> combine(Combiner7<A0, A1, A2, A3, A4, A5, A6, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2), (A3) args.get(3), (A4) args.get(4), (A5) args.get(5), (A6) args.get(6));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2, A3, A4, A5, A6, A7> CombinerCallable<R> combine(Combiner8<A0, A1, A2, A3, A4, A5, A6, A7, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2), (A3) args.get(3), (A4) args.get(4), (A5) args.get(5), (A6) args.get(6), (A7) args.get(7));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2, A3, A4, A5, A6, A7, A8> CombinerCallable<R> combine(Combiner9<A0, A1, A2, A3, A4, A5, A6, A7, A8, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2), (A3) args.get(3), (A4) args.get(4), (A5) args.get(5), (A6) args.get(6), (A7) args.get(7), (A8) args.get(8));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9> CombinerCallable<R> combine(Combiner10<A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2), (A3) args.get(3), (A4) args.get(4), (A5) args.get(5), (A6) args.get(6), (A7) args.get(7), (A8) args.get(8), (A9) args.get(9));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static <R, A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> CombinerCallable<R> combine(Combiner11<A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R> combiner) {
+			return args -> combiner.apply((A0) args.get(0), (A1) args.get(1), (A2) args.get(2), (A3) args.get(3), (A4) args.get(4), (A5) args.get(5), (A6) args.get(6), (A7) args.get(7), (A8) args.get(8), (A9) args.get(9), (A10) args.get(10));
+		}
+	}
+
+	public interface Combiner2<A0, A1, R> extends Serializable {
+		R apply(A0 a0, A1 a1);
+	}
+
+	public interface Combiner3<A0, A1, A3, R> extends Serializable {
+		R apply(A0 a0, A1 a1, A3 a3);
+	}
+
+	public interface Combiner4<A0, A1, A3, A4, R> extends Serializable {
+		R apply(A0 a0, A1 a1, A3 a3, A4 a4);
+	}
+
+	public interface Combiner5<A0, A1, A3, A4, A5, R> extends Serializable {
+		R apply(A0 a0, A1 a1, A3 a3, A4 a4, A5 a5);
+	}
+
+	public interface Combiner6<A0, A1, A2, A3, A4, A5, R> extends Serializable {
+		R apply(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
+	}
+
+	public interface Combiner7<A0, A1, A2, A3, A4, A5, A6, R> {
+		R apply(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6);
+	}
+
+	public interface Combiner8<A0, A1, A2, A3, A4, A5, A6, A7, R> {
+		R apply(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7);
+	}
+
+	public interface Combiner9<A0, A1, A2, A3, A4, A5, A6, A7, A8, R> extends Serializable {
+		R apply(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8);
+	}
+
+	public interface Combiner10<A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, R> extends Serializable {
+		R apply(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9);
+	}
+
+	public interface Combiner11<A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R> extends Serializable {
+		R apply(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10);
 	}
 
 	/**

@@ -13,24 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.nokee.xcode;
+package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
-import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 
-import java.io.Serializable;
-
-import static com.google.common.collect.MoreCollectors.onlyElement;
-
-public final class PBXTargetLoader implements XCLoader<PBXTarget, XCTargetReference>, Serializable {
-	private final XCLoader<PBXProject, XCProjectReference> loader;
-
-	public PBXTargetLoader(XCLoader<PBXProject, XCProjectReference> loader) {
-		this.loader = loader;
-	}
-
-	@Override
-	public PBXTarget load(XCTargetReference reference) {
-		return reference.getProject().load(loader).getTargets().stream().filter(it -> reference.getName().equals(it.getName())).collect(onlyElement());
-	}
+public interface XCBuildSpecFactory {
+	XCBuildSpec create(PBXTarget target);
 }

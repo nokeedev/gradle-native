@@ -39,7 +39,7 @@ public final class CodeablePBXCopyFilesBuildPhase implements PBXCopyFilesBuildPh
 		}
 	}
 
-	private final KeyedObject delegate;
+	public final KeyedObject delegate;// FIXME should no have to put this public
 
 	public CodeablePBXCopyFilesBuildPhase(KeyedObject delegate) {
 		this.delegate = delegate;
