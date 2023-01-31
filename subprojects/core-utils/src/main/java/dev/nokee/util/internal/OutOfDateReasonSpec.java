@@ -15,6 +15,7 @@
  */
 package dev.nokee.util.internal;
 
+import lombok.EqualsAndHashCode;
 import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -27,7 +28,7 @@ public final class OutOfDateReasonSpec<T extends Task> implements Spec<Task> {
 	private final InformationLogger logger;
 
 	public OutOfDateReasonSpec(String outOfDateReason, Spec<? super T> delegate) {
-		this(outOfDateReason, delegate, LOGGER::info);
+		this(outOfDateReason, delegate, new DefaultInformationLogger());
 	}
 
 	// visible for testing
@@ -35,6 +36,20 @@ public final class OutOfDateReasonSpec<T extends Task> implements Spec<Task> {
 		this.outOfDateReason = outOfDateReason;
 		this.delegate = delegate;
 		this.logger = logger;
+	}
+
+	@EqualsAndHashCode
+	private static final class DefaultInformationLogger implements InformationLogger {
+//		private final Logger logger;
+//
+//		private DefaultInformationLogger(Logger logger) {
+//			this.logger = logger;
+//		}
+
+		@Override
+		public void log(String message) {
+			LOGGER.info(message);
+		}
 	}
 
 	// Returning {@literal true} means can be up-to-date while returning {@literal false} means out-of-date.
