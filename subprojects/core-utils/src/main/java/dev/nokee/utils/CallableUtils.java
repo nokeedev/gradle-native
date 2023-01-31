@@ -15,14 +15,13 @@
  */
 package dev.nokee.utils;
 
+import dev.nokee.util.lambdas.SerializableCallable;
+import dev.nokee.util.lambdas.internal.SerializableCallableAdapter;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.SerializationUtils;
 import org.gradle.internal.UncheckedException;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public final class CallableUtils {
@@ -88,43 +87,5 @@ public final class CallableUtils {
 	 */
 	public static <ReturnType> Callable<ReturnType> ofSerializableCallable(SerializableCallable<ReturnType> callable) {
 		return new SerializableCallableAdapter<>(callable);
-	}
-
-	/**
-	 * A {@link Serializable} version of {@link Callable}.
-	 */
-	public interface SerializableCallable<V> extends Callable<V>, Serializable {}
-
-	private static final class SerializableCallableAdapter<V> implements Callable<V>, Serializable {
-		private final SerializableCallable<V> delegate;
-
-		public SerializableCallableAdapter(SerializableCallable<V> delegate) {
-			this.delegate = delegate;
-		}
-
-		@Override
-		public V call() throws Exception {
-			return delegate.call();
-		}
-
-		// The following equals and hashCode is not the most efficient implementation
-		//   but is a good enough implementation... for now.
-		// When-if these become a measurable bottleneck, we can revisit those implementation.
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (!(o instanceof SerializableCallableAdapter)) {
-				return false;
-			}
-			SerializableCallableAdapter<?> that = (SerializableCallableAdapter<?>) o;
-			return Arrays.equals(SerializationUtils.serialize(delegate), SerializationUtils.serialize(that.delegate));
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hashCode(SerializationUtils.serialize(delegate));
-		}
 	}
 }

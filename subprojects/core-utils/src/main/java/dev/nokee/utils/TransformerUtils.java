@@ -17,6 +17,8 @@ package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dev.nokee.util.lambdas.SerializableTransformer;
+import dev.nokee.util.lambdas.internal.SerializableTransformerAdapter;
 import dev.nokee.utils.internal.WrappedTransformer;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -28,6 +30,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -39,6 +42,16 @@ import static java.util.Objects.requireNonNull;
 
 public final class TransformerUtils {
 	private TransformerUtils() {}
+
+	/**
+	 * Mechanism to create {@link org.gradle.api.Transformer} from Java lambdas that are {@link Serializable}.
+	 *
+	 * <p><b>Note:</b> The returned {@code Transformer} will provide an {@link Object#equals(Object)}/{@link Object#hashCode()} implementation based on the serialized bytes.
+	 * The goal is to ensure the Java lambdas can be compared between each other after deserialization.
+	 */
+	public static <OUT, IN> org.gradle.api.Transformer<OUT, IN> ofSerializableTransformer(SerializableTransformer<OUT, IN> transformer) {
+		return new SerializableTransformerAdapter<>(transformer);
+	}
 
 	public static <OUT, IN extends OUT> Transformer<OUT, IN> noOpTransformer() {
 		return Cast.uncheckedCast("OUT type is statically compatible with IN", NoOpTransformer.INSTANCE);
