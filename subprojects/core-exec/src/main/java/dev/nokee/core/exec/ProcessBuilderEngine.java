@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 import static dev.nokee.core.exec.CommandLineToolOutputStreams.execute;
 
 @EqualsAndHashCode
-public class ProcessBuilderEngine implements CommandLineToolExecutionEngine<ProcessBuilderEngine.Handle> {
+public final class ProcessBuilderEngine implements CommandLineToolExecutionEngine<ProcessBuilderEngine.Handle> {
 	@Override
 	public Handle submit(CommandLineToolInvocation invocation) {
 		ProcessBuilder processBuilder = new ProcessBuilder();
