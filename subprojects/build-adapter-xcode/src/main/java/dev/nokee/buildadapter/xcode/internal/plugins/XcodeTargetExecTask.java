@@ -127,7 +127,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 				it.args(allArguments);
 				it.args("-showBuildSettings", "-json");
 			}).newInvocation(it -> {
-				it.withEnvironmentVariables(inherit().putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
+				it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
 				ifPresent(getWorkingDirectory(), it::workingDirectory);
 			}).submitTo(execOperations(getExecOperations())).result()
 				.getStandardOutput().parse(output -> {
@@ -159,7 +159,7 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 		val invocation = CommandLineTool.of("xcodebuild").withArguments(it -> {
 			it.args(getAllArguments().map(allArguments -> concat(of("-project", isolatedProjectLocation.getAbsolutePath()), skip(allArguments, 2))));
 		}).newInvocation(it -> {
-			it.withEnvironmentVariables(inherit().putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
+			it.withEnvironmentVariables(inherit("PATH").putOrReplace("DEVELOPER_DIR", getXcodeInstallation().get().getDeveloperDirectory()));
 			ifPresent(getWorkingDirectory(), it::workingDirectory);
 			it.redirectStandardOutput(toFile(new File(getTemporaryDir(), "outputs.txt")));
 			it.redirectErrorOutput(toStandardStream());
