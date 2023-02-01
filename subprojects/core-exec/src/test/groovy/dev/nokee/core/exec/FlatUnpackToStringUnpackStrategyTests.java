@@ -15,16 +15,18 @@
  */
 package dev.nokee.core.exec;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 
+import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
 class FlatUnpackToStringUnpackStrategyTests {
 	@Test
 	void doesNotFlattenJavaPath() {
-		assertThat(UnpackStrategies.FLAT_UNPACK_TO_STRING.unpack(Paths.get("/some/path")), contains("/some/path"));
+		assertThat(UnpackStrategies.FLAT_UNPACK_TO_STRING.unpack(Paths.get("/some/path")), contains(separatorsToSystem("/some/path")));
 	}
 }
