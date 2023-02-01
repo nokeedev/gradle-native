@@ -16,11 +16,13 @@
 package dev.nokee.core.exec;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.core.exec.CommandLineToolInvocationEnvironmentVariables.inherit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class CommandLineToolInvocationEnvironmentVariablesInheritFactoryTests {
 	@Test
@@ -32,5 +34,11 @@ class CommandLineToolInvocationEnvironmentVariablesInheritFactoryTests {
 	void returnsOnlySpecifiedInheritedEnvironmentVariables() {
 		assertThat(inherit("PATH"),
 			equalTo(new CommandLineToolInvocationEnvironmentVariables(ImmutableMap.of("PATH", System.getenv("PATH")))));
+	}
+
+	@Test
+	void doesNotThrowExceptionWhenInheritingNonExistingEnvironmentVariables() {
+		val envVars = assertDoesNotThrow(() -> inherit("NON_EXISTENT"));
+		assertThat("resulting environment variables is empty", envVars, equalTo(new CommandLineToolInvocationEnvironmentVariables(ImmutableMap.of())));
 	}
 }
