@@ -71,7 +71,6 @@ import static dev.nokee.language.base.internal.SourceAwareComponentUtils.sourceV
 import static dev.nokee.model.internal.type.ModelType.of;
 import static dev.nokee.runtime.nativebase.BinaryLinkage.BINARY_LINKAGE_COORDINATE_AXIS;
 import static dev.nokee.runtime.nativebase.BuildType.BUILD_TYPE_COORDINATE_AXIS;
-import static dev.nokee.utils.TransformerUtils.toListTransformer;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 import static java.util.stream.Collectors.joining;
 
@@ -108,12 +107,12 @@ public final class CreateNativeComponentVisualStudioIdeProject implements Action
 			}
 
 			private Provider<List<? extends FileTree>> componentSources(BaseComponent<?> component) {
-				return sourceViewOf(component).getElements().map(transformEach(LanguageSourceSet::getAsFileTree).andThen(toListTransformer()));
+				return sourceViewOf(component).getElements().map(transformEach(LanguageSourceSet::getAsFileTree));
 			}
 
 			private Provider<List<FileTree>> componentHeaders(BaseComponent<?> component) {
 				return sourceViewOf(component).filter(this::forHeaderSets)
-					.map(transformEach((Transformer<FileTree, LanguageSourceSet>) it -> ((HasHeaders) it).getHeaders().getAsFileTree()).andThen(toListTransformer()));
+					.map(transformEach((Transformer<FileTree, LanguageSourceSet>) it -> ((HasHeaders) it).getHeaders().getAsFileTree()));
 			}
 
 			private boolean forHeaderSets(LanguageSourceSet sourceSet) {

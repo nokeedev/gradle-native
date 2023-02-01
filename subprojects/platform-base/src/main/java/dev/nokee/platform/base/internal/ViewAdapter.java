@@ -94,7 +94,7 @@ public final class ViewAdapter<T> implements View<T> {
 
 	@Override
 	public <S> Provider<List<S>> map(Transformer<? extends S, ? super T> mapper) {
-		return getElements().map(transformEach((T it) -> mapper.transform(it)).andThen(toListTransformer()));
+		return getElements().map(transformEach(mapper));
 	}
 
 	@Override

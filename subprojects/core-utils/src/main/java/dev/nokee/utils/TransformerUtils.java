@@ -18,6 +18,7 @@ package dev.nokee.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.util.internal.FlatTransformEachToCollectionAdapter;
+import dev.nokee.util.internal.TransformEachToCollectionAdapter;
 import dev.nokee.util.lambdas.SerializableTransformer;
 import dev.nokee.util.lambdas.internal.SerializableTransformerAdapter;
 import dev.nokee.utils.internal.WrappedTransformer;
@@ -37,6 +38,7 @@ import java.util.stream.Collector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static dev.nokee.util.internal.GuavaImmutableCollectionBuilderFactories.listFactory;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
@@ -231,38 +233,13 @@ public final class TransformerUtils {
 	 * @param mapper  an element mapper
 	 * @param <OutputElementType>  output element type resulting from the transform
 	 * @param <InputElementType>  input element type to transform
-	 * @param <InputType>  input iterable type
 	 * @return a {@link Transformer} instance to transform each the element of an iterable, never null.
 	 */
-	public static <OutputElementType, InputElementType, InputType extends Iterable<InputElementType>> Transformer<Iterable<OutputElementType>, InputType> transformEach(org.gradle.api.Transformer<OutputElementType, InputElementType> mapper) {
+	public static <OutputElementType, InputElementType> Transformer<List<OutputElementType>, Iterable<InputElementType>> transformEach(org.gradle.api.Transformer<? extends OutputElementType, ? super InputElementType> mapper) {
 		if (isNoOpTransformer(mapper)) {
 			return NoOpTransformer.INSTANCE.withNarrowTypes();
 		}
-		return new TransformEachAdapter<>(mapper);
-	}
-
-	/** @see #transformEach(org.gradle.api.Transformer) */
-	@EqualsAndHashCode
-	private static final class TransformEachAdapter<OUT, IN, T extends Iterable<? extends IN>> implements Transformer<Iterable<OUT>, T>, Serializable {
-		private final org.gradle.api.Transformer<? extends OUT, ? super IN> mapper;
-
-		public TransformEachAdapter(org.gradle.api.Transformer<? extends OUT, ? super IN> mapper) {
-			this.mapper = requireNonNull(mapper);
-		}
-
-		@Override
-		public Iterable<OUT> transform(T elements) {
-			ImmutableList.Builder<OUT> result = ImmutableList.builder();
-			for (IN element : elements) {
-				result.add(mapper.transform(element));
-			}
-			return result.build();
-		}
-
-		@Override
-		public String toString() {
-			return "TransformerUtils.transformEach(" + mapper + ")";
-		}
+		return ofTransformer(new TransformEachToCollectionAdapter<>(listFactory(), mapper));
 	}
 
 	public static <A, B, C> Transformer<C, A> compose(org.gradle.api.Transformer<C, B> g, org.gradle.api.Transformer<? extends B, A> f) {
