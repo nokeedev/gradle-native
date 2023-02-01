@@ -21,7 +21,7 @@ import org.gradle.api.Transformer;
 import java.io.Serializable;
 import java.util.Objects;
 
-public final class SerializableTransformerAdapter<OUT, IN> extends SerializableObjectAdapter<SerializableTransformer<OUT, IN>> implements Transformer<OUT, IN>, Serializable {
+public final class SerializableTransformerAdapter<OUT, IN> extends SerializableObjectAdapter<SerializableTransformer<OUT, IN>> implements Transformer<OUT, IN> {
 	private final SerializableTransformer<OUT, IN> delegate;
 
 	public SerializableTransformerAdapter(SerializableTransformer<OUT, IN> delegate) {

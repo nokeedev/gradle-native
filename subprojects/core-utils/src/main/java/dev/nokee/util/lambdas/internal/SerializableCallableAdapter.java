@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
-public final class SerializableCallableAdapter<V> extends SerializableObjectAdapter<SerializableCallable<V>> implements Callable<V>, Serializable {
+public final class SerializableCallableAdapter<V> extends SerializableObjectAdapter<SerializableCallable<V>> implements Callable<V> {
 	private final SerializableCallable<V> delegate;
 
 	public SerializableCallableAdapter(SerializableCallable<V> delegate) {
