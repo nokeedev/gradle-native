@@ -32,5 +32,5 @@ public interface TestDouble<T> {
 
 	TestDouble<T> alwaysThrows();
 
-	T instance();
+	<R extends T> R instance();
 }
