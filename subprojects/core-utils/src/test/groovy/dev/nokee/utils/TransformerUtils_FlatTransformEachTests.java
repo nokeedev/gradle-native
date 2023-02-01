@@ -16,6 +16,7 @@
 package dev.nokee.utils;
 
 import dev.nokee.util.internal.FlatTransformEachToCollectionAdapter;
+import dev.nokee.utils.internal.WrappedTransformer;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.util.internal.GuavaImmutableCollectionBuilderFactories.listFactory;
@@ -33,6 +34,6 @@ class TransformerUtils_FlatTransformEachTests {
 
 	@Test
 	void returnsTransformEachToList() {
-		assertThat(flatTransformEach(aTransformer()), equalTo(new FlatTransformEachToCollectionAdapter<>(listFactory(), aTransformer())));
+		assertThat(flatTransformEach(aTransformer()), equalTo(new WrappedTransformer<>(new FlatTransformEachToCollectionAdapter<>(listFactory(), aTransformer()))));
 	}
 }
