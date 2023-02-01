@@ -99,7 +99,7 @@ public final class ViewAdapter<T> implements View<T> {
 
 	@Override
 	public <S> Provider<List<S>> flatMap(Transformer<? extends Iterable<S>, ? super T> mapper) {
-		return getElements().map(flatTransformEach(mapper).andThen(toListTransformer()));
+		return getElements().map(flatTransformEach(mapper));
 	}
 
 	@Override
