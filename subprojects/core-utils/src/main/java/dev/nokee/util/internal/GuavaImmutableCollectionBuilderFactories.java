@@ -22,16 +22,16 @@ import dev.nokee.utils.Cast;
 import static dev.nokee.utils.SupplierUtils.ofSerializableSupplier;
 
 public final class GuavaImmutableCollectionBuilderFactories {
-	private static final FlatTransformEachToCollectionAdapter.CollectionBuilderFactory<Object> LIST = new GuavaImmutableCollectionBuilderFactory<>(ofSerializableSupplier(ImmutableList::builder));
-	private static final FlatTransformEachToCollectionAdapter.CollectionBuilderFactory<Object> SET = new GuavaImmutableCollectionBuilderFactory<>(ofSerializableSupplier(ImmutableSet::builder));
+	private static final GuavaImmutableCollectionBuilderFactory<Object> LIST = new GuavaImmutableCollectionBuilderFactory<>(ofSerializableSupplier(ImmutableList::builder));
+	private static final GuavaImmutableCollectionBuilderFactory<Object> SET = new GuavaImmutableCollectionBuilderFactory<>(ofSerializableSupplier(ImmutableSet::builder));
 
 	private GuavaImmutableCollectionBuilderFactories() {}
 
-	public static <ElementType> FlatTransformEachToCollectionAdapter.CollectionBuilderFactory<ElementType> listFactory() {
+	public static <ElementType> GuavaImmutableCollectionBuilderFactory<ElementType> listFactory() {
 		return Cast.uncheckedCast("types already checked by caller", LIST);
 	}
 
-	public static <ElementType> FlatTransformEachToCollectionAdapter.CollectionBuilderFactory<ElementType> setFactory() {
+	public static <ElementType> GuavaImmutableCollectionBuilderFactory<ElementType> setFactory() {
 		return Cast.uncheckedCast("types already checked by caller", SET);
 	}
 }

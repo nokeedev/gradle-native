@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 @EqualsAndHashCode
-public class GuavaImmutableCollectionBuilderFactory<ElementType> implements FlatTransformEachToCollectionAdapter.CollectionBuilderFactory<ElementType>, Serializable {
+public class GuavaImmutableCollectionBuilderFactory<ElementType> implements FlatTransformEachToCollectionAdapter.CollectionBuilderFactory<ElementType>, TransformEachToCollectionAdapter.CollectionBuilderFactory<ElementType>, Serializable {
 	private final Supplier<ImmutableCollection.Builder<ElementType>> builderSupplier;
 
 	public GuavaImmutableCollectionBuilderFactory(Supplier<ImmutableCollection.Builder<ElementType>> builderSupplier) {
@@ -31,20 +31,28 @@ public class GuavaImmutableCollectionBuilderFactory<ElementType> implements Flat
 	}
 
 	@Override
-	public FlatTransformEachToCollectionAdapter.CollectionBuilder<ElementType> create() {
-		return new FlatTransformEachToCollectionAdapter.CollectionBuilder<ElementType>() {
-			private final ImmutableCollection.Builder<ElementType> builder = builderSupplier.get();
+	public Builder create() {
+		return new Builder();
+	}
 
-			@Override
-			public FlatTransformEachToCollectionAdapter.CollectionBuilder<ElementType> addAll(Iterable<ElementType> values) {
-				builder.addAll(values);
-				return this;
-			}
+	public final class Builder implements FlatTransformEachToCollectionAdapter.CollectionBuilder<ElementType>, TransformEachToCollectionAdapter.CollectionBuilder<ElementType> {
+		private final ImmutableCollection.Builder<ElementType> builder = builderSupplier.get();
 
-			@Override
-			public Collection<ElementType> build() {
-				return builder.build();
-			}
-		};
+		@Override
+		public Builder addAll(Iterable<ElementType> values) {
+			builder.addAll(values);
+			return this;
+		}
+
+		@Override
+		public Builder add(ElementType value) {
+			builder.add(value);
+			return this;
+		}
+
+		@Override
+		public Collection<ElementType> build() {
+			return builder.build();
+		}
 	}
 }
