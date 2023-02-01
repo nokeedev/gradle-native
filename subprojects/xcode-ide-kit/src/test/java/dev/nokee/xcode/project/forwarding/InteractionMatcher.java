@@ -95,11 +95,9 @@ final class InteractionMatcher<T> extends FeatureMatcher<ForwardingWrapper<T>, I
 					return null;
 				}
 			};
-		} catch (
-			IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
-		} catch (
-			InvocationTargetException e) {
+		} catch (InvocationTargetException e) {
 			return new InteractionResult() {
 				@Override
 				public boolean isPossibleChainingCall() {
