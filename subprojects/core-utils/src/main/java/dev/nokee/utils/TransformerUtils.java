@@ -223,7 +223,7 @@ public final class TransformerUtils {
 	 * @return a {@link Transformer} instance to flat transform each the element of an iterable, never null.
 	 */
 	public static <OutputElementType, InputElementType> Transformer<List<OutputElementType>, Iterable<InputElementType>> flatTransformEach(org.gradle.api.Transformer<? extends Iterable<OutputElementType>, ? super InputElementType> mapper) {
-		return ofTransformer(FlatTransformEachToCollectionAdapter.flatTransformEachToList(mapper));
+		return ofTransformer(new FlatTransformEachToCollectionAdapter<>(listFactory(), mapper));
 	}
 
 	/**

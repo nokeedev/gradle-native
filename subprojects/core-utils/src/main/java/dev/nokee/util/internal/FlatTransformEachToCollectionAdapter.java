@@ -20,8 +20,6 @@ import org.gradle.api.Transformer;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
@@ -59,13 +57,5 @@ public final class FlatTransformEachToCollectionAdapter<OutputType extends Colle
 	public interface CollectionBuilder<T> {
 		CollectionBuilder<T> addAll(Iterable<T> values);
 		Collection<T> build();
-	}
-
-	public static <OutputElementType, InputElementType> FlatTransformEachToCollectionAdapter<List<OutputElementType>, OutputElementType, InputElementType> flatTransformEachToList(Transformer<? extends Iterable<OutputElementType>, ? super InputElementType> mapper) {
-		return new FlatTransformEachToCollectionAdapter<>(GuavaImmutableCollectionBuilderFactories.listFactory(), mapper);
-	}
-
-	public static <OutputElementType, InputElementType> FlatTransformEachToCollectionAdapter<Set<OutputElementType>, OutputElementType, InputElementType> flatTransformEachToSet(Transformer<? extends Iterable<OutputElementType>, ? super InputElementType> mapper) {
-		return new FlatTransformEachToCollectionAdapter<>(GuavaImmutableCollectionBuilderFactories.setFactory(), mapper);
 	}
 }

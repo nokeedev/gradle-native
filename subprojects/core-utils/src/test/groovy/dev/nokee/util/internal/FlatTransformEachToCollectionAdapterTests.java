@@ -35,7 +35,6 @@ import static dev.nokee.utils.TransformerTestUtils.anotherTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasToString;
 
 class FlatTransformEachToCollectionAdapterTests {
@@ -93,18 +92,6 @@ class FlatTransformEachToCollectionAdapterTests {
 		void checkTransformation() {
 			assertThat(result, contains(3, 6, 9));
 		}
-	}
-
-	@Test
-	void canCreateFlatTransformEachToList() {
-		assertThat(FlatTransformEachToCollectionAdapter.flatTransformEachToList(aTransformer()),
-			equalTo(new FlatTransformEachToCollectionAdapter<>(listFactory(), aTransformer())));
-	}
-
-	@Test
-	void canCreateFlatTransformEachToSet() {
-		assertThat(FlatTransformEachToCollectionAdapter.flatTransformEachToSet(aTransformer()),
-			equalTo(new FlatTransformEachToCollectionAdapter<>(setFactory(), aTransformer())));
 	}
 
 	@Test
