@@ -151,7 +151,10 @@ public final class CommandLineToolInvocationEnvironmentVariables implements Seri
 	public static CommandLineToolInvocationEnvironmentVariables inherit(String... keys) {
 		final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 		for (String key : keys) {
-			builder.put(key, System.getenv(key));
+			final String value = System.getenv(key);
+			if (value != null) {
+				builder.put(key, value);
+			}
 		}
 		return new CommandLineToolInvocationEnvironmentVariables(builder.build());
 	}
