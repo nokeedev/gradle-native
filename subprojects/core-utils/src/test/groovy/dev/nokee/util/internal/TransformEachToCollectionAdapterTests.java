@@ -28,7 +28,6 @@ import static dev.nokee.util.internal.GuavaImmutableCollectionBuilderFactories.l
 import static dev.nokee.util.internal.GuavaImmutableCollectionBuilderFactories.setFactory;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static dev.nokee.utils.TransformerTestUtils.anotherTransformer;
-import static dev.nokee.utils.TransformerUtils.transformEach;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
@@ -70,7 +69,7 @@ class TransformEachToCollectionAdapterTests {
 
 	@Test
 	void checkToString() {
-		assertThat(transformEach(aTransformer()),
+		assertThat(new TransformEachToCollectionAdapter<>(listFactory(), aTransformer()),
 			hasToString("TransformerUtils.transformEach(aTransformer())"));
 	}
 
