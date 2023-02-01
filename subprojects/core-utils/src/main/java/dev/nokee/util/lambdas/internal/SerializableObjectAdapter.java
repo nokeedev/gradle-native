@@ -19,7 +19,6 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Objects;
 
 abstract class SerializableObjectAdapter<T extends Serializable> implements Serializable {
 	protected SerializableObjectAdapter() {}
@@ -43,7 +42,7 @@ abstract class SerializableObjectAdapter<T extends Serializable> implements Seri
 
 	@Override
 	public final int hashCode() {
-		return Objects.hashCode(SerializationUtils.serialize(delegate()));
+		return Arrays.hashCode(SerializationUtils.serialize(delegate()));
 	}
 
 	@Override
