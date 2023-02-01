@@ -85,7 +85,7 @@ class FlatTransformEachToCollectionAdapterTests {
 	}
 
 	@Nested
-	class WhenElementsMapToDifferentType {
+	class WhenElementsMapToAnotherType {
 		FlatTransformEachToCollectionAdapter<List<Integer>, Integer, String> subject = new FlatTransformEachToCollectionAdapter<>(listFactory(), length());
 		List<Integer> result = subject.transform(of("bar", "foobar", "foobarfar"));
 
