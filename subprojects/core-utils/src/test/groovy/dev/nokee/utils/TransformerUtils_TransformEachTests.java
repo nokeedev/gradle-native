@@ -16,6 +16,7 @@
 package dev.nokee.utils;
 
 import dev.nokee.util.internal.TransformEachToCollectionAdapter;
+import dev.nokee.utils.internal.WrappedTransformer;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.util.internal.GuavaImmutableCollectionBuilderFactories.listFactory;
@@ -39,6 +40,6 @@ class TransformerUtils_TransformEachTests {
 
 	@Test
 	void returnsTransformEachToList() {
-		assertThat(transformEach(aTransformer()), equalTo(new TransformEachToCollectionAdapter<>(listFactory(), aTransformer())));
+		assertThat(transformEach(aTransformer()), equalTo(new WrappedTransformer<>(new TransformEachToCollectionAdapter<>(listFactory(), aTransformer()))));
 	}
 }
