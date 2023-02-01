@@ -30,7 +30,7 @@ abstract class SerializableObjectAdapter<T extends Serializable> implements Seri
 	//   but is a good enough implementation... for now.
 	// When-if these become a measurable bottleneck, we can revisit those implementation.
 	@Override
-	public boolean equals(Object o) {
+	public final boolean equals(Object o) {
 		if (this == o) {
 			return true;
 		}
@@ -42,12 +42,12 @@ abstract class SerializableObjectAdapter<T extends Serializable> implements Seri
 	}
 
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 		return Objects.hashCode(SerializationUtils.serialize(delegate()));
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return delegate().toString();
 	}
 }
