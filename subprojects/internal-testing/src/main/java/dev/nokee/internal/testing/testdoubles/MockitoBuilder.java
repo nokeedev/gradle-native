@@ -64,7 +64,7 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	}
 
 	@Override
-	public T instance() {
+	public <R extends T> R instance() {
 		final T instance = Mockito.mock(classToMock, settings);
 		stubs.forEach(it -> {
 			try {
@@ -98,11 +98,14 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 				throw new RuntimeException(e);
 			}
 		});
-		return instance;
+		@SuppressWarnings("unchecked")
+		final R result = (R) instance;
+		return result;
 	}
 
-	public static <T> TestDouble<T> newMock(Class<T> classToMock) {
-		return new MockitoBuilder<>(classToMock);
+	@SuppressWarnings("unchecked")
+	public static <T, R extends T> TestDouble<R> newMock(Class<T> classToMock) {
+		return new MockitoBuilder<>((Class<R>) classToMock);
 	}
 
 	public static <T> T newAlwaysThrowingMock(Class<T> classToMock) {
