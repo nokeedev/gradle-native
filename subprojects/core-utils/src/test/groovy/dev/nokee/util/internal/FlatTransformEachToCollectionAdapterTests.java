@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import static com.google.common.collect.ImmutableList.of;
 import static dev.nokee.internal.testing.SerializableMatchers.isSerializable;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.narrowed;
 import static dev.nokee.util.internal.GuavaImmutableCollectionBuilderFactories.listFactory;
 import static dev.nokee.util.internal.GuavaImmutableCollectionBuilderFactories.setFactory;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
@@ -129,6 +130,6 @@ class FlatTransformEachToCollectionAdapterTests {
 	}
 
 	private static <OUT, IN> Transformer<Iterable<OUT>, IN> alwaysThrows() {
-		return newMock(Transformer.class).alwaysThrows().instance();
+		return newMock(Transformer.class).alwaysThrows().instance(narrowed());
 	}
 }
