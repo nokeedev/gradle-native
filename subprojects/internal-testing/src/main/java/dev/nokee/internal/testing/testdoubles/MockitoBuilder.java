@@ -99,6 +99,7 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 					throw new RuntimeException(e);
 				}
 			});
+			this.instance = instance;
 		}
 		return instance;
 	}
