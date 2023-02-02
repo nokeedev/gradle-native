@@ -32,7 +32,7 @@ class ConfigurationTimeTransformerAdapterIntegrationTests {
 
 	@BeforeEach
 	void createSubject() {
-		subject = new ConfigurationTimeTransformerAdapter<>(providerFactory(), transformer);
+		subject = new ConfigurationTimeTransformerAdapter<>(providerFactory(), "display-name", transformer);
 	}
 
 	@Test

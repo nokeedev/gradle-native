@@ -19,6 +19,8 @@ import lombok.EqualsAndHashCode;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.ProviderFactory;
 
+import java.io.Serializable;
+
 import static dev.nokee.utils.ProviderUtils.forParameters;
 import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 
@@ -32,9 +34,12 @@ import static dev.nokee.utils.ProviderUtils.forUseAtConfigurationTime;
 public final class ConfigurationTimeTransformerAdapter<OUT, IN> implements Transformer<OUT, IN> {
 	private final ProviderFactory providers;
 	private final Transformer<? extends OUT, ? super IN> delegate;
+	private final String displayName;
 
-	public ConfigurationTimeTransformerAdapter(ProviderFactory providers, Transformer<? extends OUT, ? super IN> delegate) {
+	public ConfigurationTimeTransformerAdapter(ProviderFactory providers, String displayName, Transformer<? extends OUT, ? super IN> delegate) {
+		assert delegate instanceof Serializable;
 		this.providers = providers;
+		this.displayName = displayName;
 		this.delegate = delegate;
 	}
 
@@ -42,6 +47,7 @@ public final class ConfigurationTimeTransformerAdapter<OUT, IN> implements Trans
 	public OUT transform(IN in) {
 		@SuppressWarnings("unchecked") final OUT result = (OUT) forUseAtConfigurationTime(providers.of(ValueSourceTransformerAdapter.class, forParameters(it -> {
 			it.getInput().set(in);
+			it.getDisplayName().set(displayName);
 			it.getTransformer().set(delegate);
 		}))).get();
 		return result;

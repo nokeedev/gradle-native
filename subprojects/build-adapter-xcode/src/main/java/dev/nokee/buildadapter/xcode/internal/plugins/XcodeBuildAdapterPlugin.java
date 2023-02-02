@@ -136,9 +136,9 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 
 		// This custom locator also capture inputs to the build
 		XCProjectLocator locator = toFileTransformer()
-			.andThen(buildInputs.capture(new LoadWorkspaceReferencesTransformer(new DefaultXCWorkspaceLocator())))
+			.andThen(buildInputs.capture("find workspaces in default location", new LoadWorkspaceReferencesTransformer(new DefaultXCWorkspaceLocator())))
 			.andThen(new SelectSingleXCWorkspaceTransformer())
-			.andThen(buildInputs.capture(of(new LoadWorkspaceProjectReferencesIfAvailableTransformer(new XCProjectSupplier(settings.getSettingsDir().toPath())))
+			.andThen(buildInputs.capture("find projects from selected workspace", of(new LoadWorkspaceProjectReferencesIfAvailableTransformer(new XCProjectSupplier(settings.getSettingsDir().toPath())))
 				.andThen(new UnpackCrossProjectReferencesTransformer())))
 			.andThen(new WarnOnMissingXCProjectsTransformer(settings.getSettingsDir().toPath()))
 			.andThen(toListTransformer())::transform;
@@ -174,7 +174,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 			@SuppressWarnings("unchecked")
 			final Provider<XcodeDependenciesService> service = project.getProviders().provider(() -> (BuildServiceRegistration<XcodeDependenciesService, XcodeDependenciesService.Parameters>) project.getGradle().getSharedServices().getRegistrations().findByName(XcodeDependenciesService.class.getSimpleName())).flatMap(BuildServiceRegistration::getService);
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetComponentDiscoveryRule(project.getExtensions().getByType(ModelRegistry.class), buildInputs.capture((Transformer<Iterable<XCTargetReference>, XCProjectReference> & Serializable) XCLoaders.allTargetsLoader()::load)::transform));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new XCTargetComponentDiscoveryRule(project.getExtensions().getByType(ModelRegistry.class), buildInputs.capture("loads all targets from " + project, (Transformer<Iterable<XCTargetReference>, XCProjectReference> & Serializable) XCLoaders.allTargetsLoader()::load)::transform));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(ModelActionWithInputs.of(ModelComponentReference.of(XCProjectComponent.class), (entity, xcProject) -> {
 				project.getExtensions().getByType(ModelRegistry.class).register(DomainObjectEntities.newEntity(TaskName.of("inspect"), InspectXcodeTask.class, it -> it.ownedBy(entity)))
 					.as(InspectXcodeTask.class)
@@ -183,7 +183,7 @@ public class XcodeBuildAdapterPlugin implements Plugin<Settings> {
 					});
 			}));
 
-			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new XCTargetVariantDiscoveryRule(buildInputs.capture((Transformer<Iterable<String>, XCTargetReference> & Serializable) it -> XCLoaders.targetConfigurationsLoader().load(it))::transform)));
+			project.getExtensions().getByType(ModelConfigurer.class).configure(new OnDiscover(new XCTargetVariantDiscoveryRule(buildInputs.capture("loads target configurations", (Transformer<Iterable<String>, XCTargetReference> & Serializable) it -> XCLoaders.targetConfigurationsLoader().load(it))::transform)));
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new AttachXCTargetToVariantRule());
 			project.getExtensions().getByType(ModelConfigurer.class).configure(new TransitionLinkedVariantToRegisterStateRule());
 
