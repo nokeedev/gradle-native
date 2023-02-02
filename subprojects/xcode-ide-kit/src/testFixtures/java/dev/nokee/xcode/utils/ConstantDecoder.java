@@ -17,7 +17,8 @@ package dev.nokee.xcode.utils;
 
 import com.google.common.collect.Iterators;
 import dev.nokee.internal.testing.invocations.HasInvocationResults;
-import dev.nokee.internal.testing.invocations.InvocationResult2;
+import dev.nokee.internal.testing.invocations.InvocationResult;
+import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.xcode.project.ValueDecoder;
 import dev.nokee.xcode.project.coders.CoderType;
 
@@ -25,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public final class ConstantDecoder<OUT, IN> implements ValueDecoder<OUT, IN>, HasInvocationResults<InvocationResult2<IN, ValueDecoder.Context>> {
-	private final List<InvocationResult2<IN, Context>> invocations = new ArrayList<>();
+public final class ConstantDecoder<OUT, IN> implements ValueDecoder<OUT, IN>, HasInvocationResults<ArgumentInformation.Arg2<IN, ValueDecoder.Context>> {
+	private final List<InvocationResult<ArgumentInformation.Arg2<IN, ValueDecoder.Context>>> invocations = new ArrayList<>();
 	private final OUT returnValue;
 
 	public ConstantDecoder(OUT returnValue) {
@@ -34,13 +35,13 @@ public final class ConstantDecoder<OUT, IN> implements ValueDecoder<OUT, IN>, Ha
 	}
 
 	@Override
-	public List<InvocationResult2<IN, Context>> getAllInvocations() {
+	public List<InvocationResult<ArgumentInformation.Arg2<IN, ValueDecoder.Context>>> getAllInvocations() {
 		return invocations;
 	}
 
 	@Override
 	public OUT decode(IN ignored, Context context) {
-		invocations.add(new InvocationResult2<IN, Context>() {
+		invocations.add(new InvocationResult<ArgumentInformation.Arg2<IN, ValueDecoder.Context>>() {
 			@Override
 			public Iterator<Object> iterator() {
 				return Iterators.forArray(ignored, context);

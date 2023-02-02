@@ -17,7 +17,8 @@ package dev.nokee.xcode.project.coders;
 
 import com.google.common.collect.Iterators;
 import dev.nokee.internal.testing.invocations.HasInvocationResults;
-import dev.nokee.internal.testing.invocations.InvocationResult2;
+import dev.nokee.internal.testing.invocations.InvocationResult;
+import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.xcode.project.ValueEncoder;
 import lombok.EqualsAndHashCode;
 
@@ -25,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public final class UnwrapEncoder<T> implements ValueEncoder<T, UnwrapEncoder.Wrapper<T>>, HasInvocationResults<InvocationResult2<UnwrapEncoder.Wrapper<T>, ValueEncoder.Context>> {
-	private final List<InvocationResult2<UnwrapEncoder.Wrapper<T>, Context>> invocations = new ArrayList<>();
+public final class UnwrapEncoder<T> implements ValueEncoder<T, UnwrapEncoder.Wrapper<T>>, HasInvocationResults<ArgumentInformation.Arg2<UnwrapEncoder.Wrapper<T>, ValueEncoder.Context>> {
+	private final List<InvocationResult<ArgumentInformation.Arg2<Wrapper<T>, Context>>> invocations = new ArrayList<>();
 	private final CoderType<T> outputType;
 
 	public UnwrapEncoder(CoderType<T> outputType) {
@@ -34,13 +35,13 @@ public final class UnwrapEncoder<T> implements ValueEncoder<T, UnwrapEncoder.Wra
 	}
 
 	@Override
-	public List<InvocationResult2<UnwrapEncoder.Wrapper<T>, Context>> getAllInvocations() {
+	public List<InvocationResult<ArgumentInformation.Arg2<Wrapper<T>, Context>>> getAllInvocations() {
 		return invocations;
 	}
 
 	@Override
 	public T encode(Wrapper<T> object, Context context) {
-		invocations.add(new InvocationResult2<Wrapper<T>, Context>() {
+		invocations.add(new InvocationResult<ArgumentInformation.Arg2<Wrapper<T>, Context>>() {
 			@Override
 			public Iterator<Object> iterator() {
 				return Iterators.forArray(object, context);

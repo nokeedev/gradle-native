@@ -18,60 +18,66 @@ package dev.nokee.internal.testing;
 import com.google.common.collect.Iterators;
 import dev.nokee.internal.testing.invocations.HasInvocationResults;
 import dev.nokee.internal.testing.invocations.InvocationResult;
-import dev.nokee.internal.testing.invocations.InvocationResult0;
-import dev.nokee.internal.testing.invocations.InvocationResult1;
-import dev.nokee.internal.testing.invocations.InvocationResult2;
+import dev.nokee.internal.testing.reflect.ArgumentInformation;
+import dev.nokee.internal.testing.reflect.MethodCallable;
+import dev.nokee.internal.testing.reflect.MethodInformation;
 import org.mockito.Mockito;
 import org.mockito.invocation.Invocation;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class MockitoMethodWrapper<A extends InvocationResult> implements HasInvocationResults<A> {
-	private final List<A> invocations;
+public final class MockitoMethodWrapper<A extends ArgumentInformation> implements HasInvocationResults<A> {
+	private final List<InvocationResult<A>> invocations;
 
-	public MockitoMethodWrapper(List<A> invocations) {
+	public MockitoMethodWrapper(List<InvocationResult<A>> invocations) {
 		this.invocations = invocations;
 	}
 
 	@Override
-	public List<A> getAllInvocations() {
+	public List<InvocationResult<A>> getAllInvocations() {
 		return invocations;
 	}
 
-	public static <T> MockitoMethodWrapper<InvocationResult0> method(T mock, MethodCallable0<? super T> mapper) {
+	@SuppressWarnings({"unchecked", "overloads"})
+	public static <T> MockitoMethodWrapper<ArgumentInformation.None> method(T mock, MethodInformation<T, ?> mapper) {
+		final List<Invocation> invocationList = new ArrayList<>();
+		final Method method = mapper.resolve((Class<T>) Mockito.mockingDetails(mock).getMockHandler().getMockSettings().getTypeToMock());
+		Mockito.mockingDetails(mock).getInvocations().stream().filter(it -> it.getMethod().equals(method)).forEach(invocationList::add);
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.None, Void, Void>(it)).collect(Collectors.toList()));
+	}
+
+	@SuppressWarnings({"unchecked", "overloads"})
+	public static <T, A extends ArgumentInformation> MockitoMethodWrapper<A> method(T mock, MethodInformation.WithArguments<T, ?, A> mapper) {
+		final List<Invocation> invocationList = new ArrayList<>();
+		final Method method = mapper.resolve((Class<T>) Mockito.mockingDetails(mock).getMockHandler().getMockSettings().getTypeToMock());
+		Mockito.mockingDetails(mock).getInvocations().stream().filter(it -> it.getMethod().equals(method)).forEach(invocationList::add);
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<A, Void, Void>(it)).collect(Collectors.toList()));
+	}
+
+	@SuppressWarnings("overloads")
+	public static <T> MockitoMethodWrapper<ArgumentInformation.None> method(T mock, MethodCallable.ForArg0<T, RuntimeException> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())));
-		return new MockitoMethodWrapper<>(invocationList.stream().map(DefaultInvocationResult::new).collect(Collectors.toList()));
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.None, Void, Void>(it)).collect(Collectors.toList()));
 	}
 
-	public interface MethodCallable0<MockType> {
-		void call(MockType self);
-	}
-
-	public static <T, A0> MockitoMethodWrapper<InvocationResult1<A0>> method(T mock, MethodCallable1<? super T, ? super A0> mapper) {
+	public static <T, A0> MockitoMethodWrapper<ArgumentInformation.Arg1<A0>> method(T mock, MethodCallable.ForArg1<T, A0, RuntimeException> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())), Mockito.any());
-		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<A0, Void>(it)).collect(Collectors.toList()));
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.Arg1<A0>, A0, Void>(it)).collect(Collectors.toList()));
 	}
 
-	public interface MethodCallable1<MockType, A0> {
-		void call(MockType self, A0 a0);
-	}
-
-	public static <T, A0, A1> MockitoMethodWrapper<InvocationResult2<A0, A1>> method(T mock, MethodCallable2<T, A0, A1> mapper) {
+	public static <T, A0, A1> MockitoMethodWrapper<ArgumentInformation.Arg2<A0, A1>> method(T mock, MethodCallable.ForArg2<T, A0, A1, RuntimeException> mapper) {
 		List<Invocation> invocationList = new ArrayList<>();
 		mapper.call(Mockito.verify(mock, data -> invocationList.addAll(data.getAllInvocations())), Mockito.any(), Mockito.any());
-		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<A0, A1>(it)).collect(Collectors.toList()));
+		return new MockitoMethodWrapper<>(invocationList.stream().map(it -> new DefaultInvocationResult<ArgumentInformation.Arg2<A0, A1>, A0, A1>(it)).collect(Collectors.toList()));
 	}
 
-	public interface MethodCallable2<MockType, A0, A1> {
-		void call(MockType self, A0 a0, A1 a1);
-	}
-
-	private static final class DefaultInvocationResult<A0, A1> implements InvocationResult0, InvocationResult1<A0>, InvocationResult2<A0, A1> {
+	private static final class DefaultInvocationResult<ArgumentInformationType extends ArgumentInformation, A0, A1> implements InvocationResult<ArgumentInformationType> {
 		private final Invocation invocation;
 
 		private DefaultInvocationResult(Invocation invocation) {
@@ -86,16 +92,6 @@ public final class MockitoMethodWrapper<A extends InvocationResult> implements H
 		@Override
 		public <A> A getArgument(int index, Class<A> argumentType) {
 			return invocation.getArgument(index, argumentType);
-		}
-
-		@Override
-		public A0 getFirstArgument() {
-			return invocation.getArgument(0);
-		}
-
-		@Override
-		public A1 getSecondArgument() {
-			return invocation.getArgument(1);
 		}
 
 		@Override

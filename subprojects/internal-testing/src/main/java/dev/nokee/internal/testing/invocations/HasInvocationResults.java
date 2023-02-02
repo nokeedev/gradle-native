@@ -15,8 +15,10 @@
  */
 package dev.nokee.internal.testing.invocations;
 
+import dev.nokee.internal.testing.reflect.ArgumentInformation;
+
 import java.util.List;
 
-public interface HasInvocationResults<A extends InvocationResult> {
-	List<A> getAllInvocations();
+public interface HasInvocationResults<A extends ArgumentInformation> {
+	List<InvocationResult<A>> getAllInvocations();
 }
