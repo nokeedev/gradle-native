@@ -17,7 +17,6 @@ package dev.nokee.internal.testing.testdoubles;
 
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.internal.testing.reflect.ReturnInformation;
-import lombok.val;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -65,7 +64,7 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	}
 
 	@Override
-	public <R extends T> R instance() {
+	public T instance() {
 		if (instance == null) {
 			final T instance = Mockito.mock(classToMock, settings);
 			stubs.forEach(it -> {
@@ -102,9 +101,7 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 			});
 			this.instance = instance;
 		}
-		@SuppressWarnings("unchecked")
-		val result = (R) instance;
-		return result;
+		return instance;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -38,7 +38,7 @@ public abstract class CodeableAdapterTester<T extends Codeable> {
 	}
 
 	public final T newSubject() {
-		return newSubject(newMock(KeyedObject.class).alwaysThrows().<KeyedObject>instance());
+		return newSubject(newMock(KeyedObject.class).alwaysThrows().instance());
 	}
 
 	public T newSubject(KeyedObject delegate) {
@@ -54,7 +54,7 @@ public abstract class CodeableAdapterTester<T extends Codeable> {
 	public final T newSubject(Consumer<? super TestDouble<KeyedObject>> action) {
 		TestDouble<KeyedObject> map = newMock(KeyedObject.class).alwaysThrows();
 		action.accept(map);
-		return newSubject(map.<KeyedObject>instance());
+		return newSubject(map.instance());
 	}
 
 	@Nested
