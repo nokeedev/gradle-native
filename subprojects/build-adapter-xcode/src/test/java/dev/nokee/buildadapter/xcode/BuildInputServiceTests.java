@@ -31,7 +31,7 @@ class BuildInputServiceTests {
 
 	@Test
 	void createsCapturedTransformer() {
-		assertThat(service.capture(transformer),
-			equalTo(new ConfigurationTimeTransformerAdapter<>(providerFactory(), transformer)));
+		assertThat(service.capture("some-display-name", transformer),
+			equalTo(new ConfigurationTimeTransformerAdapter<>(providerFactory(), "some-display-name", transformer)));
 	}
 }

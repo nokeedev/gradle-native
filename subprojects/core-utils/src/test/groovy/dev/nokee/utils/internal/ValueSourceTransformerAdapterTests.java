@@ -18,11 +18,13 @@ package dev.nokee.utils.internal;
 import org.gradle.api.Transformer;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static dev.nokee.internal.testing.DescribableMatchers.displayName;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,6 +37,7 @@ class ValueSourceTransformerAdapterTests {
 	@Mock Transformer<Object, Object> transformer;
 	ValueSourceTransformerAdapter.Parameters parameters;
 	ValueSourceTransformerAdapter subject;
+	Object result;
 
 	@BeforeEach
 	void createSubject() {
@@ -48,16 +51,34 @@ class ValueSourceTransformerAdapterTests {
 				return parameters;
 			}
 		};
+		result = subject.obtain();
 	}
 
 	@Test
 	void returnsTransformedValue() {
-		MatcherAssert.assertThat(subject.obtain(), equalTo("transformed-value"));
+		assertThat(result, equalTo("transformed-value"));
 	}
 
 	@Test
 	void forwardsToTransformer() {
-		subject.obtain();
 		verify(transformer).transform("some-serializable-value");
+	}
+
+	@Test
+	void checkDisplayName() {
+		assertThat(subject, displayName("type 'ValueSourceTransformerAdapter'"));
+	}
+
+	@Nested
+	class WithDisplayName {
+		@BeforeEach
+		void givenDisplayName() {
+			parameters.getDisplayName().set("my custom display name");
+		}
+
+		@Test
+		void checkDisplayName() {
+			assertThat(subject, displayName("my custom display name"));
+		}
 	}
 }

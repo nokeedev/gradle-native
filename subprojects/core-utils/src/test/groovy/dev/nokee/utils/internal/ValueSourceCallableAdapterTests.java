@@ -15,8 +15,8 @@
  */
 package dev.nokee.utils.internal;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,7 +24,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.Callable;
 
+import static dev.nokee.internal.testing.DescribableMatchers.displayName;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +36,7 @@ class ValueSourceCallableAdapterTests {
 	@Mock Callable<Object> callable;
 	ValueSourceCallableAdapter.Parameters parameters;
 	ValueSourceCallableAdapter subject;
+	Object result;
 
 	@BeforeEach
 	void createSubject() throws Exception {
@@ -46,16 +49,34 @@ class ValueSourceCallableAdapterTests {
 				return parameters;
 			}
 		};
+		result = subject.obtain();
 	}
 
 	@Test
 	void returnsCallableValue() {
-		MatcherAssert.assertThat(subject.obtain(), equalTo("some-value"));
+		assertThat(result, equalTo("some-value"));
 	}
 
 	@Test
 	void forwardsToCallable() throws Exception {
-		subject.obtain();
 		verify(callable).call();
+	}
+
+	@Test
+	void checkDisplayName() {
+		assertThat(subject, displayName("type 'ValueSourceCallableAdapter'"));
+	}
+
+	@Nested
+	class WithDisplayName {
+		@BeforeEach
+		void givenDisplayName() {
+			parameters.getDisplayName().set("my custom display name");
+		}
+
+		@Test
+		void checkDisplayName() {
+			assertThat(subject, displayName("my custom display name"));
+		}
 	}
 }
