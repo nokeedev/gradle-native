@@ -32,6 +32,7 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	private final Class<T> classToMock;
 	private final List<StubCall<T>> stubs = new ArrayList<>();
 	private MockSettings settings = Mockito.withSettings();
+	private T instance;
 
 	private MockitoBuilder(Class<T> classToMock) {
 		this.classToMock = classToMock;
@@ -65,41 +66,44 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 
 	@Override
 	public <R extends T> R instance() {
-		final T instance = Mockito.mock(classToMock, settings);
-		stubs.forEach(it -> {
-			try {
-				final Method method = it.getMethod().resolve(classToMock);
+		if (instance == null) {
+			final T instance = Mockito.mock(classToMock, settings);
+			stubs.forEach(it -> {
+				try {
+					final Method method = it.getMethod().resolve(classToMock);
 
-				T mock = Mockito.doAnswer(new Answer<Object>() {
-					@Override
-					public Object answer(InvocationOnMock invocation) throws Throwable {
-						return it.getAnswers().get(0).answer(new InvocationOnTestDouble<T>() {
-							@SuppressWarnings("unchecked")
-							@Override
-							public T getTestDouble() {
-								return (T) invocation.getMock();
-							}
+					T mock = Mockito.doAnswer(new Answer<Object>() {
+						@Override
+						public Object answer(InvocationOnMock invocation) throws Throwable {
+							return it.getAnswers().get(0).answer(new InvocationOnTestDouble<T>() {
+								@SuppressWarnings("unchecked")
+								@Override
+								public T getTestDouble() {
+									return (T) invocation.getMock();
+								}
 
-							@Override
-							public Object[] getArguments() {
-								return invocation.getArguments();
-							}
-						});
+								@Override
+								public Object[] getArguments() {
+									return invocation.getArguments();
+								}
+							});
+						}
+					}).when(instance);
+
+					Object[] args = new Object[method.getParameterCount()];
+					for (int i = 0; i < args.length; i++) {
+						args[i] = it.getArguments().getArgument(i);
 					}
-				}).when(instance);
 
-				Object[] args = new Object[method.getParameterCount()];
-				for (int i = 0; i < args.length; i++) {
-					args[i] = it.getArguments().getArgument(i);
+					method.invoke(mock, args);
+				} catch (InvocationTargetException | IllegalAccessException e) {
+					throw new RuntimeException(e);
 				}
-
-				method.invoke(mock, args);
-			} catch (InvocationTargetException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		});
+			});
+			this.instance = instance;
+		}
 		@SuppressWarnings("unchecked")
-		final R result = (R) instance;
+		val result = (R) instance;
 		return result;
 	}
 
