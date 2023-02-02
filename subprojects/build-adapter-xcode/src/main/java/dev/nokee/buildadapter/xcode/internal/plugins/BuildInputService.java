@@ -29,8 +29,8 @@ public final class BuildInputService {
 		this.providers = providers;
 	}
 
-	public <OUT, IN> Transformer<OUT, IN> capture(Transformer<? extends OUT, ? super IN> transformer) {
+	public <OUT, IN> Transformer<OUT, IN> capture(String displayName, Transformer<? extends OUT, ? super IN> transformer) {
 		Preconditions.checkArgument(transformer instanceof Serializable);
-		return new ConfigurationTimeTransformerAdapter<>(providers, transformer);
+		return new ConfigurationTimeTransformerAdapter<>(providers, displayName, transformer);
 	}
 }

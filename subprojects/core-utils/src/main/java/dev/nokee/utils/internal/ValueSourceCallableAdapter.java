@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils.internal;
 
+import org.gradle.api.Describable;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
@@ -25,8 +26,9 @@ import java.util.concurrent.Callable;
 import static dev.nokee.utils.CallableUtils.uncheckedCall;
 
 @SuppressWarnings({"rawtypes", "UnstableApiUsage"})
-public abstract class ValueSourceCallableAdapter implements ValueSource<Object, ValueSourceCallableAdapter.Parameters> {
+public abstract class ValueSourceCallableAdapter implements ValueSource<Object, ValueSourceCallableAdapter.Parameters>, Describable {
 	public interface Parameters extends ValueSourceParameters {
+		Property<String> getDisplayName();
 		Property<Callable> getCallable();
 	}
 
@@ -35,5 +37,10 @@ public abstract class ValueSourceCallableAdapter implements ValueSource<Object, 
 	@SuppressWarnings("unchecked")
 	public Object obtain() {
 		return uncheckedCall(getParameters().getCallable().get());
+	}
+
+	@Override
+	public String getDisplayName() {
+		return getParameters().getDisplayName().getOrElse("type 'ValueSourceCallableAdapter'");
 	}
 }

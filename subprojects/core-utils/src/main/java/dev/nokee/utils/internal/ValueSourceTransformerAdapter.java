@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils.internal;
 
+import org.gradle.api.Describable;
 import org.gradle.api.Transformer;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ValueSource;
@@ -26,9 +27,10 @@ import javax.annotation.Nullable;
  * Transformer-backed value source.
  */
 @SuppressWarnings("UnstableApiUsage")
-public abstract class ValueSourceTransformerAdapter implements ValueSource<Object, ValueSourceTransformerAdapter.Parameters> {
+public abstract class ValueSourceTransformerAdapter implements ValueSource<Object, ValueSourceTransformerAdapter.Parameters>, Describable {
 	public interface Parameters extends ValueSourceParameters {
 		Property<Object> getInput();
+		Property<String> getDisplayName();
 
 		@SuppressWarnings("rawtypes")
 		Property<Transformer> getTransformer();
@@ -39,5 +41,10 @@ public abstract class ValueSourceTransformerAdapter implements ValueSource<Objec
 	@SuppressWarnings("unchecked")
 	public Object obtain() {
 		return getParameters().getTransformer().get().transform(getParameters().getInput().getOrNull());
+	}
+
+	@Override
+	public String getDisplayName() {
+		return getParameters().getDisplayName().getOrElse("type 'ValueSourceTransformerAdapter'");
 	}
 }
