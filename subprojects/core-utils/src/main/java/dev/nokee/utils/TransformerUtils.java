@@ -18,6 +18,7 @@ package dev.nokee.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.nokee.util.internal.FlatTransformEachToCollectionAdapter;
+import dev.nokee.util.internal.PeekTransformer;
 import dev.nokee.util.internal.TransformEachToCollectionAdapter;
 import dev.nokee.util.lambdas.SerializableTransformer;
 import dev.nokee.util.lambdas.internal.SerializableTransformerAdapter;
@@ -32,6 +33,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -53,6 +55,10 @@ public final class TransformerUtils {
 	 */
 	public static <OUT, IN> org.gradle.api.Transformer<OUT, IN> ofSerializableTransformer(SerializableTransformer<OUT, IN> transformer) {
 		return new SerializableTransformerAdapter<>(transformer);
+	}
+
+	public static <T> Transformer<T, T> peek(Consumer<? super T> action) {
+		return ofTransformer(new PeekTransformer<>(action));
 	}
 
 	public static <OUT, IN extends OUT> Transformer<OUT, IN> noOpTransformer() {
