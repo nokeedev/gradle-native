@@ -32,5 +32,23 @@ public interface TestDouble<T> {
 
 	TestDouble<T> alwaysThrows();
 
-	<R extends T> R instance();
+	T instance();
+
+	default <R extends T> R instance(Narrower<R> narrower) {
+		return narrower.narrow(instance());
+	}
+
+	interface Narrower<R> {
+		R narrow(Object instance);
+	}
+
+	static <R> Narrower<R> narrowed() {
+		return new Narrower<R>() {
+			@Override
+			@SuppressWarnings("unchecked")
+			public R narrow(Object instance) {
+				return (R) instance;
+			}
+		};
+	}
 }
