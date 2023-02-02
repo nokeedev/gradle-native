@@ -15,7 +15,10 @@
  */
 package dev.nokee.internal.testing.testdoubles;
 
+import dev.nokee.internal.testing.MockitoMethodWrapper;
+import dev.nokee.internal.testing.invocations.InvocationResult;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
+import dev.nokee.internal.testing.reflect.MethodInformation;
 import dev.nokee.internal.testing.reflect.ReturnInformation;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
@@ -61,6 +64,30 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 			}
 		});
 		return this;
+	}
+
+	@Override
+	public MethodVerifier<ArgumentInformation.None> to(MethodInformation<T, ?> method) {
+		return new MethodVerifier<ArgumentInformation.None>() {
+			private final MockitoMethodWrapper<ArgumentInformation.None> delegate = MockitoMethodWrapper.method(instance(), method);
+
+			@Override
+			public List<InvocationResult<ArgumentInformation.None>> getAllInvocations() {
+				return delegate.getAllInvocations();
+			}
+		};
+	}
+
+	@Override
+	public <A extends ArgumentInformation> MethodVerifier<A> to(MethodInformation.WithArguments<T, ?, A> method) {
+		return new MethodVerifier<A>() {
+			private final MockitoMethodWrapper<A> delegate = MockitoMethodWrapper.method(instance(), method);
+
+			@Override
+			public List<InvocationResult<A>> getAllInvocations() {
+				return delegate.getAllInvocations();
+			}
+		};
 	}
 
 	@Override

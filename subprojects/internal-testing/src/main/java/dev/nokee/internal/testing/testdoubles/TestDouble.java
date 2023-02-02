@@ -32,6 +32,9 @@ public interface TestDouble<T> {
 
 	TestDouble<T> alwaysThrows();
 
+	MethodVerifier<ArgumentInformation.None> to(MethodInformation<T, ?> method);
+	<A extends ArgumentInformation> MethodVerifier<A> to(MethodInformation.WithArguments<T, ?, A> method);
+
 	T instance();
 
 	default <R extends T> R instance(Narrower<R> narrower) {
