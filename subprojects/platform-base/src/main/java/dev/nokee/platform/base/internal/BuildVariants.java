@@ -47,6 +47,7 @@ import static dev.nokee.model.internal.core.ModelComponentType.componentOf;
 import static dev.nokee.model.internal.tags.ModelTags.typeOf;
 import static dev.nokee.runtime.core.Coordinates.absentCoordinate;
 import static dev.nokee.utils.Cast.uncheckedCastBecauseOfTypeErasure;
+import static dev.nokee.utils.TransformerUtils.peek;
 import static dev.nokee.utils.TransformerUtils.transformEach;
 
 public final class BuildVariants implements ModelComponent {
@@ -114,7 +115,7 @@ public final class BuildVariants implements ModelComponent {
 			val axisValidator = entity.findComponent(componentOf(VariantDimensionAxisValidatorComponent.class))
 				.map(VariantDimensionAxisValidatorComponent::get);
 			if (axisValidator.isPresent()) {
-				axisCoordinates = axisCoordinates.andThen(new PeekTransformer<>(it -> axisValidator.get().accept(it)));
+				axisCoordinates = axisCoordinates.andThen(peek(it -> axisValidator.get().accept(it)));
 			}
 
 			if (entity.hasComponent(typeOf(VariantDimensionAxisOptionalTag.class))) {
@@ -146,7 +147,7 @@ public final class BuildVariants implements ModelComponent {
 		}
 
 		public static <I extends Iterable<T>, T> TransformerUtils.Transformer<I, I> assertNonEmpty(String propertyName, String componentName) {
-			return new PeekTransformer<>(new AssertNonEmpty<>(propertyName, componentName));
+			return peek(new AssertNonEmpty<>(propertyName, componentName));
 		}
 
 		private static final class AssertNonEmpty<T> implements Consumer<Iterable<T>> {

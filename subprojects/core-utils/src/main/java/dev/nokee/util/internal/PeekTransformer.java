@@ -15,7 +15,6 @@
  */
 package dev.nokee.util.internal;
 
-import dev.nokee.utils.TransformerUtils;
 import lombok.EqualsAndHashCode;
 import org.gradle.api.Transformer;
 
