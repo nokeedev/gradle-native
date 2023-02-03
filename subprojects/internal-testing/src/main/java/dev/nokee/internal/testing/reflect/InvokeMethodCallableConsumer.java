@@ -28,8 +28,7 @@ final class InvokeMethodCallableConsumer<ReceiverType> implements Consumer<Recei
 	public void accept(ReceiverType it) {
 		try {
 			callable.invoke(it, new AlwaysNullArguments());
-		} catch (
-			Throwable e) {
+		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
 	}
