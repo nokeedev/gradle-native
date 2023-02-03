@@ -21,6 +21,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 
 @SuppressWarnings({"unchecked", "UnstableApiUsage"})
 public final class TestDoubleTypes {
@@ -38,6 +39,13 @@ public final class TestDoubleTypes {
 	public static <T> Class<Action<T>> ofAction(Class<T> type) {
 		return (Class<Action<T>>) new TypeToken<Action<T>>() {} //
 			.where(new TypeParameter<T>() {}, type) //
+			.getRawType();
+	}
+
+	public static <T, U> Class<BiConsumer<T, U>> ofBiConsumer(Class<T> tType, Class<U> uType) {
+		return (Class<BiConsumer<T, U>>) new TypeToken<BiConsumer<T, U>>() {} //
+			.where(new TypeParameter<T>() {}, tType) //
+			.where(new TypeParameter<U>() {}, uType) //
 			.getRawType();
 	}
 
