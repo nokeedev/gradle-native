@@ -15,36 +15,35 @@
  */
 package dev.nokee.utils.internal;
 
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import org.gradle.api.Transformer;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static dev.nokee.internal.testing.DescribableMatchers.displayName;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class ValueSourceTransformerAdapterTests {
-	@Mock Transformer<Object, Object> transformer;
+	TestDouble<Transformer<String, String>> transformer = newMock(Transformer.class);
 	ValueSourceTransformerAdapter.Parameters parameters;
 	ValueSourceTransformerAdapter subject;
 	Object result;
 
 	@BeforeEach
 	void createSubject() {
-		when(transformer.transform(any())).thenReturn("transformed-value");
+		transformer.when(any(callTo(method(Transformer<String, String>::transform))).then(doReturn("transformed-value")));
 		parameters = objectFactory().newInstance(ValueSourceTransformerAdapter.Parameters.class);
 		parameters.getInput().set("some-serializable-value");
-		parameters.getTransformer().set(transformer);
+		parameters.getTransformer().set(transformer.instance());
 		subject = new ValueSourceTransformerAdapter() {
 			@Override
 			public Parameters getParameters() {
@@ -61,7 +60,7 @@ class ValueSourceTransformerAdapterTests {
 
 	@Test
 	void forwardsToTransformer() {
-		verify(transformer).transform("some-serializable-value");
+		assertThat(transformer.to(method(Transformer<String, String>::transform)), calledOnceWith("some-serializable-value"));
 	}
 
 	@Test
