@@ -15,7 +15,6 @@
  */
 package dev.nokee.internal.testing.testers;
 
-import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
 import dev.nokee.utils.FunctionalInterfaceMatchers;
 import groovy.lang.Closure;
@@ -26,6 +25,10 @@ import org.hamcrest.Matchers;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -44,10 +47,10 @@ public final class ConfigureMethodTester<T, U> {
 	}
 
 	public <S> ConfigureMethodTester<T, U> testAction(BiConsumer<? super T, ? super Action<? super S>> methodUnderTest) {
-		val action = ActionTestUtils.mockAction();
-		methodUnderTest.accept(subject, action);
+		val action = newMock(ofAction(Object.class));
+		methodUnderTest.accept(subject, action.instance());
 		assertThat("can configure element using action",
-			action, FunctionalInterfaceMatchers.calledOnceWith(FunctionalInterfaceMatchers.singleArgumentOf(elementToConfigure())));
+			action.to(method(Action<Object>::execute)), calledOnceWith(elementToConfigure()));
 		return this;
 	}
 

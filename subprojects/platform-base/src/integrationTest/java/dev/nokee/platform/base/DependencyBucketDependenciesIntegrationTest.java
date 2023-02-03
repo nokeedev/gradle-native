@@ -28,7 +28,6 @@ import dev.nokee.platform.base.internal.dependencies.DependencyDefaultActionComp
 import dev.nokee.platform.base.internal.dependencies.DependencyElement;
 import dev.nokee.platform.base.internal.plugins.ComponentModelBasePlugin;
 import dev.nokee.platform.base.testers.DependencyUnderTest;
-import dev.nokee.utils.ActionTestUtils;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -43,15 +42,17 @@ import org.mockito.Mockito;
 import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.model.internal.core.ModelRegistration.builder;
 import static dev.nokee.model.internal.state.ModelStates.discover;
 import static dev.nokee.model.internal.tags.ModelTags.tag;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.externalDependency;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.projectDependency;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.neverCalled;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -97,28 +98,28 @@ class DependencyBucketDependenciesIntegrationTest {
 	void usesDefaultActionForModuleDependencies(DependencyUnderTest dependency) {
 		ModelProperties.add(discover(subject).get(BucketDependenciesProperty.class).get(), new DependencyElement(dependency.asNotation()));
 
-		val action = ActionTestUtils.mockAction(ModuleDependency.class);
-		subject.addComponent(new DependencyDefaultActionComponent(action));
+		val action = newMock(ofAction(ModuleDependency.class));
+		subject.addComponent(new DependencyDefaultActionComponent(action.instance()));
 
 		// when:
 		ModelStates.finalize(subject);
 
 		// then:
-		assertThat(action, calledOnceWith(singleArgumentOf(dependency.asMatcher())));
+		assertThat(action.to(method(Action<ModuleDependency>::execute)), calledOnceWith(dependency.asMatcher()));
 	}
 
 	@Test
 	void doesNotUsesDefaultActionForFileCollectionDependencies() {
 		ModelProperties.add(discover(subject).get(BucketDependenciesProperty.class).get(), new DependencyElement(objectFactory().fileCollection()));
 
-		val action = ActionTestUtils.mockAction(ModuleDependency.class);
-		subject.addComponent(new DependencyDefaultActionComponent(action));
+		val action = newMock(ofAction(ModuleDependency.class));
+		subject.addComponent(new DependencyDefaultActionComponent(action.instance()));
 
 		// when:
 		ModelStates.finalize(subject);
 
 		// then:
-		assertThat(action, neverCalled());
+		assertThat(action.to(method(Action<ModuleDependency>::execute)), neverCalled());
 	}
 
 	@Test
