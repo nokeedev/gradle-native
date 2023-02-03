@@ -19,6 +19,7 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
+import org.gradle.api.specs.Spec;
 
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
@@ -52,6 +53,12 @@ public final class TestDoubleTypes {
 	public static <R extends RawType, RawType, P0> Class<R> ofType(Class<RawType> type, Class<P0> p0Type) {
 		return (Class<R>) new TypeToken<R>(type) {} //
 			.where(new TypeParameter<P0>() {}, p0Type) //
+			.getRawType();
+	}
+
+	public static <T> Class<Spec<T>> ofSpec(Class<T> type) {
+		return (Class<Spec<T>>) new TypeToken<Spec<T>>() {} //
+			.where(new TypeParameter<T>() {}, type) //
 			.getRawType();
 	}
 }

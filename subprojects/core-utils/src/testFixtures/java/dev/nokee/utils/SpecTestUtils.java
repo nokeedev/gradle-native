@@ -16,12 +16,10 @@
 package dev.nokee.utils;
 
 import lombok.EqualsAndHashCode;
-import org.gradle.api.specs.Spec;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-import static dev.nokee.utils.ExecutionArgumentsFactory.create;
 import static java.util.Objects.requireNonNull;
 
 public class SpecTestUtils {
@@ -104,26 +102,6 @@ public class SpecTestUtils {
 		@Override
 		public String toString() {
 			return "anotherSpec(" + (what == null ? "" : what) + ")";
-		}
-	}
-
-	public static <T> MockSpec<T> mockSpec() {
-		return new MockSpec<>();
-	}
-
-	public static final class MockSpec<T> implements Spec<T>, HasExecutionResult<ExecutionArgument<T>> {
-		final ExecutionResult<ExecutionArgument<T>> result = new ExecutionResult<>();
-		private Spec<T> answer = aSpec();
-
-		@Override
-		public boolean isSatisfiedBy(T t) {
-			result.record(create(this, t));
-			return answer.isSatisfiedBy(t);
-		}
-
-		public MockSpec<T> whenCalled(Spec<T> answer) {
-			this.answer = answer;
-			return this;
 		}
 	}
 }
