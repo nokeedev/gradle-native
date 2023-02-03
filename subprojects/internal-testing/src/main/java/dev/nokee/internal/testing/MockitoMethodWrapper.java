@@ -15,6 +15,7 @@
  */
 package dev.nokee.internal.testing;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import dev.nokee.internal.testing.invocations.HasInvocationResults;
 import dev.nokee.internal.testing.invocations.InvocationResult;
@@ -97,6 +98,11 @@ public final class MockitoMethodWrapper<A extends ArgumentInformation> implement
 		@Override
 		public Iterator<Object> iterator() {
 			return Iterators.forArray(invocation.getArguments());
+		}
+
+		@Override
+		public String toString() {
+			return "invocation of " + invocation.getMethod() + " with " + ImmutableList.copyOf(invocation.getArguments());
 		}
 	}
 }
