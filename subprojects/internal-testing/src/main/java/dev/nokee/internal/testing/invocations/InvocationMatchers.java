@@ -90,7 +90,7 @@ public final class InvocationMatchers {
 
 	@SuppressWarnings("unchecked")
 	public static <A extends ArgumentInformation.Arg1<A0>, A0> Matcher<InvocationResult<A>> with(Matcher<? super A0> matcher) {
-		return new FeatureMatcher<InvocationResult<A>, List<?>>(contains((Matcher<Object>) matcher), "", "") {
+		return new FeatureMatcher<InvocationResult<A>, List<?>>(contains(ImmutableList.of((Matcher<Object>) matcher)), "", "") {
 			@Override
 			protected List<?> featureValueOf(InvocationResult<A> actual) {
 				return ImmutableList.copyOf(actual);
