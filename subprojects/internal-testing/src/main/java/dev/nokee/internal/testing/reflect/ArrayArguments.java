@@ -15,14 +15,25 @@
  */
 package dev.nokee.internal.testing.reflect;
 
-public interface Invokable<ReceiverType, ReturnType, ExceptionType extends Throwable> {
-	default ReturnType invoke(ReceiverType receiver, Object... args) throws ExceptionType {
-		return invoke(receiver, new ArrayArguments(args));
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+final class ArrayArguments implements Invokable.Arguments {
+	private final Object[] args;
+
+	public ArrayArguments(Object[] args) {
+		this.args = args;
 	}
 
-	ReturnType invoke(ReceiverType receiver, Arguments args) throws ExceptionType;
+	@Override
+	public <A> A getArgument(int index) {
+		@SuppressWarnings("unchecked")
+		final A result = (A) args[index];
+		return result;
+	}
 
-	interface Arguments {
-		<A> A getArgument(int index);
+	@Override
+	public String toString() {
+		return "[" + Arrays.stream(args).map(Object::toString).collect(Collectors.joining(", ")) + "]";
 	}
 }
