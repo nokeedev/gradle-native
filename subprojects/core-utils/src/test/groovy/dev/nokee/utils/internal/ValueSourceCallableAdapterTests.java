@@ -15,34 +15,34 @@
  */
 package dev.nokee.utils.internal;
 
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.Callable;
 
 import static dev.nokee.internal.testing.DescribableMatchers.displayName;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class ValueSourceCallableAdapterTests {
-	@Mock Callable<Object> callable;
+	TestDouble<Callable<String>> callable = newMock(Callable.class);
 	ValueSourceCallableAdapter.Parameters parameters;
 	ValueSourceCallableAdapter subject;
 	Object result;
 
 	@BeforeEach
 	void createSubject() throws Exception {
-		when(callable.call()).thenReturn("some-value");
+		callable.when(callTo(method(Callable<String>::call)).then(doReturn("some-value")));
 		parameters = objectFactory().newInstance(ValueSourceCallableAdapter.Parameters.class);
-		parameters.getCallable().set(callable);
+		parameters.getCallable().set(callable.instance());
 		subject = new ValueSourceCallableAdapter() {
 			@Override
 			public Parameters getParameters() {
@@ -58,8 +58,8 @@ class ValueSourceCallableAdapterTests {
 	}
 
 	@Test
-	void forwardsToCallable() throws Exception {
-		verify(callable).call();
+	void forwardsToCallable() {
+		assertThat(callable.to(method(Callable<String>::call)), calledOnce());
 	}
 
 	@Test
