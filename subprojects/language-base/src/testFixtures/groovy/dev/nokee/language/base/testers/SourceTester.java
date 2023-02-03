@@ -16,15 +16,21 @@
 package dev.nokee.language.base.testers;
 
 import dev.nokee.language.base.LanguageSourceSet;
-import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
+import dev.nokee.utils.FunctionalInterfaceMatchers;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateFirstStrategy;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateOf;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.isA;
@@ -50,9 +56,9 @@ public interface SourceTester<T, U> {
 	//region
 	@Test
 	default void canConfigureSourceViaTypeSafeMethodUsingAction() {
-		val action = ActionTestUtils.mockAction();
-		configure(subject(), action);
-		assertThat(action, calledOnceWith(singleArgumentOf(sourceSetUnderTest())));
+		val action = newMock(ofAction(Object.class));
+		configure(subject(), action.instance());
+		assertThat(action.to(method(Action<Object>::execute)), calledOnceWith(sourceSetUnderTest()));
 	}
 
 	@Test
@@ -60,8 +66,8 @@ public interface SourceTester<T, U> {
 		val closure = ClosureTestUtils.mockClosure(LanguageSourceSet.class);
 		configure(subject(), closure);
 		assertAll(
-			() -> assertThat(closure, calledOnceWith(singleArgumentOf(sourceSetUnderTest()))),
-			() -> assertThat(closure, calledOnceWith(allOf(delegateOf(sourceSetUnderTest()), delegateFirstStrategy())))
+			() -> assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(singleArgumentOf(sourceSetUnderTest()))),
+			() -> assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(allOf(delegateOf(sourceSetUnderTest()), delegateFirstStrategy())))
 		);
 	}
 	//endregion

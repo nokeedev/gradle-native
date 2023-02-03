@@ -19,21 +19,23 @@ import com.google.common.reflect.TypeToken;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.provider.ProviderConvertibleTester;
-import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.TransformerTestUtils;
 import lombok.val;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.utils.ActionTestUtils.mockAction;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.utils.ClosureTestUtils.mockClosure;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.neverCalled;
 import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T> {
 	KnownDomainObject<T> subject();
@@ -75,14 +77,14 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 	@Test
 	default void returnsThisKnownObjectOnConfigure() {
 		assertAll(
-			() -> assertSame(subject(), subject().configure(mockAction())),
+			() -> assertSame(subject(), subject().configure(newMock(ofAction(Object.class)).instance())),
 			() -> assertSame(subject(), subject().configure(mockClosure(type())))
 		);
 	}
 
 	@Test
 	default void doesNotThrowWhenConfigureUsingAction() {
-		val action = ActionTestUtils.mockAction();
+		val action = newMock(ofAction(Object.class)).instance();
 		assertDoesNotThrow(() -> subject().configure(action));
 	}
 

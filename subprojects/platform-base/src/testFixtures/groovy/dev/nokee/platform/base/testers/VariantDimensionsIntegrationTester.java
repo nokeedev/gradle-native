@@ -16,11 +16,13 @@
 package dev.nokee.platform.base.testers;
 
 import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.platform.base.BuildVariant;
 import dev.nokee.platform.base.VariantAwareComponent;
 import dev.nokee.platform.base.VariantDimensionBuilder;
 import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
+import dev.nokee.utils.FunctionalInterfaceMatchers;
 import groovy.lang.Closure;
 import lombok.Value;
 import lombok.val;
@@ -39,7 +41,11 @@ import static com.google.common.collect.ImmutableSet.of;
 import static dev.nokee.internal.testing.GradleProviderMatchers.finalizedValue;
 import static dev.nokee.internal.testing.GradleProviderMatchers.hasNoValue;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofType;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateFirstStrategy;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateOf;
 import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
@@ -80,17 +86,17 @@ public abstract class VariantDimensionsIntegrationTester {
 
 	@Test
 	void callsActionWithBuilder() {
-		val action = ActionTestUtils.mockAction(VariantDimensionBuilder.class);
-		subject().getDimensions().newAxis(MyAxis.class, action);
-		assertThat(action, calledOnceWith(singleArgumentOf(isA(VariantDimensionBuilder.class))));
+		TestDouble<Action<VariantDimensionBuilder<MyAxis>>> action = newMock(ofAction(ofType(VariantDimensionBuilder.class, MyAxis.class)));
+		subject().getDimensions().newAxis(MyAxis.class, action.instance());
+		assertThat(action.to(method(Action<VariantDimensionBuilder<MyAxis>>::execute)), calledOnceWith(isA(VariantDimensionBuilder.class)));
 	}
 
 	@Test
 	void callsClosureWithBuilder() {
 		val closure = ClosureTestUtils.mockClosure(VariantDimensionBuilder.class);
 		subject().getDimensions().newAxis(MyAxis.class, closure);
-		assertThat(closure, calledOnceWith(singleArgumentOf(isA(VariantDimensionBuilder.class))));
-		assertThat(closure, calledOnceWith(allOf(delegateFirstStrategy(), delegateOf(isA(VariantDimensionBuilder.class)))));
+		assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(singleArgumentOf(isA(VariantDimensionBuilder.class))));
+		assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(allOf(delegateFirstStrategy(), delegateOf(isA(VariantDimensionBuilder.class)))));
 	}
 
 	abstract class NewAxisTester<T extends Named> {

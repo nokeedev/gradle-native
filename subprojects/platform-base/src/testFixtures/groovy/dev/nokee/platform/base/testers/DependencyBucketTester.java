@@ -15,11 +15,10 @@
  */
 package dev.nokee.platform.base.testers;
 
-import dev.nokee.model.internal.core.ModelNodes;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
+import dev.nokee.utils.FunctionalInterfaceMatchers;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
@@ -30,15 +29,26 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static dev.nokee.internal.testing.ConfigurationMatchers.*;
-import static dev.nokee.model.internal.core.ModelNodes.of;
+import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
+import static dev.nokee.internal.testing.ConfigurationMatchers.dependencies;
+import static dev.nokee.internal.testing.ConfigurationMatchers.module;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.externalDependency;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.projectDependency;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateFirstStrategy;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateOf;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.gradle.api.attributes.Attribute.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 public interface DependencyBucketTester<T> {
@@ -86,10 +96,10 @@ public interface DependencyBucketTester<T> {
 	@ParameterizedTest(name = "canConfigureDependencyViaTypeSafeMethodUsingAction()")
 	@MethodSource("provideDependencyNotations")
 	default void canConfigureDependencyViaTypeSafeMethodUsingAction(DependencyUnderTest dependency) {
-		val action = ActionTestUtils.mockAction(ModuleDependency.class);
-		addDependency(subject(), dependency.asNotation(), action);
+		val action = newMock(ofAction(ModuleDependency.class));
+		addDependency(subject(), dependency.asNotation(), action.instance());
 		assertThat(DependencyBuckets.finalize(get(subject()).getAsConfiguration()).getDependencies(), hasSize(1)); // force realize
-		assertThat(action, calledOnceWith(singleArgumentOf(dependency.asMatcher())));
+		assertThat(action.to(method(Action<ModuleDependency>::execute)), calledOnceWith(dependency.asMatcher()));
 	}
 
 	@ParameterizedTest(name = "canConfigureDependencyViaTypeSafeMethodUsingClosure()")
@@ -99,8 +109,8 @@ public interface DependencyBucketTester<T> {
 		addDependency(subject(), dependency.asNotation(), closure);
 		assertThat(DependencyBuckets.finalize(get(subject()).getAsConfiguration()).getDependencies(), hasSize(1)); // force realize
 		assertAll(
-			() -> assertThat(closure, calledOnceWith(singleArgumentOf(dependency.asMatcher()))),
-			() -> assertThat(closure, calledOnceWith(allOf(delegateOf(dependency.asMatcher()), delegateFirstStrategy())))
+			() -> assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(singleArgumentOf(dependency.asMatcher()))),
+			() -> assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(allOf(delegateOf(dependency.asMatcher()), delegateFirstStrategy())))
 		);
 	}
 	//endregion

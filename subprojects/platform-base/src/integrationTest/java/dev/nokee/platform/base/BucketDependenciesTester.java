@@ -16,8 +16,8 @@
 package dev.nokee.platform.base;
 
 import dev.nokee.platform.base.testers.DependencyUnderTest;
-import dev.nokee.utils.ActionTestUtils;
 import lombok.val;
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,15 +28,17 @@ import java.util.stream.Stream;
 
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.externalDependency;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.filesDependency;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.projectDependency;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.calledOnceWith;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.neverCalled;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static dev.nokee.utils.ProviderUtils.resolve;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -104,10 +106,10 @@ public interface BucketDependenciesTester {
 
 	@Test
 	default void executesActionOnlyWhenDependenciesRealized() {
-		val action = ActionTestUtils.mockAction(ModuleDependency.class);
-		subject().addDependency("com.example:peto:4.5", action);
-		assertThat(action, neverCalled());
+		val action = newMock(ofAction(ModuleDependency.class));
+		subject().addDependency("com.example:peto:4.5", action.instance());
+		assertThat(action.to(method(Action<ModuleDependency>::execute)), neverCalled());
 		resolve(subject().getDependencies());
-		assertThat(action, calledOnceWith(singleArgumentOf(forCoordinate("com.example", "peto", "4.5"))));
+		assertThat(action.to(method(Action<ModuleDependency>::execute)), calledOnceWith(forCoordinate("com.example", "peto", "4.5")));
 	}
 }

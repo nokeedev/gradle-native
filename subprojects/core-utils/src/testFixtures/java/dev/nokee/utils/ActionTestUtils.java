@@ -20,7 +20,6 @@ import org.gradle.api.Action;
 
 import javax.annotation.Nullable;
 
-import static dev.nokee.utils.ExecutionArgumentsFactory.create;
 import static java.util.Objects.requireNonNull;
 
 public final class ActionTestUtils {
@@ -103,23 +102,6 @@ public final class ActionTestUtils {
 		@Override
 		public String toString() {
 			return "doSomethingElse(" + (what == null ? "" : what) + ")";
-		}
-	}
-
-	public static <T> MockAction<T> mockAction() {
-		return new MockAction<>();
-	}
-
-	public static <T> MockAction<T> mockAction(Class<T> tClass) {
-		return new MockAction<>();
-	}
-
-	public static final class MockAction<T> implements Action<T>, HasExecutionResult<ExecutionArgument<T>> {
-		final ExecutionResult<ExecutionArgument<T>> result = new ExecutionResult<>();
-
-		@Override
-		public void execute(T t) {
-			result.record(create(this, t));
 		}
 	}
 }
