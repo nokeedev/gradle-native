@@ -54,7 +54,22 @@ final class ReflectionProxyMethodReference<T> implements MethodReference<T> {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			this.method = method;
-			return null;
+			final Class<?> returnType = method.getReturnType();
+			if (returnType.equals(boolean.class)) {
+				return false;
+			} else if (returnType.equals(int.class)) {
+				return 0;
+			} else if (returnType.equals(double.class)) {
+				return 0;
+			} else if (returnType.equals(short.class)) {
+				return 0;
+			} else if (returnType.equals(long.class)) {
+				return 0L;
+			} else if (returnType.equals(float.class)) {
+				return 0.0f;
+			} else {
+				return null;
+			}
 		}
 
 		public Method getLastMethodInvocation() {
