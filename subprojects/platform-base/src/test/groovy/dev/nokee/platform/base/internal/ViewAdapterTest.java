@@ -17,34 +17,55 @@ package dev.nokee.platform.base.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import dev.nokee.utils.*;
+import dev.nokee.internal.testing.reflect.Invokable;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
+import dev.nokee.utils.ActionTestUtils;
+import dev.nokee.utils.ClosureTestUtils;
+import dev.nokee.utils.ClosureWrappedConfigureAction;
+import dev.nokee.utils.FunctionalInterfaceMatchers;
+import dev.nokee.utils.SpecTestUtils;
+import dev.nokee.utils.TransformerTestUtils;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.called;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.with;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofSpec;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.calledWith;
+import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 class ViewAdapterTest {
-	private final ViewAdapter.Strategy delegate = Mockito.mock(ViewAdapter.Strategy.class);
-	private final ViewAdapter<MyType> subject = new ViewAdapter<>(MyType.class, delegate);
+	private final TestDouble<ViewAdapter.Strategy> delegate = newMock(ViewAdapter.Strategy.class);
+	private final ViewAdapter<MyType> subject = new ViewAdapter<>(MyType.class, delegate.instance());
 
 	@Test
 	void forwardsConfigureEachActionToStrategy() {
 		val action = ActionTestUtils.doSomething();
 		subject.configureEach(action);
-		verify(delegate).configureEach(MyType.class, action);
+		assertThat(delegate.to(method(ViewAdapter.Strategy::<MyType>configureEach)), calledOnceWith(MyType.class, action));
 	}
 
 	@Test
@@ -56,7 +77,8 @@ class ViewAdapterTest {
 	void forwardsConfigureEachClosureToStrategy() {
 		val closure = ClosureTestUtils.doSomething(MyType.class);
 		subject.configureEach(closure);
-		verify(delegate).configureEach(MyType.class, new ClosureWrappedConfigureAction<>(closure));
+		assertThat(delegate.to(method(ViewAdapter.Strategy::<MyType>configureEach)),
+			calledOnceWith(MyType.class, new ClosureWrappedConfigureAction<>(closure)));
 	}
 
 	@Test
@@ -68,14 +90,15 @@ class ViewAdapterTest {
 	void forwardsConfigureEachActionByTypeToStrategy() {
 		val action = ActionTestUtils.doSomething();
 		subject.configureEach(MySubType.class, action);
-		verify(delegate).configureEach(MySubType.class, action);
+		assertThat(delegate.to(method(ViewAdapter.Strategy::<MySubType>configureEach)), calledOnceWith(MySubType.class, action));
 	}
 
 	@Test
 	void forwardsConfigureEachClosureByTypeToStrategy() {
 		val closure = ClosureTestUtils.doSomething(MySubType.class);
 		subject.configureEach(MySubType.class, closure);
-		verify(delegate).configureEach(MySubType.class, new ClosureWrappedConfigureAction<>(closure));
+		assertThat(delegate.to(method(ViewAdapter.Strategy::<MySubType>configureEach)),
+			calledOnceWith(MySubType.class, new ClosureWrappedConfigureAction<>(closure)));
 	}
 
 	@Test
@@ -88,7 +111,8 @@ class ViewAdapterTest {
 		val action = ActionTestUtils.doSomething();
 		val spec = SpecTestUtils.aSpec();
 		subject.configureEach(spec, action);
-		verify(delegate).configureEach(MyType.class, new SpecFilteringAction<>(spec, action));
+		assertThat(delegate.to(method(ViewAdapter.Strategy::<MyType>configureEach)),
+			calledOnceWith(MyType.class, new SpecFilteringAction<>(spec, action)));
 	}
 
 	@Test
@@ -106,7 +130,8 @@ class ViewAdapterTest {
 		val closure = ClosureTestUtils.doSomething(MyType.class);
 		val spec = SpecTestUtils.aSpec();
 		subject.configureEach(spec, closure);
-		verify(delegate).configureEach(MyType.class, new SpecFilteringAction<>(spec, new ClosureWrappedConfigureAction<>(closure)));
+		assertThat(delegate.to(method(ViewAdapter.Strategy::<MyType>configureEach)),
+			calledOnceWith(MyType.class, new SpecFilteringAction<>(spec, new ClosureWrappedConfigureAction<>(closure))));
 	}
 
 	@Test
@@ -121,7 +146,7 @@ class ViewAdapterTest {
 
 	@Test
 	void returnsNewViewAdapterForSubType() {
-		val result = new ViewAdapter<>(MySubType.class, delegate);
+		val result = new ViewAdapter<>(MySubType.class, delegate.instance());
 		assertEquals(result, subject.withType(MySubType.class));
 	}
 
@@ -133,16 +158,16 @@ class ViewAdapterTest {
 	@Test
 	void forwardsGetElementsToStrategy() {
 		@SuppressWarnings("unchecked") val result = (Provider<Set<MyType>>) mock(Provider.class);
-		when(delegate.getElements(MyType.class)).thenReturn(result);
+		delegate.when(callTo(method(ViewAdapter.Strategy::<MyType>getElements)).with(args(MyType.class)).then(doReturn(result)));
 		assertEquals(result, subject.getElements());
-		verify(delegate).getElements(MyType.class);
+		assertThat(delegate.to(method(ViewAdapter.Strategy::<MyType>getElements)), calledOnceWith(MyType.class));
 	}
 
 	@Test
 	void resolvesElementsProviderFromStrategy() {
 		Set<MyType> result = ImmutableSet.of(new MyType(), new MySubType());
 		val elementsProvider = providerFactory().provider(() -> result);
-		when(delegate.getElements(MyType.class)).thenReturn(elementsProvider);
+		delegate.when(callTo(method(ViewAdapter.Strategy::<MyType>getElements)).with(args(MyType.class)).then(doReturn(elementsProvider)));
 		assertEquals(result, subject.get());
 	}
 
@@ -153,11 +178,11 @@ class ViewAdapterTest {
 		val e2 = new MyType();
 		Provider<Set<MyType>> elementsProvider = providerFactory().provider(() -> ImmutableSet.of(e0, e1, e2));
 		val mapper = TransformerTestUtils.<Class<?>, MyType>mockTransformer().whenCalled(Object::getClass);
-		when(delegate.getElements(MyType.class)).thenReturn(elementsProvider);
+		delegate.when(callTo(method(ViewAdapter.Strategy::<MyType>getElements)).with(args(MyType.class)).then(doReturn(elementsProvider)));
 
 		val result = subject.map(mapper);
 		assertNotNull(result);
-		assertThat(mapper, neverCalled());
+		assertThat(mapper, FunctionalInterfaceMatchers.neverCalled());
 
 		assertThat(result, providerOf(contains(MyType.class, MySubType.class, MyType.class)));
 		assertThat(mapper, calledWith(contains(singleArgumentOf(e0), singleArgumentOf(e1), singleArgumentOf(e2))));
@@ -176,11 +201,11 @@ class ViewAdapterTest {
 		Provider<Set<MyType>> elementsProvider = providerFactory().provider(() -> ImmutableSet.of(e0, e1, e2));
 		val mapper = TransformerTestUtils.<Iterable<Object>, MyType>mockTransformer()
 			.whenCalled(it -> ImmutableList.of(it.getClass(), it.getClass().getSimpleName()));
-		when(delegate.getElements(MyType.class)).thenReturn(elementsProvider);
+		delegate.when(callTo(method(ViewAdapter.Strategy::<MyType>getElements)).with(args(MyType.class)).then(doReturn(elementsProvider)));
 
 		val result = subject.flatMap(mapper);
 		assertNotNull(result);
-		assertThat(mapper, neverCalled());
+		assertThat(mapper, FunctionalInterfaceMatchers.neverCalled());
 
 		assertThat(result, providerOf(contains(MyType.class, "MyType", MySubType.class, "MySubType", MyType.class, "MyType")));
 		assertThat(mapper, calledWith(contains(singleArgumentOf(e0), singleArgumentOf(e1), singleArgumentOf(e2))));
@@ -197,16 +222,20 @@ class ViewAdapterTest {
 		val e1 = new MySubType();
 		val e2 = new MyType();
 		Provider<Set<MyType>> elementsProvider = providerFactory().provider(() -> ImmutableSet.of(e0, e1, e2));
-		val spec = SpecTestUtils.mockSpec()
-			.whenCalled(MySubType.class::isInstance);
-		when(delegate.getElements(MyType.class)).thenReturn(elementsProvider);
+		val spec = newMock(ofSpec(MyType.class))
+			.when(any(callTo(method(Spec<MyType>::isSatisfiedBy))).then(doReturn(resultOf(MySubType.class::isInstance))));
+		delegate.when(callTo(method(ViewAdapter.Strategy::<MyType>getElements)).with(args(MyType.class)).then(doReturn(elementsProvider)));
 
-		val result = subject.filter(spec);
+		val result = subject.filter(spec.instance());
 		assertNotNull(result);
-		assertThat(spec, neverCalled());
+		assertThat(spec.to(method(Spec<MyType>::isSatisfiedBy)), neverCalled());
 
 		assertThat(result, providerOf(contains(e1)));
-		assertThat(spec, calledWith(contains(singleArgumentOf(e0), singleArgumentOf(e1), singleArgumentOf(e2))));
+		assertThat(spec.to(method(Spec<MyType>::isSatisfiedBy)), called(with(e0), with(e1), with(e2)));
+	}
+
+	private static <ReceiverType, A0, ReturnType> Invokable<ReceiverType, ReturnType, RuntimeException> resultOf(Function<A0, ReturnType> function) {
+		return (it, args) -> function.apply(args.getArgument(0));
 	}
 
 	@Test
