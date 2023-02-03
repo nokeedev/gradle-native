@@ -16,37 +16,35 @@
 package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
-import dev.nokee.internal.testing.util.ProjectTestUtils;
 import dev.nokee.internal.testing.ConfigurationMatchers;
+import dev.nokee.internal.testing.util.ProjectTestUtils;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.BiConsumer;
+
 import static dev.nokee.internal.testing.ConfigurationMatchers.forCoordinate;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofBiConsumer;
 import static dev.nokee.internal.testing.util.ConfigurationTestUtils.testConfiguration;
 import static dev.nokee.utils.ConfigurationUtils.add;
 import static dev.nokee.utils.ConfigurationUtils.configureDependencies;
-import static dev.nokee.utils.ConsumerTestUtils.*;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.utils.ConsumerTestUtils.aBiConsumer;
+import static dev.nokee.utils.ConsumerTestUtils.anotherBiConsumer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasToString;
 
 class ConfigurationUtils_ConfigureDependenciesTest {
 	@Test
-	void callsBackWithConfiguration() {
+	void callsBackWithConfigurationAndDependencySet() {
 		val subject = testConfiguration();
-		val action = mockBiConsumer();
-		configureDependencies(action).execute(subject);
-		assertThat(action, calledOnceWith(firstArgumentOf(subject)));
-	}
-
-	@Test
-	void callsBackWithConfigurationDependencySet() {
-		val subject = testConfiguration();
-		val action = mockBiConsumer();
-		configureDependencies(action).execute(subject);
-		assertThat(action, calledOnceWith(secondArgumentOf(subject.getDependencies())));
+		val action = newMock(ofBiConsumer(Object.class, Object.class));
+		configureDependencies(action.instance()).execute(subject);
+		assertThat(action.to(method(BiConsumer<Object, Object>::accept)), calledOnceWith(subject, subject.getDependencies()));
 	}
 
 	@Test
