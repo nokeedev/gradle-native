@@ -15,6 +15,7 @@
  */
 package dev.nokee.internal.testing.reflect;
 
+@FunctionalInterface
 public interface Invokable<ReceiverType, ReturnType, ExceptionType extends Throwable> {
 	default ReturnType invoke(ReceiverType receiver, Object... args) throws ExceptionType {
 		return invoke(receiver, new ArrayArguments(args));

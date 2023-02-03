@@ -23,6 +23,7 @@ package dev.nokee.internal.testing.reflect;
  * @param <ExceptionType>
  */
 public interface MethodCallable<ReceiverType, ReturnType, ExceptionType extends Throwable> extends Invokable<ReceiverType, ReturnType, ExceptionType> {
+	@FunctionalInterface
 	interface ForArg0<ReceiverType, ExceptionType extends Throwable> extends MethodCallable<ReceiverType, Void, ExceptionType> {
 		@Override
 		default Void invoke(ReceiverType self, Arguments args) throws ExceptionType {
@@ -33,6 +34,7 @@ public interface MethodCallable<ReceiverType, ReturnType, ExceptionType extends 
 		void call(ReceiverType self) throws ExceptionType;
 	}
 
+	@FunctionalInterface
 	interface ForArg1<ReceiverType, A0, ExceptionType extends Throwable> extends MethodCallable<ReceiverType, Void, ExceptionType> {
 		@Override
 		default Void invoke(ReceiverType self, Arguments args) throws ExceptionType {
@@ -43,6 +45,7 @@ public interface MethodCallable<ReceiverType, ReturnType, ExceptionType extends 
 		void call(ReceiverType self, A0 a0) throws ExceptionType;
 	}
 
+	@FunctionalInterface
 	interface ForArg2<ReceiverType, A0, A1, ExceptionType extends Throwable> extends MethodCallable<ReceiverType, Void, ExceptionType> {
 		@Override
 		default Void invoke(ReceiverType self, Arguments args) throws ExceptionType {
@@ -54,6 +57,7 @@ public interface MethodCallable<ReceiverType, ReturnType, ExceptionType extends 
 	}
 
 	interface WithReturn {
+		@FunctionalInterface
 		interface ForArg0<ReceiverType, ExceptionType extends Throwable, ReturnType> extends MethodCallable<ReceiverType, ReturnType, ExceptionType> {
 			@Override
 			default ReturnType invoke(ReceiverType self, Arguments args) throws ExceptionType {
@@ -63,6 +67,7 @@ public interface MethodCallable<ReceiverType, ReturnType, ExceptionType extends 
 			ReturnType call(ReceiverType self) throws ExceptionType;
 		}
 
+		@FunctionalInterface
 		interface ForArg1<ReceiverType, ReturnType, A0, ExceptionType extends Throwable> extends MethodCallable<ReceiverType, ReturnType, ExceptionType> {
 			@Override
 			default ReturnType invoke(ReceiverType self, Arguments args) throws ExceptionType {
@@ -72,6 +77,7 @@ public interface MethodCallable<ReceiverType, ReturnType, ExceptionType extends 
 			ReturnType call(ReceiverType self, A0 a0) throws ExceptionType;
 		}
 
+		@FunctionalInterface
 		interface ForArg2<ReceiverType, ReturnType, A0, A1, ExceptionType extends Throwable> extends MethodCallable<ReceiverType, ReturnType, ExceptionType> {
 			@Override
 			default ReturnType invoke(ReceiverType self, Arguments args) throws ExceptionType {
