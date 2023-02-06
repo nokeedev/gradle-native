@@ -15,23 +15,25 @@
  */
 package dev.nokee.language.base.testers;
 
-import dev.nokee.internal.testing.invocations.InvocationMatchers;
+import dev.nokee.internal.testing.testdoubles.TestClosure;
 import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.language.base.ConfigurableSourceSet;
-import dev.nokee.utils.ActionTestUtils;
-import dev.nokee.utils.ClosureTestUtils;
-import dev.nokee.utils.FunctionalInterfaceMatchers;
 import org.gradle.api.Action;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withClosureArguments;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateFirstStrategy;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateOf;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
-import static dev.nokee.internal.testing.testdoubles.TestDouble.narrowed;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public interface ConfigurableSourceSetTester extends SourceSetTester {
@@ -51,10 +53,12 @@ public interface ConfigurableSourceSetTester extends SourceSetTester {
 
 	@Test
 	default void canConfigureFilterUsingClosure() {
-		ClosureTestUtils.MockClosure<Void, PatternFilterable> closure = ClosureTestUtils.mockClosure(PatternFilterable.class);
-		subject().filter(closure);
-		assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(singleArgumentOf(subject().getFilter())));
-		assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(allOf(delegateOf(subject().getFilter()), delegateFirstStrategy())));
+		TestDouble<TestClosure<Void, PatternFilterable>> closure = newMock(ofClosure(PatternFilterable.class));
+		subject().filter(closure.instance());
+		assertThat(closure.to(method(TestClosure<Void, PatternFilterable>::execute)),
+			calledOnce(withClosureArguments(subject().getFilter())));
+		assertThat(closure.to(method(TestClosure<Void, PatternFilterable>::execute)),
+			calledOnce(allOf(withDelegateOf(subject().getFilter()), withDelegateFirstStrategy())));
 	}
 
 	@Test

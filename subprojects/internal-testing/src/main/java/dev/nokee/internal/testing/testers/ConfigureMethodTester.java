@@ -15,21 +15,26 @@
  */
 package dev.nokee.internal.testing.testers;
 
-import dev.nokee.utils.ClosureTestUtils;
-import dev.nokee.utils.FunctionalInterfaceMatchers;
+import dev.nokee.internal.testing.testdoubles.TestClosure;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
-import org.hamcrest.Matchers;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withClosureArguments;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateFirstStrategy;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateOf;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -56,13 +61,13 @@ public final class ConfigureMethodTester<T, U> {
 
 	@SuppressWarnings("rawtypes")
 	public ConfigureMethodTester<T, U> testClosure(BiConsumer<? super T, ? super Closure> methodUnderTest) {
-		val closure = ClosureTestUtils.mockClosure(Object.class);
-		methodUnderTest.accept(subject, closure);
+		val closure = newMock(ofClosure(Object.class));
+		methodUnderTest.accept(subject, closure.instance());
 		assertAll("can configure element using closure",
 			() -> assertThat("closure is called once with element to configure as first argument",
-				closure, FunctionalInterfaceMatchers.calledOnceWith(FunctionalInterfaceMatchers.singleArgumentOf(elementToConfigure()))),
+				closure.to(method(TestClosure<Object, Object>::execute)), calledOnce(withClosureArguments(elementToConfigure()))),
 			() -> assertThat("closure is called once with delegate of element to configure and delegate first strategy",
-				closure, FunctionalInterfaceMatchers.calledOnceWith(Matchers.allOf(FunctionalInterfaceMatchers.delegateOf(elementToConfigure()), FunctionalInterfaceMatchers.delegateFirstStrategy())))
+				closure.to(method(TestClosure<Object, Object>::execute)), calledOnce(allOf(withDelegateOf(elementToConfigure()), withDelegateFirstStrategy())))
 		);
 		return this;
 	}

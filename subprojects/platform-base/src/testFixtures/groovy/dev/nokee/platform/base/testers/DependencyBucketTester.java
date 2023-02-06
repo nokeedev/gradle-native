@@ -15,10 +15,9 @@
  */
 package dev.nokee.platform.base.testers;
 
+import dev.nokee.internal.testing.testdoubles.TestClosure;
 import dev.nokee.platform.base.DependencyBucket;
 import dev.nokee.platform.base.internal.dependencies.DependencyBuckets;
-import dev.nokee.utils.ClosureTestUtils;
-import dev.nokee.utils.FunctionalInterfaceMatchers;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
@@ -32,16 +31,18 @@ import java.util.stream.Stream;
 import static dev.nokee.internal.testing.ConfigurationMatchers.attributes;
 import static dev.nokee.internal.testing.ConfigurationMatchers.dependencies;
 import static dev.nokee.internal.testing.ConfigurationMatchers.module;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withClosureArguments;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateFirstStrategy;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateOf;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.externalDependency;
 import static dev.nokee.platform.base.testers.DependencyUnderTest.projectDependency;
 import static dev.nokee.utils.ConfigurationUtils.configureAttributes;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateFirstStrategy;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.delegateOf;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.gradle.api.attributes.Attribute.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -105,12 +106,12 @@ public interface DependencyBucketTester<T> {
 	@ParameterizedTest(name = "canConfigureDependencyViaTypeSafeMethodUsingClosure()")
 	@MethodSource("provideDependencyNotations")
 	default void canConfigureDependencyViaTypeSafeMethodUsingClosure(DependencyUnderTest dependency) {
-		val closure = ClosureTestUtils.mockClosure(ModuleDependency.class);
-		addDependency(subject(), dependency.asNotation(), closure);
+		val closure = newMock(ofClosure(ModuleDependency.class));
+		addDependency(subject(), dependency.asNotation(), closure.instance());
 		assertThat(DependencyBuckets.finalize(get(subject()).getAsConfiguration()).getDependencies(), hasSize(1)); // force realize
 		assertAll(
-			() -> assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(singleArgumentOf(dependency.asMatcher()))),
-			() -> assertThat(closure, FunctionalInterfaceMatchers.calledOnceWith(allOf(delegateOf(dependency.asMatcher()), delegateFirstStrategy())))
+			() -> assertThat(closure.to(method(TestClosure<Object, ModuleDependency>::execute)), calledOnce(withClosureArguments(dependency.asMatcher()))),
+			() -> assertThat(closure.to(method(TestClosure<Object, ModuleDependency>::execute)), calledOnce(allOf(withDelegateOf(dependency.asMatcher()), withDelegateFirstStrategy())))
 		);
 	}
 	//endregion

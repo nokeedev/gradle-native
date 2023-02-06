@@ -56,6 +56,17 @@ public interface MethodCallable<ReceiverType, ReturnType, ExceptionType extends 
 		void call(ReceiverType self, A0 a0, A1 a1) throws ExceptionType;
 	}
 
+	@FunctionalInterface
+	interface ForArg3<ReceiverType, A0, A1, A2, ExceptionType extends Throwable> extends MethodCallable<ReceiverType, Void, ExceptionType> {
+		@Override
+		default Void invoke(ReceiverType self, Arguments args) throws ExceptionType {
+			call(self, args.getArgument(0), args.getArgument(1), args.getArgument(2));
+			return null;
+		}
+
+		void call(ReceiverType self, A0 a0, A1 a1, A2 a2) throws ExceptionType;
+	}
+
 	interface WithReturn {
 		@FunctionalInterface
 		interface ForArg0<ReceiverType, ExceptionType extends Throwable, ReturnType> extends MethodCallable<ReceiverType, ReturnType, ExceptionType> {
@@ -85,6 +96,16 @@ public interface MethodCallable<ReceiverType, ReturnType, ExceptionType extends 
 			}
 
 			ReturnType call(ReceiverType self, A0 a0, A1 a1) throws ExceptionType;
+		}
+
+		@FunctionalInterface
+		interface ForArg3<ReceiverType, ReturnType, A0, A1, A2, ExceptionType extends Throwable> extends MethodCallable<ReceiverType, ReturnType, ExceptionType> {
+			@Override
+			default ReturnType invoke(ReceiverType self, Arguments args) throws ExceptionType {
+				return call(self, args.getArgument(0), args.getArgument(1), args.getArgument(2));
+			}
+
+			ReturnType call(ReceiverType self, A0 a0, A1 a1, A2 a2) throws ExceptionType;
 		}
 	}
 }

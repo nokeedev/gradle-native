@@ -74,4 +74,17 @@ public final class TestDoubleTypes {
 			.where(new TypeParameter<T>() {}, type) //
 			.getRawType();
 	}
+
+	public static <T, R> Class<TestClosure<R, T>> ofClosure(Class<T> firstArgument) {
+		return (Class<TestClosure<R, T>>) new TypeToken<TestClosure<R, T>>() {}
+			.where(new TypeParameter<T>() {}, firstArgument)
+			.getRawType();
+	}
+
+	public static <T, U, R> Class<TestBiClosure<R, T, U>> ofClosure(Class<T> firstArgument, Class<U> secondArgument) {
+		return (Class<TestBiClosure<R, T, U>>) new TypeToken<TestBiClosure<R, T, U>>() {}
+			.where(new TypeParameter<T>() {}, firstArgument)
+			.where(new TypeParameter<U>() {}, secondArgument)
+			.getRawType();
+	}
 }
