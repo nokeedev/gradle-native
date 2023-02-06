@@ -16,13 +16,9 @@
 package dev.nokee.utils;
 
 import lombok.EqualsAndHashCode;
-import org.gradle.api.Transformer;
 
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
-
-import static dev.nokee.utils.ExecutionArgumentsFactory.create;
 
 public final class TransformerTestUtils {
 
@@ -75,26 +71,6 @@ public final class TransformerTestUtils {
 		@Override
 		public String toString() {
 			return "anotherTransformer(" + (what == null ? "" : what) + ")";
-		}
-	}
-
-	public static <OUT, IN> MockTransformer<OUT, IN> mockTransformer() {
-		return new MockTransformer<>();
-	}
-
-	public static final class MockTransformer<OUT, IN> implements Transformer<OUT, IN>, HasExecutionResult<ExecutionArgument<IN>> {
-		final ExecutionResult<ExecutionArgument<IN>> result = new ExecutionResult<>();
-		private Transformer<OUT, IN> answer = it -> null; // force return null, but it's almost certainly wrong
-
-		@Override
-		public OUT transform(IN t) {
-			result.record(create(this, t));
-			return answer.transform(t);
-		}
-
-		public MockTransformer<OUT, IN> whenCalled(Transformer<OUT, IN> answer) {
-			this.answer = answer;
-			return this;
 		}
 	}
 }

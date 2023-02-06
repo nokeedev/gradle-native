@@ -17,10 +17,18 @@ package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
 import lombok.val;
+import org.gradle.api.Transformer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static dev.nokee.utils.TransformerTestUtils.anotherTransformer;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
@@ -47,17 +55,19 @@ final class TransformerUtils_OnlyInstanceOfTest {
 	@Test
 	void canTransformMatchingElements() {
 		val obj = Mockito.mock(MyType.class);
-		val transformer = TransformerTestUtils.mockTransformer().whenCalled(noOpTransformer());
-		onlyInstanceOf(MyType.class, transformer).transform(obj);
-		assertThat(transformer, calledOnceWith(singleArgumentOf(obj)));
+		val transformer = newMock(ofTransformer(Object.class, Object.class)) //
+			.when(any(callTo(method(Transformer<Object, Object>::transform))).then(doReturn((it, args) -> args.getArgument(0))));
+		onlyInstanceOf(MyType.class, transformer.instance()).transform(obj);
+		assertThat(transformer.to(method(Transformer<Object, Object>::transform)), calledOnceWith(obj));
 	}
 
 	@Test
 	void doesNotTransformNonMatchingElements() {
 		val obj = Mockito.mock(MyOtherType.class);
-		val transformer = TransformerTestUtils.mockTransformer().whenCalled(noOpTransformer());
-		onlyInstanceOf(MyType.class, transformer).transform(obj);
-		assertThat(transformer, neverCalled());
+		val transformer = newMock(ofTransformer(Object.class, Object.class)) //
+			.when(any(callTo(method(Transformer<Object, Object>::transform))).then(doReturn((it, args) -> args.getArgument(0))));
+		onlyInstanceOf(MyType.class, transformer.instance()).transform(obj);
+		assertThat(transformer.to(method(Transformer<Object, Object>::transform)), neverCalled());
 	}
 
 	@Test

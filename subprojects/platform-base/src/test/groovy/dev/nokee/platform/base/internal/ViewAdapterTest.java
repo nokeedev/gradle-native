@@ -22,12 +22,11 @@ import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.utils.ActionTestUtils;
 import dev.nokee.utils.ClosureTestUtils;
 import dev.nokee.utils.ClosureWrappedConfigureAction;
-import dev.nokee.utils.FunctionalInterfaceMatchers;
 import dev.nokee.utils.SpecTestUtils;
-import dev.nokee.utils.TransformerTestUtils;
 import groovy.lang.Closure;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.junit.jupiter.api.Test;
@@ -46,10 +45,10 @@ import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
 import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofIterable;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofSpec;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
 import static dev.nokee.internal.testing.util.ProjectTestUtils.providerFactory;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.calledWith;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.singleArgumentOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -172,20 +171,21 @@ class ViewAdapterTest {
 	}
 
 	@Test
+	@SuppressWarnings("rawtypes")
 	void mapsElementsProviderFromStrategy() {
 		val e0 = new MyType();
 		val e1 = new MySubType();
 		val e2 = new MyType();
 		Provider<Set<MyType>> elementsProvider = providerFactory().provider(() -> ImmutableSet.of(e0, e1, e2));
-		val mapper = TransformerTestUtils.<Class<?>, MyType>mockTransformer().whenCalled(Object::getClass);
+		val mapper = newMock(ofTransformer(Class.class, MyType.class)).when(any(callTo(method(Transformer<Class, MyType>::transform))).then(doReturn((it, args) -> args.getArgument(0).getClass())));
 		delegate.when(callTo(method(ViewAdapter.Strategy::<MyType>getElements)).with(args(MyType.class)).then(doReturn(elementsProvider)));
 
-		val result = subject.map(mapper);
+		val result = subject.map(mapper.instance());
 		assertNotNull(result);
-		assertThat(mapper, FunctionalInterfaceMatchers.neverCalled());
+		assertThat(mapper.to(method(Transformer<Class, MyType>::transform)), neverCalled());
 
 		assertThat(result, providerOf(contains(MyType.class, MySubType.class, MyType.class)));
-		assertThat(mapper, calledWith(contains(singleArgumentOf(e0), singleArgumentOf(e1), singleArgumentOf(e2))));
+		assertThat(mapper.to(method(Transformer<Class, MyType>::transform)), called(with(e0), with(e1), with(e2)));
 	}
 
 	@Test
@@ -199,16 +199,16 @@ class ViewAdapterTest {
 		val e1 = new MySubType();
 		val e2 = new MyType();
 		Provider<Set<MyType>> elementsProvider = providerFactory().provider(() -> ImmutableSet.of(e0, e1, e2));
-		val mapper = TransformerTestUtils.<Iterable<Object>, MyType>mockTransformer()
-			.whenCalled(it -> ImmutableList.of(it.getClass(), it.getClass().getSimpleName()));
+		val mapper = newMock(ofTransformer(ofIterable(Object.class), MyType.class))
+			.when(any(callTo(method(Transformer<Iterable<Object>, MyType>::transform))).then(doReturn((it, args) -> ImmutableList.of(args.getArgument(0).getClass(), args.getArgument(0).getClass().getSimpleName()))));
 		delegate.when(callTo(method(ViewAdapter.Strategy::<MyType>getElements)).with(args(MyType.class)).then(doReturn(elementsProvider)));
 
-		val result = subject.flatMap(mapper);
+		val result = subject.flatMap(mapper.instance());
 		assertNotNull(result);
-		assertThat(mapper, FunctionalInterfaceMatchers.neverCalled());
+		assertThat(mapper.to(method(Transformer<Iterable<Object>, MyType>::transform)), neverCalled());
 
 		assertThat(result, providerOf(contains(MyType.class, "MyType", MySubType.class, "MySubType", MyType.class, "MyType")));
-		assertThat(mapper, calledWith(contains(singleArgumentOf(e0), singleArgumentOf(e1), singleArgumentOf(e2))));
+		assertThat(mapper.to(method(Transformer<Iterable<Object>, MyType>::transform)), called(with(e0), with(e1), with(e2)));
 	}
 
 	@Test
