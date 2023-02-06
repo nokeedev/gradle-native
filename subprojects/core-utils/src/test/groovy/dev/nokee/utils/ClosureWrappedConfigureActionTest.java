@@ -17,37 +17,45 @@ package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
 import com.google.common.testing.NullPointerTester;
+import dev.nokee.internal.testing.testdoubles.TestClosure;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withClosureArguments;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateFirstStrategy;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withDelegateOf;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.utils.ClosureTestUtils.doSomething;
 import static dev.nokee.utils.ClosureTestUtils.doSomethingElse;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ClosureWrappedConfigureActionTest {
-	private final ClosureTestUtils.MockClosure<Void, Object> closure = ClosureTestUtils.mockClosure(Object.class);
-	private final ClosureWrappedConfigureAction<Object> subject = new ClosureWrappedConfigureAction<>(closure);
+	private final TestDouble<TestClosure<Void, Object>> closure = newMock(ofClosure(Object.class));
+	private final ClosureWrappedConfigureAction<Object> subject = new ClosureWrappedConfigureAction<>(closure.instance());
 
 	@Test
 	void usesDelegateFirstStrategy() {
 		subject.execute(new Object());
-		assertThat(closure, calledOnceWith(delegateFirstStrategy()));
+		assertThat(closure.to(method(TestClosure<Void, Object>::execute)), calledOnce(withDelegateFirstStrategy()));
 	}
 
 	@Test
 	void usesActionArgumentAsDelegate() {
 		val value = new Object();
 		subject.execute(value);
-		assertThat(closure, calledOnceWith(delegateOf(value)));
+		assertThat(closure.to(method(TestClosure<Void, Object>::execute)), calledOnce(withDelegateOf(value)));
 	}
 
 	@Test
 	void usesActionArgumentAsFirstArgument() {
 		val value = new Object();
 		subject.execute(value);
-		assertThat(closure, calledOnceWith(singleArgumentOf(value)));
+		assertThat(closure.to(method(TestClosure<Void, Object>::execute)), calledOnce(withClosureArguments(value)));
 	}
 
 	@Test

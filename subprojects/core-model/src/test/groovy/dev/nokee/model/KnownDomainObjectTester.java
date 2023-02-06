@@ -29,9 +29,9 @@ import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCal
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofProvider;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
-import static dev.nokee.utils.ClosureTestUtils.mockClosure;
 import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -81,7 +81,7 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 	default void returnsThisKnownObjectOnConfigure() {
 		assertAll(
 			() -> assertSame(subject(), subject().configure(newMock(ofAction(Object.class)).instance())),
-			() -> assertSame(subject(), subject().configure(mockClosure(type())))
+			() -> assertSame(subject(), subject().configure(newMock(ofClosure(type())).instance())
 		);
 	}
 
@@ -93,7 +93,7 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 
 	@Test
 	default void doesNotThrowWhenConfigureUsingClosure() {
-		val closure = mockClosure(type());
+		val closure = newMock(ofClosure(type())).instance();
 		assertDoesNotThrow(() -> subject().configure(closure));
 	}
 

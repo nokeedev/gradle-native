@@ -45,6 +45,7 @@ import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.internal.testing.testdoubles.StubBuilder.WithArguments.args;
 import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofIterable;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofSpec;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
@@ -135,7 +136,7 @@ class ViewAdapterTest {
 
 	@Test
 	void throwsExceptionIfConfigureEachByClosureSpecIsNull() {
-		assertThrows(NullPointerException.class, () -> subject.configureEach((Spec<MyType>) null, ClosureTestUtils.mockClosure(MyType.class)));
+		assertThrows(NullPointerException.class, () -> subject.configureEach((Spec<MyType>) null, newMock(ofClosure(MyType.class)).instance()));
 	}
 
 	@Test

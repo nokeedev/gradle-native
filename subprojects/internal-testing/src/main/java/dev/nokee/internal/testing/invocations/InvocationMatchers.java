@@ -17,12 +17,15 @@ package dev.nokee.internal.testing.invocations;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
+import groovy.lang.Closure;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.any;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -31,6 +34,10 @@ public final class InvocationMatchers {
 
 	public static <T extends HasInvocationResults<?>> Matcher<T> calledOnce() {
 		return called(equalTo(1L));
+	}
+
+	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation> Matcher<T> calledOnce(Matcher<? super InvocationResult<A>> matcher) {
+		return allOf(calledOnce(), lastArguments(matcher));
 	}
 
 	public static <T extends HasInvocationResults<?>> Matcher<T> called(Matcher<? super Long> matcher) {
@@ -110,5 +117,36 @@ public final class InvocationMatchers {
 				return ImmutableList.copyOf(actual);
 			}
 		};
+	}
+
+	public static <A extends ArgumentInformation.Arg3<A0, A1, A2>, A0, A1, A2> Matcher<InvocationResult<A>> with(A0 instance0, A1 instance1, A2 instance2) {
+		return with(equalTo(instance0), equalTo(instance1), equalTo(instance2));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A extends ArgumentInformation.Arg3<A0, A1, A2>, A0, A1, A2> Matcher<InvocationResult<A>> with(Matcher<? super A0> matcher0, Matcher<? super A1> matcher1, Matcher<? super A2> matcher2) {
+		return new FeatureMatcher<InvocationResult<A>, List<?>>(contains((Matcher<Object>) matcher0, (Matcher<Object>) matcher1, (Matcher<Object>) matcher2), "", "") {
+			@Override
+			protected List<?> featureValueOf(InvocationResult<A> actual) {
+				return ImmutableList.copyOf(actual);
+			}
+		};
+	}
+
+	public static <A extends ArgumentInformation.Arg3<Object, Integer, Object[]>> Matcher<InvocationResult<A>> withClosureArguments(Object... instances) {
+		return with(any(Object.class), any(Integer.class), arrayContaining(instances));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A extends ArgumentInformation.Arg3<Object, Integer, Object[]>, T> Matcher<InvocationResult<A>> withDelegateOf(Matcher<T> matcher) {
+		return with((Matcher<Object>) matcher, any(Integer.class), any(Object[].class));
+	}
+
+	public static <A extends ArgumentInformation.Arg3<Object, Integer, Object[]>> Matcher<InvocationResult<A>> withDelegateOf(Object instance) {
+		return withDelegateOf(equalTo(instance));
+	}
+
+	public static <A extends ArgumentInformation.Arg3<Object, Integer, Object[]>> Matcher<InvocationResult<A>> withDelegateFirstStrategy() {
+		return with(any(Object.class), equalTo(Closure.DELEGATE_FIRST), any(Object[].class));
 	}
 }
