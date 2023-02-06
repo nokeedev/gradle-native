@@ -22,6 +22,7 @@ import dev.nokee.internal.testing.invocations.InvocationResult;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.internal.testing.reflect.MethodCallable;
 import dev.nokee.internal.testing.reflect.MethodInformation;
+import lombok.val;
 import org.mockito.Mockito;
 import org.mockito.invocation.Invocation;
 

@@ -24,6 +24,8 @@ import org.gradle.api.specs.Spec;
 
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @SuppressWarnings({"unchecked", "UnstableApiUsage"})
 public final class TestDoubleTypes {
@@ -41,6 +43,19 @@ public final class TestDoubleTypes {
 	public static <T> Class<Action<T>> ofAction(Class<T> type) {
 		return (Class<Action<T>>) new TypeToken<Action<T>>() {} //
 			.where(new TypeParameter<T>() {}, type) //
+			.getRawType();
+	}
+
+	public static <T, R> Class<Function<T, R>> ofFunction(Class<T> tType, Class<R> rType) {
+		return (Class<Function<T, R>>) new TypeToken<Function<T, R>>() {} //
+			.where(new TypeParameter<T>() {}, tType) //
+			.where(new TypeParameter<R>() {},  rType) //
+			.getRawType();
+	}
+
+	public static <T> Class<Consumer<T>> ofConsumer(Class<T> tType) {
+		return (Class<Consumer<T>>) new TypeToken<Consumer<T>>() {} //
+			.where(new TypeParameter<T>() {}, tType) //
 			.getRawType();
 	}
 

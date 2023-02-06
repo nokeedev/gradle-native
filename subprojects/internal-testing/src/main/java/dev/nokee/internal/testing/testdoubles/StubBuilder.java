@@ -21,6 +21,8 @@ import dev.nokee.internal.testing.reflect.ReturnInformation;
 public interface StubBuilder<THIS, R extends ReturnInformation> {
 	OngoingStubbing<THIS, R> then(Answer<THIS, R> answer);
 
+	<V> OngoingStubbing<THIS, R> capture(Captor<V> captor);
+
 	interface WithArguments<THIS, R extends ReturnInformation, A extends ArgumentInformation> {
 
 		StubBuilder<THIS, R> with(StubArguments<A> argStub);

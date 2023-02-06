@@ -17,6 +17,8 @@ package dev.nokee.platform.base.testers;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.testing.testdoubles.TestClosure;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.language.base.FunctionalSourceSet;
 import dev.nokee.language.base.LanguageSourceSet;
 import dev.nokee.platform.base.ComponentSources;
@@ -26,25 +28,35 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectProvider;
-import org.gradle.api.reflect.TypeOf;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.lang.reflect.Type;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.called;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.lastInvocation;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.with;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withClosureArguments;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofClosure;
 import static dev.nokee.language.base.testing.LanguageSourceSetMatchers.sourceSetOf;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isA;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public interface ComponentSourcesTester<T extends ComponentSources> {
@@ -69,15 +81,16 @@ public interface ComponentSourcesTester<T extends ComponentSources> {
 	@ParameterizedTest
 	@MethodSource("provideSourceSetUnderTest")
 	default void canConfigureSourceSetViaTypeSafeMethodUsingAction(SourceSetUnderTest sourceSet) {
-		assertThat(executeWith(action(sourceSet.typeSafeConfigureUsingAction(createSubject()))),
-			allOf(called(anyOf(equalTo(1), equalTo(2))), lastArgument(sourceSet.asMatcher())));
+		assertThat(newMock(ofAction(LanguageSourceSet.class)).executeWith(sourceSet.typeSafeConfigureUsingAction(createSubject())).to(method(Action<LanguageSourceSet>::execute)),
+			allOf(called(anyOf(equalTo(1), equalTo(2))), lastInvocation(with(sourceSet.asMatcher()))));
 	}
 
 	@ParameterizedTest
 	@MethodSource("provideSourceSetUnderTest")
 	default void canConfigureSourceSetViaTypeSafeMethodUsingClosure(SourceSetUnderTest sourceSet) {
-		assertThat(executeWith(closure(sourceSet.typeSafeConfigureUsingClosure(createSubject()))),
-			allOf(called(anyOf(equalTo(1), equalTo(2))), lastArgument(sourceSet.asMatcher())));
+		TestDouble<TestClosure<Void, LanguageSourceSet>> closure = newMock(ofClosure(LanguageSourceSet.class));
+		assertThat(closure.executeWith(sourceSet.typeSafeConfigureUsingClosure(createSubject())).to(method(TestClosure<Void, LanguageSourceSet>::execute)),
+			allOf(called(anyOf(equalTo(1), equalTo(2))), lastInvocation(withClosureArguments(sourceSet.asMatcher()))));
 	}
 
 	@ParameterizedTest
@@ -127,23 +140,35 @@ public interface ComponentSourcesTester<T extends ComponentSources> {
 //		}
 
 		@SneakyThrows
-		ThrowingConsumer<Action<? super LanguageSourceSet>> typeSafeConfigureUsingAction(ComponentSources target) {
+		Consumer<Action<? super LanguageSourceSet>> typeSafeConfigureUsingAction(ComponentSources target) {
 			assumeSourceSetNameIsNotJavaKeyword("it cannot have a type safe configuration method using action");
 			val method = target.getClass().getMethod(getName(), Action.class);
 
 			// TODO: Should we assert this here?
 			assertThat("configuration method should not return anything", method.getReturnType(), equalTo(Void.TYPE));
-			return action -> method.invoke(target, action);
+			return action -> {
+				try {
+					method.invoke(target, action);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			};
 		}
 
 		@SneakyThrows
-		ThrowingConsumer<Closure<Void>> typeSafeConfigureUsingClosure(ComponentSources target) {
+		Consumer<Closure<Void>> typeSafeConfigureUsingClosure(ComponentSources target) {
 			assumeSourceSetNameIsNotJavaKeyword("it cannot have a type safe configuration method using closure");
 			val method = target.getClass().getMethod(getName(), Closure.class);
 
 			// TODO: Should we assert this here?
 			assertThat("configuration method should not return anything", method.getReturnType(), equalTo(Void.TYPE));
-			return closure -> method.invoke(target, closure);
+			return closure -> {
+				try {
+					method.invoke(target, closure);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			};
 		}
 
 		private static final Set<String> JAVA_KEYWORD = ImmutableSet.of("public");

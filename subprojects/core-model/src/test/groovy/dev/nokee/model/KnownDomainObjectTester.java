@@ -81,7 +81,7 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 	default void returnsThisKnownObjectOnConfigure() {
 		assertAll(
 			() -> assertSame(subject(), subject().configure(newMock(ofAction(Object.class)).instance())),
-			() -> assertSame(subject(), subject().configure(newMock(ofClosure(type())).instance())
+			() -> assertSame(subject(), subject().configure(newMock(ofClosure(type())).instance()))
 		);
 	}
 

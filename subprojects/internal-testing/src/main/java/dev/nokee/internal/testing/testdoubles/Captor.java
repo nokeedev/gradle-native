@@ -15,13 +15,6 @@
  */
 package dev.nokee.internal.testing.testdoubles;
 
-import dev.nokee.internal.testing.reflect.MethodInformation;
-
-import java.util.List;
-
-public interface StubCall<T> {
-	MethodInformation<T, ?> getMethod();
-	StubArguments<?> getArguments();
-	List<Answer<T, ?>> getAnswers();
-	List<Captor<?>> getCaptors();
+public interface Captor<V> {
+	V capture();
 }
