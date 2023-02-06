@@ -15,9 +15,12 @@
  */
 package dev.nokee.internal.testing.testdoubles;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Streams;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.testing.MockitoMethodWrapper;
-import dev.nokee.internal.testing.invocations.InvocationResult;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.internal.testing.reflect.MethodInformation;
 import dev.nokee.internal.testing.reflect.ReturnInformation;
@@ -29,13 +32,18 @@ import org.mockito.stubbing.Answer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class MockitoBuilder<T> implements TestDouble<T> {
 	private final Class<T> classToMock;
 	private final List<StubCall<T>> stubs = new ArrayList<>();
 	private MockSettings settings = Mockito.withSettings();
 	private T instance;
+	private final Multimap<Method, List<Object>> captured = ArrayListMultimap.create();
 
 	private MockitoBuilder(Class<T> classToMock) {
 		this.classToMock = classToMock;
@@ -71,10 +79,23 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	public MethodVerifier<ArgumentInformation.None> to(MethodInformation<T, ?> method) {
 		return new MethodVerifier<ArgumentInformation.None>() {
 			private final MockitoMethodWrapper<ArgumentInformation.None> delegate = MockitoMethodWrapper.method(instance(), method);
+			private final Collection<List<Object>> data = captured.get(method.resolve(classToMock));
 
 			@Override
-			public List<InvocationResult<ArgumentInformation.None>> getAllInvocations() {
-				return delegate.getAllInvocations();
+			public List<MyInvocationResult<ArgumentInformation.None>> getAllInvocations() {
+				return Streams.zip(delegate.getAllInvocations().stream(), data.stream(), (a, b) -> {
+					return new MyInvocationResult<ArgumentInformation.None>() {
+						@Override
+						public Iterator<Object> iterator() {
+							return a.iterator();
+						}
+
+						@Override
+						public List<Object> getCapturedData() {
+							return b;
+						}
+					};
+				}).collect(Collectors.toList());
 			}
 		};
 	}
@@ -83,10 +104,27 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	public <A extends ArgumentInformation> MethodVerifier<A> to(MethodInformation.WithArguments<T, ?, A> method) {
 		return new MethodVerifier<A>() {
 			private final MockitoMethodWrapper<A> delegate = MockitoMethodWrapper.method(instance(), method);
+			private final Collection<List<Object>> data = captured.get(method.resolve(classToMock));
 
 			@Override
-			public List<InvocationResult<A>> getAllInvocations() {
-				return delegate.getAllInvocations();
+			public List<MyInvocationResult<A>> getAllInvocations() {
+				Stream<List<Object>> dataStream = Stream.generate(ImmutableList::of);
+				if (!data.isEmpty()) {
+					dataStream = data.stream();
+				}
+				return Streams.zip(delegate.getAllInvocations().stream(), dataStream, (a, b) -> {
+					return new MyInvocationResult<A>() {
+						@Override
+						public Iterator<Object> iterator() {
+							return a.iterator();
+						}
+
+						@Override
+						public List<Object> getCapturedData() {
+							return b;
+						}
+					};
+				}).collect(Collectors.toList());
 			}
 		};
 	}
@@ -95,6 +133,7 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	public T instance() {
 		if (instance == null) {
 			final T instance = Mockito.mock(classToMock, settings);
+			// TODO: merge stubs for the same method together
 			stubs.forEach(it -> {
 				try {
 					final Method method = it.getMethod().resolve(classToMock);
@@ -102,6 +141,13 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 					T mock = Mockito.doAnswer(new Answer<Object>() {
 						@Override
 						public Object answer(InvocationOnMock invocation) throws Throwable {
+							captured.put(invocation.getMethod(), it.getCaptors().stream().map(Captor::capture).collect(Collectors.toList()));
+
+							if (it.getAnswers().isEmpty()) {
+								return org.mockito.Answers.RETURNS_DEFAULTS.answer(invocation);
+							}
+
+							// TODO: Support multiple answers
 							return it.getAnswers().get(0).answer(new InvocationOnTestDouble<T>() {
 								@SuppressWarnings("unchecked")
 								@Override

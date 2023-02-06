@@ -20,5 +20,5 @@ import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import java.util.List;
 
 public interface HasInvocationResults<A extends ArgumentInformation> {
-	List<InvocationResult<A>> getAllInvocations();
+	List<? extends InvocationResult<A>> getAllInvocations();
 }

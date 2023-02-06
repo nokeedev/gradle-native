@@ -16,12 +16,21 @@
 package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
-import dev.nokee.internal.testing.ExecuteWith;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
+import org.gradle.api.Action;
+import org.gradle.api.Transformer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.ExecuteWith.*;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static dev.nokee.utils.ActionTestUtils.doSomethingElse;
 import static dev.nokee.utils.ActionUtils.compose;
@@ -64,22 +73,22 @@ class ActionUtils_ComposeTest {
 	class Execution {
 		private final Object INPUT = new Object();
 		private final Object TRANSFORMER_OUTPUT = new Object();
-		private ExecuteWith.ExecutionResult<Object> transformerExecution;
-		private ExecuteWith.ExecutionResult<Object> actionExecution;
+		private TestDouble<Transformer<Object, Object>> transformerExecution = newMock(ofTransformer(Object.class, Object.class));
+		private TestDouble<Action<Object>> actionExecution = newMock(ofAction(Object.class));
 
 		@BeforeEach
 		void setUpComposeAction() {
-			actionExecution = executeWith(action(g -> {
-				transformerExecution = executeWith(transformer(f -> {
+			actionExecution.executeWith(g -> {
+				transformerExecution.when(any(callTo(method(Transformer<Object, Object>::transform))).then(doReturn(TRANSFORMER_OUTPUT))).executeWith(f -> {
 					compose(g, f).execute(INPUT);
-				}).thenReturn(TRANSFORMER_OUTPUT));
-			}));
+				});
+			});
 		}
 
 		@Test
 		void canTransformInputBeforeCallingAction() {
-			assertThat(actionExecution, calledOnceWith(TRANSFORMER_OUTPUT));
-			assertThat(transformerExecution, calledOnceWith(INPUT));
+			assertThat(actionExecution.to(method(Action<Object>::execute)), calledOnceWith(TRANSFORMER_OUTPUT));
+			assertThat(transformerExecution.to(method(Transformer<Object, Object>::transform)), calledOnceWith(INPUT));
 		}
 	}
 }

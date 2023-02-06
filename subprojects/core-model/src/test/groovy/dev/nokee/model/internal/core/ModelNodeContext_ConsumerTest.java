@@ -15,18 +15,28 @@
  */
 package dev.nokee.model.internal.core;
 
+import dev.nokee.internal.testing.testdoubles.Captor;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-import static dev.nokee.internal.testing.ExecuteWith.*;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.withCaptured;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doThrow;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofConsumer;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofFunction;
 import static dev.nokee.model.internal.core.ModelTestUtils.node;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ModelNodeContext_ConsumerTest {
@@ -35,38 +45,37 @@ class ModelNodeContext_ConsumerTest {
 
 	@Test
 	void calledWithCurrentModelNode() {
-		assertThat(executeWith(function(subject::execute)), calledOnceWith(node));
+		assertThat(newMock(ofFunction(ModelNode.class, ModelNode.class)).executeWith(subject::execute)
+			.to(method(Function<ModelNode, ModelNode>::apply)), calledOnceWith(node));
 	}
 
 	@Test
 	void canAccessCurrentModelNodeWhileExecutingInContext() {
-		val contextualNodeCaptor = contextualCapture(ModelNodeContext::getCurrentModelNode);
-		executeWith(consumer(subject::execute).captureUsing(contextualNodeCaptor));
-		assertThat(contextualNodeCaptor.getLastValue(), equalTo(node));
+		val consumer = newMock(ofConsumer(Object.class)).when(any(callTo(method(Consumer<Object>::accept))).capture(ModelNodeContext::getCurrentModelNode)).executeWith(subject::execute);
+		assertThat(consumer.to(method(Consumer<Object>::accept)), calledOnce(withCaptured(node)));
 	}
 
 	@Test
 	void cannotAccessCurrentModelNodeAfterContextIsExecution() {
-		executeWith(consumer(subject::execute));
+		newMock(ofConsumer(Object.class)).executeWith(subject::execute);
 		assertThrows(NullPointerException.class, ModelNodeContext::getCurrentModelNode);
 	}
 
 	@Test
 	void cannotAccessCurrentModelNodeWhenExceptionThrowDuringContextExecution() {
 		assertThrows(RuntimeException.class,
-			() -> executeWith(consumer(subject::execute).thenThrow(new RuntimeException("Expected exception"))));
+			() -> newMock(ofConsumer(Object.class)).when(any(callTo(method(Consumer<Object>::accept))).then(doThrow(new RuntimeException("Expected exception")))).executeWith(subject::execute));
 		assertThrows(NullPointerException.class, ModelNodeContext::getCurrentModelNode);
 	}
 
 	@Test
 	void canExecuteNestedContext() {
 		val nestedNode = node("a.b.c");
-		val contextualNodesCaptor = contextualCapture(new NestedModelNodeContextCaptor(nestedNode));
-		executeWith(consumer(subject::execute).captureUsing(contextualNodesCaptor));
-		assertThat(contextualNodesCaptor.getLastValue(), contains(node, nestedNode, node));
+		val consumer = newMock(ofConsumer(Object.class)).when(any(callTo(method(Consumer<Object>::accept))).capture(new NestedModelNodeContextCaptor(nestedNode))).executeWith(subject::execute);
+		assertThat(consumer.to(method(Consumer<Object>::accept)), calledOnce(withCaptured(contains(node, nestedNode, node))));
 	}
 
-	static class NestedModelNodeContextCaptor implements Supplier<List<ModelNode>> {
+	static class NestedModelNodeContextCaptor implements Captor<List<ModelNode>> {
 		private final ModelNode nestedNode;
 
 		NestedModelNodeContextCaptor(ModelNode nestedNode) {
@@ -74,7 +83,7 @@ class ModelNodeContext_ConsumerTest {
 		}
 
 		@Override
-		public List<ModelNode> get() {
+		public List<ModelNode> capture() {
 			val allValues = new ArrayList<ModelNode>();
 			allValues.add(ModelNodeContext.getCurrentModelNode());
 			ModelNodeContext.of(nestedNode).execute(modelNode -> {

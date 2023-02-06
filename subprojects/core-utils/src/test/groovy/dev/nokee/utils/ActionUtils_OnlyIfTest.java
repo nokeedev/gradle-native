@@ -22,24 +22,30 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.ExecuteWith.*;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
 import static dev.nokee.utils.ActionUtils.doNothing;
 import static dev.nokee.utils.ActionUtils.onlyIf;
 import static dev.nokee.utils.SpecUtils.satisfyAll;
 import static dev.nokee.utils.SpecUtils.satisfyNone;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.isA;
 
 class ActionUtils_OnlyIfTest {
 	@Test
 	void executesActionIfSpecIsSatisfied() {
-		assertThat(executeWith(action(action -> onlyIf(satisfyAll(), action).execute("foo"))),
+		assertThat(newMock(ofAction(Object.class)).executeWith(it -> onlyIf(satisfyAll(), it).execute("foo")).to(method(Action<Object>::execute)),
 			calledOnceWith("foo"));
 	}
 
 	@Test
 	void doesNotExecutesActionIfSpecIsNotSatisfied() {
-		assertThat(executeWith(action(action -> onlyIf(satisfyNone(), action).execute("bar"))), neverCalled());
+		assertThat(newMock(ofAction(Object.class)).executeWith(it -> onlyIf(satisfyNone(), it).execute("bar")).to(method(Action<Object>::execute)), neverCalled());
 	}
 
 	@Test

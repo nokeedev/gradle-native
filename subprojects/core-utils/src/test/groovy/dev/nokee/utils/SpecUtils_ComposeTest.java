@@ -16,15 +16,26 @@
 package dev.nokee.utils;
 
 import com.google.common.testing.EqualsTester;
-import dev.nokee.internal.testing.ExecuteWith;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
+import org.gradle.api.Transformer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static dev.nokee.internal.testing.ExecuteWith.*;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofSpec;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
 import static dev.nokee.utils.SpecTestUtils.aSpec;
 import static dev.nokee.utils.SpecTestUtils.anotherSpec;
-import static dev.nokee.utils.SpecUtils.*;
+import static dev.nokee.utils.SpecUtils.Spec;
+import static dev.nokee.utils.SpecUtils.compose;
+import static dev.nokee.utils.SpecUtils.satisfyAll;
+import static dev.nokee.utils.SpecUtils.satisfyNone;
 import static dev.nokee.utils.TransformerTestUtils.aTransformer;
 import static dev.nokee.utils.TransformerTestUtils.anotherTransformer;
 import static dev.nokee.utils.TransformerUtils.noOpTransformer;
@@ -68,22 +79,22 @@ class SpecUtils_ComposeTest {
 	class Execution {
 		private final Object INPUT = new Object();
 		private final Object TRANSFORMER_OUTPUT = new Object();
-		private ExecuteWith.ExecutionResult<Object> transformerExecution;
-		private ExecuteWith.ExecutionResult<Object> specExecution;
+		private TestDouble<Transformer<Object, Object>> transformerExecution = newMock(ofTransformer(Object.class, Object.class));
+		private TestDouble<Spec<Object>> specExecution = newMock(ofSpec(Object.class));
 
 		@BeforeEach
 		void setUpComposeAction() {
-			specExecution = executeWith(spec(g -> {
-				transformerExecution = executeWith(transformer(f -> {
+			specExecution.executeWith(g -> {
+				transformerExecution.when(any(callTo(method(Transformer<Object, Object>::transform))).then(doReturn(TRANSFORMER_OUTPUT))).executeWith(f -> {
 					compose(g, f).isSatisfiedBy(INPUT);
-				}).thenReturn(TRANSFORMER_OUTPUT));
-			}));
+				});
+			});
 		}
 
 		@Test
 		void canTransformInputBeforeCallingSpec() {
-			assertThat(specExecution, calledOnceWith(TRANSFORMER_OUTPUT));
-			assertThat(transformerExecution, calledOnceWith(INPUT));
+			assertThat(specExecution.to(method(Spec<Object>::isSatisfiedBy)), calledOnceWith(TRANSFORMER_OUTPUT));
+			assertThat(transformerExecution.to(method(Transformer<Object, Object>::transform)), calledOnceWith(INPUT));
 		}
 	}
 }

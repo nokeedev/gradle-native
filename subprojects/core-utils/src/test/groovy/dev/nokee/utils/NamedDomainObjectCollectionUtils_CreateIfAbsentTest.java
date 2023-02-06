@@ -16,7 +16,11 @@
 package dev.nokee.utils;
 
 import lombok.val;
-import org.gradle.api.*;
+import org.gradle.api.Action;
+import org.gradle.api.InvalidUserDataException;
+import org.gradle.api.Named;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.PolymorphicDomainObjectContainer;
 import org.gradle.api.internal.DefaultPolymorphicDomainObjectContainer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,9 +29,12 @@ import org.junit.jupiter.params.provider.EnumSource;
 import javax.inject.Inject;
 import java.util.function.Consumer;
 
-import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
-import static dev.nokee.internal.testing.ExecuteWith.*;
 import static dev.nokee.internal.testing.GradleNamedMatchers.named;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnce;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.internal.testing.util.ProjectTestUtils.objectFactory;
 import static dev.nokee.utils.ActionTestUtils.doSomething;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.createIfAbsent;
 import static dev.nokee.utils.NamedDomainObjectCollectionUtils.registerIfAbsent;
@@ -75,15 +82,15 @@ class NamedDomainObjectCollectionUtils_CreateIfAbsentTest {
 	@ParameterizedTest
 	@EnumSource(CreateMethod.class)
 	void executesActionWhenCreatingMissingElement(CreateMethod method) {
-		val execution = executeWith(action(it -> method.invoke(anEmptyContainer(), "e2", it)));
-		assertThat(execution, calledOnce());
+		val execution = newMock(ofAction(Object.class)).executeWith(it -> method.invoke(anEmptyContainer(), "e2", it));
+		assertThat(execution.to(method(Action<Object>::execute)), calledOnce());
 	}
 
 	@ParameterizedTest(name = "does not execute action when element exists [{arguments}]")
 	@EnumSource(CreateMethod.class)
 	void doesNotExecuteActionWhenElementExists(CreateMethod method) {
-		val execution = executeWith(action(it -> method.invoke(aContainerWithExistingElements(), "existing", it)));
-		assertThat(execution, calledOnce());
+		val execution = newMock(ofAction(Object.class)).executeWith(it -> method.invoke(aContainerWithExistingElements(), "existing", it));
+		assertThat(execution.to(method(Action<Object>::execute)), calledOnce());
 	}
 
 	@ParameterizedTest

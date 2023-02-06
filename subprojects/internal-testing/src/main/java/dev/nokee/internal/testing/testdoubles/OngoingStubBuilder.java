@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 final class OngoingStubBuilder<ReceiverType, ReturnInfoType extends ReturnInformation, ArgumentInfoType extends ArgumentInformation> implements OngoingStubbing<ReceiverType, ReturnInfoType>, StubBuilder.WithArguments<ReceiverType, ReturnInfoType, ArgumentInfoType> {
 	private final List<Answer<ReceiverType, ReturnInfoType>> answers = new ArrayList<>();
+	private final List<Captor<?>> captors = new ArrayList<>();
 	private final MethodInformation<ReceiverType, ReturnInfoType> method;
 	private StubArguments<ArgumentInfoType> arguments = new StubArguments<ArgumentInfoType>() {
 		private final Object[] args = new Object[0];
@@ -47,6 +48,12 @@ final class OngoingStubBuilder<ReceiverType, ReturnInfoType extends ReturnInform
 	}
 
 	@Override
+	public <V> OngoingStubbing<ReceiverType, ReturnInfoType> capture(Captor<V> captor) {
+		captors.add(captor);
+		return this;
+	}
+
+	@Override
 	public StubBuilder<ReceiverType, ReturnInfoType> with(StubArguments<ArgumentInfoType> arguments) {
 		this.arguments = arguments;
 		return this;
@@ -65,5 +72,10 @@ final class OngoingStubBuilder<ReceiverType, ReturnInfoType extends ReturnInform
 	@Override
 	public List<Answer<ReceiverType, ?>> getAnswers() {
 		return answers.stream().map(it -> (Answer<ReceiverType, ?>) it).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Captor<?>> getCaptors() {
+		return captors;
 	}
 }

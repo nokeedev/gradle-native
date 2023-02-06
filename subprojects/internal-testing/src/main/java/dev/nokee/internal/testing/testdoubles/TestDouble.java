@@ -19,6 +19,8 @@ import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.internal.testing.reflect.MethodInformation;
 import dev.nokee.internal.testing.reflect.ReturnInformation;
 
+import java.util.function.Consumer;
+
 public interface TestDouble<T> {
 	static <THIS, R extends ReturnInformation> StubBuilder<THIS, R> callTo(MethodInformation<THIS, R> method) {
 		return new OngoingStubBuilder<>(method);
@@ -31,6 +33,11 @@ public interface TestDouble<T> {
 	TestDouble<T> when(StubCall<T> result);
 
 	TestDouble<T> alwaysThrows();
+
+	default TestDouble<T> executeWith(Consumer<? super T> action) {
+		action.accept(instance());
+		return this;
+	}
 
 	MethodVerifier<ArgumentInformation.None> to(MethodInformation<T, ?> method);
 	<A extends ArgumentInformation> MethodVerifier<A> to(MethodInformation.WithArguments<T, ?, A> method);

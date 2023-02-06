@@ -16,7 +16,16 @@
 package dev.nokee.internal.testing.testdoubles;
 
 import dev.nokee.internal.testing.invocations.HasInvocationResults;
+import dev.nokee.internal.testing.invocations.InvocationResult;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
 
+import java.util.List;
+
 public interface MethodVerifier<A extends ArgumentInformation> extends HasInvocationResults<A> {
+	@Override
+	List<MyInvocationResult<A>> getAllInvocations();
+
+	interface MyInvocationResult<A extends ArgumentInformation> extends InvocationResult<A> {
+		List<Object> getCapturedData();
+	}
 }

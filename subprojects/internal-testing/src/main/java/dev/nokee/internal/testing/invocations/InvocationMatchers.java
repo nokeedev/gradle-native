@@ -17,6 +17,7 @@ package dev.nokee.internal.testing.invocations;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
+import dev.nokee.internal.testing.testdoubles.MethodVerifier;
 import groovy.lang.Closure;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -28,6 +29,7 @@ import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 
 public final class InvocationMatchers {
 	private InvocationMatchers() {}
@@ -36,8 +38,8 @@ public final class InvocationMatchers {
 		return called(equalTo(1L));
 	}
 
-	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation> Matcher<T> calledOnce(Matcher<? super InvocationResult<A>> matcher) {
-		return allOf(calledOnce(), lastArguments(matcher));
+	public static <T extends HasInvocationResults<A>, R extends InvocationResult<A>, A extends ArgumentInformation> Matcher<T> calledOnce(Matcher<? super R> matcher) {
+		return allOf(calledOnce(), lastInvocation(matcher));
 	}
 
 	public static <T extends HasInvocationResults<?>> Matcher<T> called(Matcher<? super Long> matcher) {
@@ -59,7 +61,7 @@ public final class InvocationMatchers {
 
 	@SuppressWarnings("unchecked")
 	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg1<A0>, A0> Matcher<T> calledOnceWith(Matcher<? super A0> matcher) {
-		return allOf(calledOnce(), lastArguments(contains((Matcher<Object>) matcher)));
+		return allOf(calledOnce(), lastInvocation(contains((Matcher<Object>) matcher)));
 	}
 
 	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg2<A0, A1>, A0, A1> Matcher<T> calledOnceWith(A0 instance0, A1 instance1) {
@@ -68,14 +70,15 @@ public final class InvocationMatchers {
 
 	@SuppressWarnings("unchecked")
 	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation.Arg2<A0, A1>, A0, A1> Matcher<T> calledOnceWith(Matcher<? super A0> matcher0, Matcher<? super A1> matcher1) {
-		return allOf(calledOnce(), lastArguments(contains((Matcher<Object>) matcher0, (Matcher<Object>) matcher1)));
+		return allOf(calledOnce(), lastInvocation(contains((Matcher<Object>) matcher0, (Matcher<Object>) matcher1)));
 	}
 
-	public static <T extends HasInvocationResults<A>, A extends ArgumentInformation> Matcher<T> lastArguments(Matcher<? super InvocationResult<A>> matcher) {
-		return new FeatureMatcher<T, InvocationResult<A>>(matcher, "", "") {
+	public static <T extends HasInvocationResults<A>, R extends InvocationResult<A>, A extends ArgumentInformation> Matcher<T> lastInvocation(Matcher<? super R> matcher) {
+		return new FeatureMatcher<T, R>(matcher, "", "") {
 			@Override
-			protected InvocationResult<A> featureValueOf(T actual) {
-				return actual.getAllInvocations().get(actual.getAllInvocations().size() - 1);
+			@SuppressWarnings("unchecked")
+			protected R featureValueOf(T actual) {
+				return (R) actual.getAllInvocations().get(actual.getAllInvocations().size() - 1);
 			}
 		};
 	}
@@ -86,7 +89,7 @@ public final class InvocationMatchers {
 		return new FeatureMatcher<T, Iterable<InvocationResult<A>>>(contains(ImmutableList.copyOf(matcher)), "", "") {
 			@Override
 			protected Iterable<InvocationResult<A>> featureValueOf(T actual) {
-				return actual.getAllInvocations();
+				return ImmutableList.copyOf(actual.getAllInvocations());
 			}
 		};
 	}
@@ -129,6 +132,19 @@ public final class InvocationMatchers {
 			@Override
 			protected List<?> featureValueOf(InvocationResult<A> actual) {
 				return ImmutableList.copyOf(actual);
+			}
+		};
+	}
+
+	public static <A extends ArgumentInformation> Matcher<MethodVerifier.MyInvocationResult<A>> withCaptured(Object value) {
+		return withCaptured(equalTo(value));
+	}
+
+	public static <A extends ArgumentInformation, T> Matcher<MethodVerifier.MyInvocationResult<A>> withCaptured(Matcher<T> matcher) {
+		return new FeatureMatcher<MethodVerifier.MyInvocationResult<A>, List<Object>>(hasItem(matcher), "", "") {
+			@Override
+			protected List<Object> featureValueOf(MethodVerifier.MyInvocationResult<A> actual) {
+				return actual.getCapturedData();
 			}
 		};
 	}
