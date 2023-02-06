@@ -293,8 +293,8 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 							return derivedDataPath.dir("Build/Intermediates.noindex/.build/" + configuration + "-" + sdk + "/" + targetName + ".build/DerivedSources").getAsFile().getAbsolutePath();
 						default:
 							if (allBuildSettings == null) {
-								val start = System.currentTimeMillis();
-								try {
+//								val start = System.currentTimeMillis();
+//								try {
 									allBuildSettings = CommandLineTool.of("xcodebuild").withArguments(it -> {
 											it.args(allArguments);
 											it.args("-showBuildSettings", "-json");
@@ -310,12 +310,12 @@ public abstract class XcodeTargetExecTask extends DefaultTask implements Xcodebu
 											}.getType());
 											return parsedOutput.get(0).getBuildSettings();
 										});
-								} finally {
-									System.out.println("build settings... " + /*XcodeTargetExecTask.this +*/ " -- " + (System.currentTimeMillis() - start) + " ms");
+//								} finally {
+//									System.out.println("build settings... " + /*XcodeTargetExecTask.this +*/ " -- " + (System.currentTimeMillis() - start) + " ms");
 //					new Throwable("build settings... " + /*XcodeTargetExecTask.this +*/ " -- " + (System.currentTimeMillis() - start) + " ms").printStackTrace();
-								}
+//								}
 							}
-							System.out.println("RESOLVING all build settings for " + taskName + " of " + name);
+//							System.out.println("RESOLVING all build settings for " + taskName + " of " + name);
 							return new File(allBuildSettings.get(name)).getAbsolutePath();
 					}
 				}

@@ -15,24 +15,31 @@
  */
 package dev.nokee.buildadapter.xcode.internal.plugins.specs;
 
+import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.xcode.objects.files.PBXReference;
 import dev.nokee.xcode.project.ValueEncoder;
-import dev.nokee.xcode.utils.ConstantEncoder;
-import dev.nokee.xcode.utils.ThrowingEncoderContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static dev.nokee.xcode.objects.files.PBXFileReference.ofAbsolutePath;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoderTests {
-	ValueEncoder.Context context = new ThrowingEncoderContext();
-	ConstantEncoder<PBXReference, Object> delegate = new ConstantEncoder<>(ofAbsolutePath("/dummy/path.txt"));
-	NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder subject = new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder(delegate);
+	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
+	TestDouble<ValueEncoder<PBXReference, Object>> delegate = newMock(new TypeToken<ValueEncoder<PBXReference, Object>>() {})
+		.when(any(callTo(method(ValueEncoder<PBXReference, Object>::encode))).then(doReturn(ofAbsolutePath("/dummy/path.txt"))));
+	NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder subject = new NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoder(delegate.instance());
 
 	@Nested
 	class WhenEncodingPBXReferenceValues {
@@ -46,7 +53,7 @@ class NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoderTests {
 
 		@Test
 		void doesNotDelegate() {
-			assertThat(delegate, neverCalled());
+			assertThat(delegate.to(method(ValueEncoder<PBXReference, Object>::encode)), neverCalled());
 		}
 	}
 
@@ -57,7 +64,7 @@ class NormalizePBXBuildFileFileReferenceAsPBXReferenceEncoderTests {
 
 		@Test
 		void callsDelegate() {
-			assertThat(delegate, calledOnceWith(value, context));
+			assertThat(delegate.to(method(ValueEncoder<PBXReference, Object>::encode)), calledOnceWith(value, context));
 		}
 	}
 }
