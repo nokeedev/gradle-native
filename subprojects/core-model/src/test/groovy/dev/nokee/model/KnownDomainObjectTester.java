@@ -19,16 +19,19 @@ import com.google.common.reflect.TypeToken;
 import com.google.common.testing.NullPointerTester;
 import dev.nokee.model.internal.type.ModelType;
 import dev.nokee.provider.ProviderConvertibleTester;
-import dev.nokee.utils.TransformerTestUtils;
 import lombok.val;
+import org.gradle.api.Transformer;
 import org.gradle.api.provider.Provider;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.GradleProviderMatchers.providerOf;
+import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofAction;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofProvider;
+import static dev.nokee.internal.testing.testdoubles.TestDoubleTypes.ofTransformer;
 import static dev.nokee.utils.ClosureTestUtils.mockClosure;
-import static dev.nokee.utils.FunctionalInterfaceMatchers.neverCalled;
 import static dev.nokee.utils.ProviderUtils.fixed;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -57,9 +60,9 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 
 	@Test
 	default void doesNotTransformKnownObjectOnMap() {
-		val transform = TransformerTestUtils.<Object, T>mockTransformer();
-		subject().map(transform);
-		assertThat(transform, neverCalled());
+		val transform = newMock(ofTransformer(Object.class, Object.class));
+		subject().map(transform.instance());
+		assertThat(transform.to(method(Transformer<Object, Object>::transform)), neverCalled());
 	}
 
 	@Test
@@ -69,9 +72,9 @@ public interface KnownDomainObjectTester<T> extends ProviderConvertibleTester<T>
 
 	@Test
 	default void doesNotTransformKnownObjectOnFlatMap() {
-		val transform = TransformerTestUtils.<Provider<Object>, T>mockTransformer();
-		subject().flatMap(transform);
-		assertThat(transform, neverCalled());
+		val transform = newMock(ofTransformer(ofProvider(Object.class), Object.class));
+		subject().flatMap(transform.instance());
+		assertThat(transform.to(method(Transformer<Provider<Object>, Object>::transform)), neverCalled());
 	}
 
 	@Test

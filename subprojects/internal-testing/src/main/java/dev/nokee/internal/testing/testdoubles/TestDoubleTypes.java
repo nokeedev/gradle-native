@@ -19,6 +19,7 @@ import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 
 import java.util.concurrent.Callable;
@@ -58,6 +59,18 @@ public final class TestDoubleTypes {
 
 	public static <T> Class<Spec<T>> ofSpec(Class<T> type) {
 		return (Class<Spec<T>>) new TypeToken<Spec<T>>() {} //
+			.where(new TypeParameter<T>() {}, type) //
+			.getRawType();
+	}
+
+	public static <T> Class<Provider<T>> ofProvider(Class<T> type) {
+		return (Class<Provider<T>>) new TypeToken<Provider<T>>() {} //
+			.where(new TypeParameter<T>() {}, type) //
+			.getRawType();
+	}
+
+	public static <T> Class<Iterable<T>> ofIterable(Class<T> type) {
+		return (Class<Iterable<T>>) new TypeToken<Iterable<T>>() {} //
 			.where(new TypeParameter<T>() {}, type) //
 			.getRawType();
 	}
