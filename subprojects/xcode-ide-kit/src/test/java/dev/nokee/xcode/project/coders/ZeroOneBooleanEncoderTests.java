@@ -30,7 +30,7 @@ class ZeroOneBooleanEncoderTests {
 
 	@Nested
 	class WhenEncodingTrueValue {
-		Object result = subject.encode(true, context);
+		Integer result = subject.encode(true, context);
 
 		@Test
 		void canDecode() {
@@ -40,7 +40,7 @@ class ZeroOneBooleanEncoderTests {
 
 	@Nested
 	class WhenEncodingFalseValue {
-		Object result = subject.encode(false, context);
+		Integer result = subject.encode(false, context);
 
 		@Test
 		void canDecode() {
