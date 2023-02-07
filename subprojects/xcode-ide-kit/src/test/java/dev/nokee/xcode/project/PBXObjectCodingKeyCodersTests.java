@@ -16,6 +16,7 @@
 package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
+import dev.nokee.xcode.objects.PBXProject;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
@@ -31,9 +32,53 @@ import dev.nokee.xcode.objects.swiftpackage.XCSwiftPackageProductDependency;
 import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.objects.targets.ProductType;
-import dev.nokee.xcode.project.coders.CoderType;
+import dev.nokee.xcode.project.coders.BuildPhaseDecoder;
+import dev.nokee.xcode.project.coders.BuildSettingsDecoder;
+import dev.nokee.xcode.project.coders.BuildSettingsEncoder;
+import dev.nokee.xcode.project.coders.ContainerPortalDecoder;
+import dev.nokee.xcode.project.coders.DefaultCoder;
+import dev.nokee.xcode.project.coders.DictionaryDecoder;
+import dev.nokee.xcode.project.coders.DictionaryEncoder;
 import dev.nokee.xcode.project.coders.FieldCoder;
-import org.hamcrest.FeatureMatcher;
+import dev.nokee.xcode.project.coders.FileReferenceDecoder;
+import dev.nokee.xcode.project.coders.GroupChildDecoder;
+import dev.nokee.xcode.project.coders.IntegerDecoder;
+import dev.nokee.xcode.project.coders.IntegerEncoder;
+import dev.nokee.xcode.project.coders.ListDecoder;
+import dev.nokee.xcode.project.coders.ListEncoder;
+import dev.nokee.xcode.project.coders.NoOpDecoder;
+import dev.nokee.xcode.project.coders.NoOpEncoder;
+import dev.nokee.xcode.project.coders.ObjectDecoder;
+import dev.nokee.xcode.project.coders.ObjectEncoder;
+import dev.nokee.xcode.project.coders.ObjectRefDecoder;
+import dev.nokee.xcode.project.coders.ObjectRefEncoder;
+import dev.nokee.xcode.project.coders.PBXBuildFileDecoder;
+import dev.nokee.xcode.project.coders.PBXContainerItemProxyDecoder;
+import dev.nokee.xcode.project.coders.PBXFileReferenceDecoder;
+import dev.nokee.xcode.project.coders.PBXGroupDecoder;
+import dev.nokee.xcode.project.coders.PBXTargetDependencyDecoder;
+import dev.nokee.xcode.project.coders.ProductTypeDecoder;
+import dev.nokee.xcode.project.coders.ProductTypeEncoder;
+import dev.nokee.xcode.project.coders.ProjectReferenceDecoder;
+import dev.nokee.xcode.project.coders.ProxyTypeDecoder;
+import dev.nokee.xcode.project.coders.ProxyTypeEncoder;
+import dev.nokee.xcode.project.coders.Select;
+import dev.nokee.xcode.project.coders.SourceTreeDecoder;
+import dev.nokee.xcode.project.coders.SourceTreeEncoder;
+import dev.nokee.xcode.project.coders.StringDecoder;
+import dev.nokee.xcode.project.coders.StringEncoder;
+import dev.nokee.xcode.project.coders.SubFolderDecoder;
+import dev.nokee.xcode.project.coders.SubFolderEncoder;
+import dev.nokee.xcode.project.coders.TargetDecoder;
+import dev.nokee.xcode.project.coders.VersionRequirementDecoder;
+import dev.nokee.xcode.project.coders.VersionRequirementKindDecoder;
+import dev.nokee.xcode.project.coders.VersionRequirementKindEncoder;
+import dev.nokee.xcode.project.coders.XCBuildConfigurationDecoder;
+import dev.nokee.xcode.project.coders.XCConfigurationListDecoder;
+import dev.nokee.xcode.project.coders.XCRemoteSwiftPackageReferenceDecoder;
+import dev.nokee.xcode.project.coders.XCSwiftPackageProductDependencyDecoder;
+import dev.nokee.xcode.project.coders.ZeroOneBooleanDecoder;
+import dev.nokee.xcode.project.coders.ZeroOneBooleanEncoder;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,19 +90,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.spotify.hamcrest.optional.OptionalMatchers.optionalWithValue;
-import static dev.nokee.xcode.project.coders.CoderType.anyOf;
-import static dev.nokee.xcode.project.coders.CoderType.byCopy;
-import static dev.nokee.xcode.project.coders.CoderType.byRef;
-import static dev.nokee.xcode.project.coders.CoderType.dict;
-import static dev.nokee.xcode.project.coders.CoderType.list;
-import static dev.nokee.xcode.project.coders.CoderType.of;
-import static dev.nokee.xcode.project.coders.CoderType.oneZeroBoolean;
-import static dev.nokee.xcode.project.coders.CoderType.string;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isA;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class PBXObjectCodingKeyCodersTests {
 	PBXObjectCodingKeyCoders subject = new PBXObjectCodingKeyCoders();
@@ -217,25 +251,87 @@ class PBXObjectCodingKeyCodersTests {
 		}
 	}
 
-	private static <T> Matcher<Optional<? extends KeyedCoder<T>>> keyOf(String key, CoderType<?> expectedType) {
-		return optionalWithValue(allOf(isA(FieldCoder.class), new FeatureMatcher<KeyedCoder<T>, String>(equalTo(key), "", "") {
-			@Override
-			protected String featureValueOf(KeyedCoder<T> actual) {
-				assert actual instanceof FieldCoder;
-				return ((FieldCoder<T>) actual).getKey();
-			}
-		}, new FeatureMatcher<KeyedCoder<T>, CoderType<?>>(equalTo(expectedType), "decode type", "decode type") {
-			@Override
-			protected CoderType<?> featureValueOf(KeyedCoder<T> actual) {
-				assert actual instanceof FieldCoder;
-				return ((FieldCoder<T>) actual).getDelegate().getDecodeType();
-			}
-		}, new FeatureMatcher<KeyedCoder<T>, CoderType<?>>(equalTo(expectedType), "encode type", "encode type") {
-			@Override
-			protected CoderType<?> featureValueOf(KeyedCoder<T> actual) {
-				assert actual instanceof FieldCoder;
-				return ((FieldCoder<T>) actual).getDelegate().getEncodeType();
-			}
-		}));
+	private static <T> Matcher<Optional<? extends KeyedCoder<T>>> keyOf(String key, CoderPair pair) {
+		return optionalWithValue(equalTo(new FieldCoder<>(key, pair.asCoder())));
+	}
+
+	public static CoderPair oneZeroBoolean() {
+		return new CoderPair(new ZeroOneBooleanDecoder(), new ZeroOneBooleanEncoder());
+	}
+
+	public static CoderPair dict() {
+		return new CoderPair(new DictionaryDecoder<>(new NoOpDecoder<>()), new DictionaryEncoder<>(new NoOpEncoder<>()));
+	}
+
+	public static <OUT> CoderPair of(Class<OUT> type) {
+		return Select.newInstance()
+			.forCase(ProductType.class, new CoderPair(new StringDecoder<>(new ProductTypeDecoder()), new StringEncoder<>(new ProductTypeEncoder())))
+			.forCase(PBXFileReference.class, new CoderPair(new PBXFileReferenceDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXTargetDependency.class, new CoderPair(new PBXTargetDependencyDecoder<>(), new NoOpEncoder<>()))
+			.forCase(XCConfigurationList.class, new CoderPair(new XCConfigurationListDecoder<>(), new NoOpEncoder<>()))
+			.forCase(XCRemoteSwiftPackageReference.class, new CoderPair(new XCRemoteSwiftPackageReferenceDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXContainerItemProxy.ProxyType.class, new CoderPair(new IntegerDecoder<>(new ProxyTypeDecoder()), new IntegerEncoder<>(new ProxyTypeEncoder())))
+			.forCase(PBXContainerItemProxy.class, new CoderPair(new PBXContainerItemProxyDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXBuildFile.class, new CoderPair(new PBXBuildFileDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXCopyFilesBuildPhase.SubFolder.class, new CoderPair(new IntegerDecoder<>(new SubFolderDecoder()), new IntegerEncoder<>(new SubFolderEncoder())))
+			.forCase(PBXSourceTree.class, new CoderPair(new StringDecoder<>(new SourceTreeDecoder()), new StringEncoder<>(new SourceTreeEncoder())))
+			.forCase(XCSwiftPackageProductDependency.class, new CoderPair(new XCSwiftPackageProductDependencyDecoder<>(), new NoOpEncoder<>()))
+			.forCase(XCRemoteSwiftPackageReference.VersionRequirement.Kind.class, new CoderPair(new StringDecoder<>(new VersionRequirementKindDecoder()), new StringEncoder<>(new VersionRequirementKindEncoder())))
+			.forCase(BuildSettings.class, new CoderPair(new DictionaryDecoder<>(new BuildSettingsDecoder()), new DictionaryEncoder<>(new BuildSettingsEncoder())))
+			.forCase(XCBuildConfiguration.class, new CoderPair(new XCBuildConfigurationDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXGroup.class, new CoderPair(new PBXGroupDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXProject.ProjectReference.class, new CoderPair(new ProjectReferenceDecoder<>(), new NoOpEncoder<>()))
+			.select(type);
+	}
+
+	public static <OUT> CoderPair anyOf(Class<OUT> type) {
+		return Select.newInstance()
+			.forCase(PBXTarget.class, new CoderPair(new TargetDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXBuildPhase.class, new CoderPair(new BuildPhaseDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXContainerItemProxy.ContainerPortal.class, new CoderPair(new ContainerPortalDecoder<>(), new NoOpEncoder<>()))
+			.forCase(GroupChild.class, new CoderPair(new GroupChildDecoder<>(), new NoOpEncoder<>()))
+			.forCase(XCRemoteSwiftPackageReference.VersionRequirement.class, new CoderPair(new VersionRequirementDecoder<>(), new NoOpEncoder<>()))
+			.forCase(PBXBuildFile.FileReference.class, new CoderPair(new FileReferenceDecoder<>(), new NoOpEncoder<>()))
+			.select(type);
+	}
+
+	public static CoderPair string() {
+		return new CoderPair(new StringDecoder<>(new NoOpDecoder<>()), new StringEncoder<>(new NoOpEncoder<>()));
+	}
+
+	public static CoderPair byRef(CoderPair pair) {
+		return new CoderPair(new ObjectRefDecoder<>(pair.decoder()), new ObjectRefEncoder<>(pair.encoder()));
+	}
+
+	public static CoderPair byCopy(CoderPair pair) {
+		return new CoderPair(new ObjectDecoder<>(pair.decoder()), new ObjectEncoder<>(pair.encoder()));
+	}
+
+	public static CoderPair list(CoderPair pair) {
+		ValueCoder<Object> elementCoder = pair.asCoder();
+		return new CoderPair(new ListDecoder<>(elementCoder), new ListEncoder<>(elementCoder));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static final class CoderPair {
+		private final ValueDecoder<Object, ?> decoder;
+		private final ValueEncoder<?, Object> encoder;
+
+		public <DECODER extends ValueDecoder<?, ?>, ENCODER extends ValueEncoder<?, ?>> CoderPair(DECODER decoder, ENCODER encoder) {
+			this.decoder = (ValueDecoder<Object, ?>) decoder;
+			this.encoder = (ValueEncoder<?, Object>) encoder;
+		}
+
+		public <OUT, IN> ValueEncoder<OUT, IN> encoder() {
+			return (ValueEncoder<OUT, IN>) encoder;
+		}
+
+		public <OUT, IN> ValueDecoder<OUT, IN> decoder() {
+			return (ValueDecoder<OUT, IN>) decoder;
+		}
+
+		public <OUT> ValueCoder<OUT> asCoder() {
+			return new DefaultCoder<>((ValueDecoder<OUT, Object>) decoder, (ValueEncoder<?, OUT>) encoder);
+		}
 	}
 }

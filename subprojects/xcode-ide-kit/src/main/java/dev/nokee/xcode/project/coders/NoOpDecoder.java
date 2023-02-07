@@ -20,7 +20,11 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public final class NoOpDecoder<T> implements ValueDecoder<T, T> {
-	private final CoderType<T> decodeType;
+	@EqualsAndHashCode.Exclude private final CoderType<T> decodeType;
+
+	public NoOpDecoder() {
+		this.decodeType = null;
+	}
 
 	public NoOpDecoder(CoderType<T> decodeType) {
 		this.decodeType = decodeType;
