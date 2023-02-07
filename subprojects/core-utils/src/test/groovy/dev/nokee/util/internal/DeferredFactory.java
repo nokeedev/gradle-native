@@ -52,8 +52,8 @@ public final class DeferredFactory {
 
 	public static <T> Closure<T> closureOf(T value) {
 		return new Closure<T>(null) {
-			public void doCall() {
-				ThrowIfResolvedGuard.resolve(value);
+			public T doCall() {
+				return ThrowIfResolvedGuard.resolve(value);
 			}
 		};
 	}
