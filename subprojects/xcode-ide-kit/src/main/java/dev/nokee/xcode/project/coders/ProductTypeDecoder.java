@@ -18,7 +18,9 @@ package dev.nokee.xcode.project.coders;
 import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.objects.targets.ProductTypes;
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class ProductTypeDecoder implements ValueDecoder<ProductType, String> {
 	@Override
 	public ProductType decode(String identifier, Context context) {

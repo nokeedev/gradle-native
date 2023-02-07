@@ -16,7 +16,9 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class NoYesBooleanEncoder implements ValueEncoder<String, Boolean> {
 	@Override
 	public String encode(Boolean value, Context context) {

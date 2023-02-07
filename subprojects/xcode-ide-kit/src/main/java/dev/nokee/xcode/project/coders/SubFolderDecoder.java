@@ -17,7 +17,9 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class SubFolderDecoder implements ValueDecoder<PBXCopyFilesBuildPhase.SubFolder, Integer> {
 	@Override
 	public PBXCopyFilesBuildPhase.SubFolder decode(Integer object, Context context) {

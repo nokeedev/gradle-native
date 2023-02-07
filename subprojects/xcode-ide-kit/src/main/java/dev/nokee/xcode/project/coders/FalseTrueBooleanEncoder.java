@@ -16,7 +16,9 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class FalseTrueBooleanEncoder implements ValueEncoder<Boolean, Boolean> {
 	@Override
 	public Boolean encode(Boolean object, Context context) {

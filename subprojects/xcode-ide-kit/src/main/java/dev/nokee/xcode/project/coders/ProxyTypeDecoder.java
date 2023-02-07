@@ -17,7 +17,9 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class ProxyTypeDecoder implements ValueDecoder<PBXContainerItemProxy.ProxyType, Integer> {
 	@Override
 	public PBXContainerItemProxy.ProxyType decode(Integer object, Context context) {
