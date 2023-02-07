@@ -76,23 +76,23 @@ class PBXObjectCodingKeyCodersTests {
 
 				arguments(CodeablePBXAggregateTarget.CodingKeys.name, keyOf("name", string())),
 				arguments(CodeablePBXAggregateTarget.CodingKeys.productName, keyOf("productName", string())),
-				arguments(CodeablePBXAggregateTarget.CodingKeys.productType, keyOf("productType", of(ProductType.class)),
+				arguments(CodeablePBXAggregateTarget.CodingKeys.productType, keyOf("productType", of(ProductType.class))),
 				arguments(CodeablePBXAggregateTarget.CodingKeys.productReference, keyOf("productReference", byRef(of(PBXFileReference.class)))),
 				arguments(CodeablePBXAggregateTarget.CodingKeys.dependencies, keyOf("dependencies", list(byRef(of(PBXTargetDependency.class))))),
 				arguments(CodeablePBXAggregateTarget.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", byRef(of(XCConfigurationList.class)))),
 				arguments(CodeablePBXAggregateTarget.CodingKeys.buildPhases, keyOf("buildPhases", list(byRef(anyOf(PBXBuildPhase.class))))),
 
 				arguments(CodeablePBXBuildFile.CodingKeys.fileRef, keyOf("fileRef", byRef(anyOf(PBXBuildFile.FileReference.class)))),
-				arguments(CodeablePBXBuildFile.CodingKeys.productRef, keyOf("productRef", byRef(of(XCRemoteSwiftPackageReference.class)))),
+				arguments(CodeablePBXBuildFile.CodingKeys.productRef, keyOf("productRef", byRef(of(XCSwiftPackageProductDependency.class)))),
 				arguments(CodeablePBXBuildFile.CodingKeys.settings, keyOf("settings", dict())),
 
 				arguments(CodeablePBXContainerItemProxy.CodingKeys.containerPortal, keyOf("containerPortal", byRef(anyOf(PBXContainerItemProxy.ContainerPortal.class)))),
-				arguments(CodeablePBXContainerItemProxy.CodingKeys.proxyType, keyOf("proxyType", of(PBXContainerItemProxy.ProxyType.class)),
+				arguments(CodeablePBXContainerItemProxy.CodingKeys.proxyType, keyOf("proxyType", of(PBXContainerItemProxy.ProxyType.class))),
 				arguments(CodeablePBXContainerItemProxy.CodingKeys.remoteGlobalIDString, keyOf("remoteGlobalIDString", string())),
 				arguments(CodeablePBXContainerItemProxy.CodingKeys.remoteInfo, keyOf("remoteInfo", string())),
 
 				arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.files, keyOf("files", list(byRef(of(PBXBuildFile.class))))),
-				arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, keyOf("dstSubfolderSpec", of(PBXCopyFilesBuildPhase.SubFolder.class)),
+				arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstSubfolderSpec, keyOf("dstSubfolderSpec", of(PBXCopyFilesBuildPhase.SubFolder.class))),
 				arguments(CodeablePBXCopyFilesBuildPhase.CodingKeys.dstPath, keyOf("dstPath", string())),
 
 				arguments(CodeablePBXFileReference.CodingKeys.name, keyOf("name", string())),
@@ -105,7 +105,7 @@ class PBXObjectCodingKeyCodersTests {
 
 				arguments(CodeablePBXGroup.CodingKeys.name, keyOf("name", string())),
 				arguments(CodeablePBXGroup.CodingKeys.path, keyOf("path", string())),
-				arguments(CodeablePBXGroup.CodingKeys.sourceTree, keyOf("sourceTree", of(PBXSourceTree.class))))),
+				arguments(CodeablePBXGroup.CodingKeys.sourceTree, keyOf("sourceTree", of(PBXSourceTree.class))),
 				arguments(CodeablePBXGroup.CodingKeys.children, keyOf("children", list(byRef(anyOf(GroupChild.class))))),
 
 				arguments(CodeablePBXHeadersBuildPhase.CodingKeys.files, keyOf("files", list(byRef(of(PBXBuildFile.class))))),
@@ -116,7 +116,7 @@ class PBXObjectCodingKeyCodersTests {
 				arguments(CodeablePBXLegacyTarget.CodingKeys.productReference, keyOf("productReference", byRef(of(PBXFileReference.class)))),
 				arguments(CodeablePBXLegacyTarget.CodingKeys.dependencies, keyOf("dependencies", list(byRef(of(PBXTargetDependency.class))))),
 				arguments(CodeablePBXLegacyTarget.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", byRef(of(XCConfigurationList.class)))),
-				arguments(CodeablePBXLegacyTarget.CodingKeys.buildPhases, keyOf("buildPhases", list(byRef(of(PBXBuildPhase.class))))),
+				arguments(CodeablePBXLegacyTarget.CodingKeys.buildPhases, keyOf("buildPhases", list(byRef(anyOf(PBXBuildPhase.class))))),
 				arguments(CodeablePBXLegacyTarget.CodingKeys.buildToolPath, keyOf("buildToolPath", string())),
 				arguments(CodeablePBXLegacyTarget.CodingKeys.buildArgumentsString, keyOf("buildArgumentsString", string())),
 				arguments(CodeablePBXLegacyTarget.CodingKeys.buildWorkingDirectory, keyOf("buildWorkingDirectory", string())),
@@ -124,23 +124,23 @@ class PBXObjectCodingKeyCodersTests {
 
 				arguments(CodeablePBXNativeTarget.CodingKeys.name, keyOf("name", string())),
 				arguments(CodeablePBXNativeTarget.CodingKeys.productName, keyOf("productName", string())),
-				arguments(CodeablePBXNativeTarget.CodingKeys.productType, keyOf("productType", of(ProductType.class)),
+				arguments(CodeablePBXNativeTarget.CodingKeys.productType, keyOf("productType", of(ProductType.class))),
 				arguments(CodeablePBXNativeTarget.CodingKeys.productReference, keyOf("productReference", byRef(of(PBXFileReference.class)))),
 				arguments(CodeablePBXNativeTarget.CodingKeys.dependencies, keyOf("dependencies", list(byRef(of(PBXTargetDependency.class))))),
 				arguments(CodeablePBXNativeTarget.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", byRef(of(XCConfigurationList.class)))),
-				arguments(CodeablePBXNativeTarget.CodingKeys.buildPhases, keyOf("buildPhases", list(byRef(of(PBXBuildPhase.class))))),
+				arguments(CodeablePBXNativeTarget.CodingKeys.buildPhases, keyOf("buildPhases", list(byRef(anyOf(PBXBuildPhase.class))))),
 				arguments(CodeablePBXNativeTarget.CodingKeys.packageProductDependencies, keyOf("packageProductDependencies", list(byRef(of(XCSwiftPackageProductDependency.class))))),
 
 				arguments(CodeablePBXProject.CodingKeys.mainGroup, keyOf("mainGroup", byRef(of(PBXGroup.class)))),
-				arguments(CodeablePBXProject.CodingKeys.projectReferences, keyOf("projectReferences", list(byCopy(of(PBXFileReference.class))))),
+				arguments(CodeablePBXProject.CodingKeys.projectReferences, keyOf("projectReferences", list(byCopy(of(PBXProject.ProjectReference.class))))),
 				arguments(CodeablePBXProject.CodingKeys.buildConfigurationList, keyOf("buildConfigurationList", byRef(of(XCConfigurationList.class)))),
-				arguments(CodeablePBXProject.CodingKeys.packageReferences, keyOf("packageReferences", list(byRef(of(XCSwiftPackageProductDependency.class))))),
+				arguments(CodeablePBXProject.CodingKeys.packageReferences, keyOf("packageReferences", list(byRef(of(XCRemoteSwiftPackageReference.class))))),
 				arguments(CodeablePBXProject.CodingKeys.compatibilityVersion, keyOf("compatibilityVersion", string())),
 				arguments(CodeablePBXProject.CodingKeys.targets, keyOf("targets", list(byRef(anyOf(PBXTarget.class))))),
 
 				arguments(CodeablePBXReferenceProxy.CodingKeys.name, keyOf("name", string())),
 				arguments(CodeablePBXReferenceProxy.CodingKeys.path, keyOf("path", string())),
-				arguments(CodeablePBXReferenceProxy.CodingKeys.sourceTree, keyOf("sourceTree", of(PBXSourceTree.class))))),
+				arguments(CodeablePBXReferenceProxy.CodingKeys.sourceTree, keyOf("sourceTree", of(PBXSourceTree.class))),
 				arguments(CodeablePBXReferenceProxy.CodingKeys.remoteRef, keyOf("remoteRef", byRef(of(PBXContainerItemProxy.class)))),
 				arguments(CodeablePBXReferenceProxy.CodingKeys.fileType, keyOf("fileType", string())),
 
@@ -209,6 +209,11 @@ class PBXObjectCodingKeyCodersTests {
 				arguments(CodeableXCVersionGroup.CodingKeys.currentVersion, keyOf("currentVersion", byRef(of(PBXFileReference.class)))),
 				arguments(CodeableXCVersionGroup.CodingKeys.versionGroupType, keyOf("versionGroupType", string()))
 			);
+		}
+
+		// Redeclare here to avoid parenthesis mismatch causing some test cases to be ignored.
+		private static Arguments arguments(CodingKey codingKey, Matcher<Optional<? extends KeyedCoder<Object>>> matcher) {
+			return Arguments.arguments(codingKey, matcher);
 		}
 	}
 
