@@ -16,6 +16,7 @@
 package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
+import dev.nokee.util.Unpacker;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.DomainObjectCollection;
@@ -62,11 +63,6 @@ public final class DeferredUtils {
 
 	public interface Flattener {
 		List<Object> flatten(@Nullable Object target);
-	}
-
-	public interface Unpacker {
-		@Nullable
-		Object unpack(@Nullable Object target);
 	}
 
 	public static final Flattener DEFAULT_FLATTENER = new Flattener() {
