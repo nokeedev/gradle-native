@@ -19,8 +19,8 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
-import static dev.nokee.xcode.project.forwarding.ForwardingWrapper.forwarding;
-import static dev.nokee.xcode.project.forwarding.ForwardingWrapperMatchers.forwardsToDelegate;
+import static dev.nokee.internal.testing.forwarding.ForwardingWrapper.forwarding;
+import static dev.nokee.internal.testing.forwarding.ForwardingWrapperMatchers.forwardsToDelegate;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class RecodeableKeyedObjectForwardingTests {
