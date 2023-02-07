@@ -22,8 +22,8 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import static dev.nokee.utils.DeferredUtils.DEFAULT_FLATTENER;
+import static dev.nokee.utils.DeferredUtils.deferred;
 import static dev.nokee.utils.DeferredUtils.flat;
-import static dev.nokee.utils.DeferredUtils.isDeferred;
 import static dev.nokee.utils.DeferredUtils.isFlattenableType;
 
 enum UnpackStrategies implements UnpackStrategy {
@@ -32,7 +32,7 @@ enum UnpackStrategies implements UnpackStrategy {
 		public <R> R unpack(Object value) {
 			@SuppressWarnings("unchecked")
 			R result = (R) flat(new IgnoreJavaPathFlattener(DEFAULT_FLATTENER)).unpack()
-				.whileTrue(it -> isDeferred(it) || (isFlattenableType(it) && !(it instanceof Path)))
+				.whileTrue(it -> deferred().canUnpack(it) || (isFlattenableType(it) && !(it instanceof Path)))
 				.execute(value).stream()
 				.map(Object::toString).collect(ImmutableList.toImmutableList());
 			return result;

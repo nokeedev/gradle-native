@@ -17,30 +17,42 @@ package dev.nokee.utils;
 
 import com.google.common.collect.ImmutableList;
 import dev.nokee.util.Unpacker;
+import dev.nokee.util.internal.CallableUnpacker;
+import dev.nokee.util.internal.CompositeUnpacker;
+import dev.nokee.util.internal.IdentityUnpacker;
+import dev.nokee.util.internal.KotlinFunction0Unpacker;
+import dev.nokee.util.internal.NestableUnpacker;
+import dev.nokee.util.internal.NullUnpacker;
+import dev.nokee.util.internal.ProviderUnpacker;
+import dev.nokee.util.internal.SupplierUnpacker;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.gradle.api.DomainObjectCollection;
-import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Predicates.not;
-import static dev.nokee.utils.CallableUtils.uncheckedCall;
 
 public final class DeferredUtils {
-	private static final Optional<Class<?>> KOTLIN_FUNCTION0_CLASS = loadKotlinFunction0Class();
+	public static final Unpacker IDENTITY_UNPACKER = new IdentityUnpacker();
+	private static final Unpacker NESTABLE_DEFERRED = new NestableUnpacker(new CallableUnpacker(new SupplierUnpacker(new KotlinFunction0Unpacker(IDENTITY_UNPACKER))));
+	private static final Unpacker DEFAULT_UNPACKER = new CompositeUnpacker(new NullUnpacker(NESTABLE_DEFERRED), new ProviderUnpacker(IDENTITY_UNPACKER));
+
+	public static Unpacker nestableDeferred() {
+		return NESTABLE_DEFERRED;
+	}
+
+	public static Unpacker deferred() {
+		return DEFAULT_UNPACKER;
+	}
 
 	/**
 	 * Successively unpacks a deferred value until it is resolved to null or something other than Callable (including Groovy Closure) or Kotlin lambda or Supplier
@@ -51,14 +63,7 @@ public final class DeferredUtils {
 	 */
 	@Nullable
 	public static Object unpack(@Nullable Object deferred) {
-		if (deferred == null) {
-			return null;
-		}
-		Object value = unpackNestableDeferred(deferred);
-		if (value instanceof Provider) {
-			return ((Provider<?>) value).get();
-		}
-		return value;
+		return deferred().unpack(deferred);
 	}
 
 	public interface Flattener {
@@ -122,20 +127,6 @@ public final class DeferredUtils {
 		UnpackingBuilder<List<Object>> unpack(Unpacker f);
 	}
 
-	public static final Unpacker DEFAULT_UNPACKER = new Unpacker() {
-		@Override
-		public @Nullable Object unpack(Object target) {
-			return DeferredUtils.unpack(target);
-		}
-	};
-
-	public static final Unpacker IDENTITY_UNPACKER = new Unpacker() {
-		@Override
-		public @Nullable Object unpack(@Nullable Object target) {
-			return target;
-		}
-	};
-
 	@EqualsAndHashCode
 	public static final class FlatBuilder implements FlatteningBuilder {
 		private final Flattener flattener;
@@ -195,7 +186,7 @@ public final class DeferredUtils {
 		@Override
 		public List<T> execute(@Nullable Object obj) {
 			@SuppressWarnings("unchecked")
-			List<T> result = (List<T>) flatUnpackWhile(obj, flattener, unpacker, it -> DeferredUtils.isNestableDeferred(it) || DeferredUtils.isFlattenableType(it));
+			List<T> result = (List<T>) flatUnpackWhile(obj, flattener, unpacker, it -> nestableDeferred().canUnpack(it) || DeferredUtils.isFlattenableType(it));
 			return result;
 		}
 	}
@@ -296,53 +287,6 @@ public final class DeferredUtils {
 	private static void addAllFirst(Deque<Object> queue, Object[] items) {
 		for (int i = items.length - 1; i >= 0; i--) {
 			queue.addFirst(items[i]);
-		}
-	}
-
-	public static boolean isDeferred(Object value) {
-		return value instanceof Provider
-			|| isNestableDeferred(value);
-	}
-
-	static boolean isNestableDeferred(@Nullable Object value) {
-		return value instanceof Callable
-			|| value instanceof Supplier
-			|| isKotlinFunction0Deferrable(value);
-	}
-
-	@Nullable
-	static Object unpackNestableDeferred(@Nullable Object deferred) {
-		Object current = deferred;
-		while (isNestableDeferred(current)) {
-			if (current instanceof Callable) {
-				current = uncheckedCall((Callable<?>) current);
-			} else if (current instanceof Supplier) {
-				current = ((Supplier<?>) current).get();
-			} else {
-				current = unpackKotlinFunction0(current);
-			}
-		}
-		return current;
-	}
-
-	private static boolean isKotlinFunction0Deferrable(@Nullable Object value) {
-		return KOTLIN_FUNCTION0_CLASS.map(it -> value != null && it.isAssignableFrom(value.getClass())).orElse(false);
-	}
-
-	@Nullable
-	private static Object unpackKotlinFunction0(@Nullable Object value) {
-		try {
-			return KOTLIN_FUNCTION0_CLASS.orElseThrow(() -> new RuntimeException("kotlin.jvm.functions.Function0 not found in classpath.")).getMethod("invoke").invoke(value);
-		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			throw new RuntimeException(String.format("Could not access kotlin.jvm.functions.Function0#invoke() method on object of type '%s'.", Optional.ofNullable(value).map(it -> it.getClass().getCanonicalName()).orElse("<null>")), e);
-		}
-	}
-
-	private static Optional<Class<?>> loadKotlinFunction0Class() {
-		try {
-			return Optional.of(Class.forName("kotlin.jvm.functions.Function0"));
-		} catch (ClassNotFoundException e) {
-			return Optional.empty();
 		}
 	}
 

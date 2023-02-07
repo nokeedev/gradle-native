@@ -22,6 +22,7 @@ import org.gradle.api.Task;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
+import static dev.nokee.utils.DeferredUtils.deferred;
 import static org.hamcrest.Matchers.equalTo;
 
 public final class TaskMatchers {
@@ -74,7 +75,7 @@ public final class TaskMatchers {
 					} else {
 						return result;
 					}
-				}).whileTrue(value -> DeferredUtils.isDeferred(value) || DeferredUtils.isFlattenableType(value)).execute(actual.getDependsOn());
+				}).whileTrue(value -> deferred().canUnpack(value) || DeferredUtils.isFlattenableType(value)).execute(actual.getDependsOn());
 			}
 		};
 	}
