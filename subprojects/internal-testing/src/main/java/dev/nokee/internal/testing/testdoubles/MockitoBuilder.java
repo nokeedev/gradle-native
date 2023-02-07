@@ -60,6 +60,9 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	@Override
 	public MockitoBuilder<T> when(StubCall<T> result) {
 		stubs.add(result);
+		if (instance != null) {
+			applyStub(result, instance);
+		}
 		return this;
 	}
 
@@ -129,49 +132,53 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 		};
 	}
 
+	private void applyStub(StubCall<T> it, T instance) {
+		try {
+			final Method method = it.getMethod().resolve(classToMock);
+
+			T mock = Mockito.doAnswer(new Answer<Object>() {
+				@Override
+				public Object answer(InvocationOnMock invocation) throws Throwable {
+					captured.put(invocation.getMethod(), it.getCaptors().stream().map(Captor::capture).collect(Collectors.toList()));
+
+					if (it.getAnswers().isEmpty()) {
+						return org.mockito.Answers.RETURNS_DEFAULTS.answer(invocation);
+					}
+
+					// TODO: Support multiple answers
+					return it.getAnswers().get(0).answer(new InvocationOnTestDouble<T>() {
+						@SuppressWarnings("unchecked")
+						@Override
+						public T getTestDouble() {
+							return (T) invocation.getMock();
+						}
+
+						@Override
+						public Object[] getArguments() {
+							return invocation.getArguments();
+						}
+					});
+				}
+			}).when(instance);
+
+			Object[] args = new Object[method.getParameterCount()];
+			for (int i = 0; i < args.length; i++) {
+				args[i] = it.getArguments().getArgument(i);
+			}
+
+			method.invoke(mock, args);
+		} catch (InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public T instance() {
 		if (instance == null) {
 			final T instance = Mockito.mock(classToMock, settings);
 			// TODO: merge stubs for the same method together
 			stubs.forEach(it -> {
-				try {
-					final Method method = it.getMethod().resolve(classToMock);
-
-					T mock = Mockito.doAnswer(new Answer<Object>() {
-						@Override
-						public Object answer(InvocationOnMock invocation) throws Throwable {
-							captured.put(invocation.getMethod(), it.getCaptors().stream().map(Captor::capture).collect(Collectors.toList()));
-
-							if (it.getAnswers().isEmpty()) {
-								return org.mockito.Answers.RETURNS_DEFAULTS.answer(invocation);
-							}
-
-							// TODO: Support multiple answers
-							return it.getAnswers().get(0).answer(new InvocationOnTestDouble<T>() {
-								@SuppressWarnings("unchecked")
-								@Override
-								public T getTestDouble() {
-									return (T) invocation.getMock();
-								}
-
-								@Override
-								public Object[] getArguments() {
-									return invocation.getArguments();
-								}
-							});
-						}
-					}).when(instance);
-
-					Object[] args = new Object[method.getParameterCount()];
-					for (int i = 0; i < args.length; i++) {
-						args[i] = it.getArguments().getArgument(i);
-					}
-
-					method.invoke(mock, args);
-				} catch (InvocationTargetException | IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
+				applyStub(it, instance);
 			});
 			this.instance = instance;
 		}
