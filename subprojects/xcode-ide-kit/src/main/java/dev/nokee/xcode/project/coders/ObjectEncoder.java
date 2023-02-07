@@ -31,9 +31,4 @@ public final class ObjectEncoder<IN> implements ValueEncoder<BycopyObject, IN> {
 	public BycopyObject encode(IN value, Context context) {
 		return context.encodeBycopyObject(delegate.encode(value, context));
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.byCopy(delegate.getEncodeType());
-	}
 }

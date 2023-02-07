@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 class DictionaryEncoderTests {
 	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
-	UnwrapEncoder<Map<String, ?>> delegate = new UnwrapEncoder<>(CoderType.dict());
+	UnwrapEncoder<Map<String, ?>> delegate = new UnwrapEncoder<>();
 	DictionaryEncoder<UnwrapEncoder.Wrapper<Map<String, ?>>> subject = new DictionaryEncoder<>(delegate);
 
 	@Nested
@@ -46,10 +46,5 @@ class DictionaryEncoderTests {
 		void callsDelegateWithMapValue() {
 			assertThat(delegate, calledOnceWith(wrap(of("K1", "V1")), context));
 		}
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(UnwrapEncoder.wrapper(CoderType.dict())));
 	}
 }

@@ -25,9 +25,4 @@ public final class ProductTypeEncoder implements ValueEncoder<String, ProductTyp
 	public String encode(ProductType value, Context context) {
 		return value.getIdentifier();
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.of(ProductType.class);
-	}
 }

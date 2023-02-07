@@ -23,7 +23,7 @@ public final class NoYesBooleanDecoder implements ValueDecoder<Boolean, Object> 
 	private final ValueDecoder<Boolean, Object> delegate;
 
 	public NoYesBooleanDecoder() {
-		this(new ThrowingValueDecoder<>(CoderType.yesNoBoolean()));
+		this(new ThrowingValueDecoder<>());
 	}
 
 	public NoYesBooleanDecoder(ValueDecoder<Boolean, Object> delegate) {
@@ -41,16 +41,5 @@ public final class NoYesBooleanDecoder implements ValueDecoder<Boolean, Object> 
 			}
 		}
 		return delegate.decode(object, context);
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueDecoder.super.accept(visitor);
-		delegate.accept(visitor);
 	}
 }

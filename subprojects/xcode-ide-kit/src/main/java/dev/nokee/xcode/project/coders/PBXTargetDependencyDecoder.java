@@ -15,8 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import com.google.common.base.Preconditions;
-import dev.nokee.xcode.objects.targets.PBXTarget;
 import dev.nokee.xcode.objects.targets.PBXTargetDependency;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.CodeablePBXTargetDependency;
@@ -29,10 +27,5 @@ public final class PBXTargetDependencyDecoder<T extends PBXTargetDependency & Co
 	@Override
 	public T decode(KeyedObject object, Context context) {
 		return Select.newInstance(KeyedObject::isa).forCase("PBXTargetDependency", CodeablePBXTargetDependency::newInstance).select(object);
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(PBXTargetDependency.class);
 	}
 }

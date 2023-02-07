@@ -25,9 +25,4 @@ public final class ProxyTypeDecoder implements ValueDecoder<PBXContainerItemProx
 	public PBXContainerItemProxy.ProxyType decode(Integer object, Context context) {
 		return PBXContainerItemProxy.ProxyType.valueOf(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(PBXContainerItemProxy.ProxyType.class);
-	}
 }

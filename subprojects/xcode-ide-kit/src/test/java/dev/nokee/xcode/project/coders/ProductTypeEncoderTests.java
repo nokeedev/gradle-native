@@ -39,9 +39,4 @@ class ProductTypeEncoderTests {
 	void canEncodeAdhocProductType() {
 		assertThat(subject.encode(ProductType.of("com.example.my-type", null), context), equalTo("com.example.my-type"));
 	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(CoderType.of(ProductType.class)));
-	}
 }

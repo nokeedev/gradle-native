@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StringDecoderTests {
 	ValueDecoder.Context context = newAlwaysThrowingMock(ValueDecoder.Context.class);
-	WrapDecoder<String> delegate = new WrapDecoder<>(CoderType.string());
+	WrapDecoder<String> delegate = new WrapDecoder<>();
 	StringDecoder<WrapDecoder.Wrapper<String>> subject = new StringDecoder<>(delegate);
 
 	@Nested
@@ -48,10 +48,5 @@ class StringDecoderTests {
 	@Test
 	void throwsExceptionOnInvalidValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(new Object(), context));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(WrapDecoder.wrapper(CoderType.string())));
 	}
 }

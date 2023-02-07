@@ -28,9 +28,4 @@ public final class NoYesBooleanEncoder implements ValueEncoder<String, Boolean> 
 			return "NO";
 		}
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.yesNoBoolean();
-	}
 }

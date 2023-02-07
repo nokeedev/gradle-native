@@ -32,9 +32,4 @@ public final class VersionRequirementKindDecoder implements ValueDecoder<XCRemot
 			.forCase("upToNextMinorVersion", XCRemoteSwiftPackageReference.VersionRequirement.Kind.UP_TO_NEXT_MINOR_VERSION)
 			.select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(XCRemoteSwiftPackageReference.VersionRequirement.Kind.class);
-	}
 }

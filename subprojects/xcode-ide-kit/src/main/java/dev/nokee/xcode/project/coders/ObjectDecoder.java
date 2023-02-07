@@ -34,15 +34,4 @@ public final class ObjectDecoder<OUT> implements ValueDecoder<OUT, Object> {
 	public OUT decode(Object object, Context context) {
 		return Select.newIfElseCases().forCase(it -> it instanceof Map, o -> delegate.decode(context.decodeBycopyObject((Map<String, ?>) o), context)).select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.byCopy(delegate.getDecodeType());
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueDecoder.super.accept(visitor);
-		delegate.accept(visitor);
-	}
 }

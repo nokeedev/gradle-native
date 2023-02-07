@@ -40,9 +40,4 @@ public final class BuildPhaseDecoder<T extends PBXBuildPhase & Codeable> impleme
 			.forCase("PBXSourcesBuildPhase", CodeablePBXSourcesBuildPhase::newInstance)
 			.select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.anyOf(PBXBuildPhase.class);
-	}
 }

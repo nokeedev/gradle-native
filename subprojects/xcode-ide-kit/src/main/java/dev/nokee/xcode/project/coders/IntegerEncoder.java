@@ -30,13 +30,4 @@ public final class IntegerEncoder<IN> implements ValueEncoder<Integer, IN> {
 	public Integer encode(IN value, Context context) {
 		return delegate.encode(value, context);
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return delegate.getEncodeType();
-	}
-
-//	public static IntegerEncoder<Integer> integer() {
-//		return new IntegerEncoder<>(new NoOpDecoder<>());
-//	}
 }

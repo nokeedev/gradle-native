@@ -24,7 +24,6 @@ import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThr
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 
 class BuildSettingsEncoderTests {
@@ -40,10 +39,5 @@ class BuildSettingsEncoderTests {
 	void canEncodeBuildSettings() {
 		assertThat(subject.encode(BuildSettings.of(of("K1", "V1", "K2", "V2")), context),
 			allOf(hasEntry("K1", "V1"), hasEntry("K2", "V2")));
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(CoderType.of(BuildSettings.class)));
 	}
 }

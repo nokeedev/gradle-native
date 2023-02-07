@@ -34,9 +34,4 @@ public final class TargetDecoder<T extends PBXTarget & Codeable> implements Valu
 			.forCase("PBXNativeTarget", CodeablePBXNativeTarget::newInstance)
 			.select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.anyOf(PBXTarget.class);
-	}
 }

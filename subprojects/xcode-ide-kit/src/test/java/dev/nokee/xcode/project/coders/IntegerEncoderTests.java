@@ -22,13 +22,12 @@ import org.junit.jupiter.api.Test;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrap;
-import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class IntegerEncoderTests {
 	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
-	UnwrapEncoder<Integer> delegate = new UnwrapEncoder<>(CoderType.integer());
+	UnwrapEncoder<Integer> delegate = new UnwrapEncoder<>();
 	IntegerEncoder<UnwrapEncoder.Wrapper<Integer>> subject = new IntegerEncoder<>(delegate);
 
 	@Nested
@@ -44,10 +43,5 @@ class IntegerEncoderTests {
 		void callsDelegateWithIntegerValue() {
 			assertThat(delegate, calledOnceWith(wrap(42), context));
 		}
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(wrapper(CoderType.integer())));
 	}
 }

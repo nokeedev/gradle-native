@@ -28,9 +28,4 @@ public final class XCConfigurationListDecoder<T extends XCConfigurationList & Co
 	public T decode(KeyedObject object, Context context) {
 		return Select.newInstance(KeyedObject::isa).forCase("XCConfigurationList", CodeableXCConfigurationList::newInstance).select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(XCConfigurationList.class);
-	}
 }

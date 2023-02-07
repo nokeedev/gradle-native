@@ -15,25 +15,13 @@
  */
 package dev.nokee.xcode.project;
 
-import dev.nokee.xcode.project.coders.CoderType;
-
 import java.util.Map;
 
 public interface ValueDecoder<OUT, IN> {
 	OUT decode(IN object, Context context);
 
-	CoderType<?> getDecodeType();
-
 	interface Context {
 		KeyedObject decodeBycopyObject(Map<String, ?> object);
 		KeyedObject decodeByrefObject(String/*GlobalId*/ object);
-	}
-
-	default void accept(Visitor visitor) {
-		visitor.visit(this);
-	}
-
-	interface Visitor {
-		<OUT, IN> void visit(ValueDecoder<OUT, IN> decoder);
 	}
 }

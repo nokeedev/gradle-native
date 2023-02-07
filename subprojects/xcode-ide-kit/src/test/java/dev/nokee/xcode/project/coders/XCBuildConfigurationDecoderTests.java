@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import dev.nokee.xcode.objects.configuration.XCBuildConfiguration;
 import dev.nokee.xcode.project.CodeableXCBuildConfiguration;
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
@@ -44,10 +43,5 @@ class XCBuildConfigurationDecoderTests {
 	@Test
 	void throwsExceptionOnUnexpectedIsaValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(new IsaKeyedObject("PBXUnknown"), context));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.of(XCBuildConfiguration.class)));
 	}
 }

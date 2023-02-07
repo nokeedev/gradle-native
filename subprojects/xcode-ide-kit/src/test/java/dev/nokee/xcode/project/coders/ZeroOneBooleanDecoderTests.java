@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
-import static dev.nokee.xcode.project.coders.CoderType.oneZeroBoolean;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -84,10 +83,5 @@ class ZeroOneBooleanDecoderTests {
 		void callsDelegateOnUnexpectedValues() {
 			assertThat(delegate, calledOnceWith("far", context));
 		}
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(new ZeroOneBooleanDecoder().getDecodeType(), equalTo(oneZeroBoolean()));
 	}
 }

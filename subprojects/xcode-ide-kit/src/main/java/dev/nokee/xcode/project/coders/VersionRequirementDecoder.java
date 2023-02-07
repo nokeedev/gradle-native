@@ -48,9 +48,4 @@ public final class VersionRequirementDecoder<T extends XCRemoteSwiftPackageRefer
 			.forCase(UP_TO_NEXT_MINOR_VERSION, CodeableVersionRequirementUpToNextMinorVersion::newInstance)
 			.select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.anyOf(XCRemoteSwiftPackageReference.VersionRequirement.class);
-	}
 }

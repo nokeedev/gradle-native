@@ -33,9 +33,4 @@ public final class VersionRequirementKindEncoder implements ValueEncoder<String,
 			default: throw new UnsupportedOperationException();
 		}
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.of(XCRemoteSwiftPackageReference.VersionRequirement.Kind.class);
-	}
 }

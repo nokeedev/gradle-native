@@ -33,15 +33,4 @@ public final class ObjectRefDecoder<OUT> implements ValueDecoder<OUT, Object> {
 		Preconditions.checkArgument(object instanceof String, "'object' must be a String");
 		return delegate.decode(context.decodeByrefObject((String) object), context);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.byRef(delegate.getDecodeType());
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueDecoder.super.accept(visitor);
-		delegate.accept(visitor);
-	}
 }

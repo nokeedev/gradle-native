@@ -29,10 +29,7 @@ import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
-import static dev.nokee.xcode.project.coders.CoderType.byCopy;
-import static dev.nokee.xcode.project.coders.CoderType.of;
 import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrap;
-import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -40,7 +37,7 @@ class ObjectEncoderTests {
 	ValueEncoder.Context context = newMock(ValueEncoder.Context.class)
 		.when(any(callTo(method(ValueEncoder.Context::encodeBycopyObject))).then(doReturn((it, args) -> new TestBycopyObject(args.getArgument(0)))))
 		.alwaysThrows().instance();
-	UnwrapEncoder<Encodeable> delegate = new UnwrapEncoder<>(of(Encodeable.class));
+	UnwrapEncoder<Encodeable> delegate = new UnwrapEncoder<>();
 	ObjectEncoder<UnwrapEncoder.Wrapper<Encodeable>> subject = new ObjectEncoder<>(delegate);
 
 	KeyedObject objectToEncode = new IsaKeyedObject("PBXObject");
@@ -54,11 +51,6 @@ class ObjectEncoderTests {
 	@Test
 	void callsDelegateWithInputValue() {
 		assertThat(delegate, calledOnceWith(wrap(objectToEncode), context));
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(byCopy(wrapper(of(Encodeable.class)))));
 	}
 
 	@EqualsAndHashCode

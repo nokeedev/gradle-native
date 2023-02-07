@@ -23,7 +23,7 @@ public final class ZeroOneBooleanDecoder implements ValueDecoder<Boolean, Object
 	private final ValueDecoder<Boolean, Object> delegate;
 
 	public ZeroOneBooleanDecoder() {
-		this(new ThrowingValueDecoder<>(CoderType.oneZeroBoolean()));
+		this(new ThrowingValueDecoder<>());
 	}
 
 	public ZeroOneBooleanDecoder(ValueDecoder<Boolean, Object> delegate) {
@@ -52,10 +52,5 @@ public final class ZeroOneBooleanDecoder implements ValueDecoder<Boolean, Object
 			}
 		}
 		return delegate.decode(object, context);
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
 	}
 }

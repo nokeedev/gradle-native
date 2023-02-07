@@ -28,9 +28,4 @@ public final class ZeroOneBooleanEncoder implements ValueEncoder<Integer, Boolea
 			return 0;
 		}
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.oneZeroBoolean();
-	}
 }

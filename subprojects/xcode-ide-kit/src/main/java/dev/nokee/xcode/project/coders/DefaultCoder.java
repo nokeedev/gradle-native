@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.xcode.project.ValueCoder;
 import dev.nokee.xcode.project.ValueDecoder;
 import dev.nokee.xcode.project.ValueEncoder;
@@ -27,7 +26,6 @@ public final class DefaultCoder<OUT> implements ValueCoder<OUT> {
 	private final ValueEncoder<?, OUT> encoder;
 
 	public DefaultCoder(ValueDecoder<OUT, Object> decoder, ValueEncoder<?, OUT> encoder) {
-		Preconditions.checkArgument(decoder.getDecodeType().equals(encoder.getEncodeType()));
 		this.decoder = decoder;
 		this.encoder = encoder;
 	}
@@ -38,29 +36,7 @@ public final class DefaultCoder<OUT> implements ValueCoder<OUT> {
 	}
 
 	@Override
-	public CoderType<?> getDecodeType() {
-		return decoder.getDecodeType();
-	}
-
-	@Override
-	public void accept(ValueDecoder.Visitor visitor) {
-		ValueCoder.super.accept(visitor);
-		decoder.accept(visitor);
-	}
-
-	@Override
 	public Object encode(OUT value, ValueEncoder.Context context) {
 		return encoder.encode(value, context);
-	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return encoder.getEncodeType();
-	}
-
-	@Override
-	public void accept(ValueEncoder.Visitor visitor) {
-		ValueCoder.super.accept(visitor);
-		encoder.accept(visitor);
 	}
 }

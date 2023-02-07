@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.project.CodeablePBXContainerItemProxy;
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
@@ -44,10 +43,5 @@ class PBXContainerItemProxyDecoderTests {
 	@Test
 	void throwsExceptionOnUnexpectedIsaValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(new IsaKeyedObject("PBXUnknown"), context));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.of(PBXContainerItemProxy.class)));
 	}
 }

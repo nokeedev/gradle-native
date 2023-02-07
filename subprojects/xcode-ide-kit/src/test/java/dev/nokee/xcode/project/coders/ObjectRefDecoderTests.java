@@ -27,14 +27,12 @@ import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
-import static dev.nokee.xcode.project.coders.CoderType.byRef;
-import static dev.nokee.xcode.project.coders.WrapDecoder.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ObjectRefDecoderTests {
-	WrapDecoder<KeyedObject> delegate = new WrapDecoder<>(CoderType.of(KeyedObject.class));
+	WrapDecoder<KeyedObject> delegate = new WrapDecoder<>();
 	ObjectRefDecoder<WrapDecoder.Wrapper<KeyedObject>> subject = new ObjectRefDecoder<>(delegate);
 
 	@Nested
@@ -59,10 +57,5 @@ class ObjectRefDecoderTests {
 	@Test
 	void throwsExceptionIfObjectTypeIsNotString() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(new Object(), newAlwaysThrowingMock(ValueDecoder.Context.class)));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(byRef(wrapper(CoderType.of(KeyedObject.class)))));
 	}
 }

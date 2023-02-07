@@ -40,19 +40,4 @@ public final class IntegerDecoder<OUT> implements ValueDecoder<OUT, Object> {
 			throw new IllegalArgumentException("'object' must be integer convertible type");
 		}
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueDecoder.super.accept(visitor);
-		delegate.accept(visitor);
-	}
-
-	public static IntegerDecoder<Integer> newIntegerDecoder() {
-		return new IntegerDecoder<>(new NoOpDecoder<>(CoderType.integer()));
-	}
 }

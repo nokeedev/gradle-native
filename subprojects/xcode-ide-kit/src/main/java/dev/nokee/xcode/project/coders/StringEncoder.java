@@ -31,18 +31,7 @@ public final class StringEncoder<IN> implements ValueEncoder<String, IN> {
 		return delegate.encode(value, context);
 	}
 
-	@Override
-	public CoderType<?> getEncodeType() {
-		return delegate.getEncodeType();
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueEncoder.super.accept(visitor);
-		delegate.accept(visitor);
-	}
-
 	public static StringEncoder<String> newStringEncoder() {
-		return new StringEncoder<>(new NoOpEncoder<>(CoderType.string()));
+		return new StringEncoder<>(new NoOpEncoder<>());
 	}
 }

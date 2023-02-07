@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.xcode.objects.buildphase.PBXBuildFile;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.CodeablePBXBuildFile;
@@ -28,10 +27,5 @@ public final class PBXBuildFileDecoder<T extends PBXBuildFile & Codeable> implem
 	@Override
 	public T decode(KeyedObject object, Context context) {
 		return Select.newInstance(KeyedObject::isa).forCase("PBXBuildFile", CodeablePBXBuildFile::newInstance).select(object);
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(PBXBuildFile.class);
 	}
 }

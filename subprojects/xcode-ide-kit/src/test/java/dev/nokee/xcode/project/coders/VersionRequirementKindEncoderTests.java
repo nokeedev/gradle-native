@@ -15,10 +15,8 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import dev.nokee.xcode.project.ValueEncoder;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -34,10 +32,5 @@ class VersionRequirementKindEncoderTests {
 	@ArgumentsSource(KnownVersionRequirementKindProvider.class)
 	void canEncodeKnownKind(String expectedString, Kind knownKind) {
 		assertThat(subject.encode(knownKind, context), equalTo(expectedString));
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(CoderType.of(XCRemoteSwiftPackageReference.VersionRequirement.Kind.class)));
 	}
 }

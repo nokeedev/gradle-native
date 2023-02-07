@@ -25,9 +25,4 @@ public final class SubFolderEncoder implements ValueEncoder<Integer, PBXCopyFile
 	public Integer encode(PBXCopyFilesBuildPhase.SubFolder object, Context context) {
 		return object.getValue();
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.of(PBXCopyFilesBuildPhase.SubFolder.class);
-	}
 }

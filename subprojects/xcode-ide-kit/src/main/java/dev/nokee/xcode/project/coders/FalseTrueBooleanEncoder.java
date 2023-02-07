@@ -24,9 +24,4 @@ public final class FalseTrueBooleanEncoder implements ValueEncoder<Boolean, Bool
 	public Boolean encode(Boolean object, Context context) {
 		return object;
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.trueFalseBoolean();
-	}
 }

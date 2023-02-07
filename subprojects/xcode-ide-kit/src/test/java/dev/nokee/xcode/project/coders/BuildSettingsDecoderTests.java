@@ -38,9 +38,4 @@ class BuildSettingsDecoderTests {
 		assertThat(subject.decode(of("K1", "V1", "K2", "V2"), context),
 			equalTo(BuildSettings.of(of("K1", "V1", "K2", "V2"))));
 	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.of(BuildSettings.class)));
-	}
 }

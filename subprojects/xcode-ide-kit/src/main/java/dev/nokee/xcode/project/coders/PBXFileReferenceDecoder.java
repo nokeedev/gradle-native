@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.xcode.objects.files.PBXFileReference;
 import dev.nokee.xcode.project.Codeable;
 import dev.nokee.xcode.project.CodeablePBXFileReference;
@@ -28,10 +27,5 @@ public final class PBXFileReferenceDecoder<T extends PBXFileReference & Codeable
 	@Override
 	public T decode(KeyedObject object, Context context) {
 		return Select.newInstance(KeyedObject::isa).forCase("PBXFileReference", CodeablePBXFileReference::newInstance).select(object);
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(PBXFileReference.class);
 	}
 }

@@ -28,9 +28,4 @@ public final class PBXGroupDecoder<T extends PBXGroup & Codeable> implements Val
 	public T decode(KeyedObject object, Context context) {
 		return Select.newInstance(KeyedObject::isa).forCase("PBXGroup", CodeablePBXGroup::newInstance).select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(PBXGroup.class);
-	}
 }
