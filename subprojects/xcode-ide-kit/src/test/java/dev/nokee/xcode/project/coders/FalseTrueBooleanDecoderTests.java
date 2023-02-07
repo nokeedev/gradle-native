@@ -15,13 +15,19 @@
  */
 package dev.nokee.xcode.project.coders;
 
+import com.google.common.reflect.TypeToken;
+import dev.nokee.internal.testing.testdoubles.TestDouble;
 import dev.nokee.xcode.project.ValueDecoder;
-import dev.nokee.xcode.utils.ConstantDecoder;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
+import static dev.nokee.internal.testing.reflect.MethodInformation.method;
+import static dev.nokee.internal.testing.testdoubles.Answers.doReturn;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.any;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
+import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
+import static dev.nokee.internal.testing.testdoubles.TestDouble.callTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -75,13 +81,14 @@ class FalseTrueBooleanDecoderTests {
 
 	@Nested
 	class WhenDecodingInvalidValues {
-		ConstantDecoder<Boolean, Object> delegate = new ConstantDecoder<>(true);
-		FalseTrueBooleanDecoder subject = new FalseTrueBooleanDecoder(delegate);
+		TestDouble<ValueDecoder<Boolean, Object>> delegate = newMock(new TypeToken<ValueDecoder<Boolean, Object>>() {})
+			.when(any(callTo(method(ValueDecoder<Boolean, Object>::decode))).then(doReturn(true)));
+		FalseTrueBooleanDecoder subject = new FalseTrueBooleanDecoder(delegate.instance());
 		Boolean ignored = subject.decode("foo", context);
 
 		@Test
 		void callsDelegateOnUnexpectedValues() {
-			assertThat(delegate, calledOnceWith("foo", context));
+			assertThat(delegate.to(method(ValueDecoder<Boolean, Object>::decode)), calledOnceWith("foo", context));
 		}
 	}
 }
