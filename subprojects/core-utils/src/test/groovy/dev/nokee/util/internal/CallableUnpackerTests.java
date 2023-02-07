@@ -24,6 +24,7 @@ import static dev.nokee.internal.testing.forwarding.ForwardingWrapperMatchers.fo
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
 import static dev.nokee.util.internal.DeferredFactory.callableOf;
+import static dev.nokee.util.internal.DeferredFactory.closureOf;
 import static dev.nokee.util.internal.DeferredFactory.throwIfResolved;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -47,9 +48,31 @@ class CallableUnpackerTests {
 		}
 	}
 
+	@Nested
+	class WhenUnpackingClosure {
+		Unpacker delegate = newAlwaysThrowingMock(Unpacker.class);
+		CallableUnpacker subject = new CallableUnpacker(delegate);
+		Object result = subject.unpack(closureOf("closed-foo"));
+
+		@Test
+		void returnClosureValue() {
+			assertThat(result, equalTo("closed-foo"));
+		}
+
+		@Test
+		void canUnpack() {
+			assertThat(subject.canUnpack(closureOf(throwIfResolved())), equalTo(true));
+		}
+	}
+
 	@Test
 	void canUnpackNullReturningCallable() {
 		assertThat(new CallableUnpacker(newAlwaysThrowingMock(Unpacker.class)).unpack(callableOf(null)), nullValue());
+	}
+
+	@Test
+	void canUnpackNullReturningClosure() {
+		assertThat(new CallableUnpacker(newAlwaysThrowingMock(Unpacker.class)).unpack(closureOf(null)), nullValue());
 	}
 
 	@Nested
