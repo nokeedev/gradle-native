@@ -76,7 +76,7 @@ public abstract class Select<T, R> {
 			final R execution = cases.get(instance);
 
 			if (execution == null) {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(String.format("Could not find case for '%s'. Possible cases are: '%s'", instance, cases.keySet().stream().map(Object::toString).collect(Collectors.joining(", "))));
 			}
 
 			@SuppressWarnings("unchecked")
