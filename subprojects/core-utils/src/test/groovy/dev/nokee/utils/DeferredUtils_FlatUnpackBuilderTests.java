@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import dev.nokee.util.Unpacker;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +42,7 @@ class DeferredUtils_FlatUnpackBuilderTests {
 
 	@Test
 	void createsFlatUnpackBuilderUsingDefaultFlattenerAndCustomUnpacker() {
-		DeferredUtils.Unpacker unpacker = mock(DeferredUtils.Unpacker.class);
+		Unpacker unpacker = mock(Unpacker.class);
 		assertThat(DeferredUtils.flatUnpack(unpacker),
 				equalTo(new DeferredUtils.FlatUnpackBuilder<>(DEFAULT_FLATTENER, unpacker)));
 	}
@@ -49,7 +50,7 @@ class DeferredUtils_FlatUnpackBuilderTests {
 	@Nested
 	class GivenSubject {
 		@Mock DeferredUtils.Flattener flattener;
-		@Mock DeferredUtils.Unpacker unpacker;
+		@Mock Unpacker unpacker;
 		@InjectMocks DeferredUtils.FlatUnpackBuilder<MyType> subject;
 
 		@Test

@@ -15,6 +15,7 @@
  */
 package dev.nokee.utils;
 
+import dev.nokee.util.Unpacker;
 import lombok.val;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -58,7 +59,7 @@ class DeferredUtils_FlatUnpackWhileExecutableTests {
 	@Nested
 	class GivenSubject {
 		@Mock DeferredUtils.Flattener flattener;
-		@Mock DeferredUtils.Unpacker unpacker;
+		@Mock Unpacker unpacker;
 		@Mock Predicate<Object> predicate;
 		@InjectMocks DeferredUtils.FlatUnpackWhileExecutable<Object> subject;
 
