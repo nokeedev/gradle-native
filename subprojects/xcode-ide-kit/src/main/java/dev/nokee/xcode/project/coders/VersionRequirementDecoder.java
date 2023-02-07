@@ -26,6 +26,7 @@ import dev.nokee.xcode.project.CodeableVersionRequirementUpToNextMinorVersion;
 import dev.nokee.xcode.project.KeyedCoders;
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
 import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.BRANCH;
 import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.EXACT;
@@ -34,6 +35,7 @@ import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference
 import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.UP_TO_NEXT_MAJOR_VERSION;
 import static dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind.UP_TO_NEXT_MINOR_VERSION;
 
+@EqualsAndHashCode
 public final class VersionRequirementDecoder<T extends XCRemoteSwiftPackageReference.VersionRequirement & Codeable> implements ValueDecoder<T, KeyedObject> {
 	@Override
 	public T decode(KeyedObject object, Context context) {

@@ -16,7 +16,9 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class IntegerDecoder<OUT> implements ValueDecoder<OUT, Object> {
 	private final ValueDecoder<OUT, Integer> delegate;
 

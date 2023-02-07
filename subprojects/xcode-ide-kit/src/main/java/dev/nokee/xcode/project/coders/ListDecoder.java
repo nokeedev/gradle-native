@@ -16,10 +16,12 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode
 public final class ListDecoder<OUT> implements ValueDecoder<List<OUT>, Object> {
 	private final ValueDecoder<OUT, Object> delegate;
 

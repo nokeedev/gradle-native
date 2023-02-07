@@ -16,7 +16,9 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class NoOpDecoder<T> implements ValueDecoder<T, T> {
 	private final CoderType<T> decodeType;
 

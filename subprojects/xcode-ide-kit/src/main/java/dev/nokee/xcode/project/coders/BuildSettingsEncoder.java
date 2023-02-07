@@ -17,9 +17,11 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.configuration.BuildSettings;
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
 import java.util.Map;
 
+@EqualsAndHashCode
 public final class BuildSettingsEncoder implements ValueEncoder<Map<String, ?>, BuildSettings> {
 	@Override
 	public Map<String, ?> encode(BuildSettings value, Context context) {

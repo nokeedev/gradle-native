@@ -17,7 +17,9 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.files.PBXSourceTree;
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class SourceTreeEncoder implements ValueEncoder<String, PBXSourceTree> {
 	@Override
 	public String encode(PBXSourceTree value, Context context) {

@@ -17,9 +17,11 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.KeyedObject;
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
 import java.util.Map;
 
+@EqualsAndHashCode
 public final class ObjectDecoder<OUT> implements ValueDecoder<OUT, Object> {
 	private final ValueDecoder<OUT, KeyedObject> delegate;
 

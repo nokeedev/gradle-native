@@ -19,7 +19,9 @@ import com.google.common.base.Preconditions;
 import dev.nokee.xcode.project.ValueCoder;
 import dev.nokee.xcode.project.ValueDecoder;
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class DefaultCoder<OUT> implements ValueCoder<OUT> {
 	private final ValueDecoder<OUT, Object> decoder;
 	private final ValueEncoder<?, OUT> encoder;

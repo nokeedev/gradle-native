@@ -16,7 +16,9 @@
 package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class StringEncoder<IN> implements ValueEncoder<String, IN> {
 	private final ValueEncoder<String, IN> delegate;
 

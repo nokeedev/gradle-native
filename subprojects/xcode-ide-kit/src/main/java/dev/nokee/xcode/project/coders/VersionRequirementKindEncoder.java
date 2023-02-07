@@ -17,7 +17,9 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class VersionRequirementKindEncoder implements ValueEncoder<String, XCRemoteSwiftPackageReference.VersionRequirement.Kind> {
 	@Override
 	public String encode(XCRemoteSwiftPackageReference.VersionRequirement.Kind object, Context context) {

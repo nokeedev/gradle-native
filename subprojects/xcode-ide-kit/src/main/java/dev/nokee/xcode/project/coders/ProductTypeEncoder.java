@@ -17,7 +17,9 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.targets.ProductType;
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class ProductTypeEncoder implements ValueEncoder<String, ProductType> {
 	@Override
 	public String encode(ProductType value, Context context) {

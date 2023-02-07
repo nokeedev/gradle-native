@@ -17,7 +17,9 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.project.Encodeable;
 import dev.nokee.xcode.project.ValueEncoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class ObjectEncoder<IN> implements ValueEncoder<BycopyObject, IN> {
 	private final ValueEncoder<Encodeable, IN> delegate;
 

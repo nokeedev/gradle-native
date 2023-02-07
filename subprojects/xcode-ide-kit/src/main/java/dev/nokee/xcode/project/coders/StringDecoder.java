@@ -15,9 +15,10 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import com.google.common.base.Preconditions;
 import dev.nokee.xcode.project.ValueDecoder;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public final class StringDecoder<OUT> implements ValueDecoder<OUT, Object> {
 	private final ValueDecoder<OUT, String> delegate;
 
