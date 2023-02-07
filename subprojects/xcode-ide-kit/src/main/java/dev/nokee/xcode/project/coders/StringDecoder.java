@@ -31,18 +31,7 @@ public final class StringDecoder<OUT> implements ValueDecoder<OUT, Object> {
 		return Select.newIfElseCases().forCase(it -> it instanceof String, o -> delegate.decode((String) o, context)).select(object);
 	}
 
-	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueDecoder.super.accept(visitor);
-		delegate.accept(visitor);
-	}
-
 	public static StringDecoder<String> newStringDecoder() {
-		return new StringDecoder<>(new NoOpDecoder<>(CoderType.string()));
+		return new StringDecoder<>(new NoOpDecoder<>());
 	}
 }

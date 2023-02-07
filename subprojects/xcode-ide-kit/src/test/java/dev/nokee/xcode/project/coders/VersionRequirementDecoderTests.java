@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.project.CodeableVersionRequirementBranch;
 import dev.nokee.xcode.project.CodeableVersionRequirementExact;
 import dev.nokee.xcode.project.CodeableVersionRequirementRange;
@@ -100,10 +99,5 @@ class VersionRequirementDecoderTests {
 		void createsUpToNextMinorVersion() {
 			assertThat(subject.decode(map, context), equalTo(CodeableVersionRequirementUpToNextMinorVersion.newInstance(map)));
 		}
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.anyOf(XCRemoteSwiftPackageReference.VersionRequirement.class)));
 	}
 }

@@ -298,10 +298,10 @@ public final class KeyedCoders {
 	}
 
 	private static <T extends Codeable> ValueCoder<T> objectRef(ValueDecoder<T, KeyedObject> decoder) {
-		return new DefaultCoder<>(new ObjectRefDecoder<>(decoder), new ObjectRefEncoder<>(new NoOpEncoder<>(decoder.getDecodeType())));
+		return new DefaultCoder<>(new ObjectRefDecoder<>(decoder), new ObjectRefEncoder<>(new NoOpEncoder<>()));
 	}
 
 	private static <T extends Codeable> ValueCoder<T> objectOf(ValueDecoder<T, KeyedObject> decoder) {
-		return new DefaultCoder<>(new ObjectDecoder<>(decoder), new ObjectEncoder<>(new NoOpEncoder<>(decoder.getDecodeType())));
+		return new DefaultCoder<>(new ObjectDecoder<>(decoder), new ObjectEncoder<>(new NoOpEncoder<>()));
 	}
 }

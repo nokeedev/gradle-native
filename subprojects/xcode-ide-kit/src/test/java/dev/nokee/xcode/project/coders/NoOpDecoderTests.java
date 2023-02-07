@@ -24,15 +24,10 @@ import static org.hamcrest.Matchers.equalTo;
 
 class NoOpDecoderTests {
 	ValueDecoder.Context context = newAlwaysThrowingMock(ValueDecoder.Context.class);
-	NoOpDecoder<String> subject = new NoOpDecoder<>(CoderType.string());
+	NoOpDecoder<String> subject = new NoOpDecoder<>();
 
 	@Test
 	void returnsInputValueWithoutTransformation() {
 		assertThat(subject.decode("some-value", context), equalTo("some-value"));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.string()));
 	}
 }

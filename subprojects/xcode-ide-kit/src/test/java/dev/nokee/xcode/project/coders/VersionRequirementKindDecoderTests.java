@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference;
 import dev.nokee.xcode.objects.swiftpackage.XCRemoteSwiftPackageReference.VersionRequirement.Kind;
 import dev.nokee.xcode.project.ValueDecoder;
 import org.junit.jupiter.api.Test;
@@ -40,10 +39,5 @@ class VersionRequirementKindDecoderTests {
 	@Test
 	void throwsExceptionOnInvalidValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode("unknownKind", context));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.of(XCRemoteSwiftPackageReference.VersionRequirement.Kind.class)));
 	}
 }

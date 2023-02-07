@@ -33,15 +33,4 @@ public final class ListDecoder<OUT> implements ValueDecoder<List<OUT>, Object> {
 	public List<OUT> decode(Object object, Context context) {
 		return Select.newIfElseCases().forCase(it -> it instanceof List, o -> ((List<?>) o).stream().map(it -> delegate.decode(it, context)).collect(Collectors.toList())).select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.list(delegate.getDecodeType());
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueDecoder.super.accept(visitor);
-		delegate.accept(visitor);
-	}
 }

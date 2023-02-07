@@ -27,9 +27,4 @@ public final class BuildSettingsEncoder implements ValueEncoder<Map<String, ?>, 
 	public Map<String, ?> encode(BuildSettings value, Context context) {
 		return value.asMap();
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.of(BuildSettings.class);
-	}
 }

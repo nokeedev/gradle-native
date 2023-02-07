@@ -42,9 +42,4 @@ class ProductTypeDecoderTests {
 	void canDecodeAdhocProductType() {
 		assertThat(subject.decode("com.example.my-type", context), equalTo(ProductType.of("com.example.my-type", null)));
 	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.of(ProductType.class)));
-	}
 }

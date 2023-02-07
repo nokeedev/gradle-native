@@ -33,12 +33,7 @@ public final class DictionaryEncoder<IN> implements ValueEncoder<Map<String, ?>,
 		return delegate.encode(object, context);
 	}
 
-	@Override
-	public CoderType<?> getEncodeType() {
-		return delegate.getEncodeType();
-	}
-
 	public static DictionaryEncoder<Map<String, ?>> newDictionaryEncoder() {
-		return new DictionaryEncoder<>(new NoOpEncoder<>(CoderType.dict()));
+		return new DictionaryEncoder<>(new NoOpEncoder<>());
 	}
 }

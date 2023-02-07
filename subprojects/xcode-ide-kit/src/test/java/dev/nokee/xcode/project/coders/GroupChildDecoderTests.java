@@ -89,9 +89,4 @@ class GroupChildDecoderTests {
 	void throwsExceptionOnUnexpectedIsaValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(new IsaKeyedObject("PBXUnknown"), context));
 	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.anyOf(GroupChild.class)));
-	}
 }

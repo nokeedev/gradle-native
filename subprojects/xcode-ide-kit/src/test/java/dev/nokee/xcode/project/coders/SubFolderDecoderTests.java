@@ -40,9 +40,4 @@ class SubFolderDecoderTests {
 	void throwsExceptionOnInvalidValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(-42, context));
 	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.of(PBXCopyFilesBuildPhase.SubFolder.class)));
-	}
 }

@@ -28,9 +28,4 @@ public final class PBXContainerItemProxyDecoder<T extends PBXContainerItemProxy 
 	public T decode(KeyedObject object, Context context) {
 		return Select.newInstance(KeyedObject::isa).forCase("PBXContainerItemProxy", CodeablePBXContainerItemProxy::newInstance).select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(PBXContainerItemProxy.class);
-	}
 }

@@ -25,9 +25,4 @@ public final class SourceTreeEncoder implements ValueEncoder<String, PBXSourceTr
 	public String encode(PBXSourceTree value, Context context) {
 		return value.toString();
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.of(PBXSourceTree.class);
-	}
 }

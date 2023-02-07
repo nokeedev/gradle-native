@@ -23,7 +23,7 @@ public final class FalseTrueBooleanDecoder implements ValueDecoder<Boolean, Obje
 	private final ValueDecoder<Boolean, Object> delegate;
 
 	public FalseTrueBooleanDecoder() {
-		this(new ThrowingValueDecoder<>(CoderType.trueFalseBoolean()));
+		this(new ThrowingValueDecoder<>());
 	}
 
 	public FalseTrueBooleanDecoder(ValueDecoder<Boolean, Object> delegate) {
@@ -43,16 +43,5 @@ public final class FalseTrueBooleanDecoder implements ValueDecoder<Boolean, Obje
 			return (Boolean) object;
 		}
 		return delegate.decode(object, context);
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueDecoder.super.accept(visitor);
-		delegate.accept(visitor);
 	}
 }

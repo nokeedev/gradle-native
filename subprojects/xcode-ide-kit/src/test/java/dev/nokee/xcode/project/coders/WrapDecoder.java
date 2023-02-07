@@ -28,11 +28,6 @@ import java.util.List;
 
 public final class WrapDecoder<T> implements ValueDecoder<WrapDecoder.Wrapper<T>, T>, HasInvocationResults<ArgumentInformation.Arg2<T, ValueDecoder.Context>> {
 	private final List<InvocationResult<ArgumentInformation.Arg2<T, ValueDecoder.Context>>> invocations = new ArrayList<>();
-	private final CoderType<T> inputType;
-
-	public WrapDecoder(CoderType<T> inputType) {
-		this.inputType = inputType;
-	}
 
 	@Override
 	public List<InvocationResult<ArgumentInformation.Arg2<T, ValueDecoder.Context>>> getAllInvocations() {
@@ -48,29 +43,6 @@ public final class WrapDecoder<T> implements ValueDecoder<WrapDecoder.Wrapper<T>
 			}
 		});
 		return new Wrapper<>(object);
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return wrapper(inputType);
-	}
-
-	public static <T> CoderType<Wrapper<T>> wrapper(CoderType<T> type) {
-		return new WrapperOfType<>(type);
-	}
-
-	@EqualsAndHashCode(callSuper = false)
-	private static final class WrapperOfType<T> extends CoderType<Wrapper<T>> {
-		private final CoderType<T> wrappedType;
-
-		private WrapperOfType(CoderType<T> wrappedType) {
-			this.wrappedType = wrappedType;
-		}
-
-		@Override
-		public String toString() {
-			return "wrapper of " + wrappedType;
-		}
 	}
 
 	public static <T> Wrapper<T> wrap(T instance) {

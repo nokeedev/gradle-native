@@ -15,7 +15,6 @@
  */
 package dev.nokee.xcode.project.coders;
 
-import dev.nokee.xcode.objects.buildphase.PBXBuildPhase;
 import dev.nokee.xcode.project.CodeablePBXCopyFilesBuildPhase;
 import dev.nokee.xcode.project.CodeablePBXFrameworksBuildPhase;
 import dev.nokee.xcode.project.CodeablePBXHeadersBuildPhase;
@@ -99,10 +98,5 @@ class BuildPhaseDecoderTests {
 	@Test
 	void throwsExceptionOnUnexpectedIsaValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(new IsaKeyedObject("PBXUnknown"), context));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(CoderType.anyOf(PBXBuildPhase.class)));
 	}
 }

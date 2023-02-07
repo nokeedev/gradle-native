@@ -17,23 +17,12 @@ package dev.nokee.xcode.project;
 
 import dev.nokee.xcode.project.coders.BycopyObject;
 import dev.nokee.xcode.project.coders.ByrefObject;
-import dev.nokee.xcode.project.coders.CoderType;
 
 public interface ValueEncoder<OUT, IN> {
 	OUT encode(IN value, Context context);
 
-	CoderType<?> getEncodeType();
-
 	interface Context {
 		BycopyObject encodeBycopyObject(Encodeable object);
 		ByrefObject encodeByrefObject(Encodeable object);
-	}
-
-	default void accept(Visitor visitor) {
-		visitor.visit(this);
-	}
-
-	interface Visitor {
-		<OUT, IN> void visit(ValueEncoder<OUT, IN> encoder);
 	}
 }

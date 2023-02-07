@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 class StringEncoderTests {
 	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
-	UnwrapEncoder<String> delegate = new UnwrapEncoder<>(CoderType.string());
+	UnwrapEncoder<String> delegate = new UnwrapEncoder<>();
 	StringEncoder<UnwrapEncoder.Wrapper<String>> subject = new StringEncoder<>(delegate);
 
 	@Nested
@@ -43,10 +43,5 @@ class StringEncoderTests {
 		void callsDelegateWithInputValue() {
 			assertThat(delegate, calledOnceWith(wrap("value"), context));
 		}
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(UnwrapEncoder.wrapper(CoderType.string())));
 	}
 }

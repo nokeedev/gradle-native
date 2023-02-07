@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
-import static dev.nokee.xcode.project.coders.CoderType.yesNoBoolean;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -64,10 +63,5 @@ class NoYesBooleanDecoderTests {
 		void callsDelegateOnUnexpectedValues() {
 			assertThat(delegate, calledOnceWith("bar", context));
 		}
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(new NoYesBooleanDecoder().getDecodeType(), equalTo(yesNoBoolean()));
 	}
 }

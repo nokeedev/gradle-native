@@ -34,18 +34,7 @@ public final class DictionaryDecoder<OUT> implements ValueDecoder<OUT, Object> {
 		return Select.newIfElseCases().forCase(it -> it instanceof Map, it -> delegate.decode((Map<String, ?>) it, context)).select(object);
 	}
 
-	@Override
-	public CoderType<?> getDecodeType() {
-		return delegate.getDecodeType();
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueDecoder.super.accept(visitor);
-		delegate.accept(visitor);
-	}
-
 	public static DictionaryDecoder<Map<String, ?>> newDictionaryDecoder() {
-		return new DictionaryDecoder<>(new NoOpDecoder<>(CoderType.dict()));
+		return new DictionaryDecoder<>(new NoOpDecoder<>());
 	}
 }

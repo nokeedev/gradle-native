@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DictionaryDecoderTests {
 	ValueDecoder.Context context = newAlwaysThrowingMock(ValueDecoder.Context.class);
-	WrapDecoder<Map<String, ?>> delegate = new WrapDecoder<>(CoderType.dict());
+	WrapDecoder<Map<String, ?>> delegate = new WrapDecoder<>();
 	DictionaryDecoder<WrapDecoder.Wrapper<Map<String, ?>>> subject = new DictionaryDecoder<>(delegate);
 
 	@Nested
@@ -51,10 +51,5 @@ class DictionaryDecoderTests {
 	@Test
 	void throwsExceptionOnUnexpectedValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(42, context));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(WrapDecoder.wrapper(CoderType.dict())));
 	}
 }

@@ -39,9 +39,4 @@ class SourceTreeEncoderTests {
 	void canEncodeAdhocSourceTree() {
 		assertThat(subject.encode(PBXSourceTree.of("MY_CUSTOM_PATH"), context), equalTo("MY_CUSTOM_PATH"));
 	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(CoderType.of(PBXSourceTree.class)));
-	}
 }

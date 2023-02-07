@@ -25,9 +25,4 @@ public final class ProxyTypeEncoder implements ValueEncoder<Integer, PBXContaine
 	public Integer encode(PBXContainerItemProxy.ProxyType value, Context context) {
 		return value.getIntValue();
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.of(PBXContainerItemProxy.ProxyType.class);
-	}
 }

@@ -26,19 +26,15 @@ import static dev.nokee.internal.testing.invocations.InvocationMatchers.called;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.with;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
-import static dev.nokee.xcode.project.coders.CoderType.list;
-import static dev.nokee.xcode.project.coders.CoderType.of;
 import static dev.nokee.xcode.project.coders.WrapDecoder.wrap;
-import static dev.nokee.xcode.project.coders.WrapDecoder.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ListDecoderTests {
 	ValueDecoder.Context context = newAlwaysThrowingMock(ValueDecoder.Context.class);
-	WrapDecoder<Object> delegate = new WrapDecoder<>(of(Object.class));
+	WrapDecoder<Object> delegate = new WrapDecoder<>();
 	ListDecoder<WrapDecoder.Wrapper<Object>> subject = new ListDecoder<>(delegate);
 
 	@Nested
@@ -74,10 +70,5 @@ class ListDecoderTests {
 	@Test
 	void throwsExceptionOnInvalidValue() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(new Object(), context));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(list(wrapper(of(Object.class)))));
 	}
 }

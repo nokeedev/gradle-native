@@ -33,15 +33,4 @@ public final class ListEncoder<OUT, IN> implements ValueEncoder<List<OUT>, List<
 	public List<OUT> encode(List<IN> value, Context context) {
 		return value.stream().map(it -> delegate.encode(it, context)).collect(Collectors.toList());
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.list(delegate.getEncodeType());
-	}
-
-	@Override
-	public void accept(Visitor visitor) {
-		ValueEncoder.super.accept(visitor);
-		delegate.accept(visitor);
-	}
 }

@@ -17,7 +17,6 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.buildphase.PBXCopyFilesBuildPhase;
 import dev.nokee.xcode.project.ValueEncoder;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -33,10 +32,5 @@ class SubFolderEncoderTests {
 	@EnumSource(PBXCopyFilesBuildPhase.SubFolder.class)
 	void canEncodeKnownSubFolder(PBXCopyFilesBuildPhase.SubFolder knownSubFolder) {
 		assertThat(subject.encode(knownSubFolder, context),  equalTo(knownSubFolder.getValue()));
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(CoderType.of(PBXCopyFilesBuildPhase.SubFolder.class)));
 	}
 }

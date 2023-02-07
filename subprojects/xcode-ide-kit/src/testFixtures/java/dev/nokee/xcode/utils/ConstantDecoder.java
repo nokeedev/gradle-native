@@ -20,7 +20,6 @@ import dev.nokee.internal.testing.invocations.HasInvocationResults;
 import dev.nokee.internal.testing.invocations.InvocationResult;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
 import dev.nokee.xcode.project.ValueDecoder;
-import dev.nokee.xcode.project.coders.CoderType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -48,10 +47,5 @@ public final class ConstantDecoder<OUT, IN> implements ValueDecoder<OUT, IN>, Ha
 			}
 		});
 		return returnValue;
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(returnValue.getClass());
 	}
 }

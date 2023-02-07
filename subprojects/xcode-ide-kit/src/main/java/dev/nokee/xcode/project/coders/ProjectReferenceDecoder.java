@@ -28,9 +28,4 @@ public final class ProjectReferenceDecoder<T extends PBXProject.ProjectReference
 	public T decode(KeyedObject object, Context context) {
 		return Select.newInstance(KeyedObject::isa).forCase(null, CodeableProjectReference::newInstance).select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(PBXProject.ProjectReference.class);
-	}
 }

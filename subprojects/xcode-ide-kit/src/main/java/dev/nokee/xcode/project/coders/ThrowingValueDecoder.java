@@ -20,19 +20,11 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public final class ThrowingValueDecoder<OUT, IN> implements ValueDecoder<OUT, IN> {
-	private final CoderType<OUT> coderType;
-
-	public ThrowingValueDecoder(CoderType<OUT> coderType) {
-		this.coderType = coderType;
+	public ThrowingValueDecoder() {
 	}
 
 	@Override
 	public OUT decode(IN object, Context context) {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return coderType;
 	}
 }

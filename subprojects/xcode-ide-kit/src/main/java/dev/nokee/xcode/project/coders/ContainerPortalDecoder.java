@@ -32,9 +32,4 @@ public final class ContainerPortalDecoder<T extends PBXContainerItemProxy.Contai
 			.forCase("PBXProject", CodeablePBXProject::newInstance)
 			.select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.anyOf(PBXContainerItemProxy.ContainerPortal.class);
-	}
 }

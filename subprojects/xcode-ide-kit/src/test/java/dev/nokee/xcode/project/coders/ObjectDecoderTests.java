@@ -25,14 +25,12 @@ import java.util.Map;
 import static com.google.common.collect.ImmutableMap.of;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.calledOnceWith;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
-import static dev.nokee.xcode.project.coders.CoderType.byCopy;
-import static dev.nokee.xcode.project.coders.WrapDecoder.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ObjectDecoderTests {
-	WrapDecoder<KeyedObject> delegate = new WrapDecoder<>(CoderType.of(KeyedObject.class));
+	WrapDecoder<KeyedObject> delegate = new WrapDecoder<>();
 	ObjectDecoder<WrapDecoder.Wrapper<KeyedObject>> subject = new ObjectDecoder<>(delegate);
 
 	@Nested
@@ -65,10 +63,5 @@ class ObjectDecoderTests {
 	@Test
 	void throwsExceptionIfObjectTypeIsNotMap() {
 		assertThrows(IllegalArgumentException.class, () -> subject.decode(new Object(), newAlwaysThrowingMock(ValueDecoder.Context.class)));
-	}
-
-	@Test
-	void hasDecodeType() {
-		assertThat(subject.getDecodeType(), equalTo(byCopy(wrapper(CoderType.of(KeyedObject.class)))));
 	}
 }

@@ -26,18 +26,14 @@ import static dev.nokee.internal.testing.invocations.InvocationMatchers.called;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.neverCalled;
 import static dev.nokee.internal.testing.invocations.InvocationMatchers.with;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newAlwaysThrowingMock;
-import static dev.nokee.xcode.project.coders.CoderType.list;
-import static dev.nokee.xcode.project.coders.CoderType.string;
 import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrap;
-import static dev.nokee.xcode.project.coders.UnwrapEncoder.wrapper;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.equalTo;
 
 class ListEncoderTests {
 	ValueEncoder.Context context = newAlwaysThrowingMock(ValueEncoder.Context.class);
-	UnwrapEncoder<String> delegate = new UnwrapEncoder<>(string());
+	UnwrapEncoder<String> delegate = new UnwrapEncoder<>();
 	ListEncoder<String, UnwrapEncoder.Wrapper<String>> subject = new ListEncoder<>(delegate);
 
 	@Nested
@@ -68,10 +64,5 @@ class ListEncoderTests {
 		void callsDelegateWithEachListElementsInOrder() {
 			assertThat(delegate, called(with(wrap("first"), context), with(wrap("second"), context), with(wrap("third"), context)));
 		}
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(list(wrapper(string()))));
 	}
 }

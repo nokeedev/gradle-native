@@ -17,7 +17,6 @@ package dev.nokee.xcode.project.coders;
 
 import dev.nokee.xcode.objects.PBXContainerItemProxy;
 import dev.nokee.xcode.project.ValueEncoder;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -33,10 +32,5 @@ class ProxyTypeEncoderTests {
 	@EnumSource(PBXContainerItemProxy.ProxyType.class)
 	void canEncodeKnownSubFolder(PBXContainerItemProxy.ProxyType knownProxyType) {
 		assertThat(subject.encode(knownProxyType, context), equalTo(knownProxyType.getIntValue()));
-	}
-
-	@Test
-	void hasEncodeType() {
-		assertThat(subject.getEncodeType(), equalTo(CoderType.of(PBXContainerItemProxy.ProxyType.class)));
 	}
 }

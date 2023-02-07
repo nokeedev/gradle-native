@@ -36,9 +36,4 @@ public final class FileReferenceDecoder<T extends PBXBuildFile.FileReference & C
 			.forCase("XCVersionGroup", CodeableXCVersionGroup::newInstance)
 			.select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.anyOf(PBXBuildFile.FileReference.class);
-	}
 }

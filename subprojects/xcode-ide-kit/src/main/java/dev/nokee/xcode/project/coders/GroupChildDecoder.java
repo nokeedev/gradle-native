@@ -38,9 +38,4 @@ public final class GroupChildDecoder<T extends GroupChild & Codeable> implements
 			.forCase("XCVersionGroup", CodeableXCVersionGroup::newInstance)
 			.select(object);
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.anyOf(GroupChild.class);
-	}
 }

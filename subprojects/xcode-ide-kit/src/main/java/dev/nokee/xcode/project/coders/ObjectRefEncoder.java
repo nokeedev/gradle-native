@@ -31,9 +31,4 @@ public final class ObjectRefEncoder<IN> implements ValueEncoder<ByrefObject, IN>
 	public ByrefObject encode(IN value, Context context) {
 		return context.encodeByrefObject(delegate.encode(value, context));
 	}
-
-	@Override
-	public CoderType<?> getEncodeType() {
-		return CoderType.byRef(delegate.getEncodeType());
-	}
 }

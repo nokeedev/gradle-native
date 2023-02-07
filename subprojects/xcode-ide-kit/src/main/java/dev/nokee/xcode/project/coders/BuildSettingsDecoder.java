@@ -29,9 +29,4 @@ public final class BuildSettingsDecoder implements ValueDecoder<BuildSettings, M
 		object.forEach(builder::put);
 		return builder.build();
 	}
-
-	@Override
-	public CoderType<?> getDecodeType() {
-		return CoderType.of(BuildSettings.class);
-	}
 }

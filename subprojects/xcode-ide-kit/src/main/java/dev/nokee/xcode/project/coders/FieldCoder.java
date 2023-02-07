@@ -40,12 +40,4 @@ public final class FieldCoder<T> implements KeyedCoder<T> {
 	public void encode(T value, KeyedEncoder encoder) {
 		encoder.encode(key, value, decoder);
 	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public ValueCoder<T> getDelegate() {
-		return decoder;
-	}
 }
