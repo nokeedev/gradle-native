@@ -18,7 +18,7 @@ package dev.nokee.xcode.project;
 import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.testing.reflect.MethodCallable;
 import dev.nokee.internal.testing.testdoubles.TestDouble;
-import dev.nokee.xcode.project.forwarding.ForwardingWrapper;
+import dev.nokee.internal.testing.forwarding.ForwardingWrapper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -28,8 +28,8 @@ import java.util.function.Consumer;
 import static dev.nokee.internal.testing.reflect.MethodInformation.method;
 import static dev.nokee.internal.testing.testdoubles.MockitoBuilder.newMock;
 import static dev.nokee.xcode.project.KeyedObjectCodeableAdapter.asKeyedObject;
-import static dev.nokee.xcode.project.forwarding.ForwardingWrapper.forwarding;
-import static dev.nokee.xcode.project.forwarding.ForwardingWrapperMatchers.forwardsToDelegate;
+import static dev.nokee.internal.testing.forwarding.ForwardingWrapper.forwarding;
+import static dev.nokee.internal.testing.forwarding.ForwardingWrapperMatchers.forwardsToDelegate;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class CodeableAdapterTester<T extends Codeable> {
