@@ -15,6 +15,7 @@
  */
 package dev.nokee.internal.testing.testdoubles;
 
+import com.google.common.reflect.TypeToken;
 import dev.nokee.internal.testing.MockitoMethodWrapper;
 import dev.nokee.internal.testing.invocations.InvocationResult;
 import dev.nokee.internal.testing.reflect.ArgumentInformation;
@@ -134,6 +135,11 @@ public final class MockitoBuilder<T> implements TestDouble<T> {
 	@SuppressWarnings("unchecked")
 	public static <T, R extends T> TestDouble<R> newMock(Class<T> classToMock) {
 		return new MockitoBuilder<>((Class<R>) classToMock);
+	}
+
+	@SuppressWarnings({"unchecked", "UnstableApiUsage"})
+	public static <T> TestDouble<T> newMock(TypeToken<T> classToMock) {
+		return new MockitoBuilder<>((Class<T>) classToMock.getRawType());
 	}
 
 	public static <T> T newAlwaysThrowingMock(Class<T> classToMock) {
