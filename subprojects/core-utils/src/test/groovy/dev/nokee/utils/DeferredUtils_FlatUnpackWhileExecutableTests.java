@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.ImmutableList.of;
+import static dev.nokee.utils.DeferredUtils.deferred;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
@@ -45,7 +46,7 @@ class DeferredUtils_FlatUnpackWhileExecutableTests {
 	@Test
 	void createsFlatUnpackWhileExecutableUsingDefaultFlattenerAndUnpackerWithUntilCondition() {
 		assertThat(DeferredUtils.flatUnpackUntil(MyType.class),
-				equalTo(new DeferredUtils.FlatUnpackWhileExecutable<>(DeferredUtils.DEFAULT_FLATTENER, DeferredUtils.DEFAULT_UNPACKER, not(instanceOf(MyType.class)))));
+				equalTo(new DeferredUtils.FlatUnpackWhileExecutable<>(DeferredUtils.DEFAULT_FLATTENER, deferred(), not(instanceOf(MyType.class)))));
 	}
 
 	@Test
@@ -53,7 +54,7 @@ class DeferredUtils_FlatUnpackWhileExecutableTests {
 		@SuppressWarnings("unchecked")
 		Predicate<Object> predicate = (Predicate<Object>) mock(Predicate.class);
 		assertThat(DeferredUtils.flatUnpackWhile(predicate),
-				equalTo(new DeferredUtils.FlatUnpackWhileExecutable<>(DeferredUtils.DEFAULT_FLATTENER, DeferredUtils.DEFAULT_UNPACKER, predicate)));
+				equalTo(new DeferredUtils.FlatUnpackWhileExecutable<>(DeferredUtils.DEFAULT_FLATTENER, deferred(), predicate)));
 	}
 
 	@Nested

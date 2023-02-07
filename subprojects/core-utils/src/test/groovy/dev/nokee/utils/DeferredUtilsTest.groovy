@@ -37,29 +37,29 @@ class DeferredUtilsTest extends DeferredUtils_BaseSpec {
 	def "can detect deferrable types"() {
 		expect:
 		// are
-		isDeferred(propertyOf(Object, throwIfResolved()))
-		isDeferred(providerOf(throwIfResolved()))
-		isDeferred(closureOf(throwIfResolved()))
-		isDeferred(supplierOf(throwIfResolved()))
-		isDeferred(kotlinFunctionOf(throwIfResolved()))
-		isDeferred(callableOf(throwIfResolved()))
+		deferred().canUnpack(propertyOf(Object, throwIfResolved()))
+		deferred().canUnpack(providerOf(throwIfResolved()))
+		deferred().canUnpack(closureOf(throwIfResolved()))
+		deferred().canUnpack(supplierOf(throwIfResolved()))
+		deferred().canUnpack(kotlinFunctionOf(throwIfResolved()))
+		deferred().canUnpack(callableOf(throwIfResolved()))
 
 		// aren't
-		!isDeferred('foo')
+		!deferred().canUnpack('foo')
 	}
 
 	def "can detect nestable deferrable types"() {
 		expect:
 		// are
-		isNestableDeferred(closureOf(throwIfResolved()))
-		isNestableDeferred(supplierOf(throwIfResolved()))
-		isNestableDeferred(kotlinFunctionOf(throwIfResolved()))
-		isNestableDeferred(callableOf(throwIfResolved()))
+		nestableDeferred().canUnpack(closureOf(throwIfResolved()))
+		nestableDeferred().canUnpack(supplierOf(throwIfResolved()))
+		nestableDeferred().canUnpack(kotlinFunctionOf(throwIfResolved()))
+		nestableDeferred().canUnpack(callableOf(throwIfResolved()))
 
 		// aren't
-		!isNestableDeferred(propertyOf(Object, throwIfResolved()))
-		!isNestableDeferred(providerOf(throwIfResolved()))
-		!isDeferred('foo')
+		!nestableDeferred().canUnpack(propertyOf(Object, throwIfResolved()))
+		!nestableDeferred().canUnpack(providerOf(throwIfResolved()))
+		!deferred().canUnpack('foo')
 	}
 
 	@Unroll

@@ -27,8 +27,8 @@ import java.util.function.Predicate;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Predicates.not;
-import static dev.nokee.utils.DeferredUtils.DEFAULT_UNPACKER;
 import static dev.nokee.utils.DeferredUtils.IDENTITY_UNPACKER;
+import static dev.nokee.utils.DeferredUtils.deferred;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
@@ -53,7 +53,7 @@ class DeferredUtils_FlatBuilderTests {
 
 		@Test
 		void createsFlatUnpackBuilderUsingDefaultUnpacker() {
-			assertThat(subject.unpack(), equalTo(new DeferredUtils.FlatUnpackBuilder<>(flattener, DEFAULT_UNPACKER)));
+			assertThat(subject.unpack(), equalTo(new DeferredUtils.FlatUnpackBuilder<>(flattener, deferred())));
 		}
 
 		@Test
